@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/View.h>
 #include <vsg/io/Options.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
@@ -92,13 +94,8 @@ void CompileManager::add(Viewer& viewer, const ResourceRequirements& resourceReq
     }
 }
 
-CompileResult CompileManager::compile(ref_ptr<Object> object)
+CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
 {
-    auto compileTraversal = compileTraversals->take_when_available();
-
-    // if no CompileTraversals are avilable abort compile
-    if (!compileTraversal) return {};
-
     CollectResourceRequirements collectRequirements;
     object->accept(collectRequirements);
 
@@ -108,14 +105,38 @@ CompileResult CompileManager::compile(ref_ptr<Object> object)
     CompileResult result;
     result.maxSlot = requirements.maxSlot;
     result.containsPagedLOD = requirements.containsPagedLOD;
+    result.views = requirements.views;
+
+    auto compileTraversal = compileTraversals->take_when_available();
+
+    // if no CompileTraversals are avilable abort compile
+    if (!compileTraversal) return result;
+
+    std::list<ref_ptr<Context>> contexts;
+    if (contextSelection)
+    {
+        for(auto& context : compileTraversal->contexts)
+        {
+            if (contextSelection(*context)) contexts.push_back(context);
+        }
+    }
+    else
+    {
+        contexts = compileTraversal->contexts;
+    }
+
+    compileTraversal->contexts.swap(contexts);
+
 
     for(auto& context : compileTraversal->contexts)
     {
         ref_ptr<View> view = context->view;
         if (view && !binStack.empty())
         {
-            auto binDetails = binStack.top();
-            result.views[view] = binDetails;
+            if (auto itr = result.views.find(view.get()); itr == result.views.end())
+            {
+                result.views[view] = binStack.top();
+            }
         }
 
         context->reserve(requirements);
@@ -132,9 +153,8 @@ CompileResult CompileManager::compile(ref_ptr<Object> object)
 
     compileTraversals->add(compileTraversal);
 
+    compileTraversal->contexts.swap(contexts);
+
     result.result = VK_SUCCESS;
-
-    // return {};
-
     return result;
 }

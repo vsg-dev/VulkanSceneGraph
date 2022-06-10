@@ -47,8 +47,10 @@ namespace vsg
         /// add a compile Context for all the Views assigned to a Viewer
         void add(Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
+        using ContextSelectionFunction = std::function<bool(vsg::Context&)>;
+
         /// compile object
-        CompileResult compile(ref_ptr<Object> object);
+        CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
 
     protected:
 
