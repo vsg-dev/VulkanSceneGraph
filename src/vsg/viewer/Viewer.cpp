@@ -636,3 +636,8 @@ void Viewer::present()
         presentation->present();
     }
 }
+
+void vsg::updateViewer(Viewer& viewer, const CompileResult& compileResult)
+{
+    updateTasks(viewer.recordAndSubmitTasks, viewer.compileManager, compileResult);
+}

@@ -65,4 +65,9 @@ namespace vsg
     };
     VSG_type_name(vsg::RecordAndSubmitTask);
 
+    using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
+
+    /// update RecordAndSubmitTask data structures to match the needs of newly compile subgraph
+    extern VSG_DECLSPEC void updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult);
+
 } // namespace vsg

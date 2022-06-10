@@ -101,7 +101,6 @@ namespace vsg
         virtual VkResult waitForFences(size_t relativeFrameIndex, uint64_t timeout);
 
         // Manage the work to do each frame using RecordAndSubmitTasks. those that need to present results to be wired up to respective Presentation object
-        using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
         RecordAndSubmitTasks recordAndSubmitTasks;
 
         // Manage the presentation of rendering using Presentation objects
@@ -144,5 +143,8 @@ namespace vsg
         ref_ptr<Barrier> _submissionCompleted;
     };
     VSG_type_name(vsg::Viewer);
+
+    /// update Viewer data structures to match the needs of newly compile subgraph
+    extern VSG_DECLSPEC void updateViewer(Viewer& viewer, const CompileResult& compileResult);
 
 } // namespace vsg
