@@ -312,12 +312,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         if (task->databasePager)
         {
-            // crude hack for taking first device as the one for the DatabasePager to compile resources for.
-            for (auto& commandGraph : task->commandGraphs)
-            {
-                task->databasePager->compileManager = compileManager;
-                break;
-            }
+            task->databasePager->compileManager = compileManager;
         }
     }
 
