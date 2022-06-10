@@ -127,12 +127,14 @@ namespace vsg
         ref_ptr<ActivityStatus> _status;
     };
 
+    /// Operation base class
     struct Operation : public Object
     {
         virtual void run() = 0;
     };
     VSG_type_name(vsg::Operation)
 
+    /// OperationQueue is a thread safe queue of vsg::Operation
     using OperationQueue = ThreadSafeQueue<ref_ptr<Operation>>;
     VSG_type_name(vsg::OperationQueue)
 

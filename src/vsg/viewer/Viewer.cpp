@@ -208,7 +208,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         return;
     }
 
-    if (!compileManager)  compileManager = CompileManager::create(*this, hints);
+    if (!compileManager) compileManager = CompileManager::create(*this, hints);
 
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
@@ -336,7 +336,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             task->databasePager->start();
         }
     }
-
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)

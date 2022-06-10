@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/CompileManager.h>
-#include <vsg/viewer/Viewer.h>
-#include <vsg/viewer/View.h>
 #include <vsg/io/Options.h>
+#include <vsg/viewer/CompileManager.h>
+#include <vsg/viewer/View.h>
+#include <vsg/viewer/Viewer.h>
 
 #include <iostream>
 
@@ -39,12 +39,14 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
 {
-    CompileTraversals::container_type  cts;
+    CompileTraversals::container_type cts;
     while (cts.size() < count)
     {
         auto ct = compileTraversals->take_when_available();
-        if (ct) cts.push_back(ct);
-        else break;
+        if (ct)
+            cts.push_back(ct);
+        else
+            break;
     }
 
     return cts;
@@ -53,7 +55,7 @@ CompileManager::CompileTraversals::container_type CompileManager::takeCompileTra
 void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
-    for(auto& ct : cts)
+    for (auto& ct : cts)
     {
         ct->add(device, resourceRequirements);
 
@@ -64,7 +66,7 @@ void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& res
 void CompileManager::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
-    for(auto& ct : cts)
+    for (auto& ct : cts)
     {
         ct->add(window, viewport, resourceRequirements);
 
@@ -75,7 +77,7 @@ void CompileManager::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport
 void CompileManager::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
-    for(auto& ct : cts)
+    for (auto& ct : cts)
     {
         ct->add(window, view, resourceRequirements);
 
@@ -86,7 +88,7 @@ void CompileManager::add(ref_ptr<Window> window, ref_ptr<View> view, const Resou
 void CompileManager::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
-    for(auto& ct : cts)
+    for (auto& ct : cts)
     {
         ct->add(viewer, resourceRequirements);
 
@@ -115,7 +117,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     std::list<ref_ptr<Context>> contexts;
     if (contextSelection)
     {
-        for(auto& context : compileTraversal->contexts)
+        for (auto& context : compileTraversal->contexts)
         {
             if (contextSelection(*context)) contexts.push_back(context);
         }
@@ -127,8 +129,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     compileTraversal->contexts.swap(contexts);
 
-
-    for(auto& context : compileTraversal->contexts)
+    for (auto& context : compileTraversal->contexts)
     {
         ref_ptr<View> view = context->view;
         if (view && !binStack.empty())

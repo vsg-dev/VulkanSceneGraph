@@ -17,8 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CompileManager.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
-#include <vsg/viewer/Window.h>
 #include <vsg/viewer/UpdateOperations.h>
+#include <vsg/viewer/Window.h>
 
 #include <map>
 
@@ -82,7 +82,6 @@ namespace vsg
 
         /// compile manager provides thread safe support for compiling subgraph
         ref_ptr<CompileManager> compileManager;
-
 
         /// convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.

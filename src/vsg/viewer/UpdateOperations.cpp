@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/viewer/UpdateOperations.h>
 #include <vsg/io/Options.h>
+#include <vsg/viewer/UpdateOperations.h>
 
 using namespace vsg;
 
@@ -26,8 +26,10 @@ UpdateOperations::~UpdateOperations()
 void UpdateOperations::add(ref_ptr<Operation> op, RunBehavior runBehavior)
 {
     std::scoped_lock<std::mutex> lock(_updateOperationMutex);
-    if (runBehavior == ONE_TIME) _updateOperationsOneTime.push_back(op);
-    else _updateOperationsAllFrames.push_back(op);
+    if (runBehavior == ONE_TIME)
+        _updateOperationsOneTime.push_back(op);
+    else
+        _updateOperationsAllFrames.push_back(op);
 }
 
 /// clear all update operationrs
@@ -60,5 +62,5 @@ void UpdateOperations::run()
         updateOperations.insert(updateOperations.end(), _updateOperationsAllFrames.begin(), _updateOperationsAllFrames.end());
     }
 
-    for(auto op : updateOperations) op->run();
+    for (auto op : updateOperations) op->run();
 }

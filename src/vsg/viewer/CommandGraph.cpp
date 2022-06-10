@@ -79,9 +79,9 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         recordTraversal = new RecordTraversal(nullptr, maxSlot);
     }
 
-    if ((maxSlot+1) != recordTraversal->getState()->stateStacks.size())
+    if ((maxSlot + 1) != recordTraversal->getState()->stateStacks.size())
     {
-        recordTraversal->getState()->stateStacks.resize(maxSlot+1);
+        recordTraversal->getState()->stateStacks.resize(maxSlot + 1);
     }
 
     recordTraversal->setFrameStamp(frameStamp);

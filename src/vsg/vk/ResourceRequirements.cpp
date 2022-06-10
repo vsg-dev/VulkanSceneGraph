@@ -59,7 +59,6 @@ DescriptorPoolSizes ResourceRequirements::computeDescriptorPoolSizes() const
     return poolSizes;
 }
 
-
 void ResourceRequirements::apply(const ResourceHints& resourceHints)
 {
     if (resourceHints.maxSlot > maxSlot) maxSlot = resourceHints.maxSlot;

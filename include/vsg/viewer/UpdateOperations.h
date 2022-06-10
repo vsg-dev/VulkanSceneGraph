@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <vsg/threading/OperationQueue.h>
 
 #include <list>
@@ -25,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC UpdateOperations : public Inherit<Object, UpdateOperations>
     {
     public:
-
         UpdateOperations();
 
         /// specification of whether update operation should be invoked once or on all frames

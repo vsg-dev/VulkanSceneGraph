@@ -12,9 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
-#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/threading/OperationQueue.h>
+#include <vsg/traversals/CompileTraversal.h>
 
 namespace vsg
 {
@@ -32,7 +31,6 @@ namespace vsg
     class VSG_DECLSPEC CompileManager : public Inherit<Object, CompileManager>
     {
     public:
-
         CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints);
 
         /// add a compile Context for device
@@ -53,13 +51,11 @@ namespace vsg
         CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
 
     protected:
-
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
         size_t numCompileTraversals = 0;
         ref_ptr<CompileTraversals> compileTraversals;
 
         CompileTraversals::container_type takeCompileTraversals(size_t count);
-
     };
     VSG_type_name(vsg::CompileManager);
 

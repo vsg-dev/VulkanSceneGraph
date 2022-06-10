@@ -37,7 +37,6 @@ namespace vsg
         uint32_t computeNumDescriptorSets() const;
         DescriptorPoolSizes computeDescriptorPoolSizes() const;
 
-
         struct BinDetails
         {
             std::set<int32_t> indices;

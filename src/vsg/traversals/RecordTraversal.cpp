@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Commands.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/stream.h>
 #include <vsg/maths/plane.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/CullGroup.h>
@@ -34,7 +35,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
-#include <vsg/io/stream.h>
 
 using namespace vsg;
 
