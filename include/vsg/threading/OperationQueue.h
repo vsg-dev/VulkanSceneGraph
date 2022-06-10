@@ -127,6 +127,9 @@ namespace vsg
         ref_ptr<ActivityStatus> _status;
     };
 
+    // clang-foramt screws up handling of VSG_tyoe_name macro so have to switch it off.
+    // clang-format off
+
     /// Operation base class
     struct Operation : public Object
     {
