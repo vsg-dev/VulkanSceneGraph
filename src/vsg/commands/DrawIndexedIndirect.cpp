@@ -37,12 +37,24 @@ void DrawIndexedIndirect::read(Input& input)
 {
     Command::read(input);
 
-    input.read("data", bufferInfo->data);
-    if (!bufferInfo->data)
+    ref_ptr<Data> data;
+    input.read("data", data);
+    if (data)
     {
-        input.read("buffer", bufferInfo->buffer);
-        input.readValue<uint32_t>("offset", bufferInfo->offset);
-        input.readValue<uint32_t>("range", bufferInfo->range);
+        bufferInfo = BufferInfo::create(data);
+    }
+    else
+    {
+        ref_ptr<Buffer> buffer;
+        VkDeviceSize offset = 0;
+        VkDeviceSize range = 0;
+        input.readObject("buffer", bufferInfo->buffer);
+        input.readValue<uint32_t>("offset", offset);
+        input.readValue<uint32_t>("range", range);
+        if (buffer)
+        {
+            bufferInfo = BufferInfo::create(buffer, offset, range);
+        }
     }
 
     input.read("drawCount", drawCount);
@@ -53,12 +65,22 @@ void DrawIndexedIndirect::write(Output& output) const
 {
     Command::write(output);
 
-    output.write("data", bufferInfo->data);
-    if (!bufferInfo->data)
+    if (bufferInfo)
     {
-        output.write("buffer", bufferInfo->buffer);
-        output.writeValue<uint32_t>("offset", bufferInfo->offset);
-        output.writeValue<uint32_t>("range", bufferInfo->range);
+        output.writeObject("data", bufferInfo->data);
+        if (!bufferInfo->data)
+        {
+            output.writeObject("buffer", bufferInfo->buffer);
+            output.writeValue<uint32_t>("offset", bufferInfo->offset);
+            output.writeValue<uint32_t>("range", bufferInfo->range);
+        }
+    }
+    else
+    {
+        output.writeObject("data", nullptr);
+        output.writeObject("buffer", nullptr);
+        output.writeValue<uint32_t>("offset", 0);
+        output.writeValue<uint32_t>("range", 0);
     }
 
     output.write("drawCount", drawCount);
