@@ -63,7 +63,7 @@ void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& res
     }
 }
 
-void CompileManager::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
@@ -74,12 +74,23 @@ void CompileManager::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport
     }
 }
 
-void CompileManager::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
         ct->add(window, view, resourceRequirements);
+
+        compileTraversals->add(ct);
+    }
+}
+
+void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
+    auto cts = takeCompileTraversals(numCompileTraversals);
+    for (auto& ct : cts)
+    {
+        ct->add(framebuffer, view, resourceRequirements);
 
         compileTraversals->add(ct);
     }

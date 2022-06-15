@@ -34,7 +34,7 @@ namespace vsg
         CompileTraversal() {}
         CompileTraversal(const CompileTraversal& ct);
         explicit CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
-        explicit CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
+        explicit CompileTraversal(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
         /// list of Context that Vulkan objects should be compiled for.
@@ -44,13 +44,13 @@ namespace vsg
         void add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for Window and associated viewport.
-        void add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
+        void add(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for Framebuffer and associated View
-        void add(ref_ptr<Framebuffer> device, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
+        void add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for Wdinow and associated View
-        void add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
+        void add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for all the Views assigned to a Viewer
         void add(Viewer& viewer, const ResourceRequirements& resourceRequirements = {});

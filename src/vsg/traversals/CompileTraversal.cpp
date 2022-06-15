@@ -49,7 +49,7 @@ CompileTraversal::CompileTraversal(ref_ptr<Device> device, const ResourceRequire
     add(device, resourceRequirements);
 }
 
-CompileTraversal::CompileTraversal(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+CompileTraversal::CompileTraversal(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
     add(window, viewport, resourceRequirements);
 }
@@ -72,25 +72,26 @@ void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& r
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
-    auto device = window->getOrCreateDevice();
+    auto device = window.getOrCreateDevice();
+    auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
-    context->renderPass = window->getOrCreateRenderPass();
+    context->renderPass = renderPass;
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily);
 
     if (viewport) context->defaultPipelineStates.emplace_back(viewport);
-    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(MultisampleState::create(window->framebufferSamples()));
+    if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(MultisampleState::create(renderPass->maxSamples));
 
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    auto device = window->getOrCreateDevice();
-    auto renderPass = window->getOrCreateRenderPass();
+    auto device = window.getOrCreateDevice();
+    auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
     context->renderPass = renderPass;
@@ -109,10 +110,10 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const Res
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(ref_ptr<Framebuffer> framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    auto device = framebuffer->getDevice();
-    auto renderPass = framebuffer->getRenderPass();
+    auto device = framebuffer.getDevice();
+    auto renderPass = framebuffer.getRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
     context->renderPass = renderPass;
@@ -162,8 +163,8 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
             if (!objectStack.empty())
             {
                 auto obj = objectStack.top();
-                if (auto window = obj.cast<Window>()) ct->add(window, ref_ptr<View>(&view), resourceRequirements);
-                else if (auto framebuffer = obj.cast<Framebuffer>()) ct->add(framebuffer, ref_ptr<View>(&view), resourceRequirements);
+                if (auto window = obj.cast<Window>()) ct->add(*window, ref_ptr<View>(&view), resourceRequirements);
+                else if (auto framebuffer = obj.cast<Framebuffer>()) ct->add(*framebuffer, ref_ptr<View>(&view), resourceRequirements);
             }
         }
     } addViews(this, resourceRequirements);
