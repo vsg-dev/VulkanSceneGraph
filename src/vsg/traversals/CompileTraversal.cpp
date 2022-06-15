@@ -89,16 +89,37 @@ void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<ViewportState> viewpo
 
 void CompileTraversal::add(ref_ptr<Window> window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    std::cout << "CompileTraversal::add(window =" << window << ", view = " << view << ")" << std::endl;
-
     auto device = window->getOrCreateDevice();
+    auto renderPass = window->getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
-    context->renderPass = window->getOrCreateRenderPass();
+    context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily);
 
-    if (window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(window->framebufferSamples()));
+    if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
+
+    auto viewportState = view->camera->viewportState;
+    if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
+
+    context->view = view.get();
+    context->viewID = view->viewID;
+    context->viewDependentState = view->viewDependentState;
+
+    contexts.push_back(context);
+}
+
+void CompileTraversal::add(ref_ptr<Framebuffer> framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
+    auto device = framebuffer->getDevice();
+    auto renderPass = framebuffer->getRenderPass();
+    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    auto context = Context::create(device, resourceRequirements);
+    context->renderPass = renderPass;
+    context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+    context->graphicsQueue = device->getQueue(queueFamily);
+
+    if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
@@ -119,7 +140,7 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
         AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) :
             ct(in_ct), resourceRequirements(in_rr){};
 
-        std::stack<ref_ptr<Window>> windowStack;
+        std::stack<ref_ptr<Object>> objectStack;
 
         void apply(Object& object) override
         {
@@ -128,18 +149,21 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
 
         void apply(RenderGraph& rg) override
         {
-            windowStack.emplace(rg.window);
+            if (rg.window) objectStack.emplace(rg.window);
+            else objectStack.emplace(rg.framebuffer);
 
             rg.traverse(*this);
 
-            windowStack.pop();
+            objectStack.pop();
         }
 
         void apply(View& view) override
         {
-            if (!windowStack.empty())
+            if (!objectStack.empty())
             {
-                ct->add(windowStack.top(), ref_ptr<View>(&view), resourceRequirements);
+                auto obj = objectStack.top();
+                if (auto window = obj.cast<Window>()) ct->add(window, ref_ptr<View>(&view), resourceRequirements);
+                else if (auto framebuffer = obj.cast<Framebuffer>()) ct->add(framebuffer, ref_ptr<View>(&view), resourceRequirements);
             }
         }
     } addViews(this, resourceRequirements);
