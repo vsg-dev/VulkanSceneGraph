@@ -154,8 +154,34 @@ typedef void (VKAPI_PTR *PFN_vkCmdDrawMeshTasksIndirectCountNV)(VkCommandBuffer 
 //  Definitions not provided prior to 1.1.97
 //
 #if VK_HEADER_VERSION < 97
+
 typedef uint64_t VkDeviceAddress;
+
+#define VK_KHR_shader_float_controls 1
+#define VK_KHR_SHADER_FLOAT_CONTROLS_SPEC_VERSION 1
 #define VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME "VK_KHR_shader_float_controls"
+typedef struct VkPhysicalDeviceFloatControlsPropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           separateDenormSettings;
+    VkBool32           separateRoundingModeSettings;
+    VkBool32           shaderSignedZeroInfNanPreserveFloat16;
+    VkBool32           shaderSignedZeroInfNanPreserveFloat32;
+    VkBool32           shaderSignedZeroInfNanPreserveFloat64;
+    VkBool32           shaderDenormPreserveFloat16;
+    VkBool32           shaderDenormPreserveFloat32;
+    VkBool32           shaderDenormPreserveFloat64;
+    VkBool32           shaderDenormFlushToZeroFloat16;
+    VkBool32           shaderDenormFlushToZeroFloat32;
+    VkBool32           shaderDenormFlushToZeroFloat64;
+    VkBool32           shaderRoundingModeRTEFloat16;
+    VkBool32           shaderRoundingModeRTEFloat32;
+    VkBool32           shaderRoundingModeRTEFloat64;
+    VkBool32           shaderRoundingModeRTZFloat16;
+    VkBool32           shaderRoundingModeRTZFloat32;
+    VkBool32           shaderRoundingModeRTZFloat64;
+} VkPhysicalDeviceFloatControlsPropertiesKHR;
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,8 +189,10 @@ typedef uint64_t VkDeviceAddress;
 //  Definitions not provided prior to 1.1.106
 //
 #if VK_HEADER_VERSION < 106
-#define VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME "VK_EXT_buffer_device_address"
 
+#define VK_EXT_buffer_device_address 1
+#define VK_EXT_BUFFER_DEVICE_ADDRESS_SPEC_VERSION 2
+#define VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME "VK_EXT_buffer_device_address"
 typedef struct VkPhysicalDeviceBufferDeviceAddressFeaturesEXT {
     VkStructureType    sType;
     void*              pNext;
@@ -182,8 +210,16 @@ typedef struct VkPhysicalDeviceBufferDeviceAddressFeaturesEXT {
 
 #define VK_API_VERSION_1_2 VK_MAKE_VERSION(1, 2, 0)
 
+#define VK_KHR_depth_stencil_resolve 1
+#define VK_KHR_DEPTH_STENCIL_RESOLVE_SPEC_VERSION 1
 #define VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME "VK_KHR_depth_stencil_resolve"
+
+#define VK_KHR_buffer_device_address 1
+#define VK_KHR_BUFFER_DEVICE_ADDRESS_SPEC_VERSION 1
 #define VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME "VK_KHR_buffer_device_address"
+
+#define VK_KHR_spirv_1_4 1
+#define VK_KHR_SPIRV_1_4_SPEC_VERSION     1
 #define VK_KHR_SPIRV_1_4_EXTENSION_NAME   "VK_KHR_spirv_1_4"
 
 #define VK_ERROR_UNKNOWN VkResult(-13)
@@ -374,7 +410,12 @@ typedef enum VkRayTracingShaderGroupTypeKHR {
 //
 #if VK_HEADER_VERSION < 162
 
+#define VK_KHR_ray_tracing_pipeline 1
+#define VK_KHR_RAY_TRACING_PIPELINE_SPEC_VERSION 1
 #define VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME "VK_KHR_ray_tracing_pipeline"
+
+#define VK_KHR_acceleration_structure 1
+#define VK_KHR_ACCELERATION_STRUCTURE_SPEC_VERSION 11
 #define VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME "VK_KHR_acceleration_structure"
 #define VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME "VK_KHR_deferred_host_operations"
 
