@@ -10,6 +10,151 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//  Definitions not provided prior to 1.1.106
+//
+#if VK_HEADER_VERSION < 106
+#define VK_EXT_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME "VK_EXT_buffer_device_address"
+
+typedef struct VkPhysicalDeviceBufferDeviceAddressFeaturesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           bufferDeviceAddress;
+    VkBool32           bufferDeviceAddressCaptureReplay;
+    VkBool32           bufferDeviceAddressMultiDevice;
+} VkPhysicalDeviceBufferDeviceAddressFeaturesEXT;
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Definitions not provided prior to 1.2.131
+//
+#if VK_HEADER_VERSION < 131
+
+#define VK_API_VERSION_1_2 VK_MAKE_VERSION(1, 2, 0)
+
+#define VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME "VK_KHR_depth_stencil_resolve"
+#define VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME "VK_KHR_buffer_device_address"
+#define VK_KHR_SPIRV_1_4_EXTENSION_NAME   "VK_KHR_spirv_1_4"
+
+#define VK_ERROR_UNKNOWN VkResult(-13)
+
+#define VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT VkBufferUsageFlagBits(0x00020000)
+
+#define VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO VkStructureType(1000244001)
+#define VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2 VkStructureType(1000109000)
+#define VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2 VkStructureType(1000109001)
+#define VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2 VkStructureType(1000109002)
+#define VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2 VkStructureType(1000109003)
+#define VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2 VkStructureType(1000109004)
+#define VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE VkStructureType(1000199001)
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES VkStructureType(1000199000)
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES VkStructureType(1000257000)
+
+typedef enum VkResolveModeFlagBits {
+    VK_RESOLVE_MODE_NONE = 0,
+    VK_RESOLVE_MODE_SAMPLE_ZERO_BIT = 0x00000001,
+    VK_RESOLVE_MODE_AVERAGE_BIT = 0x00000002,
+    VK_RESOLVE_MODE_MIN_BIT = 0x00000004,
+    VK_RESOLVE_MODE_MAX_BIT = 0x00000008,
+    VK_RESOLVE_MODE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
+} VkResolveModeFlagBits;
+typedef VkFlags VkResolveModeFlags;
+
+typedef struct VkAttachmentDescription2 {
+    VkStructureType                 sType;
+    const void*                     pNext;
+    VkAttachmentDescriptionFlags    flags;
+    VkFormat                        format;
+    VkSampleCountFlagBits           samples;
+    VkAttachmentLoadOp              loadOp;
+    VkAttachmentStoreOp             storeOp;
+    VkAttachmentLoadOp              stencilLoadOp;
+    VkAttachmentStoreOp             stencilStoreOp;
+    VkImageLayout                   initialLayout;
+    VkImageLayout                   finalLayout;
+} VkAttachmentDescription2;
+
+typedef struct VkAttachmentReference2 {
+    VkStructureType       sType;
+    const void*           pNext;
+    uint32_t              attachment;
+    VkImageLayout         layout;
+    VkImageAspectFlags    aspectMask;
+} VkAttachmentReference2;
+
+typedef struct VkSubpassDescription2 {
+    VkStructureType                  sType;
+    const void*                      pNext;
+    VkSubpassDescriptionFlags        flags;
+    VkPipelineBindPoint              pipelineBindPoint;
+    uint32_t                         viewMask;
+    uint32_t                         inputAttachmentCount;
+    const VkAttachmentReference2*    pInputAttachments;
+    uint32_t                         colorAttachmentCount;
+    const VkAttachmentReference2*    pColorAttachments;
+    const VkAttachmentReference2*    pResolveAttachments;
+    const VkAttachmentReference2*    pDepthStencilAttachment;
+    uint32_t                         preserveAttachmentCount;
+    const uint32_t*                  pPreserveAttachments;
+} VkSubpassDescription2;
+
+typedef struct VkSubpassDependency2 {
+    VkStructureType         sType;
+    const void*             pNext;
+    uint32_t                srcSubpass;
+    uint32_t                dstSubpass;
+    VkPipelineStageFlags    srcStageMask;
+    VkPipelineStageFlags    dstStageMask;
+    VkAccessFlags           srcAccessMask;
+    VkAccessFlags           dstAccessMask;
+    VkDependencyFlags       dependencyFlags;
+    int32_t                 viewOffset;
+} VkSubpassDependency2;
+
+typedef struct VkRenderPassCreateInfo2 {
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkRenderPassCreateFlags            flags;
+    uint32_t                           attachmentCount;
+    const VkAttachmentDescription2*    pAttachments;
+    uint32_t                           subpassCount;
+    const VkSubpassDescription2*       pSubpasses;
+    uint32_t                           dependencyCount;
+    const VkSubpassDependency2*        pDependencies;
+    uint32_t                           correlatedViewMaskCount;
+    const uint32_t*                    pCorrelatedViewMasks;
+} VkRenderPassCreateInfo2;
+
+typedef struct VkSubpassDescriptionDepthStencilResolve {
+    VkStructureType                  sType;
+    const void*                      pNext;
+    VkResolveModeFlagBits            depthResolveMode;
+    VkResolveModeFlagBits            stencilResolveMode;
+    const VkAttachmentReference2*    pDepthStencilResolveAttachment;
+} VkSubpassDescriptionDepthStencilResolve;
+
+#if 1
+typedef struct VkPhysicalDeviceDepthStencilResolveProperties {
+    VkStructureType       sType;
+    void*                 pNext;
+    VkResolveModeFlags    supportedDepthResolveModes;
+    VkResolveModeFlags    supportedStencilResolveModes;
+    VkBool32              independentResolveNone;
+    VkBool32              independentResolve;
+} VkPhysicalDeviceDepthStencilResolveProperties;
+#endif
+
+typedef struct VkBufferDeviceAddressInfo {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkBuffer           buffer;
+} VkBufferDeviceAddressInfo;
+
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //  Definitions not provided prior to 1.2.135
 //
 #if VK_HEADER_VERSION < 135
@@ -330,3 +475,9 @@ typedef VkResult (VKAPI_PTR *PFN_vkGetRayTracingShaderGroupHandlesKHR)(VkDevice 
 typedef void (VKAPI_PTR *PFN_vkCmdTraceRaysKHR)(VkCommandBuffer commandBuffer, const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable, uint32_t width, uint32_t height, uint32_t depth);
 
 #endif
+
+//
+// Provide *_Compatibility function definitions to workaround different function definitions across different vulkan_core.h versions.
+//
+typedef VkResult (VKAPI_PTR *PFN_vkCreateRenderPass2KHR_Compatibility)(VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass);
+typedef VkDeviceAddress (VKAPI_PTR *PFN_vkGetBufferDeviceAddressKHR_Compatibility)(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);

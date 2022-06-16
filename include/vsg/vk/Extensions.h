@@ -34,7 +34,7 @@ namespace vsg
         explicit Extensions(Device* device);
 
         // VK_KHR_create_renderpass2
-        PFN_vkCreateRenderPass2KHR vkCreateRenderPass2 = nullptr;
+        PFN_vkCreateRenderPass2KHR_Compatibility vkCreateRenderPass2 = nullptr;
 
         // VK_KHR_ray_tracing
         PFN_vkCreateAccelerationStructureKHR vkCreateAccelerationStructureKHR = nullptr;
@@ -46,7 +46,7 @@ namespace vsg
         PFN_vkGetRayTracingShaderGroupHandlesKHR vkGetRayTracingShaderGroupHandlesKHR = nullptr;
         PFN_vkCmdTraceRaysKHR vkCmdTraceRaysKHR = nullptr;
 
-        PFN_vkGetBufferDeviceAddressKHR vkGetBufferDeviceAddressKHR = nullptr;
+        PFN_vkGetBufferDeviceAddressKHR_Compatibility vkGetBufferDeviceAddressKHR = nullptr;
 
         // VK_NV_mesh_shader
         PFN_vkCmdDrawMeshTasksNV vkCmdDrawMeshTasksNV = nullptr;
