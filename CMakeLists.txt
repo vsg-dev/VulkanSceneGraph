@@ -7,7 +7,7 @@ project(vsg
 )
 set(VSG_SOVERSION 9)
 SET(VSG_RELEASE_CANDIDATE 0)
-set(Vulkan_MIN_VERSION 1.1.77.0)
+set(Vulkan_MIN_VERSION 1.1.70.0)
 
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
