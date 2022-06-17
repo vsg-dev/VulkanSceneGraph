@@ -275,9 +275,9 @@ if (ANDROID)
     set(SOURCES ${SOURCES} platform/android/Android_Window.cpp)
 
     if(CMAKE_SYSTEM_VERSION GREATER 24)
-        set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib} PRIVATE ${AndroidNativeWindowLib})
+        set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib} PRIVATE ${AndroidLogLib} PRIVATE ${AndroidNativeWindowLib})
     else()
-        set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib})
+        set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib} PRIVATE ${AndroidLogLib})
     endif()
 
 elseif (WIN32)

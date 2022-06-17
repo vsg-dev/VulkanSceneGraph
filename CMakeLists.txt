@@ -42,6 +42,7 @@ endif()
 
 if (ANDROID)
     find_library(AndroidLib android)
+    find_library(AndroidLogLib log)
     if(CMAKE_SYSTEM_VERSION GREATER 24)
         find_library(AndroidNativeWindowLib nativewindow)
     endif()
