@@ -276,6 +276,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::Options);
     VSG_REGISTER_create(vsg::CompositeReaderWriter);
     VSG_REGISTER_create(vsg::VSG);
+    VSG_REGISTER_create(vsg::spirv);
     VSG_REGISTER_create(vsg::ArrayState);
     VSG_REGISTER_create(vsg::NullArrayState);
 
@@ -285,6 +286,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::PositionAndDisplacementMapArrayState);
     VSG_REGISTER_create(vsg::DisplacementMapArrayState);
     VSG_REGISTER_create(vsg::PositionArrayState);
+    VSG_REGISTER_create(vsg::SharedObjects);
 
     // application
     VSG_REGISTER_create(vsg::EllipsoidModel);

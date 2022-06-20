@@ -152,7 +152,7 @@ endif()
 
 mark_as_advanced(glslang_INCLUDE_DIR glslang_LIBRARY)
 
-if(glslang_LIBRARY AND glslang_INCLUDE_DIR)
+if(glslang_LIBRARY AND glslang_INCLUDE_DIR AND SPIRV-Tools_LIBRARY AND SPIRV-Tools-opt_LIBRARY)
     set(glslang_FOUND "YES")
     message(STATUS "Found glslang: ${glslang_LIBRARY}")
 else()

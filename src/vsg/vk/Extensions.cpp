@@ -65,8 +65,8 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
 Extensions::Extensions(Device* device)
 {
     // VK_KHR_create_renderpass2
-    vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2"));
-    if (!vkCreateRenderPass2) vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2KHR"));
+    vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR_Compatibility>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2"));
+    if (!vkCreateRenderPass2) vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR_Compatibility>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2KHR"));
 
     // VK_KHR_ray_tracing
     vkCreateAccelerationStructureKHR = reinterpret_cast<PFN_vkCreateAccelerationStructureKHR>(vkGetDeviceProcAddr(*device, "vkCreateAccelerationStructureKHR"));
@@ -77,7 +77,8 @@ Extensions::Extensions(Device* device)
     vkCreateRayTracingPipelinesKHR = reinterpret_cast<PFN_vkCreateRayTracingPipelinesKHR>(vkGetDeviceProcAddr(*device, "vkCreateRayTracingPipelinesKHR"));
     vkGetRayTracingShaderGroupHandlesKHR = reinterpret_cast<PFN_vkGetRayTracingShaderGroupHandlesKHR>(vkGetDeviceProcAddr(*device, "vkGetRayTracingShaderGroupHandlesKHR"));
     vkCmdTraceRaysKHR = reinterpret_cast<PFN_vkCmdTraceRaysKHR>(vkGetDeviceProcAddr(*device, "vkCmdTraceRaysKHR"));
-    vkGetBufferDeviceAddressKHR = reinterpret_cast<PFN_vkGetBufferDeviceAddressKHR>(vkGetDeviceProcAddr(*device, "vkGetBufferDeviceAddressKHR"));
+
+    vkGetBufferDeviceAddressKHR = reinterpret_cast<PFN_vkGetBufferDeviceAddressKHR_Compatibility>(vkGetDeviceProcAddr(*device, "vkGetBufferDeviceAddressKHR"));
 
     // VK_NV_mesh_shader
     vkCmdDrawMeshTasksNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksNV"));

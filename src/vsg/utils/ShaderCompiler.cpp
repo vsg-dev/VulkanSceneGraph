@@ -23,17 +23,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #    include "ResourceLimits.cpp"
 #    include "ResourceLimits.h"
+
+#    if GLSLANG_EShLangRayGenNV
+// map NV variants to modern versions
+#        define GLSLANG_EShLangRayGen 1
+#        define EShLangRayGen EShLangRayGenNV
+#        define EShLangIntersect EShLangIntersectNV
+#        define EShLangAnyHit EShLangAnyHitNV
+#        define EShLangClosestHit EShLangClosestHitNV
+#        define EShLangMiss EShLangMissNV
+#        define EShLangCallable EShLangCallableNV
+#    endif
 #endif
 
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-
-#if VK_VERSION_1_1 == 1
-#    define HAS_KHR_RAYTRACNG (VK_VERSION_1_1)
-#    define HAS_NV_MESHSHADER (VK_VERSION_1_1)
-#endif
 
 #ifndef VK_API_VERSION_MAJOR
 #    define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
@@ -117,18 +123,14 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): return "Geometry Shader";
         case (VK_SHADER_STAGE_FRAGMENT_BIT): return "Fragment Shader";
         case (VK_SHADER_STAGE_COMPUTE_BIT): return "Compute Shader";
-#    ifdef HAS_KHR_RAYTRACNG
         case (VK_SHADER_STAGE_RAYGEN_BIT_KHR): return "RayGen Shader";
         case (VK_SHADER_STAGE_ANY_HIT_BIT_KHR): return "Any Hit Shader";
         case (VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR): return "Closest Hit Shader";
         case (VK_SHADER_STAGE_MISS_BIT_KHR): return "Miss Shader";
         case (VK_SHADER_STAGE_INTERSECTION_BIT_KHR): return "Intersection Shader";
         case (VK_SHADER_STAGE_CALLABLE_BIT_KHR): return "Callable Shader";
-#    endif
-#    ifdef HAS_NV_MESHSHADER
         case (VK_SHADER_STAGE_TASK_BIT_NV): return "Task Shader";
         case (VK_SHADER_STAGE_MESH_BIT_NV): return "Mesh Shader";
-#    endif
         default: return "Unknown Shader Type";
         }
         return "";
@@ -146,6 +148,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     for (auto& vsg_shader : shaders)
     {
         EShLanguage envStage = EShLangCount;
+
         glslang::EShTargetLanguageVersion minTargetLanguageVersion = glslang::EShTargetSpv_1_0;
 
         switch (vsg_shader->stage)
@@ -156,7 +159,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): envStage = EShLangGeometry; break;
         case (VK_SHADER_STAGE_FRAGMENT_BIT): envStage = EShLangFragment; break;
         case (VK_SHADER_STAGE_COMPUTE_BIT): envStage = EShLangCompute; break;
-#    ifdef HAS_KHR_RAYTRACNG
+#    ifdef GLSLANG_EShLangRayGen
         case (VK_SHADER_STAGE_RAYGEN_BIT_KHR):
             envStage = EShLangRayGen;
             minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
@@ -181,9 +184,10 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             envStage = EShLangCallable;
             minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
             break;
+#    endif
         case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; break;
         case (VK_SHADER_STAGE_MESH_BIT_NV): envStage = EShLangMeshNV; break;
-#    endif
+
         default: break;
         }
 
