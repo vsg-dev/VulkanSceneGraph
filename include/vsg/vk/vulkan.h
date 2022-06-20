@@ -8,6 +8,14 @@
 
 </editor-fold> */
 
+//
+// Include Vulkan headers that are available in the system.
+//
+#include <vulkan/vulkan.h>
+//
+// Then add definitions not provided by older headers below.
+//
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

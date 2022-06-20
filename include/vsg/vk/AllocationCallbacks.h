@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Inherit.h>
 
-#include <vulkan/vulkan.h>
+#include <vsg/vk/vulkan.h>
 
 namespace vsg
 {

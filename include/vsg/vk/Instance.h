@@ -15,8 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/vk/AllocationCallbacks.h>
 
-#include <vulkan/vulkan.h>
-
 #include <vector>
 
 namespace vsg
