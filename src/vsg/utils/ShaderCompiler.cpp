@@ -24,16 +24,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include "ResourceLimits.cpp"
 #    include "ResourceLimits.h"
 
-#if GLSLANG_EShLangRayGenNV
-    // map NV variants to modern versions
-    #define GLSLANG_EShLangRayGen 1
-    #define EShLangRayGen EShLangRayGenNV
-    #define EShLangIntersect EShLangIntersectNV
-    #define EShLangAnyHit EShLangAnyHitNV
-    #define EShLangClosestHit EShLangClosestHitNV
-    #define EShLangMiss EShLangMissNV
-    #define EShLangCallable EShLangCallableNV
-#endif
+#    if GLSLANG_EShLangRayGenNV
+// map NV variants to modern versions
+#        define GLSLANG_EShLangRayGen 1
+#        define EShLangRayGen EShLangRayGenNV
+#        define EShLangIntersect EShLangIntersectNV
+#        define EShLangAnyHit EShLangAnyHitNV
+#        define EShLangClosestHit EShLangClosestHitNV
+#        define EShLangMiss EShLangMissNV
+#        define EShLangCallable EShLangCallableNV
+#    endif
 #endif
 
 #include <algorithm>
@@ -159,7 +159,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_GEOMETRY_BIT): envStage = EShLangGeometry; break;
         case (VK_SHADER_STAGE_FRAGMENT_BIT): envStage = EShLangFragment; break;
         case (VK_SHADER_STAGE_COMPUTE_BIT): envStage = EShLangCompute; break;
-#ifdef GLSLANG_EShLangRayGen
+#    ifdef GLSLANG_EShLangRayGen
         case (VK_SHADER_STAGE_RAYGEN_BIT_KHR):
             envStage = EShLangRayGen;
             minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
@@ -184,7 +184,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             envStage = EShLangCallable;
             minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
             break;
-#endif
+#    endif
         case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; break;
         case (VK_SHADER_STAGE_MESH_BIT_NV): envStage = EShLangMeshNV; break;
 

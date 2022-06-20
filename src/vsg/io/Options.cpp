@@ -86,7 +86,7 @@ void Options::read(Input& input)
     {
         shaderSets.clear();
         uint32_t numShaderSets = input.readValue<uint32_t>("numShaderSets");
-        for(; numShaderSets>0; --numShaderSets)
+        for (; numShaderSets > 0; --numShaderSets)
         {
             std::string name;
             ref_ptr<ShaderSet> shaderSet;
@@ -125,7 +125,7 @@ void Options::write(Output& output) const
     if (output.version_greater_equal(0, 4, 2))
     {
         output.writeValue<uint32_t>("numShaderSets", shaderSets.size());
-        for(auto& [name, shaderSet] : shaderSets)
+        for (auto& [name, shaderSet] : shaderSets)
         {
             output.write("name", name);
             output.writeObject("shaderSet", shaderSet);

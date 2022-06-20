@@ -150,8 +150,10 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
 
         void apply(RenderGraph& rg) override
         {
-            if (rg.window) objectStack.emplace(rg.window);
-            else objectStack.emplace(rg.framebuffer);
+            if (rg.window)
+                objectStack.emplace(rg.window);
+            else
+                objectStack.emplace(rg.framebuffer);
 
             rg.traverse(*this);
 
@@ -163,8 +165,10 @@ void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceR
             if (!objectStack.empty())
             {
                 auto obj = objectStack.top();
-                if (auto window = obj.cast<Window>()) ct->add(*window, ref_ptr<View>(&view), resourceRequirements);
-                else if (auto framebuffer = obj.cast<Framebuffer>()) ct->add(*framebuffer, ref_ptr<View>(&view), resourceRequirements);
+                if (auto window = obj.cast<Window>())
+                    ct->add(*window, ref_ptr<View>(&view), resourceRequirements);
+                else if (auto framebuffer = obj.cast<Framebuffer>())
+                    ct->add(*framebuffer, ref_ptr<View>(&view), resourceRequirements);
             }
         }
     } addViews(this, resourceRequirements);
