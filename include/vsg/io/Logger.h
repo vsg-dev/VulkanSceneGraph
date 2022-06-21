@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Inherit.h>
 #include <vsg/io/stream.h>
 
-#include <sstream>
 #include <mutex>
+#include <sstream>
 
 namespace vsg
 {
@@ -120,7 +120,6 @@ namespace vsg
         }
 
     protected:
-
         std::mutex _mutex;
         std::ostringstream _stream;
 
@@ -212,4 +211,4 @@ namespace vsg
         void error_implementation(const std::string&) override;
     };
 
-}
+} // namespace vsg

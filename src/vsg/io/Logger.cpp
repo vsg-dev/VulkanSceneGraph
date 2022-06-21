@@ -15,27 +15,29 @@ ref_ptr<Logger>& vsg::logger()
 //
 // StdLogger
 //
-StdLogger::StdLogger() {}
+StdLogger::StdLogger()
+{
+}
 
 void StdLogger::debug_implementation(const std::string& message)
 {
-    std::cout<<message<<'\n';
+    std::cout << message << '\n';
 }
 
 void StdLogger::info_implementation(const std::string& message)
 {
-    std::cout<<message;
+    std::cout << message;
     std::cout.put('\n');
 }
 
 void StdLogger::warn_implementation(const std::string& message)
 {
-    std::cerr<<message<<std::endl;
+    std::cerr << message << std::endl;
 }
 
 void StdLogger::error_implementation(const std::string& message)
 {
-    std::cerr<<message<<std::endl;
+    std::cerr << message << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +49,15 @@ NullLogger::NullLogger()
     level = OFF;
 }
 
-void NullLogger::debug_implementation(const std::string&) {}
-void NullLogger::info_implementation(const std::string&) {}
-void NullLogger::warn_implementation(const std::string&) {}
-void NullLogger::error_implementation(const std::string&) {}
+void NullLogger::debug_implementation(const std::string&)
+{
+}
+void NullLogger::info_implementation(const std::string&)
+{
+}
+void NullLogger::warn_implementation(const std::string&)
+{
+}
+void NullLogger::error_implementation(const std::string&)
+{
+}
