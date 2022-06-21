@@ -108,6 +108,7 @@ set(SOURCES
     io/BinaryInput.cpp
     io/BinaryOutput.cpp
     io/Input.cpp
+    io/Logger.cpp
     io/Output.cpp
     io/Options.cpp
     io/ObjectFactory.cpp
