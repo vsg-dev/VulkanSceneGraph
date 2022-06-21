@@ -22,10 +22,10 @@ namespace vsg
 {
 
     /// pure virtual Logger base class that provides extensible message logging facilities
-    class Logger : public Object
+    class VSG_DECLSPEC Logger : public Object
     {
     public:
-        Logger() {}
+        Logger();
 
         enum Level
         {
@@ -120,6 +120,8 @@ namespace vsg
         }
 
     protected:
+        virtual ~Logger();
+
         std::mutex _mutex;
         std::ostringstream _stream;
 
