@@ -27,7 +27,7 @@ namespace vsg
     public:
         Logger();
 
-        Logger(const Logger&) = delete;
+        Logger(const Logger& rhs);
 
         enum Level
         {
@@ -204,7 +204,7 @@ namespace vsg
     };
 
     /// Logger that ignores all messages
-    class VSG_DECLSPEC NullLogger : public vsg::Inherit<vsg::Logger, NullLogger>
+    class VSG_DECLSPEC NullLogger : public Inherit<Logger, NullLogger>
     {
     public:
         NullLogger();

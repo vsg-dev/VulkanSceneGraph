@@ -20,6 +20,12 @@ Logger::Logger()
 {
 }
 
+Logger::Logger(const Logger& rhs) :
+    Logger()
+{
+    level = rhs.level;
+}
+
 Logger::~Logger()
 {
 }
