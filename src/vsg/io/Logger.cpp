@@ -1,5 +1,6 @@
 
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 
 #include <iostream>
 

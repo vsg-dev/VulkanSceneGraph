@@ -27,6 +27,8 @@ namespace vsg
     public:
         Logger();
 
+        Logger(const Logger&) = delete;
+
         enum Level
         {
             ALL = 0,
