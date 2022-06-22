@@ -121,6 +121,9 @@ namespace vsg
             info_implementation(_stream.str());
         }
 
+        /// Logger singleton, defaults to using vsg::StdLogger
+        static ref_ptr<Logger>& instance();
+
     protected:
         virtual ~Logger();
 
@@ -133,61 +136,59 @@ namespace vsg
         virtual void error_implementation(const std::string& message) = 0;
     };
 
-    /// logger() singleton, defaults to using vsg::StdLogger
-    extern VSG_DECLSPEC ref_ptr<Logger>& logger();
 
-    /// write debug message using ostringstream to convert parameters to a string that is passed to the current vsg::logger() logger.
+    /// write debug message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     /// i.e. debug("array.size() = ", array.size());
     template<typename... Args>
     void debug(Args&&... args)
     {
-        logger()->debug(args...);
+        Logger::instance()->debug(args...);
     }
 
-    /// write simple debug std::string message to the current vsg::logger() logger.
+    /// write simple debug std::string message to the current vsg::Logger::instance() logger.
     inline void debug(const std::string& str)
     {
-        logger()->debug(str);
+        Logger::instance()->debug(str);
     }
 
-    /// write info message using ostringstream to convert parameters to a string that is passed to the current vsg::logger() logger.
+    /// write info message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     /// i.e. info("vertex = ", vsg::vec3(x,y,z));
     template<typename... Args>
     void info(Args&&... args)
     {
-        logger()->info(args...);
+        Logger::instance()->info(args...);
     }
 
-    /// write simple info std::string message to the current vsg::logger() logger.
+    /// write simple info std::string message to the current vsg::Logger::instance() logger.
     inline void info(const std::string& str)
     {
-        logger()->info(str);
+        Logger::instance()->info(str);
     }
 
-    /// write warn message using ostringstream to convert parameters to a string that is passed to the current vsg::logger() logger.
+    /// write warn message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     template<typename... Args>
     void warn(Args&&... args)
     {
-        logger()->warn(args...);
+        Logger::instance()->warn(args...);
     }
 
-    /// write simple warn std::string message to the current vsg::logger() logger.
+    /// write simple warn std::string message to the current vsg::Logger::instance() logger.
     inline void warn(const std::string& str)
     {
-        logger()->warn(str);
+        Logger::instance()->warn(str);
     }
 
-    /// write warn error using ostringstream to convert parameters to a string that is passed to the current vsg::logger() logger.
+    /// write warn error using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     template<typename... Args>
     void error(Args&&... args)
     {
-        logger()->error(args...);
+        Logger::instance()->error(args...);
     }
 
-    /// write simple error std::string message to the current vsg::logger() logger.
+    /// write simple error std::string message to the current vsg::Logger::instance() logger.
     inline void error(const std::string& str)
     {
-        logger()->error(str);
+        Logger::instance()->error(str);
     }
 
     /// default Logger that sends debug and info messages to std:cout, and warn and errpr messages to std::cert

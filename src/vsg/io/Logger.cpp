@@ -6,12 +6,6 @@
 
 using namespace vsg;
 
-ref_ptr<Logger>& vsg::logger()
-{
-    static ref_ptr<Logger> s_logger = StdLogger::create();
-    return s_logger;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Logger
@@ -28,6 +22,12 @@ Logger::Logger(const Logger& rhs) :
 
 Logger::~Logger()
 {
+}
+
+ref_ptr<Logger>& Logger::instance()
+{
+    static ref_ptr<Logger> s_logger = StdLogger::create();
+    return s_logger;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
