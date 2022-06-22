@@ -164,7 +164,7 @@ void PagedLODContainer::resize(uint32_t new_size)
 
 #if PRINT_CONTAINER
     debug("PagedLODContainer::resize(", new_size, ")");
-    Logger::instance()->debug_stream([&](std::ostream& fout) { print(fout); });
+    debug_stream([&](std::ostream& fout) { print(fout); });
 #endif
 }
 
