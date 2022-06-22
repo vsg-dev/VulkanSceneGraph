@@ -12,7 +12,7 @@ using namespace vsg;
 //
 Logger::Logger()
 {
-//    level = LOGGER_ALL;
+    level = LOGGER_ALL;
 }
 
 Logger::Logger(const Logger& rhs) :
