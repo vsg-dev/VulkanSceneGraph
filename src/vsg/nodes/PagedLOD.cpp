@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/PagedLOD.h>
 
-#include <iostream>
+// #include <iostream>
 
 using namespace vsg;
 
@@ -164,7 +164,7 @@ void PagedLODContainer::resize(uint32_t new_size)
 
 #if PRINT_CONTAINER
     debug("PagedLODContainer::resize(", new_size, ")");
-    print(std::cout);
+    Logger::instance()->info_stream([&](std::ostream& fout) { print(fout); });
 #endif
 }
 
@@ -325,7 +325,7 @@ void PagedLODContainer::active(const PagedLOD* plod)
 
 #if PRINT_CONTAINER
     check();
-    print(std::cout);
+    info_stream([&](std::ostream& fout) { print(fout); });
 #endif
 }
 
@@ -337,7 +337,7 @@ void PagedLODContainer::inactive(const PagedLOD* plod)
 
 #if PRINT_CONTAINER
     check();
-    print(std::cout);
+    info_stream([&](std::ostream& fout) { print(fout); });
 #endif
 }
 
@@ -363,7 +363,7 @@ void PagedLODContainer::remove(PagedLOD* plod)
     check();
 #endif
 #if CHECK_CONTAINER
-    print(std::cout);
+    info_stream([&](std::ostream& fout) { print(fout); });
 #endif
 }
 

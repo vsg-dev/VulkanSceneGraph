@@ -71,7 +71,7 @@ namespace vsg
         template<typename... Args>
         void debug(Args&&... args)
         {
-            if (level > INFO) return;
+            if (level > DEBUG) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -97,7 +97,7 @@ namespace vsg
         template<typename... Args>
         void warn(Args&&... args)
         {
-            if (level > INFO) return;
+            if (level > WARN) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -110,7 +110,7 @@ namespace vsg
         template<typename... Args>
         void error(Args&&... args)
         {
-            if (level > INFO) return;
+            if (level > ERROR) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -118,6 +118,64 @@ namespace vsg
             (_stream << ... << args);
 
             info_implementation(_stream.str());
+        }
+
+        using PrintToStreamFunction = std::function<void(std::ostream&)>;
+
+        /// thread safe access to stream for writing debug output.
+        void debug_stream(PrintToStreamFunction print)
+        {
+            if (level > DEBUG) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _stream.str({});
+            _stream.clear();
+
+            print(_stream);
+
+            debug_implementation(_stream.str());
+        }
+
+        /// thread safe access to stream for writing info output.
+        void info_stream(PrintToStreamFunction print)
+        {
+            if (level > INFO) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _stream.str({});
+            _stream.clear();
+
+            print(_stream);
+
+            info_implementation(_stream.str());
+        }
+
+        /// thread safe access to stream for writing warn output.
+        void warn_stream(PrintToStreamFunction print)
+        {
+            if (level > WARN) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _stream.str({});
+            _stream.clear();
+
+            print(_stream);
+
+            warn_implementation(_stream.str());
+        }
+
+        /// thread safe access to stream for writing error output.
+        void error_stream(PrintToStreamFunction print)
+        {
+            if (level > ERROR) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _stream.str({});
+            _stream.clear();
+
+            print(_stream);
+
+            error_implementation(_stream.str());
         }
 
         /// Logger singleton, defaults to using vsg::StdLogger
@@ -150,6 +208,12 @@ namespace vsg
         Logger::instance()->debug(str);
     }
 
+    /// thread safe access to stream for writing debug output.
+    inline void debug_stream(Logger::PrintToStreamFunction print)
+    {
+        Logger::instance()->debug_stream(print);
+    }
+
     /// write info message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     /// i.e. info("vertex = ", vsg::vec3(x,y,z));
     template<typename... Args>
@@ -162,6 +226,12 @@ namespace vsg
     inline void info(const std::string& str)
     {
         Logger::instance()->info(str);
+    }
+
+    /// thread safe access to stream for writing info output.
+    inline void info_stream(Logger::PrintToStreamFunction print)
+    {
+        Logger::instance()->info_stream(print);
     }
 
     /// write warn message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
@@ -177,6 +247,12 @@ namespace vsg
         Logger::instance()->warn(str);
     }
 
+    /// thread safe access to stream for writing warn output.
+    inline void warn_stream(Logger::PrintToStreamFunction print)
+    {
+        Logger::instance()->warn_stream(print);
+    }
+
     /// write warn error using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     template<typename... Args>
     void error(Args&&... args)
@@ -188,6 +264,11 @@ namespace vsg
     inline void error(const std::string& str)
     {
         Logger::instance()->error(str);
+    }
+
+    inline void error_stream(Logger::PrintToStreamFunction print)
+    {
+        Logger::instance()->error_stream(print);
     }
 
     /// default Logger that sends debug and info messages to std:cout, and warn and errpr messages to std::cert
