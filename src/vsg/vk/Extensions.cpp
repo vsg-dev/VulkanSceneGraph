@@ -10,14 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/Extensions.h>
 
 #include <algorithm>
 #include <cstring>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -27,7 +26,7 @@ ExtensionProperties vsg::getExtensionProperties(const char* pLayerName)
     VkResult err = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
     if (err)
     {
-        std::cout << "Error: vsg::getExtensionPropertiesCount(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties." << std::endl;
+        error("Error: vsg::getExtensionPropertiesCount(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties.");
         return ExtensionProperties();
     }
 
@@ -35,7 +34,7 @@ ExtensionProperties vsg::getExtensionProperties(const char* pLayerName)
     err = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
     if (err)
     {
-        std::cout << "Error: vsg::getExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties." << std::endl;
+        error("Error: vsg::getExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties.");
         return ExtensionProperties();
     }
     return extensionProperties;

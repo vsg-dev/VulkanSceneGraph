@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -17,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/Viewer.h>
 
 #include <chrono>
-#include <iostream>
 #include <map>
 #include <set>
 
@@ -166,7 +166,7 @@ bool Viewer::acquireNextFrame()
             }
             else
             {
-                std::cout << "Warning : window->acquireNextImage() VkResult = " << result << std::endl;
+                warn("Warning : window->acquireNextImage() VkResult = ", result);
                 break;
             }
         }
@@ -426,7 +426,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
 void Viewer::setupThreading()
 {
-    std::cout << "Viewer::setupThreading() " << std::endl;
+    debug("Viewer::setupThreading() ");
 
     stopThreading();
 
@@ -564,7 +564,7 @@ void Viewer::stopThreading()
     if (!_threading) return;
     _threading = false;
 
-    std::cout << "Viewer::stopThreading()" << std::endl;
+    debug("Viewer::stopThreading()");
 
     // release the blocks to enable threads to exit cleanly
     // need to manually wake up the threads waiting on this frameBlock so they check the status value and exit cleanly.

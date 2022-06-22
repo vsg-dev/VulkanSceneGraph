@@ -10,18 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/viewer/Presentation.h>
 
 using namespace vsg;
 
-#include <iostream>
-
 VkResult Presentation::present()
 {
-#if 0
-    std::cout << "Presentation::present()" << std::endl;
-#endif
+    debug("Presentation::present()");
 
     std::vector<VkSemaphore> vk_semaphores;
     for (auto& semaphore : waitSemaphores)
