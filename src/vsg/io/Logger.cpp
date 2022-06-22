@@ -65,7 +65,7 @@ void StdLogger::error_implementation(const std::string& message)
 //
 NullLogger::NullLogger()
 {
-    level = OFF;
+    level = LOGGER_OFF;
 }
 
 void NullLogger::debug_implementation(const std::string&)

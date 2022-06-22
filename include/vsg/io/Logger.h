@@ -30,40 +30,40 @@ namespace vsg
 
         enum Level
         {
-            ALL = 0,
-            DEBUG,
-            INFO,
-            WARN,
-            ERROR,
-            OFF
+            LOGGER_ALL = 0,
+            LOGGER_DEBUG,
+            LOGGER_INFO,
+            LOGGER_WARN,
+            LOGGER_ERROR,
+            LOGGER_OFF
         };
 
-        Level level = INFO;
+        Level level = LOGGER_INFO;
 
         void debug(const std::string& message)
         {
-            if (level > DEBUG) return;
+            if (level > LOGGER_DEBUG) return;
             std::scoped_lock<std::mutex> lock(_mutex);
             debug_implementation(message);
         }
 
         void info(const std::string& message)
         {
-            if (level > INFO) return;
+            if (level > LOGGER_INFO) return;
             std::scoped_lock<std::mutex> lock(_mutex);
             info_implementation(message);
         }
 
         void warn(const std::string& message)
         {
-            if (level > WARN) return;
+            if (level > LOGGER_WARN) return;
             std::scoped_lock<std::mutex> lock(_mutex);
             info_implementation(message);
         }
 
         void error(const std::string& message)
         {
-            if (level > ERROR) return;
+            if (level > LOGGER_ERROR) return;
             std::scoped_lock<std::mutex> lock(_mutex);
             info_implementation(message);
         }
@@ -71,7 +71,7 @@ namespace vsg
         template<typename... Args>
         void debug(Args&&... args)
         {
-            if (level > DEBUG) return;
+            if (level > LOGGER_DEBUG) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -84,7 +84,7 @@ namespace vsg
         template<typename... Args>
         void info(Args&&... args)
         {
-            if (level > INFO) return;
+            if (level > LOGGER_INFO) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -97,7 +97,7 @@ namespace vsg
         template<typename... Args>
         void warn(Args&&... args)
         {
-            if (level > WARN) return;
+            if (level > LOGGER_WARN) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -110,7 +110,7 @@ namespace vsg
         template<typename... Args>
         void error(Args&&... args)
         {
-            if (level > ERROR) return;
+            if (level > LOGGER_ERROR) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -125,7 +125,7 @@ namespace vsg
         /// thread safe access to stream for writing debug output.
         void debug_stream(PrintToStreamFunction print)
         {
-            if (level > DEBUG) return;
+            if (level > LOGGER_DEBUG) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -139,7 +139,7 @@ namespace vsg
         /// thread safe access to stream for writing info output.
         void info_stream(PrintToStreamFunction print)
         {
-            if (level > INFO) return;
+            if (level > LOGGER_INFO) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -153,7 +153,7 @@ namespace vsg
         /// thread safe access to stream for writing warn output.
         void warn_stream(PrintToStreamFunction print)
         {
-            if (level > WARN) return;
+            if (level > LOGGER_WARN) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -167,7 +167,7 @@ namespace vsg
         /// thread safe access to stream for writing error output.
         void error_stream(PrintToStreamFunction print)
         {
-            if (level > ERROR) return;
+            if (level > LOGGER_ERROR) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
