@@ -18,7 +18,7 @@ using namespace vsg;
 
 VkResult Presentation::present()
 {
-    debug("Presentation::present()");
+    //debug("Presentation::present()");
 
     std::vector<VkSemaphore> vk_semaphores;
     for (auto& semaphore : waitSemaphores)
@@ -53,19 +53,19 @@ VkResult Presentation::present()
     presentInfo.pImageIndices = indices.data();
 
 #if 0
-    std::cout << "pdo.presentInfo->present(..) \n";
-    std::cout << "    presentInfo.waitSemaphoreCount = " << presentInfo.waitSemaphoreCount << "\n";
+    debug( "pdo.presentInfo->present(..)");
+    debug( "    presentInfo.waitSemaphoreCount = ", presentInfo.waitSemaphoreCount);
     for (uint32_t i = 0; i < presentInfo.waitSemaphoreCount; ++i)
     {
-        std::cout << "        presentInfo.pWaitSemaphores[" << i << "] = " << presentInfo.pWaitSemaphores[i] << "\n";
+        debug( "        presentInfo.pWaitSemaphores[", i, "] = ", presentInfo.pWaitSemaphores[i]);
     }
-    std::cout << "    presentInfo.commandBufferCount = " << presentInfo.swapchainCount << "\n";
+    debug( "    presentInfo.commandBufferCount = ", presentInfo.swapchainCount);
     for (uint32_t i = 0; i < presentInfo.swapchainCount; ++i)
     {
-        std::cout << "        presentInfo.pSwapchains[" << i << "] = " << presentInfo.pSwapchains[i] << "\n";
-        std::cout << "        presentInfo.pImageIndices[" << i << "] = " << presentInfo.pImageIndices[i] << "\n";
+        debug( "        presentInfo.pSwapchains[", i, "] = ", presentInfo.pSwapchains[i]);
+        debug( "        presentInfo.pImageIndices[", i, "] = ", presentInfo.pImageIndices[i]);
     }
-    std::cout << std::endl;
+    debug("\n");
 #endif
 
     return queue->present(presentInfo);

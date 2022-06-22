@@ -43,9 +43,7 @@ void Bin::clear()
 
 void Bin::add(State* state, double value, const Node* node)
 {
-    //    binElements.emplace_back(value, node);
-
-    debug("Bin::add(state= ", state, ", value = ", value, ", ", node, ") ", this, ", binNumber = ", binNumber, ",  binElements.size()=", _binElements.size());
+    //debug("Bin::add(state= ", state, ", value = ", value, ", ", node, ") ", this, ", binNumber = ", binNumber, ",  binElements.size()=", _binElements.size());
 
     Element element;
 
@@ -60,12 +58,12 @@ void Bin::add(State* state, double value, const Node* node)
     {
         if (_matrices.back() == mv)
         {
-            //std::cout<<"reoccurring "<<std::endl;
+            //debug("reoccurring ");
             element.matrixIndex = static_cast<uint32_t>(_matrices.size()) - 1;
         }
         else
         {
-            //std::cout<<"new "<<std::endl;
+            //debug("new ");
             element.matrixIndex = static_cast<uint32_t>(_matrices.size());
             _matrices.push_back(mv);
         }
@@ -94,7 +92,7 @@ void Bin::add(State* state, double value, const Node* node)
 
 void Bin::traverse(RecordTraversal& rt) const
 {
-    //std::cout<<"Bin::traverse(RecordTraversal& visitor) "<<sortOrder<<" "<<_binElements.size()<<std::endl;
+    //debug("Bin::traverse(RecordTraversal& visitor) ", sortOrder, " ", _binElements.size());
 
     auto state = rt.getState();
 
@@ -118,7 +116,6 @@ void Bin::traverse(RecordTraversal& rt) const
 
     for (auto& keyElement : _binElements)
     {
-        //std::cout<<"   "<<keyNode.first<<" "<<keyNode.second->className()<<std::endl;
         auto& element = _elements[keyElement.second];
 
         if (element.matrixIndex != previousMatrixIndex)
@@ -127,11 +124,11 @@ void Bin::traverse(RecordTraversal& rt) const
             state->applyFrustum();
             state->dirty = true;
             previousMatrixIndex = element.matrixIndex;
-            //std::cout<<"updating"<<std::endl;
+            //debug("    updating");
         }
         else
         {
-            //std::cout<<"No need to update"<<std::endl;
+            //debug("    No need to update");
         }
 
         if (element.stateCommandCount > 0)
