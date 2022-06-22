@@ -193,7 +193,6 @@ namespace vsg
         virtual void error_implementation(const std::string& message) = 0;
     };
 
-
     /// write debug message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     /// i.e. debug("array.size() = ", array.size());
     template<typename... Args>

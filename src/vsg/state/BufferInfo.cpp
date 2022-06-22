@@ -235,7 +235,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         }
         else
         {
-            debug("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range , ", ", totalSize, " with compatible size");
+            debug("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range, ", ", totalSize, " with compatible size");
 
             // make sure the VkBuffer is created
             deviceBufferInfo->buffer->compile(context);

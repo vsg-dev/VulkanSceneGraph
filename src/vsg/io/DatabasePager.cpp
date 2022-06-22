@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/DatabasePager.h>
-#include <vsg/io/read.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/read.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
 
@@ -319,7 +319,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
             uint32_t numPagedLODHighRestSubgraphsToRemove = (static_cast<uint32_t>(nodes.size()) + total) - targetMaxNumPagedLODWithHighResSubgraphs;
             uint32_t targetNumInactive = (numPagedLODHighRestSubgraphsToRemove < pagedLODContainer->inactiveList.count) ? (pagedLODContainer->inactiveList.count - numPagedLODHighRestSubgraphsToRemove) : 0;
 
-            debug("Need to remove, inactive count = ", pagedLODContainer->inactiveList.count , ", target = ",  targetNumInactive);
+            debug("Need to remove, inactive count = ", pagedLODContainer->inactiveList.count, ", target = ", targetNumInactive);
 
             for (uint32_t index = pagedLODContainer->inactiveList.head; (index != 0) && (pagedLODContainer->inactiveList.count > targetNumInactive);)
             {

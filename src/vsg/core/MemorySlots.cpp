@@ -80,7 +80,7 @@ bool MemorySlots::check() const
 {
     if (_availableMemory.size() != _offsetSizes.size())
     {
-        warn("Warning: MemorySlots::check() _availableMemory.size() ",_availableMemory.size()," != _offsetSizes.size() ", _offsetSizes.size());
+        warn("Warning: MemorySlots::check() _availableMemory.size() ", _availableMemory.size(), " != _offsetSizes.size() ", _offsetSizes.size());
     }
 
     size_t availableSize = 0;

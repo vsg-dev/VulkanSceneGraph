@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>
@@ -224,7 +224,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         else
         {
             // print error information
-            info("\n----  ",  getFriendlyNameForShader(vsg_shader), "  ---- \n");
+            info("\n----  ", getFriendlyNameForShader(vsg_shader), "  ---- \n");
             info(debugFormatShaderSource(finalShaderSource));
             info("Warning: GLSL source failed to parse.");
             info("glslang info log:\n", shader->getInfoLog());
