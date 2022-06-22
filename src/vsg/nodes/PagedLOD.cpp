@@ -17,8 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define PRINT_CONTAINER 1
-#define CHECK_CONTAINER 1
+#define PRINT_CONTAINER 0
+#define CHECK_CONTAINER 0
 
 //static std::atomic_uint s_numPagedLODS{0};
 
@@ -164,7 +164,7 @@ void PagedLODContainer::resize(uint32_t new_size)
 
 #if PRINT_CONTAINER
     debug("PagedLODContainer::resize(", new_size, ")");
-    Logger::instance()->info_stream([&](std::ostream& fout) { print(fout); });
+    Logger::instance()->debug_stream([&](std::ostream& fout) { print(fout); });
 #endif
 }
 
@@ -200,7 +200,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (plod->index == 0)
     {
 #if PRINT_CONTAINER
-        warn("plod not yet assigned, assigning to ", targetList->name);
+        debug("plod not yet assigned, assigning to ", targetList->name);
 #endif
         // resize if there are no available empty elements.
         if (availableList.head == 0)
@@ -324,8 +324,7 @@ void PagedLODContainer::active(const PagedLOD* plod)
     _move(plod, &activeList);
 
 #if PRINT_CONTAINER
-    check();
-    info_stream([&](std::ostream& fout) { print(fout); });
+    debug_stream([&](std::ostream& fout) { check(); print(fout); });
 #endif
 }
 
@@ -336,8 +335,7 @@ void PagedLODContainer::inactive(const PagedLOD* plod)
     _move(plod, &inactiveList);
 
 #if PRINT_CONTAINER
-    check();
-    info_stream([&](std::ostream& fout) { print(fout); });
+    debug_stream([&](std::ostream& fout) { check(); print(fout); });
 #endif
 }
 

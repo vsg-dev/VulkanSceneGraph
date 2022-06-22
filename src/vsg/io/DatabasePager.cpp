@@ -12,11 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/read.h>
-#include <vsg/io/stream.h>
+#include <vsg/io/Logger.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -35,7 +33,7 @@ DatabaseQueue::~DatabaseQueue()
 
 void DatabaseQueue::add(ref_ptr<PagedLOD> plod)
 {
-    // std::cout<<"DatabaseQueue::add("<<plod<<") status = "<<plod->requestStatus.load()<<std::endl;
+    debug("DatabaseQueue::add(", plod,") status = ",plod->requestStatus.load());
 
     std::scoped_lock lock(_mutex);
     _queue.emplace_back(plod);
@@ -61,7 +59,7 @@ void DatabaseQueue::add(Nodes& nodes)
 
 ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 {
-    //std::cout<<"DatabaseQueue::take_when_available() A _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
+    debug("DatabaseQueue::take_when_available() A size = ", _queue.size());
 
     std::chrono::duration waitDuration = std::chrono::milliseconds(100);
     std::unique_lock lock(_mutex);
@@ -69,18 +67,18 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     // wait to the conditional variable signals that an operation has been added
     while (_queue.empty() && _status->active())
     {
-        //std::cout<<"   Waiting on condition variable B _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
+        debug("   Waiting on condition variable B size = ", _queue.size());
         _cv.wait_for(lock, waitDuration);
     }
 
     // if the threads we are associated with should no longer running go for a quick exit and return nothing.
     if (_queue.empty() || _status->cancel())
     {
-        //std::cout<<"DatabaseQueue::take_when_available() C _identifier = "<<_identifier<<" empty"<<std::endl;
+        debug("DatabaseQueue::take_when_available() C empty");
         return {};
     }
 
-    //std::cout<<"DatabaseQueue::take_when_available() D _identifier = "<<_identifier<<" "<<_queue.size()<<std::endl;
+    debug("DatabaseQueue::take_when_available() D ", _queue.size());
 
 #if 1
 
@@ -96,7 +94,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     ref_ptr<PagedLOD> plod = *highest_itr;
     _queue.erase(highest_itr);
 
-    //std::cout<<"Returning "<<plod.get()<<std::dec<<" variable _identifier = "<<_identifier<<" size = "<<_queue.size()<<std::endl;
+    debug("Returning ", plod.get(), std::dec, ", size = ", _queue.size());
 
 #else
     // remove and return the head of the queue
@@ -115,7 +113,7 @@ DatabaseQueue::Nodes DatabaseQueue::take_all_when_available()
     // wait to the conditional variable signals that an operation has been added
     while (_queue.empty() && _status->active())
     {
-        //std::cout<<"take_all_when_available() _identifier = "<<_identifier<<" Waiting on condition variable"<<_queue.size()<<std::endl;
+        debug("take_all_when_available() Waiting on condition variable", _queue.size());
         _cv.wait_for(lock, waitDuration);
     }
 
@@ -125,7 +123,7 @@ DatabaseQueue::Nodes DatabaseQueue::take_all_when_available()
         return {};
     }
 
-    //std::cout<<"DatabaseQueue::take_all_when_available() "<<_queue.size()<<std::endl;
+    debug("DatabaseQueue::take_all_when_available() ", _queue.size());
 
     // remove and return the head of the queue
     Nodes nodes;
@@ -151,7 +149,7 @@ DatabasePager::DatabasePager()
 
 DatabasePager::~DatabasePager()
 {
-    //d::cout<<"DatabasePager::~DatabasePager()"<<std::endl;
+    //d::cout, "DatabasePager::~DatabasePager()");
 
     _status->set(false);
 
@@ -169,7 +167,7 @@ void DatabasePager::start()
     // set up read thread(s)
     //
     auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager) {
-        //std::cout<<"Started DatabaseThread read thread"<<std::endl;
+        debug("Started DatabaseThread read thread");
 
         while (status->active())
         {
@@ -179,7 +177,7 @@ void DatabasePager::start()
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
                 if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
                 {
-                    // std::cout<<"Expire read request"<<std::endl;
+                    // std::cout, "Expire read request");
                     databasePager.requestDiscarded(plod);
                     continue;
                 }
@@ -203,18 +201,18 @@ void DatabasePager::start()
                     }
                     else
                     {
-                        // std::cout<<"Failed to compile "<<plod<<" "<<plod->filename<<std::endl;
+                        // std::cout, "Failed to compile ", plod, " ", plod->filename);
                         databasePager.requestDiscarded(plod);
                     }
                 }
                 else
                 {
-                    // std::cout<<"Failed to read "<<plod<<" "<<plod->filename<<std::endl;
+                    // std::cout, "Failed to read ", plod, " ", plod->filename);
                     databasePager.requestDiscarded(plod);
                 }
             }
         }
-        //std::cout<<"Finished DatabaseThread read thread"<<std::endl;
+        debug("Finished DatabaseThread read thread");
     };
 
     for (int i = 0; i < numReadThreads; ++i)
@@ -237,17 +235,17 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
     {
         if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
         {
-            // std::cout<<"DatabasePager::request("<<plod.get()<<") adding to requeQueue "<<plod->filename<<", "<<plod->priority<<" plod="<<plod.get()<<std::endl;
+            // std::cout, "DatabasePager::request(", plod.get(), ") adding to requeQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
             _requestQueue->add(plod);
         }
         else
         {
-            //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.requestState() = "<<plod->requestStatus.load()<<" is not NoRequest"<<std::endl;
+            debug("Attempted DatabasePager::request(", plod.get(), ") but plod.requestState() = ", plod->requestStatus.load(), " is not NoRequest");
         }
     }
     else
     {
-        //std::cout<<"Attempted DatabasePager::request("<<plod.get()<<") but plod.pending is not null."<<std::endl;
+        debug("Attempted DatabasePager::request(", plod.get(), ") but plod.pending is not null.");
     }
 }
 
@@ -289,13 +287,13 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
             if (!element.plod->highResActive(frameCount))
             {
-                //std::cout<<"   active to inactive "<<index<<std::endl;
+                debug("   active to inactive ", index);
                 ++switchedCount;
                 pagedLODContainer->inactive(element.plod.get());
             }
         }
 
-        //std::cout<<"  newly active nodes:"<<std::endl;
+        debug("  newly active nodes:");
 
         for (auto& plod : culledPagedLODs->newHighresRequired)
         {
@@ -306,7 +304,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
 
         if (after_statusList_count > previous_statusList_count)
         {
-            //std::cout<<"previous_statusList_count = "<<previous_statusList_count<<", after_statusList_count = "<<after_statusList_count<<", culledPagedLODs->newHighresRequired = "<<culledPagedLODs->newHighresRequired.size()<<std::endl;
+            debug("previous_statusList_count = ", previous_statusList_count, ", after_statusList_count = ", after_statusList_count, ", culledPagedLODs->newHighresRequired = ", culledPagedLODs->newHighresRequired.size());
         }
 
         culledPagedLODs->clear();
@@ -314,14 +312,14 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         // set the number of PagedLOD to expire
         uint32_t total = pagedLODContainer->activeList.count + pagedLODContainer->inactiveList.count;
 
-        // std::cout<<"DatabasePager : activeList.count = "<<pagedLODContainer->activeList.count<<", inactiveList.count = "<<pagedLODContainer->inactiveList.count<<", total = "<<total<<std::endl;
+        debug("DatabasePager : activeList.count = ", pagedLODContainer->activeList.count, ", inactiveList.count = ", pagedLODContainer->inactiveList.count, ", total = ", total);
 
         if ((nodes.size() + total) > targetMaxNumPagedLODWithHighResSubgraphs)
         {
             uint32_t numPagedLODHighRestSubgraphsToRemove = (static_cast<uint32_t>(nodes.size()) + total) - targetMaxNumPagedLODWithHighResSubgraphs;
             uint32_t targetNumInactive = (numPagedLODHighRestSubgraphsToRemove < pagedLODContainer->inactiveList.count) ? (pagedLODContainer->inactiveList.count - numPagedLODHighRestSubgraphsToRemove) : 0;
 
-            // std::cout<<"Need to remove, inactive count = "<<pagedLODContainer->inactiveList.count <<", target = "<< targetNumInactive<<std::endl;
+            debug("Need to remove, inactive count = ", pagedLODContainer->inactiveList.count , ", target = ",  targetNumInactive);
 
             for (uint32_t index = pagedLODContainer->inactiveList.head; (index != 0) && (pagedLODContainer->inactiveList.count > targetNumInactive);)
             {
@@ -336,7 +334,7 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
                     plod->requestStatus.exchange(PagedLOD::NoRequest);
                     plod->pending = {};
                     pagedLODContainer->remove(plod);
-                    // std::cout<<"    trimming "<<plod<<" "<<plod->filename<<std::endl;
+                    debug("    trimming ", plod, " ", plod->filename);
                 }
             }
         }
@@ -350,12 +348,12 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
         std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
 #endif
 
-        //std::cout<<"DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = "<<nodes.size()<<", "<<numActiveRequests.load()<<std::endl;
+        debug("DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = ", nodes.size(), ", ", numActiveRequests.load());
         for (auto& plod : nodes)
         {
             if (compare_exchange(plod->requestStatus, PagedLOD::MergeRequest, PagedLOD::Merging))
             {
-                // std::cout<<"   Merged "<<plod->filename<<" after "<<plod->requestCount.load()<<" priority "<<plod->priority.load()<<" "<<frameCount - plod->frameHighResLastUsed.load()<<" plod = "<<plod.get()<<std::endl;
+                debug("   Merged ", plod->filename, " after ", plod->requestCount.load(), " priority ", plod->priority.load(), " ", frameCount - plod->frameHighResLastUsed.load(), " plod = ", plod);
                 {
 #if LOCAL_MUTEX
                     std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
@@ -370,6 +368,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
     }
     else
     {
-        //std::cout<<"DatabasePager::updateSceneGraph() nothing to merge"<<std::endl;
+        debug("DatabasePager::updateSceneGraph() nothing to merge");
     }
 }
