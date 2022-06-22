@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>
@@ -38,7 +39,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <iomanip>
-#include <iostream>
+//#include <iostream>
 #include <sstream>
 
 #ifndef VK_API_VERSION_MAJOR
@@ -47,14 +48,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 using namespace vsg;
-
-#if 1
-#    define DEBUG_OUTPUT std::cout
-#else
-#    define DEBUG_OUTPUT \
-        if (false) std::cout
-#endif
-#define INFO_OUTPUT std::cout
 
 #ifdef HAS_GLSLANG
 static std::atomic_uint s_intialized = 0;
@@ -193,7 +186,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (envStage == EShLangCount)
         {
-            INFO_OUTPUT << " Warning ShaderCompiler::compile() unsupported stage : " << vsg_shader->stage << std::endl;
+            info(" Warning ShaderCompiler::compile() unsupported stage : ", vsg_shader->stage);
             return false;
         }
 
@@ -226,9 +219,9 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         if (parseResult)
         {
 #    if 0
-            INFO_OUTPUT << "Successful compile" << std::endl;
-            INFO_OUTPUT << debugFormatShaderSource(finalShaderSource) << std::endl;
-            INFO_OUTPUT << std::endl;
+            info("Successful compile" << std::endl;
+            info(debugFormatShaderSource(finalShaderSource) << std::endl;
+            info(std::endl;
 #    endif
             program->addShader(shader);
 
@@ -237,46 +230,36 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         else
         {
             // print error information
-            INFO_OUTPUT << std::endl
-                        << "----  " << getFriendlyNameForShader(vsg_shader) << "  ----" << std::endl
-                        << std::endl;
-            INFO_OUTPUT << debugFormatShaderSource(finalShaderSource) << std::endl;
-            INFO_OUTPUT << "Warning: GLSL source failed to parse." << std::endl;
-            INFO_OUTPUT << "glslang info log: " << std::endl
-                        << shader->getInfoLog();
-            DEBUG_OUTPUT << "glslang debug info log: " << std::endl
-                         << shader->getInfoDebugLog();
-            INFO_OUTPUT << "--------" << std::endl;
+            info("\n----  ",  getFriendlyNameForShader(vsg_shader), "  ---- \n");
+            info(debugFormatShaderSource(finalShaderSource));
+            info("Warning: GLSL source failed to parse.");
+            info("glslang info log:\n", shader->getInfoLog());
+            debug("glslang debug info log: \n", shader->getInfoDebugLog());
+            info("--------");
         }
     }
 
     if (stageShaderMap.empty() || stageShaderMap.size() != shaders.size())
     {
-        DEBUG_OUTPUT << "ShaderCompiler::compile(Shaders& shaders) stageShaderMap.size() != shaders.size()" << std::endl;
+        debug("ShaderCompiler::compile(Shaders& shaders) stageShaderMap.size() != shaders.size()");
         return false;
     }
 
     EShMessages messages = EShMsgDefault;
     if (!program->link(messages))
     {
-        INFO_OUTPUT << std::endl
-                    << "----  Program  ----" << std::endl
-                    << std::endl;
+        info("\n----  Program  ----\n");
 
         for (auto& vsg_shader : shaders)
         {
-            INFO_OUTPUT << std::endl
-                        << getFriendlyNameForShader(vsg_shader) << ":" << std::endl
-                        << std::endl;
-            INFO_OUTPUT << debugFormatShaderSource(vsg_shader->module->source) << std::endl;
+            info("\n", getFriendlyNameForShader(vsg_shader), ":\n");
+            info(debugFormatShaderSource(vsg_shader->module->source));
         }
 
-        INFO_OUTPUT << "Warning: Program failed to link." << std::endl;
-        INFO_OUTPUT << "glslang info log: " << std::endl
-                    << program->getInfoLog();
-        DEBUG_OUTPUT << "glslang debug info log: " << std::endl
-                     << program->getInfoDebugLog();
-        INFO_OUTPUT << "--------" << std::endl;
+        info("Warning: Program failed to link.");
+        info("glslang info log: ", program->getInfoLog());
+        debug("glslang debug info log: ", program->getInfoDebugLog());
+        info("--------");
 
         return false;
     }
@@ -299,7 +282,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 #else
 bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, ref_ptr<const Options> /*options*/)
 {
-    std::cout << "ShaderCompile::compile(..) not supported," << std::endl;
+    warn("ShaderCompile::compile(..) not supported,");
     return false;
 }
 #endif

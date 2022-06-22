@@ -16,9 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/color.h>
 #include <vsg/state/Sampler.h>
 
-#include <iostream>
-#include <vsg/io/stream.h>
-
 namespace vsg
 {
     template<class A>

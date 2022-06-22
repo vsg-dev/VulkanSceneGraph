@@ -186,16 +186,12 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint
     }
     else
     {
-        //std::cout<<"Adapting"<<std::endl;
-
         VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
         VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
         VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(targetTraits.size));
 
         auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
-
-        // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
 
         auto deviceID = stagingMemoryBufferPools->device->deviceID;
         ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
@@ -247,15 +243,12 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint
 
 void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
-    // std::cout<<"CopyAndReleaseImage::_copyDirectly()"<<std::endl;
     VkDeviceSize imageTotalSize = data->dataSize();
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
 
     VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
     stagingBufferInfo->data = data;
-
-    // std::cout<<"stagingBufferInfo.buffer "<<stagingBufferInfo.buffer.get()<<", "<<stagingBufferInfo.offset<<", "<<stagingBufferInfo.range<<")"<<std::endl;
 
     auto deviceID = stagingMemoryBufferPools->device->deviceID;
     ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
@@ -325,7 +318,6 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         if (!isBlitPossible)
         {
             generatMipmaps = false;
-            //std::cerr << "Can not create mipmap chain for format: " << layout.format << std::endl;
         }
     }
 
@@ -364,7 +356,6 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 
         for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
         {
-            // std::cout<<"   level = "<<mipLevel<<", mipWidth = "<<mipWidth<<", mipHeight = "<<mipHeight<<std::endl;
             const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
 
             for (uint32_t face = 0; face < arrayLayers; ++face)

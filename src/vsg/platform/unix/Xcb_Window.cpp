@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
@@ -21,7 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <xcb/xproto.h>
 
 #include <chrono>
-#include <iostream>
 #include <thread>
 #include <cstring>
 
@@ -355,7 +355,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     int screenCount = xcb_setup_roots_length (setup);
     if (screenNum >= screenCount)
     {
-        std::cout<<"Warning: request screenNum ("<<screenNum<<") too high, only "<<screenCount<<" screens available. Selecting screen 0 as fallback."<<std::endl;
+        warn("Warning: request screenNum (",screenNum,") too high, only ",screenCount," screens available. Selecting screen 0 as fallback.");
         screenNum = 0;
     }
 
@@ -763,7 +763,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         }
         default:
         {
-            std::cout << "xcb_event type not handled, response_type = " << static_cast<int>(response_type) << std::endl;
+            warn("xcb_event type not handled, response_type = ", static_cast<int>(response_type));
             break;
         }
         }

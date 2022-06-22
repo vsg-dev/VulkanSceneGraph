@@ -10,15 +10,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/stream.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/PagedLOD.h>
 
 #include <iostream>
 
 using namespace vsg;
 
-#define PRINT_CONTAINER 0
-#define CHECK_CONTAINER 0
+#define PRINT_CONTAINER 1
+#define CHECK_CONTAINER 1
 
 //static std::atomic_uint s_numPagedLODS{0};
 
@@ -34,7 +34,7 @@ PagedLOD::PagedLOD()
 PagedLOD::~PagedLOD()
 {
     //    --s_numPagedLODS;
-    //    std::cout<<"s_numPagedLODS = "<<s_numPagedLODS<<std::endl;
+    //    vsg::debug("s_numPagedLODS = ", s_numPagedLODS);
 }
 
 void PagedLOD::read(Input& input)
@@ -163,7 +163,7 @@ void PagedLODContainer::resize(uint32_t new_size)
     availableList.count += (new_size - original_size);
 
 #if PRINT_CONTAINER
-    std::cout << "PagedLODContainer::resize(" << new_size << ")" << std::endl;
+    debug("PagedLODContainer::resize(", new_size, ")");
     print(std::cout);
 #endif
 }
@@ -200,7 +200,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (plod->index == 0)
     {
 #if PRINT_CONTAINER
-        std::cout << "plod not yet assigned, assigning to " << targetList->name << std::endl;
+        warn("plod not yet assigned, assigning to ", targetList->name);
 #endif
         // resize if there are no available empty elements.
         if (availableList.head == 0)
@@ -260,13 +260,13 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (previousList == targetList)
     {
 #if PRINT_CONTAINER
-        std::cout << "PagedLODContainer::move(" << plod << ") index = " << plod->index << ", already in " << targetList->name << std::endl;
+        debug("PagedLODContainer::move(", plod, ") index = ", plod->index, ", already in ", targetList->name);
 #endif
         return;
     }
 
 #if PRINT_CONTAINER
-    std::cout << "PagedLODContainer::move(" << plod << ") index = " << plod->index << ", moving from " << previousList->name << " to " << targetList->name << std::endl;
+    debug("PagedLODContainer::move(", plod, ") index = ", plod->index, ", moving from ", previousList->name, " to ", targetList->name);
 #endif
 
     // remove from inactiveList
@@ -278,7 +278,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (previousList->head == plod->index)
     {
 #if PRINT_CONTAINER
-        std::cout << "   removing head from " << previousList->name << std::endl;
+        debug("   removing head from ", previousList->name);
 #endif
         previousList->head = element.next;
     }
@@ -286,7 +286,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (previousList->tail == plod->index)
     {
 #if PRINT_CONTAINER
-        std::cout << "   removing tail from " << previousList->name << std::endl;
+        debug("   removing tail from ", previousList->name);
 #endif
         previousList->tail = element.previous;
     }
@@ -299,7 +299,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (targetList->head == 0)
     {
 #if PRINT_CONTAINER
-        std::cout << "   setting " << targetList->name << ".head to" << plod->index << std::endl;
+        debug("   setting ", targetList->name, ".head to", plod->index);
 #endif
         targetList->head = plod->index;
     }
@@ -307,7 +307,7 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
     if (targetList->tail > 0)
     {
 #if PRINT_CONTAINER
-        std::cout << "   moving " << targetList->name << ".tail to " << plod->index << std::endl;
+        debug("   moving ", targetList->name, ".tail to ", plod->index);
 #endif
         elements[targetList->tail].next = plod->index;
     }
@@ -319,43 +319,35 @@ void PagedLODContainer::_move(const PagedLOD* plod, List* targetList)
 
 void PagedLODContainer::active(const PagedLOD* plod)
 {
-#if PRINT_CONTAINER
-    std::cout << "Moving to activeList" << plod << ", " << plod->index << std::endl;
-#endif
+    debug("Moving to activeList", plod, ", ", plod->index);
+
     _move(plod, &activeList);
 
 #if PRINT_CONTAINER
     check();
-#endif
-#if CHECK_CONTAINER
     print(std::cout);
 #endif
 }
 
 void PagedLODContainer::inactive(const PagedLOD* plod)
 {
-#if PRINT_CONTAINER
-    std::cout << "Moving to inactiveList" << plod << ", " << plod->index << std::endl;
-#endif
+    debug("Moving to inactiveList", plod, ", ", plod->index);
+
     _move(plod, &inactiveList);
 
 #if PRINT_CONTAINER
     check();
-#endif
-#if CHECK_CONTAINER
     print(std::cout);
 #endif
 }
 
 void PagedLODContainer::remove(PagedLOD* plod)
 {
-#if PRINT_CONTAINER
-    std::cout << "Remove and make available to availableList" << plod << ", " << plod->index << std::endl;
-#endif
+    debug("Remove and make available to availableList", plod, ", ", plod->index);
 
     if (plod->index == 0)
     {
-        std::cout << "   plod not assigned so ignore" << std::endl;
+        warn("   plod not assigned so ignore");
         check();
         return;
     }
@@ -383,25 +375,25 @@ bool PagedLODContainer::check(const List& list)
         if (list.tail == 0)
         {
             if (list.count == 0) return true;
-            std::cout << "Warning: list " << list.name << " has a head==0 and tail==0 but length is " << list.count << std::endl;
+            warn("Warning: list ", list.name, " has a head==0 and tail==0 but length is ", list.count);
             return false;
         }
 
-        std::cout << "Warning: list " << list.name << " has a head==0, but tail is non zero" << std::endl;
+        warn("Warning: list ", list.name, " has a head==0, but tail is non zero");
         return false;
     }
 
     const auto& head_element = elements[list.head];
     if (head_element.previous != 0)
     {
-        std::cout << "Warning: list " << list.name << " has a head.previous that is non zero " << head_element.previous << std::endl;
+        warn("Warning: list ", list.name, " has a head.previous that is non zero ", head_element.previous);
         return false;
     }
 
     const auto& tail_element = elements[list.tail];
     if (tail_element.next != 0)
     {
-        std::cout << "Warning: list " << list.name << " has a tail.next that is non zero " << tail_element.next << std::endl;
+        warn("Warning: list ", list.name, " has a tail.next that is non zero ", tail_element.next);
         return false;
     }
 
@@ -413,7 +405,7 @@ bool PagedLODContainer::check(const List& list)
         {
             if (i != list.head)
             {
-                std::cout << "Warning: list " << list.name << " non head element " << i << " has a previous==0" << std::endl;
+                warn("Warning: list ", list.name, " non head element ", i, " has a previous==0");
                 return false;
             }
         }
@@ -422,7 +414,7 @@ bool PagedLODContainer::check(const List& list)
             auto& previous_element = elements[element.previous];
             if (previous_element.next != i)
             {
-                std::cout << "Warning: list " << list.name << " element = " << i << ", element.previous = " << element.previous << ", does not match to previous.next = " << previous_element.next << std::endl;
+                warn("Warning: list ", list.name, " element = ", i, ", element.previous = ", element.previous, ", does not match to previous.next = ", previous_element.next);
                 return false;
             }
         }
@@ -431,7 +423,7 @@ bool PagedLODContainer::check(const List& list)
         {
             if (i != list.tail)
             {
-                std::cout << "Warning: list " << list.name << " non tail element " << i << " has a next==0" << std::endl;
+                warn("Warning: list ", list.name, " non tail element ", i, " has a next==0");
                 return false;
             }
         }
@@ -440,7 +432,7 @@ bool PagedLODContainer::check(const List& list)
             auto& next_element = elements[element.next];
             if (next_element.previous != i)
             {
-                std::cout << "Warning: list " << list.name << " element = " << i << ", element.next = " << element.next << ", does not match to next.previous = " << next_element.previous << std::endl;
+                warn("Warning: list ", list.name, " element = ", i, ", element.next = ", element.next, ", does not match to next.previous = ", next_element.previous);
                 return false;
             }
         }
