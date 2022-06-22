@@ -11,10 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/spirv.h>
+#include <vsg/io/Logger.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/utils/ShaderCompiler.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -75,7 +74,7 @@ bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref
                 vsg::ShaderCompiler sc;
                 if (!sc.compile(vsg::ref_ptr<vsg::ShaderStage>(const_cast<vsg::ShaderStage*>(ss))))
                 {
-                    std::cout << "spirv::write() Failed compile to spv." << std::endl;
+                    warn("spirv::write() Failed compile to spv.");
                     return false;
                 }
             }
