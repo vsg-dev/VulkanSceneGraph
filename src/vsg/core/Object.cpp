@@ -214,7 +214,7 @@ void Object::setAuxiliary(Auxiliary* auxiliary)
 
 Auxiliary* Object::getOrCreateAuxiliary()
 {
-    debug("Object::getOrCreateAuxiliary() _auxiliary=",  _auxiliary);
+    //debug("Object::getOrCreateAuxiliary() _auxiliary=",  _auxiliary);
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);

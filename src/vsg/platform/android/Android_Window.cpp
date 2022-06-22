@@ -349,11 +349,6 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
 Android_Window::~Android_Window()
 {
     clear();
-
-    if (_window != nullptr)
-    {
-        std::cout << "Calling DestroyWindow(_window);" << std::endl;
-    }
 }
 
 void Android_Window::_initSurface()

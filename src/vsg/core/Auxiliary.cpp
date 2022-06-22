@@ -22,23 +22,23 @@ Auxiliary::Auxiliary(Object* object) :
     _referenceCount(0),
     _connectedObject(object)
 {
-    vsg::debug("Auxiliary::Auxiliary(Object = ", object, ") ", this);
+    //vsg::debug("Auxiliary::Auxiliary(Object = ", object, ") ", this);
 }
 
 Auxiliary::~Auxiliary()
 {
-    vsg::debug("Auxiliary::~Auxiliary() ", this);
+    //vsg::debug("Auxiliary::~Auxiliary() ", this);
 }
 
 void Auxiliary::ref() const
 {
     ++_referenceCount;
-    debug("Auxiliary::ref() ", this, " ", _referenceCount.load());
+    //debug("Auxiliary::ref() ", this, " ", _referenceCount.load());
 }
 
 void Auxiliary::unref() const
 {
-    debug("Auxiliary::unref() ", this, " ", _referenceCount.load());
+    //debug("Auxiliary::unref() ", this, " ", _referenceCount.load());
     if (_referenceCount.fetch_sub(1) <= 1)
     {
         delete this;
@@ -47,7 +47,7 @@ void Auxiliary::unref() const
 
 void Auxiliary::unref_nodelete() const
 {
-    debug("Auxiliary::unref_nodelete() ", this, " ", _referenceCount.load());
+    //debug("Auxiliary::unref_nodelete() ", this, " ", _referenceCount.load());
     --_referenceCount;
 }
 
@@ -78,12 +78,12 @@ void Auxiliary::resetConnectedObject()
 void Auxiliary::setObject(const std::string& key, Object* object)
 {
     userObjects[key] = object;
-    debug("Auxiliary::setObject( [", key, "] = ", object, ", ", userObjects.size());
+    //debug("Auxiliary::setObject( [", key, "] = ", object, ", ", userObjects.size());
 }
 
 Object* Auxiliary::getObject(const std::string& key)
 {
-    debug("Auxiliary::getObject( [", key, "])");
+    //debug("Auxiliary::getObject( [", key, "])");
     if (auto itr = userObjects.find(key); itr != userObjects.end())
         return itr->second.get();
     else
@@ -92,7 +92,7 @@ Object* Auxiliary::getObject(const std::string& key)
 
 const Object* Auxiliary::getObject(const std::string& key) const
 {
-    debug("Auxiliary::getObject( [", key, "]) const");
+    //debug("Auxiliary::getObject( [", key, "]) const");
     if (auto itr = userObjects.find(key); itr != userObjects.end())
         return itr->second.get();
     else

@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/viewer/EllipsoidModel.h>
 #include <vsg/viewer/ViewMatrix.h>
 
@@ -164,7 +165,7 @@ namespace vsg
 
         dmat4 transform() const override
         {
-            // std::cout<<"camera eye : "<<lookAt->eye<<", "<<ellipsoidModel->convertECEVToLatLongHeight(lookAt->eye)<<std::endl;
+            //debug("camera eye : ", lookAt->eye, ", ", ellipsoidModel->convertECEFToLatLongAltitude(lookAt->eye));
             vsg::dvec3 v = lookAt->eye;
             vsg::dvec3 lv = vsg::normalize(lookAt->center - lookAt->eye);
             double R = ellipsoidModel->radiusEquator();
@@ -183,7 +184,7 @@ namespace vsg
 
             double farDistance = std::cos(theta + alpha - vsg::PI * 0.5) * l;
             double nearDistance = farDistance * nearFarRatio;
-            //std::cout<<"H = "<<H<<", l = "<<l<<", theta = "<<vsg::degrees(theta)<<", fd = "<<farDistance<<std::endl;
+            //debug("H = ", H, ", l = ", l, ", theta = ", vsg::degrees(theta), ", fd = ", farDistance);
 
             return perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance);
         }
