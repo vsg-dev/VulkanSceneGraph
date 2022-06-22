@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/io/Options.h>
 
-#include <iostream>
-
 using namespace vsg;
 using namespace vsgWin32;
 
@@ -452,7 +450,7 @@ Win32_Window::~Win32_Window()
 
     if (_window != nullptr)
     {
-        // std::cout << "Calling DestroyWindow(_window);" << std::endl;
+        vsg::debug("Calling DestroyWindow(_window);");
 
         TCHAR className[MAX_PATH];
         GetClassName(_window, className, MAX_PATH);
@@ -527,7 +525,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     switch (msg)
     {
     case WM_CLOSE:
-        // std::cout << "close window" << std::endl;
+        vsg::debug("close window");
         bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
         break;
     case WM_SHOWWINDOW:

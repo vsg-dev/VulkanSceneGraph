@@ -22,7 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
-#include <iostream>
 #include <time.h>
 
 #include <UIKit/UIKit.h>
@@ -143,7 +142,7 @@ vsg::ref_ptr<T> createTouchEvt(vsgiOS::iOS_Window* window, vsg::clock::time_poin
     auto pos = [touch locationInView:nil];
     uint32_t x = pos.x;
     uint32_t y = pos.y;
-    //std::cout << "Touch Id=" << in_id <<"@[" << x << ", " << y << "]" << std::endl;
+    vsg::debug("Touch Id=", in_id, "@[", x, ", ", y, "]");
     return vsg::ref_ptr<T>(new T(window, event_time, x, y, in_id));
 }
 
@@ -252,7 +251,7 @@ namespace vsgiOS
             
             auto res = vkCreateMetalSurfaceEXT(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
             if (res != VK_SUCCESS || _surface == VK_NULL_HANDLE)
-                std::cerr << "[ERROR] Failed creating VkSurface";
+                vsg::error("[ERROR] Failed creating VkSurface");
         }
     };
 }
@@ -671,7 +670,7 @@ bool vsgiOS::iOS_Window::handleUIEvent(UIEvent* anEvent)
 //            NSInteger buttonNumber = [anEvent buttonNumber];
 //            NSUInteger pressedButtons = [NSEvent pressedMouseButtons];
 //
-//            //std::cout << "NSEventTypeMouseMoved(etc): " << pos.x << ", " << pos.y << std::endl;
+//            vsg::debug("NSEventTypeMouseMoved(etc): ", pos.x, ", ", pos.y);
 //
 //            auto buttonMask = 0;
 //            if(pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;
