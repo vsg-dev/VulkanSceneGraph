@@ -19,19 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 
 #include <vsg/io/Input.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 
 using namespace vsg;
-
-#if 1
-#    include <iostream>
-#    define DEBUG_NOTIFY \
-        if (false) std::cout
-#else
-#    include <iostream>
-#    define DEBUG_NOTIFY std::cout
-#endif
 
 Object::Object() :
     _referenceCount(0),
@@ -52,7 +44,8 @@ Object::Object(const Object& rhs) :
 
 Object& Object::operator=(const Object& rhs)
 {
-    // std::cout << "Object& operator=(const Object&)" << std::endl;
+    debug("Object& operator=(const Object&)");
+
     if (&rhs == this) return *this;
 
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
@@ -67,7 +60,7 @@ Object& Object::operator=(const Object& rhs)
 
 Object::~Object()
 {
-    DEBUG_NOTIFY << "Object::~Object() " << this << std::endl;
+    debug("Object::~Object() ", this);
 
     if (_auxiliary)
     {
@@ -83,13 +76,13 @@ void Object::_attemptDelete() const
     // if no auxiliary is attached then go straight ahead and delete.
     if (_auxiliary == nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        DEBUG_NOTIFY << "Object::_delete() " << this << " calling delete" << std::endl;
+        debug("Object::_delete() ", this, " calling delete");
 
         delete this;
     }
     else
     {
-        //std::cout<<"Object::_delete() "<<this<<" choosing not to delete"<<std::endl;
+        debug("Object::_delete() ", this, " choosing not to delete");
     }
 }
 
@@ -221,7 +214,7 @@ void Object::setAuxiliary(Auxiliary* auxiliary)
 
 Auxiliary* Object::getOrCreateAuxiliary()
 {
-    DEBUG_NOTIFY << "Object::getOrCreateAuxiliary() _auxiliary=" << _auxiliary << std::endl;
+    debug("Object::getOrCreateAuxiliary() _auxiliary=",  _auxiliary);
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);

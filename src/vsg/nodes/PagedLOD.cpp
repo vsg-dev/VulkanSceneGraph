@@ -162,7 +162,7 @@ void PagedLODContainer::resize(uint32_t new_size)
 
 #if PRINT_CONTAINER
     debug("PagedLODContainer::resize(", new_size, ")");
-    debug_stream([&](std::ostream& fout) { print(fout); });
+    debug_stream([&](auto& fout) { print(fout); });
 #endif
 }
 
@@ -322,7 +322,7 @@ void PagedLODContainer::active(const PagedLOD* plod)
     _move(plod, &activeList);
 
 #if PRINT_CONTAINER
-    debug_stream([&](std::ostream& fout) { check(); print(fout); });
+    debug_stream([&](auto& fout) { check(); print(fout); });
 #endif
 }
 
