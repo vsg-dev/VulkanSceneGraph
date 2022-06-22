@@ -111,13 +111,13 @@ void RecordTraversal::clearBins()
 
 void RecordTraversal::apply(const Object& object)
 {
-    // debug("Visiting Object");
+    //debug("Visiting Object");
     object.traverse(*this);
 }
 
 void RecordTraversal::apply(const Group& group)
 {
-    // debug("Visiting Group");
+    //debug("Visiting Group");
 #if INLINE_TRAVERSE
     vsg::Group::t_traverse(group, *this);
 #else
@@ -127,7 +127,7 @@ void RecordTraversal::apply(const Group& group)
 
 void RecordTraversal::apply(const QuadGroup& group)
 {
-    // debug("Visiting QuadGroup");
+    //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
     vsg::QuadGroup::t_traverse(group, *this);
 #else
@@ -219,7 +219,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 }
                 else
                 {
-                    debug("repeat request ",&plod,", ",plod.filename,", ",plod.requestCount.load(),", plod.requestStatus = ",plod.requestStatus.load());
+                    //debug("repeat request ",&plod,", ",plod.filename,", ",plod.requestCount.load(),", plod.requestStatus = ",plod.requestStatus.load());
                 }
             }
         }
@@ -251,7 +251,7 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 {
     if (_state->intersect(cullGroup.bound))
     {
-        //std::cout<<"Passed node"<<std::endl;
+        // debug("Passed node");
         cullGroup.traverse(*this);
     }
 }
@@ -388,7 +388,7 @@ void RecordTraversal::apply(const Commands& commands)
 
 void RecordTraversal::apply(const Command& command)
 {
-    //    std::cout<<"Visiting Command "<<std::endl;
+    //debug("Visiting Command");
     _state->record();
     command.record(*(_state->_commandBuffer));
 }
