@@ -10,13 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/io/stream.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/vk/State.h>
 
 #include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 
@@ -46,7 +45,7 @@ void Bin::add(State* state, double value, const Node* node)
 {
     //    binElements.emplace_back(value, node);
 
-    //std::cout<<"Bin::add(state= "<<state<<", value = "<<value<<", "<<node<<") "<<this<<", binNumber = "<<binNumber<<",  binElements.size()="<<_binElements.size()<<std::endl;
+    debug("Bin::add(state= ", state, ", value = ", value, ", ", node, ") ", this, ", binNumber = ", binNumber, ",  binElements.size()=", _binElements.size());
 
     Element element;
 

@@ -39,8 +39,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <iomanip>
-//#include <iostream>
-#include <sstream>
 
 #ifndef VK_API_VERSION_MAJOR
 #    define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
@@ -218,13 +216,9 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (parseResult)
         {
-#    if 0
-            info("Successful compile" << std::endl;
-            info(debugFormatShaderSource(finalShaderSource) << std::endl;
-            info(std::endl;
-#    endif
-            program->addShader(shader);
+            debug("Successful compile\n", debugFormatShaderSource(finalShaderSource), "\n");
 
+            program->addShader(shader);
             stageShaderMap[envStage] = vsg_shader;
         }
         else
@@ -248,18 +242,18 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     EShMessages messages = EShMsgDefault;
     if (!program->link(messages))
     {
-        info("\n----  Program  ----\n");
+        warn("\n----  Program  ----\n");
 
         for (auto& vsg_shader : shaders)
         {
-            info("\n", getFriendlyNameForShader(vsg_shader), ":\n");
-            info(debugFormatShaderSource(vsg_shader->module->source));
+            warn("\n", getFriendlyNameForShader(vsg_shader), ":\n");
+            warn(debugFormatShaderSource(vsg_shader->module->source));
         }
 
-        info("Warning: Program failed to link.");
-        info("glslang info log: ", program->getInfoLog());
-        debug("glslang debug info log: ", program->getInfoDebugLog());
-        info("--------");
+        warn("Warning: Program failed to link.");
+        warn("glslang info log: ", program->getInfoLog());
+        warn("glslang debug info log: ", program->getInfoDebugLog());
+        warn("--------");
 
         return false;
     }
