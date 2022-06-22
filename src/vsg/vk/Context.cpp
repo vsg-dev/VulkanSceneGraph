@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/PipelineBarrier.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
@@ -27,8 +28,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -361,12 +360,12 @@ void Context::waitForCompletion()
     VkResult result;
     while ((result = fence->wait(timeout)) == VK_TIMEOUT)
     {
-        std::cout << "Context::waitForCompletion() " << this << " fence->wait() timed out, trying again." << std::endl;
+        info("Context::waitForCompletion() ", this, " fence->wait() timed out, trying again.");
     }
 
     if (result != VK_SUCCESS)
     {
-        std::cout << "Context::waitForCompletion()  " << this << " fence->wait() failed with error. VkResult = " << result << std::endl;
+        info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
     }
 
     commands.clear();
