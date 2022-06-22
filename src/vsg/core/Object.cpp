@@ -44,7 +44,7 @@ Object::Object(const Object& rhs) :
 
 Object& Object::operator=(const Object& rhs)
 {
-    debug("Object& operator=(const Object&)");
+    //debug("Object& operator=(const Object&)");
 
     if (&rhs == this) return *this;
 
@@ -60,7 +60,7 @@ Object& Object::operator=(const Object& rhs)
 
 Object::~Object()
 {
-    debug("Object::~Object() ", this);
+    //debug("Object::~Object() ", this);
 
     if (_auxiliary)
     {
@@ -76,7 +76,7 @@ void Object::_attemptDelete() const
     // if no auxiliary is attached then go straight ahead and delete.
     if (_auxiliary == nullptr || _auxiliary->signalConnectedObjectToBeDeleted())
     {
-        debug("Object::_delete() ", this, " calling delete");
+        //debug("Object::_delete() ", this, " calling delete");
 
         delete this;
     }
