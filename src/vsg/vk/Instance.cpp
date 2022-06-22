@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
@@ -33,7 +34,7 @@ Names vsg::validateInstancelayerNames(const Names& names)
     NameSet layerNames;
     for (const auto& layer : availableLayers)
     {
-        //std::cout << "layer=" << layer.layerName << std::endl;
+        debug("layer=", layer.layerName);
         if (layer.layerName[0] != 0) layerNames.insert(layer.layerName);
     }
 
@@ -43,12 +44,12 @@ Names vsg::validateInstancelayerNames(const Names& names)
     {
         if (layerNames.count(requestedName) != 0)
         {
-            //std::cout << "valid requested layer : " << requestedName << std::endl;
+            debug("valid requested layer : ", requestedName);
             validatedNames.push_back(requestedName);
         }
         else
         {
-            //std::cout << "Warning : requested invalid layer : " << requestedName << std::endl;
+            warn("Warning : requested invalid layer : ", requestedName);
         }
     }
 

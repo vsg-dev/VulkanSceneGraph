@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/maths/transform.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
@@ -146,11 +147,11 @@ void Intersector::apply(const VertexIndexDraw& vid)
             const_cast<VertexIndexDraw&>(vid).setValue("bound", bound);
         }
 
-        // std::cout<<"Computed bounding sphere : "<<bound.center<<", "<<bound.radius<<std::endl;
+        //debug("Computed bounding sphere : ", bound.center, ", ", bound.radius);
     }
     else
     {
-        // std::cout<<"Found bounding sphere : "<<bound.center<<", "<<bound.radius<<std::endl;
+        //debug("Found bounding sphere : ", bound.center, ", ", bound.radius);
     }
 
     if (intersects(bound))
