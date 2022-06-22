@@ -22,13 +22,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/TouchEvent.h>
 #include <vsg/vk/Extensions.h>
 
-#include <iostream>
 #include <time.h>
 
 using namespace vsg;
 using namespace vsgAndroid;
-
-#define LOG(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
 namespace vsg
 {
@@ -375,7 +372,7 @@ void Android_Window::resize()
     _extent2D.width = ANativeWindow_getWidth(_window);
     _extent2D.height = ANativeWindow_getHeight(_window);
 
-    LOG("resize event = wh: %d, %d", _extent2D.width, _extent2D.height);
+    vsg::debug("resize event = wh: ", _extent2D.width, ", ",_extent2D.height);
 
     buildSwapchain();
 }
@@ -432,16 +429,16 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
             switch (action)
             {
             case AMOTION_EVENT_ACTION_DOWN:
-                LOG("touch down event = id: %d - xy: %f, %f", id, x, y);
+                vsg::debug("touch down event = id: ", id, " - xy: ", x, ", ", y);
                 bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_MOVE:
-                LOG("touch move event = id: %d - xy: %f, %f", id, x, y);
+                vsg::debug("touch move event = id: ", id, " - xy: ", x, ", ", y);
                 bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, event_time, x, y, id));
                 break;
             case AMOTION_EVENT_ACTION_UP:
             case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
-                LOG("touch up event = id: %d - xy: %f, %f", id, x, y);
+                vsg::debug("touch up event = id: ", id, " - xy: ", x, ", ", y);
                 bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, event_time, x, y, id));
                 break;
             default: break;
@@ -470,11 +467,11 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
         switch (action)
         {
             case AKEY_EVENT_ACTION_DOWN:
-                LOG("key down event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
+                vsg::debug("key down event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
                 bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
                 break;
             case AKEY_EVENT_ACTION_UP:
-                LOG("key up event = unmodified: %d modified:%d", int32_t(keySymbol), int32_t(modifiedKeySymbol));
+                vsg::debug("key up event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
                 bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
                 break;
                 //case AKEY_EVENT_ACTION_MULTIPLE:
