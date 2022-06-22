@@ -250,7 +250,7 @@ Swapchain::~Swapchain()
 
     if (_swapchain)
     {
-        //std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
+        debug("Calling vkDestroySwapchainKHR(..)");
         vkDestroySwapchainKHR(*_device, _swapchain, _device->getAllocationCallbacks());
     }
 }
