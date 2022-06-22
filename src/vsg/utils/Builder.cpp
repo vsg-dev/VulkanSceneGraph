@@ -1,4 +1,5 @@
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
@@ -142,7 +143,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     if (sharedObjects) sharedObjects->share(bindViewDescriptorSets);
     stateGroup->add(bindViewDescriptorSets);
 
-    // if (sharedObjects) sharedObjects->report(std::cout);
+    //if (sharedObjects) vsg::debug_stream([&](auto& fout) { sharedObjects->report(fout); });
 
     return stateGroup;
 }

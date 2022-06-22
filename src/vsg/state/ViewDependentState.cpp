@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/compare.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/traversals/CompileTraversal.h>
@@ -120,7 +121,7 @@ ViewDependentState::~ViewDependentState()
 
 void ViewDependentState::compile(Context& context)
 {
-    //std::cout<<"ViewDependentState::compile()"<<std::endl;
+    //debug("ViewDependentState::compile()");
     if (!bufferedDescriptors.empty()) return;
 
     DescriptorSetLayoutBindings descriptorBindings{
@@ -146,7 +147,7 @@ void ViewDependentState::clear()
     ++bufferIndex;
     if (bufferIndex >= bufferedDescriptors.size()) bufferIndex = 0;
 
-    //std::cout<<"ViewDependentState::clear() bufferIndex = "<<bufferIndex<<std::endl;
+    //debug("ViewDependentState::clear() bufferIndex = ", bufferIndex);
 
     // clear data
     ambientLights.clear();
@@ -157,7 +158,7 @@ void ViewDependentState::clear()
 
 void ViewDependentState::pack()
 {
-    // std::cout<<"ViewDependentState::pack() ambient "<<ambientLights.size()<<", diffuse "<<directionalLights.size()<<", point "<<pointLights.size()<<", spot "<<spotLights.size()<<std::endl;
+    //debug("ViewDependentState::pack() ambient ", ambientLights.size(), ", diffuse ", directionalLights.size(), ", point ", pointLights.size(), ", spot ", spotLights.size());
 
     auto light_itr = lightData->begin();
 
@@ -198,14 +199,14 @@ void ViewDependentState::pack()
 #if 0
     for(auto itr = lightData->begin(); itr != light_itr; ++itr)
     {
-        std::cout<<"   "<<*itr<<std::endl;
+        debug("   ", *itr);
     }
 #endif
 }
 
 void ViewDependentState::copy()
 {
-    //    std::cout<<"ViewDependentState::copy()"<<std::endl;
+    //debug("ViewDependentState::copy()");
     if (bufferIndex >= bufferedDescriptors.size()) return;
 
     const auto& descriptorData = bufferedDescriptors[bufferIndex];
