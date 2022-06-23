@@ -192,6 +192,7 @@ namespace vsg
         virtual void warn_implementation(const std::string& message) = 0;
         virtual void error_implementation(const std::string& message) = 0;
     };
+    VSG_type_name(vsg::Logger);
 
     /// write debug message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
     /// i.e. debug("array.size() = ", array.size());
@@ -282,6 +283,7 @@ namespace vsg
         void warn_implementation(const std::string& message) override;
         void error_implementation(const std::string& message) override;
     };
+    VSG_type_name(vsg::StdLogger);
 
     /// Logger that ignores all messages
     class VSG_DECLSPEC NullLogger : public Inherit<Logger, NullLogger>
@@ -289,10 +291,14 @@ namespace vsg
     public:
         NullLogger();
 
+    protected:
         void debug_implementation(const std::string&) override;
         void info_implementation(const std::string&) override;
         void warn_implementation(const std::string&) override;
         void error_implementation(const std::string&) override;
     };
+    VSG_type_name(vsg::NullLogger);
+
+
 
 } // namespace vsg
