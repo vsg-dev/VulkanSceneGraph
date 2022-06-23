@@ -31,41 +31,29 @@ namespace vsg
         enum Level
         {
             LOGGER_ALL = 0,
-            LOGGER_DEBUG,
-            LOGGER_INFO,
-            LOGGER_WARN,
-            LOGGER_ERROR,
-            LOGGER_OFF
+            LOGGER_DEBUG = 1,
+            LOGGER_INFO = 2,
+            LOGGER_WARN = 3,
+            LOGGER_ERROR  = 4,
+            LOGGER_OFF = 5
         };
 
         Level level = LOGGER_INFO;
 
-        void debug(const std::string& message)
+        /// Logger singleton, defaults to using vsg::StdLogger
+        static ref_ptr<Logger>& instance();
+
+        inline void debug(char* message) { debug(std::string_view(message)); }
+        inline void debug(const char* message) { debug(std::string_view(message)); }
+        inline void debug(std::string& message) { debug(std::string_view(message)); }
+        inline void debug(const std::string& message) { debug(std::string_view(message)); }
+
+        void debug(std::string_view str)
         {
             if (level > LOGGER_DEBUG) return;
-            std::scoped_lock<std::mutex> lock(_mutex);
-            debug_implementation(message);
-        }
 
-        void info(const std::string& message)
-        {
-            if (level > LOGGER_INFO) return;
             std::scoped_lock<std::mutex> lock(_mutex);
-            info_implementation(message);
-        }
-
-        void warn(const std::string& message)
-        {
-            if (level > LOGGER_WARN) return;
-            std::scoped_lock<std::mutex> lock(_mutex);
-            info_implementation(message);
-        }
-
-        void error(const std::string& message)
-        {
-            if (level > LOGGER_ERROR) return;
-            std::scoped_lock<std::mutex> lock(_mutex);
-            info_implementation(message);
+            debug_implementation(str);
         }
 
         template<typename... Args>
@@ -81,6 +69,19 @@ namespace vsg
             debug_implementation(_stream.str());
         }
 
+        inline void info(char* message) { info(std::string_view(message)); }
+        inline void info(const char* message) { info(std::string_view(message)); }
+        inline void info(std::string& message) { info(std::string_view(message)); }
+        inline void info(const std::string& message) { info(std::string_view(message)); }
+
+        void info(std::string_view str)
+        {
+            if (level > LOGGER_INFO) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            info_implementation(str);
+        }
+
         template<typename... Args>
         void info(Args&&... args)
         {
@@ -94,6 +95,19 @@ namespace vsg
             info_implementation(_stream.str());
         }
 
+        inline void warn(char* message) { warn(std::string_view(message)); }
+        inline void warn(const char* message) { warn(std::string_view(message)); }
+        inline void warn(std::string& message) { warn(std::string_view(message)); }
+        inline void warn(const std::string& message) { warn(std::string_view(message)); }
+
+        void warn(std::string_view str)
+        {
+            if (level > LOGGER_WARN) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            warn_implementation(str);
+        }
+
         template<typename... Args>
         void warn(Args&&... args)
         {
@@ -104,7 +118,20 @@ namespace vsg
             _stream.clear();
             (_stream << ... << args);
 
-            info_implementation(_stream.str());
+            warn_implementation(_stream.str());
+        }
+
+        inline void error(char* message) { error(std::string_view(message)); }
+        inline void error(const char* message) { error(std::string_view(message)); }
+        inline void error(std::string& message) { error(std::string_view(message)); }
+        inline void error(const std::string& message) { error(std::string_view(message)); }
+
+        void error(std::string_view str)
+        {
+            if (level > LOGGER_DEBUG) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            error_implementation(str);
         }
 
         template<typename... Args>
@@ -117,69 +144,54 @@ namespace vsg
             _stream.clear();
             (_stream << ... << args);
 
-            info_implementation(_stream.str());
+            error_implementation(_stream.str());
         }
 
         using PrintToStreamFunction = std::function<void(std::ostream&)>;
 
         /// thread safe access to stream for writing debug output.
-        void debug_stream(PrintToStreamFunction print)
-        {
-            if (level > LOGGER_DEBUG) return;
-
-            std::scoped_lock<std::mutex> lock(_mutex);
-            _stream.str({});
-            _stream.clear();
-
-            print(_stream);
-
-            debug_implementation(_stream.str());
-        }
+        void debug_stream(PrintToStreamFunction print);
 
         /// thread safe access to stream for writing info output.
-        void info_stream(PrintToStreamFunction print)
-        {
-            if (level > LOGGER_INFO) return;
-
-            std::scoped_lock<std::mutex> lock(_mutex);
-            _stream.str({});
-            _stream.clear();
-
-            print(_stream);
-
-            info_implementation(_stream.str());
-        }
+        void info_stream(PrintToStreamFunction print);
 
         /// thread safe access to stream for writing warn output.
-        void warn_stream(PrintToStreamFunction print)
+        void warn_stream(PrintToStreamFunction print);
+
+        /// thread safe access to stream for writing error output.
+        void error_stream(PrintToStreamFunction print);
+
+        /// pass message to debug()/info()/warn()/error() based on specified level
+        inline void log(Level msg_level, char* message) { log(msg_level, std::string_view(message)); }
+        inline void log(Level msg_level, const char* message) { log(msg_level, std::string_view(message)); }
+        inline void log(Level msg_level, std::string& message) { log(msg_level, std::string_view(message)); }
+        inline void log(Level msg_level, const std::string& message) { log(msg_level, std::string_view(message)); }
+
+        void log(Level msg_level, std::string_view message);
+
+        /// pass message to debug()/info()/warn()/error() based on specified level
+        template<typename... Args>
+        void log(Level msg_level, Args... args)
         {
-            if (level > LOGGER_WARN) return;
+            if (level > msg_level) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
             _stream.clear();
+            (_stream << ... << args);
 
-            print(_stream);
-
-            warn_implementation(_stream.str());
+            switch(msg_level)
+            {
+                case(LOGGER_DEBUG): debug_implementation(_stream.str()); break;
+                case(LOGGER_INFO): info_implementation(_stream.str()); break;
+                case(LOGGER_WARN): warn_implementation(_stream.str()); break;
+                case(LOGGER_ERROR): error_implementation(_stream.str()); break;
+                default: break;
+            }
         }
 
         /// thread safe access to stream for writing error output.
-        void error_stream(PrintToStreamFunction print)
-        {
-            if (level > LOGGER_ERROR) return;
-
-            std::scoped_lock<std::mutex> lock(_mutex);
-            _stream.str({});
-            _stream.clear();
-
-            print(_stream);
-
-            error_implementation(_stream.str());
-        }
-
-        /// Logger singleton, defaults to using vsg::StdLogger
-        static ref_ptr<Logger>& instance();
+        void log_stream(Level msg_level, PrintToStreamFunction print);
 
     protected:
         virtual ~Logger();
@@ -187,25 +199,19 @@ namespace vsg
         std::mutex _mutex;
         std::ostringstream _stream;
 
-        virtual void debug_implementation(const std::string& message) = 0;
-        virtual void info_implementation(const std::string& message) = 0;
-        virtual void warn_implementation(const std::string& message) = 0;
-        virtual void error_implementation(const std::string& message) = 0;
+        virtual void debug_implementation(std::string_view message) = 0;
+        virtual void info_implementation(std::string_view message) = 0;
+        virtual void warn_implementation(std::string_view message) = 0;
+        virtual void error_implementation(std::string_view message) = 0;
     };
     VSG_type_name(vsg::Logger);
 
-    /// write debug message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
+    /// write debug message to the current vsg::Logger::instance().
     /// i.e. debug("array.size() = ", array.size());
     template<typename... Args>
     void debug(Args&&... args)
     {
         Logger::instance()->debug(args...);
-    }
-
-    /// write simple debug std::string message to the current vsg::Logger::instance() logger.
-    inline void debug(const std::string& str)
-    {
-        Logger::instance()->debug(str);
     }
 
     /// thread safe access to stream for writing debug output.
@@ -214,18 +220,12 @@ namespace vsg
         Logger::instance()->debug_stream(print);
     }
 
-    /// write info message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
+    /// write info message to the current vsg::Logger::instance().
     /// i.e. info("vertex = ", vsg::vec3(x,y,z));
     template<typename... Args>
-    void info(Args&&... args)
+    void info(Args... args)
     {
         Logger::instance()->info(args...);
-    }
-
-    /// write simple info std::string message to the current vsg::Logger::instance() logger.
-    inline void info(const std::string& str)
-    {
-        Logger::instance()->info(str);
     }
 
     /// thread safe access to stream for writing info output.
@@ -234,17 +234,11 @@ namespace vsg
         Logger::instance()->info_stream(print);
     }
 
-    /// write warn message using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
+    /// write warn message to the current vsg::Logger::instance().
     template<typename... Args>
     void warn(Args&&... args)
     {
         Logger::instance()->warn(args...);
-    }
-
-    /// write simple warn std::string message to the current vsg::Logger::instance() logger.
-    inline void warn(const std::string& str)
-    {
-        Logger::instance()->warn(str);
     }
 
     /// thread safe access to stream for writing warn output.
@@ -253,22 +247,30 @@ namespace vsg
         Logger::instance()->warn_stream(print);
     }
 
-    /// write warn error using ostringstream to convert parameters to a string that is passed to the current vsg::Logger::instance() logger.
+    /// write warn message to the current vsg::Logger::instance().
     template<typename... Args>
     void error(Args&&... args)
     {
         Logger::instance()->error(args...);
     }
 
-    /// write simple error std::string message to the current vsg::Logger::instance() logger.
-    inline void error(const std::string& str)
-    {
-        Logger::instance()->error(str);
-    }
-
+    /// thread safe access to stream for writing warn output.
     inline void error_stream(Logger::PrintToStreamFunction print)
     {
         Logger::instance()->error_stream(print);
+    }
+
+    /// write message at specified level to the current vsg::Logger::instance() logger.
+    template<typename... Args>
+    void log(Logger::Level msg_level, Args&&... args)
+    {
+        Logger::instance()->log(msg_level, args...);
+    }
+
+    /// thread safe access to stream for writing warn output for specified Logger level.
+    inline void log_stream(Logger::Level msg_level, Logger::PrintToStreamFunction print)
+    {
+        Logger::instance()->log_stream(msg_level, print);
     }
 
     /// default Logger that sends debug and info messages to std:cout, and warn and errpr messages to std::cert
@@ -278,10 +280,10 @@ namespace vsg
         StdLogger();
 
     protected:
-        void debug_implementation(const std::string& message) override;
-        void info_implementation(const std::string& message) override;
-        void warn_implementation(const std::string& message) override;
-        void error_implementation(const std::string& message) override;
+        void debug_implementation(std::string_view message) override;
+        void info_implementation(std::string_view message) override;
+        void warn_implementation(std::string_view message) override;
+        void error_implementation(std::string_view message) override;
     };
     VSG_type_name(vsg::StdLogger);
 
@@ -292,13 +294,11 @@ namespace vsg
         NullLogger();
 
     protected:
-        void debug_implementation(const std::string&) override;
-        void info_implementation(const std::string&) override;
-        void warn_implementation(const std::string&) override;
-        void error_implementation(const std::string&) override;
+        void debug_implementation(std::string_view) override;
+        void info_implementation(std::string_view) override;
+        void warn_implementation(std::string_view) override;
+        void error_implementation(std::string_view) override;
     };
     VSG_type_name(vsg::NullLogger);
-
-
 
 } // namespace vsg
