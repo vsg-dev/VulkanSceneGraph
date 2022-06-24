@@ -58,6 +58,17 @@ namespace vsg
         /// get a PhysicalDevice and queue family index that supports the specified queueFlags, and presentation of specified surface if one is provided.
         std::tuple<ref_ptr<PhysicalDevice>, int, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences = {}) const;
 
+        /// get the address of specified function using vkGetInstanceProcAddr.
+        template<typename T>
+        bool getProcAddr(T& procAdddress, const char* pName, const char* pNameFallback = nullptr) const
+        {
+            procAdddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pName));
+            if (procAdddress) return true;
+
+            if (pNameFallback) procAdddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pNameFallback));
+            return (procAdddress);
+        }
+
     protected:
         virtual ~Instance();
 
