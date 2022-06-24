@@ -132,22 +132,22 @@ StdLogger::StdLogger()
 
 void StdLogger::debug_implementation(std::string_view message)
 {
-    std::cout << "debug: " << message << '\n';
+    std::cout << debugPrefix << message << '\n';
 }
 
 void StdLogger::info_implementation(std::string_view message)
 {
-    std::cout << "info: " << message << '\n';
+    std::cout << infoPrefix << message << '\n';
 }
 
 void StdLogger::warn_implementation(std::string_view message)
 {
-    std::cerr << "warn: " << message << std::endl;
+    std::cerr << warnPrefix << message << std::endl;
 }
 
 void StdLogger::error_implementation(std::string_view message)
 {
-    std::cerr << "error: " << message << std::endl;
+    std::cerr << errorPrefix << message << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -280,6 +280,11 @@ namespace vsg
     public:
         StdLogger();
 
+        std::string debugPrefix = "debug: ";
+        std::string infoPrefix = "info: ";
+        std::string warnPrefix = "warn: ";
+        std::string errorPrefix = "error: ";
+
     protected:
         void debug_implementation(std::string_view message) override;
         void info_implementation(std::string_view message) override;
