@@ -60,7 +60,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     if (deviceID >= VSG_MAX_DEVICES)
     {
         releaseDeviceID(deviceID);
-        throw Exception{"Warning : number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
+        throw Exception{"Number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

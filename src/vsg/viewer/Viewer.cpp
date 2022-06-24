@@ -166,7 +166,7 @@ bool Viewer::acquireNextFrame()
             }
             else
             {
-                warn("Warning : window->acquireNextImage() VkResult = ", result);
+                warn("window->acquireNextImage() VkResult = ", result);
                 break;
             }
         }

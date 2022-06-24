@@ -37,6 +37,8 @@
 #include <cstring>
 #include <sstream>
 
+#include <vsg/io/Logger.h>
+
 #include "ResourceLimits.h"
 
 namespace glslang
@@ -284,8 +286,7 @@ namespace glslang
 
             if (value_s == std::string::npos || !(valueStr[0] == '-' || isdigit(valueStr[0])))
             {
-                printf("Error: '%s' bad .conf file.  Each name must be followed by one number.\n",
-                       valueStr.c_str());
+                vsg::error("'", valueStr, "' bad .conf file.  Each name must be followed by one number.");
                 return;
             }
 
@@ -496,7 +497,7 @@ namespace glslang
             else if (tokenStr == "generalConstantMatrixVectorIndexing")
                 resources->limits.generalConstantMatrixVectorIndexing = (value != 0);
             else
-                printf("Warning: unrecognized limit (%s) in configuration file.\n", tokenStr.c_str());
+                vsg::warn("unrecognized limit (", tokenStr, ") in configuration file.");
         }
     }
 

@@ -343,7 +343,7 @@ void PagedLODContainer::remove(PagedLOD* plod)
 
     if (plod->index == 0)
     {
-        warn("   plod not assigned so ignore");
+        warn("PagedLODContainer::remove() plod not assigned so ignore");
         check();
         return;
     }
@@ -371,25 +371,25 @@ bool PagedLODContainer::check(const List& list)
         if (list.tail == 0)
         {
             if (list.count == 0) return true;
-            warn("Warning: list ", list.name, " has a head==0 and tail==0 but length is ", list.count);
+            warn("list ", list.name, " has a head==0 and tail==0 but length is ", list.count);
             return false;
         }
 
-        warn("Warning: list ", list.name, " has a head==0, but tail is non zero");
+        warn("list ", list.name, " has a head==0, but tail is non zero");
         return false;
     }
 
     const auto& head_element = elements[list.head];
     if (head_element.previous != 0)
     {
-        warn("Warning: list ", list.name, " has a head.previous that is non zero ", head_element.previous);
+        warn("list ", list.name, " has a head.previous that is non zero ", head_element.previous);
         return false;
     }
 
     const auto& tail_element = elements[list.tail];
     if (tail_element.next != 0)
     {
-        warn("Warning: list ", list.name, " has a tail.next that is non zero ", tail_element.next);
+        warn("list ", list.name, " has a tail.next that is non zero ", tail_element.next);
         return false;
     }
 
@@ -401,7 +401,7 @@ bool PagedLODContainer::check(const List& list)
         {
             if (i != list.head)
             {
-                warn("Warning: list ", list.name, " non head element ", i, " has a previous==0");
+                warn("list ", list.name, " non head element ", i, " has a previous==0");
                 return false;
             }
         }
@@ -410,7 +410,7 @@ bool PagedLODContainer::check(const List& list)
             auto& previous_element = elements[element.previous];
             if (previous_element.next != i)
             {
-                warn("Warning: list ", list.name, " element = ", i, ", element.previous = ", element.previous, ", does not match to previous.next = ", previous_element.next);
+                warn("list ", list.name, " element = ", i, ", element.previous = ", element.previous, ", does not match to previous.next = ", previous_element.next);
                 return false;
             }
         }
@@ -419,7 +419,7 @@ bool PagedLODContainer::check(const List& list)
         {
             if (i != list.tail)
             {
-                warn("Warning: list ", list.name, " non tail element ", i, " has a next==0");
+                warn("list ", list.name, " non tail element ", i, " has a next==0");
                 return false;
             }
         }
@@ -428,7 +428,7 @@ bool PagedLODContainer::check(const List& list)
             auto& next_element = elements[element.next];
             if (next_element.previous != i)
             {
-                warn("Warning: list ", list.name, " element = ", i, ", element.next = ", element.next, ", does not match to next.previous = ", next_element.previous);
+                warn("list ", list.name, " element = ", i, ", element.next = ", element.next, ", does not match to next.previous = ", next_element.previous);
                 return false;
             }
         }

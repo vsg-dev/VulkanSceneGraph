@@ -80,7 +80,7 @@ bool MemorySlots::check() const
 {
     if (_availableMemory.size() != _offsetSizes.size())
     {
-        warn("Warning: MemorySlots::check() _availableMemory.size() ", _availableMemory.size(), " != _offsetSizes.size() ", _offsetSizes.size());
+        warn("MemorySlots::check() _availableMemory.size() ", _availableMemory.size(), " != _offsetSizes.size() ", _offsetSizes.size());
     }
 
     size_t availableSize = 0;
@@ -98,8 +98,8 @@ bool MemorySlots::check() const
     size_t computedSize = availableSize + reservedSize;
     if (computedSize != _totalMemorySize)
     {
-        info("Warning : MemorySlots::check() ", this, " failed, computeedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
-        info_stream([&](auto& fout) { report(fout); });
+        warn("MemorySlots::check() ", this, " failed, computeedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
+        warn_stream([&](auto& fout) { report(fout); });
 
         return false;
     }

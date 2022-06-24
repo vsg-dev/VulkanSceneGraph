@@ -78,7 +78,7 @@ VkResult Buffer::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 
     if (vd.deviceMemory)
     {
-        warn("Warning : Buffer::bind(", deviceMemory, ", ", memoryOffset, ") failed, buffer already bound to ", vd.deviceMemory);
+        warn("Buffer::bind(", deviceMemory, ", ", memoryOffset, ") failed, buffer already bound to ", vd.deviceMemory);
         return VK_ERROR_UNKNOWN;
     }
 

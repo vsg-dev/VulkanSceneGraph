@@ -355,7 +355,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     int screenCount = xcb_setup_roots_length (setup);
     if (screenNum >= screenCount)
     {
-        warn("Warning: request screenNum (",screenNum,") too high, only ",screenCount," screens available. Selecting screen 0 as fallback.");
+        warn("request screenNum (",screenNum,") too high, only ",screenCount," screens available. Selecting screen 0 as fallback.");
         screenNum = 0;
     }
 

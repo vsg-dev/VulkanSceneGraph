@@ -98,7 +98,7 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
     {
         if ((dm->getMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0)
         {
-            warn("Warning: BufferInfo::copyDataToBuffer() cannot copy data. DeviceMemory does not support direct memory mapping.");
+            warn("BufferInfo::copyDataToBuffer() cannot copy data. DeviceMemory does not support direct memory mapping.");
 
             // 1. allocate staging buffer
             // 2. copy to staging buffer
@@ -111,7 +111,7 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
         VkResult result = dm->map(offset, range, 0, &buffer_data);
         if (result != 0)
         {
-            warn("Warning: BufferInfo::copyDataToBuffer() cannot copy data. VkMapMemory(..) failed with result = ", result);
+            warn("BufferInfo::copyDataToBuffer() cannot copy data. VkMapMemory(..) failed with result = ", result);
             return;
         }
 
@@ -201,7 +201,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     if (containsMultipleParents)
     {
-        warn("Warning : vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo.");
+        warn("vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo.");
         return false;
     }
 

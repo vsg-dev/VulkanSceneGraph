@@ -184,7 +184,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (envStage == EShLangCount)
         {
-            info(" Warning ShaderCompiler::compile() unsupported stage : ", vsg_shader->stage);
+            warn("ShaderCompiler::compile() unsupported stage : ", vsg_shader->stage);
             return false;
         }
 
@@ -224,12 +224,12 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         else
         {
             // print error information
-            info("\n----  ", getFriendlyNameForShader(vsg_shader), "  ---- \n");
-            info(debugFormatShaderSource(finalShaderSource));
-            info("Warning: GLSL source failed to parse.");
-            info("glslang info log:\n", shader->getInfoLog());
-            debug("glslang debug info log: \n", shader->getInfoDebugLog());
-            info("--------");
+            warn("\n----  ", getFriendlyNameForShader(vsg_shader), "  ---- \n");
+            warn(debugFormatShaderSource(finalShaderSource));
+            warn("GLSL source failed to parse.");
+            warn("glslang info log:\n", shader->getInfoLog());
+            info("glslang debug info log: \n", shader->getInfoDebugLog());
+            warn("--------");
         }
     }
 
@@ -250,7 +250,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             warn(debugFormatShaderSource(vsg_shader->module->source));
         }
 
-        warn("Warning: Program failed to link.");
+        warn("Program failed to link.");
         warn("glslang info log: ", program->getInfoLog());
         warn("glslang debug info log: ", program->getInfoDebugLog());
         warn("--------");

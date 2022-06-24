@@ -49,7 +49,7 @@ Names vsg::validateInstancelayerNames(const Names& names)
         }
         else
         {
-            warn("Warning : requested invalid layer : ", requestedName);
+            warn("requested invalid layer : ", requestedName);
         }
     }
 

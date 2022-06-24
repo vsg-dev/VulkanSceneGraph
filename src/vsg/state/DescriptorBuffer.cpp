@@ -170,7 +170,7 @@ void DescriptorBuffer::compile(Context& context)
                     }
                     else
                     {
-                        warn("Warning: DescriptorBuffer::compile(..) unable to allocate bufferInfo with within associated Buffer.");
+                        warn("DescriptorBuffer::compile(..) unable to allocate bufferInfo with within associated Buffer.");
                     }
                 }
             }
@@ -194,7 +194,7 @@ void DescriptorBuffer::compile(Context& context)
                     }
                     else
                     {
-                        warn("Warning: DescriptorBuffer::compile(..) unable to allocate buffer within associated DeviceMemory.");
+                        warn("DescriptorBuffer::compile(..) unable to allocate buffer within associated DeviceMemory.");
                     }
                 }
             }

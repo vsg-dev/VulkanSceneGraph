@@ -282,8 +282,8 @@ namespace vsg
 
         std::string debugPrefix = "debug: ";
         std::string infoPrefix = "info: ";
-        std::string warnPrefix = "warn: ";
-        std::string errorPrefix = "error: ";
+        std::string warnPrefix = "Warning: ";
+        std::string errorPrefix = "ERROR: ";
 
     protected:
         void debug_implementation(std::string_view message) override;
