@@ -64,23 +64,24 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
 Extensions::Extensions(Device* device)
 {
     // VK_KHR_create_renderpass2
-    vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR_Compatibility>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2"));
-    if (!vkCreateRenderPass2) vkCreateRenderPass2 = reinterpret_cast<PFN_vkCreateRenderPass2KHR_Compatibility>(vkGetDeviceProcAddr(*device, "vkCreateRenderPass2KHR"));
+    device->getProcAddr(vkCreateRenderPass2, "vkCreateRenderPass2", "vkCreateRenderPass2KHR");
 
     // VK_KHR_ray_tracing
-    vkCreateAccelerationStructureKHR = reinterpret_cast<PFN_vkCreateAccelerationStructureKHR>(vkGetDeviceProcAddr(*device, "vkCreateAccelerationStructureKHR"));
-    vkDestroyAccelerationStructureKHR = reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(vkGetDeviceProcAddr(*device, "vkDestroyAccelerationStructureKHR"));
-    vkGetAccelerationStructureDeviceAddressKHR = reinterpret_cast<PFN_vkGetAccelerationStructureDeviceAddressKHR>(vkGetDeviceProcAddr(*device, "vkGetAccelerationStructureDeviceAddressKHR"));
-    vkGetAccelerationStructureBuildSizesKHR = reinterpret_cast<PFN_vkGetAccelerationStructureBuildSizesKHR>(vkGetDeviceProcAddr(*device, "vkGetAccelerationStructureBuildSizesKHR"));
-    vkCmdBuildAccelerationStructuresKHR = reinterpret_cast<PFN_vkCmdBuildAccelerationStructuresKHR>(vkGetDeviceProcAddr(*device, "vkCmdBuildAccelerationStructuresKHR"));
-    vkCreateRayTracingPipelinesKHR = reinterpret_cast<PFN_vkCreateRayTracingPipelinesKHR>(vkGetDeviceProcAddr(*device, "vkCreateRayTracingPipelinesKHR"));
-    vkGetRayTracingShaderGroupHandlesKHR = reinterpret_cast<PFN_vkGetRayTracingShaderGroupHandlesKHR>(vkGetDeviceProcAddr(*device, "vkGetRayTracingShaderGroupHandlesKHR"));
-    vkCmdTraceRaysKHR = reinterpret_cast<PFN_vkCmdTraceRaysKHR>(vkGetDeviceProcAddr(*device, "vkCmdTraceRaysKHR"));
+    device->getProcAddr(vkCreateAccelerationStructureKHR, "vkCreateAccelerationStructureKHR");
+    device->getProcAddr(vkDestroyAccelerationStructureKHR, "vkDestroyAccelerationStructureKHR");
+    device->getProcAddr(vkGetAccelerationStructureDeviceAddressKHR, "vkGetAccelerationStructureDeviceAddressKHR");
+    device->getProcAddr(vkGetAccelerationStructureBuildSizesKHR, "vkGetAccelerationStructureBuildSizesKHR");
+    device->getProcAddr(vkCmdBuildAccelerationStructuresKHR, "vkCmdBuildAccelerationStructuresKHR");
+    device->getProcAddr(vkCreateRayTracingPipelinesKHR, "vkCreateRayTracingPipelinesKHR");
+    device->getProcAddr(vkGetRayTracingShaderGroupHandlesKHR, "vkGetRayTracingShaderGroupHandlesKHR");
+    device->getProcAddr(vkCmdTraceRaysKHR, "vkCmdTraceRaysKHR");
 
-    vkGetBufferDeviceAddressKHR = reinterpret_cast<PFN_vkGetBufferDeviceAddressKHR_Compatibility>(vkGetDeviceProcAddr(*device, "vkGetBufferDeviceAddressKHR"));
+    device->getProcAddr(vkGetBufferDeviceAddressKHR, "vkGetBufferDeviceAddressKHR");
 
     // VK_NV_mesh_shader
-    vkCmdDrawMeshTasksNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksNV"));
-    vkCmdDrawMeshTasksIndirectNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksIndirectNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksIndirectNV"));
-    vkCmdDrawMeshTasksIndirectCountNV = reinterpret_cast<PFN_vkCmdDrawMeshTasksIndirectCountNV>(vkGetDeviceProcAddr(*device, "vkCmdDrawMeshTasksIndirectCountNV"));
+    device->getProcAddr(vkCmdDrawMeshTasksNV, "vkCmdDrawMeshTasksNV");
+    device->getProcAddr(vkCmdDrawMeshTasksIndirectNV, "vkCmdDrawMeshTasksIndirectNV");
+    device->getProcAddr(vkCmdDrawMeshTasksIndirectCountNV, "vkCmdDrawMeshTasksIndirectCountNV");
+
+    std::cout<<"vkCmdDrawMeshTasksIndirectCountNV = "<<vkCmdDrawMeshTasksIndirectCountNV<<std::endl;
 }
