@@ -12,7 +12,11 @@ using namespace vsg;
 //
 Logger::Logger()
 {
-    level = LOGGER_ALL;
+//    level = LOGGER_ALL; // print all messages
+//    level = LOGGER_DEBUG; // print debugs and above messages
+//    level = LOGGER_INFO; // default, print info and above messages
+//    level = LOGGER_WARN; // print warn and above messages
+//    level = LOGGER_ERROR; // print error and above messages
 }
 
 Logger::Logger(const Logger& rhs) :
