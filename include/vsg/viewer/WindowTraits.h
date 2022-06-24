@@ -63,7 +63,12 @@ namespace vsg
 
             // vsg::DeviceFeatures use instance extension
             instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+    #if TARGET_OS_MAC
+            instanceExtensionNames.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    #endif
+#endif
             // provide anisotropic filtering as standard.
             if (!deviceFeatures) deviceFeatures = vsg::DeviceFeatures::create();
             deviceFeatures->get().samplerAnisotropy = VK_TRUE;
