@@ -152,6 +152,56 @@ void StdLogger::error_implementation(std::string_view message)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// ThreadLogger
+//
+ThreadLogger::ThreadLogger()
+{
+}
+
+void ThreadLogger::setThreadPrefix(std::thread::id id, const std::string& str)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _threadPrefixes[id] = str;
+}
+
+void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
+{
+    if (auto itr = _threadPrefixes.find(id); itr != _threadPrefixes.end())
+    {
+        out << itr->second;
+    }
+    else
+    {
+        out << "thread::id = " << id << " | ";
+    }
+}
+
+void ThreadLogger::debug_implementation(std::string_view message)
+{
+    print_id(std::cout, std::this_thread::get_id());
+    std::cout<<debugPrefix<<message<<"\n";
+}
+
+void ThreadLogger::info_implementation(std::string_view message)
+{
+    print_id(std::cout, std::this_thread::get_id());
+    std::cout<<infoPrefix<<message<<"\n";
+}
+
+void ThreadLogger::warn_implementation(std::string_view message)
+{
+    print_id(std::cout, std::this_thread::get_id());
+    std::cerr<<warnPrefix<<message<<std::endl;
+}
+
+void ThreadLogger::error_implementation(std::string_view message)
+{
+    print_id(std::cout, std::this_thread::get_id());
+    std::cerr<<errorPrefix<<message<<std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // NullLogger
 //
 NullLogger::NullLogger()

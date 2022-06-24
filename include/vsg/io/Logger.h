@@ -17,11 +17,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <mutex>
 #include <string_view>
+#include <thread>
 
 namespace vsg
 {
 
-    /// pure virtual Logger base class that provides extensible message logging facilities
+    /// thread safe, pure virtual Logger base class that provides extensible message logging facilities
     class VSG_DECLSPEC Logger : public Object
     {
     public:
@@ -292,6 +293,33 @@ namespace vsg
         void error_implementation(std::string_view message) override;
     };
     VSG_type_name(vsg::StdLogger);
+
+    /// Logger that prefixes message lines with user defined thread prefix, or std::thread::id when none is assigned.
+    class VSG_DECLSPEC ThreadLogger : public vsg::Inherit<vsg::Logger, ThreadLogger>
+    {
+    public:
+        ThreadLogger();
+
+        /// assign prefix for std::thread::id. The id can be obtained from std::thread::get_id() i.e. thread->get_id() or this_thread::get_id().
+        void setThreadPrefix(std::thread::id id, const std::string& str);
+
+        std::string debugPrefix = "debug: ";
+        std::string infoPrefix = "info: ";
+        std::string warnPrefix = "Warning: ";
+        std::string errorPrefix = "ERROR: ";
+
+    protected:
+
+        void print_id(std::ostream& out, std::thread::id id);
+
+        void debug_implementation(std::string_view message) override;
+        void info_implementation(std::string_view message) override;
+        void warn_implementation(std::string_view message) override;
+        void error_implementation(std::string_view message) override;
+
+        std::map<std::thread::id, std::string> _threadPrefixes;
+    };
+    VSG_type_name(vsg::ThreadLogger);
 
     /// Logger that ignores all messages
     class VSG_DECLSPEC NullLogger : public Inherit<Logger, NullLogger>
