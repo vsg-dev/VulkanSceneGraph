@@ -82,6 +82,4 @@ Extensions::Extensions(Device* device)
     device->getProcAddr(vkCmdDrawMeshTasksNV, "vkCmdDrawMeshTasksNV");
     device->getProcAddr(vkCmdDrawMeshTasksIndirectNV, "vkCmdDrawMeshTasksIndirectNV");
     device->getProcAddr(vkCmdDrawMeshTasksIndirectCountNV, "vkCmdDrawMeshTasksIndirectCountNV");
-
-    std::cout<<"vkCmdDrawMeshTasksIndirectCountNV = "<<vkCmdDrawMeshTasksIndirectCountNV<<std::endl;
 }
