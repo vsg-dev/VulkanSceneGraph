@@ -12,7 +12,7 @@
 // Include Vulkan headers that are available in the system.
 //
 #include <vulkan/vulkan.h>
-#if defined(__APPLE__)
+#if defined(__APPLE__) && (VK_HEADER_VERSION >= 216)
 #include <TargetConditionals.h>
     #if TARGET_OS_MAC
         #include <vulkan/vulkan_beta.h>

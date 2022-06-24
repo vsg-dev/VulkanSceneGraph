@@ -69,7 +69,7 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
     
-#if defined(__APPLE__)
+#if defined(__APPLE__) && (VK_HEADER_VERSION >= 216)
     #include <TargetConditionals.h>
         #if TARGET_OS_MAC
             createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;

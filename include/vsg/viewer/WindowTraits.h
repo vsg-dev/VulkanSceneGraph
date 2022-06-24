@@ -63,7 +63,7 @@ namespace vsg
 
             // vsg::DeviceFeatures use instance extension
             instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-#if defined(__APPLE__)
+#if defined(__APPLE__) && (VK_HEADER_VERSION >= 216)
 #include <TargetConditionals.h>
     #if TARGET_OS_MAC
             instanceExtensionNames.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);

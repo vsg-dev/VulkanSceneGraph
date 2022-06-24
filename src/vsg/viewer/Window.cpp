@@ -233,7 +233,7 @@ void Window::_initDevice()
 
     vsg::Names deviceExtensions;
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-#if defined(__APPLE__)
+#if defined(__APPLE__) && (VK_HEADER_VERSION >= 216)
         #include <TargetConditionals.h>
             #if TARGET_OS_MAC
                     deviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
