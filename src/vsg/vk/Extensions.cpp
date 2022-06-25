@@ -20,29 +20,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ExtensionProperties vsg::getExtensionProperties(const char* pLayerName)
-{
-    uint32_t extCount = 0;
-    VkResult err = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
-    if (err)
-    {
-        error("Error: vsg::getExtensionPropertiesCount(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties.");
-        return ExtensionProperties();
-    }
-
-    ExtensionProperties extensionProperties(extCount);
-    err = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
-    if (err)
-    {
-        error("Error: vsg::getExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties.");
-        return ExtensionProperties();
-    }
-    return extensionProperties;
-}
-
 bool vsg::isExtensionSupported(const char* extensionName)
 {
-    ExtensionProperties extProps = getExtensionProperties();
+    auto extProps = enumerateInstanceExtensionProperties();
     for (auto prop : extProps)
     {
         if (strcmp(prop.extensionName, extensionName) == 0) return true;
@@ -52,7 +32,7 @@ bool vsg::isExtensionSupported(const char* extensionName)
 
 bool vsg::isExtensionListSupported(const Names& extensionList)
 {
-    ExtensionProperties extProps = getExtensionProperties();
+    auto extProps = enumerateInstanceExtensionProperties();
     for (auto ext : extensionList)
     {
         auto compare = [&](const VkExtensionProperties& rhs) { return strcmp(ext, rhs.extensionName) == 0; };

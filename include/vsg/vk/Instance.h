@@ -25,7 +25,16 @@ namespace vsg
 
     using Names = std::vector<const char*>;
     using PhysicalDeviceTypes = std::vector<VkPhysicalDeviceType>;
+    using InstanceLayerProperties = std::vector<VkLayerProperties>;
+    using InstanceExtensionProperties = std::vector<VkExtensionProperties>;
 
+    /// wrapper for vkEnumerateInstanceLayerProperties
+    extern VSG_DECLSPEC InstanceLayerProperties enumerateInstanceLayerProperties();
+
+    /// wrapper for vkEnumerateInstanceExtensionProperties
+    extern VSG_DECLSPEC InstanceExtensionProperties enumerateInstanceExtensionProperties(const char* pLayerName = nullptr);
+
+    /// return names of layers that are supported from the desired list.
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
 
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>

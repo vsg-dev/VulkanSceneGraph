@@ -20,15 +20,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Names vsg::validateInstancelayerNames(const Names& names)
+InstanceLayerProperties vsg::enumerateInstanceLayerProperties()
 {
-    if (names.empty()) return names;
-
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    return availableLayers;
+}
+
+InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char* pLayerName)
+{
+    uint32_t extCount = 0;
+    VkResult result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
+    if (result != VK_SUCCESS)
+    {
+        error("Error: vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
+        return {};
+    }
+
+    InstanceExtensionProperties extensionProperties(extCount);
+    result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
+    if (result != VK_SUCCESS)
+    {
+        error("Error: vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
+        return {};
+    }
+    return extensionProperties;
+}
+
+Names vsg::validateInstancelayerNames(const Names& names)
+{
+    if (names.empty()) return names;
+
+    auto availableLayers = enumerateInstanceLayerProperties();
 
     using NameSet = std::set<std::string>;
     NameSet layerNames;
