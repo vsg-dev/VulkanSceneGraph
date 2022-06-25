@@ -31,7 +31,7 @@ void TraceRays::record(CommandBuffer& commandBuffer) const
     };
     uint32_t handleSizeAligned = alignedSize(rayTracingProperties.shaderGroupHandleSize, rayTracingProperties.shaderGroupHandleAlignment);
 
-    auto stridedDeviceAddress = [&](auto& shaderGroup) {
+    auto stridedDeviceAddress = [&](const auto& shaderGroup) {
         if (!shaderGroup) return VkStridedDeviceAddressRegionKHR{};
         VkBufferDeviceAddressInfo info{};
         info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;

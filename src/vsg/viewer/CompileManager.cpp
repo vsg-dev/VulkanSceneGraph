@@ -95,7 +95,7 @@ void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const Res
     }
 }
 
-void CompileManager::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)

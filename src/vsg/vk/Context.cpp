@@ -200,7 +200,7 @@ ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(Descriptor
     return dsi;
 }
 
-void Context::reserve(ResourceRequirements& requirements)
+void Context::reserve(const ResourceRequirements& requirements)
 {
     auto maxSets = requirements.computeNumDescriptorSets();
     auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();

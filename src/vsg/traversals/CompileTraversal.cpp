@@ -52,7 +52,7 @@ CompileTraversal::CompileTraversal(Window& window, ref_ptr<ViewportState> viewpo
     add(window, viewport, resourceRequirements);
 }
 
-CompileTraversal::CompileTraversal(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+CompileTraversal::CompileTraversal(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     add(viewer, resourceRequirements);
 }
@@ -130,7 +130,7 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     struct AddViews : public Visitor
     {

@@ -12,15 +12,19 @@
 // Include Vulkan headers that are available in the system.
 //
 #include <vulkan/vulkan.h>
-#if defined(__APPLE__) && (VK_HEADER_VERSION >= 216)
-#include <TargetConditionals.h>
-    #if TARGET_OS_MAC
-        #include <vulkan/vulkan_beta.h>
-    #endif
-#endif
 //
 // Then add definitions not provided by older headers below.
 //
+
+// Workaround for cppcheck
+#ifndef VK_DEFINE_NON_DISPATCHABLE_HANDLE
+    #if (VK_USE_64_BIT_PTR_DEFINES==1)
+        #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
+    #else
+        #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
+    #endif
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

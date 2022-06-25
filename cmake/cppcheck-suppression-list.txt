@@ -32,6 +32,7 @@ useStlAlgorithm:*/src/vsg/viewer/ExecuteCommands.cpp
 useStlAlgorithm:*/src/vsg/viewer/RecordAndSubmitTask.cpp
 useStlAlgorithm:*/src/vsg/viewer/src/vsg/utils/Builder.cpp
 useStlAlgorithm:*/src/vsg/viewer/Viewer.cpp
+useStlAlgorithm:*/src/vsg/viewer/CompileManager.cpp
 useStlAlgorithm:*/src/vsg/vk/Device.cpp
 useStlAlgorithm:*/src/vsg/vk/DeviceMemory.cpp
 useStlAlgorithm:*/src/vsg/vk/Framebuffer.cpp
@@ -75,6 +76,7 @@ unusedStructMember:*include/vsg/vk/ResourceRequirements.h
 unusedStructMember:*include/vsg/vk/Device.h
 unusedStructMember:*include/vsg/vk/RenderPass.h
 unusedStructMember:*include/vsg/vk/Swapchain.h
+unusedStructMember:*include/vsg/vk/vulkan.h
 unusedStructMember:*include/vsg/nodes/Switch.h
 unusedStructMember:*include/vsg/text/TextLayout.h
 unusedStructMember:*include/vsg/introspection/c_interface.h
@@ -105,3 +107,4 @@ stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
 
 // suppress inappropriate warning about usage that exists for debugging purposes.
 duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
+
