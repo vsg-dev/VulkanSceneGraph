@@ -45,6 +45,8 @@ namespace vsg
         /// Logger singleton, defaults to using vsg::StdLogger
         static ref_ptr<Logger>& instance();
 
+        virtual void flush() {}
+
         inline void debug(char* message) { debug(std::string_view(message)); }
         inline void debug(const char* message) { debug(std::string_view(message)); }
         inline void debug(std::string& message) { debug(std::string_view(message)); }
@@ -286,6 +288,8 @@ namespace vsg
         std::string warnPrefix = "Warning: ";
         std::string errorPrefix = "ERROR: ";
 
+        void flush() override;
+
     protected:
         void debug_implementation(std::string_view message) override;
         void info_implementation(std::string_view message) override;
@@ -307,6 +311,8 @@ namespace vsg
         std::string infoPrefix = "info: ";
         std::string warnPrefix = "Warning: ";
         std::string errorPrefix = "ERROR: ";
+
+        void flush() override;
 
     protected:
         void print_id(std::ostream& out, std::thread::id id);

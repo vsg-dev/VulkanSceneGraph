@@ -1,3 +1,14 @@
+/* <editor-fold desc="MIT License">
+
+Copyright(c) 2022 Robert Osfield
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+</editor-fold> */
 
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -130,6 +141,12 @@ StdLogger::StdLogger()
 {
 }
 
+void StdLogger::flush()
+{
+    std::cout.flush();
+    std::cerr.flush();
+}
+
 void StdLogger::debug_implementation(std::string_view message)
 {
     std::cout << debugPrefix << message << '\n';
@@ -158,6 +175,13 @@ ThreadLogger::ThreadLogger()
 {
 }
 
+
+void ThreadLogger::flush()
+{
+    std::cout.flush();
+    std::cerr.flush();
+}
+
 void ThreadLogger::setThreadPrefix(std::thread::id id, const std::string& str)
 {
     std::scoped_lock<std::mutex> lock(_mutex);
@@ -179,13 +203,13 @@ void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
 void ThreadLogger::debug_implementation(std::string_view message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cout << debugPrefix << message << "\n";
+    std::cout << debugPrefix << message << '\n';
 }
 
 void ThreadLogger::info_implementation(std::string_view message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cout << infoPrefix << message << "\n";
+    std::cout << infoPrefix << message << '\n';
 }
 
 void ThreadLogger::warn_implementation(std::string_view message)
