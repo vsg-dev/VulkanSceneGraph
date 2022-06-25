@@ -12,11 +12,11 @@ using namespace vsg;
 //
 Logger::Logger()
 {
-//    level = LOGGER_ALL; // print all messages
-//    level = LOGGER_DEBUG; // print debugs and above messages
-//    level = LOGGER_INFO; // default, print info and above messages
-//    level = LOGGER_WARN; // print warn and above messages
-//    level = LOGGER_ERROR; // print error and above messages
+    // level = LOGGER_ALL; // print all messages
+    // level = LOGGER_DEBUG; // print debugs and above messages
+    // level = LOGGER_INFO; // default, print info and above messages
+    // level = LOGGER_WARN; // print warn and above messages
+    // level = LOGGER_ERROR; // print error and above messages
 }
 
 Logger::Logger(const Logger& rhs) :
@@ -92,13 +92,13 @@ void Logger::log(Level msg_level, std::string_view message)
     if (level > msg_level) return;
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    switch(msg_level)
+    switch (msg_level)
     {
-        case(LOGGER_DEBUG): debug_implementation(message); break;
-        case(LOGGER_INFO): info_implementation(message); break;
-        case(LOGGER_WARN): warn_implementation(message); break;
-        case(LOGGER_ERROR): error_implementation(message); break;
-        default: break;
+    case (LOGGER_DEBUG): debug_implementation(message); break;
+    case (LOGGER_INFO): info_implementation(message); break;
+    case (LOGGER_WARN): warn_implementation(message); break;
+    case (LOGGER_ERROR): error_implementation(message); break;
+    default: break;
     }
 }
 
@@ -112,13 +112,13 @@ void Logger::log_stream(Level msg_level, PrintToStreamFunction print)
 
     print(_stream);
 
-    switch(msg_level)
+    switch (msg_level)
     {
-        case(LOGGER_DEBUG): debug_implementation(_stream.str()); break;
-        case(LOGGER_INFO): info_implementation(_stream.str()); break;
-        case(LOGGER_WARN): warn_implementation(_stream.str()); break;
-        case(LOGGER_ERROR): error_implementation(_stream.str()); break;
-        default: break;
+    case (LOGGER_DEBUG): debug_implementation(_stream.str()); break;
+    case (LOGGER_INFO): info_implementation(_stream.str()); break;
+    case (LOGGER_WARN): warn_implementation(_stream.str()); break;
+    case (LOGGER_ERROR): error_implementation(_stream.str()); break;
+    default: break;
     }
 }
 
@@ -179,25 +179,25 @@ void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
 void ThreadLogger::debug_implementation(std::string_view message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cout<<debugPrefix<<message<<"\n";
+    std::cout << debugPrefix << message << "\n";
 }
 
 void ThreadLogger::info_implementation(std::string_view message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cout<<infoPrefix<<message<<"\n";
+    std::cout << infoPrefix << message << "\n";
 }
 
 void ThreadLogger::warn_implementation(std::string_view message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cerr<<warnPrefix<<message<<std::endl;
+    std::cerr << warnPrefix << message << std::endl;
 }
 
 void ThreadLogger::error_implementation(std::string_view message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cerr<<errorPrefix<<message<<std::endl;
+    std::cerr << errorPrefix << message << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

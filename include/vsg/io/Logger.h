@@ -36,7 +36,7 @@ namespace vsg
             LOGGER_DEBUG = 1,
             LOGGER_INFO = 2,
             LOGGER_WARN = 3,
-            LOGGER_ERROR  = 4,
+            LOGGER_ERROR = 4,
             LOGGER_OFF = 5
         };
 
@@ -182,13 +182,13 @@ namespace vsg
             _stream.clear();
             (_stream << ... << args);
 
-            switch(msg_level)
+            switch (msg_level)
             {
-                case(LOGGER_DEBUG): debug_implementation(_stream.str()); break;
-                case(LOGGER_INFO): info_implementation(_stream.str()); break;
-                case(LOGGER_WARN): warn_implementation(_stream.str()); break;
-                case(LOGGER_ERROR): error_implementation(_stream.str()); break;
-                default: break;
+            case (LOGGER_DEBUG): debug_implementation(_stream.str()); break;
+            case (LOGGER_INFO): info_implementation(_stream.str()); break;
+            case (LOGGER_WARN): warn_implementation(_stream.str()); break;
+            case (LOGGER_ERROR): error_implementation(_stream.str()); break;
+            default: break;
             }
         }
 
@@ -309,7 +309,6 @@ namespace vsg
         std::string errorPrefix = "ERROR: ";
 
     protected:
-
         void print_id(std::ostream& out, std::thread::id id);
 
         void debug_implementation(std::string_view message) override;
