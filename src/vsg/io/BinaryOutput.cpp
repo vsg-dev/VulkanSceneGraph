@@ -14,9 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/BinaryOutput.h>
 
-#include <cstring>
-#include <iostream>
-
 using namespace vsg;
 
 BinaryOutput::BinaryOutput(std::ostream& output, ref_ptr<const Options> in_options) :

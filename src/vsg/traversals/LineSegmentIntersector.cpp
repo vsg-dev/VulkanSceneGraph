@@ -214,7 +214,7 @@ void LineSegmentIntersector::popTransform()
 
 bool LineSegmentIntersector::intersects(const dsphere& bs)
 {
-    //std::cout<<"intersects( center = "<<bs.center<<", radius = "<<bs.radius<<")"<<std::endl;
+    //debug("intersects( center = ", bs.center, ", radius = ", bs.radius, ")");
     if (!bs.valid()) return false;
 
     auto& lineSegment = _lineSegmentStack.back();

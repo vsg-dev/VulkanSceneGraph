@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
+#include <vsg/io/Logger.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/TouchEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
-#include <iostream>
 #include <time.h>
 
 #import <Cocoa/Cocoa.h>
@@ -84,7 +84,7 @@ namespace vsg
 
 - (BOOL)canBecomeKeyWindow
 {
-    //std::cout << "canBecomeKeyWindow" << std::endl;
+    //vsg:debug("canBecomeKeyWindow");
     return YES;
 }
 
@@ -141,7 +141,7 @@ namespace vsg
     uint32_t width = contentRect.size.width * devicePixelScale;
     uint32_t height = contentRect.size.height * devicePixelScale;
     
-    //std::cout << "handleFrameSizeChange: " << width << ", " << height << std::endl;
+    //vsg:debug("handleFrameSizeChange: ", width, ", ", height);
     
     window->queueEvent(vsg::ConfigureWindowEvent::create(window, event_time, contentRect.origin.x, contentRect.origin.y, width, height));
 }
@@ -168,12 +168,12 @@ namespace vsg
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-    //std::cout << "windowDidBecomeKey" << std::endl;
+    //vsg:debug("windowDidBecomeKey");
 }
 
 - (void)windowDidResignKey:(NSNotification *)notification
 {
-    //std::cout << "windowDidResignKey" << std::endl;
+    //vsg:debug("windowDidResignKey");
 }
 
 @end
@@ -919,7 +919,7 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             NSInteger buttonNumber = [anEvent buttonNumber];
             NSUInteger pressedButtons = [NSEvent pressedMouseButtons];
             
-            //std::cout << "NSEventTypeMouseMoved(etc): " << pos.x << ", " << pos.y << std::endl;
+            //vsg:debug("NSEventTypeMouseMoved(etc): ", pos.x, ", ", pos.y);
 
             auto buttonMask = 0;
             if(pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;

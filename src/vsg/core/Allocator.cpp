@@ -12,10 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Exception.h>
-#include <vsg/io/stream.h>
+#include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 
 #include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 
@@ -28,7 +28,7 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "Allocator()" << this << std::endl;
+        info("Allocator()", this);
     }
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
@@ -45,7 +45,7 @@ Allocator::~Allocator()
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "~Allocator() " << this << std::endl;
+        info("~Allocator() ", this);
     }
 }
 
@@ -109,7 +109,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
     {
         if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
         {
-            std::cout << "Allocator::allocate(" << size << ", " << allocatorAffinity << ") out of bounds allocating new MemoryBlock" << std::endl;
+            info("Allocator::allocate(", size, ", ", allocatorAffinity, ") out of bounds allocating new MemoryBlock");
         }
 
         auto name = make_string("MemoryBlocks_", allocatorAffinity);
@@ -127,7 +127,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
         {
             if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                std::cout << "Allocated from MemoryBlock mem_ptr = " << mem_ptr << ", size = " << size << ", allocatorAffinity = " << int(allocatorAffinity) << std::endl;
+                info("Allocated from MemoryBlock mem_ptr = ", mem_ptr, ", size = ", size, ", allocatorAffinity = ", int(allocatorAffinity));
             }
             return mem_ptr;
         }
@@ -136,7 +136,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
     void* ptr = Allocator::allocate(size, allocatorAffinity);
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "Allocator::allocate(" << size << ", " << int(allocatorAffinity) << ") ptr = " << ptr << std::endl;
+        info("Allocator::allocate(", size, ", ", int(allocatorAffinity), ") ptr = ", ptr);
     }
     return ptr;
 }
@@ -153,7 +153,7 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
             {
                 if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
                 {
-                    std::cout << "Deallocated from MemoryBlock " << ptr << std::endl;
+                    info("Deallocated from MemoryBlock ", ptr);
                 }
                 return true;
             }
@@ -300,7 +300,7 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, Alloca
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemoryBlock(" << blockSize << ") allocated memory" << std::endl;
+        info("MemoryBlock(", blockSize, ") allocated memory");
     }
 }
 
@@ -308,7 +308,7 @@ Allocator::MemoryBlock::~MemoryBlock()
 {
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemoryBlock::~MemoryBlock(" << memorySlots.totalMemorySize() << ") freed memory" << std::endl;
+        info("MemoryBlock::~MemoryBlock(", memorySlots.totalMemorySize(), ") freed memory");
     }
 
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
@@ -339,7 +339,7 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         {
             if (!memorySlots.release(offset, size))
             {
-                std::cout << "Allocator::MemoryBlock::deallocate(" << ptr << ") problem - couldn't release" << std::endl;
+                warn("Allocator::MemoryBlock::deallocate(", ptr, ") problem - couldn't release");
             }
             return true;
         }
@@ -358,7 +358,7 @@ Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& i
 {
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "Allocator::MemoryBlocks::MemoryBlocks(" << parent << ", " << name << ", " << blockSize << ")" << std::endl;
+        info("Allocator::MemoryBlocks::MemoryBlocks(", parent, ", ", name, ", ", blockSize, ")");
     }
 }
 
@@ -366,7 +366,7 @@ Allocator::MemoryBlocks::~MemoryBlocks()
 {
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemoryBlocks::~MemoryBlocks() name = " << name << ", " << memoryBlocks.size() << std::endl;
+        info("MemoryBlocks::~MemoryBlocks() name = ", name, ", ", memoryBlocks.size());
     }
 }
 
@@ -389,7 +389,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "Allocator::MemoryBlocks::allocate(" << size << ") MemoryBlocks.name = " << name << ", allocated in new MemoryBlock " << parent->memoryTracking << std::endl;
+        info("Allocator::MemoryBlocks::allocate(", size, ") MemoryBlocks.name = ", name, ", allocated in new MemoryBlock ", parent->memoryTracking);
     }
 
     return ptr;
@@ -404,7 +404,7 @@ bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemoryBlocks:deallocate() MemoryBlocks.name = " << name << ",  couldn't locate pointer to deallocate " << ptr << std::endl;
+        info("MemoryBlocks:deallocate() MemoryBlocks.name = ", name, ",  couldn't locate pointer to deallocate ", ptr);
     }
     return false;
 }
@@ -414,7 +414,7 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
     size_t memoryDeleted = 0;
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = " << name << std::endl;
+        info("MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = ", name);
     }
 
     auto itr = memoryBlocks.begin();
@@ -425,7 +425,7 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
         {
             if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                std::cout << "    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = " << name << ",  removing MemoryBlock" << block.get() << std::endl;
+                info("    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = ", name, ",  removing MemoryBlock", block.get());
             }
             memoryDeleted += block->memorySlots.totalMemorySize();
             itr = memoryBlocks.erase(itr);

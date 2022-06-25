@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
@@ -21,7 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <xcb/xproto.h>
 
 #include <chrono>
-#include <iostream>
 #include <thread>
 #include <cstring>
 
@@ -355,7 +355,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     int screenCount = xcb_setup_roots_length (setup);
     if (screenNum >= screenCount)
     {
-        std::cout<<"Warning: request screenNum ("<<screenNum<<") too high, only "<<screenCount<<" screens available. Selecting screen 0 as fallback."<<std::endl;
+        warn("request screenNum (",screenNum,") too high, only ",screenCount," screens available. Selecting screen 0 as fallback.");
         screenNum = 0;
     }
 
@@ -574,49 +574,49 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         }
         case(XCB_UNMAP_NOTIFY):
         {
-            //std::cout<<"xcb_unmap_notify_event_t"<<std::endl;
+            //debug("xcb_unmap_notify_event_t");
             _windowMapped = false;
             break;
         }
         case(XCB_MAP_NOTIFY):
         {
-            //std::cout<<"xcb_map_notify_event_t"<<std::endl;
+            //debug("xcb_map_notify_event_t");
             _windowMapped = true;
             break;
         }
         case (XCB_MAPPING_NOTIFY):
         {
-            //std::cout<<"xcb_mapping_notify_event_t"<<std::endl;
+            //debug("xcb_mapping_notify_event_t");
             break;
         }
         case(XCB_LIST_PROPERTIES):
         {
-            //std::cout<<"xcb_list_properties_request_t"<<std::endl;
+            //debug("xcb_list_properties_request_t");
             break;
         }
         case(XCB_PROPERTY_NOTIFY):
         {
-            //std::cout<<"xcb_property_notify_event_t"<<std::endl;
+            //debug("xcb_property_notify_event_t");
             break;
         }
         case(XCB_FOCUS_IN):
         {
-            //std::cout<<"xcb_focus_in_event_t"<<std::endl;
+            //debug("xcb_focus_in_event_t");
             break;
         }
         case(XCB_FOCUS_OUT):
         {
-            //std::cout<<"xcb_focus_out_event_t"<<std::endl;
+            //debug("xcb_focus_out_event_t");
             break;
         }
         case(XCB_ENTER_NOTIFY):
         {
-            //std::cout<<"xcb_enter_notify_event_t"<<std::endl;
+            //debug("xcb_enter_notify_event_t");
             break;
         }
         case(XCB_LEAVE_NOTIFY):
         {
-            //std::cout<<"xcb_leave_notify_event_t"<<std::endl;
+            //debug("xcb_leave_notify_event_t");
             break;
         }
         case(XCB_CONFIGURE_NOTIFY):
@@ -757,13 +757,13 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             // can't find meaningful documentation on what information is encoded in a xcb_ge_generic_event_t
             // so no way to map it to anything on the VSG side.
             //
-            // auto generic_event = reinterpret_cast<const xcb_ge_generic_event_t*>(event);
-            // std::cout<<"generic_event->event_type = "<<generic_event->event_type<<std::endl;
+            //auto generic_event = reinterpret_cast<const xcb_ge_generic_event_t*>(event);
+            //debug("generic_event->event_type = ", generic_event->event_type);
             break;
         }
         default:
         {
-            std::cout << "xcb_event type not handled, response_type = " << static_cast<int>(response_type) << std::endl;
+            warn("xcb_event type not handled, response_type = ", static_cast<int>(response_type));
             break;
         }
         }

@@ -11,11 +11,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/BinaryInput.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
-#include <iostream>
-#include <sstream>
 
 using namespace vsg;
 
@@ -89,7 +88,7 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
             }
             else
             {
-                std::cout << "Unable to create instance of class : " << className << std::endl;
+                warn("Unable to create instance of class : ", className);
             }
         }
 

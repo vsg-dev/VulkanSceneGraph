@@ -10,13 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/View.h>
 #include <vsg/vk/State.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -146,24 +145,24 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
 #if 0
-    std::cout << "pdo.graphicsQueue->submit(..) current_fence = " << current_fence << "\n";
-    std::cout << "    submitInfo.waitSemaphoreCount = " << submitInfo.waitSemaphoreCount << "\n";
+    debug("pdo.graphicsQueue->submit(..) current_fence = ", current_fence);
+    debug("    submitInfo.waitSemaphoreCount = ", submitInfo.waitSemaphoreCount);
     for (uint32_t i = 0; i < submitInfo.waitSemaphoreCount; ++i)
     {
-        std::cout << "        submitInfo.pWaitSemaphores[" << i << "] = " << submitInfo.pWaitSemaphores[i] << "\n";
-        std::cout << "        submitInfo.pWaitDstStageMask[" << i << "] = " << submitInfo.pWaitDstStageMask[i] << "\n";
+        debug("        submitInfo.pWaitSemaphores[", i, "] = ", submitInfo.pWaitSemaphores[i]);
+        debug("        submitInfo.pWaitDstStageMask[", i, "] = ", submitInfo.pWaitDstStageMask[i]);
     }
-    std::cout << "    submitInfo.commandBufferCount = " << submitInfo.commandBufferCount << "\n";
+    debug("    submitInfo.commandBufferCount = ", submitInfo.commandBufferCount);
     for (uint32_t i = 0; i < submitInfo.commandBufferCount; ++i)
     {
-        std::cout << "        submitInfo.pCommandBuffers[" << i << "] = " << submitInfo.pCommandBuffers[i] << "\n";
+        debug("        submitInfo.pCommandBuffers[", i, "] = ", submitInfo.pCommandBuffers[i]);
     }
-    std::cout << "    submitInfo.signalSemaphoreCount = " << submitInfo.signalSemaphoreCount << "\n";
+    debug("    submitInfo.signalSemaphoreCount = ", submitInfo.signalSemaphoreCount);
     for (uint32_t i = 0; i < submitInfo.signalSemaphoreCount; ++i)
     {
-        std::cout << "        submitInfo.pSignalSemaphores[" << i << "] = " << submitInfo.pSignalSemaphores[i] << "\n";
+        debug("        submitInfo.pSignalSemaphores[", i, "] = ", submitInfo.pSignalSemaphores[i]);
     }
-    std::cout << std::endl;
+    debug('\n');
 #endif
 
     return queue->submit(submitInfo, current_fence);

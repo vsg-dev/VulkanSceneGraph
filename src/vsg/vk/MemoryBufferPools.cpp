@@ -10,12 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/MemoryBufferPools.h>
 
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 
 using namespace vsg;
 
@@ -105,15 +105,15 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
     bufferInfo->offset = reservedBufferSlot.second;
     bufferInfo->range = totalSize;
 
-    // std::cout<<name<<" : Created new Buffer "<<bufferInfo.buffer.get()<<" totalSize "<<totalSize<<" deviceSize = "<<deviceSize<<std::endl;
+    //debug(name, " : Created new Buffer ", bufferInfo->buffer.get(), " totalSize ", totalSize, " deviceSize = ", deviceSize);
 
     if (!bufferInfo->buffer->full())
     {
-        // std::cout<<name<<"  inserting new Buffer into Context.bufferPools"<<std::endl;
+        //debug(name, "  inserting new Buffer into Context.bufferPools");
         bufferPools.push_back(bufferInfo->buffer);
     }
 
-    // std::cout<<name<<" : bufferInfo->offset = "<<bufferInfo->offset<<std::endl;
+    //debug(name, " : bufferInfo->offset = ", bufferInfo->offset);
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(*device, bufferInfo->buffer->vk(device->deviceID), &memRequirements);
@@ -122,11 +122,11 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     if (!reservedMemorySlot.first)
     {
-        // std::cout<<name<<" : Completely Failed to space for MemoryBufferPools::reserveBuffer("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+        //debug(name, " : Completely Failed to space for MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ") ");
         return {};
     }
 
-    // std::cout<<name<<" : Allocated new buffer, MemoryBufferPools::reserveBuffer("<<totalSize<<", "<<alignment<<", "<<bufferUsageFlags<<") "<<std::endl;
+    //debug(name, " : Allocated new buffer, MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ") ");
     bufferInfo->buffer->bind(reservedMemorySlot.first, reservedMemorySlot.second);
 
     return bufferInfo;
@@ -162,7 +162,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         // clamp to an aligned size
         deviceMemorySize = ((deviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
 
-        //std::cout<<"Creating new local DeviceMemory"<<std::endl;
+        //debug("Creating new local DeviceMemory");
         if (memRequirements.size < deviceMemorySize) memRequirements.size = deviceMemorySize;
 
         deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
@@ -171,7 +171,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
             reservedSlot = deviceMemory->reserve(totalSize);
             if (!deviceMemory->full())
             {
-                //std::cout<<"  inserting DeviceMemory into memoryPool "<<deviceMemory.get()<<std::endl;
+                //debug("  inserting DeviceMemory into memoryPool ", deviceMemory.get());
                 memoryPools.push_back(deviceMemory);
             }
         }
@@ -180,16 +180,16 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     {
         if (deviceMemory->full())
         {
-            //std::cout<<"DeviceMemory is full "<<deviceMemory.get()<<std::endl;
+            //debug("DeviceMemory is full ", deviceMemory.get());
         }
     }
 
     if (!reservedSlot.first)
     {
-        std::cout << "MemoryBufferPools::reserveMemory() Failed to reserve slot" << std::endl;
+        //debug("MemoryBufferPools::reserveMemory() Failed to reserve slot");
         return {};
     }
 
-    //std::cout << "MemoryBufferPools::reserveMemory() allocated DeviceMemoryOffset(" << deviceMemory<<", "<<reservedSlot.second << ")"<<std::endl;
+    //debug("MemoryBufferPools::reserveMemory() allocated DeviceMemoryOffset(", deviceMemory, ", ", reservedSlot.second, ")");
     return MemoryBufferPools::DeviceMemoryOffset(deviceMemory, reservedSlot.second);
 }

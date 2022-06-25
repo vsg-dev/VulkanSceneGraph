@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/CommandBuffer.h>
 
@@ -30,13 +31,13 @@ void CopyAndReleaseBuffer::copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest)
     VkDeviceSize dataSize = data->dataSize();
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
 
-    //std::cout<<"CopyAndReleaseImage::copyDirectly() dataSize = "<<dataSize<<std::endl;
+    //debug("CopyAndReleaseImage::copyDirectly() dataSize = ", dataSize);
 
     VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     ref_ptr<BufferInfo> stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(dataSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
     stagingBufferInfo->data = data;
 
-    // std::cout<<"stagingBufferInfo->buffer "<<stagingBufferInfo->buffer.get()<<", "<<stagingBufferInfo->offset<<", "<<stagingBufferInfo->range<<")"<<std::endl;
+    //debug("stagingBufferInfo->buffer ", stagingBufferInfo->buffer.get(), ", ", stagingBufferInfo->offset, ", ", stagingBufferInfo->range, ")");
 
     auto deviceID = stagingMemoryBufferPools->device->deviceID;
     ref_ptr<Buffer> imageStagingBuffer(stagingBufferInfo->buffer);
@@ -58,7 +59,7 @@ void CopyAndReleaseBuffer::add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest
 
 void CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) const
 {
-    //std::cout<<"CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) source.offset = "<<source.offset<<", "<<destination.offset<<std::endl;
+    //debug("CopyAndReleaseBuffer::CopyData::record(CommandBuffer& commandBuffer) source.offset = ", source->offset, ", ", destination->offset);
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = source->offset;
     copyRegion.dstOffset = destination->offset;

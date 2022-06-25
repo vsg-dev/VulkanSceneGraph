@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/io/DatabasePager.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/maths/plane.h>
@@ -37,8 +38,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/State.h>
 
 using namespace vsg;
-
-#include <iostream>
 
 #define INLINE_TRAVERSE 0
 
@@ -112,13 +111,13 @@ void RecordTraversal::clearBins()
 
 void RecordTraversal::apply(const Object& object)
 {
-    //    std::cout<<"Visiting object"<<std::endl;
+    //debug("Visiting Object");
     object.traverse(*this);
 }
 
 void RecordTraversal::apply(const Group& group)
 {
-//    std::cout<<"Visiting Group "<<std::endl;
+    //debug("Visiting Group");
 #if INLINE_TRAVERSE
     vsg::Group::t_traverse(group, *this);
 #else
@@ -128,7 +127,7 @@ void RecordTraversal::apply(const Group& group)
 
 void RecordTraversal::apply(const QuadGroup& group)
 {
-//    std::cout<<"Visiting QuadGroup "<<std::endl;
+    //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
     vsg::QuadGroup::t_traverse(group, *this);
 #else
@@ -220,7 +219,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 }
                 else
                 {
-                    // std::cout<<"repeat request "<<&plod<<", "<<plod.filename<<", "<<plod.requestCount.load()<<", plod.requestStatus = "<<plod.requestStatus.load()<<std::endl;;
+                    //debug("repeat request ",&plod,", ",plod.filename,", ",plod.requestCount.load(),", plod.requestStatus = ",plod.requestStatus.load());
                 }
             }
         }
@@ -252,7 +251,7 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 {
     if (_state->intersect(cullGroup.bound))
     {
-        //std::cout<<"Passed node"<<std::endl;
+        // debug("Passed node");
         cullGroup.traverse(*this);
     }
 }
@@ -261,7 +260,7 @@ void RecordTraversal::apply(const CullNode& cullNode)
 {
     if (_state->intersect(cullNode.bound))
     {
-        //std::cout<<"Passed node"<<std::endl;
+        //debug("Passed node");
         cullNode.traverse(*this);
     }
 }
@@ -289,38 +288,38 @@ void RecordTraversal::apply(const Switch& sw)
     }
 }
 
-void RecordTraversal::apply(const Light& light)
+void RecordTraversal::apply(const Light& /*light*/)
 {
-    std::cout << "RecordTraversal::apply(Light) " << light.className() << std::endl;
+    //debug("RecordTraversal::apply(Light) ", light.className());
 }
 
 void RecordTraversal::apply(const AmbientLight& light)
 {
-    //std::cout<<"RecordTraversal::apply(AmbientLight) "<<light.className()<<std::endl;
+    //debug("RecordTraversal::apply(AmbientLight) ", light.className());
     if (_viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const DirectionalLight& light)
 {
-    //std::cout<<"RecordTraversal::apply(DirectionalLight) "<<light.className()<<std::endl;
+    //debug("RecordTraversal::apply(DirectionalLight) ", light.className());
     if (_viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const PointLight& light)
 {
-    //std::cout<<"RecordTraversal::apply(PointLight) "<<light.className()<<std::endl;
+    //debug("RecordTraversal::apply(PointLight) ", light.className());
     if (_viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const SpotLight& light)
 {
-    //std::cout<<"RecordTraversal::apply(SpotLight) "<<light.className()<<std::endl;
+    //debug("RecordTraversal::apply(SpotLight) ", light.className());
     if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
-    //    std::cout<<"Visiting StateGroup "<<std::endl;
+    //debug("Visiting StateGroup");
 
     for (auto& command : stateGroup.stateCommands)
     {
@@ -389,7 +388,7 @@ void RecordTraversal::apply(const Commands& commands)
 
 void RecordTraversal::apply(const Command& command)
 {
-    //    std::cout<<"Visiting Command "<<std::endl;
+    //debug("Visiting Command");
     _state->record();
     command.record(*(_state->_commandBuffer));
 }

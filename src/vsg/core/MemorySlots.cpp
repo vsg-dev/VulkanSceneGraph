@@ -12,9 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 
 #include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 
@@ -27,7 +28,7 @@ MemorySlots::MemorySlots(size_t availableMemorySize, int in_memoryTracking) :
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemorySlots::MemorySlots(" << availableMemorySize << ") " << this << std::endl;
+        info("MemorySlots::MemorySlots(", availableMemorySize, ") ", this);
     }
 
     insertAvailableSlot(0, availableMemorySize);
@@ -41,12 +42,12 @@ MemorySlots::~MemorySlots()
     {
         if (_availableMemory.size() == 1)
         {
-            std::cout << "MemorySlots::~MemorySlots() " << this << ", all slots restored correctly." << std::endl;
+            info("MemorySlots::~MemorySlots() ", this, ", all slots restored correctly.");
         }
         else
         {
-            std::cout << "MemorySlots::~MemorySlots() " << this << ", not all slots restored correctly." << std::endl;
-            report(std::cout);
+            info("MemorySlots::~MemorySlots() ", this, ", not all slots restored correctly.");
+            info_stream([&](auto& fout) { report(fout); });
         }
     }
     if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
@@ -79,7 +80,7 @@ bool MemorySlots::check() const
 {
     if (_availableMemory.size() != _offsetSizes.size())
     {
-        std::cout << "Warning: MemorySlots::check() _availableMemory.size() " << _availableMemory.size() << " != _offsetSizes.size() " << _offsetSizes.size() << std::endl;
+        warn("MemorySlots::check() _availableMemory.size() ", _availableMemory.size(), " != _offsetSizes.size() ", _offsetSizes.size());
     }
 
     size_t availableSize = 0;
@@ -97,9 +98,8 @@ bool MemorySlots::check() const
     size_t computedSize = availableSize + reservedSize;
     if (computedSize != _totalMemorySize)
     {
-        std::cout << "Warning : MemorySlots::check() " << this << " failed, computeedSize (" << computedSize << ") != _totalMemorySize (" << _totalMemorySize << ")" << std::endl;
-
-        report(std::cout);
+        warn("MemorySlots::check() ", this, " failed, computeedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
+        warn_stream([&](auto& fout) { report(fout); });
 
         return false;
     }
@@ -145,7 +145,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "\nMemorySlots::reserve(" << size << ", " << alignment << ") " << this << std::endl;
+        info("\nMemorySlots::reserve(", size, ", ", alignment, ") ", this);
     }
 
     if (full()) return OptionalOffset(false, 0);
@@ -179,7 +179,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 
             if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
-                std::cout << "MemorySlots::reserve(" << size << ", " << alignment << ") " << this << " allocated [" << alignedStart << ", " << size << "]" << std::endl;
+                info("MemorySlots::reserve(", size, ", ", alignment, ") ", this, " allocated [", alignedStart, ", ", size, "]");
             }
 
             if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS) check();
@@ -196,7 +196,7 @@ MemorySlots::OptionalOffset MemorySlots::reserve(size_t size, size_t alignment)
 
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "MemorySlots::reserve(" << size << ", " << alignment << ") " << this << " no suitable slots found" << std::endl;
+        info("MemorySlots::reserve(", size, ", ", alignment, ") ", this, " no suitable slots found");
     }
     return {false, 0};
 }
@@ -205,7 +205,7 @@ bool MemorySlots::release(size_t offset, size_t size)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        std::cout << "\nMemorySlots::release(" << offset << ", " << size << ") " << this << std::endl;
+        info("\nMemorySlots::release(", offset, ", ", size, ") ", this);
     }
 
     auto itr = _reservedMemory.find(offset);
@@ -217,7 +217,11 @@ bool MemorySlots::release(size_t offset, size_t size)
 
     if (size != itr->second)
     {
-        //std::cout<<"    reserved slot different size, itr->second = "<<itr->second<<std::endl;
+        if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
+        {
+            info("    reserved slot different size = ", size, ", itr->second = ", itr->second);
+        }
+
         size = itr->second;
     }
 

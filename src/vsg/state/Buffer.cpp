@@ -11,13 +11,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/Buffer.h>
 #include <vsg/vk/Context.h>
 
-#include <iostream>
-
-#define REPORT_STATS 0
+#define REPORT_STATS 1
 
 using namespace vsg;
 
@@ -53,13 +52,13 @@ Buffer::Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage
 Buffer::~Buffer()
 {
 #if REPORT_STATS
-    std::cout << "start of Buffer::~Buffer() " << this << std::endl;
+    debug("start of Buffer::~Buffer() ", this);
 #endif
 
     for (auto& vd : _vulkanData) vd.release();
 
 #if REPORT_STATS
-    std::cout << "end of Buffer::~Buffer() " << this << std::endl;
+    debug("end of Buffer::~Buffer() ", this);
 #endif
 }
 
@@ -79,7 +78,7 @@ VkResult Buffer::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 
     if (vd.deviceMemory)
     {
-        std::cout << "Warning : Buffer::bind(" << deviceMemory << ", " << memoryOffset << ") failed, buffer already bound to " << vd.deviceMemory << std::endl;
+        warn("Buffer::bind(", deviceMemory, ", ", memoryOffset, ") failed, buffer already bound to ", vd.deviceMemory);
         return VK_ERROR_UNKNOWN;
     }
 

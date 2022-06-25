@@ -68,7 +68,6 @@ namespace vsg
             return (procAdddress);
         }
 
-
     protected:
         virtual ~Device();
 
