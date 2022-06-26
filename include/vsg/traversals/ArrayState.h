@@ -59,6 +59,8 @@ namespace vsg
 
         bool getAttributeDetails(const VertexInputState& vas, uint32_t location, AttributeDetails& attributeDetails);
 
+        using ConstVisitor::apply;
+
         void apply(const BindGraphicsPipeline& bpg) override;
         void apply(const VertexInputState& vas) override;
         void apply(const InputAssemblyState& ias) override;
