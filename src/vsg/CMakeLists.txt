@@ -67,6 +67,7 @@ set(SOURCES
     commands/SetViewport.cpp
     commands/ResolveImage.cpp
 
+    state/ArrayState.cpp
     state/BindDescriptorSet.cpp
     state/Buffer.cpp
     state/BufferInfo.cpp
@@ -125,7 +126,6 @@ set(SOURCES
     text/StandardLayout.cpp
     text/Text.cpp
 
-    traversals/ArrayState.cpp
     traversals/RecordTraversal.cpp
     traversals/CompileTraversal.cpp
     traversals/ComputeBounds.cpp

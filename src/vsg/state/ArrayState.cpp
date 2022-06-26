@@ -77,20 +77,20 @@ void ArrayState::apply(const InputAssemblyState& ias)
 
 void ArrayState::apply(const vsg::Geometry& geometry)
 {
-    apply(geometry.firstBinding, geometry.arrays);
+    applyArrays(geometry.firstBinding, geometry.arrays);
 }
 
 void ArrayState::apply(const vsg::VertexIndexDraw& vid)
 {
-    apply(vid.firstBinding, vid.arrays);
+    applyArrays(vid.firstBinding, vid.arrays);
 }
 
 void ArrayState::apply(const vsg::BindVertexBuffers& bvb)
 {
-    apply(bvb.firstBinding, bvb.arrays);
+    applyArrays(bvb.firstBinding, bvb.arrays);
 }
 
-void ArrayState::apply(uint32_t firstBinding, const DataList& in_arrays)
+void ArrayState::applyArrays(uint32_t firstBinding, const DataList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
     std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
@@ -102,7 +102,7 @@ void ArrayState::apply(uint32_t firstBinding, const DataList& in_arrays)
     }
 }
 
-void ArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
+void ArrayState::applyArrays(uint32_t firstBinding, const BufferInfoList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
     for (size_t i = 0; i < in_arrays.size(); ++i)

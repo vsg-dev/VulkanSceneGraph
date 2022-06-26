@@ -59,8 +59,6 @@ namespace vsg
 
         bool getAttributeDetails(const VertexInputState& vas, uint32_t location, AttributeDetails& attributeDetails);
 
-        using ConstVisitor::apply;
-
         void apply(const BindGraphicsPipeline& bpg) override;
         void apply(const VertexInputState& vas) override;
         void apply(const InputAssemblyState& ias) override;
@@ -73,8 +71,8 @@ namespace vsg
         void apply(const vec3Array& array) override;
         void apply(const Data& array) override;
 
-        virtual void apply(uint32_t firstBinding, const BufferInfoList& in_arrays);
-        virtual void apply(uint32_t firstBinding, const DataList& in_arrays);
+        virtual void applyArrays(uint32_t firstBinding, const BufferInfoList& in_arrays);
+        virtual void applyArrays(uint32_t firstBinding, const DataList& in_arrays);
         virtual ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex);
 
     protected:
