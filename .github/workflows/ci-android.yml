@@ -1,0 +1,32 @@
+name: CI Android
+on:
+  push:
+  pull_request:
+env:
+  BuildDocEnabled: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+  CMakeVersion: 3.10.x
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        android-platform: [24, latest]
+        android-abi: [armeabi-v7a, arm64-v8a, x86, x86_64]
+        build-shared: [ON]
+          
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.12
+      with:
+        cmake-version: ${{ env.CMakeVersion }}
+    - name: Setup NDK  
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: r23c
+    - name: Build and Install VSG
+      shell: bash
+      run: |
+        cmake . -DCMAKE_TOOLCHAIN_FILE=$(dirname $(which ndk-build))/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{matrix.android-abi}} -DANDROID_PLATFORM=${{matrix.android-platform}} -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DCMAKE_INSTALL_PREFIX=./install
+        cmake --build . --target install --config Release
