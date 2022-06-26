@@ -51,7 +51,7 @@ static void releaseDeviceID(uint32_t deviceID)
     s_ActiveDevices[deviceID] = false;
 }
 
-Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, const Names& layers, const Names& deviceExtensions, const DeviceFeatures* deviceFeatures, AllocationCallbacks* allocator) :
+Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names layers, Names deviceExtensions, const DeviceFeatures* deviceFeatures, AllocationCallbacks* allocator) :
     deviceID(getUniqueDeviceID()),
     _instance(physicalDevice->getInstance()),
     _physicalDevice(physicalDevice),
@@ -61,6 +61,11 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     {
         releaseDeviceID(deviceID);
         throw Exception{"Number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
+    }
+
+    if (_instance->portability_subset)
+    {
+        deviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
     }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

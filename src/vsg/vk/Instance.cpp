@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Instance.h>
+#include <vsg/vk/Extensions.h>
 #include <vsg/vk/PhysicalDevice.h>
 
 #include <set>
@@ -82,8 +83,11 @@ Names vsg::validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator)
+Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
+    apiVersion(vulkanApiVersion),
+    portability_subset(vsg::isExtensionSupported(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
 {
+
     // application info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -95,6 +99,12 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
+
+    if (portability_subset)
+    {
+        instanceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+        createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    }
 
     createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtensions.size());
     createInfo.ppEnabledExtensionNames = instanceExtensions.empty() ? nullptr : instanceExtensions.data();
@@ -108,8 +118,6 @@ Instance::Instance(const Names& instanceExtensions, const Names& layers, uint32_
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
     if (result == VK_SUCCESS)
     {
-        apiVersion = vulkanApiVersion;
-
         _instance = instance;
         _allocator = allocator;
 
