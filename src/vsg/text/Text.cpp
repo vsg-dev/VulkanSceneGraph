@@ -22,8 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include "shaders/text_frag.cpp"
 #include "shaders/text_vert.cpp"
 
-#include <iostream>
-
 using namespace vsg;
 
 void Text::read(Input& input)

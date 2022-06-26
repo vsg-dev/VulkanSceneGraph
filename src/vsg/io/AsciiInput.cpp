@@ -11,11 +11,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/AsciiInput.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
 
 #include <cstring>
-#include <iostream>
-#include <sstream>
 
 using namespace vsg;
 
@@ -30,7 +29,7 @@ bool AsciiInput::matchPropertyName(const char* propertyName)
     _input >> _readPropertyName;
     if (_readPropertyName != propertyName)
     {
-        std::cout << "Error: unable to match " << propertyName << " got " << _readPropertyName << " instead." << std::endl;
+        error("Error: unable to match ", propertyName, " got ", _readPropertyName, " instead.");
         return false;
     }
     return true;
@@ -136,11 +135,11 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
     if (result.first)
     {
         ObjectID id = result.second;
-        //std::cout<<"   matched result="<<id<<std::endl;
+        //debug("   matched result=", id);
 
         if (auto itr = objectIDMap.find(id); itr != objectIDMap.end())
         {
-            //std::cout<<"Returning existing object "<<itr->second.get()<<std::endl;
+            //debug("Returning existing object ", itr->second);
             return itr->second;
         }
         else
@@ -148,7 +147,7 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
             std::string className;
             _input >> className;
 
-            //std::cout<<"Loading new object "<<className<<std::endl;
+            //debug("Loading new object ", className);
 
             vsg::ref_ptr<vsg::Object> object;
 
@@ -162,13 +161,13 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
 
                     object->read(*this);
 
-                    //std::cout<<"Loaded object, assigning to objectIDMap."<<object.get()<<std::endl;
+                    //debug("Loaded object, assigning to objectIDMap.", object);
 
                     matchPropertyName("}");
                 }
                 else
                 {
-                    std::cout << "Could not find means to create " << className.c_str() << std::endl;
+                    warn("Could not find means to create ", className);
                 }
             }
 

@@ -300,10 +300,10 @@ vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
 {
     if (auto itr = _createMap.find(className); itr != _createMap.end())
     {
-        //std::cout << "Using _createMap for " << className << std::endl;
+        debug("Using _createMap for ", className);
         return (itr->second)();
     }
 
-    //std::cout << "Warning: ObjectFactory::create(" << className << ") failed to find means to create object" << std::endl;
+    warn("ObjectFactory::create(", className, ") failed to find means to create object");
     return vsg::ref_ptr<vsg::Object>();
 }

@@ -10,12 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/io/stream.h>
 #include <vsg/viewer/Trackball.h>
 
 #include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 
@@ -38,7 +37,7 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
 
 void Trackball::clampToGlobe()
 {
-    //    std::cout<<"Trackball::clampToGlobe()"<<std::endl;
+    // debug("Trackball::clampToGlobe()");
 
     if (!_ellipsoidModel) return;
 

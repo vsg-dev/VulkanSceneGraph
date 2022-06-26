@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/viewer/Window.h>
 #include <vsg/vk/Device.h>
@@ -18,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Swapchain.h>
 
 #include <algorithm>
-#include <iostream>
 #include <limits>
 
 using namespace vsg;
@@ -54,7 +54,7 @@ VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(const SwapChainSupportDetails& d
 {
     if (details.formats.empty() || (details.formats.size() == 1 && details.formats[0].format == VK_FORMAT_UNDEFINED))
     {
-        std::cout << "selectSwapSurfaceFormat() VK_FORMAT_UNDEFINED, so using fallback " << std::endl;
+        warn("selectSwapSurfaceFormat() VK_FORMAT_UNDEFINED, so using fallback ");
         return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     }
 
@@ -167,12 +167,10 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
     preferences.presentMode = presentMode;
     preferences.surfaceFormat = surfaceFormat;
 
-#if 0
-    std::cout << "Swapchain::create(...., width = " << width << ", height = " << height << ")" << std::endl;
-    std::cout << "     details.capabilities.minImageCount=" << details.capabilities.minImageCount << std::endl;
-    std::cout << "     details.capabilities.maxImageCount=" << details.capabilities.maxImageCount << std::endl;
-    std::cout << "     imageCount = " << imageCount << std::endl;
-#endif
+    debug("Swapchain::create(...., width = ", width, ", height = ", height, ")");
+    debug("     details.capabilities.minImageCount=", details.capabilities.minImageCount);
+    debug("     details.capabilities.maxImageCount=", details.capabilities.maxImageCount);
+    debug("     imageCount = ", imageCount);
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -252,7 +250,7 @@ Swapchain::~Swapchain()
 
     if (_swapchain)
     {
-        //std::cout << "Calling vkDestroySwapchainKHR(..)" << std::endl;
+        debug("Calling vkDestroySwapchainKHR(..)");
         vkDestroySwapchainKHR(*_device, _swapchain, _device->getAllocationCallbacks());
     }
 }

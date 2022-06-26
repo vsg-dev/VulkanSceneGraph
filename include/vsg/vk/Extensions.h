@@ -18,10 +18,6 @@ namespace vsg
 {
     class Device;
 
-    using ExtensionProperties = std::vector<VkExtensionProperties>;
-
-    extern VSG_DECLSPEC ExtensionProperties getExtensionProperties(const char* pLayerName = nullptr);
-
     extern VSG_DECLSPEC bool isExtensionSupported(const char* extensionName);
 
     extern VSG_DECLSPEC bool isExtensionListSupported(const Names& extensionList);

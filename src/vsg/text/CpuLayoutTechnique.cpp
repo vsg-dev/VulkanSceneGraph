@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/DrawIndexed.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 #include <vsg/state/BindDescriptorSet.h>
@@ -29,8 +30,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/Text.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 #include <vsg/utils/SharedObjects.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -254,7 +253,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     }
     else
     {
-        std::cout << "TODO : CpuLayoutTechnique::setup(), does not yet support updates. Consider using GpuLayoutTechnique instead." << std::endl;
+        info("TODO : CpuLayoutTechnique::setup(), does not yet support updates. Consider using GpuLayoutTechnique instead.");
         // bindVertexBuffers->copyDataToBuffers();
         // bindIndexBuffer->copyDataToBuffers();
     }

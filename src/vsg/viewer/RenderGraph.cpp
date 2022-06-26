@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/state/MultisampleState.h>
@@ -18,8 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/View.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/State.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -130,8 +129,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     renderPassInfo.renderArea = renderArea;
 
 #if 0
-    std::cout<<"RenaderGraph() "<<this<<" renderArea.offset.x = "<<renderArea.offset.x<<", renderArea.offset.y = "<<renderArea.offset.y
-                <<", renderArea.extent.width = "<<renderArea.extent.width<<", renderArea.extent.height = "<<renderArea.extent.height<<std::endl;
+    debug("RenaderGraph() ", this, " renderArea.offset.x = ", renderArea.offset.x, ", renderArea.offset.y = ", renderArea.offset.y
+                , ", renderArea.extent.width = ", renderArea.extent.width, ", renderArea.extent.height = ", renderArea.extent.height);
 #endif
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

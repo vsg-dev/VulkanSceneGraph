@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Latch.h>
 
@@ -104,7 +105,7 @@ namespace vsg
             // wait to the conditional variable signals that an operation has been added
             while (_queue.empty() && _status->active())
             {
-                //std::cout<<"Waiting on condition variable"<<std::endl;
+                // debug("Waiting on condition variable");
                 _cv.wait_for(lock, waitDuration);
             }
 

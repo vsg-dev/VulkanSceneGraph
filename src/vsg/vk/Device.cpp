@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 
 #include <cstring>
-#include <iostream>
 #include <set>
+
 using namespace vsg;
 
 // thread safe container for managing the deviceID for each vsg;:Device
@@ -60,7 +60,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     if (deviceID >= VSG_MAX_DEVICES)
     {
         releaseDeviceID(deviceID);
-        throw Exception{"Warning : number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
+        throw Exception{"Number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

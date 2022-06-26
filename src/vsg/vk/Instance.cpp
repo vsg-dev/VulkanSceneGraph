@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
@@ -19,21 +20,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Names vsg::validateInstancelayerNames(const Names& names)
+InstanceLayerProperties vsg::enumerateInstanceLayerProperties()
 {
-    if (names.empty()) return names;
-
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    return availableLayers;
+}
+
+InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char* pLayerName)
+{
+    uint32_t extCount = 0;
+    VkResult result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
+    if (result != VK_SUCCESS)
+    {
+        error("Error: vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
+        return {};
+    }
+
+    InstanceExtensionProperties extensionProperties(extCount);
+    result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
+    if (result != VK_SUCCESS)
+    {
+        error("Error: vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
+        return {};
+    }
+    return extensionProperties;
+}
+
+Names vsg::validateInstancelayerNames(const Names& names)
+{
+    if (names.empty()) return names;
+
+    auto availableLayers = enumerateInstanceLayerProperties();
 
     using NameSet = std::set<std::string>;
     NameSet layerNames;
     for (const auto& layer : availableLayers)
     {
-        //std::cout << "layer=" << layer.layerName << std::endl;
+        debug("layer=", layer.layerName);
         if (layer.layerName[0] != 0) layerNames.insert(layer.layerName);
     }
 
@@ -43,12 +70,12 @@ Names vsg::validateInstancelayerNames(const Names& names)
     {
         if (layerNames.count(requestedName) != 0)
         {
-            //std::cout << "valid requested layer : " << requestedName << std::endl;
+            debug("valid requested layer : ", requestedName);
             validatedNames.push_back(requestedName);
         }
         else
         {
-            //std::cout << "Warning : requested invalid layer : " << requestedName << std::endl;
+            warn("requested invalid layer : ", requestedName);
         }
     }
 

@@ -10,12 +10,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/viewer/CompileManager.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/Viewer.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -96,7 +95,7 @@ void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const Res
     }
 }
 
-void CompileManager::add(Viewer& viewer, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
@@ -156,12 +155,12 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     object->accept(*compileTraversal);
 
-    // std::cout << "Finished compile traversal " << object << std::endl;
+    //debug("Finished compile traversal ", object);
 
     compileTraversal->record(); // records and submits to queue
     compileTraversal->waitForCompletion();
 
-    // std::cout << "Finished waiting for compile " << object << std::endl;
+    debug("Finished waiting for compile ", object);
 
     compileTraversals->add(compileTraversal);
 

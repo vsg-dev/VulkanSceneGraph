@@ -57,6 +57,17 @@ namespace vsg
 
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
+        /// get the address of specified function using vkGetDeviceProcAddr
+        template<typename T>
+        bool getProcAddr(T& procAdddress, const char* pName, const char* pNameFallback = nullptr) const
+        {
+            procAdddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pName));
+            if (procAdddress) return true;
+
+            if (pNameFallback) procAdddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pNameFallback));
+            return (procAdddress);
+        }
+
     protected:
         virtual ~Device();
 

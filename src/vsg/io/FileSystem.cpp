@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/FileSystem.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 
@@ -43,8 +44,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 #include <limits.h>
-
-#include <iostream>
 
 using namespace vsg;
 
@@ -272,7 +271,7 @@ bool vsg::makeDirectory(const Path& path)
             if (errno != EEXIST)
             {
                 // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
-                std::cerr << "mkdir(" << directory_to_create << ") failed. errno = " << errno << std::endl;
+                debug("mkdir(", directory_to_create, ") failed. errno = ", errno);
             }
             return false;
         }

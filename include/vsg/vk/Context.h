@@ -93,7 +93,7 @@ namespace vsg
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         /// reserve resources that may be needed during compile travversal..
-        void reserve(ResourceRequirements& requirements);
+        void reserve(const ResourceRequirements& requirements);
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
