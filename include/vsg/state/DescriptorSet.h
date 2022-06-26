@@ -88,6 +88,7 @@ namespace vsg
         vk_buffer<ref_ptr<Implementation>> _implementation;
     };
     VSG_type_name(vsg::DescriptorSet);
+    VSG_type_name(vsg::DescriptorSet::Implementation);
 
     using DescriptorSets = std::vector<ref_ptr<DescriptorSet>>;
 
