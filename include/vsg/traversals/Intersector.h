@@ -43,8 +43,6 @@ namespace vsg
         void apply(const Draw& draw) override;
         void apply(const DrawIndexed& drawIndexed) override;
 
-        void apply(uint32_t firstBinding, const DataList& arrays);
-
         void apply(const BufferInfo& bufferInfo) override;
         void apply(const ushortArray& array) override;
         void apply(const uintArray& array) override;
