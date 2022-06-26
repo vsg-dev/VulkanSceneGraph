@@ -122,7 +122,8 @@ VkDescriptorSet DescriptorSet::vk(uint32_t deviceID) const
 // DescriptorSet::Implementation
 //
 DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout) :
-    _descriptorPool(descriptorPool)
+    _descriptorPool(descriptorPool),
+    _descriptorSetLayout(descriptorSetLayout)
 {
     auto device = descriptorPool->getDevice();
 
