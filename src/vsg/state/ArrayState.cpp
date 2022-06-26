@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/VertexInputState.h>
-#include <vsg/traversals/ArrayState.h>
+#include <vsg/state/ArrayState.h>
 
 using namespace vsg;
 
@@ -77,20 +77,20 @@ void ArrayState::apply(const InputAssemblyState& ias)
 
 void ArrayState::apply(const vsg::Geometry& geometry)
 {
-    apply(geometry.firstBinding, geometry.arrays);
+    applyArrays(geometry.firstBinding, geometry.arrays);
 }
 
 void ArrayState::apply(const vsg::VertexIndexDraw& vid)
 {
-    apply(vid.firstBinding, vid.arrays);
+    applyArrays(vid.firstBinding, vid.arrays);
 }
 
 void ArrayState::apply(const vsg::BindVertexBuffers& bvb)
 {
-    apply(bvb.firstBinding, bvb.arrays);
+    applyArrays(bvb.firstBinding, bvb.arrays);
 }
 
-void ArrayState::apply(uint32_t firstBinding, const DataList& in_arrays)
+void ArrayState::applyArrays(uint32_t firstBinding, const DataList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
     std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
@@ -102,7 +102,7 @@ void ArrayState::apply(uint32_t firstBinding, const DataList& in_arrays)
     }
 }
 
-void ArrayState::apply(uint32_t firstBinding, const BufferInfoList& in_arrays)
+void ArrayState::applyArrays(uint32_t firstBinding, const BufferInfoList& in_arrays)
 {
     if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
     for (size_t i = 0; i < in_arrays.size(); ++i)

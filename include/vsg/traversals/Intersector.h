@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Node.h>
-#include <vsg/traversals/ArrayState.h>
+#include <vsg/state/ArrayState.h>
 
 namespace vsg
 {
@@ -42,8 +42,6 @@ namespace vsg
         void apply(const BindIndexBuffer& bib) override;
         void apply(const Draw& draw) override;
         void apply(const DrawIndexed& drawIndexed) override;
-
-        void apply(uint32_t firstBinding, const DataList& arrays);
 
         void apply(const BufferInfo& bufferInfo) override;
         void apply(const ushortArray& array) override;

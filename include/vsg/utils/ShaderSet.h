@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/Sampler.h>
 #include <vsg/state/ShaderStage.h>
-#include <vsg/traversals/ArrayState.h>
+#include <vsg/state/ArrayState.h>
 
 namespace vsg
 {
