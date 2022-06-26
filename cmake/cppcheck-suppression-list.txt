@@ -42,7 +42,7 @@ useStlAlgorithm:*/src/vsg/vk/Instance.cpp
 useStlAlgorithm:*/src/vsg/vk/RenderPass.cpp
 useStlAlgorithm:*/src/vsg/core/Allocator.cpp
 useStlAlgorithm:*/src/vsg/core/MemorySlots.cpp
-useStlAlgorithm:*/src/vsg/traversals/ArrayState.cpp
+useStlAlgorithm:*/src/vsg/state/ArrayState.cpp
 useStlAlgorithm:*/src/vsg/traversals/CompileTraversal.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 
@@ -69,7 +69,7 @@ unusedStructMember:*include/vsg/io/ObjectCache.h
 unusedStructMember:*include/vsg/nodes/Bin.h
 unusedStructMember:*include/vsg/nodes/LOD.h
 unusedStructMember:*include/vsg/nodes/PagedLOD.h
-unusedStructMember:*include/vsg/traversals/ArrayState.h
+unusedStructMember:*include/vsg/state/ArrayState.h
 unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
 unusedStructMember:*include/vsg/viewer/Trackball.h
 unusedStructMember:*include/vsg/vk/ResourceRequirements.h

@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/VertexInputState.h>
-#include <vsg/traversals/ArrayState.h>
+#include <vsg/state/ArrayState.h>
 
 using namespace vsg;
 
