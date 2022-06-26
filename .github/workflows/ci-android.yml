@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        android-platform: [24, 32]
+        android-platform: [24, latest]
         android-abi: [armeabi-v7a, arm64-v8a, x86, x86_64]
         build-shared: [ON]
           
