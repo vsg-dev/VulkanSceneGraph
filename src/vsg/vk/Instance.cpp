@@ -85,7 +85,7 @@ Names vsg::validateInstancelayerNames(const Names& names)
 
 Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
     apiVersion(vulkanApiVersion),
-    portability_subset(vsg::isExtensionSupported(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
+    portability_subset(vsg::isExtensionSupported(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
 {
 
     // application info
@@ -102,7 +102,7 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
 
     if (portability_subset)
     {
-        instanceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+        instanceExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
         createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     }
 

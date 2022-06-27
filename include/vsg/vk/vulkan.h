@@ -749,11 +749,17 @@ typedef enum VkInstanceCreateFlagBits {
     VK_INSTANCE_CREATE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkInstanceCreateFlagBits;
 typedef VkFlags VkInstanceCreateFlags;
+
+#define VK_KHR_portability_enumeration 1
+#define VK_KHR_PORTABILITY_ENUMERATION_SPEC_VERSION 1
+#define VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME "VK_KHR_portability_enumeration"
+
 #endif
 
 //
 // Provide VK_KHR_portability_subset from vulkan_beta.h
 //
+#ifndef VK_KHR_portability_subset
 #define VK_KHR_portability_subset 1
 #define VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION 1
 #define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
@@ -782,3 +788,4 @@ typedef struct VkPhysicalDevicePortabilitySubsetPropertiesKHR {
     void*              pNext;
     uint32_t           minVertexInputBindingStrideAlignment;
 } VkPhysicalDevicePortabilitySubsetPropertiesKHR;
+#endif
