@@ -739,3 +739,53 @@ typedef void(VKAPI_PTR* PFN_vkCmdTraceRaysKHR)(VkCommandBuffer commandBuffer, co
 //
 typedef VkResult(VKAPI_PTR* PFN_vkCreateRenderPass2KHR_Compatibility)(VkDevice device, const VkRenderPassCreateInfo2* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkRenderPass* pRenderPass);
 typedef VkDeviceAddress(VKAPI_PTR* PFN_vkGetBufferDeviceAddressKHR_Compatibility)(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
+
+//
+//  Definitions not provided prior to 1.3.211
+//
+#if VK_HEADER_VERSION < 211
+typedef enum VkInstanceCreateFlagBits {
+    VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR = 0x00000001,
+    VK_INSTANCE_CREATE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
+} VkInstanceCreateFlagBits;
+typedef VkFlags VkInstanceCreateFlags;
+
+#define VK_KHR_portability_enumeration 1
+#define VK_KHR_PORTABILITY_ENUMERATION_SPEC_VERSION 1
+#define VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME "VK_KHR_portability_enumeration"
+
+#endif
+
+//
+// Provide VK_KHR_portability_subset from vulkan_beta.h
+//
+#ifndef VK_KHR_portability_subset
+#define VK_KHR_portability_subset 1
+#define VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION 1
+#define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
+typedef struct VkPhysicalDevicePortabilitySubsetFeaturesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           constantAlphaColorBlendFactors;
+    VkBool32           events;
+    VkBool32           imageViewFormatReinterpretation;
+    VkBool32           imageViewFormatSwizzle;
+    VkBool32           imageView2DOn3DImage;
+    VkBool32           multisampleArrayImage;
+    VkBool32           mutableComparisonSamplers;
+    VkBool32           pointPolygons;
+    VkBool32           samplerMipLodBias;
+    VkBool32           separateStencilMaskRef;
+    VkBool32           shaderSampleRateInterpolationFunctions;
+    VkBool32           tessellationIsolines;
+    VkBool32           tessellationPointMode;
+    VkBool32           triangleFans;
+    VkBool32           vertexAttributeAccessBeyondStride;
+} VkPhysicalDevicePortabilitySubsetFeaturesKHR;
+
+typedef struct VkPhysicalDevicePortabilitySubsetPropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           minVertexInputBindingStrideAlignment;
+} VkPhysicalDevicePortabilitySubsetPropertiesKHR;
+#endif

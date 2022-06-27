@@ -28,11 +28,11 @@ namespace vsg
     using InstanceLayerProperties = std::vector<VkLayerProperties>;
     using InstanceExtensionProperties = std::vector<VkExtensionProperties>;
 
-    /// wrapper for vkEnumerateInstanceLayerProperties
-    extern VSG_DECLSPEC InstanceLayerProperties enumerateInstanceLayerProperties();
-
     /// wrapper for vkEnumerateInstanceExtensionProperties
     extern VSG_DECLSPEC InstanceExtensionProperties enumerateInstanceExtensionProperties(const char* pLayerName = nullptr);
+
+    /// wrapper for vkEnumerateInstanceLayerProperties
+    extern VSG_DECLSPEC InstanceLayerProperties enumerateInstanceLayerProperties();
 
     /// return names of layers that are supported from the desired list.
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
@@ -40,10 +40,11 @@ namespace vsg
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
-        Instance(const Names& instanceExtensions, const Names& layers, uint32_t vulkanApiVersion = VK_API_VERSION_1_0, AllocationCallbacks* allocator = nullptr);
+        Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion = VK_API_VERSION_1_0, AllocationCallbacks* allocator = nullptr);
 
         /// Vulkan apiVersion used when creating the VkInstaance
-        uint32_t apiVersion = VK_API_VERSION_1_0;
+        const uint32_t apiVersion = VK_API_VERSION_1_0;
+        const bool portability_subset = false;
 
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }
