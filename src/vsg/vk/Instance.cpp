@@ -84,10 +84,11 @@ Names vsg::validateInstancelayerNames(const Names& names)
 }
 
 Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
-    apiVersion(vulkanApiVersion),
-    portability_subset(vsg::isExtensionSupported(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
+    apiVersion(vulkanApiVersion)
+#if defined(__APPLE__)
+    ,portability_subset(vsg::isExtensionSupported(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
+#endif
 {
-
     // application info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
