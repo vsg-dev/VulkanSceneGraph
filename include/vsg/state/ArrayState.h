@@ -95,8 +95,10 @@ namespace vsg
         ref_ptr<ArrayState> clone() override;
         ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
 
-        void apply(const vsg::vec3Array&) override;
-        void apply(const vsg::Data&) override;
+        using ArrayState::apply;
+
+        void apply(const vec3Array&) override;
+        void apply(const Data&) override;
     };
     VSG_type_name(vsg::NullArrayState);
 
@@ -112,6 +114,8 @@ namespace vsg
 
         uint32_t position_attribute_location = 4;
         AttributeDetails positionAttribute;
+
+        using ArrayState::apply;
 
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
@@ -139,6 +143,8 @@ namespace vsg
         ref_ptr<Sampler> sampler;
         AttributeDetails normalAttribute;
         AttributeDetails texcoordAttribute;
+
+        using ArrayState::apply;
 
         void apply(const DescriptorImage& di) override;
         void apply(const DescriptorSet& ds) override;
