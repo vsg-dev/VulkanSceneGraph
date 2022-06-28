@@ -157,10 +157,10 @@ DescriptorSet::Implementation::~Implementation()
     }
 }
 
-void DescriptorSet::Implementation::assign(Context& context, const Descriptors& descriptors)
+void DescriptorSet::Implementation::assign(Context& context, const Descriptors& in_descriptors)
 {
     // should we doing anything about previous _descriptor that may have been assigned?
-    _descriptors = descriptors;
+    _descriptors = in_descriptors;
 
     if (_descriptors.empty()) return;
 
@@ -168,12 +168,12 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
 
     for (size_t i = 0; i < _descriptors.size(); ++i)
     {
-        descriptors[i]->assignTo(context, descriptorWrites[i]);
+        _descriptors[i]->assignTo(context, descriptorWrites[i]);
         descriptorWrites[i].dstSet = _descriptorSet;
     }
 
     auto device = _descriptorPool->getDevice();
-    vkUpdateDescriptorSets(*device, static_cast<uint32_t>(descriptors.size()), descriptorWrites, 0, nullptr);
+    vkUpdateDescriptorSets(*device, static_cast<uint32_t>(_descriptors.size()), descriptorWrites, 0, nullptr);
 
     // clean up scratch memory so it can be reused.
     context.scratchMemory->release();

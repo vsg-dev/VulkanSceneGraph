@@ -289,8 +289,8 @@ void Trackball::apply(TouchDownEvent& touchDown)
         if (touchDown.id == 0 && _previousTouches.count(1))
         {
             auto& prevTouch1 = _previousTouches[1];
-            auto a = abs(static_cast<double>(prevTouch1->x) - touchDown.x);
-            auto b = abs(static_cast<double>(prevTouch1->y) - touchDown.y);
+            auto a = std::abs(static_cast<double>(prevTouch1->x) - touchDown.x);
+            auto b = std::abs(static_cast<double>(prevTouch1->y) - touchDown.y);
             if (a > 0 || b > 0)
                 _prevZoomTouchDistance = sqrt(a * a + b * b);
         }
@@ -337,8 +337,8 @@ void Trackball::apply(TouchMoveEvent& touchMove)
         {
             // Zoom
             auto& prevTouch1 = _previousTouches[1];
-            auto a = abs(static_cast<double>(prevTouch1->x) - touchMove.x);
-            auto b = abs(static_cast<double>(prevTouch1->y) - touchMove.y);
+            auto a = std::abs(static_cast<double>(prevTouch1->x) - touchMove.x);
+            auto b = std::abs(static_cast<double>(prevTouch1->y) - touchMove.y);
             if (a > 0 || b > 0)
             {
                 auto touchZoomDistance = sqrt(a * a + b * b);

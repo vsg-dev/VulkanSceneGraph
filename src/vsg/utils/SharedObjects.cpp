@@ -1,4 +1,5 @@
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -144,7 +145,8 @@ void SharedObjects::prune()
         ref_ptr<Object> defaultObject = observerDefault;
         if (defaultObject)
         {
-            _defaults[std::type_index(typeid(*defaultObject))] = defaultObject;
+            auto& object = *defaultObject;
+            _defaults[std::type_index(typeid(object))] = defaultObject;
         }
     }
 }
