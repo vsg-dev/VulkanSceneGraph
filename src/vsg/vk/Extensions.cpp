@@ -25,7 +25,7 @@ bool vsg::isExtensionSupported(const char* extensionName)
     auto extProps = enumerateInstanceExtensionProperties();
     for (auto prop : extProps)
     {
-        if (strcmp(prop.extensionName, extensionName) == 0) return true;
+        if (strncmp(prop.extensionName, extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) return true;
     }
     return false;
 }

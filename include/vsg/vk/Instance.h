@@ -44,7 +44,6 @@ namespace vsg
 
         /// Vulkan apiVersion used when creating the VkInstaance
         const uint32_t apiVersion = VK_API_VERSION_1_0;
-        const bool portability_subset = false;
 
         operator VkInstance() const { return _instance; }
         VkInstance getInstance() const { return _instance; }

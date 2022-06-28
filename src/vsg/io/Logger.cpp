@@ -175,7 +175,6 @@ ThreadLogger::ThreadLogger()
 {
 }
 
-
 void ThreadLogger::flush()
 {
     std::cout.flush();

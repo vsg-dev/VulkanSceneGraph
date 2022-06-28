@@ -63,11 +63,6 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         throw Exception{"Number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
-    if (_instance->portability_subset)
-    {
-        deviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
-    }
-
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float queuePriority = 1.0f;
@@ -104,16 +99,17 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
+#if defined(__APPLE__)
     // MacOS requires "VK_KHR_portability_subset" to be a requested extension if the PhysicalDevice supported it.
-    Names local_deviceExtensions(deviceExtensions);
     auto extensionProperties = _physicalDevice->enumerateDeviceExtensionProperties();
     for (auto& extensionProperty : extensionProperties)
     {
-        if (std::strncmp(extensionProperty.extensionName, "VK_KHR_portability_subset", VK_MAX_EXTENSION_NAME_SIZE) == 0)
+        if (std::strncmp(extensionProperty.extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_MAX_EXTENSION_NAME_SIZE) == 0)
         {
-            local_deviceExtensions.push_back(extensionProperty.extensionName);
+            deviceExtensions.push_back(extensionProperty.extensionName);
         }
     }
+#endif
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -123,8 +119,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 
     createInfo.pEnabledFeatures = nullptr;
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(local_deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = local_deviceExtensions.empty() ? nullptr : local_deviceExtensions.data();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.empty() ? nullptr : deviceExtensions.data();
 
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();

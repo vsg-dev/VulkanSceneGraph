@@ -13,10 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/compare.h>
+#include <vsg/state/ArrayState.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/Sampler.h>
 #include <vsg/state/ShaderStage.h>
-#include <vsg/state/ArrayState.h>
 
 namespace vsg
 {
