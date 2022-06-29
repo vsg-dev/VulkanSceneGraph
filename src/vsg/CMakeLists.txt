@@ -284,13 +284,9 @@ if (glslang_FOUND)
     endif()
 
     if (GLSLANG_EShLanguage_EShLangRayGen)
-        message("Found GLSLANG_EShLanguage_EShLangRayGen")
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_EShLangRayGen")
     elseif (GLSLANG_EShLanguage_EShLangRayGenNV)
-        message("Found GLSLANG_EShLanguage_EShLangRayGenNV")
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_EShLangRayGenNV")
-    else()
-        message("NO GLSLANG_EShLanguage_EShLangRayGen found.")
     endif()
 
     # check whether glslang/build_info.h exists

@@ -40,6 +40,10 @@ if (NOT DEFINED glslang_FOUND)
     find_package(vsg_glslang CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
 endif()
 
+if (NOT glslang_FOUND)
+    message("--   Support for compiling GLSL to SPIR-V and associated shader composition is not available.")
+endif()
+
 if (ANDROID)
     find_library(AndroidLib android)
     if(CMAKE_SYSTEM_VERSION GREATER 24)
