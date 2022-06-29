@@ -53,6 +53,10 @@ namespace vsgAndroid
             surfaceCreateInfo.window = window;
 
             auto result = vkCreateAndroidSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
+            if (result != VK_SUCCESS)
+            {
+                throw Exception{"Failed to created AndroidSurface.", result};
+            }
         }
     };
 
@@ -382,14 +386,14 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
         auto action = AMotionEvent_getAction(anEvent);
 
         // first process the historical events (mutiple touch events may have occured since the last frame)
-        auto historySize = AMotionEvent_getHistorySize(anEvent);
-        auto pointerCount = AMotionEvent_getPointerCount(anEvent);
-        for (auto h = 0; h < historySize; h++)
+        size_t historySize = AMotionEvent_getHistorySize(anEvent);
+        size_t pointerCount = AMotionEvent_getPointerCount(anEvent);
+        for (size_t h = 0; h < historySize; h++)
         {
             int64_t htime = AMotionEvent_getHistoricalEventTime(anEvent, h) / 1e-6;
             vsg::clock::time_point historical_event_time = _first_android_time_point + std::chrono::milliseconds(htime - _first_android_timestamp);
 
-            for (int p = 0; p < pointerCount; p++)
+            for (size_t p = 0; p < pointerCount; p++)
             {
                 uint32_t id = AMotionEvent_getPointerId(anEvent, p);
                 float x = AMotionEvent_getHistoricalX(anEvent, p, h);
@@ -451,9 +455,9 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
 
         int32_t keycode = AKeyEvent_getKeyCode(anEvent);
         int32_t metastate = AKeyEvent_getMetaState(anEvent);
-        int32_t flags = AKeyEvent_getFlags(anEvent);
-        int32_t scancode = AKeyEvent_getScanCode(anEvent);
-        int32_t repeatcount = AKeyEvent_getRepeatCount(anEvent);
+        // int32_t flags = AKeyEvent_getFlags(anEvent);
+        // int32_t scancode = AKeyEvent_getScanCode(anEvent);
+        // int32_t repeatcount = AKeyEvent_getRepeatCount(anEvent);
 
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
