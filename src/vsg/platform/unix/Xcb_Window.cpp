@@ -272,7 +272,11 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
     surfaceCreateInfo.connection = connection;
     surfaceCreateInfo.window = window;
 
-    /*VkResult result =*/vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
+    auto result = vkCreateXcbSurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
+    if (result != VK_SUCCESS)
+    {
+        throw Exception{"Failed to created Xcb_Surface.", result};
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
