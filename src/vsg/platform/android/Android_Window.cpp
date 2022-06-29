@@ -420,7 +420,7 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
         int64_t ctime = AMotionEvent_getEventTime(anEvent) / 1e-6;
         vsg::clock::time_point event_time = _first_android_time_point + std::chrono::milliseconds(ctime - _first_android_timestamp);
 
-        for (int p = 0; p < pointerCount; p++)
+        for (size_t p = 0; p < pointerCount; p++)
         {
             uint32_t id = AMotionEvent_getPointerId(anEvent, p);
             float x = AMotionEvent_getX(anEvent, p);
