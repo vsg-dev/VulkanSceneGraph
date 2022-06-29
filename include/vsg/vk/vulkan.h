@@ -1,4 +1,5 @@
 #pragma once
+// clang-format off
 
 /* <editor-fold desc="Apache-2.0 License">
 
