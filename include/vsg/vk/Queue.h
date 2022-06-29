@@ -23,7 +23,7 @@ namespace vsg
     // forward declare
     class Fence;
 
-    class VSG_DECLSPEC Queue : public Object
+    class VSG_DECLSPEC Queue : public Inherit<Object, Queue>
     {
     public:
         operator VkQueue() const { return _vkQueue; }
@@ -56,5 +56,6 @@ namespace vsg
         uint32_t _queueIndex;
         std::mutex _mutex;
     };
+    VSG_type_name(vsg::Queue);
 
 } // namespace vsg
