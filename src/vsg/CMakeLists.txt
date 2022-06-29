@@ -224,12 +224,12 @@ set(LIBRARIES PUBLIC
 
 # Check for std::atomic
 if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
-  set(HAVE_CXX_ATOMIC_WITHOUT_LIB FALSE)
   check_cxx_source_compiles("
     #include <atomic>
-    std::atomic a;
+    std::atomic<int> a;
     int main() { return a; }"
-  HAVE_CXX_ATOMIC_WITHOUT_LIB)
+    HAVE_CXX_ATOMIC_WITHOUT_LIB
+  )
   if(NOT HAVE_CXX_ATOMIC_WITHOUT_LIB)
     find_library(CXX_ATOMIC_LIBRARIES NAMES atomic atomic.so.1 libatomic.so.1 REQUIRED)
     list(APPEND LIBRARIES ${CXX_ATOMIC_LIBRARIES})
