@@ -37,7 +37,7 @@ InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char
     VkResult result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
     if (result != VK_SUCCESS)
     {
-        error("Error: vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
+        error("vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension count from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
         return {};
     }
 
@@ -45,7 +45,7 @@ InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char
     result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
     if (result != VK_SUCCESS)
     {
-        error("Error: vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
+        error("vsg::enumerateInstanceExtensionProperties(...) failed, could not get extension properties from vkEnumerateInstanceExtensionProperties. VkResult = ", result);
         return {};
     }
     return extensionProperties;
