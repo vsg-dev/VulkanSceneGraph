@@ -56,42 +56,36 @@ void MultisampleState::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 0, 2))
+    input.readValue<uint32_t>("rasterizationSamples", rasterizationSamples);
+    input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
+    input.read("minSampleShading", minSampleShading);
+
+    sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask")); // TODO review capitialization
+    for (auto& mask : sampleMasks)
     {
-        input.readValue<uint32_t>("rasterizationSamples", rasterizationSamples);
-        input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
-        input.read("minSampleShading", minSampleShading);
-
-        sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask"));
-        for (auto& mask : sampleMasks)
-        {
-            input.readValue<uint32_t>("value", mask);
-        }
-
-        input.readValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
-        input.readValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
+        input.readValue<uint32_t>("value", mask);
     }
+
+    input.readValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
+    input.readValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
 }
 
 void MultisampleState::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 0, 2))
+    output.writeValue<uint32_t>("rasterizationSamples", rasterizationSamples);
+    output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
+    output.write("minSampleShading", minSampleShading);
+
+    output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size()); // TODO review capitialization
+    for (auto& mask : sampleMasks)
     {
-        output.writeValue<uint32_t>("rasterizationSamples", rasterizationSamples);
-        output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
-        output.write("minSampleShading", minSampleShading);
-
-        output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size());
-        for (auto& mask : sampleMasks)
-        {
-            output.writeValue<uint32_t>("value", mask);
-        }
-
-        output.writeValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
-        output.writeValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
+        output.writeValue<uint32_t>("value", mask);
     }
+
+    output.writeValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
+    output.writeValue<uint32_t>("alphaToOneEnable", alphaToOneEnable);
 }
 
 void MultisampleState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const

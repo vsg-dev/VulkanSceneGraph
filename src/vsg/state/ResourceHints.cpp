@@ -27,68 +27,34 @@ void ResourceHints::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("maxSlot", maxSlot);
-        input.read("numDescriptorSets", numDescriptorSets);
-    }
-    else
-    {
-        input.read("MaxSlot", maxSlot);
-        input.read("NumDescriptorSets", numDescriptorSets);
-    }
+    input.read("maxSlot", maxSlot);
+    input.read("numDescriptorSets", numDescriptorSets);
 
-    descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
+    descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize")); // TODO need to fix capitalization?
     for (auto& [type, count] : descriptorPoolSizes)
     {
         input.readValue<uint32_t>("type", type);
         input.read("count", count);
     }
 
-    if (input.version_greater_equal(0, 4, 1))
-    {
-        input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-        input.readValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
-    }
-    else if (input.version_greater_equal(0, 1, 11))
-    {
-        input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-        input.readValue<uint64_t>("minimumBufferDeviceMemorySize", minimumDeviceMemorySize);
-        input.readValue<uint64_t>("minimumImageDeviceMemorySize", minimumDeviceMemorySize);
-    }
+    input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
+    input.readValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
 }
 
 void ResourceHints::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("maxSlot", maxSlot);
-        output.write("numDescriptorSets", numDescriptorSets);
-    }
-    else
-    {
-        output.write("MaxSlot", maxSlot);
-        output.write("NumDescriptorSets", numDescriptorSets);
-    }
+    output.write("maxSlot", maxSlot);
+    output.write("numDescriptorSets", numDescriptorSets);
 
-    output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size());
+    output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size());  // TODO need to fix capitalization?
     for (auto& [type, count] : descriptorPoolSizes)
     {
         output.writeValue<uint32_t>("type", type);
         output.write("count", count);
     }
 
-    if (output.version_greater_equal(0, 4, 1))
-    {
-        output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-        output.writeValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
-    }
-    else if (output.version_greater_equal(0, 1, 11))
-    {
-        output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-        output.writeValue<uint64_t>("minimumBufferDeviceMemorySize", minimumDeviceMemorySize);
-        output.writeValue<uint64_t>("minimumImageDeviceMemorySize", minimumDeviceMemorySize);
-    }
+    output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
+    output.writeValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
 }

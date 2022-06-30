@@ -39,46 +39,23 @@ void PagedLOD::read(Input& input)
 {
     Node::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
+    input.read("bound", bound);
+
+    input.read("child.minimumScreenHeightRatio", children[0].minimumScreenHeightRatio);
+    input.read("child.filename", filename);
+    children[0].node = nullptr;
+
+    if (input.filename)
     {
-        input.read("bound", bound);
-
-        input.read("child.minimumScreenHeightRatio", children[0].minimumScreenHeightRatio);
-        input.read("child.filename", filename);
-        children[0].node = nullptr;
-
-        if (input.filename)
+        auto path = filePath(input.filename);
+        if (path)
         {
-            auto path = filePath(input.filename);
-            if (path)
-            {
-                filename = path / filename;
-            }
+            filename = path / filename;
         }
-
-        input.read("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        input.read("child.node", children[1].node);
     }
-    else
-    {
-        input.read("Bound", bound);
 
-        input.read("MinimumScreenHeightRatio", children[0].minimumScreenHeightRatio);
-        input.read("Filename", filename);
-        children[0].node = nullptr;
-
-        if (input.filename)
-        {
-            auto path = filePath(input.filename);
-            if (path)
-            {
-                filename = path / filename;
-            }
-        }
-
-        input.read("MinimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        input.read("Child", children[1].node);
-    }
+    input.read("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
+    input.read("child.node", children[1].node);
 
     options = input.options;
 }
@@ -87,26 +64,13 @@ void PagedLOD::write(Output& output) const
 {
     Node::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("bound", bound);
+    output.write("bound", bound);
 
-        output.write("child.minimumScreenHeightRatio", children[0].minimumScreenHeightRatio);
-        output.write("child.filename", filename);
+    output.write("child.minimumScreenHeightRatio", children[0].minimumScreenHeightRatio);
+    output.write("child.filename", filename);
 
-        output.write("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        output.write("child.node", children[1].node);
-    }
-    else
-    {
-        output.write("Bound", bound);
-
-        output.write("MinimumScreenHeightRatio", children[0].minimumScreenHeightRatio);
-        output.write("Filename", filename);
-
-        output.write("MinimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
-        output.write("Child", children[1].node);
-    }
+    output.write("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
+    output.write("child.node", children[1].node);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

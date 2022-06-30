@@ -20,14 +20,7 @@ void StateCommand::read(Input& input)
 {
     Command::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("slot", slot);
-    }
-    else
-    {
-        input.read("Slot", slot);
-    }
+    input.read("slot", slot);
 }
 
 int StateCommand::compare(const Object& rhs_object) const
@@ -43,12 +36,5 @@ void StateCommand::write(Output& output) const
 {
     Command::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("slot", slot);
-    }
-    else
-    {
-        output.write("Slot", slot);
-    }
+    output.write("slot", slot);
 }

@@ -29,27 +29,13 @@ void LOD::read(Input& input)
 {
     Node::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("bound", bound);
+    input.read("bound", bound);
 
-        children.resize(input.readValue<uint32_t>("children"));
-        for (auto& child : children)
-        {
-            input.read("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            input.read("child.node", child.node);
-        }
-    }
-    else
+    children.resize(input.readValue<uint32_t>("children"));
+    for (auto& child : children)
     {
-        input.read("Bound", bound);
-
-        children.resize(input.readValue<uint32_t>("NumChildren"));
-        for (auto& child : children)
-        {
-            input.read("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            input.read("Child", child.node);
-        }
+        input.read("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
+        input.read("child.node", child.node);
     }
 }
 
@@ -57,26 +43,12 @@ void LOD::write(Output& output) const
 {
     Node::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("bound", bound);
+    output.write("bound", bound);
 
-        output.writeValue<uint32_t>("children", children.size());
-        for (auto& child : children)
-        {
-            output.write("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            output.write("child.node", child.node);
-        }
-    }
-    else
+    output.writeValue<uint32_t>("children", children.size());
+    for (auto& child : children)
     {
-        output.write("Bound", bound);
-
-        output.writeValue<uint32_t>("NumChildren", children.size());
-        for (auto& child : children)
-        {
-            output.write("MinimumScreenHeightRatio", child.minimumScreenHeightRatio);
-            output.write("Child", child.node);
-        }
+        output.write("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
+        output.write("child.node", child.node);
     }
 }

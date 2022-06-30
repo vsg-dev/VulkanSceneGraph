@@ -118,33 +118,16 @@ void ShaderStage::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.readValue<int32_t>("stage", stage);
-        input.read("entryPointName", entryPointName);
-        input.read("module", module);
+    input.readValue<int32_t>("stage", stage);
+    input.read("entryPointName", entryPointName);
+    input.readObject("module", module);
 
-        specializationConstants.clear();
-        uint32_t numValues = input.readValue<uint32_t>("NumSpecializationConstants");
-        for (uint32_t i = 0; i < numValues; ++i)
-        {
-            uint32_t id = input.readValue<uint32_t>("id");
-            input.read("data", specializationConstants[id]);
-        }
-    }
-    else
+    specializationConstants.clear();
+    uint32_t numValues = input.readValue<uint32_t>("NumSpecializationConstants");
+    for (uint32_t i = 0; i < numValues; ++i)
     {
-        input.readValue<int32_t>("Stage", stage);
-        input.read("EntryPoint", entryPointName);
-        input.readObject("ShaderModule", module);
-
-        specializationConstants.clear();
-        uint32_t numValues = input.readValue<uint32_t>("NumSpecializationConstants");
-        for (uint32_t i = 0; i < numValues; ++i)
-        {
-            uint32_t id = input.readValue<uint32_t>("constantID");
-            input.readObject("data", specializationConstants[id]);
-        }
+        uint32_t id = input.readValue<uint32_t>("id");
+        input.readObject("data", specializationConstants[id]);
     }
 }
 
@@ -152,31 +135,15 @@ void ShaderStage::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.writeValue<int32_t>("stage", stage);
-        output.write("entryPointName", entryPointName);
-        output.write("module", module);
+    output.writeValue<int32_t>("stage", stage);
+    output.write("entryPointName", entryPointName);
+    output.writeObject("module", module);
 
-        output.writeValue<uint32_t>("NumSpecializationConstants", specializationConstants.size());
-        for (auto& [id, data] : specializationConstants)
-        {
-            output.writeValue<uint32_t>("id", id);
-            output.write("data", data);
-        }
-    }
-    else
+    output.writeValue<uint32_t>("NumSpecializationConstants", specializationConstants.size());
+    for (auto& [id, data] : specializationConstants)
     {
-        output.writeValue<int32_t>("Stage", stage);
-        output.write("EntryPoint", entryPointName);
-        output.write("ShaderModule", module);
-
-        output.writeValue<uint32_t>("NumSpecializationConstants", specializationConstants.size());
-        for (auto& [id, data] : specializationConstants)
-        {
-            output.writeValue<uint32_t>("constantID", id);
-            output.write("data", data);
-        }
+        output.writeValue<uint32_t>("id", id);
+        output.writeObject("data", data);
     }
 }
 
