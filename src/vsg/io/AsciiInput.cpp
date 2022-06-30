@@ -29,7 +29,7 @@ bool AsciiInput::matchPropertyName(const char* propertyName)
     _input >> _readPropertyName;
     if (_readPropertyName != propertyName)
     {
-        error("Error: unable to match ", propertyName, " got ", _readPropertyName, " instead.");
+        error("Unable to match ", propertyName, " got ", _readPropertyName, " instead.");
         return false;
     }
     return true;
