@@ -1,15 +1,16 @@
 #include <vsg/io/VSG.h>
 static auto assimp_phong_frag = []() {std::istringstream str(
-R"(#vsga 0.3.0
+R"(#vsga 0.4.3
 Root id=1 vsg::ShaderStage
 {
-  NumUserObjects 0
+  userObjects 0
   stage 16
   entryPointName "main"
   module id=2 vsg::ShaderModule
   {
-    NumUserObjects 0
-    Source "#version 450
+    userObjects 0
+    hints id=0
+    source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
 #pragma import_defines (VSG_POINT_SPRITE, VSG_DIFFUSE_MAP, VSG_GREYSACLE_DIFFUSE_MAP, VSG_EMISSIVE_MAP, VSG_LIGHTMAP_MAP, VSG_NORMAL_MAP, VSG_SPECULAR_MAP, VSG_TWO_SIDED_LIGHTING)
 
@@ -266,9 +267,8 @@ void main()
     outColor.a = diffuseColor.a;
 }
 "
-    hints id=0
-    SPIRVSize 0
-    SPIRV
+    code 0
+    
   }
   NumSpecializationConstants 0
 }
