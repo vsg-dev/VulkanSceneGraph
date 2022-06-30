@@ -55,64 +55,30 @@ void BindVertexBuffers::read(Input& input)
     // clear Vulkan objects
     _vulkanData.clear();
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("firstBinding", firstBinding);
-    }
+    input.read("firstBinding", firstBinding);
 
-    if (input.version_greater_equal(0, 1, 4))
+    DataList dataList;
+    dataList.resize(input.readValue<uint32_t>("arrays"));
+    for (auto& array : dataList)
     {
-        DataList dataList;
-        dataList.resize(input.readValue<uint32_t>("arrays"));
-        for (auto& array : dataList)
-        {
-            input.readObject("array", array);
-        }
-        assignArrays(dataList);
+        input.readObject("array", array);
     }
-    else
-    {
-        // read vertex arrays
-        DataList dataList;
-        dataList.resize(input.readValue<uint32_t>("NumArrays"));
-        for (auto& array : dataList)
-        {
-            input.readObject("Array", array);
-        }
-        assignArrays(dataList);
-    }
+    assignArrays(dataList);
 }
 
 void BindVertexBuffers::write(Output& output) const
 {
     Command::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("firstBinding", firstBinding);
-    }
+    output.write("firstBinding", firstBinding);
 
-    if (output.version_greater_equal(0, 4, 0))
+    output.writeValue<uint32_t>("arrays", arrays.size());
+    for (auto& array : arrays)
     {
-        output.writeValue<uint32_t>("arrays", arrays.size());
-        for (auto& array : arrays)
-        {
-            if (array)
-                output.writeObject("array", array->data.get());
-            else
-                output.writeObject("array", nullptr);
-        }
-    }
-    else
-    {
-        output.writeValue<uint32_t>("NumArrays", arrays.size());
-        for (auto& array : arrays)
-        {
-            if (array)
-                output.writeObject("Array", array->data.get());
-            else
-                output.writeObject("Array", nullptr);
-        }
+        if (array)
+            output.writeObject("array", array->data.get());
+        else
+            output.writeObject("array", nullptr);
     }
 }
 

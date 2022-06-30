@@ -82,18 +82,15 @@ void Options::read(Input& input)
     input.read("extensionHint", extensionHint);
     input.read("mapRGBtoRGBAHint", mapRGBtoRGBAHint);
 
-    if (input.version_greater_equal(0, 4, 2))
+    shaderSets.clear();
+    uint32_t numShaderSets = input.readValue<uint32_t>("numShaderSets");
+    for (; numShaderSets > 0; --numShaderSets)
     {
-        shaderSets.clear();
-        uint32_t numShaderSets = input.readValue<uint32_t>("numShaderSets");
-        for (; numShaderSets > 0; --numShaderSets)
-        {
-            std::string name;
-            ref_ptr<ShaderSet> shaderSet;
-            input.read("name", name);
-            input.readObject("shaderSet", shaderSet);
-            shaderSets[name] = shaderSet;
-        }
+        std::string name;
+        ref_ptr<ShaderSet> shaderSet;
+        input.read("name", name);
+        input.readObject("shaderSet", shaderSet);
+        shaderSets[name] = shaderSet;
     }
 }
 
@@ -122,14 +119,11 @@ void Options::write(Output& output) const
     output.write("extensionHint", extensionHint);
     output.write("mapRGBtoRGBAHint", mapRGBtoRGBAHint);
 
-    if (output.version_greater_equal(0, 4, 2))
+    output.writeValue<uint32_t>("numShaderSets", shaderSets.size());
+    for (auto& [name, shaderSet] : shaderSets)
     {
-        output.writeValue<uint32_t>("numShaderSets", shaderSets.size());
-        for (auto& [name, shaderSet] : shaderSets)
-        {
-            output.write("name", name);
-            output.writeObject("shaderSet", shaderSet);
-        }
+        output.write("name", name);
+        output.writeObject("shaderSet", shaderSet);
     }
 }
 

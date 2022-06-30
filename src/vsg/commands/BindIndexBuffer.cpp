@@ -69,14 +69,7 @@ void BindIndexBuffer::read(Input& input)
 
     // read the key indices data
     ref_ptr<vsg::Data> indices_data;
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.readObject("indices", indices_data);
-    }
-    else
-    {
-        input.readObject("Indices", indices_data);
-    }
+    input.readObject("indices", indices_data);
 
     assignIndices(indices_data);
 }
@@ -86,20 +79,10 @@ void BindIndexBuffer::write(Output& output) const
     Command::write(output);
 
     // write indices data
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        if (indices)
-            output.writeObject("indices", indices->data);
-        else
-            output.writeObject("indices", nullptr);
-    }
+    if (indices)
+        output.writeObject("indices", indices->data);
     else
-    {
-        if (indices)
-            output.writeObject("Indices", indices->data);
-        else
-            output.writeObject("Indices", nullptr);
-    }
+        output.writeObject("indices", nullptr);
 }
 
 void BindIndexBuffer::compile(Context& context)

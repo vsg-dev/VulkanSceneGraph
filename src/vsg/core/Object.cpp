@@ -103,71 +103,34 @@ void Object::accept(RecordTraversal& visitor) const
 
 void Object::read(Input& input)
 {
-    if (input.version_greater_equal(0, 4, 0))
+    auto numObjects = input.readValue<uint32_t>("userObjects");
+    if (numObjects > 0)
     {
-        auto numObjects = input.readValue<uint32_t>("userObjects");
-        if (numObjects > 0)
+        auto& objectMap = getOrCreateAuxiliary()->userObjects;
+        for (; numObjects > 0; --numObjects)
         {
-            auto& objectMap = getOrCreateAuxiliary()->userObjects;
-            for (; numObjects > 0; --numObjects)
-            {
-                std::string key = input.readValue<std::string>("key");
-                input.readObject("object", objectMap[key]);
-            }
-        }
-    }
-    else
-    {
-        auto numObjects = input.readValue<uint32_t>("NumUserObjects");
-        if (numObjects > 0)
-        {
-            auto& objectMap = getOrCreateAuxiliary()->userObjects;
-            for (; numObjects > 0; --numObjects)
-            {
-                std::string key = input.readValue<std::string>("Key");
-                input.readObject("Object", objectMap[key]);
-            }
+            std::string key = input.readValue<std::string>("key");
+            input.readObject("object", objectMap[key]);
         }
     }
 }
 
 void Object::write(Output& output) const
 {
-    if (output.version_greater_equal(0, 4, 0))
+    if (_auxiliary && _auxiliary->getConnectedObject() == this)
     {
-        if (_auxiliary && _auxiliary->getConnectedObject() == this)
+        // we have a unique auxiliary, need to write out it's ObjectMap entries
+        auto& userObjects = _auxiliary->userObjects;
+        output.writeValue<uint32_t>("userObjects", userObjects.size());
+        for (auto& entry : userObjects)
         {
-            // we have a unique auxiliary, need to write out it's ObjectMap entries
-            auto& userObjects = _auxiliary->userObjects;
-            output.writeValue<uint32_t>("userObjects", userObjects.size());
-            for (auto& entry : userObjects)
-            {
-                output.write("key", entry.first);
-                output.writeObject("object", entry.second.get());
-            }
-        }
-        else
-        {
-            output.writeValue<uint32_t>("userObjects", 0);
+            output.write("key", entry.first);
+            output.writeObject("object", entry.second.get());
         }
     }
     else
     {
-        if (_auxiliary && _auxiliary->getConnectedObject() == this)
-        {
-            // we have a unique auxiliary, need to write out it's ObjectMap entries
-            auto& objectMap = _auxiliary->userObjects;
-            output.writeValue<uint32_t>("NumUserObjects", objectMap.size());
-            for (auto& entry : objectMap)
-            {
-                output.write("Key", entry.first);
-                output.writeObject("Object", entry.second.get());
-            }
-        }
-        else
-        {
-            output.writeValue<uint32_t>("NumUserObjects", 0);
-        }
+        output.writeValue<uint32_t>("userObjects", 0);
     }
 }
 

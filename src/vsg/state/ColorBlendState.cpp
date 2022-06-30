@@ -69,7 +69,7 @@ void ColorBlendState::read(Input& input)
     input.readValue<uint32_t>("logicOp", logicOp);
     input.readValue<uint32_t>("logicOpEnable", logicOpEnable);
 
-    attachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments"));
+    attachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments")); // TODO review capitalization
     for (auto& colorBlendAttachment : attachments)
     {
         input.readValue<uint32_t>("blendEnable", colorBlendAttachment.blendEnable);
@@ -82,17 +82,7 @@ void ColorBlendState::read(Input& input)
         input.readValue<uint32_t>("colorWriteMask", colorBlendAttachment.colorWriteMask);
     }
 
-    if (input.version_greater_equal(0, 0, 2))
-    {
-        input.read("blendConstants", blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
-    }
-    else
-    {
-        input.read("blendConstants0", blendConstants[0]);
-        input.read("blendConstants1", blendConstants[1]);
-        input.read("blendConstants2", blendConstants[2]);
-        input.read("blendConstants3", blendConstants[3]);
-    }
+    input.read("blendConstants", blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
 }
 
 void ColorBlendState::write(Output& output) const
@@ -102,7 +92,7 @@ void ColorBlendState::write(Output& output) const
     output.writeValue<uint32_t>("logicOp", logicOp);
     output.writeValue<uint32_t>("logicOpEnable", logicOpEnable);
 
-    output.writeValue<uint32_t>("NumColorBlendAttachments", attachments.size());
+    output.writeValue<uint32_t>("NumColorBlendAttachments", attachments.size()); // TODO review capitalization
     for (auto& colorBlendAttachment : attachments)
     {
         output.writeValue<uint32_t>("blendEnable", colorBlendAttachment.blendEnable);
@@ -115,17 +105,7 @@ void ColorBlendState::write(Output& output) const
         output.writeValue<uint32_t>("colorWriteMask", colorBlendAttachment.colorWriteMask);
     }
 
-    if (output.version_greater_equal(0, 0, 2))
-    {
-        output.write("blendConstants", blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
-    }
-    else
-    {
-        output.write("blendConstants0", blendConstants[0]);
-        output.write("blendConstants1", blendConstants[1]);
-        output.write("blendConstants2", blendConstants[2]);
-        output.write("blendConstants3", blendConstants[3]);
-    }
+    output.write("blendConstants", blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]);
 }
 
 void ColorBlendState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const
