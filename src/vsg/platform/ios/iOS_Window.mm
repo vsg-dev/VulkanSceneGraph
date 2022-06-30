@@ -252,7 +252,7 @@ namespace vsgiOS
             
             auto res = vkCreateMetalSurfaceEXT(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
             if (res != VK_SUCCESS || _surface == VK_NULL_HANDLE)
-                vsg::error("[ERROR] Failed creating VkSurface");
+                vsg::error("Failed creating VkSurface");
         }
     };
 }
