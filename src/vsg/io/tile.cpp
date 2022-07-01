@@ -10,31 +10,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/BindIndexBuffer.h>
+#include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/commands/Commands.h>
+#include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/io/tile.h>
+#include <vsg/nodes/CullGroup.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/TileDatabase.h>
-#include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/CullGroup.h>
-#include <vsg/commands/DrawIndexed.h>
-#include <vsg/commands/BindVertexBuffers.h>
-#include <vsg/commands/BindIndexBuffer.h>
-#include <vsg/commands/Commands.h>
-#include <vsg/traversals/ComputeBounds.h>
-#include <vsg/state/DescriptorImage.h>
 #include <vsg/state/BindDescriptorSet.h>
-#include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/VertexInputState.h>
-#include <vsg/state/InputAssemblyState.h>
-#include <vsg/state/RasterizationState.h>
-#include <vsg/state/MultisampleState.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
-#include <vsg/vk/ResourceRequirements.h>
+#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/InputAssemblyState.h>
+#include <vsg/state/MultisampleState.h>
+#include <vsg/state/RasterizationState.h>
+#include <vsg/state/VertexInputState.h>
+#include <vsg/traversals/ComputeBounds.h>
 #include <vsg/ui/UIEvent.h>
+#include <vsg/vk/ResourceRequirements.h>
 
 #include "shaders/simple_tile_frag.cpp"
 #include "shaders/simple_tile_vert.cpp"
@@ -160,7 +160,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
 
                     auto plod = vsg::PagedLOD::create();
                     plod->bound = bound;
-                    plod->children[0] = vsg::PagedLOD::Child{0.25, {}};  // external child visible when it's bound occupies more than 1/4 of the height of the window
+                    plod->children[0] = vsg::PagedLOD::Child{0.25, {}};       // external child visible when it's bound occupies more than 1/4 of the height of the window
                     plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node}; // visible always
                     plod->filename = vsg::make_string(x, " ", y, " 0.tile");
                     plod->options = options;
@@ -250,7 +250,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
                         auto plod = vsg::PagedLOD::create();
                         plod->bound = bound;
                         plod->children[0] = vsg::PagedLOD::Child{settings->lodTransitionScreenHeightRatio, {}}; // external child visible when it's bound occupies more than 1/4 of the height of the window
-                        plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node}; // visible always
+                        plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node};                               // visible always
                         plod->filename = vsg::make_string(tileID.local_x, " ", tileID.local_y, " ", local_lod, ".tile");
                         plod->options = options;
 

@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/ReaderWriter.h>
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/io/ReaderWriter.h>
 
 namespace vsg
 {
@@ -22,10 +22,9 @@ namespace vsg
     class VSG_DECLSPEC tile : public Inherit<ReaderWriter, tile>
     {
     public:
-
         tile();
         tile(const tile&) = delete;
-        tile& operator = (const tile&) = delete;
+        tile& operator=(const tile&) = delete;
 
         ref_ptr<TileDatabaseSettings> settings;
 

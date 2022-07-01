@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/io/tile.h>
 #include <vsg/io/read.h>
+#include <vsg/io/tile.h>
 #include <vsg/nodes/TileDatabase.h>
 
 using namespace vsg;
@@ -89,4 +89,3 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
 
     return child.valid();
 }
-

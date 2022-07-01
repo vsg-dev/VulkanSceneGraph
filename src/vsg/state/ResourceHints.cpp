@@ -48,7 +48,7 @@ void ResourceHints::write(Output& output) const
     output.write("maxSlot", maxSlot);
     output.write("numDescriptorSets", numDescriptorSets);
 
-    output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size());  // TODO need to fix capitalization?
+    output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size()); // TODO need to fix capitalization?
     for (auto& [type, count] : descriptorPoolSizes)
     {
         output.writeValue<uint32_t>("type", type);
