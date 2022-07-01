@@ -159,7 +159,7 @@ KeyboardMap::KeyboardMap()
             {':', KEY_Colon},
             {AKEYCODE_SEMICOLON, KEY_Semicolon},
             {'<', KEY_Less},
-            {AKEYCODE_EQUALS, KEY_Equals}, // + isnt an unmodded key, why does windows map is as a virtual??
+            {AKEYCODE_EQUALS, KEY_Equals}, // + isn't an unmodded key, why does windows map is as a virtual??
             {'>', KEY_Greater},
             {'?', KEY_Question},
             {AKEYCODE_AT, KEY_At},
@@ -385,7 +385,7 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
     {
         auto action = AMotionEvent_getAction(anEvent);
 
-        // first process the historical events (mutiple touch events may have occured since the last frame)
+        // first process the historical events (multiple touch events may have occurred since the last frame)
         size_t historySize = AMotionEvent_getHistorySize(anEvent);
         size_t pointerCount = AMotionEvent_getPointerCount(anEvent);
         for (size_t h = 0; h < historySize; h++)

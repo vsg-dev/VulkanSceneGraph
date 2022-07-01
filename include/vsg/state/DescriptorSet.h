@@ -69,7 +69,7 @@ namespace vsg
 
             VkDescriptorSet _descriptorSet;
 
-            static void recyle(ref_ptr<DescriptorSet::Implementation>& dsi);
+            static void recycle(ref_ptr<DescriptorSet::Implementation>& dsi);
 
         protected:
             virtual ~Implementation();

@@ -28,18 +28,18 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
-        /// allocate or reuse availalbe DescriptorSet::Implementation - called automatically when compiling DescriptorSet
+        /// allocate or reuse available DescriptorSet::Implementation - called automatically when compiling DescriptorSet
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         /// free DescriptorSet::Implementation for reuse - called automatically be destruction of DescriptorSet or release of it's Vulkan resources.
         void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
-        /// get the stats of the availble DescriptorSets/Descritors
+        /// get the stats of the available DescriptorSets/Descritors
         bool getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const;
 
-        /// mutex used to ensure thead safe access of DesciptorPool resoruces.
+        /// mutex used to ensure thead safe access of DesciptorPool resources.
         /// Locked autoamtically by allocatoeDecstiproSet(..), freeDescriptorSet(), getAvailablity() and DescriptorSet:::Implementation
-        /// to esnure thread safe opeartion. Normal VulkanSceneGraph usage will not require users to lock this mutex so threat as an internal implementation detail.
+        /// to esnure thread safe operation. Normal VulkanSceneGraph usage will not require users to lock this mutex so threat as an internal implementation detail.
         mutable std::mutex mutex;
 
     protected:

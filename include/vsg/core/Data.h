@@ -189,7 +189,7 @@ namespace vsg
         virtual std::uint32_t height() const = 0;
         virtual std::uint32_t depth() const = 0;
 
-        bool contigous() const { return valueSize() == _layout.stride; }
+        bool contiguous() const { return valueSize() == _layout.stride; }
 
         uint32_t stride() const { return _layout.stride ? _layout.stride : static_cast<uint32_t>(valueSize()); }
 

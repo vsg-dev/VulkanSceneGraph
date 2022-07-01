@@ -318,7 +318,7 @@ macro(vsg_add_target_docs)
         doxygen_add_docs(
             docs
             ${ARGS_FILES}
-            COMMENT "Use doxygen to Generate html documentaion"
+            COMMENT "Use doxygen to Generate html documentation"
         )
         set_target_properties(docs PROPERTIES FOLDER ${PROJECT_NAME})
     endif()
