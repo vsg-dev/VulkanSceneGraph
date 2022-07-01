@@ -34,7 +34,7 @@ namespace vsg
         explicit BuildAccelerationStructureTraversal(Device* in_device);
 
         void apply(Object& object) override;
-        void apply(Transform& transfom) override;
+        void apply(Transform& transform) override;
         void apply(Geometry& geometry) override;
         void apply(VertexIndexDraw& vid) override;
 

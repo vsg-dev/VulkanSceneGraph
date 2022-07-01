@@ -8,7 +8,7 @@ The **include/vsg/io** header directory contains std::i/ostream operators, and i
 ## File system support
 Original plan was to use C++17's filesystem support, unfortunately this is only fully supported under VisualStudio 2017 at this point in time so we've fallen back to providing a set of helper functions for checking for file existence and searching file paths.
 
-[include/vsg/io/FileSystem.h](FileSystem.h) - provides vsg::getEnvPaths(..), fileExist(..), concactPaths(..) and findFile(..) convinience functions
+[include/vsg/io/FileSystem.h](FileSystem.h) - provides vsg::getEnvPaths(..), fileExist(..), concactPaths(..) and findFile(..) convenience functions
 
 Example usage:
 

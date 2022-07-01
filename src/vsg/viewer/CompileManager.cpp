@@ -121,7 +121,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     auto compileTraversal = compileTraversals->take_when_available();
 
-    // if no CompileTraversals are avilable abort compile
+    // if no CompileTraversals are available abort compile
     if (!compileTraversal) return result;
 
     std::list<ref_ptr<Context>> contexts;

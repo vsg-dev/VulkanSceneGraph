@@ -74,7 +74,7 @@ namespace vsg
 
 
 //------------------------------------------------------------------------
-// NSWindow implmentation
+// NSWindow implementation
 //------------------------------------------------------------------------
 
 @interface vsg_MacOS_NSWindow : NSWindow {}
@@ -179,7 +179,7 @@ namespace vsg
 @end
 
 //------------------------------------------------------------------------
-// NSView implmentation
+// NSView implementation
 //------------------------------------------------------------------------
 
 @interface vsg_MacOS_NSView : NSView
@@ -544,7 +544,7 @@ KeyboardMap::KeyboardMap()
         { ':', KEY_Colon },
         { kVK_ANSI_Semicolon, KEY_Semicolon },
         { '<', KEY_Less },
-        { kVK_ANSI_Equal, KEY_Equals }, // + isnt an unmodded key, why does windows map is as a virtual??
+        { kVK_ANSI_Equal, KEY_Equals }, // + isn't an unmodded key, why does windows map is as a virtual??
         { '>', KEY_Greater },
         { '?', KEY_Question },
         { '@', KEY_At},

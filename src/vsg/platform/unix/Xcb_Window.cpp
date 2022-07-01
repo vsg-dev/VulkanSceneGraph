@@ -627,7 +627,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explictly get the new geometry and substitute if required to avoid inconsistencies
+            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explicitly get the new geometry and substitute if required to avoid inconsistencies
             int32_t x = configure->x;
             int32_t y  = configure->y;
             uint32_t width = configure->width;

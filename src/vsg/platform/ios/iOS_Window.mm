@@ -431,7 +431,7 @@ vsgiOS::KeyboardMap::KeyboardMap()
         { ':', vsg::KEY_Colon },
 //        { kVK_ANSI_Semicolon, KEY_Semicolon },
         { '<', vsg::KEY_Less },
-//        { kVK_ANSI_Equal, KEY_Equals }, // + isnt an unmodded key, why does windows map is as a virtual??
+//        { kVK_ANSI_Equal, KEY_Equals }, // + isn't an unmodded key, why does windows map is as a virtual??
         { '>', vsg::KEY_Greater },
         { '?', vsg::KEY_Question },
         { '@', vsg::KEY_At},

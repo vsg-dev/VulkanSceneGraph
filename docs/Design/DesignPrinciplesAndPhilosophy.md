@@ -28,7 +28,7 @@ Early adopters are hugely important for the success of the project, the extra wo
 
 ## Performance
 
-Performance can be mean different things to different applications, some applications maximum frame-rate may be the goal, others avoiding frame drops when targetting a fixed frame rate is critical, for VR minimizing latency is crucial, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of a 2D or 3D world and rendering it on a GPU is the key determiner, the lower overhead on the complete computer system the better the efficiency and potential performance.
+Performance can be mean different things to different applications, some applications maximum frame-rate may be the goal, others avoiding frame drops when targeting a fixed frame rate is critical, for VR minimizing latency is crucial, while others may look to minimize power demands required to achieve a target frame rate and visual quality. In all these cases overall efficiency of taking a representation of a 2D or 3D world and rendering it on a GPU is the key determiner, the lower overhead on the complete computer system the better the efficiency and potential performance.
 
 The stages of work that are crucial to undertake efficiently with a graphics application are:
 

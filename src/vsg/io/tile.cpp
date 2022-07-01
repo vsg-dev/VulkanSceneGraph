@@ -325,10 +325,10 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     if (!graphicsPipeline)
     {
         auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/simple_tile.vert", options);
-        if (!vertexShader) vertexShader = simple_tile_vert(); // fallback to shaders/simple_tile_vert.cppp
+        if (!vertexShader) vertexShader = simple_tile_vert(); // fallback to shaders/simple_tile_vert.cpp
 
         auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/simple_tile.frag", options);
-        if (!fragmentShader) fragmentShader = simple_tile_frag(); // fallback to shaders/simple_tile_frag.cppp
+        if (!fragmentShader) fragmentShader = simple_tile_frag(); // fallback to shaders/simple_tile_frag.cpp
 
         if (!vertexShader || !fragmentShader)
         {
