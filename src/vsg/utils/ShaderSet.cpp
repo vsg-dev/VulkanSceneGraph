@@ -331,7 +331,7 @@ ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Options> options
     }
 
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
-    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cpp
 
     auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_flat_shaded.frag", options);
     if (!fragmentShader) fragmentShader = assimp_flat_shaded_frag();
@@ -368,7 +368,7 @@ ref_ptr<ShaderSet> vsg::createPhongShaderSet(ref_ptr<const Options> options)
     }
 
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
-    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cpp
     auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_phong.frag", options);
     if (!fragmentShader) fragmentShader = assimp_phong_frag();
 

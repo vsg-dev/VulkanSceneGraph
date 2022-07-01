@@ -64,10 +64,10 @@ ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
 
     // load shaders
     auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", options);
-    if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cppp
+    if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cpp
 
     auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", options);
-    if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cppp
+    if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cpp
 
     uint32_t numTextIndices = 256;
     vertexShader->specializationConstants = vsg::ShaderStage::SpecializationConstants{
