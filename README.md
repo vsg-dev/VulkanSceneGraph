@@ -27,7 +27,6 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 
 ### Features provided by companion projects:
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
-* [vsgGIS](https://github.com/vsg-dev/vsgGIS) integration with GDAL to adding support for Geospatial imagery/DEMs
 * [vsgImGui](https://github.com/vsg-dev/vsgImGui) ImGui integration enabling UI in graphics window.
 * [vsgQt](https://github.com/vsg-dev/vsgQt) - Qt integration with VulkanSceneGraph.
 * [vsgUnity](https://github.com/vsg-dev/vsgUnity) plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
