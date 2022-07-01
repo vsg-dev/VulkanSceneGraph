@@ -48,7 +48,7 @@ Object& Object::operator=(const Object& rhs)
 
     if (&rhs == this) return *this;
 
-    if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
+    if (rhs._auxiliary)
     {
         // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
         auto& userObjects = getOrCreateAuxiliary()->userObjects;
@@ -117,7 +117,7 @@ void Object::read(Input& input)
 
 void Object::write(Output& output) const
 {
-    if (_auxiliary && _auxiliary->getConnectedObject() == this)
+    if (_auxiliary)
     {
         // we have a unique auxiliary, need to write out it's ObjectMap entries
         auto& userObjects = _auxiliary->userObjects;
