@@ -408,7 +408,7 @@ ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Optio
     }
 
     auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp.vert", options);
-    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cppp
+    if (!vertexShader) vertexShader = assimp_vert(); // fallback to shaders/assimp_vert.cpp
 
     auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/assimp_pbr.frag", options);
     if (!fragmentShader) fragmentShader = assimp_pbr_frag();

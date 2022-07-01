@@ -78,11 +78,11 @@ void DescriptorSet::compile(Context& context)
 
 void DescriptorSet::release(uint32_t deviceID)
 {
-    Implementation::recyle(_implementation[deviceID]);
+    Implementation::recycle(_implementation[deviceID]);
 }
 void DescriptorSet::release()
 {
-    for (auto& dsi : _implementation) Implementation::recyle(dsi);
+    for (auto& dsi : _implementation) Implementation::recycle(dsi);
     _implementation.clear();
 }
 
@@ -113,7 +113,7 @@ DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, De
     descriptSetAllocateInfo.pSetLayouts = &vkdescriptorSetLayout;
 
     // no need to locally lock DescriptorPool as the DescriptorSet::Implementation constructor should only be called by
-    // DescriptorPool::allocateDescriptorSet that will already have locked the DescriptorPool::mutex before calling this consrtuctor.
+    // DescriptorPool::allocateDescriptorSet that will already have locked the DescriptorPool::mutex before calling this constructor.
     // otherwise we'd need a : std::scoped_lock<std::mutex> lock(_descriptorPool->mutex);
 
     if (VkResult result = vkAllocateDescriptorSets(*device, &descriptSetAllocateInfo, &_descriptorSet); result != VK_SUCCESS)
@@ -153,7 +153,7 @@ void DescriptorSet::Implementation::assign(Context& context, const Descriptors& 
     context.scratchMemory->release();
 }
 
-void DescriptorSet::Implementation::recyle(ref_ptr<DescriptorSet::Implementation>& dsi)
+void DescriptorSet::Implementation::recycle(ref_ptr<DescriptorSet::Implementation>& dsi)
 {
     if (dsi)
     {

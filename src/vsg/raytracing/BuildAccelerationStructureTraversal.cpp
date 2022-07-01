@@ -27,11 +27,11 @@ void BuildAccelerationStructureTraversal::apply(Object& object)
     object.traverse(*this);
 }
 
-void BuildAccelerationStructureTraversal::apply(Transform& transfom)
+void BuildAccelerationStructureTraversal::apply(Transform& transform)
 {
-    _transformStack.push(transfom);
+    _transformStack.push(transform);
 
-    transfom.traverse(*this);
+    transform.traverse(*this);
 
     _transformStack.pop();
 }

@@ -219,7 +219,7 @@ So now we have the Android NDK installed lets go ahead and fetch the VSG source 
 	-DCMAKE_ANDROID_NDK=/location/of/Android/sdk/ndk-bundle \
 	-DCMAKE_INSTALL_PREFIX=/usr/local/android
 
-Make sure you change the -DCMAKE_ANDROID_NDK path to the path of your NDK, typically this is the 'Android SDK Location'/ndk-bundle. Also note the -DCMAKE_INSTALL_PREFIX. This is where the VSG library and header will be installed. It's useful to change this from the default to seperate your Android version from your native OS version. Depending where you put it you may need to manually create the top level folder first depending on permissions.
+Make sure you change the -DCMAKE_ANDROID_NDK path to the path of your NDK, typically this is the 'Android SDK Location'/ndk-bundle. Also note the -DCMAKE_INSTALL_PREFIX. This is where the VSG library and header will be installed. It's useful to change this from the default to separate your Android version from your native OS version. Depending where you put it you may need to manually create the top level folder first depending on permissions.
 
 Now we've generated the make files we can simply run
 
@@ -231,7 +231,7 @@ That's it, you've built VSG for Android and installed the required headers and l
 
 ## Detailed instructions for setting up your environment and building for macOS
 
-macOS does not natively support Vulkan. However the excellent MoltenVK libary has been developed which translates Vulkan calls into the Metal equivalents allowing you to run Vulkan applications on macOS and iOS. This can be downloaded from the LunarG website and has been packaged in a way it's extremely similar to the other platform sdks.
+macOS does not natively support Vulkan. However the excellent MoltenVK library has been developed which translates Vulkan calls into the Metal equivalents allowing you to run Vulkan applications on macOS and iOS. This can be downloaded from the LunarG website and has been packaged in a way it's extremely similar to the other platform sdks.
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#mac)
 

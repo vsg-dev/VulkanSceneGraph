@@ -280,7 +280,7 @@ namespace glslang
             const size_t value_e = configStr.find_first_of(delims, value_s);
             pos = value_e;
 
-            // Faster to use compare(), but prefering readability.
+            // Faster to use compare(), but preferring readability.
             const std::string tokenStr = configStr.substr(token_s, token_e - token_s);
             const std::string valueStr = configStr.substr(value_s, value_e - value_s);
 
