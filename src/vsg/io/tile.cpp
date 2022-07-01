@@ -314,12 +314,13 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     if (!sampler)
     {
         sampler = vsg::Sampler::create();
-        sampler->maxLod = settings->mipmapLevelsHint;
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->anisotropyEnable = VK_TRUE;
         sampler->maxAnisotropy = 16.0f;
+
+        if (settings) sampler->maxLod = settings->mipmapLevelsHint;
     }
 
     if (!graphicsPipeline)
