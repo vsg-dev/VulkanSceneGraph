@@ -187,6 +187,8 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::DirectionalLight);
     VSG_REGISTER_create(vsg::PointLight);
     VSG_REGISTER_create(vsg::SpotLight);
+    VSG_REGISTER_create(vsg::TileDatabase);
+    VSG_REGISTER_create(vsg::TileDatabaseSettings);
 
     // vulkan objects
     VSG_REGISTER_create(vsg::BindGraphicsPipeline);
