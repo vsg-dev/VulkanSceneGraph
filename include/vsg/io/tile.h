@@ -62,6 +62,6 @@ namespace vsg
         ref_ptr<Sampler> sampler;
         ref_ptr<GraphicsPipeline> graphicsPipeline;
     };
-    VSG_type_name(tile);
+    VSG_type_name(vsg::tile);
 
 } // namespace vsg

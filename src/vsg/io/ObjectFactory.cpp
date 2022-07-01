@@ -279,6 +279,7 @@ ObjectFactory::ObjectFactory()
     VSG_REGISTER_create(vsg::CompositeReaderWriter);
     VSG_REGISTER_create(vsg::VSG);
     VSG_REGISTER_create(vsg::spirv);
+    VSG_REGISTER_create(vsg::tile);
     VSG_REGISTER_create(vsg::ArrayState);
     VSG_REGISTER_create(vsg::NullArrayState);
 
