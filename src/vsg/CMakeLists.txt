@@ -42,6 +42,7 @@ set(SOURCES
     nodes/Switch.cpp
     nodes/StateGroup.cpp
     nodes/Light.cpp
+    nodes/TileDatabase.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
@@ -117,6 +118,7 @@ set(SOURCES
     io/ReaderWriter.cpp
     io/VSG.cpp
     io/spirv.cpp
+    io/tile.cpp
     io/read.cpp
     io/write.cpp
 

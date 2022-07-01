@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/VSG.h>
 #include <vsg/io/read.h>
 #include <vsg/io/spirv.h>
+#include <vsg/io/tile.h>
 #include <vsg/utils/SharedObjects.h>
-
 #include <vsg/threading/OperationThreads.h>
 
 using namespace vsg;
@@ -41,6 +41,11 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         else if (ext == ".spv")
         {
             spirv rw;
+            return rw.read(filename, options);
+        }
+        else if (ext == ".tile")
+        {
+            tile rw;
             return rw.read(filename, options);
         }
         else
