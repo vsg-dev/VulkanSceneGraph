@@ -37,23 +37,10 @@ void StateSwitch::read(Input& input)
     StateCommand::read(input);
 
     children.resize(input.readValue<uint32_t>("children"));
-    if (input.version_greater_equal(0, 2, 5))
+    for (auto& child : children)
     {
-        for (auto& child : children)
-        {
-            input.read("child.mask", child.mask);
-            input.read("child.stateCommand", child.stateCommand);
-        }
-    }
-    else
-    {
-        for (auto& child : children)
-        {
-            uint32_t mask = 0x0;
-            input.read("child.mask", mask);
-            input.read("child.stateCommand", child.stateCommand);
-            child.mask = static_cast<Mask>(mask);
-        }
+        input.read("child.mask", child.mask);
+        input.read("child.stateCommand", child.stateCommand);
     }
 }
 
@@ -62,20 +49,9 @@ void StateSwitch::write(Output& output) const
     StateCommand::write(output);
 
     output.writeValue<uint32_t>("children", children.size());
-    if (output.version_greater_equal(0, 2, 5))
+    for (auto& child : children)
     {
-        for (auto& child : children)
-        {
-            output.write("child.mask", child.mask);
-            output.write("child.stateCommand", child.stateCommand);
-        }
-    }
-    else
-    {
-        for (auto& child : children)
-        {
-            output.writeValue<uint32_t>("child.mask", child.mask);
-            output.write("child.stateCommand", child.stateCommand);
-        }
+        output.write("child.mask", child.mask);
+        output.write("child.stateCommand", child.stateCommand);
     }
 }

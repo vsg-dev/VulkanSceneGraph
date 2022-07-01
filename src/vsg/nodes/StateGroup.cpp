@@ -40,46 +40,16 @@ void StateGroup::read(Input& input)
 {
     Group::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.readObjects("stateCommands", stateCommands);
-    }
-    else
-    {
-        stateCommands.resize(input.readValue<uint32_t>("NumStateCommands"));
-        for (auto& command : stateCommands)
-        {
-            input.read("StateCommand", command);
-        }
-    }
-
-    if (input.version_greater_equal(0, 2, 3))
-    {
-        input.readObject("prototypeArrayState", prototypeArrayState);
-    }
+    input.readObjects("stateCommands", stateCommands);
+    input.readObject("prototypeArrayState", prototypeArrayState);
 }
 
 void StateGroup::write(Output& output) const
 {
     Group::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.writeObjects("stateCommands", stateCommands);
-    }
-    else
-    {
-        output.writeValue<uint32_t>("NumStateCommands", stateCommands.size());
-        for (auto& command : stateCommands)
-        {
-            output.write("StateCommand", command);
-        }
-    }
-
-    if (output.version_greater_equal(0, 2, 3))
-    {
-        output.write("prototypeArrayState", prototypeArrayState);
-    }
+    output.writeObjects("stateCommands", stateCommands);
+    output.write("prototypeArrayState", prototypeArrayState);
 }
 
 void StateGroup::compile(Context& context)

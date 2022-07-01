@@ -40,39 +40,12 @@ void Group::read(Input& input)
 {
     Node::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.readObjects("children", children);
-    }
-    else
-    {
-        uint32_t numChildren = input.readValue<uint32_t>("NumChildren");
-
-        children.clear();
-        children.reserve(numChildren);
-        for (uint32_t i = 0; i < numChildren; ++i)
-        {
-            ref_ptr<Node> child;
-            input.read("Child", child);
-            if (child) children.push_back(child);
-        }
-    }
+    input.readObjects("children", children);
 }
 
 void Group::write(Output& output) const
 {
     Node::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.writeObjects("children", children);
-    }
-    else
-    {
-        output.writeValue<uint32_t>("NumChildren", children.size());
-        for (auto& child : children)
-        {
-            output.write("Child", child);
-        }
-    }
+    output.writeObjects("children", children);
 }

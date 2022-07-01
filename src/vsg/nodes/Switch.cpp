@@ -30,60 +30,11 @@ void Switch::read(Input& input)
 {
     Node::read(input);
 
-    if (input.version_greater_equal(0, 4, 0))
+    children.resize(input.readValue<uint32_t>("children"));
+    for (auto& child : children)
     {
-        children.resize(input.readValue<uint32_t>("children"));
-        for (auto& child : children)
-        {
-            input.read("child.mask", child.mask);
-            input.read("child.node", child.node);
-        }
-    }
-    else
-    {
-        if (input.version_greater_equal(0, 2, 5))
-        {
-            children.resize(input.readValue<uint32_t>("children"));
-            for (auto& child : children)
-            {
-                input.read("child.mask", child.mask);
-                input.read("child.node", child.node);
-            }
-        }
-        /** note missed else here!  have to keep as original to keep serailization consistent */
-        if (input.version_greater_equal(0, 2, 2))
-        {
-            children.resize(input.readValue<uint32_t>("children"));
-            for (auto& child : children)
-            {
-                uint32_t mask = 0x0;
-                input.read("child.mask", mask);
-                input.read("child.node", child.node);
-                child.mask = static_cast<Mask>(mask);
-            }
-        }
-        else if (input.version_greater_equal(0, 1, 4))
-        {
-            children.resize(input.readValue<uint32_t>("children"));
-            for (auto& child : children)
-            {
-                bool enabled;
-                input.read("child.enabled", enabled);
-                input.read("child.node", child.node);
-                child.mask = enabled ? MASK_OFF : MASK_ALL;
-            }
-        }
-        else
-        {
-            children.resize(input.readValue<uint32_t>("NumChildren"));
-            for (auto& child : children)
-            {
-                bool enabled;
-                input.read("enabled", enabled);
-                input.read("node", child.node);
-                child.mask = enabled ? MASK_OFF : MASK_ALL;
-            }
-        }
+        input.read("child.mask", child.mask);
+        input.read("child.node", child.node);
     }
 }
 
@@ -91,56 +42,11 @@ void Switch::write(Output& output) const
 {
     Node::write(output);
 
-    if (output.version_greater_equal(0, 4, 0))
+    output.writeValue<uint32_t>("children", children.size());
+    for (auto& child : children)
     {
-        output.writeValue<uint32_t>("children", children.size());
-        for (auto& child : children)
-        {
-            output.write("child.mask", child.mask);
-            output.write("child.node", child.node);
-        }
-    }
-    else
-    {
-        if (output.version_greater_equal(0, 2, 5))
-        {
-            output.writeValue<uint32_t>("children", children.size());
-            for (auto& child : children)
-            {
-                output.write("child.mask", child.mask);
-                output.write("child.node", child.node);
-            }
-        }
-        /** note missed else here!  have to keep as original to keep serailization consistent */
-        if (output.version_greater_equal(0, 2, 2))
-        {
-            output.writeValue<uint32_t>("children", children.size());
-            for (auto& child : children)
-            {
-                output.writeValue<uint32_t>("child.mask", child.mask);
-                output.write("child.node", child.node);
-            }
-        }
-        else if (output.version_greater_equal(0, 1, 4))
-        {
-            output.writeValue<uint32_t>("children", children.size());
-            for (auto& child : children)
-            {
-                bool enabled = child.mask == MASK_OFF ? false : true;
-                output.write("child.enabled", enabled);
-                output.write("child.node", child.node);
-            }
-        }
-        else
-        {
-            output.writeValue<uint32_t>("NumChildren", children.size());
-            for (auto& child : children)
-            {
-                bool enabled = child.mask == MASK_OFF ? false : true;
-                output.write("enabled", enabled);
-                output.write("node", child.node);
-            }
-        }
+        output.write("child.mask", child.mask);
+        output.write("child.node", child.node);
     }
 }
 

@@ -1,15 +1,16 @@
 #include <vsg/io/VSG.h>
 static auto text_frag = []() {std::istringstream str(
-R"(#vsga 0.2.13
+R"(#vsga 0.4.3
 Root id=1 vsg::ShaderStage
 {
-  NumUserObjects 0
+  userObjects 0
   stage 16
   entryPointName "main"
   module id=2 vsg::ShaderModule
   {
-    NumUserObjects 0
-    Source "#version 450
+    userObjects 0
+    hints id=0
+    source "#version 450
 
 layout(binding = 0) uniform sampler2D texSampler;
 
@@ -103,9 +104,8 @@ void main()
     if (outColor.a == 0.0) discard;
 }
 "
-    hints id=0
-    SPIRVSize 0
-    SPIRV
+    code 0
+    
   }
   NumSpecializationConstants 0
 }

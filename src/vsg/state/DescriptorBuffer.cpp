@@ -73,29 +73,14 @@ void DescriptorBuffer::read(Input& input)
 
     bufferInfoList.clear();
 
-    if (input.version_greater_equal(0, 4, 0))
+    bufferInfoList.resize(input.readValue<uint32_t>("dataList"));
+    for (auto& bufferInfo : bufferInfoList)
     {
-        bufferInfoList.resize(input.readValue<uint32_t>("dataList"));
-        for (auto& bufferInfo : bufferInfoList)
-        {
-            bufferInfo = vsg::BufferInfo::create();
-            bufferInfo->buffer = nullptr;
-            bufferInfo->offset = 0;
-            bufferInfo->range = 0;
-            input.readObject("data", bufferInfo->data);
-        }
-    }
-    else
-    {
-        bufferInfoList.resize(input.readValue<uint32_t>("NumData"));
-        for (auto& bufferInfo : bufferInfoList)
-        {
-            bufferInfo = vsg::BufferInfo::create();
-            bufferInfo->buffer = nullptr;
-            bufferInfo->offset = 0;
-            bufferInfo->range = 0;
-            input.readObject("Data", bufferInfo->data);
-        }
+        bufferInfo = vsg::BufferInfo::create();
+        bufferInfo->buffer = nullptr;
+        bufferInfo->offset = 0;
+        bufferInfo->range = 0;
+        input.readObject("data", bufferInfo->data);
     }
 }
 
@@ -103,21 +88,10 @@ void DescriptorBuffer::write(Output& output) const
 {
     Descriptor::write(output);
 
-    if (output.version_greater_equal(0, 4, 0))
+    output.writeValue<uint32_t>("dataList", bufferInfoList.size());
+    for (auto& bufferInfo : bufferInfoList)
     {
-        output.writeValue<uint32_t>("dataList", bufferInfoList.size());
-        for (auto& bufferInfo : bufferInfoList)
-        {
-            output.writeObject("data", bufferInfo->data.get());
-        }
-    }
-    else
-    {
-        output.writeValue<uint32_t>("NumData", bufferInfoList.size());
-        for (auto& bufferInfo : bufferInfoList)
-        {
-            output.writeObject("Data", bufferInfo->data.get());
-        }
+        output.writeObject("data", bufferInfo->data.get());
     }
 }
 

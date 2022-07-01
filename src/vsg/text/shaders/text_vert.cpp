@@ -1,15 +1,16 @@
 #include <vsg/io/VSG.h>
 static auto text_vert = []() {std::istringstream str(
-R"(#vsga 0.2.13
+R"(#vsga 0.4.3
 Root id=1 vsg::ShaderStage
 {
-  NumUserObjects 0
+  userObjects 0
   stage 1
   entryPointName "main"
   module id=2 vsg::ShaderModule
   {
-    NumUserObjects 0
-    Source "#version 450
+    userObjects 0
+    hints id=0
+    source "#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 #pragma import_defines (GPU_LAYOUT, CPU_LAYOUT)
@@ -113,9 +114,8 @@ void main() {
 #endif
 }
 "
-    hints id=0
-    SPIRVSize 0
-    SPIRV
+    code 0
+    
   }
   NumSpecializationConstants 0
 }

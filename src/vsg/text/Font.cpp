@@ -31,10 +31,7 @@ void Font::read(Input& input)
     input.readObject("glyphMetrics", glyphMetrics);
     input.readObject("atlas", atlas);
 
-    if (input.version_greater_equal(0, 4, 3))
-    {
-        input.readObject("options", options);
-    }
+    input.readObject("options", options);
 }
 
 void Font::write(Output& output) const
@@ -49,8 +46,5 @@ void Font::write(Output& output) const
     output.writeObject("glyphMetrics", glyphMetrics);
     output.writeObject("atlas", atlas);
 
-    if (output.version_greater_equal(0, 4, 3))
-    {
-        output.writeObject("options", options);
-    }
+    output.writeObject("options", options);
 }

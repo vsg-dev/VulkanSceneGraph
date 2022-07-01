@@ -75,49 +75,24 @@ void ViewportState::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 4, 0))
+    viewports.resize(input.readValue<uint32_t>("viewports"));
+    for (auto& viewport : viewports)
     {
-        viewports.resize(input.readValue<uint32_t>("viewports"));
-        for (auto& viewport : viewports)
-        {
-            input.read("x", viewport.x);
-            input.read("y", viewport.y);
-            input.read("width", viewport.width);
-            input.read("height", viewport.height);
-            input.read("minDepth", viewport.minDepth);
-            input.read("maxDepth", viewport.maxDepth);
-        }
-
-        scissors.resize(input.readValue<uint32_t>("scissors"));
-        for (auto& scissor : scissors)
-        {
-            input.read("x", scissor.offset.x);
-            input.read("y", scissor.offset.y);
-            input.read("width", scissor.extent.width);
-            input.read("height", scissor.extent.height);
-        }
+        input.read("x", viewport.x);
+        input.read("y", viewport.y);
+        input.read("width", viewport.width);
+        input.read("height", viewport.height);
+        input.read("minDepth", viewport.minDepth);
+        input.read("maxDepth", viewport.maxDepth);
     }
-    else if (input.version_greater_equal(0, 0, 2))
-    {
-        viewports.resize(input.readValue<uint32_t>("NumViewports"));
-        for (auto& viewport : viewports)
-        {
-            input.read("x", viewport.x);
-            input.read("y", viewport.y);
-            input.read("width", viewport.width);
-            input.read("height", viewport.height);
-            input.read("minDepth", viewport.minDepth);
-            input.read("maxDepth", viewport.maxDepth);
-        }
 
-        scissors.resize(input.readValue<uint32_t>("NumScissors"));
-        for (auto& scissor : scissors)
-        {
-            input.read("x", scissor.offset.x);
-            input.read("y", scissor.offset.y);
-            input.read("width", scissor.extent.width);
-            input.read("height", scissor.extent.height);
-        }
+    scissors.resize(input.readValue<uint32_t>("scissors"));
+    for (auto& scissor : scissors)
+    {
+        input.read("x", scissor.offset.x);
+        input.read("y", scissor.offset.y);
+        input.read("width", scissor.extent.width);
+        input.read("height", scissor.extent.height);
     }
 }
 
@@ -125,49 +100,24 @@ void ViewportState::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 4, 0))
+    output.writeValue<uint32_t>("viewports", viewports.size());
+    for (auto& viewport : viewports)
     {
-        output.writeValue<uint32_t>("viewports", viewports.size());
-        for (auto& viewport : viewports)
-        {
-            output.write("x", viewport.x);
-            output.write("y", viewport.y);
-            output.write("width", viewport.width);
-            output.write("height", viewport.height);
-            output.write("minDepth", viewport.minDepth);
-            output.write("maxDepth", viewport.maxDepth);
-        }
-
-        output.writeValue<uint32_t>("scissors", scissors.size());
-        for (auto& scissor : scissors)
-        {
-            output.write("x", scissor.offset.x);
-            output.write("y", scissor.offset.y);
-            output.write("width", scissor.extent.width);
-            output.write("height", scissor.extent.height);
-        }
+        output.write("x", viewport.x);
+        output.write("y", viewport.y);
+        output.write("width", viewport.width);
+        output.write("height", viewport.height);
+        output.write("minDepth", viewport.minDepth);
+        output.write("maxDepth", viewport.maxDepth);
     }
-    else if (output.version_greater_equal(0, 0, 2))
-    {
-        output.writeValue<uint32_t>("NumViewports", viewports.size());
-        for (auto& viewport : viewports)
-        {
-            output.write("x", viewport.x);
-            output.write("y", viewport.y);
-            output.write("width", viewport.width);
-            output.write("height", viewport.height);
-            output.write("minDepth", viewport.minDepth);
-            output.write("maxDepth", viewport.maxDepth);
-        }
 
-        output.writeValue<uint32_t>("NumScissors", scissors.size());
-        for (auto& scissor : scissors)
-        {
-            output.write("x", scissor.offset.x);
-            output.write("y", scissor.offset.y);
-            output.write("width", scissor.extent.width);
-            output.write("height", scissor.extent.height);
-        }
+    output.writeValue<uint32_t>("scissors", scissors.size());
+    for (auto& scissor : scissors)
+    {
+        output.write("x", scissor.offset.x);
+        output.write("y", scissor.offset.y);
+        output.write("width", scissor.extent.width);
+        output.write("height", scissor.extent.height);
     }
 }
 

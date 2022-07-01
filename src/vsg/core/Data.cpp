@@ -32,44 +32,17 @@ void Data::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 0, 4))
-    {
-        uint32_t format = 0;
-        input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
-        _layout.format = VkFormat(format);
-    }
-    else if (input.version_greater_equal(0, 0, 1))
-    {
-        uint32_t format = 0;
-        input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
-        _layout.format = VkFormat(format);
-    }
-    else
-    {
-        _layout.format = static_cast<VkFormat>(input.readValue<std::int32_t>("Format"));
-        input.read("Layout", _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
-    }
+    uint32_t format = 0;
+    input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
+    _layout.format = VkFormat(format);
 }
 
 void Data::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 0, 4))
-    {
-        uint32_t format = _layout.format;
-        output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
-    }
-    else if (output.version_greater_equal(0, 0, 1))
-    {
-        uint32_t format = _layout.format;
-        output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
-    }
-    else
-    {
-        output.writeValue<std::int32_t>("Format", _layout.format);
-        output.write("Layout", _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin);
-    }
+    uint32_t format = _layout.format;
+    output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
 }
 
 Data::MipmapOffsets Data::computeMipmapOffsets() const

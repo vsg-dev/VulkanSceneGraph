@@ -39,30 +39,14 @@ void MatrixTransform::read(Input& input)
 {
     Transform::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("matrix", matrix);
-        input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
-    }
-    else
-    {
-        input.read("Matrix", matrix);
-        input.read("SubgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
-    }
+    input.read("matrix", matrix);
+    input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
 }
 
 void MatrixTransform::write(Output& output) const
 {
     Transform::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("matrix", matrix);
-        output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
-    }
-    else
-    {
-        output.write("Matrix", matrix);
-        output.write("SubgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
-    }
+    output.write("matrix", matrix);
+    output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
 }

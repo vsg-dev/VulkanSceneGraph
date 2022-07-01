@@ -69,14 +69,7 @@ void DescriptorSetLayout::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 4, 0))
-    {
-        bindings.resize(input.readValue<uint32_t>("bindings"));
-    }
-    else
-    {
-        bindings.resize(input.readValue<uint32_t>("NumDescriptorSetLayoutBindings"));
-    }
+    bindings.resize(input.readValue<uint32_t>("bindings"));
 
     for (auto& dslb : bindings)
     {
@@ -91,14 +84,7 @@ void DescriptorSetLayout::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 4, 0))
-    {
-        output.writeValue<uint32_t>("bindings", bindings.size());
-    }
-    else
-    {
-        output.writeValue<uint32_t>("NumDescriptorSetLayoutBindings", bindings.size());
-    }
+    output.writeValue<uint32_t>("bindings", bindings.size());
 
     for (auto& dslb : bindings)
     {

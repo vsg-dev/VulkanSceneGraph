@@ -48,14 +48,7 @@ void ShaderCompileSettings::read(Input& input)
     input.readValue<int>("target", target);
     input.read("forwardCompatible", forwardCompatible);
 
-    if (input.version_greater_equal(0, 2, 11))
-    {
-        input.readValues("defines", defines);
-    }
-    else if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("defines", defines);
-    }
+    input.readValues("defines", defines);
 }
 
 void ShaderCompileSettings::write(Output& output) const
@@ -67,14 +60,7 @@ void ShaderCompileSettings::write(Output& output) const
     output.writeValue<int>("target", target);
     output.write("forwardCompatible", forwardCompatible);
 
-    if (output.version_greater_equal(0, 2, 11))
-    {
-        output.writeValues("defines", defines);
-    }
-    else if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("defines", defines);
-    }
+    output.writeValues("defines", defines);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,57 +108,22 @@ void ShaderModule::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 4, 0))
-    {
-        input.readObject("hints", hints);
-        input.read("source", source);
-        code.resize(input.readValue<uint32_t>("code"));
-        input.read(code.size(), code.data());
-    }
-    else
-    {
-        input.read("Source", source);
-
-        if (input.version_greater_equal(0, 1, 3))
-        {
-            input.readObject("hints", hints);
-        }
-
-        code.resize(input.readValue<uint32_t>("SPIRVSize"));
-
-        input.matchPropertyName("SPIRV");
-        input.read(code.size(), code.data());
-    }
+    input.readObject("hints", hints);
+    input.read("source", source);
+    code.resize(input.readValue<uint32_t>("code"));
+    input.read(code.size(), code.data());
 }
 
 void ShaderModule::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 4, 0))
-    {
-        output.writeObject("hints", hints);
-        output.write("source", source);
-        output.writeValue<uint32_t>("code", code.size());
-        output.writePropertyName(""); // convinient way of forcing an indent to the appropriate column when writing out to ascii, doesn't require a matching matchProprertyName() in ShaderModel::read(..).
-        output.write(code.size(), code.data());
-        output.writeEndOfLine();
-    }
-    else
-    {
-        output.write("Source", source);
-
-        if (output.version_greater_equal(0, 1, 3))
-        {
-            output.writeObject("hints", hints);
-        }
-
-        output.writeValue<uint32_t>("SPIRVSize", code.size());
-
-        output.writePropertyName("SPIRV");
-        output.write(code.size(), code.data());
-        output.writeEndOfLine();
-    }
+    output.writeObject("hints", hints);
+    output.write("source", source);
+    output.writeValue<uint32_t>("code", code.size());
+    output.writePropertyName(""); // convinient way of forcing an indent to the appropriate column when writing out to ascii, doesn't require a matching matchProprertyName() in ShaderModel::read(..).
+    output.write(code.size(), code.data());
+    output.writeEndOfLine();
 }
 
 void ShaderModule::compile(Context& context)

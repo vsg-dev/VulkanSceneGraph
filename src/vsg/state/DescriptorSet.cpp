@@ -51,42 +51,16 @@ void DescriptorSet::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(0, 1, 4))
-    {
-        input.read("setLayout", setLayout);
-        input.readObjects("descriptors", descriptors);
-    }
-    else
-    {
-        input.read("DescriptorSetLayout", setLayout);
-
-        descriptors.resize(input.readValue<uint32_t>("NumDescriptors"));
-        for (auto& descriptor : descriptors)
-        {
-            input.read("Descriptor", descriptor);
-        }
-    }
+    input.readObject("setLayout", setLayout);
+    input.readObjects("descriptors", descriptors);
 }
 
 void DescriptorSet::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(0, 1, 4))
-    {
-        output.write("setLayout", setLayout);
-        output.writeObjects("descriptors", descriptors);
-    }
-    else
-    {
-        output.write("DescriptorSetLayout", setLayout);
-
-        output.writeValue<uint32_t>("NumDescriptors", descriptors.size());
-        for (auto& descriptor : descriptors)
-        {
-            output.write("Descriptor", descriptor);
-        }
-    }
+    output.writeObject("setLayout", setLayout);
+    output.writeObjects("descriptors", descriptors);
 }
 
 void DescriptorSet::compile(Context& context)

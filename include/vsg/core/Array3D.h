@@ -118,91 +118,43 @@ namespace vsg
 
             Data::read(input);
 
-            if (input.version_greater_equal(0, 4, 0))
+            uint32_t w = input.readValue<uint32_t>("width");
+            uint32_t h = input.readValue<uint32_t>("height");
+            uint32_t d = input.readValue<uint32_t>("depth");
+
+            if (auto data_storage = input.readObject<Data>("storage"))
             {
-                uint32_t w = input.readValue<uint32_t>("width");
-                uint32_t h = input.readValue<uint32_t>("height");
-                uint32_t d = input.readValue<uint32_t>("depth");
-
-                if (auto data_storage = input.readObject<Data>("storage"))
-                {
-                    uint32_t offset = input.readValue<uint32_t>("offset");
-                    assign(data_storage, offset, _layout.stride, w, h, d, _layout);
-                    return;
-                }
-
-                if (input.matchPropertyName("data"))
-                {
-                    std::size_t new_size = computeValueCountIncludingMipmaps(w, h, d, _layout.maxNumMipmaps);
-
-                    if (_data) // if data already may be able to reuse it
-                    {
-                        if (original_size != new_size) // if existing data is a different size delete old, and create new
-                        {
-                            _delete();
-                            _data = _allocate(new_size);
-                        }
-                    }
-                    else // allocate space for data
-                    {
-                        _data = _allocate(new_size);
-                    }
-
-                    _layout.stride = sizeof(value_type);
-                    _width = w;
-                    _height = h;
-                    _depth = d;
-                    _storage = nullptr;
-
-                    input.read(new_size, _data);
-
-                    dirty();
-                }
+                uint32_t offset = input.readValue<uint32_t>("offset");
+                assign(data_storage, offset, _layout.stride, w, h, d, _layout);
+                return;
             }
-            else
+
+            if (input.matchPropertyName("data"))
             {
-                uint32_t w = input.readValue<uint32_t>("Width");
-                uint32_t h = input.readValue<uint32_t>("Height");
-                uint32_t d = input.readValue<uint32_t>("Depth");
+                std::size_t new_size = computeValueCountIncludingMipmaps(w, h, d, _layout.maxNumMipmaps);
 
-                if (input.version_greater_equal(0, 0, 1))
+                if (_data) // if data already may be able to reuse it
                 {
-                    auto data_storage = input.readObject<Data>("Storage");
-                    if (data_storage)
+                    if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
-                        uint32_t offset = input.readValue<uint32_t>("Offset");
-                        assign(data_storage, offset, _layout.stride, w, h, d, _layout);
-                        return;
-                    }
-                }
-
-                if (input.matchPropertyName("Data"))
-                {
-                    std::size_t new_size = computeValueCountIncludingMipmaps(w, h, d, _layout.maxNumMipmaps);
-
-                    if (_data) // if data already may be able to reuse it
-                    {
-                        if (original_size != new_size) // if existing data is a different size delete old, and create new
-                        {
-                            _delete();
-                            _data = _allocate(new_size);
-                        }
-                    }
-                    else // allocate space for data
-                    {
+                        _delete();
                         _data = _allocate(new_size);
                     }
-
-                    _layout.stride = sizeof(value_type);
-                    _width = w;
-                    _height = h;
-                    _depth = d;
-                    _storage = nullptr;
-
-                    input.read(new_size, _data);
-
-                    dirty();
                 }
+                else // allocate space for data
+                {
+                    _data = _allocate(new_size);
+                }
+
+                _layout.stride = sizeof(value_type);
+                _width = w;
+                _height = h;
+                _depth = d;
+                _storage = nullptr;
+
+                input.read(new_size, _data);
+
+                dirty();
             }
         }
 
@@ -210,45 +162,21 @@ namespace vsg
         {
             Data::write(output);
 
-            if (output.version_greater_equal(0, 4, 0))
+            output.writeValue<uint32_t>("width", _width);
+            output.writeValue<uint32_t>("height", _height);
+            output.writeValue<uint32_t>("depth", _depth);
+
+            output.writeObject("storage", _storage);
+            if (_storage)
             {
-                output.writeValue<uint32_t>("width", _width);
-                output.writeValue<uint32_t>("height", _height);
-                output.writeValue<uint32_t>("depth", _depth);
-
-                output.writeObject("storage", _storage);
-                if (_storage)
-                {
-                    auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
-                    output.writeValue<uint32_t>("offset", offset);
-                    return;
-                }
-
-                output.writePropertyName("data");
-                output.write(valueCount(), _data);
-                output.writeEndOfLine();
+                auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
+                output.writeValue<uint32_t>("offset", offset);
+                return;
             }
-            else
-            {
-                output.writeValue<uint32_t>("Width", _width);
-                output.writeValue<uint32_t>("Height", _height);
-                output.writeValue<uint32_t>("Depth", _depth);
 
-                if (output.version_greater_equal(0, 0, 1))
-                {
-                    output.writeObject("Storage", _storage);
-                    if (_storage)
-                    {
-                        auto offset = (reinterpret_cast<uintptr_t>(_data) - reinterpret_cast<uintptr_t>(_storage->dataPointer()));
-                        output.writeValue<uint32_t>("Offset", offset);
-                        return;
-                    }
-                }
-
-                output.writePropertyName("Data");
-                output.write(valueCount(), _data);
-                output.writeEndOfLine();
-            }
+            output.writePropertyName("data");
+            output.write(valueCount(), _data);
+            output.writeEndOfLine();
         }
 
         std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? (static_cast<std::size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, _layout.maxNumMipmaps); }
