@@ -232,10 +232,10 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
     {
         for (auto& [tilePath, object] : pathObjects)
         {
-            auto& tileID = pathToTileID[tilePath];
             auto imageTile = object.cast<vsg::Data>();
             if (imageTile)
             {
+                auto& tileID = pathToTileID[tilePath];
                 auto tile_extents = computeTileExtents(tileID.local_x, tileID.local_y, local_lod);
                 auto tile_node = createTile(tile_extents, imageTile);
                 if (tile_node)
