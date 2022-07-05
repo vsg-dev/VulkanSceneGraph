@@ -103,7 +103,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     }
     else
     {
-        commandBuffer->getCommandPool()->reset();
+        commandBuffer->reset();
     }
 
     commandBuffer->numDependentSubmissions().fetch_add(1);

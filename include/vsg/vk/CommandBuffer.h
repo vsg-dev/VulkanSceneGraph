@@ -39,6 +39,9 @@ namespace vsg
 
         VkCommandBufferLevel level() const { return _level; }
 
+        /// reset the CommandBuffer for the new frame.
+        void reset();
+
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 

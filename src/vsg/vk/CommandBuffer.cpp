@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
@@ -34,4 +35,12 @@ CommandBuffer::~CommandBuffer()
     {
         _commandPool->free(this);
     }
+}
+
+void CommandBuffer::reset()
+{
+    _currentPipelineLayout = VK_NULL_HANDLE;
+    _currentPushConstantStageFlags = 0;
+
+    _commandPool->reset();
 }
