@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/Draw.h>
 #include <vsg/core/Array2D.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 #include <vsg/state/BindDescriptorSet.h>
@@ -54,6 +55,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         ref_ptr<uintArray>& textArray;
         bool& updated;
         uint32_t minimumSize = 0;
+        uint32_t allocatedSize = 0;
         uint32_t size = 0;
 
         ConvertString(Font& in_font, ref_ptr<uintArray>& in_textArray, bool& in_updated, uint32_t in_minimumSize) :
@@ -62,16 +64,20 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
             updated(in_updated),
             minimumSize(in_minimumSize) {}
 
-        void allocate(uint32_t allocationSize)
+        void allocate(uint32_t requiredSize)
         {
-            size = allocationSize;
+            size = requiredSize;
 
-            if (allocationSize < minimumSize) allocationSize = minimumSize;
-            if (!textArray || allocationSize > static_cast<uint32_t>(textArray->valueCount()))
+            if (textArray && requiredSize < static_cast<uint32_t>(textArray->valueCount()))
             {
-                updated = true;
-                textArray = uintArray::create(allocationSize, 0u);
+                allocatedSize = textArray->valueCount();
+                return;
             }
+
+            allocatedSize = std::max(requiredSize, minimumSize);
+            textArray = uintArray::create(allocatedSize, 0u);
+
+            updated = true;
         }
 
         void apply(const stringValue& text) override
@@ -118,6 +124,8 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
     ConvertString convert(*(text->font), textArray, textArrayUpdated, minimumAllocation);
     text->text->accept(convert);
+
+    if (convert.allocatedSize==0) return;
 
     uint32_t num_quads = convert.size;
 

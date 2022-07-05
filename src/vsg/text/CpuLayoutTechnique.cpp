@@ -40,6 +40,13 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     TextQuads quads;
     layout->layout(text->text, *(text->font), quads);
 
+    info("CpuLayoutTechnique::setup() ", quads.size());
+
+    if (quads.empty())
+    {
+        return;
+    }
+
     vec4 color = quads.front().colors[0];
     vec4 outlineColor = quads.front().outlineColors[0];
     float outlineWidth = quads.front().outlineWidths[0];
