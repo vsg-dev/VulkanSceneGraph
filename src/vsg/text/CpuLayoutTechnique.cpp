@@ -176,7 +176,10 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     {
         scenegraph = StateGroup::create();
 
-        auto shaderSet = createTextShaderSet(text->font->options);
+        auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(text->font->options);
+
+        info("CpuLayoutTechnique::setup() text->shaderSet = ", text->shaderSet, ", shaderSet = ", shaderSet);
+
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = text->font->sharedObjects;

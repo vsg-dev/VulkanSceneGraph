@@ -29,6 +29,12 @@ void Text::read(Input& input)
     Node::read(input);
 
     input.readObject("font", font);
+
+    if (input.version_greater_equal(0,5,2))
+    {
+        input.readObject("shaderSet", shaderSet);
+    }
+
     input.readObject("technique", technique);
     input.readObject("layout", layout);
     input.readObject("text", text);
@@ -41,6 +47,12 @@ void Text::write(Output& output) const
     Node::write(output);
 
     output.writeObject("font", font);
+
+    if (output.version_greater_equal(0,5,2))
+    {
+        output.writeObject("shaderSet", shaderSet);
+    }
+
     output.writeObject("technique", technique);
     output.writeObject("layout", layout);
     output.writeObject("text", text);

@@ -39,6 +39,7 @@ namespace vsg
 
         /// settings
         ref_ptr<Font> font;
+        ref_ptr<ShaderSet> shaderSet;
         ref_ptr<TextTechnique> technique;
         ref_ptr<TextLayout> layout;
         ref_ptr<Data> text;
