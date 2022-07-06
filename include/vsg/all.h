@@ -94,11 +94,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/commands/PushConstants.h>
+#include <vsg/commands/ResetQueryPool.h>
 #include <vsg/commands/ResolveImage.h>
 #include <vsg/commands/SetDepthBias.h>
 #include <vsg/commands/SetLineWidth.h>
 #include <vsg/commands/SetScissor.h>
 #include <vsg/commands/SetViewport.h>
+#include <vsg/commands/WriteTimestamp.h>
 
 // State header files
 #include <vsg/state/ArrayState.h>
@@ -123,6 +125,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/PipelineLayout.h>
+#include <vsg/state/QueryPool.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/state/Sampler.h>

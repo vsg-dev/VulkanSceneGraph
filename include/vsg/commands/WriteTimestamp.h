@@ -27,9 +27,6 @@ namespace vsg
         uint32_t queryIndex;
         VkPipelineStageFlagBits pipelineStage;
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         void compile(Context& context) override;
 
         void record(CommandBuffer& commandBuffer) const override;
