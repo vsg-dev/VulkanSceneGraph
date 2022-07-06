@@ -30,7 +30,7 @@ void Text::read(Input& input)
 
     input.readObject("font", font);
 
-    if (input.version_greater_equal(0,5,2))
+    if (input.version_greater_equal(0, 5, 2))
     {
         input.readObject("shaderSet", shaderSet);
     }
@@ -48,7 +48,7 @@ void Text::write(Output& output) const
 
     output.writeObject("font", font);
 
-    if (output.version_greater_equal(0,5,2))
+    if (output.version_greater_equal(0, 5, 2))
     {
         output.writeObject("shaderSet", shaderSet);
     }
