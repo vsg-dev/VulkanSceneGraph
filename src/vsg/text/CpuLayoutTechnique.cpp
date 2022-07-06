@@ -40,8 +40,6 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     TextQuads quads;
     layout->layout(text->text, *(text->font), quads);
 
-    info("CpuLayoutTechnique::setup() ", quads.size());
-
     if (quads.empty())
     {
         return;
