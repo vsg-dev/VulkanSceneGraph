@@ -14,6 +14,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+ResetQueryPool(ref_ptr<QueryPool> pool) :
+    queryPool(pool)
+{
+}
+
 void ResetQueryPool::compile(Context& context)
 {
     queryPool->compile(context);

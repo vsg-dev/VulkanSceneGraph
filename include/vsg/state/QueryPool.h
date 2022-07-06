@@ -21,9 +21,7 @@ namespace vsg
     class VSG_DECLSPEC QueryPool : public Inherit<Object, QueryPool>
     {
     public:
-        QueryPool(){};
-
-        ~QueryPool();
+        QueryPool();
 
         VkQueryPoolCreateFlags flags = 0;
         VkQueryType queryType = VK_QUERY_TYPE_TIMESTAMP;
@@ -34,6 +32,7 @@ namespace vsg
         void write(Output& output) const override;
 
         void reset();
+
         std::vector<uint32_t> getResults();
 
         void compile(Context& context);
@@ -41,6 +40,8 @@ namespace vsg
         operator VkQueryPool() const { return _queryPool; }
 
     protected:
+        ~QueryPool();
+
         VkQueryPool _queryPool{};
         ref_ptr<Device> _device{};
     };

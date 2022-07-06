@@ -14,6 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+WriteTimestamp(ref_ptr<QueryPool> pool, uint32_t index, VkPipelineStageFlagBits stage) :
+    queryPool(pool),
+    queryIndex(index),
+    pipelineStage(stage)
+{
+}
+
 void WriteTimestamp::compile(Context& context)
 {
     queryPool->compile(context);

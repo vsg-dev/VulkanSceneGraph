@@ -20,6 +20,10 @@ using namespace vsg;
 // Query Pool
 //
 
+QueryPool()
+{
+}
+
 QueryPool::~QueryPool()
 {
     if (_queryPool)
