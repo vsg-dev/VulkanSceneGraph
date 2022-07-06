@@ -14,18 +14,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void WriteTimestamp::read(Input& input){
-
+void WriteTimestamp::read(Input& input)
+{
 }
 
-void WriteTimestamp::write(Output& output) const{
-    
+void WriteTimestamp::write(Output& output) const
+{
 }
 
-void WriteTimestamp::compile(Context& context){
+void WriteTimestamp::compile(Context& context)
+{
     queryPool->compile(context);
 }
 
-void WriteTimestamp::record(CommandBuffer& commandBuffer) const{
+void WriteTimestamp::record(CommandBuffer& commandBuffer) const
+{
     vkCmdWriteTimestamp(commandBuffer, pipelineStage, *queryPool, queryIndex);
 }

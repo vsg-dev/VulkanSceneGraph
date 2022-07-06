@@ -26,7 +26,7 @@ namespace vsg
         ~QueryPool();
 
         VkQueryPoolCreateFlags flags = 0;
-        VkQueryType queryType = VK_QUERY_TYPE_TIMESTAMP;      
+        VkQueryType queryType = VK_QUERY_TYPE_TIMESTAMP;
         uint32_t queryCount = 1;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
 
@@ -39,6 +39,7 @@ namespace vsg
         void compile(Context& context);
 
         operator VkQueryPool() const { return _queryPool; }
+
     protected:
         VkQueryPool _queryPool{};
         ref_ptr<Device> _device{};

@@ -20,7 +20,8 @@ namespace vsg
     class VSG_DECLSPEC ResetQueryPool : public Inherit<Command, ResetQueryPool>
     {
     public:
-        ResetQueryPool(ref_ptr<QueryPool> pool):queryPool(pool) {};
+        ResetQueryPool(ref_ptr<QueryPool> pool) :
+            queryPool(pool){};
 
         ref_ptr<QueryPool> queryPool;
 

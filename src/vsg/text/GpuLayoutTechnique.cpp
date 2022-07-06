@@ -125,7 +125,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     ConvertString convert(*(text->font), textArray, textArrayUpdated, minimumAllocation);
     text->text->accept(convert);
 
-    if (convert.allocatedSize==0) return;
+    if (convert.allocatedSize == 0) return;
 
     uint32_t num_quads = convert.size;
 

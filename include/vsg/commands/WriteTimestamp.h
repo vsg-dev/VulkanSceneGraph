@@ -20,7 +20,8 @@ namespace vsg
     class VSG_DECLSPEC WriteTimestamp : public Inherit<Command, WriteTimestamp>
     {
     public:
-        WriteTimestamp(ref_ptr<QueryPool> pool, uint32_t index, VkPipelineStageFlagBits stage): queryPool(pool), queryIndex(index), pipelineStage(stage) {};
+        WriteTimestamp(ref_ptr<QueryPool> pool, uint32_t index, VkPipelineStageFlagBits stage) :
+            queryPool(pool), queryIndex(index), pipelineStage(stage){};
 
         ref_ptr<QueryPool> queryPool;
         uint32_t queryIndex;

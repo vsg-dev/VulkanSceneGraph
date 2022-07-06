@@ -14,10 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void ResetQueryPool::compile(Context& context){
+void ResetQueryPool::compile(Context& context)
+{
     queryPool->compile(context);
 }
 
-void ResetQueryPool::record(CommandBuffer& commandBuffer) const{
+void ResetQueryPool::record(CommandBuffer& commandBuffer) const
+{
     vkCmdResetQueryPool(commandBuffer, *queryPool, 0, queryPool->queryCount);
 }

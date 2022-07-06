@@ -34,7 +34,6 @@ namespace vsg
         CreateMap& getCreateMap() { return _createMap; }
         const CreateMap& getCreateMap() const { return _createMap; }
 
-
         template<class T>
         void add()
         {

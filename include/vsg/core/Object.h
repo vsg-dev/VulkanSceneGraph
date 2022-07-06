@@ -50,8 +50,10 @@ namespace vsg
 
         static ref_ptr<Object> create_if(bool flag)
         {
-            if (flag) return ref_ptr<Object>(new Object);
-            else return {};
+            if (flag)
+                return ref_ptr<Object>(new Object);
+            else
+                return {};
         }
 
         /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_OBJECTS
