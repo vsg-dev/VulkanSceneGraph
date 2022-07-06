@@ -34,6 +34,13 @@ namespace vsg
         CreateMap& getCreateMap() { return _createMap; }
         const CreateMap& getCreateMap() const { return _createMap; }
 
+
+        template<class T>
+        void add()
+        {
+            _createMap[type_name<T>()] = []() { return T::create(); };
+        }
+
         /// return the ObjectFactory singleton instance
         static ref_ptr<ObjectFactory>& instance();
 
@@ -49,7 +56,7 @@ namespace vsg
     {
         RegisterWithObjectFactoryProxy()
         {
-            ObjectFactory::instance()->getCreateMap()[type_name<T>()] = []() { return T::create(); };
+            ObjectFactory::instance()->add<T>();
         }
     };
 

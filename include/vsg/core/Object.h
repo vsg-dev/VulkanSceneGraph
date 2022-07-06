@@ -46,6 +46,14 @@ namespace vsg
         Object(const Object&);
         Object& operator=(const Object&);
 
+        static ref_ptr<Object> create() { return ref_ptr<Object>(new Object); }
+
+        static ref_ptr<Object> create_if(bool flag)
+        {
+            if (flag) return ref_ptr<Object>(new Object);
+            else return {};
+        }
+
         /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_OBJECTS
         static void* operator new(std::size_t count);
         static void operator delete(void* ptr);
