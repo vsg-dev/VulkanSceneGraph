@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2022 Robert Osfield
@@ -10,48 +12,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/BeginQuery.h>
-#include <vsg/io/Options.h>
+#include <vsg/commands/Command.h>
+#include <vsg/state/QueryPool.h>
+#include <vsg/state/BufferInfo.h>
 
-using namespace vsg;
-
-BeginQuery::BeginQuery()
+namespace vsg
 {
-}
+    /// encapsulation of vkCmdCopyQueryPoolResults
+    class VSG_DECLSPEC CopyQueryPoolResults : public Inherit<Command, CopyQueryPoolResults>
+    {
+    public:
+        CopyQueryPoolResults();
 
-BeginQuery::BeginQuery(ref_ptr<QueryPool> pool, uint32_t in_query, VkQueryControlFlags in_flags) :
-    queryPool(pool),
-    query(in_query),
-    flags(in_flags)
-{
-}
+        ref_ptr<QueryPool> queryPool;
+        uint32_t                                    firstQuery;
+        uint32_t                                    queryCount;
+        ref_ptr<BufferInfo> dest;
+        VkDeviceSize                                stride;
+        VkQueryResultFlags                          flags;
 
 
-void BeginQuery::read(Input& input)
-{
-    Command::read(input);
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
-    input.readObject("queryPool", queryPool);
-    input.read("query", query);
-    input.readValue<uint32_t>("flags", flags);
-}
+        void compile(Context& context) override;
+        void record(CommandBuffer& commandBuffer) const override;
+    };
+    VSG_type_name(vsg::CopyQueryPoolResults);
 
-void BeginQuery::write(Output& output) const
-{
-    Command::write(output);
-
-    output.writeObject("queryPool", queryPool);
-    output.write("query", query);
-    output.writeValue<uint32_t>("flags", flags);
-}
-
-void BeginQuery::compile(Context& context)
-{
-    if (queryPool) queryPool->compile(context);
-}
-
-void BeginQuery::record(CommandBuffer& commandBuffer) const
-{
-    if (!queryPool) return;
-    vkCmdBeginQuery(commandBuffer, *queryPool, query, flags);
-}
+} // namespace vsg

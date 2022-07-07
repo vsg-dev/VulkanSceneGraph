@@ -71,6 +71,7 @@ set(SOURCES
     commands/WriteTimestamp.cpp
     commands/BeginQuery.cpp
     commands/EndQuery.cpp
+    commands/CopyQueryPoolResults.cpp
 
     state/ArrayState.cpp
     state/BindDescriptorSet.cpp

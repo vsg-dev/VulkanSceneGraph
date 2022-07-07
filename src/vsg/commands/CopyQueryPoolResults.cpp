@@ -10,48 +10,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/BeginQuery.h>
+#include <vsg/commands/CopyQueryPoolResults.h>
 #include <vsg/io/Options.h>
 
 using namespace vsg;
 
-BeginQuery::BeginQuery()
+CopyQueryPoolResults::CopyQueryPoolResults()
 {
 }
 
-BeginQuery::BeginQuery(ref_ptr<QueryPool> pool, uint32_t in_query, VkQueryControlFlags in_flags) :
-    queryPool(pool),
-    query(in_query),
-    flags(in_flags)
-{
-}
-
-
-void BeginQuery::read(Input& input)
+void CopyQueryPoolResults::read(Input& input)
 {
     Command::read(input);
 
     input.readObject("queryPool", queryPool);
-    input.read("query", query);
+    input.read("firstQuery", firstQuery);
+    input.read("queryCount", queryCount);
+    input.readObject("dest", dest);
+    input.read("stride", stride);
     input.readValue<uint32_t>("flags", flags);
 }
 
-void BeginQuery::write(Output& output) const
+void CopyQueryPoolResults::write(Output& output) const
 {
     Command::write(output);
 
     output.writeObject("queryPool", queryPool);
-    output.write("query", query);
+    output.write("firstQuery", firstQuery);
+    output.write("queryCount", queryCount);
+    output.writeObject("dest", dest);
+    output.write("stride", stride);
     output.writeValue<uint32_t>("flags", flags);
 }
 
-void BeginQuery::compile(Context& context)
+void CopyQueryPoolResults::compile(Context& context)
 {
     if (queryPool) queryPool->compile(context);
 }
 
-void BeginQuery::record(CommandBuffer& commandBuffer) const
+void CopyQueryPoolResults::record(CommandBuffer& commandBuffer) const
 {
-    if (!queryPool) return;
-    vkCmdBeginQuery(commandBuffer, *queryPool, query, flags);
+    if (!queryPool || !dest) return;
+    vkCmdCopyQueryPoolResults(commandBuffer, *queryPool, firstQuery, queryCount, dest->buffer->vk(commandBuffer.deviceID), dest->offset, stride, flags);
 }

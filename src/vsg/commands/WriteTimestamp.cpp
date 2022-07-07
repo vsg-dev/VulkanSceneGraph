@@ -46,10 +46,11 @@ void WriteTimestamp::write(Output& output) const
 
 void WriteTimestamp::compile(Context& context)
 {
-    queryPool->compile(context);
+    if (queryPool) queryPool->compile(context);
 }
 
 void WriteTimestamp::record(CommandBuffer& commandBuffer) const
 {
+    if (!queryPool) return;
     vkCmdWriteTimestamp(commandBuffer, pipelineStage, *queryPool, query);
 }

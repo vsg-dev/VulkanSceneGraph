@@ -236,6 +236,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::BeginQuery>();
     add<vsg::EndQuery>();
     add<vsg::ResetQueryPool>();
+    add<vsg::CopyQueryPoolResults>();
 
     // text
     add<vsg::GlyphMetricsArray>();

@@ -666,6 +666,10 @@ void ConstVisitor::apply(const WriteTimestamp& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const CopyQueryPoolResults& value)
+{
+    apply(static_cast<const Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

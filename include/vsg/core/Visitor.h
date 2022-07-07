@@ -88,6 +88,7 @@ namespace vsg
     class BeginQuery;
     class EndQuery;
     class WriteTimestamp;
+    class CopyQueryPoolResults;
 
     // forward declare rtx classes
     class DrawMeshTasks;
@@ -302,6 +303,7 @@ namespace vsg
         virtual void apply(BeginQuery&);
         virtual void apply(EndQuery&);
         virtual void apply(WriteTimestamp&);
+        virtual void apply(CopyQueryPoolResults&);
 
         // rtx classes
         virtual void apply(DrawMeshTasks&);

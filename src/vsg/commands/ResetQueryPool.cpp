@@ -46,10 +46,11 @@ void ResetQueryPool::write(Output& output) const
 
 void ResetQueryPool::compile(Context& context)
 {
-    queryPool->compile(context);
+    if (queryPool) queryPool->compile(context);
 }
 
 void ResetQueryPool::record(CommandBuffer& commandBuffer) const
 {
+    if (!queryPool) return;
     vkCmdResetQueryPool(commandBuffer, *queryPool, firstQuery, queryCount);
 }

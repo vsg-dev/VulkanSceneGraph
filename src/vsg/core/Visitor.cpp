@@ -666,6 +666,10 @@ void Visitor::apply(WriteTimestamp& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(CopyQueryPoolResults& value)
+{
+    apply(static_cast<Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

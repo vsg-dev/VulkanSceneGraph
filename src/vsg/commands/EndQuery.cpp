@@ -43,10 +43,11 @@ void EndQuery::write(Output& output) const
 
 void EndQuery::compile(Context& context)
 {
-    queryPool->compile(context);
+    if (queryPool) queryPool->compile(context);
 }
 
 void EndQuery::record(CommandBuffer& commandBuffer) const
 {
+    if (!queryPool) return;
     vkCmdEndQuery(commandBuffer, *queryPool, query);
 }

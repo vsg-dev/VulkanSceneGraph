@@ -85,6 +85,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/CopyImage.h>
 #include <vsg/commands/CopyImageToBuffer.h>
+#include <vsg/commands/CopyQueryPoolResults.h>
 #include <vsg/commands/Dispatch.h>
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
