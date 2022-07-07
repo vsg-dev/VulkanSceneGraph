@@ -44,7 +44,7 @@ namespace vsg
         Path terrainLayer;
         uint32_t mipmapLevelsHint = 16;
     };
-    VSG_type_name(TileDatabaseSettings);
+    VSG_type_name(vsg::TileDatabaseSettings);
 
     class VSG_DECLSPEC TileDatabase : public Inherit<Node, TileDatabase>
     {
@@ -68,6 +68,6 @@ namespace vsg
 
         bool readDatabase(ref_ptr<const Options> options);
     };
-    VSG_type_name(TileDatabase);
+    VSG_type_name(vsg::TileDatabase);
 
 } // namespace vsg
