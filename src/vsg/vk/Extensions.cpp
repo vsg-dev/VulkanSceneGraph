@@ -43,6 +43,9 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
 
 Extensions::Extensions(Device* device)
 {
+    // VK_EXT_host_query_reset
+    device->getProcAddr(vkResetQueryPool, "vkResetQueryPool", "vkResetQueryPoolEXT");
+
     // VK_KHR_create_renderpass2
     device->getProcAddr(vkCreateRenderPass2, "vkCreateRenderPass2", "vkCreateRenderPass2KHR");
 

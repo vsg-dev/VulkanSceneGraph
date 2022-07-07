@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/state/QueryPool.h>
 
 using namespace vsg;
@@ -52,8 +53,17 @@ void QueryPool::write(Output& output) const
 
 void QueryPool::reset()
 {
-    if (_queryPool)
-        vkResetQueryPool(*_device, _queryPool, 0, queryCount);
+    if (!_queryPool) return;
+
+    auto extensions = _device->getExtensions();
+    if (extensions->vkResetQueryPool)
+    {
+        extensions->vkResetQueryPool(*_device, _queryPool, 0, queryCount);
+    }
+    else
+    {
+        warn("QueryPool::reset() vkResetQueryPool not supported by device/driver.");
+    }
 }
 
 VkResult QueryPool::getResults(std::vector<uint32_t>& results, uint32_t firstQuery, VkQueryResultFlags resultsFlags) const
