@@ -34,20 +34,20 @@ void QueryPool::read(Input& input)
 {
     Object::read(input);
 
-    input.readValue<uint32_t>("Flags", flags);
-    input.readValue<uint32_t>("QueryType", queryType);
-    input.readValue<uint32_t>("QueryCount", queryCount);
-    input.readValue<uint32_t>("PipelineStatisticFlags", pipelineStatistics);
+    input.readValue<uint32_t>("flags", flags);
+    input.readValue<uint32_t>("queryType", queryType);
+    input.readValue<uint32_t>("queryCount", queryCount);
+    input.readValue<uint32_t>("pipelineStatisticFlags", pipelineStatistics);
 }
 
 void QueryPool::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("Flags", flags);
-    output.writeValue<uint32_t>("QueryType", queryType);
-    output.writeValue<uint32_t>("QueryCount", queryCount);
-    output.writeValue<uint32_t>("PipelineStatisticFlags", pipelineStatistics);
+    output.writeValue<uint32_t>("flags", flags);
+    output.writeValue<uint32_t>("queryType", queryType);
+    output.writeValue<uint32_t>("queryCount", queryCount);
+    output.writeValue<uint32_t>("pipelineStatisticFlags", pipelineStatistics);
 }
 
 void QueryPool::reset()
@@ -56,14 +56,26 @@ void QueryPool::reset()
         vkResetQueryPool(*_device, _queryPool, 0, queryCount);
 }
 
-std::vector<uint32_t> QueryPool::getResults()
+VkResult QueryPool::getResults(std::vector<uint32_t>& results, uint32_t firstQuery, VkQueryResultFlags resultsFlags) const
 {
-    std::vector<uint32_t> res(queryCount);
-    if (VkResult result = vkGetQueryPoolResults(*_device, _queryPool, 0, queryCount, queryCount * sizeof(uint32_t), res.data(), sizeof(uint32_t), VK_QUERY_RESULT_WAIT_BIT); result != VK_SUCCESS)
-    {
-        throw Exception{"Error: Failed to get QueryPool results.", result};
-    }
-    return res;
+    if (!_queryPool) return VK_NOT_READY;
+    if (firstQuery > queryCount) return VK_ERROR_UNKNOWN; // out of range
+
+    uint32_t count = std::min(queryCount - firstQuery, static_cast<uint32_t>(results.size()));
+    if (count==0) return VK_ERROR_UNKNOWN; // out of range
+
+    return vkGetQueryPoolResults(*_device, _queryPool, firstQuery, count, count * sizeof(uint32_t), results.data(), sizeof(uint32_t), resultsFlags);
+}
+
+VkResult QueryPool::getResults(std::vector<uint64_t>& results, uint32_t firstQuery, VkQueryResultFlags resultsFlags) const
+{
+    if (!_queryPool) return VK_NOT_READY;
+    if (firstQuery > queryCount) return VK_ERROR_UNKNOWN; // out of range
+
+    uint32_t count = std::min(queryCount - firstQuery, static_cast<uint32_t>(results.size()));
+    if (count==0) return VK_ERROR_UNKNOWN; // out of range
+
+    return vkGetQueryPoolResults(*_device, _queryPool, firstQuery, count, count * sizeof(uint64_t), results.data(), sizeof(uint64_t), resultsFlags);
 }
 
 void QueryPool::compile(Context& context)

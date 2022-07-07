@@ -33,7 +33,8 @@ namespace vsg
 
         void reset();
 
-        std::vector<uint32_t> getResults();
+        VkResult getResults(std::vector<uint32_t>& results, uint32_t firstQuery  = 0, VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT) const;
+        VkResult getResults(std::vector<uint64_t>& results, uint32_t firstQuery  = 0, VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT | VK_QUERY_RESULT_64_BIT) const;
 
         void compile(Context& context);
 
