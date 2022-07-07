@@ -285,15 +285,15 @@ Path vsg::executableFilePath()
     Path path;
 
 #if defined(WIN32)
-    char buf[PATH_MAX + 1];
-    DWORD result = GetModuleFileName(NULL, buf, sizeof(buf) - 1);
-    if (result && result < sizeof(buf))
+    wchar_t buf[PATH_MAX + 1]{ 0 };
+    DWORD result = GetModuleFileNameW(NULL, buf, std::size(buf) - 1);
+    if (result && result < std::size(buf))
         path = buf;
 #elif defined(__linux__)
     // TODO need to handle case where executable filename is longer than PATH_MAX
     // See https://stackoverflow.com/questions/5525668/how-to-implement-readlink-to-find-the-path
-    char buf[PATH_MAX + 1];
-    ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    char buf[PATH_MAX + 1]{ 0 };
+    ssize_t len = ::readlink("/proc/self/exe", buf, std::size(buf) - 1);
     if (len != -1)
     {
         buf[len] = '\0';
@@ -301,9 +301,9 @@ Path vsg::executableFilePath()
     }
 #elif defined(__APPLE__)
 #    if TARGET_OS_MAC
-    char realPathName[PATH_MAX + 1];
-    char buf[PATH_MAX + 1];
-    uint32_t size = (uint32_t)sizeof(buf);
+    char realPathName[PATH_MAX + 1]{ 0 };
+    char buf[PATH_MAX + 1]{ 0 };
+    uint32_t size = (uint32_t)std::size(buf);
 
     if (!_NSGetExecutablePath(buf, &size))
     {

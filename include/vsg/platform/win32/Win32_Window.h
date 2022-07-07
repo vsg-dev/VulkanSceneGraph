@@ -39,7 +39,7 @@ namespace vsgWin32
             uint16_t modifierMask = 0;
 
             //bool rightSide = (lParam & 0x01000000) != 0;
-            uint32_t virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
+            uint32_t virtualKey = ::MapVirtualKeyExW((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
             auto itr = _keycodeMap.find(virtualKey);
             if (itr == _keycodeMap.end()) return false;
 

@@ -40,7 +40,7 @@ namespace vsgWin32
         {
             VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{};
             surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-            surfaceCreateInfo.hinstance = ::GetModuleHandle(NULL);
+            surfaceCreateInfo.hinstance = ::GetModuleHandleW(NULL);
             surfaceCreateInfo.hwnd = window;
             surfaceCreateInfo.pNext = nullptr;
 
@@ -51,9 +51,9 @@ namespace vsgWin32
     // our windows events callback
     LRESULT CALLBACK Win32WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
-        Win32_Window* win = reinterpret_cast<Win32_Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+        Win32_Window* win = reinterpret_cast<Win32_Window*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
         if (win != nullptr) return win->handleWin32Messages(msg, wParam, lParam);
-        return ::DefWindowProc(hwnd, msg, wParam, lParam);
+        return ::DefWindowProcW(hwnd, msg, wParam, lParam);
     }
 
 } // namespace vsgWin32
@@ -312,22 +312,26 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 {
     _keyboard = new KeyboardMap;
 
+    std::wstring windowClass;
+    convert_utf(traits->windowClass, windowClass);
+    std::wstring windowTitle;
+    convert_utf(traits->windowTitle, windowTitle);
     // register window class
-    WNDCLASSEX wc;
+    WNDCLASSEXW wc;
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
     wc.lpfnWndProc = Win32WindowProc;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
-    wc.hInstance = ::GetModuleHandle(NULL);
-    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hInstance = ::GetModuleHandleW(NULL);
+    wc.hIcon = LoadIconW(NULL, IDI_APPLICATION);
+    wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
     wc.hbrBackground = 0;
     wc.lpszMenuName = 0;
-    wc.lpszClassName = traits->windowClass.c_str();
+    wc.lpszClassName = windowClass.c_str();
     wc.hIconSm = 0;
 
-    if (::RegisterClassEx(&wc) == 0)
+    if (::RegisterClassExW(&wc) == 0)
     {
         auto lastError = ::GetLastError();
         if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED};
@@ -335,11 +339,11 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
     // fetch screen display information
 
-    std::vector<DISPLAY_DEVICE> displayDevices;
-    DISPLAY_DEVICE displayDevice;
+    std::vector<DISPLAY_DEVICEW> displayDevices;
+    DISPLAY_DEVICEW displayDevice;
     displayDevice.cb = sizeof(displayDevice);
 
-    for (uint32_t deviceNum = 0; EnumDisplayDevices(nullptr, deviceNum, &displayDevice, 0); ++deviceNum)
+    for (uint32_t deviceNum = 0; EnumDisplayDevicesW(nullptr, deviceNum, &displayDevice, 0); ++deviceNum)
     {
         if (displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
         if (!(displayDevice.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)) continue;
@@ -351,11 +355,11 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
     if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
-    DEVMODE deviceMode;
+    DEVMODEW deviceMode;
     deviceMode.dmSize = sizeof(deviceMode);
     deviceMode.dmDriverExtra = 0;
 
-    if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+    if (!::EnumDisplaySettingsW(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     // setup window rect and style
     int32_t screenx = 0;
@@ -379,7 +383,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         {
             windowStyle |= WS_OVERLAPPEDWINDOW;
 
-            extendedStyle |= WS_EX_WINDOWEDGE | 
+            extendedStyle |= WS_EX_WINDOWEDGE |
                 WS_EX_APPWINDOW |
                 WS_EX_OVERLAPPEDWINDOW |
                 WS_EX_ACCEPTFILES |
@@ -402,14 +406,14 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     }
 
     // create the window
-    _window = ::CreateWindowEx(extendedStyle, traits->windowClass.c_str(), traits->windowTitle.c_str(), windowStyle,
+    _window = ::CreateWindowExW(extendedStyle, windowClass.c_str(), windowTitle.c_str(), windowStyle,
                                windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
-                               NULL, NULL, ::GetModuleHandle(NULL), NULL);
+                               NULL, NULL, ::GetModuleHandleW(NULL), NULL);
 
     if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-    SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    SetWindowLongPtrW(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     // reposition once the window has been created to account for borders etc
     ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
@@ -453,14 +457,14 @@ Win32_Window::~Win32_Window()
     {
         vsg::debug("Calling DestroyWindow(_window);");
 
-        TCHAR className[MAX_PATH];
-        GetClassName(_window, className, MAX_PATH);
+        wchar_t className[MAX_PATH]{ 0 };
+        GetClassNameW(_window, className, MAX_PATH);
 
         ::DestroyWindow(_window);
         _window = nullptr;
 
         // when should we unregister??
-        ::UnregisterClass(className, ::GetModuleHandle(NULL));
+        ::UnregisterClassW(className, ::GetModuleHandleW(NULL));
     }
 }
 
@@ -629,5 +633,5 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     default:
         break;
     }
-    return ::DefWindowProc(_window, msg, wParam, lParam);
+    return ::DefWindowProcW(_window, msg, wParam, lParam);
 }
