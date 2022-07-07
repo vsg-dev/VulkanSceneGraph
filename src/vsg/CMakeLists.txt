@@ -69,6 +69,8 @@ set(SOURCES
     commands/ResolveImage.cpp
     commands/ResetQueryPool.cpp
     commands/WriteTimestamp.cpp
+    commands/BeginQuery.cpp
+    commands/EndQuery.cpp
 
     state/ArrayState.cpp
     state/BindDescriptorSet.cpp
