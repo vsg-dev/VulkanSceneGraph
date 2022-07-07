@@ -74,6 +74,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 
 // Commands header files
+#include <vsg/commands/BeginQuery.h>
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/BlitImage.h>
@@ -90,6 +91,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/DrawIndexedIndirect.h>
 #include <vsg/commands/DrawIndirect.h>
 #include <vsg/commands/DrawIndirectCommand.h>
+#include <vsg/commands/EndQuery.h>
 #include <vsg/commands/Event.h>
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
