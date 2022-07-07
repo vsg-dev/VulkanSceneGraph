@@ -15,7 +15,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 ResetQueryPool::ResetQueryPool(ref_ptr<QueryPool> pool) :
-    queryPool(pool)
+    queryPool(pool),
+    firstQuery(0),
+    queryCount(pool->queryCount)
 {
 }
 
@@ -26,5 +28,5 @@ void ResetQueryPool::compile(Context& context)
 
 void ResetQueryPool::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdResetQueryPool(commandBuffer, *queryPool, 0, queryPool->queryCount);
+    vkCmdResetQueryPool(commandBuffer, *queryPool, firstQuery, queryCount);
 }
