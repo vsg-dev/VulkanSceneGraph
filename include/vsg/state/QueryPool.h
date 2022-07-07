@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// encapsulation of vkQueryPool
     class VSG_DECLSPEC QueryPool : public Inherit<Object, QueryPool>
     {
     public:

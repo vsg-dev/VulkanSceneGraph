@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// encapsulation of vkCmdBeginQuery
     class VSG_DECLSPEC BeginQuery : public Inherit<Command, BeginQuery>
     {
     public:
