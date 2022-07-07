@@ -25,11 +25,11 @@ namespace vsg
         CopyQueryPoolResults();
 
         ref_ptr<QueryPool> queryPool;
-        uint32_t firstQuery;
-        uint32_t queryCount;
+        uint32_t firstQuery = 0;
+        uint32_t queryCount = 0;
         ref_ptr<BufferInfo> dest;
-        VkDeviceSize stride;
-        VkQueryResultFlags flags;
+        VkDeviceSize stride = 4;
+        VkQueryResultFlags flags = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;

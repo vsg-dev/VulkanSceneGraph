@@ -22,7 +22,7 @@ namespace vsg
     {
     public:
         ResetQueryPool();
-        ResetQueryPool(ref_ptr<QueryPool> pool);
+        explicit ResetQueryPool(ref_ptr<QueryPool> pool);
 
         ref_ptr<QueryPool> queryPool;
         uint32_t firstQuery = 0;
