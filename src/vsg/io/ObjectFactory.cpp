@@ -231,6 +231,12 @@ ObjectFactory::ObjectFactory()
     add<vsg::DrawIndexedIndirect>();
     add<vsg::CopyImage>();
     add<vsg::BlitImage>();
+    add<vsg::QueryPool>();
+    add<vsg::WriteTimestamp>();
+    add<vsg::BeginQuery>();
+    add<vsg::EndQuery>();
+    add<vsg::ResetQueryPool>();
+    add<vsg::CopyQueryPoolResults>();
 
     // text
     add<vsg::GlyphMetricsArray>();

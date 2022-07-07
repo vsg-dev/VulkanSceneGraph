@@ -67,6 +67,11 @@ set(SOURCES
     commands/SetScissor.cpp
     commands/SetViewport.cpp
     commands/ResolveImage.cpp
+    commands/ResetQueryPool.cpp
+    commands/WriteTimestamp.cpp
+    commands/BeginQuery.cpp
+    commands/EndQuery.cpp
+    commands/CopyQueryPoolResults.cpp
 
     state/ArrayState.cpp
     state/BindDescriptorSet.cpp
@@ -101,6 +106,7 @@ set(SOURCES
     state/ColorBlendState.cpp
     state/DynamicState.cpp
     state/ViewDependentState.cpp
+    state/QueryPool.cpp
 
     io/convert_utf.cpp
     io/FileSystem.cpp

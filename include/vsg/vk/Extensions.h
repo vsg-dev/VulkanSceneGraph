@@ -28,6 +28,9 @@ namespace vsg
     public:
         explicit Extensions(Device* device);
 
+        // VK_EXT_host_query_reset / Vulkan-1.2
+        PFN_vkResetQueryPoolEXT vkResetQueryPool = nullptr;
+
         // VK_KHR_create_renderpass2
         PFN_vkCreateRenderPass2KHR_Compatibility vkCreateRenderPass2 = nullptr;
 

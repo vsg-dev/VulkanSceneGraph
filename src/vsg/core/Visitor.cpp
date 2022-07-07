@@ -646,6 +646,30 @@ void Visitor::apply(ClearAttachments& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(QueryPool& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ResetQueryPool& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(BeginQuery& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(EndQuery& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(WriteTimestamp& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(CopyQueryPoolResults& value)
+{
+    apply(static_cast<Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

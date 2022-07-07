@@ -74,6 +74,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 
 // Commands header files
+#include <vsg/commands/BeginQuery.h>
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/BlitImage.h>
@@ -84,21 +85,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/commands/CopyImage.h>
 #include <vsg/commands/CopyImageToBuffer.h>
+#include <vsg/commands/CopyQueryPoolResults.h>
 #include <vsg/commands/Dispatch.h>
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/commands/DrawIndexedIndirect.h>
 #include <vsg/commands/DrawIndirect.h>
 #include <vsg/commands/DrawIndirectCommand.h>
+#include <vsg/commands/EndQuery.h>
 #include <vsg/commands/Event.h>
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/commands/PushConstants.h>
+#include <vsg/commands/ResetQueryPool.h>
 #include <vsg/commands/ResolveImage.h>
 #include <vsg/commands/SetDepthBias.h>
 #include <vsg/commands/SetLineWidth.h>
 #include <vsg/commands/SetScissor.h>
 #include <vsg/commands/SetViewport.h>
+#include <vsg/commands/WriteTimestamp.h>
 
 // State header files
 #include <vsg/state/ArrayState.h>
@@ -123,6 +128,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/PipelineLayout.h>
+#include <vsg/state/QueryPool.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/state/Sampler.h>
