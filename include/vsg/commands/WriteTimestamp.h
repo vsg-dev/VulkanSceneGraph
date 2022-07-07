@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2022 Josef Stumpfegger
+Copyright(c) 2022 Josef Stumpfegger & Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -21,11 +21,15 @@ namespace vsg
     class VSG_DECLSPEC WriteTimestamp : public Inherit<Command, WriteTimestamp>
     {
     public:
-        WriteTimestamp(ref_ptr<QueryPool> pool, uint32_t index, VkPipelineStageFlagBits stage);
+        WriteTimestamp();
+        WriteTimestamp(VkPipelineStageFlagBits stage, ref_ptr<QueryPool> pool, uint32_t query);
 
-        ref_ptr<QueryPool> queryPool;
-        uint32_t queryIndex;
         VkPipelineStageFlagBits pipelineStage;
+        ref_ptr<QueryPool> queryPool;
+        uint32_t query;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;

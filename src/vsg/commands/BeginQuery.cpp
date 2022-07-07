@@ -15,11 +15,34 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+BeginQuery::BeginQuery()
+{
+}
+
 BeginQuery::BeginQuery(ref_ptr<QueryPool> pool, uint32_t in_query, VkQueryControlFlags in_flags) :
     queryPool(pool),
     query(in_query),
     flags(in_flags)
 {
+}
+
+
+void BeginQuery::read(Input& input)
+{
+    Command::read(input);
+
+    input.readObject("queryPool", queryPool);
+    input.read("query", query);
+    input.readValue<uint32_t>("flags", flags);
+}
+
+void BeginQuery::write(Output& output) const
+{
+    Command::write(output);
+
+    output.writeObject("queryPool", queryPool);
+    output.write("query", query);
+    output.writeValue<uint32_t>("flags", flags);
 }
 
 void BeginQuery::compile(Context& context)

@@ -21,11 +21,15 @@ namespace vsg
     class VSG_DECLSPEC BeginQuery : public Inherit<Command, BeginQuery>
     {
     public:
+        BeginQuery();
         BeginQuery(ref_ptr<QueryPool> pool, uint32_t in_query, VkQueryControlFlags in_flags);
 
         ref_ptr<QueryPool> queryPool;
         uint32_t query;
         VkQueryControlFlags flags;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;

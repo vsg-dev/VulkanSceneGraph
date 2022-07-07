@@ -15,10 +15,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+EndQuery::EndQuery()
+{
+}
+
 EndQuery::EndQuery(ref_ptr<QueryPool> pool, uint32_t in_query) :
     queryPool(pool),
     query(in_query)
 {
+}
+
+void EndQuery::read(Input& input)
+{
+    Command::read(input);
+
+    input.readObject("queryPool", queryPool);
+    input.read("query", query);
+}
+
+void EndQuery::write(Output& output) const
+{
+    Command::write(output);
+
+    output.writeObject("queryPool", queryPool);
+    output.write("query", query);
 }
 
 void EndQuery::compile(Context& context)

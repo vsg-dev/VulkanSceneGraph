@@ -21,11 +21,15 @@ namespace vsg
     class VSG_DECLSPEC ResetQueryPool : public Inherit<Command, ResetQueryPool>
     {
     public:
+        ResetQueryPool();
         ResetQueryPool(ref_ptr<QueryPool> pool);
 
         ref_ptr<QueryPool> queryPool;
         uint32_t firstQuery = 0;
         uint32_t queryCount = 0;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void compile(Context& context) override;
 

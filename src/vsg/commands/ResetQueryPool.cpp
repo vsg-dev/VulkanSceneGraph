@@ -15,11 +15,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+ResetQueryPool::ResetQueryPool()
+{
+}
+
 ResetQueryPool::ResetQueryPool(ref_ptr<QueryPool> pool) :
     queryPool(pool),
     firstQuery(0),
     queryCount(pool->queryCount)
 {
+}
+
+void ResetQueryPool::read(Input& input)
+{
+    Command::read(input);
+
+    input.readObject("queryPool", queryPool);
+    input.read("firstQuery", firstQuery);
+    input.read("queryCount", queryCount);
+}
+
+void ResetQueryPool::write(Output& output) const
+{
+    Command::write(output);
+
+    output.writeObject("queryPool", queryPool);
+    output.write("firstQuery", firstQuery);
+    output.write("queryCount", queryCount);
 }
 
 void ResetQueryPool::compile(Context& context)

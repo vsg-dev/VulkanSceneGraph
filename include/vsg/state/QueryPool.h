@@ -47,5 +47,6 @@ namespace vsg
         VkQueryPool _queryPool{};
         ref_ptr<Device> _device{};
     };
+    VSG_type_name(vsg::QueryPool);
 
 } // namespace vsg

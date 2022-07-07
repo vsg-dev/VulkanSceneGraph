@@ -1,6 +1,6 @@
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2022 Josef Stumpfegger
+Copyright(c) 2022 Josef Stumpfegger & Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -15,11 +15,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-WriteTimestamp::WriteTimestamp(ref_ptr<QueryPool> pool, uint32_t index, VkPipelineStageFlagBits stage) :
-    queryPool(pool),
-    queryIndex(index),
-    pipelineStage(stage)
+WriteTimestamp::WriteTimestamp()
 {
+}
+
+WriteTimestamp::WriteTimestamp(VkPipelineStageFlagBits stage, ref_ptr<QueryPool> pool, uint32_t in_query) :
+    pipelineStage(stage),
+    queryPool(pool),
+    query(in_query)
+{
+}
+
+void WriteTimestamp::read(Input& input)
+{
+    Command::read(input);
+
+    input.readValue<uint32_t>("pipelineStage", pipelineStage);
+    input.readObject("queryPool", queryPool);
+    input.read("query", query);
+}
+
+void WriteTimestamp::write(Output& output) const
+{
+    Command::write(output);
+
+    output.writeValue<uint32_t>("pipelineStage", pipelineStage);
+    output.writeObject("queryPool", queryPool);
+    output.write("query", query);
 }
 
 void WriteTimestamp::compile(Context& context)
@@ -29,5 +51,5 @@ void WriteTimestamp::compile(Context& context)
 
 void WriteTimestamp::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdWriteTimestamp(commandBuffer, pipelineStage, *queryPool, queryIndex);
+    vkCmdWriteTimestamp(commandBuffer, pipelineStage, *queryPool, query);
 }
