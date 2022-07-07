@@ -646,6 +646,26 @@ void ConstVisitor::apply(const ClearAttachments& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const QueryPool& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ResetQueryPool& value)
+{
+    apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const BeginQuery& value)
+{
+    apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const EndQuery& value)
+{
+    apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const WriteTimestamp& value)
+{
+    apply(static_cast<const Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

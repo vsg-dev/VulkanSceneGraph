@@ -83,6 +83,11 @@ namespace vsg
     class DynamicState;
     class ResourceHints;
     class ClearAttachments;
+    class QueryPool;
+    class ResetQueryPool;
+    class BeginQuery;
+    class EndQuery;
+    class WriteTimestamp;
 
     // forward declare rtx classes
     class DrawMeshTasks;
@@ -292,6 +297,11 @@ namespace vsg
         virtual void apply(Draw&);
         virtual void apply(DrawIndexed&);
         virtual void apply(ClearAttachments&);
+        virtual void apply(QueryPool&);
+        virtual void apply(ResetQueryPool&);
+        virtual void apply(BeginQuery&);
+        virtual void apply(EndQuery&);
+        virtual void apply(WriteTimestamp&);
 
         // rtx classes
         virtual void apply(DrawMeshTasks&);
