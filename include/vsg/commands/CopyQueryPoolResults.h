@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
-#include <vsg/state/QueryPool.h>
 #include <vsg/state/BufferInfo.h>
+#include <vsg/state/QueryPool.h>
 
 namespace vsg
 {
@@ -25,12 +25,11 @@ namespace vsg
         CopyQueryPoolResults();
 
         ref_ptr<QueryPool> queryPool;
-        uint32_t                                    firstQuery;
-        uint32_t                                    queryCount;
+        uint32_t firstQuery;
+        uint32_t queryCount;
         ref_ptr<BufferInfo> dest;
-        VkDeviceSize                                stride;
-        VkQueryResultFlags                          flags;
-
+        VkDeviceSize stride;
+        VkQueryResultFlags flags;
 
         void read(Input& input) override;
         void write(Output& output) const override;

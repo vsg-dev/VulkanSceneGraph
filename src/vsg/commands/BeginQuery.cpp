@@ -26,7 +26,6 @@ BeginQuery::BeginQuery(ref_ptr<QueryPool> pool, uint32_t in_query, VkQueryContro
 {
 }
 
-
 void BeginQuery::read(Input& input)
 {
     Command::read(input);
