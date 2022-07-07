@@ -73,7 +73,7 @@ VkResult QueryPool::getResults(std::vector<uint32_t>& results, uint32_t firstQue
     if (firstQuery > queryCount) return VK_ERROR_UNKNOWN; // out of range
 
     uint32_t count = std::min(queryCount - firstQuery, static_cast<uint32_t>(results.size()));
-    if (count==0) return VK_ERROR_UNKNOWN; // out of range
+    if (count == 0) return VK_ERROR_UNKNOWN; // out of range
 
     return vkGetQueryPoolResults(*_device, _queryPool, firstQuery, count, count * sizeof(uint32_t), results.data(), sizeof(uint32_t), resultsFlags);
 }
@@ -84,7 +84,7 @@ VkResult QueryPool::getResults(std::vector<uint64_t>& results, uint32_t firstQue
     if (firstQuery > queryCount) return VK_ERROR_UNKNOWN; // out of range
 
     uint32_t count = std::min(queryCount - firstQuery, static_cast<uint32_t>(results.size()));
-    if (count==0) return VK_ERROR_UNKNOWN; // out of range
+    if (count == 0) return VK_ERROR_UNKNOWN; // out of range
 
     return vkGetQueryPoolResults(*_device, _queryPool, firstQuery, count, count * sizeof(uint64_t), results.data(), sizeof(uint64_t), resultsFlags);
 }
