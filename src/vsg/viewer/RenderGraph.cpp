@@ -22,15 +22,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RenderGraph::RenderGraph()
+RenderGraph::RenderGraph():
+    windowResizeHandler(WindowResizeHandler::create())
 {
-    windowResizeHandler = WindowResizeHandler::create();
 }
 
 RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
-    window(in_window)
+    window(in_window),
+    windowResizeHandler(WindowResizeHandler::create())
 {
-    windowResizeHandler = WindowResizeHandler::create();
 
     if (in_view)
     {

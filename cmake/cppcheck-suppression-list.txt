@@ -108,3 +108,5 @@ stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
 // suppress inappropriate warning about usage that exists for debugging purposes.
 duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
 
+// suppress unhelpful "can be declared with const"
+constParameter:*/src/vsg/state/QueryPool.cpp

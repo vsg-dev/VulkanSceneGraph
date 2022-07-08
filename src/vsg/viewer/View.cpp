@@ -53,15 +53,13 @@ static void releaseViewID(uint32_t viewID)
 View::View() :
     viewID(getUniqueViewID())
 {
-    viewDependentState = ViewDependentState::create();
 }
 
 View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph) :
-    viewID(getUniqueViewID())
+    camera(in_camera),
+    viewID(getUniqueViewID()),
+    viewDependentState(ViewDependentState::create())
 {
-    viewDependentState = ViewDependentState::create();
-    camera = in_camera;
-
     if (in_scenegraph) addChild(in_scenegraph);
 }
 
