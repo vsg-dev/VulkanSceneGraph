@@ -51,7 +51,8 @@ static void releaseViewID(uint32_t viewID)
 // View
 //
 View::View() :
-    viewID(getUniqueViewID())
+    viewID(getUniqueViewID()),
+    viewDependentState(ViewDependentState::create())
 {
 }
 
