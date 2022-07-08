@@ -17,11 +17,14 @@
 ---
 
 ## Prerequisites
+
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
-* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
+* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositoies or using VulkanSDK.
 * [CMake](https://www.cmake.org) 3.7 or later.
 
-The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions. If you find success with older versions let us know and we can update the version info.
+## Optional dependenices
+
+* [glslang & SPIRV-Tools](https://github.com/KhronosGroup/glslang) are required when built-in GLSL -> SPIR-V (required by Vulkan) compilation is needed, such as when you need the VulkanSceneGraphs shader composition and compilation capailities. SPIRV-Tools is built as part of glslang but can be packaged separately on common linux distributions. VulkanSDK provides glslang. Unless you know you don't require them for your application we recommend building the VulkanSceneGraph with glslang and SPIRV-Tools.
 
 ---
 
@@ -163,7 +166,7 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 
-The VSG has one dependency, the Vulkan SDK itself. LunarG provides a convenient installer for the Vulkan SDK and runtime on Windows.
+While not the only route to installing Vulkan libs an headers on Windows the most common approach is to use the Vulkan SDK. LunarG provides a convenient installer for the Vulkan SDK and runtime on Windows.
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#windows)
 
