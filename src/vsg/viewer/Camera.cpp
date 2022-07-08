@@ -19,7 +19,7 @@ using namespace vsg;
 //
 // Camera
 //
-Camera::Camera():
+Camera::Camera() :
     projectionMatrix(Perspective::create()),
     viewMatrix(LookAt::create())
 {
