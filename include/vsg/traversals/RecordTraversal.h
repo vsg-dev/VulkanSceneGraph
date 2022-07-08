@@ -62,6 +62,12 @@ namespace vsg
         RecordTraversal(const RecordTraversal&) = delete;
         RecordTraversal& operator=(const RecordTraversal& rhs) = delete;
 
+        template<typename... Args>
+        static ref_ptr<RecordTraversal> create(Args&&... args)
+        {
+            return ref_ptr<RecordTraversal>(new RecordTraversal(args...));
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
         const char* className() const noexcept override { return type_name<RecordTraversal>(); }
 
