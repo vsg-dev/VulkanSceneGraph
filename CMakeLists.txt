@@ -37,7 +37,7 @@ find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 find_package(Threads REQUIRED)
 
 if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
+    find_package(vsg_glslang CONFIG PATHS ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg)
 endif()
 
 if (NOT glslang_FOUND)
@@ -62,7 +62,7 @@ endif()
 
 vsg_add_target_docs(
     FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/vsg
 )
 
 # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
@@ -75,17 +75,17 @@ vsg_add_target_clobber()
 vsg_add_target_uninstall()
 vsg_add_target_cppcheck(
     SUPPRESSIONS_LIST
-        "${CMAKE_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
     FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
-        ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
-        -I ${CMAKE_SOURCE_DIR}/include/
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/vsg/*/*.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp
+        -I ${CMAKE_CURRENT_SOURCE_DIR}/include/
 )
 
 vsg_add_target_clang_format(
     FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
-        ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/vsg/*/*.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/*/*.cpp
 )
 
 vsg_add_option_maintainer(

@@ -107,8 +107,8 @@ macro(vsg_add_cmake_support_files)
     if(NOT ARGS_VERSION)
         set(ARGS_VERSION ${PROJECT_VERSION})
     endif()
-    set(CONFIG_FILE ${CMAKE_BINARY_DIR}/${ARGS_PREFIX}Config.cmake)
-    set(CONFIG_VERSION_FILE ${CMAKE_BINARY_DIR}/${ARGS_PREFIX}ConfigVersion.cmake)
+    set(CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/${ARGS_PREFIX}Config.cmake)
+    set(CONFIG_VERSION_FILE ${CMAKE_CURRENT_BINARY_DIR}/${ARGS_PREFIX}ConfigVersion.cmake)
 
     if(NOT ARGS_CONFIG_TEMPLATE)
         message(FATAL_ERROR "no template for generating <prefix>Config.cmake provided - use argument CONFIG_TEMPLATE <file>")
@@ -174,7 +174,7 @@ macro(vsg_add_option_maintainer)
         #
         set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
-        set(GITCOMMAND git -C ${CMAKE_SOURCE_DIR})
+        set(GITCOMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR})
         set(ECHO ${CMAKE_COMMAND} -E echo)
         set(REMOTE origin)
 
@@ -235,7 +235,7 @@ macro(vsg_add_target_clang_format)
         endforeach()
         add_custom_target(clang-format
             COMMAND ${CLANGFORMAT} -i ${FILES_TO_FORMAT}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Automated code format using clang-format"
         )
         set_target_properties(clang-format PROPERTIES FOLDER ${PROJECT_NAME})
@@ -247,7 +247,7 @@ endmacro()
 #
 macro(vsg_add_target_clobber)
     add_custom_target(clobber
-        COMMAND git -C ${CMAKE_SOURCE_DIR} clean -d -f -x
+        COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR} clean -d -f -x
     )
     set_target_properties(clobber PROPERTIES FOLDER ${PROJECT_NAME})
 endmacro()
@@ -289,7 +289,7 @@ macro(vsg_add_target_cppcheck)
                 ${CPPCHECK_EXTRA_OPTIONS}
                 ${SUPPRESSION_LIST}
                 ${ARGS_FILES}
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             COMMENT "Static code analysis using cppcheck"
         )
         set_target_properties(cppcheck PROPERTIES FOLDER ${PROJECT_NAME})
@@ -331,8 +331,8 @@ macro(vsg_add_target_uninstall)
     # we are running inside VulkanSceneGraph
     if (PROJECT_NAME STREQUAL "vsg")
         # install file for client packages
-        install(FILES ${CMAKE_SOURCE_DIR}/cmake/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
-        set(DIR ${CMAKE_SOURCE_DIR}/cmake)
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
+        set(DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
     else()
         set(DIR ${CMAKE_CURRENT_LIST_DIR})
     endif()
