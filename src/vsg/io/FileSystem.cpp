@@ -285,9 +285,9 @@ Path vsg::executableFilePath()
     Path path;
 
 #if defined(WIN32)
-    char buf[PATH_MAX + 1];
-    DWORD result = GetModuleFileName(NULL, buf, sizeof(buf) - 1);
-    if (result && result < sizeof(buf))
+    TCHAR buf[PATH_MAX + 1];
+    DWORD result = GetModuleFileName(NULL, buf, std::size(buf) - 1);
+    if (result && result < std::size(buf))
         path = buf;
 #elif defined(__linux__)
     // TODO need to handle case where executable filename is longer than PATH_MAX
