@@ -50,7 +50,7 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 The VulkanSceneGraph Discussion Group [vsg-users](https://groups.google.com/forum/#!forum/vsg-users) is the place for project news, discussions of latest developments and any questions you have on how to use the software in your applications. The discussion group can be read by anyone, to post to the group you'll need register.
 
 ## Professional Support
-Project lead, [Robert Osfield](mailto:robert.osfield@gmal.com), provides OpenSceneGraph and VulkanSceneGraph related services, the associated income supports open source development work and public support on both projects.  Services provided:
+Project lead, [Robert Osfield](mailto:robert.osfield@gmail.com), provides OpenSceneGraph and VulkanSceneGraph related services, the associated income supports open source development work and public support on both projects.  Services provided:
 
 * Open source development - funding of development of new features specific to your project needs.
 * Closed source bespoke development - development of proprietary libraries through to directly working on your applications.
