@@ -97,7 +97,20 @@ void DescriptorBuffer::write(Output& output) const
 
 void DescriptorBuffer::compile(Context& context)
 {
-    VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    VkBufferUsageFlags bufferUsageFlags = 0;
+    switch (descriptorType)
+    {
+    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+        bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        break;
+    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+        bufferUsageFlags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        break;
+    default:
+        break;
+    }
 
     bool requiresAssingmentOfBuffers = false;
     for (auto& bufferInfo : bufferInfoList)
@@ -110,7 +123,9 @@ void DescriptorBuffer::compile(Context& context)
     if (requiresAssingmentOfBuffers)
     {
         VkDeviceSize alignment = 4;
-        if (bufferUsageFlags == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = context.device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+        const auto& limits = context.device->getPhysicalDevice()->getProperties().limits;
+        if (bufferUsageFlags == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = limits.minUniformBufferOffsetAlignment;
+        else if (bufferUsageFlags == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) alignment = limits.minStorageBufferOffsetAlignment;
 
         VkDeviceSize totalSize = 0;
 
