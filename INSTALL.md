@@ -30,6 +30,14 @@
 
 ## Quick build instructions for Unix from the command line
 
+### Gentoo dependencies
+1. essential dependencies:
+	emerge dev-util/vulkan-tools
+
+2. optional dependencies:
+	emerge dev-util/glslang dev-util/spirv-tools 
+
+### Build
 Command line instructions for default build of static library (.a/.lib) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
@@ -46,6 +54,7 @@ Command line instructions for building shared library (.so/.lib + .dll) out of s
     cmake ../VulkanSceneGraph -DBUILD_SHARED_LIBS=ON
     make -j 8
     make install
+
 
 ---
 
