@@ -10,25 +10,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/ResourceRequirements.h>
 
-#include <vsg/commands/Command.h>
-#include <vsg/commands/Commands.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
-#include <vsg/nodes/LOD.h>
 #include <vsg/nodes/PagedLOD.h>
-#include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/MultisampleState.h>
-#include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/View.h>
-#include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>
-#include <vsg/vk/State.h>
 
 using namespace vsg;
 
