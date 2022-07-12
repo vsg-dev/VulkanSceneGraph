@@ -136,7 +136,7 @@ void VertexIndexDraw::compile(Context& context)
         }
     }
 
-    if (!requiresCreateAndCopy)
+    if (requiresCreateAndCopy)
     {
         BufferInfoList combinedBufferInfos(arrays);
         combinedBufferInfos.push_back(indices);
