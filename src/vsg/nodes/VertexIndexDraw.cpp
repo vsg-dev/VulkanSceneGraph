@@ -45,9 +45,14 @@ void VertexIndexDraw::assignArrays(const DataList& arrayData)
 void VertexIndexDraw::assignIndices(ref_ptr<vsg::Data> indexData)
 {
     if (indexData)
+    {
         indices = BufferInfo::create(indexData);
+        indexType = computeIndexType(indices->data);
+    }
     else
+    {
         indices = {};
+    }
 }
 
 void VertexIndexDraw::read(Input& input)
@@ -110,7 +115,7 @@ void VertexIndexDraw::compile(Context& context)
 {
     if (arrays.empty() || !indices)
     {
-        // VertexIndexDraw does not contain required arrays and/or indices
+        // VertexIndexDraw does not contain required arrays and indices
         return;
     }
 
@@ -133,26 +138,19 @@ void VertexIndexDraw::compile(Context& context)
 
     if (!requiresCreateAndCopy)
     {
-        return;
+        BufferInfoList combinedBufferInfos(arrays);
+        combinedBufferInfos.push_back(indices);
+        createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 
     auto& vkd = _vulkanData[deviceID];
-
     vkd = {};
 
-    BufferInfoList combinedBufferInfos(arrays);
-    combinedBufferInfos.push_back(indices);
-
-    if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
+    for (auto& bufferInfo : arrays)
     {
-        for (auto& bufferInfo : arrays)
-        {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
-            vkd.offsets.push_back(bufferInfo->offset);
-        }
+        vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
+        vkd.offsets.push_back(bufferInfo->offset);
     }
-
-    indexType = computeIndexType(indices->data);
 }
 
 void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
