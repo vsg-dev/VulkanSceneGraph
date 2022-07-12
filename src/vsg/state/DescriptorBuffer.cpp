@@ -124,8 +124,10 @@ void DescriptorBuffer::compile(Context& context)
     {
         VkDeviceSize alignment = 4;
         const auto& limits = context.device->getPhysicalDevice()->getProperties().limits;
-        if (bufferUsageFlags == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = limits.minUniformBufferOffsetAlignment;
-        else if (bufferUsageFlags == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) alignment = limits.minStorageBufferOffsetAlignment;
+        if (bufferUsageFlags == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+            alignment = limits.minUniformBufferOffsetAlignment;
+        else if (bufferUsageFlags == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+            alignment = limits.minStorageBufferOffsetAlignment;
 
         VkDeviceSize totalSize = 0;
 
