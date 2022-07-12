@@ -109,7 +109,7 @@ void BindVertexBuffers::compile(Context& context)
     vkd.vkBuffers.resize(arrays.size());
     vkd.offsets.resize(arrays.size());
 
-    for(size_t i = 0; i < arrays.size(); ++i)
+    for (size_t i = 0; i < arrays.size(); ++i)
     {
         auto& bufferInfo = arrays[i];
         if (bufferInfo->buffer)
