@@ -30,7 +30,7 @@ namespace vsg
         /// clean the internal cache of CommandBuffer and reset the Latch used to signal when all the connected CommandGraph have completed the recording of their CommandBuffer
         void reset();
 
-        /// called by secondary CommandGraph to pass on the completed CommadnBuffer that the CommandGraph recorded.
+        /// called by secondary CommandGraph to pass on the completed CommandBuffer that the CommandGraph recorded.
         void completed(ref_ptr<CommandBuffer> commandBuffer);
 
         /// call vkCmdExecuteCommands with all the CommandBuffer that have been recorded with this ExecuteCommands
