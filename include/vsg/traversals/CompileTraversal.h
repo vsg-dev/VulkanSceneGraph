@@ -31,7 +31,7 @@ namespace vsg
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:
-        CompileTraversal() {}
+        CompileTraversal() { overrideMask = vsg::MASK_ALL; }
         CompileTraversal(const CompileTraversal& ct);
         explicit CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});

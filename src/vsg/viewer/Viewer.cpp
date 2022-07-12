@@ -251,7 +251,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
         deviceResource.compile = CompileTraversal::create(device, resourceRequirements);
-        deviceResource.compile->overrideMask = 0xffffffff;
 
         for (auto& context : deviceResource.compile->contexts)
         {

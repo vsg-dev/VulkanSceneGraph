@@ -67,7 +67,7 @@ namespace vsg
     class VSG_DECLSPEC CollectResourceRequirements : public Inherit<ConstVisitor, CollectResourceRequirements>
     {
     public:
-        CollectResourceRequirements() {}
+        CollectResourceRequirements() { overrideMask = vsg::MASK_ALL; }
 
         ResourceRequirements requirements;
 
