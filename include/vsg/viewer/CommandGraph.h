@@ -29,7 +29,7 @@ namespace vsg
     {
     public:
         CommandGraph(ref_ptr<Device> in_device, int family);
-        explicit CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child = {});
+        explicit CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child = {}, VkCommandBufferLevel in_level = VK_COMMAND_BUFFER_LEVEL_PRIMARY, uint32_t in_subpass = 0);
 
         // settings, configure at construction time
         ref_ptr<Window> window;

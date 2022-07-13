@@ -27,9 +27,11 @@ CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
 {
 }
 
-CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
+CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child, VkCommandBufferLevel in_level, uint32_t in_subpass) :
     window(in_window),
-    device(in_window->getOrCreateDevice())
+    device(in_window->getOrCreateDevice()),
+    level(in_level),
+    subpass(in_subpass)
 {
     VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
     if (window->traits()) queueFlags = window->traits()->queueFlags;
@@ -120,7 +122,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
     {
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT | VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
         inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
         inheritanceInfo.pNext = nullptr;
@@ -178,13 +180,8 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref
 
 ref_ptr<CommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass)
 {
-    auto commandGraph = CommandGraph::create(window);
-
+    auto commandGraph = CommandGraph::create(window, scenegraph, VK_COMMAND_BUFFER_LEVEL_SECONDARY, subpass);
     commandGraph->camera = camera;
-    commandGraph->level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-    commandGraph->subpass = subpass;
-
-    commandGraph->addChild(ref_ptr<Node>(scenegraph));
 
     return commandGraph;
 }
