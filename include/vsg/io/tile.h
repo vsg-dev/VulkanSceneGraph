@@ -28,10 +28,6 @@ namespace vsg
 
         ref_ptr<TileDatabaseSettings> settings;
 
-        // read/write of tile settings
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         // initialize data structures
         void init(ref_ptr<const Options> options);
 
