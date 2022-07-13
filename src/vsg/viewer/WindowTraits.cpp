@@ -81,8 +81,10 @@ WindowTraits::WindowTraits(uint32_t in_width, uint32_t in_height, const std::str
 
 void WindowTraits::defaults()
 {
+#if !defined(__ANDROID__)
     // query the vulkan instance version available
     vkEnumerateInstanceVersion(&vulkanVersion);
+#endif
 
     // vsg::DeviceFeatures use instance extension
     instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
