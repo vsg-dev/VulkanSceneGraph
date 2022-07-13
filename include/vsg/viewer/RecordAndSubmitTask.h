@@ -25,7 +25,7 @@ namespace vsg
 {
 
     // RecordAndSubmitTask
-    class RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
+    class VSG_DECLSPEC RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
         explicit RecordAndSubmitTask(Device* device, uint32_t numBuffers = 3);

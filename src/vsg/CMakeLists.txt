@@ -150,6 +150,7 @@ set(SOURCES
     viewer/Viewer.cpp
     viewer/Window.cpp
     viewer/WindowAdapter.cpp
+    viewer/WindowTraits.cpp
     viewer/Trackball.cpp
     viewer/CopyImageViewToWindow.cpp
     viewer/ExecuteCommands.cpp
