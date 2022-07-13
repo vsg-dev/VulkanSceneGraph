@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/vk/vulkan.h>
 #include <vsg/viewer/WindowTraits.h>
 
 using namespace vsg;
