@@ -31,7 +31,7 @@ namespace vsg
         void reset();
 
         /// called by secondary CommandGraph to pass on the completed CommandBuffer that the CommandGraph recorded.
-        void completed(ref_ptr<CommandBuffer> commandBuffer);
+        void completed(const CommandGraph& commandGraph, ref_ptr<CommandBuffer> commandBuffer);
 
         /// call vkCmdExecuteCommands with all the CommandBuffer that have been recorded with this ExecuteCommands
         void record(CommandBuffer& commandBuffer) const override;
@@ -39,12 +39,16 @@ namespace vsg
     protected:
         virtual ~ExecuteCommands();
 
-        CommandGraphs _commandGraphs;
-
-        ref_ptr<Latch> _latch;
+        struct CommandGraphAndBuffer
+        {
+            ref_ptr<CommandGraph> cg;
+            ref_ptr<CommandBuffer> cb;
+        };
 
         mutable std::mutex _mutex;
-        CommandBuffers _commandBuffers;
+        ref_ptr<Latch> _latch;
+
+        std::vector<CommandGraphAndBuffer> _commandGraphsAndBuffers;
     };
     VSG_type_name(vsg::ExecuteCommands);
 

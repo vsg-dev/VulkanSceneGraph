@@ -15,22 +15,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ExecuteCommands::ExecuteCommands()
+ExecuteCommands::ExecuteCommands() :
+    _latch( vsg::Latch::create(0) )
 {
 }
 
 ExecuteCommands::~ExecuteCommands()
 {
     // disconnect all the CommandGraphs
-    for (auto& commandGraph : _commandGraphs)
+    for(auto& [cg, cb] : _commandGraphsAndBuffers)
     {
-        commandGraph->_disconnect(this);
+        cg->_disconnect(this);
     }
 }
 
 void ExecuteCommands::connect(ref_ptr<CommandGraph> commandGraph)
 {
-    _commandGraphs.emplace_back(commandGraph);
+    _commandGraphsAndBuffers.push_back(CommandGraphAndBuffer{commandGraph, {}});
     commandGraph->_connect(this);
 }
 
@@ -38,20 +39,28 @@ void ExecuteCommands::reset()
 {
     std::scoped_lock lock(_mutex);
 
-    if (!_latch)
-        _latch = vsg::Latch::create(static_cast<int>(_commandGraphs.size()));
-    else
-        _latch->set(static_cast<int>(_commandGraphs.size()));
+    _latch->set(static_cast<int>(_commandGraphsAndBuffers.size()));
 
-    _commandBuffers.clear();
+    for(auto& [cg, cb] : _commandGraphsAndBuffers)
+    {
+        cb = {};
+    }
 }
 
-void ExecuteCommands::completed(ref_ptr<CommandBuffer> commandBuffer)
+void ExecuteCommands::completed(const CommandGraph& commandGraph, ref_ptr<CommandBuffer> commandBuffer)
 {
     if (commandBuffer)
     {
         std::scoped_lock lock(_mutex);
-        _commandBuffers.emplace_back(commandBuffer);
+
+        for(auto& [cg, cb] : _commandGraphsAndBuffers)
+        {
+            if (cg == &commandGraph)
+            {
+                cb = commandBuffer;
+                break;
+            }
+        }
     }
 
     _latch->count_down();
@@ -62,15 +71,14 @@ void ExecuteCommands::record(CommandBuffer& commandBuffer) const
     _latch->wait();
 
     std::scoped_lock lock(_mutex);
-    if (!_commandBuffers.empty())
+    std::vector<VkCommandBuffer> vk_commandBuffers;
+    for (auto& [cg, cb] : _commandGraphsAndBuffers)
     {
-        std::vector<VkCommandBuffer> vk_commandBuffers;
+        if (cb) vk_commandBuffers.push_back(*cb);
+    }
 
-        for (auto& cb : _commandBuffers)
-        {
-            vk_commandBuffers.push_back(*cb);
-        }
-
+    if (!vk_commandBuffers.empty())
+    {
         vkCmdExecuteCommands(commandBuffer, static_cast<uint32_t>(vk_commandBuffers.size()), vk_commandBuffers.data());
     }
 }
