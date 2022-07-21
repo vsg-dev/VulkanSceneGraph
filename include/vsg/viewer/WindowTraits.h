@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC WindowTraits : public Inherit<Object, WindowTraits>
     {
     public:
-
         WindowTraits();
         explicit WindowTraits(const WindowTraits& traits);
         explicit WindowTraits(const std::string& title);

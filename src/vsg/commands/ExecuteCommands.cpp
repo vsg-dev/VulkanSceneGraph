@@ -10,20 +10,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/commands/ExecuteCommands.h>
+#include <vsg/io/Options.h>
 
 using namespace vsg;
 
 ExecuteCommands::ExecuteCommands() :
-    _latch( vsg::Latch::create(0) )
+    _latch(vsg::Latch::create(0))
 {
 }
 
 ExecuteCommands::~ExecuteCommands()
 {
     // disconnect all the CommandGraphs
-    for(auto& [cg, cb] : _commandGraphsAndBuffers)
+    for (auto& [cg, cb] : _commandGraphsAndBuffers)
     {
         cg->_disconnect(this);
     }
@@ -41,7 +41,7 @@ void ExecuteCommands::reset()
 
     _latch->set(static_cast<int>(_commandGraphsAndBuffers.size()));
 
-    for(auto& [cg, cb] : _commandGraphsAndBuffers)
+    for (auto& [cg, cb] : _commandGraphsAndBuffers)
     {
         cb = {};
     }
@@ -53,7 +53,7 @@ void ExecuteCommands::completed(const SecondaryCommandGraph& commandGraph, ref_p
     {
         std::scoped_lock lock(_mutex);
 
-        for(auto& [cg, cb] : _commandGraphsAndBuffers)
+        for (auto& [cg, cb] : _commandGraphsAndBuffers)
         {
             if (cg == &commandGraph)
             {

@@ -44,7 +44,6 @@ namespace vsg
         void _disconnect(ExecuteCommands* executeCommand);
 
         std::vector<ExecuteCommands*> _executeCommands;
-
     };
     VSG_type_name(vsg::SecondaryCommandGraph);
 
