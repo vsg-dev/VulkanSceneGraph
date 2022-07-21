@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/viewer/ExecuteCommands.h>
+#include <vsg/commands/ExecuteCommands.h>
 
 using namespace vsg;
 
@@ -29,7 +29,7 @@ ExecuteCommands::~ExecuteCommands()
     }
 }
 
-void ExecuteCommands::connect(ref_ptr<CommandGraph> commandGraph)
+void ExecuteCommands::connect(ref_ptr<SecondaryCommandGraph> commandGraph)
 {
     _commandGraphsAndBuffers.push_back(CommandGraphAndBuffer{commandGraph, {}});
     commandGraph->_connect(this);
@@ -47,7 +47,7 @@ void ExecuteCommands::reset()
     }
 }
 
-void ExecuteCommands::completed(const CommandGraph& commandGraph, ref_ptr<CommandBuffer> commandBuffer)
+void ExecuteCommands::completed(const SecondaryCommandGraph& commandGraph, ref_ptr<CommandBuffer> commandBuffer)
 {
     if (commandBuffer)
     {

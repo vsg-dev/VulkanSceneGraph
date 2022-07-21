@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/vk/State.h>
 
@@ -27,22 +26,14 @@ CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
 {
 }
 
-CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child, VkCommandBufferLevel in_level, uint32_t in_subpass) :
+CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
     window(in_window),
-    device(in_window->getOrCreateDevice()),
-    level(in_level),
-    subpass(in_subpass)
+    device(in_window->getOrCreateDevice())
 {
     VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
     if (window->traits()) queueFlags = window->traits()->queueFlags;
 
     std::tie(queueFamily, presentFamily) = device->getPhysicalDevice()->getQueueFamily(queueFlags, window->getOrCreateSurface());
-
-    for (size_t i = 0; i < window->numFrames(); ++i)
-    {
-        ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_TRANSIENT_BIT);
-        _commandBuffers.emplace_back(cp->allocate(level));
-    }
 
     if (child) addChild(child);
 }
@@ -51,20 +42,13 @@ CommandGraph::~CommandGraph()
 {
 }
 
+VkCommandBufferLevel CommandGraph::level() const
+{
+    return VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+}
+
 void CommandGraph::reset()
 {
-    for (auto& ec : _executeCommands) ec->reset();
-}
-
-void CommandGraph::_connect(ExecuteCommands* ec)
-{
-    _executeCommands.emplace_back(ec);
-}
-
-void CommandGraph::_disconnect(ExecuteCommands* ec)
-{
-    auto itr = std::find(_executeCommands.begin(), _executeCommands.end(), ec);
-    if (itr != _executeCommands.end()) _executeCommands.erase(itr);
 }
 
 void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
@@ -100,7 +84,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     if (!commandBuffer)
     {
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
-        commandBuffer = cp->allocate(level);
+        commandBuffer = cp->allocate(level());
         _commandBuffers.push_back(commandBuffer);
     }
     else
@@ -118,34 +102,9 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // need to set up the command
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
-    VkCommandBufferInheritanceInfo inheritanceInfo;
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
-    {
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-        if (_executeCommands.size() > 1) beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-        inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-        inheritanceInfo.pNext = nullptr;
-        inheritanceInfo.occlusionQueryEnable = occlusionQueryEnable;
-        inheritanceInfo.queryFlags = queryFlags;
-        inheritanceInfo.pipelineStatistics = pipelineStatistics;
-
-        if (window)
-        {
-            inheritanceInfo.renderPass = *(window->getRenderPass());
-            inheritanceInfo.subpass = subpass;
-            //inheritanceInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
-            inheritanceInfo.framebuffer = VK_NULL_HANDLE;
-        }
-
-        beginInfo.pInheritanceInfo = &inheritanceInfo;
-    }
-    else
-    {
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        beginInfo.pInheritanceInfo = nullptr;
-    }
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    beginInfo.pInheritanceInfo = nullptr;
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
@@ -158,15 +117,6 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    if (level == VK_COMMAND_BUFFER_LEVEL_SECONDARY)
-    {
-        // pass on this command buffer to connected ExecuteCommands nodes
-        for (auto& ec : _executeCommands)
-        {
-            ec->completed(*this, commandBuffer);
-        }
-    }
-
     recordedCommandBuffers.push_back(commandBuffer);
 }
 
@@ -175,14 +125,6 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref
     auto commandGraph = CommandGraph::create(window);
 
     commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph, contents, assignHeadlight));
-
-    return commandGraph;
-}
-
-ref_ptr<CommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass)
-{
-    auto commandGraph = CommandGraph::create(window, scenegraph, VK_COMMAND_BUFFER_LEVEL_SECONDARY, subpass);
-    commandGraph->camera = camera;
 
     return commandGraph;
 }
