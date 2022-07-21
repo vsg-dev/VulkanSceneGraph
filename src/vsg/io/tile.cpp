@@ -45,18 +45,6 @@ tile::tile()
 {
 }
 
-void tile::read(vsg::Input& input)
-{
-    input.readObject("settings", settings);
-
-    init(input.options);
-}
-
-void tile::write(vsg::Output& output) const
-{
-    output.writeObject("settings", settings);
-}
-
 vsg::dvec3 tile::computeLatitudeLongitudeAltitude(const vsg::dvec3& src) const
 {
     if (settings->projection == "EPSG:3857" || settings->projection == "spherical-mercator")

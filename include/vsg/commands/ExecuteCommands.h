@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/threading/Latch.h>
-#include <vsg/viewer/CommandGraph.h>
+#include <vsg/viewer/SecondaryCommandGraph.h>
 
 namespace vsg
 {
@@ -24,14 +24,14 @@ namespace vsg
     public:
         ExecuteCommands();
 
-        /// connect a second CommmandGraph that will provide the CommandBuffer each frame
-        void connect(ref_ptr<CommandGraph> commandGraph);
+        /// connect a SecodaryCommmandGraph that will provide the CommandBuffer each frame
+        void connect(ref_ptr<SecondaryCommandGraph> commandGraph);
 
         /// clean the internal cache of CommandBuffer and reset the Latch used to signal when all the connected CommandGraph have completed the recording of their CommandBuffer
         void reset();
 
         /// called by secondary CommandGraph to pass on the completed CommandBuffer that the CommandGraph recorded.
-        void completed(ref_ptr<CommandBuffer> commandBuffer);
+        void completed(const SecondaryCommandGraph& commandGraph, ref_ptr<CommandBuffer> commandBuffer);
 
         /// call vkCmdExecuteCommands with all the CommandBuffer that have been recorded with this ExecuteCommands
         void record(CommandBuffer& commandBuffer) const override;
@@ -39,12 +39,16 @@ namespace vsg
     protected:
         virtual ~ExecuteCommands();
 
-        CommandGraphs _commandGraphs;
-
-        ref_ptr<Latch> _latch;
+        struct CommandGraphAndBuffer
+        {
+            ref_ptr<SecondaryCommandGraph> cg;
+            ref_ptr<CommandBuffer> cb;
+        };
 
         mutable std::mutex _mutex;
-        CommandBuffers _commandBuffers;
+        ref_ptr<Latch> _latch;
+
+        std::vector<CommandGraphAndBuffer> _commandGraphsAndBuffers;
     };
     VSG_type_name(vsg::ExecuteCommands);
 
