@@ -94,6 +94,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/DrawIndirectCommand.h>
 #include <vsg/commands/EndQuery.h>
 #include <vsg/commands/Event.h>
+#include <vsg/commands/ExecuteCommands.h>
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/commands/PushConstants.h>
@@ -182,11 +183,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CompileManager.h>
 #include <vsg/viewer/CopyImageViewToWindow.h>
 #include <vsg/viewer/EllipsoidModel.h>
-#include <vsg/viewer/ExecuteCommands.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/SecondaryCommandGraph.h>
 #include <vsg/viewer/Trackball.h>
 #include <vsg/viewer/UpdateOperations.h>
 #include <vsg/viewer/View.h>

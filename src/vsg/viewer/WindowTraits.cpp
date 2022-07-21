@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/vk/vulkan.h>
 #include <vsg/viewer/WindowTraits.h>
+#include <vsg/vk/vulkan.h>
 
 using namespace vsg;
 
@@ -49,7 +49,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     deviceTypePreferences(traits.deviceTypePreferences),
     deviceFeatures(traits.deviceFeatures),
     samples(traits.samples),
-    shareWindow(traits.shareWindow)/*,
+    shareWindow(traits.shareWindow) /*,
     nativeWindow(traits.nativeWindow),
     systemConnection(traits.systemConnection)*/
 {

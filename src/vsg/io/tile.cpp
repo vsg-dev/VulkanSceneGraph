@@ -45,7 +45,6 @@ tile::tile()
 {
 }
 
-
 vsg::dvec3 tile::computeLatitudeLongitudeAltitude(const vsg::dvec3& src) const
 {
     if (settings->projection == "EPSG:3857" || settings->projection == "spherical-mercator")

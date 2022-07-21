@@ -22,9 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // forward declare
-    class ExecuteCommands;
-
     class VSG_DECLSPEC CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
@@ -40,29 +37,16 @@ namespace vsg
         int presentFamily = -1;
         uint32_t maxSlot = 2;
 
-        VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        uint32_t subpass = 0;
-        VkBool32 occlusionQueryEnable = VK_FALSE;
-        VkQueryControlFlags queryFlags = 0;
-        VkQueryPipelineStatisticFlags pipelineStatistics = 0;
-
         ref_ptr<RecordTraversal> recordTraversal;
 
-        void reset();
-
+        virtual VkCommandBufferLevel level() const;
+        virtual void reset();
         virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
     protected:
         virtual ~CommandGraph();
 
-        void _connect(ExecuteCommands* executeCommand);
-        void _disconnect(ExecuteCommands* executeCommand);
-
         CommandBuffers _commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
-
-        std::vector<ExecuteCommands*> _executeCommands;
-
-        friend ExecuteCommands;
     };
     VSG_type_name(vsg::CommandGraph);
 
@@ -70,8 +54,5 @@ namespace vsg
 
     /// convenience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the specified Camera view
     extern VSG_DECLSPEC ref_ptr<CommandGraph> createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE, bool assignHeadlight = true);
-
-    /// convenience function that sets up secondaryCommandGraph to render the specified scene graph from the specified Camera view
-    extern VSG_DECLSPEC ref_ptr<CommandGraph> createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass);
 
 } // namespace vsg

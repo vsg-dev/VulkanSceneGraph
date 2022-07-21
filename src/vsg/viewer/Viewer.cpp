@@ -370,7 +370,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         CommandGraphs secondary_commandGraphs;
         for (auto& commandGraph : commandGraphs)
         {
-            if (commandGraph->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+            if (commandGraph->level() == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
                 primary_commandGraphs.emplace_back(commandGraph);
             else
                 secondary_commandGraphs.emplace_back(commandGraph);

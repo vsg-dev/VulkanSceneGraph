@@ -10,48 +10,54 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/commands/ExecuteCommands.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
 
-CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
-    device(in_device),
-    queueFamily(family),
-    presentFamily(-1)
+SecondaryCommandGraph::SecondaryCommandGraph(ref_ptr<Device> in_device, int family) :
+    Inherit(in_device, family)
 {
 }
 
-CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
-    window(in_window),
-    device(in_window->getOrCreateDevice())
-{
-    VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
-    if (window->traits()) queueFlags = window->traits()->queueFlags;
-
-    std::tie(queueFamily, presentFamily) = device->getPhysicalDevice()->getQueueFamily(queueFlags, window->getOrCreateSurface());
-
-    if (child) addChild(child);
-}
-
-CommandGraph::~CommandGraph()
+SecondaryCommandGraph::SecondaryCommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child, uint32_t in_subpass) :
+    Inherit(in_window, child),
+    subpass(in_subpass)
 {
 }
 
-VkCommandBufferLevel CommandGraph::level() const
-{
-    return VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-}
-
-void CommandGraph::reset()
+SecondaryCommandGraph::~SecondaryCommandGraph()
 {
 }
 
-void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
+VkCommandBufferLevel SecondaryCommandGraph::level() const
+{
+    return VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+}
+
+void SecondaryCommandGraph::reset()
+{
+    for (auto& ec : _executeCommands) ec->reset();
+}
+
+void SecondaryCommandGraph::_connect(ExecuteCommands* ec)
+{
+    _executeCommands.emplace_back(ec);
+}
+
+void SecondaryCommandGraph::_disconnect(ExecuteCommands* ec)
+{
+    auto itr = std::find(_executeCommands.begin(), _executeCommands.end(), ec);
+    if (itr != _executeCommands.end()) _executeCommands.erase(itr);
+}
+
+void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
     {
@@ -103,8 +109,24 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    beginInfo.pInheritanceInfo = nullptr;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT; // TODO
+    if (_executeCommands.size() > 1) beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+    VkCommandBufferInheritanceInfo inheritanceInfo;
+    inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    inheritanceInfo.pNext = nullptr;
+    inheritanceInfo.occlusionQueryEnable = occlusionQueryEnable;
+    inheritanceInfo.queryFlags = queryFlags;
+    inheritanceInfo.pipelineStatistics = pipelineStatistics;
+    beginInfo.pInheritanceInfo = &inheritanceInfo;
+
+    if (window)
+    {
+        inheritanceInfo.renderPass = *(window->getRenderPass());
+        inheritanceInfo.subpass = subpass;
+        //inheritanceInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
+        inheritanceInfo.framebuffer = VK_NULL_HANDLE;
+    }
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
@@ -117,14 +139,25 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
 
     vkEndCommandBuffer(vk_commandBuffer);
 
+    // pass on this command buffer to connected ExecuteCommands nodes
+    for (auto& ec : _executeCommands)
+    {
+        ec->completed(*this, commandBuffer);
+    }
+
     recordedCommandBuffers.push_back(commandBuffer);
 }
 
-ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents, bool assignHeadlight)
+ref_ptr<SecondaryCommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass, bool assignHeadlight)
 {
-    auto commandGraph = CommandGraph::create(window);
+    // set up the view
+    auto view = View::create(camera);
+    if (assignHeadlight) view->addChild(createHeadlight());
+    if (scenegraph) view->addChild(scenegraph);
 
-    commandGraph->addChild(createRenderGraphForView(window, camera, scenegraph, contents, assignHeadlight));
+    auto commandGraph = SecondaryCommandGraph::create(window, view, subpass);
+
+    commandGraph->camera = camera;
 
     return commandGraph;
 }
