@@ -50,6 +50,6 @@ namespace vsg
     using SecondaryCommandGraphs = std::vector<ref_ptr<SecondaryCommandGraph>>;
 
     /// convenience function that sets up secondaryCommandGraph to render the specified scene graph from the specified Camera view
-    extern VSG_DECLSPEC ref_ptr<SecondaryCommandGraph> createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass);
+    extern VSG_DECLSPEC ref_ptr<SecondaryCommandGraph> createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass, bool assignHeadlight = true);
 
 } // namespace vsg

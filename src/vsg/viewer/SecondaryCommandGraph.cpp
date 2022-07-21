@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/RenderGraph.h>
+#include <vsg/viewer/View.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -147,9 +148,15 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
     recordedCommandBuffers.push_back(commandBuffer);
 }
 
-ref_ptr<SecondaryCommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass)
+ref_ptr<SecondaryCommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass, bool assignHeadlight)
 {
-    auto commandGraph = SecondaryCommandGraph::create(window, scenegraph, subpass);
+    // set up the view
+    auto view = View::create(camera);
+    if (assignHeadlight) view->addChild(createHeadlight());
+    if (scenegraph) view->addChild(scenegraph);
+
+    auto commandGraph = SecondaryCommandGraph::create(window, view, subpass);
+
     commandGraph->camera = camera;
 
     return commandGraph;
