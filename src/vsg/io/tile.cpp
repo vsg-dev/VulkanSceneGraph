@@ -164,7 +164,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
     uint64_t maxNumTilesBelow = 1024;
     for (uint64_t level = 0; level < maxLevel; ++level)
     {
-        uint64_t num_tiles_at_level = 1ul << (2ul*(level));
+        uint64_t num_tiles_at_level = 1 << (2*(level));
         estimatedNumOfTilesBelow += num_tiles_at_level;
     }
 
