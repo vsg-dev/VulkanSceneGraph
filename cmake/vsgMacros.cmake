@@ -23,13 +23,15 @@ macro(vsg_setup_build_vars)
         set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
     endif(NOT CMAKE_BUILD_TYPE)
 
+
     if(CMAKE_COMPILER_IS_GNUCXX)
-        set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wmaybe-uninitialized -Wshadow -Wunused -Wno-misleading-indentation -Wextra)
+        set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wmaybe-uninitialized -Wshadow -Wunused -Wno-misleading-indentation -Wextra CACHE STRING "Compile flags to use.")
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wshadow -Wunused -Wextra)
+        set(VSG_WARNING_FLAGS -Wall -Wparentheses -Wno-long-long -Wno-import -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wshadow -Wunused -Wextra CACHE STRING "Compile flags to use.")
+    else()
+        set(VSG_WARNING_FLAGS CACHE STRING "Compile flags to use.")
     endif()
 
-    set(VSG_WARNING_FLAGS ${VSG_WARNING_FLAGS} CACHE STRING "Compiler flags to use." FORCE)
     add_compile_options(${VSG_WARNING_FLAGS})
 
     # set upper case <PROJECT>_VERSION_... variables
