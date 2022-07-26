@@ -308,7 +308,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
         sampler->anisotropyEnable = VK_TRUE;
         sampler->maxAnisotropy = 16.0f;
 
-        if (settings) sampler->maxLod = settings->mipmapLevelsHint;
+        if (settings) sampler->maxLod = static_cast<float>(settings->mipmapLevelsHint);
     }
 
     if (!graphicsPipeline)
@@ -452,7 +452,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     auto drawCommands = vsg::Commands::create();
     drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, colors, texcoords}));
     drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
-    drawCommands->addChild(vsg::DrawIndexed::create(indices->size(), 1, 0, 0, 0));
+    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->size()), 1, 0, 0, 0));
 
     // add drawCommands to transform
     transform->addChild(drawCommands);
@@ -481,15 +481,10 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
     scenegraph->addChild(transform);
 
     // set up vertex and index arrays
-    float min_x = tile_extents.min.x;
-    float min_y = tile_extents.min.y;
-#if 1
-    float max_x = tile_extents.max.x;
-    float max_y = tile_extents.max.y;
-#else
-    float max_x = tile_extents.min.x * 0.05 + tile_extents.max.x * 0.95;
-    float max_y = tile_extents.min.y * 0.05 + tile_extents.max.y * 0.95;
-#endif
+    float min_x = static_cast<float>(tile_extents.min.x);
+    float min_y = static_cast<float>(tile_extents.min.y);
+    float max_x = static_cast<float>(tile_extents.max.x);
+    float max_y = static_cast<float>(tile_extents.max.y);
 
     auto vertices = vsg::vec3Array::create(
         {{min_x, 0.0f, min_y},
