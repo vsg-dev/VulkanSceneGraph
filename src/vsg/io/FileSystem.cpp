@@ -286,7 +286,7 @@ Path vsg::executableFilePath()
 
 #if defined(WIN32)
     TCHAR buf[PATH_MAX + 1];
-    DWORD result = GetModuleFileName(NULL, buf, std::size(buf) - 1);
+    DWORD result = GetModuleFileName(NULL, buf, static_cast<DWORD>(std::size(buf) - 1));
     if (result && result < std::size(buf))
         path = buf;
 #elif defined(__linux__)
