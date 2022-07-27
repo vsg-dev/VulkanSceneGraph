@@ -122,7 +122,7 @@ void VertexIndexDraw::compile(Context& context)
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    if (indices && indices->requiresCopy(deviceID))
+    if (indices->requiresCopy(deviceID))
         requiresCreateAndCopy = true;
     else
     {

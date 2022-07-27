@@ -143,7 +143,6 @@ void Geometry::compile(Context& context)
         if (indices)
         {
             combinedBufferInfos.push_back(indices);
-            indexType = computeIndexType(indices->data);
         }
 
         createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
@@ -151,6 +150,7 @@ void Geometry::compile(Context& context)
 
     auto& vkd = _vulkanData[deviceID];
     vkd = {};
+
     for (auto& bufferInfo : arrays)
     {
         vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
