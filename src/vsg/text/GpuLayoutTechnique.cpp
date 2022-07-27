@@ -70,7 +70,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
             if (textArray && requiredSize < static_cast<uint32_t>(textArray->valueCount()))
             {
-                allocatedSize = textArray->valueCount();
+                allocatedSize = static_cast<uint32_t>(textArray->valueCount());
                 return;
             }
 
