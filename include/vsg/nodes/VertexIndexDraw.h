@@ -49,13 +49,7 @@ namespace vsg
     protected:
         virtual ~VertexIndexDraw();
 
-        struct VulkanData
-        {
-            std::vector<VkBuffer> vkBuffers;
-            std::vector<VkDeviceSize> offsets;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
+        vk_buffer<VulkanArrayData> _vulkanData;
         VkIndexType indexType = VK_INDEX_TYPE_UINT16;
     };
     VSG_type_name(vsg::VertexIndexDraw)

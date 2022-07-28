@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/BindIndexBuffer.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/traversals/RecordTraversal.h>
@@ -141,16 +142,15 @@ void VertexIndexDraw::compile(Context& context)
         BufferInfoList combinedBufferInfos(arrays);
         combinedBufferInfos.push_back(indices);
         createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+
+        // info("VertexIndexDraw::compile() create and copy ", this);
     }
-
-    auto& vkd = _vulkanData[deviceID];
-    vkd = {};
-
-    for (auto& bufferInfo : arrays)
+    else
     {
-        vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
-        vkd.offsets.push_back(bufferInfo->offset);
+        // info("VertexIndexDraw::compile() no need to create and copy ", this);
     }
+
+    assignVulkanArrayData(deviceID, arrays, _vulkanData[deviceID]);
 }
 
 void VertexIndexDraw::record(CommandBuffer& commandBuffer) const

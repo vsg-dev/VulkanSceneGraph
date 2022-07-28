@@ -42,13 +42,7 @@ namespace vsg
     protected:
         virtual ~BindVertexBuffers();
 
-        struct VulkanData
-        {
-            std::vector<VkBuffer> vkBuffers;
-            std::vector<VkDeviceSize> offsets;
-        };
-
-        vk_buffer<VulkanData> _vulkanData;
+        vk_buffer<VulkanArrayData> _vulkanData;
     };
     VSG_type_name(vsg::BindVertexBuffers);
 

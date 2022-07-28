@@ -104,26 +104,7 @@ void BindVertexBuffers::compile(Context& context)
         createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 
-    auto& vkd = _vulkanData[context.deviceID];
-
-    vkd.vkBuffers.resize(arrays.size());
-    vkd.offsets.resize(arrays.size());
-
-    for (size_t i = 0; i < arrays.size(); ++i)
-    {
-        auto& bufferInfo = arrays[i];
-        if (bufferInfo->buffer)
-        {
-            vkd.vkBuffers[i] = bufferInfo->buffer->vk(context.deviceID);
-            vkd.offsets[i] = bufferInfo->offset;
-        }
-        else
-        {
-            // error, no buffer to assign
-            vkd.vkBuffers[i] = 0;
-            vkd.offsets[i] = 0;
-        }
-    }
+    assignVulkanArrayData(deviceID, arrays, _vulkanData[deviceID]);
 }
 
 void BindVertexBuffers::record(CommandBuffer& commandBuffer) const

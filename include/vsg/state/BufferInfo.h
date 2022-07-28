@@ -65,6 +65,15 @@ namespace vsg
 
     using BufferInfoList = std::vector<ref_ptr<BufferInfo>>;
 
+    struct VulkanArrayData
+    {
+        std::vector<VkBuffer> vkBuffers;
+        std::vector<VkDeviceSize> offsets;
+    };
+
+    /// assign the Vulkan buffer handles and offsets held in BufferInfoList to VulkanArrayData
+    extern VSG_DECLSPEC void assignVulkanArrayData(uint32_t deviceID, const BufferInfoList& arrays, VulkanArrayData& vkd);
+
     extern VSG_DECLSPEC ref_ptr<BufferInfo> copyDataToStagingBuffer(Context& context, const Data* data);
 
     extern VSG_DECLSPEC bool createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode);

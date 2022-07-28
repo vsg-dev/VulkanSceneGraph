@@ -343,3 +343,26 @@ void vsg::copyDataListToBuffers(Device* device, BufferInfoList& bufferInfoList)
         bufferData->copyDataToBuffer(device->deviceID);
     }
 }
+
+void vsg::assignVulkanArrayData(uint32_t deviceID, const BufferInfoList& arrays, VulkanArrayData& vkd)
+{
+//    info("vsg::assignVulkanArrayData(deviceID = ", deviceID, ", arrays.size() = ", arrays.size(), " vkd.vkBuffers.size() = ", vkd.vkBuffers.size(), ", &vkd ", &vkd);
+    vkd.vkBuffers.resize(arrays.size());
+    vkd.offsets.resize(arrays.size());
+
+    for (size_t i = 0; i < arrays.size(); ++i)
+    {
+        auto& bufferInfo = arrays[i];
+        if (bufferInfo->buffer)
+        {
+            vkd.vkBuffers[i] = bufferInfo->buffer->vk(deviceID);
+            vkd.offsets[i] = bufferInfo->offset;
+        }
+        else
+        {
+            // error, no buffer to assign
+            vkd.vkBuffers[i] = 0;
+            vkd.offsets[i] = 0;
+        }
+    }
+}

@@ -148,14 +148,7 @@ void Geometry::compile(Context& context)
         createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 
-    auto& vkd = _vulkanData[deviceID];
-    vkd = {};
-
-    for (auto& bufferInfo : arrays)
-    {
-        vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
-        vkd.offsets.push_back(bufferInfo->offset);
-    }
+    assignVulkanArrayData(deviceID, arrays, _vulkanData[deviceID]);
 }
 
 void Geometry::record(CommandBuffer& commandBuffer) const
