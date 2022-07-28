@@ -210,6 +210,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
     if (!compileManager) compileManager = CompileManager::create(*this, hints);
 
+    auto start_tick = clock::now();
+
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
 
@@ -335,6 +337,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             task->databasePager->start();
         }
     }
+
+    auto end_tick = clock::now();
+    auto compile_time = std::chrono::duration<double, std::chrono::milliseconds::period>(end_tick - start_tick).count();
+    debug("Viewer::compile() ", compile_time, "ms");
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)
