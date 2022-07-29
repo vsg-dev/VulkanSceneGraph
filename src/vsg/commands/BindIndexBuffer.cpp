@@ -58,9 +58,14 @@ int BindIndexBuffer::compare(const Object& rhs_object) const
 void BindIndexBuffer::assignIndices(ref_ptr<vsg::Data> indexData)
 {
     if (indexData)
+    {
         indices = BufferInfo::create(indexData);
+        indexType = computeIndexType(indices->data);
+    }
     else
+    {
         indices = {};
+    }
 }
 
 void BindIndexBuffer::read(Input& input)
@@ -91,13 +96,10 @@ void BindIndexBuffer::compile(Context& context)
     if (!indices) return;
 
     // check if already compiled
-    if (!indices->requiresCopy(context.deviceID))
+    if (indices->requiresCopy(context.deviceID))
     {
-        return;
+        createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
-
-    if (createBufferAndTransferData(context, {indices}, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
-        indexType = computeIndexType(indices->data);
 }
 
 void BindIndexBuffer::record(CommandBuffer& commandBuffer) const

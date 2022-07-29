@@ -45,9 +45,14 @@ void Geometry::assignArrays(const DataList& arrayData)
 void Geometry::assignIndices(ref_ptr<vsg::Data> indexData)
 {
     if (indexData)
+    {
         indices = BufferInfo::create(indexData);
+        indexType = computeIndexType(indices->data);
+    }
     else
+    {
         indices = {};
+    }
 }
 
 void Geometry::read(Input& input)
@@ -132,29 +137,18 @@ void Geometry::compile(Context& context)
         }
     }
 
-    if (!requiresCreateAndCopy)
+    if (requiresCreateAndCopy)
     {
-        return;
-    }
-
-    auto& vkd = _vulkanData[deviceID];
-    vkd = {};
-
-    BufferInfoList combinedBufferInfos(arrays);
-    if (indices)
-    {
-        combinedBufferInfos.push_back(indices);
-        indexType = computeIndexType(indices->data);
-    }
-
-    if (createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
-    {
-        for (auto& bufferInfo : arrays)
+        BufferInfoList combinedBufferInfos(arrays);
+        if (indices)
         {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
-            vkd.offsets.push_back(bufferInfo->offset);
+            combinedBufferInfos.push_back(indices);
         }
+
+        createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
+
+    assignVulkanArrayData(deviceID, arrays, _vulkanData[deviceID]);
 }
 
 void Geometry::record(CommandBuffer& commandBuffer) const

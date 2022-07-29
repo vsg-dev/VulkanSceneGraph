@@ -164,11 +164,11 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
     uint64_t maxNumTilesBelow = 1024;
     for (uint64_t level = 0; level < maxLevel; ++level)
     {
-        uint64_t num_tiles_at_level = 1ull << (2ull*(level));
+        uint64_t num_tiles_at_level = 1ull << (2ull * (level));
         estimatedNumOfTilesBelow += num_tiles_at_level;
     }
 
-    uint32_t tileMultiplier = static_cast<uint32_t>( std::min(estimatedNumOfTilesBelow, maxNumTilesBelow) + 1 );
+    uint32_t tileMultiplier = static_cast<uint32_t>(std::min(estimatedNumOfTilesBelow, maxNumTilesBelow) + 1);
     // vsg::info("estimatedNumOfTilesBelow = ", estimatedNumOfTilesBelow, ", tileMultiplier = ", tileMultiplier);
 
     // set up the ResourceHints required to make sure the VSG preallocates enough Vulkan resources for the paged database

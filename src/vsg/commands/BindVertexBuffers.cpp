@@ -99,24 +99,12 @@ void BindVertexBuffers::compile(Context& context)
         }
     }
 
-    if (!requiresCreateAndCopy)
+    if (requiresCreateAndCopy)
     {
-        return;
+        createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     }
 
-    auto& vkd = _vulkanData[context.deviceID];
-
-    vkd.vkBuffers.clear();
-    vkd.offsets.clear();
-
-    if (createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE))
-    {
-        for (auto& bufferInfo : arrays)
-        {
-            vkd.vkBuffers.push_back(bufferInfo->buffer->vk(context.deviceID));
-            vkd.offsets.push_back(bufferInfo->offset);
-        }
-    }
+    assignVulkanArrayData(deviceID, arrays, _vulkanData[deviceID]);
 }
 
 void BindVertexBuffers::record(CommandBuffer& commandBuffer) const
