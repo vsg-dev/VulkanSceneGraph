@@ -96,8 +96,6 @@ void WindowTraits::defaults()
 
     // prefer discrete gpu over integrated gpu over virtual gpu
     deviceTypePreferences = {VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU};
-
-    synchronizationLayer = true;
 }
 
 void WindowTraits::validate()
