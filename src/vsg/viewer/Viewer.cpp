@@ -50,6 +50,14 @@ void Viewer::deviceWaitIdle() const
         if (window->getDevice()) devices.insert(*(window->getDevice()));
     }
 
+    for (auto& task : recordAndSubmitTasks)
+    {
+        for(auto& cg : task->commandGraphs)
+        {
+            devices.insert(*(cg->device));
+        }
+    }
+
     for (auto& device : devices)
     {
         vkDeviceWaitIdle(device);
