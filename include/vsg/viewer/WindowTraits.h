@@ -32,7 +32,11 @@ namespace vsg
 
         WindowTraits& operator=(const WindowTraits&) = delete;
 
+        /// set default values, called by all constructors except copy constructor
         void defaults();
+
+        /// validate the instanceExtensionNames and requestedLayers, assigning additional layers required by debugLayer, synchronizationLayer and apiDumpLayer flags.
+        void validate();
 
         int32_t x = 0;
         int32_t y = 0;
@@ -63,10 +67,12 @@ namespace vsg
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         bool debugLayer = false;
+        bool synchronizationLayer = false;
         bool apiDumpLayer = false;
 
         // device preferences
         vsg::Names instanceExtensionNames;
+        vsg::Names requestedLayers;
         vsg::Names deviceExtensionNames;
         vsg::PhysicalDeviceTypes deviceTypePreferences;
         ref_ptr<DeviceFeatures> deviceFeatures;
