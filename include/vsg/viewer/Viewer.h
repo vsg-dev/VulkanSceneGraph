@@ -49,10 +49,10 @@ namespace vsg
         bool active() const;
 
         /// schedule closure of the viewer and associated windows, after a call to Viewer::close() the Viewer::active() method will return false
-        void close();
+        virtual void close();
 
         /// poll the events for all attached windows, return true if new events are available
-        bool pollEvents(bool discardPreviousEvents = true);
+        virtual bool pollEvents(bool discardPreviousEvents = true);
 
         /// get the current set of Events that are filled in by prior calls to pollEvents
         UIEvents& getEvents() { return _events; }
@@ -107,7 +107,7 @@ namespace vsg
         Presentations presentations;
 
         /// create a RecordAndSubmitTask configured to manage specified commandGraphs and assign it to the viewer.
-        void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
+        virtual void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
         ref_ptr<ActivityStatus> status;
         std::list<std::thread> threads;
@@ -122,7 +122,7 @@ namespace vsg
         virtual void present();
 
         /// Call vkDeviceWaitIdle on all the devices associated with this Viewer
-        void deviceWaitIdle() const;
+        virtual void deviceWaitIdle() const;
 
     protected:
         virtual ~Viewer();
