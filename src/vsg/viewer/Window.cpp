@@ -153,21 +153,14 @@ ref_ptr<ImageView> Window::getOrCreateDepthImageView()
 void Window::_initInstance()
 {
     // create the vkInstance
-    vsg::Names instanceExtensions = _traits->instanceExtensionNames;
+    _traits->validate();
+
+    vsg::Names& instanceExtensions = _traits->instanceExtensionNames;
 
     instanceExtensions.push_back("VK_KHR_surface");
     instanceExtensions.push_back(instanceExtensionSurfaceName());
 
-    vsg::Names requestedLayers;
-    if (_traits->debugLayer || _traits->apiDumpLayer)
-    {
-        instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-        requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
-        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-    }
-
-    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
-    _instance = vsg::Instance::create(instanceExtensions, validatedNames, _traits->vulkanVersion);
+    _instance = vsg::Instance::create(instanceExtensions, _traits->requestedLayers, _traits->vulkanVersion);
 }
 
 void Window::_initPhysicalDevice()
@@ -221,14 +214,7 @@ void Window::_initDevice()
     }
 
     // set up logical device
-    vsg::Names requestedLayers;
-    if (_traits->debugLayer)
-    {
-        requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
-        if (_traits->apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
-    }
-
-    vsg::Names validatedNames = vsg::validateInstancelayerNames(requestedLayers);
+    const vsg::Names& validatedNames = _traits->requestedLayers;
 
     vsg::Names deviceExtensions;
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);

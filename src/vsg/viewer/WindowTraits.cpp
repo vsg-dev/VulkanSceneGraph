@@ -45,6 +45,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     debugLayer(traits.debugLayer),
     apiDumpLayer(traits.apiDumpLayer),
     instanceExtensionNames(traits.instanceExtensionNames),
+    requestedLayers(traits.requestedLayers),
     deviceExtensionNames(traits.deviceExtensionNames),
     deviceTypePreferences(traits.deviceTypePreferences),
     deviceFeatures(traits.deviceFeatures),
@@ -95,4 +96,18 @@ void WindowTraits::defaults()
 
     // prefer discrete gpu over integrated gpu over virtual gpu
     deviceTypePreferences = {VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU, VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU};
+}
+
+void WindowTraits::validate()
+{
+    if (debugLayer || apiDumpLayer || synchronizationLayer)
+    {
+        instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+    }
+
+    if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
+    if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+    if (synchronizationLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_synchronization2");
+
+    requestedLayers = vsg::validateInstancelayerNames(requestedLayers);
 }
