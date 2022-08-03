@@ -458,8 +458,8 @@ void Viewer::setupThreading()
         return;
     }
 
+    status->set(true);
     _threading = true;
-
     _frameBlock = FrameBlock::create(status);
     _submissionCompleted = Barrier::create(1 + numValidTasks);
 
