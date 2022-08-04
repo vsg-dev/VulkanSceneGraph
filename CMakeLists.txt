@@ -12,10 +12,13 @@ set(Vulkan_MIN_VERSION 1.1.70.0)
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
 set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
 
-if (${VSG_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-    message(">>>>>>>>> VulkanSceneGraph build direct")
+set(VSG_PROVIDE_CUSTOM_TARGETS (${VSG_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
+message("VSG_PROVIDE_CUSTOM_TARGETS = " ${VSG_PROVIDE_CUSTOM_TARGETS})
+
+if (VSG_PROVIDE_CUSTOM_TARGETS)
+    message(">>>>>>>>> VulkanSceneGraph Provide custom targets")
 else()
-    message(">>>>>>>>> VulkanSceneGraph build submodule")
+    message(">>>>>>>>> VulkanSceneGraph build submodule, no custom targets")
 endif()
 
 # create the version header
@@ -74,33 +77,37 @@ vsg_add_target_docs(
         ${VSG_SOURCE_DIR}/include/vsg
 )
 
-# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
-add_custom_target(build_all_h
-    COMMAND ${CMAKE_COMMAND} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
-)
-set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
+if (VSG_PROVIDE_CUSTOM_TARGETS)
 
-vsg_add_target_clobber()
-vsg_add_target_uninstall()
-vsg_add_target_cppcheck(
-    SUPPRESSIONS_LIST
-        "${VSG_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
-    FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
-        ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
-        -I ${VSG_SOURCE_DIR}/include/
-)
+    # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
+    add_custom_target(build_all_h
+        COMMAND ${CMAKE_COMMAND} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
+    )
+    set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
-vsg_add_target_clang_format(
-    FILES
-        ${VSG_SOURCE_DIR}/include/vsg/*/*.h
-        ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
-)
+    vsg_add_target_clobber()
+    vsg_add_target_uninstall()
+    vsg_add_target_cppcheck(
+        SUPPRESSIONS_LIST
+            "${VSG_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
+        FILES
+            ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
+            ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
+            -I ${VSG_SOURCE_DIR}/include/
+    )
 
-vsg_add_option_maintainer(
-    PREFIX VulkanSceneGraph
-    RCLEVEL ${VSG_RELEASE_CANDIDATE}
-)
+    vsg_add_target_clang_format(
+        FILES
+            ${VSG_SOURCE_DIR}/include/vsg/*/*.h
+            ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
+    )
+
+    vsg_add_option_maintainer(
+        PREFIX VulkanSceneGraph
+        RCLEVEL ${VSG_RELEASE_CANDIDATE}
+    )
+
+endif()
 
 install(FILES "${VSG_SOURCE_DIR}/cmake/FindVulkan.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
