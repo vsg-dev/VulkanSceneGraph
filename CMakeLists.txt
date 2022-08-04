@@ -9,18 +9,27 @@ set(VSG_SOVERSION 9)
 SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
+set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
+set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
+
+if (${VSG_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+    message(">>>>>>>>> VulkanSceneGraph build direct")
+else()
+    message(">>>>>>>>> VulkanSceneGraph build submodule")
+endif()
+
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${VSG_SOURCE_DIR}/cmake)
 include(vsgMacros)
 
 vsg_setup_dir_vars()
 vsg_setup_build_vars()
 
 # this line needs to be after the call to setup_build_vars()
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
+configure_file("${VSG_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
 
 if (MSVC)
     # Increase Number of Sections in .Obj file
@@ -37,7 +46,7 @@ find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 find_package(Threads REQUIRED)
 
 if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang CONFIG PATHS ${CMAKE_SOURCE_DIR}/src/vsg)
+    find_package(vsg_glslang CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
 endif()
 
 if (NOT glslang_FOUND)
@@ -62,12 +71,12 @@ endif()
 
 vsg_add_target_docs(
     FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg
+        ${VSG_SOURCE_DIR}/include/vsg
 )
 
 # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/build_all_h.cmake
+    COMMAND ${CMAKE_COMMAND} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
 )
 set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
@@ -75,17 +84,17 @@ vsg_add_target_clobber()
 vsg_add_target_uninstall()
 vsg_add_target_cppcheck(
     SUPPRESSIONS_LIST
-        "${CMAKE_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
+        "${VSG_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
     FILES
         ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
-        ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
-        -I ${CMAKE_SOURCE_DIR}/include/
+        ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
+        -I ${VSG_SOURCE_DIR}/include/
 )
 
 vsg_add_target_clang_format(
     FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
-        ${CMAKE_SOURCE_DIR}/src/vsg/*/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/*/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
 )
 
 vsg_add_option_maintainer(
@@ -93,8 +102,7 @@ vsg_add_option_maintainer(
     RCLEVEL ${VSG_RELEASE_CANDIDATE}
 )
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vsgMacros.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindVulkan.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
+install(FILES "${VSG_SOURCE_DIR}/cmake/FindVulkan.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
 
 #
 # src directory contains all the source of the vsg library
