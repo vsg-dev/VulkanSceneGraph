@@ -12,10 +12,8 @@ set(Vulkan_MIN_VERSION 1.1.70.0)
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
 set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
 
-set(VSG_PROVIDE_CUSTOM_TARGETS (${VSG_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR}))
-message("VSG_PROVIDE_CUSTOM_TARGETS = " ${VSG_PROVIDE_CUSTOM_TARGETS})
-
-if (VSG_PROVIDE_CUSTOM_TARGETS)
+if (${VSG_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+    set(VSG_PROVIDE_CUSTOM_TARGETS TRUE)
     message(">>>>>>>>> VulkanSceneGraph Provide custom targets")
 else()
     message(">>>>>>>>> VulkanSceneGraph build submodule, no custom targets")
