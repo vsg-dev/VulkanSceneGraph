@@ -1,5 +1,3 @@
-include("${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake")
-
 include(CMakeFindDependencyMacro)
 
 find_package(Vulkan @Vulkan_MIN_VERSION@ REQUIRED)
