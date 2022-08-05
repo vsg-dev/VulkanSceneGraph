@@ -343,6 +343,8 @@ endif()
 
 
 add_library(vsg ${HEADERS} ${SOURCES})
+add_library(vsg::vsg ALIAS vsg)
+
 set_target_properties(vsg PROPERTIES FOLDER "VulkanSceneGraph")
 
 if(MSVC)
