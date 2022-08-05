@@ -344,7 +344,7 @@ endif()
 
 add_library(vsg ${HEADERS} ${SOURCES})
 add_library(vsg::vsg ALIAS vsg)
-set(vsg_FOUND TRUE)
+set(vsg_FOUND TRUE CACHE INTERNAL "vsg found.")
 
 set_target_properties(vsg PROPERTIES FOLDER "VulkanSceneGraph")
 
