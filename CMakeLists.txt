@@ -12,18 +12,11 @@ set(Vulkan_MIN_VERSION 1.1.70.0)
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
 set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
 
-if (${VSG_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-    set(VSG_PROVIDE_CUSTOM_TARGETS TRUE)
-    message(">>>>>>>>> VulkanSceneGraph Provide custom targets")
-else()
-    message(">>>>>>>>> VulkanSceneGraph build submodule, no custom targets")
-endif()
-
 # create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 
-list(APPEND CMAKE_MODULE_PATH ${VSG_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(vsgMacros)
 
 vsg_setup_dir_vars()
@@ -75,7 +68,8 @@ vsg_add_target_docs(
         ${VSG_SOURCE_DIR}/include/vsg
 )
 
-if (VSG_PROVIDE_CUSTOM_TARGETS)
+# only provide custom targets if not building as a submodule/FetchContent
+if (${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
 
     # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
     add_custom_target(build_all_h
