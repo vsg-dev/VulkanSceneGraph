@@ -347,10 +347,10 @@ add_library(vsg ${HEADERS} ${SOURCES})
 # add definitions to enable building VulkanSceneGraph as part of submodule
 add_library(vsg::vsg ALIAS vsg)
 set(vsg_FOUND TRUE CACHE INTERNAL "vsg found.")
-set(CMAKE_DISABLE_FIND_PACKAGE_vsg TRUE CACHE INTERNAL "Disable find_package(vsg).")
+set(CMAKE_DISABLE_FIND_PACKAGE_vsg TRUE CACHE INTERNAL "Disable find_package(vsg) as it's not necessary.")
+
 
 set_target_properties(vsg PROPERTIES FOLDER "VulkanSceneGraph")
-
 if(MSVC)
     # ensure the libraries are all built in the lib directory
     macro(SET_OUTPUT_DIR_PROPERTY TARGET_TARGETNAME RELATIVE_OUTDIR)
