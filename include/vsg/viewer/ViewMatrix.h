@@ -57,6 +57,14 @@ namespace vsg
             up = normalize(cross(side, look));
         }
 
+        LookAt& operator = (const LookAt& lookAt)
+        {
+            eye = lookAt.eye;
+            center = lookAt.center;
+            up = lookAt.up;
+            return *this;
+        }
+
         void transform(const dmat4& matrix)
         {
             up = normalize(matrix * (eye + up) - matrix * eye);
