@@ -291,18 +291,17 @@ void CompileTraversal::apply(View& view)
         context->viewDependentState = view.viewDependentState.get();
         if (view.viewDependentState) view.viewDependentState->compile(*context);
 
+        auto previousOverridePipelineStates = context->overridePipelineStates;
+        auto previousDefaultPipelineStates = context->defaultPipelineStates;
+
         if (view.camera && view.camera->viewportState)
-        {
             context->defaultPipelineStates.emplace_back(view.camera->viewportState);
+        context->overridePipelineStates.insert(context->overridePipelineStates.end(), view.overridePipelineStates.begin(), view.overridePipelineStates.end());
 
-            view.traverse(*this);
+        view.traverse(*this);
 
-            context->defaultPipelineStates.pop_back();
-        }
-        else
-        {
-            view.traverse(*this);
-        }
+        context->defaultPipelineStates = previousDefaultPipelineStates;
+        context->overridePipelineStates = previousOverridePipelineStates;
     }
 }
 
