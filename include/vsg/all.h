@@ -109,6 +109,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // State header files
 #include <vsg/state/ArrayState.h>
 #include <vsg/state/BindDescriptorSet.h>
+#include <vsg/state/BindDynamicDescriptorSet.h>
 #include <vsg/state/Buffer.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/BufferView.h>

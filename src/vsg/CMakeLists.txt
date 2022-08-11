@@ -76,6 +76,7 @@ set(SOURCES
 
     state/ArrayState.cpp
     state/BindDescriptorSet.cpp
+    state/BindDynamicDescriptorSet.cpp
     state/Buffer.cpp
     state/BufferInfo.cpp
     state/BufferView.cpp

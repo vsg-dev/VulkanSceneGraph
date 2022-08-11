@@ -534,6 +534,10 @@ void ConstVisitor::apply(const BindDescriptorSet& value)
 {
     apply(static_cast<const StateCommand&>(value));
 }
+void ConstVisitor::apply(const BindDynamicDescriptorSet& value)
+{
+    apply(static_cast<const BindDescriptorSet&>(value));
+}
 void ConstVisitor::apply(const BindDescriptorSets& value)
 {
     apply(static_cast<const StateCommand&>(value));
