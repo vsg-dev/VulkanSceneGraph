@@ -85,6 +85,7 @@ set(SOURCES
     state/GraphicsPipeline.cpp
     state/Descriptor.cpp
     state/DescriptorBuffer.cpp
+    state/BufferedDescriptorBuffer.cpp
     state/DescriptorImage.cpp
     state/DescriptorTexelBufferView.cpp
     state/DescriptorSetLayout.cpp

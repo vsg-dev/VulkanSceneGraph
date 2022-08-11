@@ -554,6 +554,10 @@ void ConstVisitor::apply(const DescriptorBuffer& value)
 {
     apply(static_cast<const Descriptor&>(value));
 }
+void ConstVisitor::apply(const BufferedDescriptorBuffer& value)
+{
+    apply(static_cast<const DescriptorBuffer&>(value));
+}
 void ConstVisitor::apply(const DescriptorImage& value)
 {
     apply(static_cast<const Descriptor&>(value));

@@ -550,6 +550,10 @@ void Visitor::apply(DescriptorBuffer& value)
 {
     apply(static_cast<Descriptor&>(value));
 }
+void Visitor::apply(BufferedDescriptorBuffer& value)
+{
+    apply(static_cast<DescriptorBuffer&>(value));
+}
 void Visitor::apply(DescriptorImage& value)
 {
     apply(static_cast<Descriptor&>(value));

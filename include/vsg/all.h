@@ -118,6 +118,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DepthStencilState.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/BufferedDescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorSetLayout.h>
