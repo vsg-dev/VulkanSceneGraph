@@ -73,6 +73,12 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         }
     }
 
+    if (_availableDescriptorSet ==  _reclingList.size())
+    {
+        //vsg::debug(" DescriptorPool is exhausted and no compatible descriptor sets to recycle");
+        return {};
+    }
+
     size_t matches = 0;
     for (auto& [type, descriptorCount] : descriptorPoolSizes)
     {
