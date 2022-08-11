@@ -97,13 +97,21 @@ void BindViewDescriptorSets::write(Output& output) const
 
 void BindViewDescriptorSets::compile(Context& context)
 {
-    layout->compile(context);
-    if (context.viewDependentState) context.viewDependentState->compile(context);
+    if (context.viewDependentState)
+    {
+        context.viewDependentState->compile(context);
+        _bind.resize(context.viewID+1);
+        if (!_bind[context.viewID])
+        {
+            _bind[context.viewID] = vsg::BindDynamicDescriptorSet::create(pipelineBindPoint, layout, firstSet, context.viewDependentState->descriptorSet);
+            _bind[context.viewID]->compile(context);
+        }
+    }
 }
 
 void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
-    commandBuffer.viewDependentState->bindDescriptorSets(commandBuffer, pipelineBindPoint, layout->vk(commandBuffer.deviceID), firstSet);
+    _bind[commandBuffer.viewID]->record(commandBuffer);
 }
 
 //////////////////////////////////////
@@ -113,6 +121,12 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 ViewDependentState::ViewDependentState(uint32_t maxNumberLights)
 {
     lightData = vec4Array::create(maxNumberLights); // spot light requires 3 vec4's per light
+    lightDescriptor = vsg::BufferedDescriptorBuffer::create(lightData, 0); // hardwired position for now
+
+    DescriptorSetLayoutBindings descriptorBindings{
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
+    descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{lightDescriptor});
 }
 
 ViewDependentState::~ViewDependentState()
@@ -121,45 +135,22 @@ ViewDependentState::~ViewDependentState()
 
 void ViewDependentState::compile(Context& context)
 {
-    //debug("ViewDependentState::compile()");
-    if (!bufferedDescriptors.empty()) return;
-
-    DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
-
-    descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptorSetLayout->compile(context);
-
-    int numBuffers = 3;
-    for (int i = 0; i < numBuffers; ++i)
-    {
-        auto lightDescriptor = vsg::DescriptorBuffer::create(lightData, 0); // hardwired position for now
-        auto descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{lightDescriptor});
-        descriptorSet->compile(context);
-
-        bufferedDescriptors.push_back(DescriptorPair{lightDescriptor, descriptorSet});
-    }
 }
 
 void ViewDependentState::clear()
 {
-    // advance index
-    ++bufferIndex;
-    if (bufferIndex >= bufferedDescriptors.size()) bufferIndex = 0;
-
-    //debug("ViewDependentState::clear() bufferIndex = ", bufferIndex);
-
     // clear data
     ambientLights.clear();
     directionalLights.clear();
     pointLights.clear();
     spotLights.clear();
+
+    // need to manually advance frame because copy() is called after the scene's BindViewDesriptorSets have been traversed
+    lightDescriptor->advanceFrame();
 }
 
 void ViewDependentState::pack()
 {
-    //debug("ViewDependentState::pack() ambient ", ambientLights.size(), ", diffuse ", directionalLights.size(), ", point ", pointLights.size(), ", spot ", spotLights.size());
-
     auto light_itr = lightData->begin();
 
     (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),
@@ -196,30 +187,11 @@ void ViewDependentState::pack()
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
     }
-#if 0
-    for(auto itr = lightData->begin(); itr != light_itr; ++itr)
-    {
-        debug("   ", *itr);
-    }
-#endif
 }
 
 void ViewDependentState::copy()
 {
-    //debug("ViewDependentState::copy()");
-    if (bufferIndex >= bufferedDescriptors.size()) return;
-
-    const auto& descriptorData = bufferedDescriptors[bufferIndex];
-    for (auto& bufferInfo : descriptorData.lightDescriptor->bufferInfoList)
-    {
-        bufferInfo->copyDataToBuffer();
-    }
-}
-
-void ViewDependentState::bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet)
-{
-    if (bufferIndex >= bufferedDescriptors.size()) return;
-
-    auto vk = bufferedDescriptors[bufferIndex].descriptorSet->vk(commandBuffer.deviceID);
-    vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, 1, &vk, 0, nullptr);
+    //lightDescriptor->copyDataListToBuffers();
+    // need to use low level copy because copy() is called after the BindViewDesriptorSets have been traversed
+    lightDescriptor->DescriptorBuffer::copyDataListToBuffers();
 }

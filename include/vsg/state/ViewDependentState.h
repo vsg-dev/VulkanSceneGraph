@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Light.h>
-#include <vsg/state/BindDescriptorSet.h>
-#include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/BindDynamicDescriptorSet.h>
+#include <vsg/state/BufferedDescriptorBuffer.h>
 
 namespace vsg
 {
@@ -82,6 +82,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
+        std::vector<ref_ptr<BindDynamicDescriptorSet>> _bind;
         virtual ~BindViewDescriptorSets() {}
     };
     VSG_type_name(vsg::BindViewDescriptorSets);
@@ -102,10 +103,7 @@ namespace vsg
         static void t_traverse(N& node, V& visitor)
         {
             if (node.descriptorSetLayout) node.descriptorSetLayout->accept(visitor);
-            for (auto& dp : node.bufferedDescriptors)
-            {
-                dp.descriptorSet->accept(visitor);
-            }
+            if (node.descriptorSet) node.descriptorSet->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -121,19 +119,12 @@ namespace vsg
         virtual void clear();
         virtual void pack();
         virtual void copy();
-        virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
 
-        struct DescriptorPair
-        {
-            ref_ptr<DescriptorBuffer> lightDescriptor;
-            ref_ptr<DescriptorSet> descriptorSet;
-        };
-
-        size_t bufferIndex = 0;
-        std::vector<DescriptorPair> bufferedDescriptors;
+        ref_ptr<BufferedDescriptorBuffer> lightDescriptor;
+        ref_ptr<DescriptorSet> descriptorSet;
 
     protected:
         ~ViewDependentState();

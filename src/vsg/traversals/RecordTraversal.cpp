@@ -399,7 +399,6 @@ void RecordTraversal::apply(const View& view)
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
     _state->_commandBuffer->traversalMask = traversalMask;
     _state->_commandBuffer->viewID = view.viewID;
-    _state->_commandBuffer->viewDependentState = view.viewDependentState.get();
 
     // cache the previous bins
     int32_t cached_minimumBinNumber = _minimumBinNumber;
