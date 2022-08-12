@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Options.h>
 #include <vsg/state/BindDynamicDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/vk/CommandBuffer.h>
@@ -44,12 +45,12 @@ void BindDynamicDescriptorSet::record(CommandBuffer& commandBuffer) const
     {
         for (auto& bi : descriptor->bufferInfoList)
         {
-            auto offset = 0;
+            VkDeviceSize offset = 0;
             // if we have a parent, treat the BufferInfo's offset as a dynamic offset, otherwise leave offset unchanged
             // note, to use dynamic offsets the BufferInfo must have a parent, otherwise the BufferInfo's destructor will release an incorrect buffer range on destruction
             if (bi->parent)
                 offset = bi->offset - bi->parent->offset;
-            offsets.push_back(offset);
+            offsets.push_back(static_cast<uint32_t>(offset));
         }
     }
 

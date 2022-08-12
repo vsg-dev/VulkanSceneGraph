@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/state/BufferedDescriptorBuffer.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
