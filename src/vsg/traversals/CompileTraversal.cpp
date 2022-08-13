@@ -95,6 +95,8 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
+    context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
+
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
 
@@ -116,6 +118,8 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     context->graphicsQueue = device->getQueue(queueFamily);
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
+
+    context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
 
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
