@@ -438,7 +438,7 @@ void Trackball::apply(FrameEvent& frame)
                 _lookAt->center = mix(_startLookAt->center, _endLookAt->center, r);
 
                 double angle = acos(dot(_startLookAt->up, _endLookAt->up) / (length(_startLookAt->up) * length(_endLookAt->up)));
-                if (angle != 0.0)
+                if (angle > 1.0e-6)
                 {
                     auto rotation = vsg::rotate(angle * r, normalize(cross(_startLookAt->up, _endLookAt->up)));
                     _lookAt->up = rotation * _startLookAt->up;
