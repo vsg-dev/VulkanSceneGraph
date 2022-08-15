@@ -75,7 +75,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
     if (_availableDescriptorSet ==  _reclingList.size())
     {
-        //vsg::debug(" DescriptorPool is exhausted and no compatible descriptor sets to recycle");
+        //debug("The only avaiable vkDescriptoSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};
     }
 
