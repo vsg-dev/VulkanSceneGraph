@@ -105,6 +105,15 @@ namespace vsg
         {
         }
 
+        BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet, const vsg::Descriptors& in_descriptors) :
+            Inherit(1 + in_firstSet),
+            pipelineBindPoint(in_bindPoint),
+            layout(in_pipelineLayout),
+            firstSet(in_firstSet),
+            descriptorSet(vsg::DescriptorSet::create(in_pipelineLayout->setLayouts[in_firstSet], in_descriptors))
+        {
+        }
+
         // vkCmdBindDescriptorSets settings
         VkPipelineBindPoint pipelineBindPoint; // TODO not currently serialized
         ref_ptr<PipelineLayout> layout;
