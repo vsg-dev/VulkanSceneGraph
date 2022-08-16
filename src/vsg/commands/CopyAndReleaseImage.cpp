@@ -267,6 +267,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     ref_ptr<Buffer> imageStagingBuffer(source->buffer);
     ref_ptr<Data> data(source->data);
     ref_ptr<Image> textureImage(destination->imageView->image);
+    auto aspectMask = destination->imageView->subresourceRange.aspectMask;
     VkImageLayout targetImageLayout = destination->imageLayout;
 
     uint32_t faceWidth = width;
@@ -331,7 +332,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
     preCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     preCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     preCopyBarrier.image = vk_textureImage;
-    preCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    preCopyBarrier.subresourceRange.aspectMask = aspectMask;
     preCopyBarrier.subresourceRange.baseArrayLayer = 0;
     preCopyBarrier.subresourceRange.layerCount = arrayLayers;
     preCopyBarrier.subresourceRange.levelCount = mipLevels;
@@ -364,7 +365,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                 region.bufferOffset = source->offset + offset;
                 region.bufferRowLength = 0;
                 region.bufferImageHeight = 0;
-                region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.aspectMask = aspectMask;
                 region.imageSubresource.mipLevel = mipLevel;
                 region.imageSubresource.baseArrayLayer = face;
                 region.imageSubresource.layerCount = 1;
@@ -393,7 +394,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
             region.bufferOffset = source->offset + face * faceSize;
             region.bufferRowLength = 0;
             region.bufferImageHeight = 0;
-            region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            region.imageSubresource.aspectMask = aspectMask;
             region.imageSubresource.mipLevel = 0;
             region.imageSubresource.baseArrayLayer = face;
             region.imageSubresource.layerCount = 1;
@@ -412,7 +413,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         barrier.image = vk_textureImage;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.aspectMask = aspectMask;
         barrier.subresourceRange.baseArrayLayer = 0;
         barrier.subresourceRange.layerCount = arrayLayers;
         barrier.subresourceRange.levelCount = 1;
@@ -442,13 +443,13 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
                 auto& blit = blits[face];
                 blit.srcOffsets[0] = {0, 0, 0};
                 blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
-                blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                blit.srcSubresource.aspectMask = aspectMask;
                 blit.srcSubresource.mipLevel = i - 1;
                 blit.srcSubresource.baseArrayLayer = face;
                 blit.srcSubresource.layerCount = arrayLayers;
                 blit.dstOffsets[0] = {0, 0, 0};
                 blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
-                blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                blit.dstSubresource.aspectMask = aspectMask;
                 blit.dstSubresource.mipLevel = i;
                 blit.dstSubresource.baseArrayLayer = face;
                 blit.dstSubresource.layerCount = arrayLayers;
@@ -499,7 +500,7 @@ void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
         postCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         postCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         postCopyBarrier.image = vk_textureImage;
-        postCopyBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        postCopyBarrier.subresourceRange.aspectMask = aspectMask;
         postCopyBarrier.subresourceRange.baseArrayLayer = 0;
         postCopyBarrier.subresourceRange.layerCount = arrayLayers;
         postCopyBarrier.subresourceRange.levelCount = mipLevels;
