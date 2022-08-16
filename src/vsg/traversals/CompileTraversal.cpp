@@ -95,6 +95,8 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
+    context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
+
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
 
@@ -116,6 +118,8 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     context->graphicsQueue = device->getQueue(queueFamily);
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
+
+    context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
 
     auto viewportState = view->camera->viewportState;
     if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
@@ -293,18 +297,19 @@ void CompileTraversal::apply(View& view)
         context->viewDependentState = view.viewDependentState.get();
         if (view.viewDependentState) view.viewDependentState->compile(*context);
 
-        if (view.camera && view.camera->viewportState)
-        {
-            context->defaultPipelineStates.emplace_back(view.camera->viewportState);
+        // save previous pipeline states
+        auto previousOverridePipelineStates = context->overridePipelineStates;
+        auto previousDefaultPipelineStates = context->defaultPipelineStates;
 
-            view.traverse(*this);
+        // assign view specific pipeline states
+        context->overridePipelineStates.insert(context->overridePipelineStates.end(), view.overridePipelineStates.begin(), view.overridePipelineStates.end());
+        if (view.camera && view.camera->viewportState) context->defaultPipelineStates.emplace_back(view.camera->viewportState);
 
-            context->defaultPipelineStates.pop_back();
-        }
-        else
-        {
-            view.traverse(*this);
-        }
+        view.traverse(*this);
+
+        // restore previous pipeline sttes
+        context->defaultPipelineStates = previousDefaultPipelineStates;
+        context->overridePipelineStates = previousOverridePipelineStates;
     }
 }
 
