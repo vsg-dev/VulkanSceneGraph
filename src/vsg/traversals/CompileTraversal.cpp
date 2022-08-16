@@ -297,15 +297,17 @@ void CompileTraversal::apply(View& view)
         context->viewDependentState = view.viewDependentState.get();
         if (view.viewDependentState) view.viewDependentState->compile(*context);
 
+        // save previous pipeline states
         auto previousOverridePipelineStates = context->overridePipelineStates;
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
 
-        if (view.camera && view.camera->viewportState)
-            context->defaultPipelineStates.emplace_back(view.camera->viewportState);
+        // assign view specific pipeline states
         context->overridePipelineStates.insert(context->overridePipelineStates.end(), view.overridePipelineStates.begin(), view.overridePipelineStates.end());
+        if (view.camera && view.camera->viewportState) context->defaultPipelineStates.emplace_back(view.camera->viewportState);
 
         view.traverse(*this);
 
+        // restore previous pipeline sttes
         context->defaultPipelineStates = previousDefaultPipelineStates;
         context->overridePipelineStates = previousOverridePipelineStates;
     }
