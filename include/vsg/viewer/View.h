@@ -63,6 +63,9 @@ namespace vsg
         /// view dependent state used for positional state like lighting, texgen and clipping
         ref_ptr<ViewDependentState> viewDependentState;
 
+        /// override states for customization of graphics pipelines for this view
+        GraphicsPipelineStates overridePipelineStates;
+
     protected:
         virtual ~View();
     };
