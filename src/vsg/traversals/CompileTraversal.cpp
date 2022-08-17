@@ -224,23 +224,25 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    if (commandGraph.window)
+    auto traverseRenderedSubgraph = [&](vsg::RenderPass* renderpass, VkExtent2D renderArea)
     {
+        uint32_t samples = renderpass->maxSamples;
+
         for (auto& context : contexts)
         {
-            context->renderPass = commandGraph.window->getOrCreateRenderPass();
-
-            context->defaultPipelineStates.push_back(ViewportState::create(commandGraph.window->extent2D()));
-
-            if (commandGraph.window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
-            {
-                ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
-                context->overridePipelineStates.push_back(defaultMsState);
-            }
+            context->renderPass = renderpass;
 
             // save previous states to be restored after traversal
             auto previousDefaultPipelineStates = context->defaultPipelineStates;
             auto previousOverridePipelineStates = context->overridePipelineStates;
+
+            context->defaultPipelineStates.push_back(ViewportState::create(renderArea));
+
+            if (samples != VK_SAMPLE_COUNT_1_BIT)
+            {
+                ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
+                context->overridePipelineStates.push_back(defaultMsState);
+            }
 
             commandGraph.traverse(*this);
 
@@ -248,6 +250,15 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
             context->defaultPipelineStates = previousDefaultPipelineStates;
             context->overridePipelineStates = previousOverridePipelineStates;
         }
+    };
+
+    if (commandGraph.framebuffer)
+    {
+        traverseRenderedSubgraph(commandGraph.framebuffer->getRenderPass(), commandGraph.framebuffer->extent2D());
+    }
+    else if (commandGraph.window)
+    {
+        traverseRenderedSubgraph(commandGraph.window->getOrCreateRenderPass(), commandGraph.window->extent2D());
     }
     else
     {

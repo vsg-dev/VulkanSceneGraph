@@ -120,7 +120,13 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
     inheritanceInfo.pipelineStatistics = pipelineStatistics;
     beginInfo.pInheritanceInfo = &inheritanceInfo;
 
-    if (window)
+    if (framebuffer)
+    {
+        inheritanceInfo.renderPass = *(framebuffer->getRenderPass());
+        inheritanceInfo.subpass = subpass;
+        inheritanceInfo.framebuffer = *framebuffer;
+    }
+    else if (window)
     {
         inheritanceInfo.renderPass = *(window->getRenderPass());
         inheritanceInfo.subpass = subpass;
