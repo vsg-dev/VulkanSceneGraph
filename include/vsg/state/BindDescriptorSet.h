@@ -105,7 +105,7 @@ namespace vsg
         {
         }
 
-        /// convinience BindDescriptorSet constructor which creates and assigns the DescriptorSet required for specified descriptors.
+        /// convenience BindDescriptorSet constructor which creates and assigns the DescriptorSet required for specified descriptors.
         BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet, const vsg::Descriptors& in_descriptors) :
             Inherit(1 + in_firstSet),
             pipelineBindPoint(in_bindPoint),
