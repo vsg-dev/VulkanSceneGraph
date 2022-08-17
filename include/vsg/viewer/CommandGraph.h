@@ -30,6 +30,7 @@ namespace vsg
 
         // settings, configure at construction time
         ref_ptr<Window> window;
+        ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Device> device;
         ref_ptr<Camera> camera;
 

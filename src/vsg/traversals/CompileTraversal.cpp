@@ -224,34 +224,48 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    if (commandGraph.window)
+    uint32_t samples = VK_SAMPLE_COUNT_1_BIT;
+    vsg::RenderPass* renderpass = nullptr;
+    VkExtent2D renderArea{};
+    if (commandGraph.framebuffer)
     {
-        for (auto& context : contexts)
-        {
-            context->renderPass = commandGraph.window->getOrCreateRenderPass();
-
-            context->defaultPipelineStates.push_back(ViewportState::create(commandGraph.window->extent2D()));
-
-            if (commandGraph.window->framebufferSamples() != VK_SAMPLE_COUNT_1_BIT)
-            {
-                ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
-                context->overridePipelineStates.push_back(defaultMsState);
-            }
-
-            // save previous states to be restored after traversal
-            auto previousDefaultPipelineStates = context->defaultPipelineStates;
-            auto previousOverridePipelineStates = context->overridePipelineStates;
-
-            commandGraph.traverse(*this);
-
-            // restore previous values
-            context->defaultPipelineStates = previousDefaultPipelineStates;
-            context->overridePipelineStates = previousOverridePipelineStates;
-        }
+        samples = commandGraph.framebuffer->getRenderPass()->maxSamples;
+        renderpass = commandGraph.framebuffer->getRenderPass();
+        renderArea = {commandGraph.framebuffer->width(), commandGraph.framebuffer->height()};
+    }
+    else if (commandGraph.window)
+    {
+        samples = commandGraph.window->framebufferSamples();
+        renderpass = commandGraph.window->getOrCreateRenderPass();
+        renderArea = commandGraph.window->extent2D();
     }
     else
     {
         commandGraph.traverse(*this);
+        return;
+    }
+
+    for (auto& context : contexts)
+    {
+        context->renderPass = renderpass;
+
+        // save previous states to be restored after traversal
+        auto previousDefaultPipelineStates = context->defaultPipelineStates;
+        auto previousOverridePipelineStates = context->overridePipelineStates;
+
+        context->defaultPipelineStates.push_back(ViewportState::create(renderArea));
+
+        if (samples != VK_SAMPLE_COUNT_1_BIT)
+        {
+            ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
+            context->overridePipelineStates.push_back(defaultMsState);
+        }
+
+        commandGraph.traverse(*this);
+
+        // restore previous values
+        context->defaultPipelineStates = previousDefaultPipelineStates;
+        context->overridePipelineStates = previousOverridePipelineStates;
     }
 }
 
