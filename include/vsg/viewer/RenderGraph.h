@@ -37,7 +37,7 @@ namespace vsg
         /// execute vkCmdBeginRenderPass and then traverse the RenderGraph subgraph
         void accept(RecordTraversal& recordTraversal) const override;
 
-        /// either window or framebuffer must be assigned. If framebuffer is set then it takes precedence, if not sense the appropriate window's framebuffer is used.
+        /// either window or framebuffer must be assigned. If framebuffer is set then it takes precedence, if not the appropriate window's framebuffer is used.
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
 

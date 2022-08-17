@@ -28,9 +28,10 @@ namespace vsg
         CommandGraph(ref_ptr<Device> in_device, int family);
         explicit CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child = {});
 
-        // settings, configure at construction time
-        ref_ptr<Window> window;
+        // Settings, configure at construction time.
+        // When either window or framebuffer is assigned, if framebuffer is set then it takes precedence, if not the appropriate window's framebuffer is used.
         ref_ptr<Framebuffer> framebuffer;
+        ref_ptr<Window> window;
         ref_ptr<Device> device;
         ref_ptr<Camera> camera;
 
