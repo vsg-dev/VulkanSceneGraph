@@ -39,6 +39,8 @@ namespace vsg
         uint32_t height() const { return _height; }
         uint32_t layers() const { return _layers; }
 
+        VkExtent2D extent2D() const { return VkExtent2D{_width, _height}; }
+
     protected:
         virtual ~Framebuffer();
 
