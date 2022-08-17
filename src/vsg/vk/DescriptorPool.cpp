@@ -73,7 +73,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         }
     }
 
-    if (_availableDescriptorSet ==  _reclingList.size())
+    if (_availableDescriptorSet == _reclingList.size())
     {
         //debug("The only available vkDescriptoSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};

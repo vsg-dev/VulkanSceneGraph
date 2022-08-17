@@ -52,7 +52,7 @@ void Viewer::deviceWaitIdle() const
 
     for (auto& task : recordAndSubmitTasks)
     {
-        for(auto& cg : task->commandGraphs)
+        for (auto& cg : task->commandGraphs)
         {
             devices.insert(*(cg->device));
         }
