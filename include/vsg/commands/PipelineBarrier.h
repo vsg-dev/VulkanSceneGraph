@@ -111,7 +111,6 @@ namespace vsg
     // TODO decide where SampleLocations belongs, possibly RenderPass?
     struct VSG_DECLSPEC SampleLocations : public Inherit<VulkanInfo, SampleLocations>
     {
-        ref_ptr<VulkanInfo> next;
         VkSampleCountFlagBits sampleLocationsPerPixel = VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
         VkExtent2D sampleLocationGridSize = {0, 0};
         std::vector<vec2> sampleLocations;

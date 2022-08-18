@@ -98,7 +98,7 @@ void Logger::error_stream(PrintToStreamFunction print)
     error_implementation(_stream.str());
 }
 
-void Logger::log(Level msg_level, std::string_view message)
+void Logger::log(Level msg_level, const std::string_view& message)
 {
     if (level > msg_level) return;
     std::scoped_lock<std::mutex> lock(_mutex);
@@ -147,22 +147,22 @@ void StdLogger::flush()
     std::cerr.flush();
 }
 
-void StdLogger::debug_implementation(std::string_view message)
+void StdLogger::debug_implementation(const std::string_view& message)
 {
     std::cout << debugPrefix << message << '\n';
 }
 
-void StdLogger::info_implementation(std::string_view message)
+void StdLogger::info_implementation(const std::string_view& message)
 {
     std::cout << infoPrefix << message << '\n';
 }
 
-void StdLogger::warn_implementation(std::string_view message)
+void StdLogger::warn_implementation(const std::string_view& message)
 {
     std::cerr << warnPrefix << message << std::endl;
 }
 
-void StdLogger::error_implementation(std::string_view message)
+void StdLogger::error_implementation(const std::string_view& message)
 {
     std::cerr << errorPrefix << message << std::endl;
 }
@@ -199,25 +199,25 @@ void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
     }
 }
 
-void ThreadLogger::debug_implementation(std::string_view message)
+void ThreadLogger::debug_implementation(const std::string_view& message)
 {
     print_id(std::cout, std::this_thread::get_id());
     std::cout << debugPrefix << message << '\n';
 }
 
-void ThreadLogger::info_implementation(std::string_view message)
+void ThreadLogger::info_implementation(const std::string_view& message)
 {
     print_id(std::cout, std::this_thread::get_id());
     std::cout << infoPrefix << message << '\n';
 }
 
-void ThreadLogger::warn_implementation(std::string_view message)
+void ThreadLogger::warn_implementation(const std::string_view& message)
 {
     print_id(std::cout, std::this_thread::get_id());
     std::cerr << warnPrefix << message << std::endl;
 }
 
-void ThreadLogger::error_implementation(std::string_view message)
+void ThreadLogger::error_implementation(const std::string_view& message)
 {
     print_id(std::cout, std::this_thread::get_id());
     std::cerr << errorPrefix << message << std::endl;
@@ -232,15 +232,15 @@ NullLogger::NullLogger()
     level = LOGGER_OFF;
 }
 
-void NullLogger::debug_implementation(std::string_view)
+void NullLogger::debug_implementation(const std::string_view&)
 {
 }
-void NullLogger::info_implementation(std::string_view)
+void NullLogger::info_implementation(const std::string_view&)
 {
 }
-void NullLogger::warn_implementation(std::string_view)
+void NullLogger::warn_implementation(const std::string_view&)
 {
 }
-void NullLogger::error_implementation(std::string_view)
+void NullLogger::error_implementation(const std::string_view&)
 {
 }

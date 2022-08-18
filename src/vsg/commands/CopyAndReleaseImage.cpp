@@ -123,13 +123,11 @@ CopyAndReleaseImage::~CopyAndReleaseImage()
 {
 }
 
-CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
+CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels):
+    source(src),
+    destination(dest),
+    mipLevels(numMipMapLevels)
 {
-    source = src;
-    destination = dest;
-
-    mipLevels = numMipMapLevels;
-
     if (source->data)
     {
         layout = source->data->getLayout();

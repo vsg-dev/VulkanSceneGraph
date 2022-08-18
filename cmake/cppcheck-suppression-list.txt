@@ -45,6 +45,7 @@ useStlAlgorithm:*/src/vsg/core/MemorySlots.cpp
 useStlAlgorithm:*/src/vsg/state/ArrayState.cpp
 useStlAlgorithm:*/src/vsg/traversals/CompileTraversal.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
+useStlAlgorithm:*/include/vsg/utils/CommandLine.h
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -110,3 +111,9 @@ duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
 
 // suppress unhelpful "can be declared with const"
 constParameter:*/src/vsg/state/QueryPool.cpp
+
+// suppress inappropriate warning of returnTempReference
+returnTempReference:*/include/vsg/core/Inherit.h
+
+// suppress inappropriate warning of variableScope
+variableScope:*/include/vsg/utils/SharedObjects.h
