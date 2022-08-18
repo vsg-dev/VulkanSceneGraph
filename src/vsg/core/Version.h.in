@@ -31,10 +31,10 @@ extern "C"
 
     struct VsgVersion
     {
-        unsigned int major;
-        unsigned int minor;
-        unsigned int patch;
-        unsigned int soversion;
+        unsigned int major = 0;
+        unsigned int minor = 0;
+        unsigned int patch = 0;
+        unsigned int soversion = 0;
     };
 
     extern VSG_DECLSPEC struct VsgVersion vsgGetVersion();

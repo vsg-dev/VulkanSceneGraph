@@ -52,7 +52,7 @@ namespace vsg
         inline void debug(std::string& message) { debug(std::string_view(message)); }
         inline void debug(const std::string& message) { debug(std::string_view(message)); }
 
-        void debug(std::string_view str)
+        void debug(const std::string_view& str)
         {
             if (level > LOGGER_DEBUG) return;
 
@@ -78,7 +78,7 @@ namespace vsg
         inline void info(std::string& message) { info(std::string_view(message)); }
         inline void info(const std::string& message) { info(std::string_view(message)); }
 
-        void info(std::string_view str)
+        void info(const std::string_view& str)
         {
             if (level > LOGGER_INFO) return;
 
@@ -104,7 +104,7 @@ namespace vsg
         inline void warn(std::string& message) { warn(std::string_view(message)); }
         inline void warn(const std::string& message) { warn(std::string_view(message)); }
 
-        void warn(std::string_view str)
+        void warn(const std::string_view& str)
         {
             if (level > LOGGER_WARN) return;
 
@@ -130,7 +130,7 @@ namespace vsg
         inline void error(std::string& message) { error(std::string_view(message)); }
         inline void error(const std::string& message) { error(std::string_view(message)); }
 
-        void error(std::string_view str)
+        void error(const std::string_view& str)
         {
             if (level > LOGGER_DEBUG) return;
 
@@ -171,7 +171,7 @@ namespace vsg
         inline void log(Level msg_level, std::string& message) { log(msg_level, std::string_view(message)); }
         inline void log(Level msg_level, const std::string& message) { log(msg_level, std::string_view(message)); }
 
-        void log(Level msg_level, std::string_view message);
+        void log(Level msg_level, const std::string_view& message);
 
         /// pass message to debug()/info()/warn()/error() based on specified level
         template<typename... Args>
@@ -203,10 +203,10 @@ namespace vsg
         std::mutex _mutex;
         std::ostringstream _stream;
 
-        virtual void debug_implementation(std::string_view message) = 0;
-        virtual void info_implementation(std::string_view message) = 0;
-        virtual void warn_implementation(std::string_view message) = 0;
-        virtual void error_implementation(std::string_view message) = 0;
+        virtual void debug_implementation(const std::string_view& message) = 0;
+        virtual void info_implementation(const std::string_view& message) = 0;
+        virtual void warn_implementation(const std::string_view& message) = 0;
+        virtual void error_implementation(const std::string_view& message) = 0;
     };
     VSG_type_name(vsg::Logger);
 
@@ -291,10 +291,10 @@ namespace vsg
         void flush() override;
 
     protected:
-        void debug_implementation(std::string_view message) override;
-        void info_implementation(std::string_view message) override;
-        void warn_implementation(std::string_view message) override;
-        void error_implementation(std::string_view message) override;
+        void debug_implementation(const std::string_view& message) override;
+        void info_implementation(const std::string_view& message) override;
+        void warn_implementation(const std::string_view& message) override;
+        void error_implementation(const std::string_view& message) override;
     };
     VSG_type_name(vsg::StdLogger);
 
@@ -317,10 +317,10 @@ namespace vsg
     protected:
         void print_id(std::ostream& out, std::thread::id id);
 
-        void debug_implementation(std::string_view message) override;
-        void info_implementation(std::string_view message) override;
-        void warn_implementation(std::string_view message) override;
-        void error_implementation(std::string_view message) override;
+        void debug_implementation(const std::string_view& message) override;
+        void info_implementation(const std::string_view& message) override;
+        void warn_implementation(const std::string_view& message) override;
+        void error_implementation(const std::string_view& message) override;
 
         std::map<std::thread::id, std::string> _threadPrefixes;
     };
@@ -333,10 +333,10 @@ namespace vsg
         NullLogger();
 
     protected:
-        void debug_implementation(std::string_view) override;
-        void info_implementation(std::string_view) override;
-        void warn_implementation(std::string_view) override;
-        void error_implementation(std::string_view) override;
+        void debug_implementation(const std::string_view&) override;
+        void info_implementation(const std::string_view&) override;
+        void warn_implementation(const std::string_view&) override;
+        void error_implementation(const std::string_view&) override;
     };
     VSG_type_name(vsg::NullLogger);
 
