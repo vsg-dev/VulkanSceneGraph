@@ -119,7 +119,7 @@ ViewDependentState::~ViewDependentState()
 {
 }
 
-void ViewDependentState::compile(Context& /*context*/)
+void ViewDependentState::compile(Context& context)
 {
     //debug("ViewDependentState::compile()");
     if (!bufferedDescriptors.empty()) return;
