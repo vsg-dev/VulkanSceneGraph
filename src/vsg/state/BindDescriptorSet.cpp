@@ -50,6 +50,11 @@ void BindDescriptorSets::read(Input& input)
 
     StateCommand::read(input);
 
+    if (input.version_greater_equal(0, 5, 4))
+    {
+        input.readValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
+    }
+
     input.readObject("layout", layout);
     input.read("firstSet", firstSet);
     input.readObjects("descriptorSets", descriptorSets);
@@ -58,6 +63,11 @@ void BindDescriptorSets::read(Input& input)
 void BindDescriptorSets::write(Output& output) const
 {
     StateCommand::write(output);
+
+    if (output.version_greater_equal(0, 5, 4))
+    {
+        output.writeValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
+    }
 
     output.writeObject("layout", layout);
     output.write("firstSet", firstSet);
@@ -120,6 +130,11 @@ void BindDescriptorSet::read(Input& input)
 
     StateCommand::read(input);
 
+    if (input.version_greater_equal(0, 5, 4))
+    {
+        input.readValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
+    }
+
     input.readObject("layout", layout);
     input.read("firstSet", firstSet);
     input.readObject("descriptorSet", descriptorSet);
@@ -128,6 +143,11 @@ void BindDescriptorSet::read(Input& input)
 void BindDescriptorSet::write(Output& output) const
 {
     StateCommand::write(output);
+
+    if (output.version_greater_equal(0, 5, 4))
+    {
+        output.writeValue<uint32_t>("pipelineBindPoint", pipelineBindPoint);
+    }
 
     output.writeObject("layout", layout);
     output.write("firstSet", firstSet);
