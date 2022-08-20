@@ -58,6 +58,11 @@ void BindDescriptorSets::read(Input& input)
     input.readObject("layout", layout);
     input.read("firstSet", firstSet);
     input.readObjects("descriptorSets", descriptorSets);
+
+    if (input.version_greater_equal(0, 5, 4))
+    {
+        input.readValues("dynamicOffsets", dynamicOffsets);
+    }
 }
 
 void BindDescriptorSets::write(Output& output) const
@@ -72,6 +77,11 @@ void BindDescriptorSets::write(Output& output) const
     output.writeObject("layout", layout);
     output.write("firstSet", firstSet);
     output.writeObjects("descriptorSets", descriptorSets);
+
+    if (output.version_greater_equal(0, 5, 4))
+    {
+        output.writeValues("dynamicOffsets", dynamicOffsets);
+    }
 }
 
 void BindDescriptorSets::compile(Context& context)
@@ -138,6 +148,11 @@ void BindDescriptorSet::read(Input& input)
     input.readObject("layout", layout);
     input.read("firstSet", firstSet);
     input.readObject("descriptorSet", descriptorSet);
+
+    if (input.version_greater_equal(0, 5, 4))
+    {
+        input.readValues("dynamicOffsets", dynamicOffsets);
+    }
 }
 
 void BindDescriptorSet::write(Output& output) const
@@ -152,6 +167,11 @@ void BindDescriptorSet::write(Output& output) const
     output.writeObject("layout", layout);
     output.write("firstSet", firstSet);
     output.writeObject("descriptorSet", descriptorSet);
+
+    if (output.version_greater_equal(0, 5, 4))
+    {
+        output.writeValues("dynamicOffsets", dynamicOffsets);
+    }
 }
 
 void BindDescriptorSet::compile(Context& context)
