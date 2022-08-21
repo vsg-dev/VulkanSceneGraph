@@ -44,10 +44,11 @@ namespace vsg
         }
 
         /// vkCmdBindDescriptorSets settings
-        VkPipelineBindPoint pipelineBindPoint; // TODO not currently serialized
+        VkPipelineBindPoint pipelineBindPoint;
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
         DescriptorSets descriptorSets;
+        std::vector<uint32_t> dynamicOffsets;
 
         int compare(const Object& rhs_object) const override;
 
@@ -120,6 +121,7 @@ namespace vsg
         ref_ptr<PipelineLayout> layout;
         uint32_t firstSet;
         ref_ptr<DescriptorSet> descriptorSet;
+        std::vector<uint32_t> dynamicOffsets;
 
         int compare(const Object& rhs_object) const override;
 
