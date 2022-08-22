@@ -95,6 +95,7 @@ unassignedVariable:*src/vsg/vk/DescriptorPool.cpp
 unassignedVariable:*src/vsg/vk/ResourceRequirements.cpp
 unassignedVariable:*src/vsg/core/External.cpp
 unassignedVariable:*src/vsg/core/MemorySlots.cpp
+unassignedVariable:*src/vsg/vk/Context.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
 unreadVariable:src/vsg/state/DescriptorTexelBufferView.cpp
@@ -130,3 +131,7 @@ returnTempReference:*/include/vsg/core/Inherit.h
 
 // suppress inappropriate warning of variableScope
 variableScope:*/include/vsg/utils/SharedObjects.h
+variableScope:*/src/vsg/utils/SharedObjects.cpp
+
+// suppress really stupid warning of pointerLessThanZero
+pointerLessThanZero:*/src/vsg/viewer/Viewer.cpp
