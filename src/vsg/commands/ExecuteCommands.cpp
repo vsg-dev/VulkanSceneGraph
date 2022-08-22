@@ -72,9 +72,9 @@ void ExecuteCommands::record(CommandBuffer& commandBuffer) const
 
     std::scoped_lock lock(_mutex);
     std::vector<VkCommandBuffer> vk_commandBuffers;
-    for (auto& [cg, cb] : _commandGraphsAndBuffers)
+    for (auto& entry : _commandGraphsAndBuffers)
     {
-        if (cb) vk_commandBuffers.push_back(*cb);
+        if (entry.cb) vk_commandBuffers.push_back(*entry.cb);
     }
 
     if (!vk_commandBuffers.empty())

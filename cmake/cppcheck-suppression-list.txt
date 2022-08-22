@@ -93,8 +93,11 @@ unassignedVariable:*src/vsg/state/ShaderStage.cpp
 unassignedVariable:*src/vsg/state/ViewDependentState.cpp
 unassignedVariable:*src/vsg/vk/DescriptorPool.cpp
 unassignedVariable:*src/vsg/vk/ResourceRequirements.cpp
+unassignedVariable:*src/vsg/core/External.cpp
+unassignedVariable:*src/vsg/core/MemorySlots.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
+unreadVariable:src/vsg/state/DescriptorTexelBufferView.cpp
 unreadVariable:src/vsg/state/DescriptorTexelBufferView.cpp
 
 // suppress inappropriate warning about uninitialized variable

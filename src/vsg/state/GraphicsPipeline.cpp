@@ -125,7 +125,7 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, RenderPass* renderPass, PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
+GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, const RenderPass* renderPass, const PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
     _device(device)
 {
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
