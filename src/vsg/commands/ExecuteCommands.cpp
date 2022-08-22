@@ -23,9 +23,9 @@ ExecuteCommands::ExecuteCommands() :
 ExecuteCommands::~ExecuteCommands()
 {
     // disconnect all the CommandGraphs
-    for (auto& [cg, cb] : _commandGraphsAndBuffers)
+    for (auto& entry : _commandGraphsAndBuffers)
     {
-        cg->_disconnect(this);
+        entry.cg->_disconnect(this);
     }
 }
 
@@ -41,9 +41,9 @@ void ExecuteCommands::reset()
 
     _latch->set(static_cast<int>(_commandGraphsAndBuffers.size()));
 
-    for (auto& [cg, cb] : _commandGraphsAndBuffers)
+    for (auto& entry : _commandGraphsAndBuffers)
     {
-        cb = {};
+        entry.cb = {};
     }
 }
 

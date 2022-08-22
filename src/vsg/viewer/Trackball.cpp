@@ -20,10 +20,9 @@ using namespace vsg;
 
 Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel) :
     _camera(camera),
+    _lookAt(camera->viewMatrix.cast<LookAt>()),
     _ellipsoidModel(ellipsoidModel)
 {
-    _lookAt = camera->viewMatrix.cast<LookAt>();
-
     if (!_lookAt)
     {
         // TODO: need to work out how to map the original ViewMatrix to a LookAt and back, for now just fallback to assigning our own LookAt

@@ -20,9 +20,9 @@ CullGroup::CullGroup()
 {
 }
 
-CullGroup::CullGroup(const dsphere& in_bound)
+CullGroup::CullGroup(const dsphere& in_bound):
+    bound(in_bound)
 {
-    bound = in_bound;
 }
 
 CullGroup::~CullGroup()

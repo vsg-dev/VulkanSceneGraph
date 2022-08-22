@@ -87,6 +87,16 @@ unusedStructMember:*src/vsg/core/External.cpp
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp
 
+// suppress inappropriate warnings about unassigned variables
+unassignedVariable:*src/vsg/commands/ExecuteCommands.cpp
+unassignedVariable:*src/vsg/state/ShaderStage.cpp
+unassignedVariable:*src/vsg/state/ViewDependentState.cpp
+unassignedVariable:*src/vsg/vk/DescriptorPool.cpp
+unassignedVariable:*src/vsg/vk/ResourceRequirements.cpp
+
+// suppress inappropriate warnings about unreadVariable variables
+unreadVariable:src/vsg/state/DescriptorTexelBufferView.cpp
+
 // suppress inappropriate warning about uninitialized variable
 uninitvar:*/include/vsg/vk/DeviceFeatures.h
 uninitvar:*/src/vsg/vk/DeviceFeatures.cpp

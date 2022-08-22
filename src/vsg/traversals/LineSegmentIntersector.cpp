@@ -218,8 +218,8 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
     if (!bs.valid()) return false;
 
     auto& lineSegment = _lineSegmentStack.back();
-    dvec3& start = lineSegment.start;
-    dvec3& end = lineSegment.end;
+    const dvec3& start = lineSegment.start;
+    const dvec3& end = lineSegment.end;
 
     dvec3 sm = start - bs.center;
     double c = length2(sm) - bs.radius * bs.radius;
