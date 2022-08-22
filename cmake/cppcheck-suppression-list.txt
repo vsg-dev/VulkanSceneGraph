@@ -98,8 +98,7 @@ unassignedVariable:*src/vsg/core/MemorySlots.cpp
 unassignedVariable:*src/vsg/vk/Context.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
-unreadVariable:src/vsg/state/DescriptorTexelBufferView.cpp
-unreadVariable:src/vsg/state/DescriptorTexelBufferView.cpp
+unreadVariable:*/src/vsg/state/DescriptorTexelBufferView.cpp
 
 // suppress inappropriate warning about uninitialized variable
 uninitvar:*/include/vsg/vk/DeviceFeatures.h

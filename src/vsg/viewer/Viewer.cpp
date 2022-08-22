@@ -39,7 +39,7 @@ Viewer::~Viewer()
     stopThreading();
 
     // don't destroy viewer while devices are still active
-    deviceWaitIdle();
+    Viewer::deviceWaitIdle();
 }
 
 void Viewer::deviceWaitIdle() const

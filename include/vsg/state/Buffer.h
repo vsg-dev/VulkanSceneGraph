@@ -24,7 +24,6 @@ namespace vsg
     {
     public:
         Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode);
-        //Buffer(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode);
 
         // VkBufferCreateInfo settings
         VkBufferCreateFlags flags = 0;
