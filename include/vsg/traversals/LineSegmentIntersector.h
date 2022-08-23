@@ -37,7 +37,7 @@ namespace vsg
         {
         public:
             Intersection() {}
-            Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWorld, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios, uint32_t in_instanceIndex);
+            Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex);
 
             dvec3 localIntersection;
             dvec3 worldIntersection;

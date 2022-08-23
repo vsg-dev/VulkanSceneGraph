@@ -90,7 +90,7 @@ void RecordTraversal::setDatabasePager(DatabasePager* dp)
     if (_culledPagedLODs) _culledPagedLODs->unref();
 
     _databasePager = dp;
-    _culledPagedLODs = dp ? _databasePager->culledPagedLODs.get() : nullptr;
+    _culledPagedLODs = dp ? dp->culledPagedLODs.get() : nullptr;
 
     if (_databasePager) _databasePager->ref();
     if (_culledPagedLODs) _culledPagedLODs->ref();

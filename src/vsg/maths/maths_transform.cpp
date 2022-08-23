@@ -272,7 +272,7 @@ bool t_decompose(const t_mat4<T>& m, t_vec3<T>& translation, t_quat<T>& rotation
         if (rm[2][2] > rm[i][i]) i = 2;
 
         // set up the orthogonal axis to the max diagonal.
-        int next[3] = {1, 2, 0};
+        const int next[3] = {1, 2, 0};
         int j = next[i];
         int k = next[j];
 

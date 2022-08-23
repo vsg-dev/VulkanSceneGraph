@@ -99,7 +99,8 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     VkDeviceSize deviceSize = std::max(totalSize, minimumBufferSize);
 
-    bufferInfo->buffer = Buffer::create(device, deviceSize, bufferUsageFlags, sharingMode);
+    bufferInfo->buffer = Buffer::create(deviceSize, bufferUsageFlags, sharingMode);
+    bufferInfo->buffer->compile(device);
 
     MemorySlots::OptionalOffset reservedBufferSlot = bufferInfo->buffer->reserve(totalSize, alignment);
     bufferInfo->offset = reservedBufferSlot.second;

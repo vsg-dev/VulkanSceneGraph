@@ -46,7 +46,7 @@ namespace vsg
 
         void compile(Context&) override {}
         void record(CommandBuffer& commandBuffer) const override;
-        void setScratchBuffer(ref_ptr<Buffer>& scratchBuffer);
+        void setScratchBuffer(ref_ptr<Buffer> scratchBuffer);
 
         ref_ptr<Device> _device;
         VkAccelerationStructureBuildGeometryInfoKHR _accelerationStructureInfo;

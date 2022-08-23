@@ -164,7 +164,7 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     _lineSegmentStack.push_back(LineSegment{world_near, world_far});
 }
 
-LineSegmentIntersector::Intersection::Intersection(dvec3 in_localIntersection, dvec3 in_worldIntersection, double in_ratio, dmat4 in_localToWorld, NodePath in_nodePath, DataList in_arrays, IndexRatios in_indexRatios, uint32_t in_instanceIndex) :
+LineSegmentIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex) :
     localIntersection(in_localIntersection),
     worldIntersection(in_worldIntersection),
     ratio(in_ratio),
@@ -217,9 +217,9 @@ bool LineSegmentIntersector::intersects(const dsphere& bs)
     //debug("intersects( center = ", bs.center, ", radius = ", bs.radius, ")");
     if (!bs.valid()) return false;
 
-    auto& lineSegment = _lineSegmentStack.back();
-    dvec3& start = lineSegment.start;
-    dvec3& end = lineSegment.end;
+    const auto& lineSegment = _lineSegmentStack.back();
+    const dvec3& start = lineSegment.start;
+    const dvec3& end = lineSegment.end;
 
     dvec3 sm = start - bs.center;
     double c = length2(sm) - bs.radius * bs.radius;

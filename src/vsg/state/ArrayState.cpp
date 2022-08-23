@@ -325,7 +325,7 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
         auto src_vertex_itr = vertices->begin();
         auto src_teccoord_itr = texcoords->begin();
         auto src_normal_itr = normals->begin();
-        vec2 tc_scale(static_cast<float>(displacementMap->width()) - 1.0f, static_cast<float>(displacementMap->height()) - 1.0f);
+        // vec2 tc_scale(static_cast<float>(displacementMap->width()) - 1.0f, static_cast<float>(displacementMap->height()) - 1.0f);
 
         // if no sampler is assigned fallback to use default constructed Sampler
         if (!sampler) sampler = Sampler::create();
@@ -400,7 +400,7 @@ ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint3
         auto src_vertex_itr = vertices->begin();
         auto src_teccoord_itr = texcoords->begin();
         auto src_normal_itr = normals->begin();
-        vec2 tc_scale(static_cast<float>(displacementMap->width()) - 1.0f, static_cast<float>(displacementMap->height()) - 1.0f);
+        //vec2 tc_scale(static_cast<float>(displacementMap->width()) - 1.0f, static_cast<float>(displacementMap->height()) - 1.0f);
 
         // if no sampler is assigned fallback to use default constructed Sampler
         if (!sampler) sampler = Sampler::create();

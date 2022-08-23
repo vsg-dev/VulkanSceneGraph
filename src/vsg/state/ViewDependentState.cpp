@@ -110,9 +110,9 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(uint32_t maxNumberLights)
+ViewDependentState::ViewDependentState(uint32_t maxNumberLights) :
+    lightData(vec4Array::create(maxNumberLights)) // spot light requires 3 vec4's per light
 {
-    lightData = vec4Array::create(maxNumberLights); // spot light requires 3 vec4's per light
 }
 
 ViewDependentState::~ViewDependentState()
@@ -167,8 +167,9 @@ void ViewDependentState::pack()
                           static_cast<float>(pointLights.size()),
                           static_cast<float>(spotLights.size()));
 
-    for (auto& [mv, light] : ambientLights)
+    for (auto& entry : ambientLights)
     {
+        auto light = entry.second;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
     }
 
