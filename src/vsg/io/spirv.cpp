@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 template<typename T>
-bool readFile(T& buffer, const std::string& filename)
+bool readFile(T& buffer, const vsg::Path& filename)
 {
     std::ifstream fin(filename, std::ios::ate | std::ios::binary);
     if (!fin.is_open()) return false;
