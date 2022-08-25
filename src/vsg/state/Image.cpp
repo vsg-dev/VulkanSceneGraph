@@ -74,8 +74,9 @@ Image::Image(ref_ptr<Data> in_data) :
             /* flags = VK_IMAGE_CREATE_1D_ARRAY_COMPATIBLE_BIT; // comment out as Vulkan headers don't yet provide this. */
             break;
         case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
-            imageType = VK_IMAGE_TYPE_3D;
-            flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+            // imageType = VK_IMAGE_TYPE_3D;
+            // flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+            imageType = VK_IMAGE_TYPE_2D;
             arrayLayers = depth;
             depth = 1;
             break;
