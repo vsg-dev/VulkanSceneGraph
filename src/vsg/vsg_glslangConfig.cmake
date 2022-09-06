@@ -1,8 +1,8 @@
 #.rst:
-# Findglslang
+# vsg_glslangConfig.cmake
 # ----------
 #
-# Try to find glslang in the VulkanSDK
+# Try to find glslang, SPIRV-Tools and SPIRV-Tools-opt in the VulkanSDK
 #
 # IMPORTED Targets
 # ^^^^^^^^^^^^^^^^
@@ -18,6 +18,10 @@
 #   glslang_FOUND          - True if glslang was found
 #   glslang_INCLUDE_DIRS   - include directories for glslang
 #   glslang_LIBRARIES      - link against this library to use glslang
+#
+#  In case SPIRV tools packages with cmake support files are installed,
+#  additional cmake variables are defined with the 'SPIRV-Tools*_' prefix.
+#  See the named packages for details.
 #
 # The module will also define two cache variables::
 #
@@ -44,6 +48,9 @@ if (DEFINED ENV{VULKAN_SDK})
         set(ADDITIONAL_PATHS_LIBS "$ENV{VULKAN_SDK}/lib")
     endif()
 endif()
+
+find_package(SPIRV-Tools)
+find_package(SPIRV-Tools-opt)
 
 find_path(glslang_INCLUDE_DIR
     NAMES glslang/Public/ShaderLang.h
