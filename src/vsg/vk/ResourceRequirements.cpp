@@ -12,12 +12,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/ResourceRequirements.h>
 
+#include <vsg/commands/BindIndexBuffer.h>
+#include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/viewer/View.h>
 #include <vsg/vk/RenderPass.h>
@@ -164,13 +168,39 @@ void CollectResourceRequirements::apply(const DescriptorSet& descriptorSet)
     }
 }
 
-void CollectResourceRequirements::apply(const Descriptor& descriptor)
+bool CollectResourceRequirements::registerDescriptor(const Descriptor& descriptor)
 {
     if (requirements.descriptors.count(&descriptor) == 0)
     {
         requirements.descriptors.insert(&descriptor);
+        return true;
     }
-    requirements.descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
+    else
+    {
+        return false;
+    }
+}
+
+void CollectResourceRequirements::apply(const Descriptor& descriptor)
+{
+    registerDescriptor(descriptor);
+}
+
+void CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer)
+{
+    if (registerDescriptor(descriptorBuffer))
+    {
+        //info("CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer) ", &descriptorBuffer);
+        for (auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
+    }
+}
+
+void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
+{
+    if (registerDescriptor(descriptorImage))
+    {
+        //info("CollectResourceRequirements::apply(const DescriptorImage& descriptorImage) ", &descriptorImage);
+    }
 }
 
 void CollectResourceRequirements::apply(const View& view)
@@ -216,4 +246,26 @@ void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
 void CollectResourceRequirements::apply(const Bin& bin)
 {
     requirements.binStack.top().bins.insert(&bin);
+}
+
+void CollectResourceRequirements::apply(const Geometry& geometry)
+{
+    for (auto& bufferInfo : geometry.arrays) apply(bufferInfo);
+    apply(geometry.indices);
+}
+
+void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
+{
+    for (auto& bufferInfo : vid.arrays) apply(bufferInfo);
+    apply(vid.indices);
+}
+
+void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
+{
+    for (auto& bufferInfo : bvb.arrays) apply(bufferInfo);
+}
+
+void CollectResourceRequirements::apply(const BindIndexBuffer& bib)
+{
+    apply(bib.indices);
 }

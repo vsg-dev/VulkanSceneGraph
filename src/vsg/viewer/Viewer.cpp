@@ -237,7 +237,11 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         for (auto& commandGraph : task->commandGraphs)
         {
             auto& deviceResources = deviceResourceMap[commandGraph->device];
+            auto& collectResources = deviceResources.collectResources;
+            auto& resourceRequirements = collectResources.requirements;
+
             commandGraph->accept(deviceResources.collectResources);
+            task->dynamicBufferInfos.insert(task->dynamicBufferInfos.end(), resourceRequirements.dynamicBufferInfos.begin(), resourceRequirements.dynamicBufferInfos.end());
         }
 
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
@@ -245,9 +249,9 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
     // allocate DescriptorPool for each Device
     ResourceRequirements::Views views;
-    for (auto& [device, deviceResource] : deviceResourceMap)
+    for (auto& [device, deviceResources] : deviceResourceMap)
     {
-        auto& collectResources = deviceResource.collectResources;
+        auto& collectResources = deviceResources.collectResources;
         auto& resourceRequirements = collectResources.requirements;
 
         if (hints) hints->accept(collectResources);
@@ -260,9 +264,9 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
-        deviceResource.compile = CompileTraversal::create(device, resourceRequirements);
+        deviceResources.compile = CompileTraversal::create(device, resourceRequirements);
 
-        for (auto& context : deviceResource.compile->contexts)
+        for (auto& context : deviceResources.compile->contexts)
         {
             context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
             context->graphicsQueue = device->getQueue(queueFamily);
@@ -398,6 +402,8 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         uint32_t numBuffers = 3;
 
         auto device = deviceQueueFamily.device;
+        uint32_t transferQueueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_TRANSFER_BIT);
+
         if (deviceQueueFamily.presentFamily >= 0)
         {
             // collate all the unique Windows associated with these commandGraphs
@@ -416,6 +422,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->windows = windows;
+            recordAndSubmitTask->transferQueue = device->getQueue(transferQueueFamily);
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
@@ -431,6 +438,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->transferQueue = device->getQueue(transferQueueFamily);
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
         }

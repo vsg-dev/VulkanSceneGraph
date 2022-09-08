@@ -28,40 +28,52 @@ namespace vsg
     class VSG_DECLSPEC RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
-        explicit RecordAndSubmitTask(Device* device, uint32_t numBuffers = 3);
+        explicit RecordAndSubmitTask(Device* in_device, uint32_t numBuffers = 3);
 
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
 
         virtual VkResult start();
         virtual VkResult record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp);
+        virtual VkResult transferDynamicData(); // called by RecordAndSubmitTask::record(..) to transfer dynamicBufferInfos entries to GPU
         virtual VkResult finish(CommandBuffers& recordedCommandBuffers);
 
+        ref_ptr<Device> device;
         Windows windows;
         Semaphores waitSemaphores;
-        CommandGraphs commandGraphs; // assign in application setup
-        Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
+        CommandGraphs commandGraphs;       // assign in application setup
+        Semaphores signalSemaphores;       // connect to Presentation.waitSemaphores
+        BufferInfoList dynamicBufferInfos; // BufferInfo with dynamic vsg::Data that need to be copied each frame
 
         /// advance the currentFrameIndex
         void advance();
 
         /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is previous frame etc.
-        size_t index(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
+        size_t index(size_t relativeFrameIndex = 0) const;
 
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
-        Fence* fence(size_t relativeFrameIndex = 0)
-        {
-            size_t i = index(relativeFrameIndex);
-            return i < _fences.size() ? _fences[i].get() : nullptr;
-        }
+        Fence* fence(size_t relativeFrameIndex = 0);
 
-        ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
+        ref_ptr<Queue> transferQueue;
+        ref_ptr<Queue> queue;
 
         ref_ptr<DatabasePager> databasePager;
 
     protected:
         size_t _currentFrameIndex;
+
         std::vector<size_t> _indices;
-        std::vector<ref_ptr<Fence>> _fences;
+
+        struct Frame
+        {
+            ref_ptr<Fence> fence;
+            ref_ptr<CommandBuffer> transferCommandBuffer;
+            ref_ptr<Semaphore> transferCompledSemaphore;
+            ref_ptr<Buffer> staging;
+            std::vector<VkBufferCopy> copyRegions;
+        };
+
+        std::vector<Frame> _frames;
+        ref_ptr<Semaphore> currentTransferCompletedSemaphore;
     };
     VSG_type_name(vsg::RecordAndSubmitTask);
 

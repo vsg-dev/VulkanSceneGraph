@@ -19,13 +19,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
+RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers) :
+    device(in_device)
 {
     _currentFrameIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
-        _fences.emplace_back(vsg::Fence::create(device));
         _indices.emplace_back(numBuffers); // numBuffers is used to signify unset value
+    }
+
+    _frames.resize(numBuffers);
+    for (uint32_t i = 0; i < numBuffers; ++i)
+    {
+        _frames[i].fence = vsg::Fence::create(device);
     }
 }
 
@@ -52,6 +58,18 @@ void RecordAndSubmitTask::advance()
     _indices[0] = _currentFrameIndex;
 }
 
+size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
+{
+    return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size();
+}
+
+/// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
+Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
+{
+    size_t i = index(relativeFrameIndex);
+    return i < _frames.size() ? _frames[i].fence.get() : nullptr;
+}
+
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CommandBuffers recordedCommandBuffers;
@@ -62,6 +80,8 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
 VkResult RecordAndSubmitTask::start()
 {
+    currentTransferCompletedSemaphore = {};
+
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {
@@ -78,6 +98,148 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
     for (auto& commandGraph : commandGraphs)
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+    }
+
+    if (VkResult result = transferDynamicData(); result != VK_SUCCESS) return result;
+
+    return VK_SUCCESS;
+}
+
+VkResult RecordAndSubmitTask::transferDynamicData()
+{
+    size_t frameIndex = index(0);
+    if (frameIndex < _frames.size() && !dynamicBufferInfos.empty())
+    {
+        uint32_t deviceID = device->deviceID;
+        auto& frame = _frames[frameIndex];
+        auto& staging = frame.staging;
+        auto& commandBuffer = frame.transferCommandBuffer;
+        auto& semaphore = frame.transferCompledSemaphore;
+        auto& copyRegions = frame.copyRegions;
+
+        //info("RecordAndSubmitTask::record() ", _currentFrameIndex, ", dynamicBufferInfos ", dynamicBufferInfos.size());
+        //info("   transferQueue = ", transferQueue);
+        //info("   queue = ", queue);
+        //info("   staging = ", staging);
+        //info("   copyRegions.size() = ", copyRegions.size());
+
+        if (!commandBuffer)
+        {
+            auto cp = CommandPool::create(device, transferQueue->queueFamilyIndex());
+            commandBuffer = cp->allocate(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+        }
+        else
+        {
+            commandBuffer->reset();
+        }
+
+        if (!semaphore)
+        {
+            semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_TRANSFER_BIT);
+        }
+
+        VkDeviceSize offset = 0;
+        VkDeviceSize alignment = 4;
+
+        // compute total size
+        for (auto& bufferInfo : dynamicBufferInfos)
+        {
+            VkDeviceSize endOfEntry = offset + bufferInfo->range;
+            offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+        }
+        VkDeviceSize totalSize = offset;
+
+        // allocate staging buffer if required
+        if (!staging || staging->size < totalSize)
+        {
+            VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            staging = vsg::createBufferAndMemory(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
+        }
+
+        //info("   totalSize = ", totalSize);
+
+        auto stagingMemory = staging->getDeviceMemory(deviceID);
+        void* buffer_data = nullptr;
+        VkResult result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
+        if (result != VK_SUCCESS) return result;
+
+        offset = 0;
+        copyRegions.clear();
+        copyRegions.resize(dynamicBufferInfos.size());
+        VkBufferCopy* pRegions = copyRegions.data();
+        uint32_t regionCount = 0;
+        Buffer* currentBuffer = nullptr;
+
+        VkCommandBufferBeginInfo beginInfo = {};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        beginInfo.pInheritanceInfo = nullptr;
+
+        VkCommandBuffer vk_commandBuffer = *commandBuffer;
+        vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
+
+        for (auto& bufferInfo : dynamicBufferInfos)
+        {
+            if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            {
+                if (!currentBuffer)
+                {
+                    currentBuffer = bufferInfo->buffer.get();
+                }
+                else if ((bufferInfo->buffer.get() != currentBuffer))
+                {
+                    vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), currentBuffer->vk(deviceID), regionCount, pRegions);
+                    //info("   A vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+
+                    // advance to next buffer
+                    pRegions += regionCount;
+                    regionCount = 0;
+                    currentBuffer = bufferInfo->buffer.get();
+                }
+
+                // copy data to staging buffer memory
+                char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
+                std::memcpy(ptr, bufferInfo->data->dataPointer(), bufferInfo->range);
+
+                // record region
+                pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
+
+                // info("       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
+
+                VkDeviceSize endOfEntry = offset + bufferInfo->range;
+                offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+            }
+        }
+
+        if (currentBuffer)
+        {
+            vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), currentBuffer->vk(deviceID), regionCount, pRegions);
+            // info("   B vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+        }
+
+        vkEndCommandBuffer(vk_commandBuffer);
+
+        stagingMemory->unmap();
+
+        // submit the transfer commands
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        submitInfo.waitSemaphoreCount = 0;
+        submitInfo.pWaitSemaphores = nullptr;
+        submitInfo.pWaitDstStageMask = nullptr;
+
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &vk_commandBuffer;
+
+        submitInfo.signalSemaphoreCount = 1;
+        VkSemaphore vk_transferCompletedSemaphore = *semaphore;
+        submitInfo.pSignalSemaphores = &vk_transferCompletedSemaphore;
+
+        result = transferQueue->submit(submitInfo);
+        if (result != VK_SUCCESS) return result;
+
+        currentTransferCompletedSemaphore = semaphore;
     }
     return VK_SUCCESS;
 }
@@ -108,6 +270,12 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     }
 
     current_fence->dependentSemaphores() = signalSemaphores;
+
+    if (currentTransferCompletedSemaphore)
+    {
+        vk_waitSemaphores.emplace_back(*currentTransferCompletedSemaphore);
+        vk_waitStages.emplace_back(currentTransferCompletedSemaphore->pipelineStageFlags());
+    }
 
     for (auto& window : windows)
     {
@@ -144,32 +312,24 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
-#if 0
-    debug("pdo.graphicsQueue->submit(..) current_fence = ", current_fence);
-    debug("    submitInfo.waitSemaphoreCount = ", submitInfo.waitSemaphoreCount);
-    for (uint32_t i = 0; i < submitInfo.waitSemaphoreCount; ++i)
-    {
-        debug("        submitInfo.pWaitSemaphores[", i, "] = ", submitInfo.pWaitSemaphores[i]);
-        debug("        submitInfo.pWaitDstStageMask[", i, "] = ", submitInfo.pWaitDstStageMask[i]);
-    }
-    debug("    submitInfo.commandBufferCount = ", submitInfo.commandBufferCount);
-    for (uint32_t i = 0; i < submitInfo.commandBufferCount; ++i)
-    {
-        debug("        submitInfo.pCommandBuffers[", i, "] = ", submitInfo.pCommandBuffers[i]);
-    }
-    debug("    submitInfo.signalSemaphoreCount = ", submitInfo.signalSemaphoreCount);
-    for (uint32_t i = 0; i < submitInfo.signalSemaphoreCount; ++i)
-    {
-        debug("        submitInfo.pSignalSemaphores[", i, "] = ", submitInfo.pSignalSemaphores[i]);
-    }
-    debug('\n');
-#endif
-
     return queue->submit(submitInfo, current_fence);
 }
 
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
+    //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ", compileResult.dynamicBufferInfos.size());
+    if (!compileResult.dynamicBufferInfos.empty())
+    {
+        //for(auto& bufferInfo : compileResult.dynamicBufferInfos)
+        //{
+        //    info("    ", bufferInfo, ", ", bufferInfo->data);
+        //}
+        for (auto& task : tasks)
+        {
+            task->dynamicBufferInfos.insert(task->dynamicBufferInfos.end(), compileResult.dynamicBufferInfos.begin(), compileResult.dynamicBufferInfos.end());
+        }
+    }
+
     // assign database pager if required
     for (auto& task : tasks)
     {

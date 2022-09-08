@@ -140,6 +140,7 @@ void DescriptorBuffer::compile(Context& context)
                 {
                     totalSize = offset + bufferInfo->data->dataSize();
                     offset = (alignment == 1 || (totalSize % alignment) == 0) ? totalSize : ((totalSize / alignment) + 1) * alignment;
+                    if (bufferInfo->data->getLayout().dynamic) bufferUsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
                 }
             }
         }

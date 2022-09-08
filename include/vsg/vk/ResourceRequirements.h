@@ -49,6 +49,8 @@ namespace vsg
         using Views = std::map<const View*, BinDetails>;
         using BinStack = std::stack<BinDetails>;
 
+        BufferInfoList dynamicBufferInfos;
+
         Descriptors descriptors;
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
@@ -85,13 +87,29 @@ namespace vsg
         void apply(const StateCommand& stateCommand) override;
         void apply(const DescriptorSet& descriptorSet) override;
         void apply(const Descriptor& descriptor) override;
+        void apply(const DescriptorBuffer& descriptorBuffer) override;
+        void apply(const DescriptorImage& descriptorImage) override;
         void apply(const PagedLOD& plod) override;
         void apply(const View& view) override;
         void apply(const DepthSorted& depthSorted) override;
         void apply(const Bin& bin) override;
+        void apply(const Geometry& geometry) override;
+        void apply(const VertexIndexDraw& vid) override;
+        void apply(const BindVertexBuffers& bvb) override;
+        void apply(const BindIndexBuffer& bib) override;
+
+        inline void apply(ref_ptr<BufferInfo> bufferInfo)
+        {
+            if (bufferInfo && bufferInfo->data && bufferInfo->data->getLayout().dynamic)
+            {
+                requirements.dynamicBufferInfos.push_back(bufferInfo);
+            }
+        }
 
     protected:
         uint32_t _numResourceHintsAbove = 0;
+
+        bool registerDescriptor(const Descriptor& descriptor);
     };
     VSG_type_name(vsg::CollectResourceRequirements);
 
