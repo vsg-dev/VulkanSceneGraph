@@ -173,6 +173,7 @@ bool CollectResourceRequirements::registerDescriptor(const Descriptor& descripto
     if (requirements.descriptors.count(&descriptor) == 0)
     {
         requirements.descriptors.insert(&descriptor);
+        requirements.descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
         return true;
     }
     else
