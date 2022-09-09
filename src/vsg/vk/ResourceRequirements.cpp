@@ -170,10 +170,11 @@ void CollectResourceRequirements::apply(const DescriptorSet& descriptorSet)
 
 bool CollectResourceRequirements::registerDescriptor(const Descriptor& descriptor)
 {
+    requirements.descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
+
     if (requirements.descriptors.count(&descriptor) == 0)
     {
         requirements.descriptors.insert(&descriptor);
-        requirements.descriptorTypeMap[descriptor.descriptorType] += descriptor.getNumDescriptors();
         return true;
     }
     else
