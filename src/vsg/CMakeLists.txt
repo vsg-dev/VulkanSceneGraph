@@ -303,6 +303,23 @@ if (glslang_FOUND)
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_EShLangRayGenNV")
     endif()
 
+    if (NOT DEFINED GLSLANG_ResourceLimits_maxMeshViewCountEXT)
+        check_cxx_source_compiles("
+            #include <glslang/Include/ResourceLimits.h>
+
+            int main()
+            {
+                TBuiltInResource resource;
+                resource.maxMeshViewCountEXT = 0;
+                return 0;
+            }
+        " GLSLANG_ResourceLimits_maxMeshViewCountEXT)
+    endif()
+
+    if (GLSLANG_ResourceLimits_maxMeshViewCountEXT)
+        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxMeshViewCountEXT")
+    endif()
+
     install(
         FILES vsg_glslangConfig.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg_glslang
