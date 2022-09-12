@@ -269,6 +269,10 @@ if (glslang_FOUND)
         " GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
     endif()
 
+    if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT")
+    endif()
+
     if (NOT GLSLANG_EShLanguage_EShLangRayGen)
         check_cxx_source_compiles("
             #include <glslang/Public/ShaderLang.h>
@@ -297,11 +301,6 @@ if (glslang_FOUND)
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_EShLangRayGen")
     elseif (GLSLANG_EShLanguage_EShLangRayGenNV)
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_EShLangRayGenNV")
-    endif()
-
-    # check whether glslang/build_info.h exists
-    if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
-        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT")
     endif()
 
     install(
