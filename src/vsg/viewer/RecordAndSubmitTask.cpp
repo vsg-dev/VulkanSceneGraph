@@ -107,6 +107,9 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
 
 VkResult RecordAndSubmitTask::transferDynamicData()
 {
+    Logger::Level level = Logger::LOGGER_DEBUG;
+    //level = Logger::LOGGER_INFO;
+
     size_t frameIndex = index(0);
     if (frameIndex < _frames.size() && !dynamicBufferInfos.empty())
     {
@@ -117,11 +120,11 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         auto& semaphore = frame.transferCompledSemaphore;
         auto& copyRegions = frame.copyRegions;
 
-        //info("RecordAndSubmitTask::record() ", _currentFrameIndex, ", dynamicBufferInfos ", dynamicBufferInfos.size());
-        //info("   transferQueue = ", transferQueue);
-        //info("   queue = ", queue);
-        //info("   staging = ", staging);
-        //info("   copyRegions.size() = ", copyRegions.size());
+        log(level, "RecordAndSubmitTask::record() ", _currentFrameIndex, ", dynamicBufferInfos ", dynamicBufferInfos.size());
+        log(level, "   transferQueue = ", transferQueue);
+        log(level, "   queue = ", queue);
+        log(level, "   staging = ", staging);
+        log(level, "   copyRegions.size() = ", copyRegions.size());
 
         if (!commandBuffer)
         {
@@ -156,7 +159,7 @@ VkResult RecordAndSubmitTask::transferDynamicData()
             staging = vsg::createBufferAndMemory(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
         }
 
-        //info("   totalSize = ", totalSize);
+        log(level, "   totalSize = ", totalSize);
 
         auto stagingMemory = staging->getDeviceMemory(deviceID);
         void* buffer_data = nullptr;
@@ -189,7 +192,7 @@ VkResult RecordAndSubmitTask::transferDynamicData()
                 else if ((bufferInfo->buffer.get() != currentBuffer))
                 {
                     vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), currentBuffer->vk(deviceID), regionCount, pRegions);
-                    //info("   A vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+                    log(level, "   A vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
 
                     // advance to next buffer
                     pRegions += regionCount;
@@ -204,7 +207,7 @@ VkResult RecordAndSubmitTask::transferDynamicData()
                 // record region
                 pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
 
-                // info("       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
+                log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
 
                 VkDeviceSize endOfEntry = offset + bufferInfo->range;
                 offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
@@ -214,7 +217,7 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         if (currentBuffer)
         {
             vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), currentBuffer->vk(deviceID), regionCount, pRegions);
-            // info("   B vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+            log(level, "   B vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
         }
 
         vkEndCommandBuffer(vk_commandBuffer);
