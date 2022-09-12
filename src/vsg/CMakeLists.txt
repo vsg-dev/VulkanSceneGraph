@@ -257,7 +257,7 @@ if (glslang_FOUND)
     set(CMAKE_REQUIRED_INCLUDES ${glslang_INCLUDE_DIR})
 
     if (NOT GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
-        check_cxx_source_runs("
+        check_cxx_source_compiles("
             #include <glslang/Include/ResourceLimits.h>
 
             int main()
@@ -270,7 +270,7 @@ if (glslang_FOUND)
     endif()
 
     if (NOT GLSLANG_EShLanguage_EShLangRayGen)
-        check_cxx_source_runs("
+        check_cxx_source_compiles("
             #include <glslang/Public/ShaderLang.h>
 
             int main()
@@ -282,7 +282,7 @@ if (glslang_FOUND)
     endif()
 
     if (NOT GLSLANG_EShLanguage_EShLangRayGenNV)
-        check_cxx_source_runs("
+        check_cxx_source_compiles("
             #include <glslang/Public/ShaderLang.h>
 
             int main()
