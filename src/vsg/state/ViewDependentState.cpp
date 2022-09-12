@@ -131,9 +131,7 @@ ViewDependentState::~ViewDependentState()
 
 void ViewDependentState::compile(Context& context)
 {
-    info("ViewDependentState::compile()");
-
-    descriptorSetLayout->compile(context);
+    //info("ViewDependentState::compile()");
     lightDescriptorSet->compile(context);
 }
 
