@@ -42,7 +42,7 @@ namespace vsg
         Semaphores waitSemaphores;
         CommandGraphs commandGraphs;       // assign in application setup
         Semaphores signalSemaphores;       // connect to Presentation.waitSemaphores
-        BufferInfoList dynamicBufferInfos; // BufferInfo with dynamic vsg::Data that need to be copied each frame
+
 
         /// advance the currentFrameIndex
         void advance();
@@ -53,14 +53,23 @@ namespace vsg
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
         Fence* fence(size_t relativeFrameIndex = 0);
 
+        void assignDynamicBufferInfos(const BufferInfoList& bufferInfoList);
+
         ref_ptr<Queue> transferQueue;
         ref_ptr<Queue> queue;
 
         ref_ptr<DatabasePager> databasePager;
 
     protected:
-        size_t _currentFrameIndex;
 
+        using OffsetBufferInfoMap = std::map<uint32_t, ref_ptr<BufferInfo>>;
+        using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
+
+        VkDeviceSize _dynamicDataTotalRegions = 0;
+        VkDeviceSize _dynamicDataTotalSize = 0;
+        BufferMap _dynamicDataMap;
+
+        size_t _currentFrameIndex;
         std::vector<size_t> _indices;
 
         struct Frame

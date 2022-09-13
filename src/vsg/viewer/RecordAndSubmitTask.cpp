@@ -105,13 +105,38 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
     return VK_SUCCESS;
 }
 
+void RecordAndSubmitTask::assignDynamicBufferInfos(const BufferInfoList& bufferInfoList)
+{
+    for (auto& bufferInfo : bufferInfoList)
+    {
+        _dynamicDataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+    }
+
+    // compute total size
+    VkDeviceSize offset = 0;
+    VkDeviceSize alignment = 4;
+
+    _dynamicDataTotalRegions = 0;
+    for(auto& [buffer, bufferInfos] : _dynamicDataMap)
+    {
+        for(auto& offset_bufferInfo : bufferInfos)
+        {
+            auto& bufferInfo = offset_bufferInfo.second;
+            VkDeviceSize endOfEntry = offset + bufferInfo->range;
+            offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+            ++_dynamicDataTotalRegions;
+        }
+    }
+    _dynamicDataTotalSize = offset;
+}
+
 VkResult RecordAndSubmitTask::transferDynamicData()
 {
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
 
     size_t frameIndex = index(0);
-    if (frameIndex < _frames.size() && !dynamicBufferInfos.empty())
+    if (frameIndex < _frames.size() && !_dynamicDataMap.empty())
     {
         uint32_t deviceID = device->deviceID;
         auto& frame = _frames[frameIndex];
@@ -120,7 +145,7 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         auto& semaphore = frame.transferCompledSemaphore;
         auto& copyRegions = frame.copyRegions;
 
-        log(level, "RecordAndSubmitTask::record() ", _currentFrameIndex, ", dynamicBufferInfos ", dynamicBufferInfos.size());
+        log(level, "RecordAndSubmitTask::record() ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
         log(level, "   transferQueue = ", transferQueue);
         log(level, "   queue = ", queue);
         log(level, "   staging = ", staging);
@@ -141,37 +166,26 @@ VkResult RecordAndSubmitTask::transferDynamicData()
             semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_TRANSFER_BIT);
         }
 
-        VkDeviceSize offset = 0;
-        VkDeviceSize alignment = 4;
-
-        // compute total size
-        for (auto& bufferInfo : dynamicBufferInfos)
-        {
-            VkDeviceSize endOfEntry = offset + bufferInfo->range;
-            offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-        }
-        VkDeviceSize totalSize = offset;
-
         // allocate staging buffer if required
-        if (!staging || staging->size < totalSize)
+        if (!staging || staging->size < _dynamicDataTotalSize)
         {
             VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-            staging = vsg::createBufferAndMemory(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
+            staging = vsg::createBufferAndMemory(device, _dynamicDataTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
         }
 
-        log(level, "   totalSize = ", totalSize);
+        log(level, "   totalSize = ", _dynamicDataTotalSize);
 
         auto stagingMemory = staging->getDeviceMemory(deviceID);
         void* buffer_data = nullptr;
         VkResult result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
         if (result != VK_SUCCESS) return result;
 
-        offset = 0;
+        VkDeviceSize offset = 0;
+        VkDeviceSize alignment = 4;
+
         copyRegions.clear();
-        copyRegions.resize(dynamicBufferInfos.size());
+        copyRegions.resize(_dynamicDataTotalRegions);
         VkBufferCopy* pRegions = copyRegions.data();
-        uint32_t regionCount = 0;
-        Buffer* currentBuffer = nullptr;
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -181,43 +195,33 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         VkCommandBuffer vk_commandBuffer = *commandBuffer;
         vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-        for (auto& bufferInfo : dynamicBufferInfos)
+        for(auto& [buffer, bufferInfos] : _dynamicDataMap)
         {
-            if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            uint32_t regionCount = 0;
+            for(auto& offset_bufferInfo : bufferInfos)
             {
-                if (!currentBuffer)
+                auto& bufferInfo = offset_bufferInfo.second;
+                if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
                 {
-                    currentBuffer = bufferInfo->buffer.get();
+                    // copy data to staging buffer memory
+                    char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
+                    std::memcpy(ptr, bufferInfo->data->dataPointer(), bufferInfo->range);
+
+                    // record region
+                    pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
+
+                    log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
+
+                    VkDeviceSize endOfEntry = offset + bufferInfo->range;
+                    offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
                 }
-                else if ((bufferInfo->buffer.get() != currentBuffer))
-                {
-                    vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), currentBuffer->vk(deviceID), regionCount, pRegions);
-                    log(level, "   A vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
 
-                    // advance to next buffer
-                    pRegions += regionCount;
-                    regionCount = 0;
-                    currentBuffer = bufferInfo->buffer.get();
-                }
-
-                // copy data to staging buffer memory
-                char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
-                std::memcpy(ptr, bufferInfo->data->dataPointer(), bufferInfo->range);
-
-                // record region
-                pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
-
-                log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
-
-                VkDeviceSize endOfEntry = offset + bufferInfo->range;
-                offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
             }
-        }
+            vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
+            log(level, "   vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
 
-        if (currentBuffer)
-        {
-            vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), currentBuffer->vk(deviceID), regionCount, pRegions);
-            log(level, "   B vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", currentBuffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+            // advance to next buffer
+            pRegions += regionCount;
         }
 
         vkEndCommandBuffer(vk_commandBuffer);
@@ -329,7 +333,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         //}
         for (auto& task : tasks)
         {
-            task->dynamicBufferInfos.insert(task->dynamicBufferInfos.end(), compileResult.dynamicBufferInfos.begin(), compileResult.dynamicBufferInfos.end());
+            task->assignDynamicBufferInfos(compileResult.dynamicBufferInfos);
         }
     }
 

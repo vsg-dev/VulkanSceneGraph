@@ -234,14 +234,11 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     DeviceResourceMap deviceResourceMap;
     for (auto& task : recordAndSubmitTasks)
     {
+        auto& collectResources = deviceResourceMap[task->device].collectResources;
         for (auto& commandGraph : task->commandGraphs)
         {
-            auto& deviceResources = deviceResourceMap[commandGraph->device];
-            auto& collectResources = deviceResources.collectResources;
-            auto& resourceRequirements = collectResources.requirements;
 
-            commandGraph->accept(deviceResources.collectResources);
-            task->dynamicBufferInfos.insert(task->dynamicBufferInfos.end(), resourceRequirements.dynamicBufferInfos.begin(), resourceRequirements.dynamicBufferInfos.end());
+            commandGraph->accept(collectResources);
         }
 
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
@@ -302,16 +299,13 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     // create the Vulkan objects
     for (auto& task : recordAndSubmitTasks)
     {
-        std::set<Device*> devices;
+        auto& deviceResource = deviceResourceMap[task->device];
+        auto& resourceRequirements = deviceResource.collectResources.requirements;
 
         bool task_containsPagedLOD = false;
 
         for (auto& commandGraph : task->commandGraphs)
         {
-            if (commandGraph->device) devices.insert(commandGraph->device);
-
-            auto& deviceResource = deviceResourceMap[commandGraph->device];
-            auto& resourceRequirements = deviceResource.collectResources.requirements;
             commandGraph->maxSlot = resourceRequirements.maxSlot;
             commandGraph->accept(*deviceResource.compile);
 
@@ -327,6 +321,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         {
             task->databasePager->compileManager = compileManager;
         }
+
+        task->assignDynamicBufferInfos(resourceRequirements.dynamicBufferInfos);
     }
 
     // record any transfer commands
