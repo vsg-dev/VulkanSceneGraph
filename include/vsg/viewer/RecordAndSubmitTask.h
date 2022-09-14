@@ -78,6 +78,7 @@ namespace vsg
             ref_ptr<CommandBuffer> transferCommandBuffer;
             ref_ptr<Semaphore> transferCompledSemaphore;
             ref_ptr<Buffer> staging;
+            void* buffer_data = nullptr;
             std::vector<VkBufferCopy> copyRegions;
         };
 

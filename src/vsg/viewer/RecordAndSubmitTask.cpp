@@ -144,6 +144,7 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         auto& commandBuffer = frame.transferCommandBuffer;
         auto& semaphore = frame.transferCompledSemaphore;
         auto& copyRegions = frame.copyRegions;
+        auto& buffer_data = frame.buffer_data;
 
         log(level, "RecordAndSubmitTask::record() ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
         log(level, "   transferQueue = ", transferQueue);
@@ -166,19 +167,21 @@ VkResult RecordAndSubmitTask::transferDynamicData()
             semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_TRANSFER_BIT);
         }
 
+        VkResult result = VK_SUCCESS;
+
         // allocate staging buffer if required
         if (!staging || staging->size < _dynamicDataTotalSize)
         {
             VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
             staging = vsg::createBufferAndMemory(device, _dynamicDataTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
+
+            auto stagingMemory = staging->getDeviceMemory(deviceID);
+            buffer_data = nullptr;
+            result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
+            if (result != VK_SUCCESS) return result;
         }
 
         log(level, "   totalSize = ", _dynamicDataTotalSize);
-
-        auto stagingMemory = staging->getDeviceMemory(deviceID);
-        void* buffer_data = nullptr;
-        VkResult result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
-        if (result != VK_SUCCESS) return result;
 
         VkDeviceSize offset = 0;
         VkDeviceSize alignment = 4;
@@ -225,8 +228,6 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         }
 
         vkEndCommandBuffer(vk_commandBuffer);
-
-        stagingMemory->unmap();
 
         // submit the transfer commands
         VkSubmitInfo submitInfo = {};
