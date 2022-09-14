@@ -198,56 +198,89 @@ VkResult RecordAndSubmitTask::transferDynamicData()
         VkCommandBuffer vk_commandBuffer = *commandBuffer;
         vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-        for(auto& [buffer, bufferInfos] : _dynamicDataMap)
+        for(auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
         {
+            auto& buffer = buffer_itr->first;
+            auto& bufferInfos = buffer_itr->second;
+
             uint32_t regionCount = 0;
-            for(auto& offset_bufferInfo : bufferInfos)
+            for(auto bufferInfo_itr = bufferInfos.begin(); bufferInfo_itr != bufferInfos.end();)
             {
-                auto& bufferInfo = offset_bufferInfo.second;
-                if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+                auto& bufferInfo = bufferInfo_itr->second;
+                if (bufferInfo->referenceCount()==1)
                 {
-                    // copy data to staging buffer memory
-                    char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
-                    std::memcpy(ptr, bufferInfo->data->dataPointer(), bufferInfo->range);
-
-                    // record region
-                    pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
-
-                    log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
-
-                    VkDeviceSize endOfEntry = offset + bufferInfo->range;
-                    offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+                    log(level, "BufferInfo only ref left ", bufferInfo, ", ", bufferInfo->referenceCount());
+                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
                 }
+                else
+                {
+                    if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+                    {
+                        // copy data to staging buffer memory
+                        char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
+                        std::memcpy(ptr, bufferInfo->data->dataPointer(), bufferInfo->range);
 
+                        // record region
+                        pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
+
+                        log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
+
+                        VkDeviceSize endOfEntry = offset + bufferInfo->range;
+                        offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+                    }
+                    ++bufferInfo_itr;
+                }
             }
-            vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
-            log(level, "   vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
 
-            // advance to next buffer
-            pRegions += regionCount;
+            if (regionCount > 0)
+            {
+                vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
+                log(level, "   vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+
+                // advance to next buffer
+                pRegions += regionCount;
+            }
+
+            if (bufferInfos.empty())
+            {
+                log(level, "bufferInfos.empty()");
+                buffer_itr = _dynamicDataMap.erase(buffer_itr);
+            }
+            else
+            {
+                ++buffer_itr;
+            }
         }
 
         vkEndCommandBuffer(vk_commandBuffer);
 
-        // submit the transfer commands
-        VkSubmitInfo submitInfo = {};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        // if no regions to copy have been found then commandBuffer will be empty so no need to submit it to queue and use the assocaited single semaphore
+        if (pRegions != copyRegions.data())
+        {
+            // submit the transfer commands
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = nullptr;
-        submitInfo.pWaitDstStageMask = nullptr;
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = nullptr;
+            submitInfo.pWaitDstStageMask = nullptr;
 
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &vk_commandBuffer;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &vk_commandBuffer;
 
-        submitInfo.signalSemaphoreCount = 1;
-        VkSemaphore vk_transferCompletedSemaphore = *semaphore;
-        submitInfo.pSignalSemaphores = &vk_transferCompletedSemaphore;
+            submitInfo.signalSemaphoreCount = 1;
+            VkSemaphore vk_transferCompletedSemaphore = *semaphore;
+            submitInfo.pSignalSemaphores = &vk_transferCompletedSemaphore;
 
-        result = transferQueue->submit(submitInfo);
-        if (result != VK_SUCCESS) return result;
+            result = transferQueue->submit(submitInfo);
+            if (result != VK_SUCCESS) return result;
 
-        currentTransferCompletedSemaphore = semaphore;
+            currentTransferCompletedSemaphore = semaphore;
+        }
+        else
+        {
+            log(level, "Nothing to submit");
+        }
     }
     return VK_SUCCESS;
 }
