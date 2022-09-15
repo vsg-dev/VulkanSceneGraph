@@ -322,7 +322,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             task->databasePager->compileManager = compileManager;
         }
 
-        task->assignDynamicBufferInfos(resourceRequirements.dynamicBufferInfos);
+        if (task->transferTask)
+        {
+            task->transferTask->assignDynamicBufferInfos(resourceRequirements.dynamicBufferInfos);
+        }
     }
 
     // record any transfer commands
@@ -418,9 +421,10 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->windows = windows;
-            recordAndSubmitTask->transferQueue = device->getQueue(transferQueueFamily);
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+
+            recordAndSubmitTask->transferTask->transferQueue = device->getQueue(transferQueueFamily);
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
@@ -434,9 +438,10 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
-            recordAndSubmitTask->transferQueue = device->getQueue(transferQueueFamily);
             recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
+
+            recordAndSubmitTask->transferTask->transferQueue = device->getQueue(transferQueueFamily);
         }
     }
 }

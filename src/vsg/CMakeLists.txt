@@ -159,6 +159,7 @@ set(SOURCES
     viewer/RenderGraph.cpp
     viewer/Presentation.cpp
     viewer/RecordAndSubmitTask.cpp
+    viewer/TransferTask.cpp
     viewer/WindowResizeHandler.cpp
     viewer/View.cpp
     viewer/ViewMatrix.cpp

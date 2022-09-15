@@ -33,6 +33,8 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
     {
         _frames[i].fence = vsg::Fence::create(device);
     }
+
+    transferTask = vsg::TransferTask::create(in_device, numBuffers);
 }
 
 void RecordAndSubmitTask::advance()
@@ -56,6 +58,12 @@ void RecordAndSubmitTask::advance()
 
     // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
+
+
+    if (transferTask)
+    {
+        transferTask->advance();
+    }
 }
 
 size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
@@ -80,7 +88,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
 VkResult RecordAndSubmitTask::start()
 {
-    currentTransferCompletedSemaphore = {};
+    if (transferTask) transferTask->currentTransferCompletedSemaphore = {};
 
     auto current_fence = fence();
     if (current_fence->hasDependencies())
@@ -100,188 +108,11 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
     }
 
-    if (VkResult result = transferDynamicData(); result != VK_SUCCESS) return result;
-
-    return VK_SUCCESS;
-}
-
-void RecordAndSubmitTask::assignDynamicBufferInfos(const BufferInfoList& bufferInfoList)
-{
-    for (auto& bufferInfo : bufferInfoList)
+    if (transferTask)
     {
-        _dynamicDataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+        if (VkResult result = transferTask->transferDynamicData(); result != VK_SUCCESS) return result;
     }
 
-    // compute total size
-    VkDeviceSize offset = 0;
-    VkDeviceSize alignment = 4;
-
-    _dynamicDataTotalRegions = 0;
-    for(auto& [buffer, bufferInfos] : _dynamicDataMap)
-    {
-        for(auto& offset_bufferInfo : bufferInfos)
-        {
-            auto& bufferInfo = offset_bufferInfo.second;
-            VkDeviceSize endOfEntry = offset + bufferInfo->range;
-            offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            ++_dynamicDataTotalRegions;
-        }
-    }
-    _dynamicDataTotalSize = offset;
-}
-
-VkResult RecordAndSubmitTask::transferDynamicData()
-{
-    Logger::Level level = Logger::LOGGER_DEBUG;
-    //level = Logger::LOGGER_INFO;
-
-    size_t frameIndex = index(0);
-    if (frameIndex < _frames.size() && !_dynamicDataMap.empty())
-    {
-        uint32_t deviceID = device->deviceID;
-        auto& frame = _frames[frameIndex];
-        auto& staging = frame.staging;
-        auto& commandBuffer = frame.transferCommandBuffer;
-        auto& semaphore = frame.transferCompledSemaphore;
-        auto& copyRegions = frame.copyRegions;
-        auto& buffer_data = frame.buffer_data;
-
-        log(level, "RecordAndSubmitTask::record() ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
-        log(level, "   transferQueue = ", transferQueue);
-        log(level, "   queue = ", queue);
-        log(level, "   staging = ", staging);
-        log(level, "   copyRegions.size() = ", copyRegions.size());
-
-        if (!commandBuffer)
-        {
-            auto cp = CommandPool::create(device, transferQueue->queueFamilyIndex());
-            commandBuffer = cp->allocate(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-        }
-        else
-        {
-            commandBuffer->reset();
-        }
-
-        if (!semaphore)
-        {
-            semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_TRANSFER_BIT);
-        }
-
-        VkResult result = VK_SUCCESS;
-
-        // allocate staging buffer if required
-        if (!staging || staging->size < _dynamicDataTotalSize)
-        {
-            VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-            staging = vsg::createBufferAndMemory(device, _dynamicDataTotalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
-
-            auto stagingMemory = staging->getDeviceMemory(deviceID);
-            buffer_data = nullptr;
-            result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
-            if (result != VK_SUCCESS) return result;
-        }
-
-        log(level, "   totalSize = ", _dynamicDataTotalSize);
-
-        VkDeviceSize offset = 0;
-        VkDeviceSize alignment = 4;
-
-        copyRegions.clear();
-        copyRegions.resize(_dynamicDataTotalRegions);
-        VkBufferCopy* pRegions = copyRegions.data();
-
-        VkCommandBufferBeginInfo beginInfo = {};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        beginInfo.pInheritanceInfo = nullptr;
-
-        VkCommandBuffer vk_commandBuffer = *commandBuffer;
-        vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
-
-        for(auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
-        {
-            auto& buffer = buffer_itr->first;
-            auto& bufferInfos = buffer_itr->second;
-
-            uint32_t regionCount = 0;
-            for(auto bufferInfo_itr = bufferInfos.begin(); bufferInfo_itr != bufferInfos.end();)
-            {
-                auto& bufferInfo = bufferInfo_itr->second;
-                if (bufferInfo->referenceCount()==1)
-                {
-                    log(level, "BufferInfo only ref left ", bufferInfo, ", ", bufferInfo->referenceCount());
-                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
-                }
-                else
-                {
-                    if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
-                    {
-                        // copy data to staging buffer memory
-                        char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
-                        std::memcpy(ptr, bufferInfo->data->dataPointer(), bufferInfo->range);
-
-                        // record region
-                        pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
-
-                        log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
-
-                        VkDeviceSize endOfEntry = offset + bufferInfo->range;
-                        offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-                    }
-                    ++bufferInfo_itr;
-                }
-            }
-
-            if (regionCount > 0)
-            {
-                vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
-                log(level, "   vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
-
-                // advance to next buffer
-                pRegions += regionCount;
-            }
-
-            if (bufferInfos.empty())
-            {
-                log(level, "bufferInfos.empty()");
-                buffer_itr = _dynamicDataMap.erase(buffer_itr);
-            }
-            else
-            {
-                ++buffer_itr;
-            }
-        }
-
-        vkEndCommandBuffer(vk_commandBuffer);
-
-        // if no regions to copy have been found then commandBuffer will be empty so no need to submit it to queue and use the assocaited single semaphore
-        if (pRegions != copyRegions.data())
-        {
-            // submit the transfer commands
-            VkSubmitInfo submitInfo = {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-            submitInfo.waitSemaphoreCount = 0;
-            submitInfo.pWaitSemaphores = nullptr;
-            submitInfo.pWaitDstStageMask = nullptr;
-
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &vk_commandBuffer;
-
-            submitInfo.signalSemaphoreCount = 1;
-            VkSemaphore vk_transferCompletedSemaphore = *semaphore;
-            submitInfo.pSignalSemaphores = &vk_transferCompletedSemaphore;
-
-            result = transferQueue->submit(submitInfo);
-            if (result != VK_SUCCESS) return result;
-
-            currentTransferCompletedSemaphore = semaphore;
-        }
-        else
-        {
-            log(level, "Nothing to submit");
-        }
-    }
     return VK_SUCCESS;
 }
 
@@ -312,10 +143,10 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 
     current_fence->dependentSemaphores() = signalSemaphores;
 
-    if (currentTransferCompletedSemaphore)
+    if (transferTask && transferTask->currentTransferCompletedSemaphore)
     {
-        vk_waitSemaphores.emplace_back(*currentTransferCompletedSemaphore);
-        vk_waitStages.emplace_back(currentTransferCompletedSemaphore->pipelineStageFlags());
+        vk_waitSemaphores.emplace_back(*transferTask->currentTransferCompletedSemaphore);
+        vk_waitStages.emplace_back(transferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
     }
 
     for (auto& window : windows)
@@ -356,6 +187,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     return queue->submit(submitInfo, current_fence);
 }
 
+
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ", compileResult.dynamicBufferInfos.size());
@@ -367,7 +199,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         //}
         for (auto& task : tasks)
         {
-            task->assignDynamicBufferInfos(compileResult.dynamicBufferInfos);
+            if (task->transferTask) task->transferTask->assignDynamicBufferInfos(compileResult.dynamicBufferInfos);
         }
     }
 

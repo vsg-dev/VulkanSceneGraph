@@ -19,30 +19,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 
 #include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/TransferTask.h>
 #include <vsg/viewer/Window.h>
 
 namespace vsg
 {
 
-    // RecordAndSubmitTask
-    class VSG_DECLSPEC RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
+    // TransferTask
+    class VSG_DECLSPEC TransferTask : public Inherit<Object, TransferTask>
     {
     public:
-        explicit RecordAndSubmitTask(Device* in_device, uint32_t numBuffers = 3);
+        explicit TransferTask(Device* in_device, uint32_t numBuffers = 3);
 
-        virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
-
-        virtual VkResult start();
-        virtual VkResult record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp);
-        virtual VkResult finish(CommandBuffers& recordedCommandBuffers);
+        virtual VkResult transferDynamicData(); // transfer dynamicBufferInfos entries to GPU
 
         ref_ptr<Device> device;
-        Windows windows;
         Semaphores waitSemaphores;
-        CommandGraphs commandGraphs;       // assign in application setup
         Semaphores signalSemaphores;       // connect to Presentation.waitSemaphores
-        ref_ptr<TransferTask> transferTask;
 
         /// advance the currentFrameIndex
         void advance();
@@ -53,11 +45,19 @@ namespace vsg
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
         Fence* fence(size_t relativeFrameIndex = 0);
 
-        ref_ptr<Queue> queue;
+        void assignDynamicBufferInfos(const BufferInfoList& bufferInfoList);
 
-        ref_ptr<DatabasePager> databasePager;
+        ref_ptr<Queue> transferQueue;
+        ref_ptr<Semaphore> currentTransferCompletedSemaphore;
 
     protected:
+
+        using OffsetBufferInfoMap = std::map<uint32_t, ref_ptr<BufferInfo>>;
+        using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
+
+        VkDeviceSize _dynamicDataTotalRegions = 0;
+        VkDeviceSize _dynamicDataTotalSize = 0;
+        BufferMap _dynamicDataMap;
 
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;
@@ -65,15 +65,17 @@ namespace vsg
         struct Frame
         {
             ref_ptr<Fence> fence;
+            ref_ptr<CommandBuffer> transferCommandBuffer;
+            ref_ptr<Semaphore> transferCompledSemaphore;
+            ref_ptr<Buffer> staging;
+            void* buffer_data = nullptr;
+            std::vector<VkBufferCopy> copyRegions;
         };
 
         std::vector<Frame> _frames;
     };
-    VSG_type_name(vsg::RecordAndSubmitTask);
+    VSG_type_name(vsg::TransferTask);
 
-    using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
-
-    /// update RecordAndSubmitTask data structures to match the needs of newly compile subgraph
-    extern VSG_DECLSPEC void updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult);
+    using TransferTasks = std::vector<ref_ptr<TransferTask>>;
 
 } // namespace vsg
