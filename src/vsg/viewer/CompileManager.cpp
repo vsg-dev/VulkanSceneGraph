@@ -119,6 +119,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
     result.dynamicBufferInfos = requirements.dynamicBufferInfos;
+    result.dynamicImageInfos = requirements.dynamicImageInfos;
 
     auto compileTraversal = compileTraversals->take_when_available();
 

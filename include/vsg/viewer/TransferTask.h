@@ -45,7 +45,8 @@ namespace vsg
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
         Fence* fence(size_t relativeFrameIndex = 0);
 
-        void assignDynamicBufferInfos(const BufferInfoList& bufferInfoList);
+        void assign(const BufferInfoList& bufferInfoList);
+        void assign(const ImageInfoList& imageInfoList);
 
         ref_ptr<Queue> transferQueue;
         ref_ptr<Semaphore> currentTransferCompletedSemaphore;
@@ -57,7 +58,9 @@ namespace vsg
 
         VkDeviceSize _dynamicDataTotalRegions = 0;
         VkDeviceSize _dynamicDataTotalSize = 0;
+        VkDeviceSize _dynamicImageTotalSize = 0;
         BufferMap _dynamicDataMap;
+        std::set<ref_ptr<ImageInfo>> _dynamicImageInfoSet;
 
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;
@@ -73,6 +76,9 @@ namespace vsg
         };
 
         std::vector<Frame> _frames;
+
+        void _transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
+        void _transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
     };
     VSG_type_name(vsg::TransferTask);
 

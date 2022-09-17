@@ -202,6 +202,7 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
     if (registerDescriptor(descriptorImage))
     {
         //info("CollectResourceRequirements::apply(const DescriptorImage& descriptorImage) ", &descriptorImage);
+        for (auto& imageInfo : descriptorImage.imageInfoList) apply(imageInfo);
     }
 }
 

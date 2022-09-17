@@ -199,7 +199,11 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         //}
         for (auto& task : tasks)
         {
-            if (task->transferTask) task->transferTask->assignDynamicBufferInfos(compileResult.dynamicBufferInfos);
+            if (task->transferTask)
+            {
+                task->transferTask->assign(compileResult.dynamicBufferInfos);
+                task->transferTask->assign(compileResult.dynamicImageInfos);
+            }
         }
     }
 

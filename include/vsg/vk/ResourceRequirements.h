@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Bin.h>
 #include <vsg/state/BufferInfo.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/vk/DescriptorPool.h>
@@ -50,6 +51,7 @@ namespace vsg
         using BinStack = std::stack<BinDetails>;
 
         BufferInfoList dynamicBufferInfos;
+        ImageInfoList dynamicImageInfos;
 
         Descriptors descriptors;
         DescriptorSets descriptorSets;
@@ -103,6 +105,18 @@ namespace vsg
             if (bufferInfo && bufferInfo->data && bufferInfo->data->getLayout().dynamic)
             {
                 requirements.dynamicBufferInfos.push_back(bufferInfo);
+            }
+        }
+
+        inline void apply(ref_ptr<ImageInfo> imageInfo)
+        {
+            if (imageInfo && imageInfo->imageView && imageInfo->imageView->image)
+            {
+                auto& data = imageInfo->imageView->image->data;
+                if (data && data->getLayout().dynamic)
+                {
+                    requirements.dynamicImageInfos.push_back(imageInfo);
+                }
             }
         }
 

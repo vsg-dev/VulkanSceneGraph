@@ -324,7 +324,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         if (task->transferTask)
         {
-            task->transferTask->assignDynamicBufferInfos(resourceRequirements.dynamicBufferInfos);
+            task->transferTask->assign(resourceRequirements.dynamicBufferInfos);
+            task->transferTask->assign(resourceRequirements.dynamicImageInfos);
         }
     }
 

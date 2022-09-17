@@ -25,6 +25,7 @@ namespace vsg
         bool containsPagedLOD = false;
         ResourceRequirements::Views views;
         BufferInfoList dynamicBufferInfos;
+        ImageInfoList dynamicImageInfos;
 
         explicit operator bool() const noexcept { return result == VK_SUCCESS; }
     };

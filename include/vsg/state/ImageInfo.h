@@ -17,6 +17,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    struct FormatTraits
+    {
+        int size = 0;
+        int numBitsPerComponent = 0;
+        int numComponents = 0;
+        bool packed = false;
+        int blockWidth = 1;
+        int blockHeight = 1;
+        int blockDepth = 1;
+        uint8_t defaultValue[32];
+
+        template<typename T>
+        void assign4(T value)
+        {
+            T* ptr = reinterpret_cast<T*>(defaultValue);
+            (*ptr++) = value;
+            (*ptr++) = value;
+            (*ptr++) = value;
+            (*ptr++) = value;
+        }
+    };
+
+    extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
 
     /// Settings that map to VkDescriptorImageInfo
