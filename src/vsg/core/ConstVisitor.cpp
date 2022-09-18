@@ -504,6 +504,15 @@ void ConstVisitor::apply(const SpotLight& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Text Objects
+//
+void ConstVisitor::apply(const Text& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Vulkan Object
 //
 void ConstVisitor::apply(const BufferInfo& value)
