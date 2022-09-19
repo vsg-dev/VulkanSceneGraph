@@ -46,13 +46,12 @@ void StandardLayout::write(Output& output) const
 
 void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads)
 {
-    quads.clear();
-
     struct Convert : public ConstVisitor
     {
         const StandardLayout& layout;
         const Font& font;
         TextQuads& textQuads;
+        size_t start_of_conversion;
         size_t start_of_row;
 
         vec3 row_position;
@@ -67,6 +66,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             row_position.set(0.0f, 0.0f, 0.0f);
             pen_position = row_position;
             normal = normalize(cross(layout.horizontal, layout.vertical));
+            start_of_conversion = textQuads.size();
             start_of_row = textQuads.size();
         }
 
@@ -105,7 +105,8 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
         void reserve(size_t size)
         {
-            textQuads.reserve(size);
+            size_t new_size = start_of_conversion + size;
+            if (new_size > textQuads.capacity()) textQuads.reserve(new_size);
         }
 
         void translate(TextQuads::iterator itr, TextQuads::iterator end, const vec3& offset)
@@ -182,22 +183,25 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
         void finalize()
         {
+            if (start_of_conversion >= textQuads.size()) return;
+
             align_row();
 
             vec3 offset(0.0f, 0.0f, 0.0f);
 
             if (layout.horizontalAlignment != BASELINE_ALIGNMENT || layout.verticalAlignment != BASELINE_ALIGNMENT)
             {
-                float left = textQuads[start_of_row].vertices[0].x;
-                float right = textQuads[start_of_row].vertices[1].x;
-                float bottom = textQuads[start_of_row].vertices[0].y;
-                float top = textQuads[start_of_row].vertices[3].y;
-                for (size_t i = 0; i < textQuads.size(); ++i)
+                float left = textQuads[start_of_conversion].vertices[0].x;
+                float right = textQuads[start_of_conversion].vertices[1].x;
+                float bottom = textQuads[start_of_conversion].vertices[0].y;
+                float top = textQuads[start_of_conversion].vertices[3].y;
+                for (size_t i = start_of_conversion + 1; i < textQuads.size(); ++i)
                 {
-                    if (textQuads[i].vertices[0].x < left) left = textQuads[i].vertices[0].x;
-                    if (textQuads[i].vertices[1].x > right) right = textQuads[i].vertices[1].x;
-                    if (textQuads[i].vertices[0].y < bottom) bottom = textQuads[i].vertices[0].y;
-                    if (textQuads[i].vertices[3].y > top) top = textQuads[i].vertices[3].y;
+                    auto& quad = textQuads[i];
+                    if (quad.vertices[0].x < left) left = quad.vertices[0].x;
+                    if (quad.vertices[1].x > right) right = quad.vertices[1].x;
+                    if (quad.vertices[0].y < bottom) bottom = quad.vertices[0].y;
+                    if (quad.vertices[3].y > top) top = quad.vertices[3].y;
                 }
 
                 switch (layout.horizontalAlignment)
@@ -217,14 +221,13 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 }
             }
 
-            if (offset.x != 0.0f || offset.y != 0.0f) translate(textQuads.begin(), textQuads.end(), offset);
-
-            for (auto& quad : textQuads)
+            for (size_t i = start_of_conversion; i < textQuads.size(); ++i)
             {
-                quad.vertices[0] = layout.position + layout.horizontal * quad.vertices[0].x + layout.vertical * quad.vertices[0].y;
-                quad.vertices[1] = layout.position + layout.horizontal * quad.vertices[1].x + layout.vertical * quad.vertices[1].y;
-                quad.vertices[2] = layout.position + layout.horizontal * quad.vertices[2].x + layout.vertical * quad.vertices[2].y;
-                quad.vertices[3] = layout.position + layout.horizontal * quad.vertices[3].x + layout.vertical * quad.vertices[3].y;
+                auto& quad = textQuads[i];
+                quad.vertices[0] = offset + layout.position + layout.horizontal * quad.vertices[0].x + layout.vertical * quad.vertices[0].y;
+                quad.vertices[1] = offset + layout.position + layout.horizontal * quad.vertices[1].x + layout.vertical * quad.vertices[1].y;
+                quad.vertices[2] = offset + layout.position + layout.horizontal * quad.vertices[2].x + layout.vertical * quad.vertices[2].y;
+                quad.vertices[3] = offset + layout.position + layout.horizontal * quad.vertices[3].x + layout.vertical * quad.vertices[3].y;
             }
         }
 
