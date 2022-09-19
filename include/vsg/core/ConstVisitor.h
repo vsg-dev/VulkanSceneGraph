@@ -49,6 +49,7 @@ namespace vsg
 
     // forward declare vulkan classes
     class Text;
+    class TextGroup;
 
     // forward declare vulkan classes
     class BufferInfo;
@@ -267,6 +268,7 @@ namespace vsg
 
         // text
         virtual void apply(const Text&);
+        virtual void apply(const TextGroup&);
 
         // Vulkan nodes
         virtual void apply(const BufferInfo&);

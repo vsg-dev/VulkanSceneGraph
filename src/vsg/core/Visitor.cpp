@@ -510,6 +510,10 @@ void Visitor::apply(Text& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(TextGroup& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
