@@ -27,6 +27,8 @@ void StandardLayout::read(Input& input)
     input.read("color", color);
     input.read("outlineColor", outlineColor);
     input.read("outlineWidth", outlineWidth);
+
+    // TODO
 }
 
 void StandardLayout::write(Output& output) const
@@ -42,6 +44,8 @@ void StandardLayout::write(Output& output) const
     output.write("color", color);
     output.write("outlineColor", outlineColor);
     output.write("outlineWidth", outlineWidth);
+
+    // TODO
 }
 
 void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads)
@@ -221,13 +225,22 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 }
             }
 
+            if (!layout.billboard)
+            {
+                offset += layout.position;
+            }
+
             for (size_t i = start_of_conversion; i < textQuads.size(); ++i)
             {
                 auto& quad = textQuads[i];
-                quad.vertices[0] = offset + layout.position + layout.horizontal * quad.vertices[0].x + layout.vertical * quad.vertices[0].y;
-                quad.vertices[1] = offset + layout.position + layout.horizontal * quad.vertices[1].x + layout.vertical * quad.vertices[1].y;
-                quad.vertices[2] = offset + layout.position + layout.horizontal * quad.vertices[2].x + layout.vertical * quad.vertices[2].y;
-                quad.vertices[3] = offset + layout.position + layout.horizontal * quad.vertices[3].x + layout.vertical * quad.vertices[3].y;
+                quad.vertices[0] = offset + layout.horizontal * quad.vertices[0].x + layout.vertical * quad.vertices[0].y;
+                quad.vertices[1] = offset + layout.horizontal * quad.vertices[1].x + layout.vertical * quad.vertices[1].y;
+                quad.vertices[2] = offset + layout.horizontal * quad.vertices[2].x + layout.vertical * quad.vertices[2].y;
+                quad.vertices[3] = offset + layout.horizontal * quad.vertices[3].x + layout.vertical * quad.vertices[3].y;
+                if (layout.billboard)
+                {
+                    quad.centerAndAutoScaleDistance.set(layout.position.x, layout.position.y, layout.position.z, layout.billboardAutoScaleDistance);
+                }
             }
         }
 

@@ -53,7 +53,7 @@ namespace vsg
         /// minimumAllocation provides a hint for the minimum number of glyphs to allocate space for.
         virtual void setup(uint32_t minimumAllocation = 0);
 
-        ref_ptr<Node> createRenderingSubgraph(ref_ptr<Font> font, TextQuads& textQuads, uint32_t minimumAllocation);
+        ref_ptr<Node> createRenderingSubgraph(ref_ptr<Font> font, bool billboard, TextQuads& textQuads, uint32_t minimumAllocation);
     };
     VSG_type_name(vsg::TextGroup);
 }

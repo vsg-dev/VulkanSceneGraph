@@ -84,9 +84,12 @@ void TextGroup::setup(uint32_t minimumAllocation)
         };
 
         std::map<ref_ptr<Font>, size_t> fontTextQuadCountMap;
+        std::map<ref_ptr<Font>, size_t> billboard_fontTextQuadCountMap;
         for(auto& text : children)
         {
-            fontTextQuadCountMap[text->font] += vsg::visit<CountQuads>(text->text).count;
+            auto count = vsg::visit<CountQuads>(text->text).count;
+            if (text->layout && text->layout->requiresBillboard()) billboard_fontTextQuadCountMap[text->font] += count;
+            else fontTextQuadCountMap[text->font] += count;
         }
 
         std::map<ref_ptr<Font>, TextQuads> fontTextQuadsMap;
@@ -95,16 +98,37 @@ void TextGroup::setup(uint32_t minimumAllocation)
             fontTextQuadsMap[font].reserve(count);
         }
 
+        std::map<ref_ptr<Font>, TextQuads> billboard_fontTextQuadsMap;
+        for(auto& [font, count] : billboard_fontTextQuadCountMap)
+        {
+            billboard_fontTextQuadsMap[font].reserve(count);
+        }
+
         for(auto& text : children)
         {
-            TextQuads& quads = fontTextQuadsMap[text->font];
-            text->layout->layout(text->text, *(text->font), quads);
+            if (text->layout && text->layout->requiresBillboard())
+            {
+                TextQuads& quads = billboard_fontTextQuadsMap[text->font];
+                text->layout->layout(text->text, *(text->font), quads);
+            }
+            else
+            {
+                TextQuads& quads = fontTextQuadsMap[text->font];
+                text->layout->layout(text->text, *(text->font), quads);
+            }
         }
 
         auto group = Group::create();
         for(auto& [font, quads] : fontTextQuadsMap)
         {
-            if (auto subgraph = createRenderingSubgraph(font, quads, minimumAllocation))
+            if (auto subgraph = createRenderingSubgraph(font, false, quads, minimumAllocation))
+            {
+                group->addChild(subgraph);
+            }
+        }
+        for(auto& [font, quads] : billboard_fontTextQuadsMap)
+        {
+            if (auto subgraph = createRenderingSubgraph(font, true, quads, minimumAllocation))
             {
                 group->addChild(subgraph);
             }
@@ -121,7 +145,7 @@ void TextGroup::setup(uint32_t minimumAllocation)
     }
 }
 
-ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& quads, uint32_t minimumAllocation)
+ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, bool billboard, TextQuads& quads, uint32_t minimumAllocation)
 {
     if (quads.empty())
     {
@@ -133,6 +157,7 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
     ref_ptr<vec4Array> outlineColors;
     ref_ptr<floatArray> outlineWidths;
     ref_ptr<vec3Array> texcoords;
+    ref_ptr<vec4Array> centerAndAutoScaleDistances;
     ref_ptr<Data> indices;
     ref_ptr<DrawIndexed> drawIndexed;
 
@@ -143,9 +168,11 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
     vec4 color = quads.front().colors[0];
     vec4 outlineColor = quads.front().outlineColors[0];
     float outlineWidth = quads.front().outlineWidths[0];
+    vec4 centerAndAutoScaleDistance = quads.front().centerAndAutoScaleDistance;
     bool singleColor = true;
     bool singleOutlineColor = true;
     bool singleOutlineWidth = true;
+    bool singleCenterAutoScaleDistance = true;
     for (auto& quad : quads)
     {
         for (int i = 0; i < 4; ++i)
@@ -154,6 +181,7 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
             if (quad.outlineColors[i] != outlineColor) singleOutlineColor = false;
             if (quad.outlineWidths[i] != outlineWidth) singleOutlineWidth = false;
         }
+        if (quad.centerAndAutoScaleDistance != centerAndAutoScaleDistance) singleCenterAutoScaleDistance = false;
     }
 
 
@@ -162,12 +190,14 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
     uint32_t num_colors = singleColor ? 1 : num_vertices;
     uint32_t num_outlineColors = singleOutlineColor ? 1 : num_vertices;
     uint32_t num_outlineWidths = singleOutlineWidth ? 1 : num_vertices;
+    uint32_t num_centerAndAutoScaleDistances = billboard ? (singleCenterAutoScaleDistance ? 1 : num_vertices) : 0;
 
     if (!vertices || num_vertices > vertices->size()) vertices = vec3Array::create(num_vertices);
     if (!colors || num_colors > colors->size()) colors = vec4Array::create(num_colors);
     if (!outlineColors || num_outlineColors > outlineColors->size()) outlineColors = vec4Array::create(num_outlineColors);
     if (!outlineWidths || num_outlineWidths > outlineWidths->size()) outlineWidths = floatArray::create(num_outlineWidths);
     if (!texcoords || num_vertices > texcoords->size()) texcoords = vec3Array::create(num_vertices);
+    if (billboard && (!centerAndAutoScaleDistances || num_centerAndAutoScaleDistances > centerAndAutoScaleDistances->size())) centerAndAutoScaleDistances = vec4Array::create(num_centerAndAutoScaleDistances);
 
     uint32_t vi = 0;
 
@@ -176,6 +206,7 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
     if (singleColor) colors->set(0, color);
     if (singleOutlineColor) outlineColors->set(0, outlineColor);
     if (singleOutlineWidth) outlineWidths->set(0, outlineWidth);
+    if (singleCenterAutoScaleDistance && centerAndAutoScaleDistances) centerAndAutoScaleDistances->set(0, centerAndAutoScaleDistance);
 
     for (auto& quad : quads)
     {
@@ -215,6 +246,14 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
         texcoords->set(vi + 1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, topEdgeTilt));
         texcoords->set(vi + 2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, 0.0f));
         texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
+
+        if (!singleCenterAutoScaleDistance && centerAndAutoScaleDistances)
+        {
+            centerAndAutoScaleDistances->set(vi, quad.centerAndAutoScaleDistance);
+            centerAndAutoScaleDistances->set(vi + 1, quad.centerAndAutoScaleDistance);
+            centerAndAutoScaleDistances->set(vi + 2, quad.centerAndAutoScaleDistance);
+            centerAndAutoScaleDistances->set(vi + 3, quad.centerAndAutoScaleDistance);
+        }
 
         vi += 4;
     }
@@ -272,6 +311,8 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
     {
         scenegraph = StateGroup::create();
 
+        info("font->options = ", font->options);
+
         auto shaderSet = createTextShaderSet(font->options);
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
@@ -285,6 +326,11 @@ ref_ptr<Node> TextGroup::createRenderingSubgraph(ref_ptr<Font> font, TextQuads& 
         config->assignArray(arrays, "inOutlineColor", singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, outlineColors);
         config->assignArray(arrays, "inOutlineWidth", singleOutlineWidth ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, outlineWidths);
         config->assignArray(arrays, "inTexCoord", VK_VERTEX_INPUT_RATE_VERTEX, texcoords);
+
+        if (centerAndAutoScaleDistances)
+        {
+            config->assignArray(arrays, "inCenterAndAutoScaleDistance", singleCenterAutoScaleDistance ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, centerAndAutoScaleDistances);
+        }
 
         // set up sampler for atlas.
         auto sampler = Sampler::create();

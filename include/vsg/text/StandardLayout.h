@@ -50,7 +50,10 @@ namespace vsg
         vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         float outlineWidth = 0.0f;
+        bool billboard = false;
+        float billboardAutoScaleDistance = 0.0f;
 
+        bool requiresBillboard() override { return billboard; }
         void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
     };
     VSG_type_name(vsg::StandardLayout);
