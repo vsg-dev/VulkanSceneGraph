@@ -227,7 +227,6 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
     {
         stategroup = StateGroup::create();
 
-        auto shaderSet = createTextShaderSet(font->options);
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = font->sharedObjects;
