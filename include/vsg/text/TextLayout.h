@@ -33,7 +33,7 @@ namespace vsg
     class VSG_DECLSPEC TextLayout : public Inherit<Object, TextLayout>
     {
     public:
-        virtual bool requiresBillboard() { return false; }
+        virtual bool requiresBillboard() const { return false; }
         virtual void layout(const Data* text, const Font& font, TextQuads& texQuads) = 0;
     };
     VSG_type_name(vsg::TextLayout);

@@ -67,6 +67,10 @@ void Text::setup(uint32_t minimumAllocation)
     technique->setup(this, minimumAllocation);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// createTextShaderSet
+//
 ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
 {
     if (options)
@@ -107,4 +111,28 @@ ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
     shaderSet->addUniformBinding("text", "GPU_LAYOUT", 1, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, uivec4Array2D::create(1, 1));
 
     return shaderSet;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CountGlyphs
+//
+void CountGlyphs::apply(const stringValue& text)
+{
+    count += text.value().size();
+}
+
+void CountGlyphs::apply(const ubyteArray& text)
+{
+    count += text.size();
+}
+
+void CountGlyphs::apply(const ushortArray& text)
+{
+    count += text.size();
+}
+
+void CountGlyphs::apply(const uintArray& text)
+{
+    count += text.size();
 }

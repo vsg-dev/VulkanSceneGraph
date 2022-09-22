@@ -53,7 +53,7 @@ namespace vsg
         bool billboard = false;
         float billboardAutoScaleDistance = 0.0f;
 
-        bool requiresBillboard() override { return billboard; }
+        bool requiresBillboard() const override { return billboard; }
         void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
     };
     VSG_type_name(vsg::StandardLayout);

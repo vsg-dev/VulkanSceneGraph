@@ -49,6 +49,7 @@ namespace vsg
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
+        void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
 
         // implementation data structure
         ref_ptr<StateGroup> scenegraph;

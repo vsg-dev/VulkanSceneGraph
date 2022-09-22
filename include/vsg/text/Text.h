@@ -55,4 +55,16 @@ namespace vsg
     /// create a ShaderSet used for both CpuALayutTechnique and GpuALayutTechnique or return the Options::shaderSet["text"] entry if available.
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createTextShaderSet(ref_ptr<const Options> options = {});
 
+    /// convience class for counting the number of text glyphs
+    struct VSG_DECLSPEC CountGlyphs : public ConstVisitor
+    {
+        size_t count = 0;
+
+        void apply(const stringValue& text) override;
+        void apply(const ubyteArray& text) override;
+        void apply(const ushortArray& text) override;
+        void apply(const uintArray& text) override;
+    };
+    VSG_type_name(vsg::CountGlyphs);
+
 } // namespace vsg

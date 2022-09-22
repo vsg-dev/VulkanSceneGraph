@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/CpuLayoutTechnique.h>
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
+#include <vsg/text/TextGroup.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -35,22 +36,60 @@ using namespace vsg;
 
 void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 {
-    auto layout = text->layout;
+    if (!text || !(text->text)) return;
+
+    auto& font = text->font;
+    auto& layout = text->layout;
+    auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(font->options);
+
+    auto num_quads = vsg::visit<CountGlyphs>(text->text).count;
 
     TextQuads quads;
-    layout->layout(text->text, *(text->font), quads);
+    quads.reserve(num_quads);
+    layout->layout(text->text, *font, quads);
 
-    if (quads.empty())
+    scenegraph = createRenderingSubgraph(shaderSet, font, layout->requiresBillboard(), quads, minimumAllocation);
+}
+
+void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
+{
+    if (!textGroup || textGroup->children.empty()) return;
+
+    auto& first_text = textGroup->children.front();
+    auto& font = first_text->font;
+    auto& layout = first_text->layout;
+    auto shaderSet = first_text->shaderSet ? first_text->shaderSet : createTextShaderSet(font->options);
+
+    CountGlyphs countGlyphs;
+    for(auto& text : textGroup->children)
     {
-        return;
+        if (text->text) text->text->accept(countGlyphs);
     }
+
+    TextQuads quads;
+    quads.reserve(countGlyphs.count);
+    for(auto& text : textGroup->children)
+    {
+        text->layout->layout(text->text, *font, quads);
+    }
+
+    scenegraph = createRenderingSubgraph(shaderSet, font, layout->requiresBillboard(), quads, minimumAllocation);
+}
+
+ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> shaderSet, ref_ptr<Font> font, bool billboard, TextQuads& quads, uint32_t minimumAllocation)
+{
+    if (quads.empty()) return {};
+
+    ref_ptr<StateGroup> stategroup;
 
     vec4 color = quads.front().colors[0];
     vec4 outlineColor = quads.front().outlineColors[0];
     float outlineWidth = quads.front().outlineWidths[0];
+    vec4 centerAndAutoScaleDistance = quads.front().centerAndAutoScaleDistance;
     bool singleColor = true;
     bool singleOutlineColor = true;
     bool singleOutlineWidth = true;
+    bool singleCenterAutoScaleDistance = true;
     for (auto& quad : quads)
     {
         for (int i = 0; i < 4; ++i)
@@ -59,6 +98,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
             if (quad.outlineColors[i] != outlineColor) singleOutlineColor = false;
             if (quad.outlineWidths[i] != outlineWidth) singleOutlineWidth = false;
         }
+        if (quad.centerAndAutoScaleDistance != centerAndAutoScaleDistance) singleCenterAutoScaleDistance = false;
     }
 
     uint32_t num_quads = std::max(static_cast<uint32_t>(quads.size()), minimumAllocation);
@@ -66,12 +106,14 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     uint32_t num_colors = singleColor ? 1 : num_vertices;
     uint32_t num_outlineColors = singleOutlineColor ? 1 : num_vertices;
     uint32_t num_outlineWidths = singleOutlineWidth ? 1 : num_vertices;
+    uint32_t num_centerAndAutoScaleDistances = billboard ? (singleCenterAutoScaleDistance ? 1 : num_vertices) : 0;
 
     if (!vertices || num_vertices > vertices->size()) vertices = vec3Array::create(num_vertices);
     if (!colors || num_colors > colors->size()) colors = vec4Array::create(num_colors);
     if (!outlineColors || num_outlineColors > outlineColors->size()) outlineColors = vec4Array::create(num_outlineColors);
     if (!outlineWidths || num_outlineWidths > outlineWidths->size()) outlineWidths = floatArray::create(num_outlineWidths);
     if (!texcoords || num_vertices > texcoords->size()) texcoords = vec3Array::create(num_vertices);
+    if (billboard && (!centerAndAutoScaleDistances || num_centerAndAutoScaleDistances > centerAndAutoScaleDistances->size())) centerAndAutoScaleDistances = vec4Array::create(num_centerAndAutoScaleDistances);
 
     uint32_t vi = 0;
 
@@ -80,6 +122,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     if (singleColor) colors->set(0, color);
     if (singleOutlineColor) outlineColors->set(0, outlineColor);
     if (singleOutlineWidth) outlineWidths->set(0, outlineWidth);
+    if (singleCenterAutoScaleDistance && centerAndAutoScaleDistances) centerAndAutoScaleDistances->set(0, centerAndAutoScaleDistance);
 
     for (auto& quad : quads)
     {
@@ -119,6 +162,14 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         texcoords->set(vi + 1, vec3(quad.texcoords[1].x, quad.texcoords[1].y, topEdgeTilt));
         texcoords->set(vi + 2, vec3(quad.texcoords[2].x, quad.texcoords[2].y, 0.0f));
         texcoords->set(vi + 3, vec3(quad.texcoords[3].x, quad.texcoords[3].y, leadingEdgeTilt));
+
+        if (!singleCenterAutoScaleDistance && centerAndAutoScaleDistances)
+        {
+            centerAndAutoScaleDistances->set(vi, quad.centerAndAutoScaleDistance);
+            centerAndAutoScaleDistances->set(vi + 1, quad.centerAndAutoScaleDistance);
+            centerAndAutoScaleDistances->set(vi + 2, quad.centerAndAutoScaleDistance);
+            centerAndAutoScaleDistances->set(vi + 3, quad.centerAndAutoScaleDistance);
+        }
 
         vi += 4;
     }
@@ -172,15 +223,15 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         drawIndexed->indexCount = static_cast<uint32_t>(quads.size() * 6);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    if (!scenegraph)
+    if (!stategroup)
     {
-        scenegraph = StateGroup::create();
+        stategroup = StateGroup::create();
 
-        auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(text->font->options);
+        auto shaderSet = createTextShaderSet(font->options);
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
-        auto& sharedObjects = text->font->sharedObjects;
-        if (!sharedObjects && text->font->options) sharedObjects = text->font->options->sharedObjects;
+        auto& sharedObjects = font->sharedObjects;
+        if (!sharedObjects && font->options) sharedObjects = font->options->sharedObjects;
         if (!sharedObjects) sharedObjects = SharedObjects::create();
 
         DataList arrays;
@@ -189,6 +240,11 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         config->assignArray(arrays, "inOutlineColor", singleOutlineColor ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, outlineColors);
         config->assignArray(arrays, "inOutlineWidth", singleOutlineWidth ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, outlineWidths);
         config->assignArray(arrays, "inTexCoord", VK_VERTEX_INPUT_RATE_VERTEX, texcoords);
+
+        if (centerAndAutoScaleDistances)
+        {
+            config->assignArray(arrays, "inCenterAndAutoScaleDistance", singleCenterAutoScaleDistance ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, centerAndAutoScaleDistances);
+        }
 
         // set up sampler for atlas.
         auto sampler = Sampler::create();
@@ -206,7 +262,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         if (sharedObjects) sharedObjects->share(sampler);
 
         Descriptors descriptors;
-        config->assignTexture(descriptors, "textureAtlas", text->font->atlas, sampler);
+        config->assignTexture(descriptors, "textureAtlas", font->atlas, sampler);
         if (sharedObjects) sharedObjects->share(descriptors);
 
         // disable face culling so text can be seen from both sides
@@ -234,7 +290,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         else
             config->init();
 
-        scenegraph->add(config->bindGraphicsPipeline);
+        stategroup->add(config->bindGraphicsPipeline);
 
         auto descriptorSetLayout = vsg::DescriptorSetLayout::create(config->descriptorBindings);
         if (sharedObjects) sharedObjects->share(descriptorSetLayout);
@@ -243,7 +299,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 0, descriptorSet);
         if (sharedObjects) sharedObjects->share(bindDescriptorSet);
 
-        scenegraph->add(bindDescriptorSet);
+        stategroup->add(bindDescriptorSet);
 
         bindVertexBuffers = BindVertexBuffers::create(0, arrays);
         bindIndexBuffer = BindIndexBuffer::create(indices);
@@ -254,7 +310,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         drawCommands->addChild(bindIndexBuffer);
         drawCommands->addChild(drawIndexed);
 
-        scenegraph->addChild(drawCommands);
+        stategroup->addChild(drawCommands);
     }
     else
     {
@@ -262,4 +318,6 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         // bindVertexBuffers->copyDataToBuffers();
         // bindIndexBuffer->copyDataToBuffers();
     }
+
+    return stategroup;
 }

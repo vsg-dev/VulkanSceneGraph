@@ -290,3 +290,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         }
     }
 }
+void GpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
+{
+    info("GpuLayoutTechnique::setup(", textGroup, ", ", minimumAllocation, ") not yet supported");
+}
