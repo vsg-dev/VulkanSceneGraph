@@ -17,7 +17,7 @@ extern "C"
 
     VsgVersion vsgGetVersion()
     {
-        VsgVersion version;
+        VsgVersion version{};
         version.major = VSG_VERSION_MAJOR;
         version.minor = VSG_VERSION_MINOR;
         version.patch = VSG_VERSION_PATCH;
