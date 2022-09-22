@@ -72,6 +72,25 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
+#ifdef BILLBOARD
+mat4 computeBillboadMatrix(vec4 center_eye, float autoScaleDistance)
+{
+    float distance = -center_eye.z;
+
+    float scale = (distance < autoScaleDistance) ? distance/autoScaleDistance : 1.0;
+    mat4 S = mat4(scale, 0.0, 0.0, 0.0,
+                  0.0, scale, 0.0, 0.0,
+                  0.0, 0.0, scale, 0.0,
+                  0.0, 0.0, 0.0, 1.0);
+
+    mat4 T = mat4(1.0, 0.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0, 0.0,
+                  0.0, 0.0, 1.0, 0.0,
+                  center_eye.x, center_eye.y, center_eye.z, 1.0);
+    return T*S;
+}
+#endif
+
 void main() {
 #ifdef GPU_LAYOUT
     // compute the position of the glyph
@@ -91,7 +110,6 @@ void main() {
             horiAdvance += texture(glyphMetricsSampler, vec2(GLYPH_DIMENSIONS, glyph_index))[2];
         }
     }
-    vec3 cursor = textLayout.position.xyz + textLayout.horizontal.xyz * horiAdvance + textLayout.vertical.xyz * vertAdvance;
 
     // compute the position of vertex
     uint glyph_index = text.glyph_index[gl_InstanceIndex / 4][gl_InstanceIndex % 4];
@@ -100,36 +118,26 @@ void main() {
     vec4 bearings = texture(glyphMetricsSampler, vec2(GLYPH_BEARINGS, glyph_index));
     vec4 uv_rec = texture(glyphMetricsSampler, vec2(GLYPH_UVRECT, glyph_index));
 
-    vec3 pos = cursor + textLayout.horizontal.xyz * (bearings.x + inPosition.x * dimensions.x) + textLayout.vertical.xyz * (bearings.y + (inPosition.y-1.0) * dimensions.y);
+    vec3 pos = textLayout.horizontal.xyz * (horiAdvance + textLayout.horizontal.w + bearings.x + inPosition.x * dimensions.x) +
+               textLayout.vertical.xyz * (vertAdvance + textLayout.vertical.w + bearings.y + (inPosition.y-1.0) * dimensions.y);
 
-    gl_Position = (pc.projection * pc.modelview) * vec4(pos, 1.0);
+    #ifdef BILLBOARD
+    gl_Position = (pc.projection * computeBillboadMatrix(pc.modelview * vec4(textLayout.position.xyz, 1.0), textLayout.position.w)) * vec4(pos, 1.0);
+    #else
+    gl_Position = (pc.projection * pc.modelview) * vec4(textLayout.position.xyz + pos, 1.0);
+    #endif
+
     gl_Position.z -= inPosition.z*0.001;
 
     fragColor = textLayout.color;
     outlineColor = textLayout.outlineColor;
     outlineWidth = textLayout.outlineWidth;
     fragTexCoord = vec2(mix(uv_rec[0], uv_rec[2], inPosition.x), mix(uv_rec[1], uv_rec[3], inPosition.y));
+
 #else
     // CPU layout provides all vertex data
     #ifdef BILLBOARD
-    vec4 center_object = vec4(inCenterAndAutoScaleDistance.xyz, 1.0);
-    float autoScaleDistance = inCenterAndAutoScaleDistance.w;
-
-    vec4 center_eye = pc.modelview * center_object;
-    float distance = -center_eye.z;
-
-    float scale = (distance < autoScaleDistance) ? distance/autoScaleDistance : 1.0;
-    mat4 S = mat4(scale, 0.0, 0.0, 0.0,
-                  0.0, scale, 0.0, 0.0,
-                  0.0, 0.0, scale, 0.0,
-                  0.0, 0.0, 0.0, 1.0);
-
-    mat4 T = mat4(1.0, 0.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0, 0.0,
-                  0.0, 0.0, 1.0, 0.0,
-                  center_eye.x, center_eye.y, center_eye.z, 1.0);
-
-    gl_Position = (pc.projection * (T*S)) * vec4(inPosition, 1.0);
+    gl_Position = (pc.projection * computeBillboadMatrix(pc.modelview * vec4(inCenterAndAutoScaleDistance.xyz, 1.0), inCenterAndAutoScaleDistance.w)) * vec4(inPosition, 1.0);
     #else
     gl_Position = (pc.projection * pc.modelview) * vec4(inPosition, 1.0);
     #endif

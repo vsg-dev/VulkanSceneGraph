@@ -135,6 +135,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     // set up the layout data in a form digestible by the GPU.
     if (!layoutValue) layoutValue = TextLayoutValue::create();
 
+    bool billboard = false;
     auto& layoutStruct = layoutValue->value();
     if (auto standardLayout = layout.cast<StandardLayout>(); standardLayout)
     {
@@ -144,6 +145,13 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         assignValue(layoutStruct.color, standardLayout->color, textLayoutUpdated);
         assignValue(layoutStruct.outlineColor, standardLayout->outlineColor, textLayoutUpdated);
         assignValue(layoutStruct.outlineWidth, standardLayout->outlineWidth, textLayoutUpdated);
+
+        billboard = standardLayout->billboard;
+        float horizontalAlignment = 0.0f;
+        float verticalAlignment = 0.0f;
+        assignValue(layoutStruct.billboardAutoScaleDistance, standardLayout->billboardAutoScaleDistance, textLayoutUpdated);
+        assignValue(layoutStruct.horizontalAlignment, horizontalAlignment, textLayoutUpdated);
+        assignValue(layoutStruct.verticalAlignment, verticalAlignment, textLayoutUpdated);
     }
 
     if (!layoutDescriptor) layoutDescriptor = DescriptorBuffer::create(layoutValue, 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -179,6 +187,11 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
         DataList arrays;
         config->assignArray(arrays, "inPosition", VK_VERTEX_INPUT_RATE_VERTEX, vertices);
+
+        if (billboard)
+        {
+            config->shaderHints->defines.push_back("BILLBOARD");
+        }
 
         // set up sampler for atlas.
         auto sampler = Sampler::create();

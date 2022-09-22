@@ -24,11 +24,11 @@ namespace vsg
     struct LayoutStruct
     {
         vec3 position = vec3(0.0f, 0.0f, 0.0f);
-        float pad0;
+        float billboardAutoScaleDistance = 0.0;
         vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
-        float pad1;
+        float horizontalAlignment = 0.0;
         vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
-        float pad2;
+        float verticalAlignment = 0.0;
         vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         float outlineWidth = 0.0f;
