@@ -55,6 +55,7 @@ namespace vsg
 
         bool requiresBillboard() const override { return billboard; }
         void layout(const Data* text, const Font& font, TextQuads& texQuads) override;
+        vec2 alignment(const Data* text, const Font& font) override;
     };
     VSG_type_name(vsg::StandardLayout);
 

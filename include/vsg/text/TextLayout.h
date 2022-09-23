@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Data.h>
+#include <vsg/maths/box.h>
 #include <vsg/text/Font.h>
 
 namespace vsg
@@ -35,6 +36,7 @@ namespace vsg
     public:
         virtual bool requiresBillboard() const { return false; }
         virtual void layout(const Data* text, const Font& font, TextQuads& texQuads) = 0;
+        virtual vec2 alignment(const Data* text, const Font& font) = 0;
     };
     VSG_type_name(vsg::TextLayout);
 

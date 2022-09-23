@@ -147,12 +147,13 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         assignValue(layoutStruct.outlineWidth, standardLayout->outlineWidth, textLayoutUpdated);
 
         billboard = standardLayout->billboard;
-        float horizontalAlignment = 0.0f;
-        float verticalAlignment = 0.0f;
         assignValue(layoutStruct.billboardAutoScaleDistance, standardLayout->billboardAutoScaleDistance, textLayoutUpdated);
-        assignValue(layoutStruct.horizontalAlignment, horizontalAlignment, textLayoutUpdated);
-        assignValue(layoutStruct.verticalAlignment, verticalAlignment, textLayoutUpdated);
     }
+
+    // assign alignment offset
+    auto alignment = layout->alignment(text->text, *(text->font));
+    assignValue(layoutStruct.horizontalAlignment, alignment.x, textLayoutUpdated);
+    assignValue(layoutStruct.verticalAlignment, alignment.y, textLayoutUpdated);
 
     if (!layoutDescriptor) layoutDescriptor = DescriptorBuffer::create(layoutValue, 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
