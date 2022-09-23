@@ -47,39 +47,45 @@ void TextGroup::read(Input& input)
 {
     Node::read(input);
 
+    input.readObject("font", font);
+    input.readObject("shaderSet", shaderSet);
+    input.readObject("technique", technique);
+
     input.readObjects("children", children);
+
+    setup();
 }
 
 void TextGroup::write(Output& output) const
 {
     Node::write(output);
 
+    output.writeObject("font", font);
+    output.writeObject("shaderSet", shaderSet);
+    output.writeObject("technique", technique);
+
     output.writeObjects("children", children);
 }
 
 void TextGroup::addChild(ref_ptr<Text> text)
 {
-    if (children.empty())
-    {
-        if (!text->technique) text->technique = CpuLayoutTechnique::create();
-        children.push_back(text);
-    }
-    else
-    {
-        // technique, font and shaderSet are taken from the fist entry
-        text->technique = {};
-        text->font = {};
-        text->shaderSet = {};
+    if (!font) font = text->font;
+    if (!shaderSet) shaderSet = text->shaderSet;
+    if (!technique) technique = text->technique;
 
-        children.push_back(text);
-    }
+    // TextGroup is responsible for rendering related properties
+    text->technique = {};
+    text->font = {};
+    text->shaderSet = {};
+
+    children.push_back(text);
 }
 
 void TextGroup::setup(uint32_t minimumAllocation)
 {
     if (children.empty()) return;
 
-    auto& first_text = children.front();
-    auto& technique = first_text->technique;
+    if (!technique) technique = CpuLayoutTechnique::create();
+
     technique->setup(this, minimumAllocation);
 }

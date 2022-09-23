@@ -29,7 +29,11 @@ void StandardLayout::read(Input& input)
     input.read("outlineColor", outlineColor);
     input.read("outlineWidth", outlineWidth);
 
-    // TODO
+    if (input.version_greater_equal(0, 5, 5))
+    {
+        input.read("billboard", billboard);
+        input.read("billboardAutoScaleDistance", billboardAutoScaleDistance);
+    }
 }
 
 void StandardLayout::write(Output& output) const
@@ -46,7 +50,11 @@ void StandardLayout::write(Output& output) const
     output.write("outlineColor", outlineColor);
     output.write("outlineWidth", outlineWidth);
 
-    // TODO
+    if (output.version_greater_equal(0, 5, 5))
+    {
+        output.write("billboard", billboard);
+        output.write("billboardAutoScaleDistance", billboardAutoScaleDistance);
+    }
 }
 
 void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads)

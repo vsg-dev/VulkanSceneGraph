@@ -36,7 +36,7 @@ using namespace vsg;
 
 void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 {
-    if (!text || !(text->text)) return;
+    if (!text || !(text->text) || !text->font || !text->layout) return;
 
     auto& font = text->font;
     auto& layout = text->layout;
@@ -55,25 +55,27 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
 {
     if (!textGroup || textGroup->children.empty()) return;
 
+    auto& font = textGroup->font;
+    auto shaderSet = textGroup->shaderSet ? textGroup->shaderSet : createTextShaderSet(font->options);
+
     auto& first_text = textGroup->children.front();
-    auto& font = first_text->font;
     auto& layout = first_text->layout;
-    auto shaderSet = first_text->shaderSet ? first_text->shaderSet : createTextShaderSet(font->options);
+    bool requiresBillboard = layout ? layout->requiresBillboard() : false;
 
     CountGlyphs countGlyphs;
     for(auto& text : textGroup->children)
     {
-        if (text->text) text->text->accept(countGlyphs);
+        if (text->text && text->layout) text->text->accept(countGlyphs);
     }
 
     TextQuads quads;
     quads.reserve(countGlyphs.count);
     for(auto& text : textGroup->children)
     {
-        text->layout->layout(text->text, *font, quads);
+        if (text->text && text->layout) text->layout->layout(text->text, *font, quads);
     }
 
-    scenegraph = createRenderingSubgraph(shaderSet, font, layout->requiresBillboard(), quads, minimumAllocation);
+    scenegraph = createRenderingSubgraph(shaderSet, font, requiresBillboard, quads, minimumAllocation);
 }
 
 ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> shaderSet, ref_ptr<Font> font, bool billboard, TextQuads& quads, uint32_t minimumAllocation)

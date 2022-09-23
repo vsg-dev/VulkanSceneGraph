@@ -23,6 +23,7 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
+            if (node.technique) node.technique->accept(visitor);
             for (auto& child : node.children) child->accept(visitor);
         }
 
@@ -30,13 +31,17 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override
         {
-            if (!children.empty()) children.front()->accept(visitor);
+            if (technique) technique->accept(visitor);
         }
 
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+        ref_ptr<Font> font;
+        ref_ptr<ShaderSet> shaderSet;
+        ref_ptr<TextTechnique> technique;
 
         using Children = std::vector<ref_ptr<Text>, allocator_affinity_nodes<ref_ptr<Text>>>;
         Children children;
