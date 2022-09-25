@@ -52,7 +52,7 @@ namespace vsg
         void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
 
         // implementation data structure
-        ref_ptr<StateGroup> scenegraph;
+        ref_ptr<Node> scenegraph;
 
         ref_ptr<vec3Array> vertices;
         ref_ptr<Draw> draw;

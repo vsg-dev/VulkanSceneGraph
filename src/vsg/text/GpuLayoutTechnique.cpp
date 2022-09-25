@@ -174,10 +174,15 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     else
         draw->instanceCount = num_quads;
 
+    ref_ptr<StateGroup> stateGroup = scenegraph.cast<StateGroup>();
+
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    if (!scenegraph)
+    if (!stateGroup)
     {
-        scenegraph = StateGroup::create();
+        info("Creating new StateGroup");
+
+        stateGroup = StateGroup::create();
+        scenegraph = stateGroup;
 
         auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(text->font->options);
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
@@ -271,18 +276,18 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         else
             config->init();
 
-        scenegraph->add(config->bindGraphicsPipeline);
+        stateGroup->add(config->bindGraphicsPipeline);
 
         auto descriptorSetLayout = config->descriptorSetLayout;
         if (sharedObjects) sharedObjects->share(descriptorSetLayout);
         auto descriptorSet = vsg::DescriptorSet::create(descriptorSetLayout, descriptors);
         auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 0, descriptorSet);
         if (sharedObjects) sharedObjects->share(bindDescriptorSet);
-        scenegraph->add(bindDescriptorSet);
+        stateGroup->add(bindDescriptorSet);
 
         auto textDescriptorSet = DescriptorSet::create(textArrayDescriptorSetLayout, Descriptors{layoutDescriptor, textDescriptor});
         bindTextDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 1, textDescriptorSet);
-        scenegraph->add(bindTextDescriptorSet);
+        stateGroup->add(bindTextDescriptorSet);
 
         bindVertexBuffers = BindVertexBuffers::create(0, arrays);
 
@@ -290,7 +295,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         auto drawCommands = Commands::create();
         drawCommands->addChild(bindVertexBuffers);
         drawCommands->addChild(draw);
-        scenegraph->addChild(drawCommands);
+        stateGroup->addChild(drawCommands);
     }
     else
     {
