@@ -66,7 +66,7 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
 
     textExtents = {};
     CountGlyphs countGlyphs;
-    for(auto& text : textGroup->children)
+    for (auto& text : textGroup->children)
     {
         if (text->text && text->layout)
         {
@@ -77,7 +77,7 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
 
     TextQuads quads;
     quads.reserve(countGlyphs.count);
-    for(auto& text : textGroup->children)
+    for (auto& text : textGroup->children)
     {
         if (text->text && text->layout) text->layout->layout(text->text, *font, quads);
     }

@@ -16,9 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/nodes/StateGroup.h>
-#include <vsg/text/TextTechnique.h>
-#include <vsg/text/TextLayout.h>
 #include <vsg/text/Font.h>
+#include <vsg/text/TextLayout.h>
+#include <vsg/text/TextTechnique.h>
 
 namespace vsg
 {

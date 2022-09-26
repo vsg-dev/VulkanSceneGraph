@@ -19,7 +19,6 @@ namespace vsg
     class TextGroup : public vsg::Inherit<vsg::Node, TextGroup>
     {
     public:
-
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -53,4 +52,4 @@ namespace vsg
         virtual void setup(uint32_t minimumAllocation = 0);
     };
     VSG_type_name(vsg::TextGroup);
-}
+} // namespace vsg

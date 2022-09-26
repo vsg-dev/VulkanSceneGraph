@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/text/StandardLayout.h>
 #include <vsg/io/Logger.h>
+#include <vsg/text/StandardLayout.h>
 
 using namespace vsg;
 
@@ -192,7 +192,7 @@ namespace
             return {0.0f, 0.0f};
         }
     };
-}
+} // namespace
 
 void StandardLayout::read(Input& input)
 {
