@@ -66,6 +66,17 @@ namespace vsg
             if (y > max.y) max.y = y;
             if (z > max.z) max.z = z;
         }
+
+        template<typename R>
+        void add(const t_box<R>& bb)
+        {
+            if (bb.min.x < min.x) min.x = bb.min.x;
+            if (bb.min.y < min.y) min.y = bb.min.y;
+            if (bb.min.z < min.z) min.z = bb.min.z;
+            if (bb.max.x > max.x) max.x = bb.max.x;
+            if (bb.max.y > max.y) max.y = bb.max.y;
+            if (bb.max.z > max.z) max.z = bb.max.z;
+        }
     };
 
     using box = t_box<float>;

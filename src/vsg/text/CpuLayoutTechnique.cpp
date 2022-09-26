@@ -42,6 +42,8 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     auto& layout = text->layout;
     auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(font->options);
 
+    textExtents = layout->extents(text->text, *(text->font));
+
     auto num_quads = vsg::visit<CountGlyphs>(text->text).count;
 
     TextQuads quads;
@@ -62,10 +64,15 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
     auto& layout = first_text->layout;
     bool requiresBillboard = layout ? layout->requiresBillboard() : false;
 
+    textExtents = {};
     CountGlyphs countGlyphs;
     for(auto& text : textGroup->children)
     {
-        if (text->text && text->layout) text->text->accept(countGlyphs);
+        if (text->text && text->layout)
+        {
+            text->text->accept(countGlyphs);
+            textExtents.add(text->layout->extents(text->text, *(font)));
+        }
     }
 
     TextQuads quads;

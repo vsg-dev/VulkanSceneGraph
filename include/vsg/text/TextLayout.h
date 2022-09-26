@@ -36,7 +36,8 @@ namespace vsg
     public:
         virtual bool requiresBillboard() const { return false; }
         virtual void layout(const Data* text, const Font& font, TextQuads& texQuads) = 0;
-        virtual vec2 alignment(const Data* text, const Font& font) = 0;
+        virtual vec2 alignment(const Data* text, const Font& font) const = 0;
+        virtual dbox extents(const Data* text, const Font& font) const = 0;
     };
     VSG_type_name(vsg::TextLayout);
 

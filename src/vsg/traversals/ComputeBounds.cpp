@@ -16,10 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/text/Text.h>
+#include <vsg/text/TextGroup.h>
 #include <vsg/traversals/ComputeBounds.h>
 
 using namespace vsg;
@@ -192,6 +195,40 @@ void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, u
                     bounds.add(matrix * dvec3(vertices->at(uint_indices->at(i))));
                 }
             }
+        }
+    }
+}
+
+void ComputeBounds::apply(const Text& text)
+{
+    if (text.technique) text.technique->accept(*this);
+}
+
+void ComputeBounds::apply(const TextGroup& textGroup)
+{
+    if (textGroup.technique) textGroup.technique->accept(*this);
+}
+
+void ComputeBounds::apply(const TextTechnique& technique)
+{
+    auto bb = technique.extents();
+    if (bb.valid())
+    {
+        if (matrixStack.empty())
+        {
+            bounds.add(bb);
+        }
+        else
+        {
+            auto& matrix = matrixStack.back();
+            bounds.add(matrix * bb.min);
+            bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.min.z));
+            bounds.add(matrix * dvec3(bb.max.x, bb.max.y, bb.min.z));
+            bounds.add(matrix * dvec3(bb.min.x, bb.max.y, bb.min.z));
+            bounds.add(matrix * dvec3(bb.min.x, bb.min.y, bb.max.z));
+            bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.max.z));
+            bounds.add(matrix * bb.max);
+            bounds.add(matrix * dvec3(bb.min.x, bb.max.y, bb.max.z));
         }
     }
 }

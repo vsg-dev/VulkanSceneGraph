@@ -38,8 +38,13 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
         void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
+        dbox extents() const override { return textExtents; }
 
         virtual ref_ptr<Node> createRenderingSubgraph(ref_ptr<ShaderSet> shaderSet, ref_ptr<Font> font, bool billboard, TextQuads& textQuads, uint32_t minimumAllocation);
+
+        // implementation data structure
+        dbox textExtents;
+        ref_ptr<Node> scenegraph;
 
         ref_ptr<vec3Array> vertices;
         ref_ptr<vec4Array> colors;
@@ -52,7 +57,6 @@ namespace vsg
 
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
         ref_ptr<BindIndexBuffer> bindIndexBuffer;
-        ref_ptr<Node> scenegraph;
     };
     VSG_type_name(vsg::CpuLayoutTechnique);
 

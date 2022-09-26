@@ -514,6 +514,14 @@ void ConstVisitor::apply(const TextGroup& value)
 {
     apply(static_cast<const Node&>(value));
 }
+void ConstVisitor::apply(const TextTechnique& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const TextLayout& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

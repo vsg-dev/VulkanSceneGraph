@@ -45,6 +45,9 @@ void assignValue(T& dest, const T& src, bool& updated)
 void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 {
     auto layout = text->layout;
+    if (!layout) return;
+
+    textExtents = layout->extents(text->text, *(text->font));
 
     bool textLayoutUpdated = false;
     bool textArrayUpdated = false;
@@ -179,8 +182,6 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     if (!stateGroup)
     {
-        info("Creating new StateGroup");
-
         stateGroup = StateGroup::create();
         scenegraph = stateGroup;
 

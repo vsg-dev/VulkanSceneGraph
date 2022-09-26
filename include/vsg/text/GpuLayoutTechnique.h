@@ -50,8 +50,10 @@ namespace vsg
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
         void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
+        dbox extents() const override { return textExtents; }
 
         // implementation data structure
+        dbox textExtents;
         ref_ptr<Node> scenegraph;
 
         ref_ptr<vec3Array> vertices;
@@ -62,7 +64,6 @@ namespace vsg
         ref_ptr<DescriptorBuffer> textDescriptor;
         ref_ptr<DescriptorBuffer> layoutDescriptor;
         ref_ptr<BindDescriptorSet> bindTextDescriptorSet;
-
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
     };
     VSG_type_name(vsg::GpuLayoutTechnique);
