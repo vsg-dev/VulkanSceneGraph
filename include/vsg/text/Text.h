@@ -23,7 +23,7 @@ namespace vsg
 
     /** Text node provides high quality text rendering using signed distance field glyph texture atlas.
       * Text does not provide view frustum culling or level of detail, but you can add this if require it by decorating the Text with a CullNode/LOD and after TextGroup::setup() is called to initalize
-      * the rendering compomemt you can use the TextGroup->technique->extents() value to help set the CullNode.bounds value.*/
+      * the rendering compomemt you can use the TextGroup->technique->extents() value to help set the CullNode/LOD.bounds value.*/
     class VSG_DECLSPEC Text : public Inherit<Node, Text>
     {
     public:
