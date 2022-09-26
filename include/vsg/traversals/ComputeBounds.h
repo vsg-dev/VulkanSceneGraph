@@ -45,6 +45,9 @@ namespace vsg
         void apply(const StateCommand& statecommand) override;
         void apply(const Draw& draw) override;
         void apply(const DrawIndexed& drawIndexed) override;
+        void apply(const Text& text) override;
+        void apply(const TextGroup& textGroup) override;
+        void apply(const TextTechnique& techqniey) override;
 
         void apply(const BufferInfo& bufferInfo) override;
         void apply(const ushortArray& array) override;

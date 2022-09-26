@@ -134,6 +134,7 @@ set(SOURCES
     text/Font.cpp
     text/StandardLayout.cpp
     text/Text.cpp
+    text/TextGroup.cpp
 
     traversals/RecordTraversal.cpp
     traversals/CompileTraversal.cpp
