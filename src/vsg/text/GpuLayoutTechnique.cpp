@@ -185,11 +185,10 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         stateGroup = StateGroup::create();
         scenegraph = stateGroup;
 
-        auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(text->font->options);
+        auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet();
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = text->font->sharedObjects;
-        if (!sharedObjects && text->font->options) sharedObjects = text->font->options->sharedObjects;
         if (!sharedObjects) sharedObjects = SharedObjects::create();
 
         DataList arrays;

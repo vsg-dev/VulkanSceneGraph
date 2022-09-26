@@ -34,7 +34,6 @@ namespace vsg
         ref_ptr<Data> atlas;
         ref_ptr<GlyphMetricsArray> glyphMetrics;
         ref_ptr<uintArray> charmap;
-        ref_ptr<Options> options;
         ref_ptr<SharedObjects> sharedObjects;
 
         /// get the index into the glyphMetrics array for the glyph associated with specified charcode

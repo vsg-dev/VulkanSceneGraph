@@ -40,7 +40,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 
     const auto& font = text->font;
     auto& layout = text->layout;
-    auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(font->options);
+    auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet();
 
     textExtents = layout->extents(text->text, *(text->font));
 
@@ -58,7 +58,7 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
     if (!textGroup || textGroup->children.empty()) return;
 
     const auto& font = textGroup->font;
-    auto shaderSet = textGroup->shaderSet ? textGroup->shaderSet : createTextShaderSet(font->options);
+    auto shaderSet = textGroup->shaderSet ? textGroup->shaderSet : createTextShaderSet();
 
     auto& first_text = textGroup->children.front();
     auto& layout = first_text->layout;
@@ -239,7 +239,6 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = font->sharedObjects;
-        if (!sharedObjects && font->options) sharedObjects = font->options->sharedObjects;
         if (!sharedObjects) sharedObjects = SharedObjects::create();
 
         DataList arrays;
