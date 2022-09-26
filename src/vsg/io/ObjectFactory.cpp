@@ -242,6 +242,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::GlyphMetricsArray>();
     add<vsg::Font>();
     add<vsg::Text>();
+    add<vsg::TextGroup>();
     add<vsg::StandardLayout>();
     add<vsg::CpuLayoutTechnique>();
     add<vsg::GpuLayoutTechnique>();

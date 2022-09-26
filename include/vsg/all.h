@@ -263,6 +263,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/GpuLayoutTechnique.h>
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
+#include <vsg/text/TextGroup.h>
 #include <vsg/text/TextLayout.h>
 #include <vsg/text/TextTechnique.h>
 
