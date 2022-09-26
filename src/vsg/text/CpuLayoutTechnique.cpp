@@ -38,7 +38,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
 {
     if (!text || !(text->text) || !text->font || !text->layout) return;
 
-    auto& font = text->font;
+    const auto& font = text->font;
     auto& layout = text->layout;
     auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(font->options);
 
@@ -57,7 +57,7 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
 {
     if (!textGroup || textGroup->children.empty()) return;
 
-    auto& font = textGroup->font;
+    const auto& font = textGroup->font;
     auto shaderSet = textGroup->shaderSet ? textGroup->shaderSet : createTextShaderSet(font->options);
 
     auto& first_text = textGroup->children.front();
