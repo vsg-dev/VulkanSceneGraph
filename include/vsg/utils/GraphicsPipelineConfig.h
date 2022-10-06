@@ -79,7 +79,7 @@ namespace vsg
 
         void reset();
 
-        bool enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride);
+        bool enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format = VK_FORMAT_UNDEFINED);
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
         bool assignTexture(Descriptors& descriptors, const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
         bool assignUniform(Descriptors& descriptors, const std::string& name, ref_ptr<Data> data = {});
