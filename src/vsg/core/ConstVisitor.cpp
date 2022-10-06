@@ -465,6 +465,10 @@ void ConstVisitor::apply(const Geometry& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const VertexDraw& value)
+{
+    apply(static_cast<const Command&>(value));
+}
 void ConstVisitor::apply(const VertexIndexDraw& value)
 {
     apply(static_cast<const Command&>(value));

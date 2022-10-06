@@ -176,6 +176,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::AbsoluteTransform>();
     add<vsg::MatrixTransform>();
     add<vsg::Geometry>();
+    add<vsg::VertexDraw>();
     add<vsg::VertexIndexDraw>();
     add<vsg::Bin>();
     add<vsg::DepthSorted>();
