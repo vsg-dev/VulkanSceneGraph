@@ -18,13 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-//  VertexIndexDraw node
-//       vertex arrays
-//       index arrays
-//       draw + draw DrawIndexed
-//
 VertexIndexDraw::VertexIndexDraw()
 {
 }
