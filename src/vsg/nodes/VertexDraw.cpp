@@ -1,6 +1,6 @@
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2022 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -13,20 +13,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
-#include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/traversals/RecordTraversal.h>
 
 using namespace vsg;
 
-VertexIndexDraw::VertexIndexDraw()
+VertexDraw::VertexDraw()
 {
 }
 
-VertexIndexDraw::~VertexIndexDraw()
+VertexDraw::~VertexDraw()
 {
 }
 
-void VertexIndexDraw::assignArrays(const DataList& arrayData)
+void VertexDraw::assignArrays(const DataList& arrayData)
 {
     arrays.clear();
     arrays.reserve(arrayData.size());
@@ -36,20 +36,7 @@ void VertexIndexDraw::assignArrays(const DataList& arrayData)
     }
 }
 
-void VertexIndexDraw::assignIndices(ref_ptr<vsg::Data> indexData)
-{
-    if (indexData)
-    {
-        indices = BufferInfo::create(indexData);
-        indexType = computeIndexType(indices->data);
-    }
-    else
-    {
-        indices = {};
-    }
-}
-
-void VertexIndexDraw::read(Input& input)
+void VertexDraw::read(Input& input)
 {
     _vulkanData.clear();
 
@@ -65,20 +52,14 @@ void VertexIndexDraw::read(Input& input)
     }
     assignArrays(dataList);
 
-    ref_ptr<vsg::Data> indices_data;
-    input.readObject("Indices", indices_data);
-
-    assignIndices(indices_data);
-
-    // vkCmdDrawIndexed settings
-    input.read("indexCount", indexCount);
+    // vkCmdDraw settings
+    input.read("vertexCount", vertexCount);
     input.read("instanceCount", instanceCount);
-    input.read("firstIndex", firstIndex);
-    input.read("vertexOffset", vertexOffset);
+    input.read("firstVertex", firstVertex);
     input.read("firstInstance", firstInstance);
 }
 
-void VertexIndexDraw::write(Output& output) const
+void VertexDraw::write(Output& output) const
 {
     Command::write(output);
 
@@ -92,69 +73,54 @@ void VertexIndexDraw::write(Output& output) const
             output.writeObject("Array", nullptr);
     }
 
-    if (indices)
-        output.writeObject("Indices", indices->data.get());
-    else
-        output.writeObject("Indices", nullptr);
-
-    // vkCmdDrawIndexed settings
-    output.write("indexCount", indexCount);
+    // vkCmdDraw settings
+    output.write("vertexCount", vertexCount);
     output.write("instanceCount", instanceCount);
-    output.write("firstIndex", firstIndex);
-    output.write("vertexOffset", vertexOffset);
+    output.write("firstVertex", firstVertex);
     output.write("firstInstance", firstInstance);
 }
 
-void VertexIndexDraw::compile(Context& context)
+void VertexDraw::compile(Context& context)
 {
-    if (arrays.empty() || !indices)
+    if (arrays.empty())
     {
-        // VertexIndexDraw does not contain required arrays and indices
+        // VertexDraw does not contain required arrays
         return;
     }
 
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    if (indices->requiresCopy(deviceID))
-        requiresCreateAndCopy = true;
-    else
+    for (auto& array : arrays)
     {
-        for (auto& array : arrays)
+        if (array->requiresCopy(deviceID))
         {
-            if (array->requiresCopy(deviceID))
-            {
-                requiresCreateAndCopy = true;
-                break;
-            }
+            requiresCreateAndCopy = true;
+            break;
         }
     }
 
     if (requiresCreateAndCopy)
     {
         BufferInfoList combinedBufferInfos(arrays);
-        combinedBufferInfos.push_back(indices);
         createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
-        // info("VertexIndexDraw::compile() create and copy ", this);
+        // info("VertexDraw::compile() create and copy ", this);
     }
     else
     {
-        // info("VertexIndexDraw::compile() no need to create and copy ", this);
+        // info("VertexDraw::compile() no need to create and copy ", this);
     }
 
     assignVulkanArrayData(deviceID, arrays, _vulkanData[deviceID]);
 }
 
-void VertexIndexDraw::record(CommandBuffer& commandBuffer) const
+void VertexDraw::record(CommandBuffer& commandBuffer) const
 {
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 
     VkCommandBuffer cmdBuffer{commandBuffer};
 
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
-
-    vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(commandBuffer.deviceID), indices->offset, indexType);
-
-    vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 }

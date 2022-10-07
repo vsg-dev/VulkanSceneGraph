@@ -37,6 +37,7 @@ namespace vsg
     class MatrixTransform;
     class Transform;
     class Geometry;
+    class VertexDraw;
     class VertexIndexDraw;
     class DepthSorted;
     class Bin;
@@ -258,6 +259,7 @@ namespace vsg
         virtual void apply(const MatrixTransform&);
         virtual void apply(const Transform&);
         virtual void apply(const Geometry&);
+        virtual void apply(const VertexDraw&);
         virtual void apply(const VertexIndexDraw&);
         virtual void apply(const DepthSorted&);
         virtual void apply(const Bin&);
