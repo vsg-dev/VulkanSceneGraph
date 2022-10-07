@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2022 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -20,12 +20,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /** VertexIndexDraw provides a lightweight way of binding vertex arrays, indices and then issueing a vkCmdDrawIndexed command.
-      * Higher performance equivilant to use of indiviual vsg::BindVertexBuffers, vsg::BVindIndexBuffer and vsg::DrawIndex commands.*/
-    class VSG_DECLSPEC VertexIndexDraw : public Inherit<Command, VertexIndexDraw>
+    /** VertexDraw provides a lightweight way of binding vertex arrays and then issueing a vkCmdDrawIndexed command.
+      * Higher performance equivilant to use of indiviual vsg::BindVertexBuffers and vsg::DrawIndex commands.*/
+    class VSG_DECLSPEC VertexDraw : public Inherit<Command, VertexDraw>
     {
     public:
-        VertexIndexDraw();
+        VertexDraw();
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -33,27 +33,23 @@ namespace vsg
         void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
-        // vkCmdDrawIndexed settings
-        // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
-        uint32_t indexCount = 0;
+        // vkCmdDraw settings
+        // vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+        uint32_t vertexCount = 0;
         uint32_t instanceCount = 0;
-        uint32_t firstIndex = 0;
-        uint32_t vertexOffset = 0;
+        uint32_t firstVertex = 0;
         uint32_t firstInstance = 0;
 
         uint32_t firstBinding = 0;
         BufferInfoList arrays;
-        ref_ptr<BufferInfo> indices;
 
         void assignArrays(const DataList& in_arrays);
-        void assignIndices(ref_ptr<Data> in_indices);
 
     protected:
-        virtual ~VertexIndexDraw();
+        virtual ~VertexDraw();
 
         vk_buffer<VulkanArrayData> _vulkanData;
-        VkIndexType indexType = VK_INDEX_TYPE_UINT16;
     };
-    VSG_type_name(vsg::VertexIndexDraw)
+    VSG_type_name(vsg::VertexDraw)
 
 } // namespace vsg

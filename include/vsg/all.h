@@ -71,6 +71,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Switch.h>
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/nodes/Transform.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 
 // Commands header files
