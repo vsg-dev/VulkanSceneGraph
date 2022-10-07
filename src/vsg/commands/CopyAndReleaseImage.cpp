@@ -167,7 +167,6 @@ void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ref_ptr<ImageInfo> d
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
     ref_ptr<Buffer> imageStagingBuffer(source->buffer);
-    ref_ptr<Data> data(source->data);
     ref_ptr<Image> textureImage(destination->imageView->image);
     auto aspectMask = destination->imageView->subresourceRange.aspectMask;
     VkImageLayout targetImageLayout = destination->imageLayout;
