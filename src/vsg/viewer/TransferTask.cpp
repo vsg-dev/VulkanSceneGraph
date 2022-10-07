@@ -98,7 +98,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
 {
     Logger::Level level = Logger::LOGGER_DEBUG;
-    level = Logger::LOGGER_INFO;
+    //level = Logger::LOGGER_INFO;
 
     uint32_t deviceID = device->deviceID;
     auto& staging = frame.staging;
@@ -199,11 +199,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
     Logger::Level level = Logger::LOGGER_DEBUG;
     level = Logger::LOGGER_INFO;
 
-    uint32_t deviceID = device->deviceID;
-    auto& staging = frame.staging;
-    auto& buffer_data = frame.buffer_data;
-
-    // copy any modified ImageInfo
+    // transfer any modified ImageInfo
     for(auto imageInfo_itr = _dynamicImageInfoSet.begin(); imageInfo_itr != _dynamicImageInfoSet.end();)
     {
         auto& imageInfo = *imageInfo_itr;
@@ -214,52 +210,326 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
         }
         else
         {
-            auto& data = imageInfo->imageView->image->data;
-            char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
+            #if 0
+                auto& data = imageInfo->imageView->image->data;
 
-            log(level, "ImageInfo needs copying ", data);
-#if 0
-            if (data->getModifiedCount(imageInfo->copiedModifiedCounts[deviceID]))
-            {
-                ++numTransferred;
-            }
-#endif
-
-            VkFormat sourceFormat = data->getLayout().format;
-            VkFormat targetFormat = imageInfo->imageView->format;
-            if (sourceFormat == targetFormat)
-            {
-                info("    sourceFormat and targetFormat compatible.");
-                std::memcpy(ptr, data->dataPointer(), data->dataSize());
-                offset += data->dataSize();
-            }
-            else
-            {
-                auto sourceTraits = getFormatTraits(sourceFormat);
-                auto targetTraits = getFormatTraits(targetFormat);
-                if (sourceTraits.size == targetTraits.size)
+                if (data->getModifiedCount(imageInfo->copiedModifiedCounts[deviceID]))
                 {
-                    info("    sourceTraits.size and targetTraits.size compatible.");
-                    std::memcpy(ptr, data->dataPointer(), data->dataSize());
-                    offset += data->dataSize();
+                    ++numTransferred;
                 }
-                else
-                {
-                    VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+            #endif
 
-                    info("    sourceTraits.size and targetTraits.size not compatible. dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
-                }
-            }
+            _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
 
             ++imageInfo_itr;
         }
     }
 }
 
-VkResult TransferTask::transferDynamicData()
+void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo)
 {
     Logger::Level level = Logger::LOGGER_DEBUG;
     level = Logger::LOGGER_INFO;
+
+    uint32_t deviceID = device->deviceID;
+    auto& imageStagingBuffer = frame.staging;
+    auto& buffer_data = frame.buffer_data;
+    char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
+
+    auto& data = imageInfo.imageView->image->data;
+
+    auto source_offset = offset;
+
+    log(level, "ImageInfo needs copying ", data);
+
+    // copy data.
+    VkFormat sourceFormat = data->getLayout().format;
+    VkFormat targetFormat = imageInfo.imageView->format;
+    if (sourceFormat == targetFormat)
+    {
+        info("    sourceFormat and targetFormat compatible.");
+        std::memcpy(ptr, data->dataPointer(), data->dataSize());
+        offset += data->dataSize();
+    }
+    else
+    {
+        auto sourceTraits = getFormatTraits(sourceFormat);
+        auto targetTraits = getFormatTraits(targetFormat);
+        if (sourceTraits.size == targetTraits.size)
+        {
+            info("    sourceTraits.size and targetTraits.size compatible.");
+            std::memcpy(ptr, data->dataPointer(), data->dataSize());
+            offset += data->dataSize();
+        }
+        else
+        {
+            VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+
+            info("    sourceTraits.size and targetTraits.size not compatible. dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
+
+            return;
+        }
+    }
+
+    // transfer data.
+    auto& textureImage = imageInfo.imageView->image;
+    auto aspectMask = imageInfo.imageView->subresourceRange.aspectMask;
+    VkImageLayout targetImageLayout = imageInfo.imageLayout;
+
+    auto layout = data->getLayout();
+    auto width = data->width();
+    auto height = data->height();
+    auto depth = data->depth();
+    auto mipmapOffsets = data->computeMipmapOffsets();
+    uint32_t mipLevels = 1; // TODO : how to set?
+
+    uint32_t faceWidth = width;
+    uint32_t faceHeight = height;
+    uint32_t faceDepth = depth;
+    uint32_t arrayLayers = 1;
+
+    switch (imageInfo.imageView->viewType)
+    {
+    case (VK_IMAGE_VIEW_TYPE_CUBE):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_1D_ARRAY):
+        arrayLayers = faceHeight * faceDepth;
+        faceHeight = 1;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    default:
+        break;
+    }
+
+    uint32_t destWidth = faceWidth * layout.blockWidth;
+    uint32_t destHeight = faceHeight * layout.blockHeight;
+    uint32_t destDepth = faceDepth * layout.blockDepth;
+
+    const auto valueSize = layout.stride; // data->valueSize();
+
+    bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
+    bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+
+    auto vk_textureImage = textureImage->vk(deviceID);
+
+    if (generatMipmaps)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), layout.format, &props);
+        const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
+
+        if (!isBlitPossible)
+        {
+            generatMipmaps = false;
+        }
+    }
+
+    // transfer the data.
+    VkImageMemoryBarrier preCopyBarrier = {};
+    preCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    preCopyBarrier.srcAccessMask = 0;
+    preCopyBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    preCopyBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    preCopyBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    preCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preCopyBarrier.image = vk_textureImage;
+    preCopyBarrier.subresourceRange.aspectMask = aspectMask;
+    preCopyBarrier.subresourceRange.baseArrayLayer = 0;
+    preCopyBarrier.subresourceRange.layerCount = arrayLayers;
+    preCopyBarrier.subresourceRange.levelCount = mipLevels;
+    preCopyBarrier.subresourceRange.baseMipLevel = 0;
+
+    vkCmdPipelineBarrier(vk_commandBuffer,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                         0, nullptr,
+                         0, nullptr,
+                         1, &preCopyBarrier);
+
+    std::vector<VkBufferImageCopy> regions;
+
+    if (useDataMipmaps)
+    {
+        size_t local_offset = 0u;
+        regions.resize(mipLevels * arrayLayers);
+
+        uint32_t mipWidth = destWidth;
+        uint32_t mipHeight = destHeight;
+        uint32_t mipDepth = destDepth;
+
+        for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
+        {
+            const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
+
+            for (uint32_t face = 0; face < arrayLayers; ++face)
+            {
+                auto& region = regions[mipLevel * arrayLayers + face];
+                region.bufferOffset = source_offset + local_offset;
+                region.bufferRowLength = 0;
+                region.bufferImageHeight = 0;
+                region.imageSubresource.aspectMask = aspectMask;
+                region.imageSubresource.mipLevel = mipLevel;
+                region.imageSubresource.baseArrayLayer = face;
+                region.imageSubresource.layerCount = 1;
+                region.imageOffset = {0, 0, 0};
+                region.imageExtent = {mipWidth, mipHeight, mipDepth};
+
+                local_offset += faceSize;
+            }
+
+            if (mipWidth > 1) mipWidth /= 2;
+            if (mipHeight > 1) mipHeight /= 2;
+            if (mipDepth > 1) mipDepth /= 2;
+            if (faceWidth > 1) faceWidth /= 2;
+            if (faceHeight > 1) faceHeight /= 2;
+            if (faceDepth > 1) faceDepth /= 2;
+        }
+    }
+    else
+    {
+        regions.resize(arrayLayers);
+
+        const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
+        for (auto face = 0u; face < arrayLayers; face++)
+        {
+            auto& region = regions[face];
+            region.bufferOffset = source_offset + face * faceSize;
+            region.bufferRowLength = 0;
+            region.bufferImageHeight = 0;
+            region.imageSubresource.aspectMask = aspectMask;
+            region.imageSubresource.mipLevel = 0;
+            region.imageSubresource.baseArrayLayer = face;
+            region.imageSubresource.layerCount = 1;
+            region.imageOffset = {0, 0, 0};
+            region.imageExtent = {destWidth, destHeight, destDepth};
+        }
+    }
+
+    vkCmdCopyBufferToImage(vk_commandBuffer, imageStagingBuffer->vk(deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<uint32_t>(regions.size()), regions.data());
+
+    if (generatMipmaps)
+    {
+        VkImageMemoryBarrier barrier = {};
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.image = vk_textureImage;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask = aspectMask;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = arrayLayers;
+        barrier.subresourceRange.levelCount = 1;
+
+        int32_t mipWidth = destWidth;
+        int32_t mipHeight = destHeight;
+        int32_t mipDepth = destDepth;
+
+        for (uint32_t i = 1; i < mipLevels; ++i)
+        {
+            barrier.subresourceRange.baseMipLevel = i - 1;
+            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+            vkCmdPipelineBarrier(vk_commandBuffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
+
+            std::vector<VkImageBlit> blits(arrayLayers);
+
+            for (auto face = 0u; face < arrayLayers; ++face)
+            {
+                auto& blit = blits[face];
+                blit.srcOffsets[0] = {0, 0, 0};
+                blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
+                blit.srcSubresource.aspectMask = aspectMask;
+                blit.srcSubresource.mipLevel = i - 1;
+                blit.srcSubresource.baseArrayLayer = face;
+                blit.srcSubresource.layerCount = arrayLayers;
+                blit.dstOffsets[0] = {0, 0, 0};
+                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
+                blit.dstSubresource.aspectMask = aspectMask;
+                blit.dstSubresource.mipLevel = i;
+                blit.dstSubresource.baseArrayLayer = face;
+                blit.dstSubresource.layerCount = arrayLayers;
+            }
+
+            vkCmdBlitImage(vk_commandBuffer,
+                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<uint32_t>(blits.size()), blits.data(),
+                           VK_FILTER_LINEAR);
+
+            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.newLayout = targetImageLayout;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            vkCmdPipelineBarrier(vk_commandBuffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
+
+            if (mipWidth > 1) mipWidth /= 2;
+            if (mipHeight > 1) mipHeight /= 2;
+            if (mipDepth > 1) mipDepth /= 2;
+        }
+
+        barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout = targetImageLayout;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(vk_commandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                             0, nullptr,
+                             0, nullptr,
+                             1, &barrier);
+    }
+    else
+    {
+        VkImageMemoryBarrier postCopyBarrier = {};
+        postCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        postCopyBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        postCopyBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        postCopyBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        postCopyBarrier.newLayout = targetImageLayout;
+        postCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postCopyBarrier.image = vk_textureImage;
+        postCopyBarrier.subresourceRange.aspectMask = aspectMask;
+        postCopyBarrier.subresourceRange.baseArrayLayer = 0;
+        postCopyBarrier.subresourceRange.layerCount = arrayLayers;
+        postCopyBarrier.subresourceRange.levelCount = mipLevels;
+        postCopyBarrier.subresourceRange.baseMipLevel = 0;
+
+        vkCmdPipelineBarrier(vk_commandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                             0, nullptr,
+                             0, nullptr,
+                             1, &postCopyBarrier);
+    }
+}
+
+VkResult TransferTask::transferDynamicData()
+{
+    Logger::Level level = Logger::LOGGER_DEBUG;
+    //level = Logger::LOGGER_INFO;
 
     size_t frameIndex = index(0);
     if (frameIndex > _frames.size()) return VK_SUCCESS;

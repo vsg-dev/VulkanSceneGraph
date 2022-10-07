@@ -78,7 +78,9 @@ namespace vsg
         std::vector<Frame> _frames;
 
         void _transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
+
         void _transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
+        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
     };
     VSG_type_name(vsg::TransferTask);
 
