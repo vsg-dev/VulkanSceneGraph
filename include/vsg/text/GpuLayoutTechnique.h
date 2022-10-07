@@ -24,11 +24,11 @@ namespace vsg
     struct LayoutStruct
     {
         vec3 position = vec3(0.0f, 0.0f, 0.0f);
-        float pad0;
+        float billboardAutoScaleDistance = 0.0;
         vec3 horizontal = vec3(1.0f, 0.0f, 0.0f);
-        float pad1;
+        float horizontalAlignment = 0.0;
         vec3 vertical = vec3(0.0f, 1.0f, 0.0f);
-        float pad2;
+        float verticalAlignment = 0.0;
         vec4 color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         vec4 outlineColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
         float outlineWidth = 0.0f;
@@ -49,9 +49,12 @@ namespace vsg
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void setup(Text* text, uint32_t minimumAllocation = 0) override;
+        void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
+        dbox extents() const override { return textExtents; }
 
         // implementation data structure
-        ref_ptr<StateGroup> scenegraph;
+        dbox textExtents;
+        ref_ptr<Node> scenegraph;
 
         ref_ptr<vec3Array> vertices;
         ref_ptr<Draw> draw;
@@ -61,7 +64,6 @@ namespace vsg
         ref_ptr<DescriptorBuffer> textDescriptor;
         ref_ptr<DescriptorBuffer> layoutDescriptor;
         ref_ptr<BindDescriptorSet> bindTextDescriptorSet;
-
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
     };
     VSG_type_name(vsg::GpuLayoutTechnique);

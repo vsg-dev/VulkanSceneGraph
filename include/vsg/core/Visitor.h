@@ -48,6 +48,12 @@ namespace vsg
     class SpotLight;
 
     // forward declare vulkan classes
+    class Text;
+    class TextGroup;
+    class TextTechnique;
+    class TextLayout;
+
+    // forward declare vulkan classes
     class BufferInfo;
     class Command;
     class StateCommand;
@@ -261,6 +267,12 @@ namespace vsg
         virtual void apply(DirectionalLight&);
         virtual void apply(PointLight&);
         virtual void apply(SpotLight&);
+
+        // text
+        virtual void apply(Text&);
+        virtual void apply(TextGroup&);
+        virtual void apply(TextTechnique&);
+        virtual void apply(TextLayout&);
 
         // Vulkan nodes
         virtual void apply(BufferInfo&);

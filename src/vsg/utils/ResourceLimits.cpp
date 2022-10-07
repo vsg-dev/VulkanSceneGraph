@@ -138,6 +138,18 @@ namespace glslang
         /* .maxTaskWorkGroupSizeZ_NV = */ 1,
         /* .maxMeshViewCountNV = */ 4,
 
+#ifdef GLSLANG_ResourceLimits_maxMeshViewCountEXT
+        /* .maxMeshOutputVerticesEXT= */ 1,
+        /* .maxMeshOutputPrimitivesEXT= */ 1,
+        /* .maxMeshWorkGroupSizeX_EXT= */ 1,
+        /* .maxMeshWorkGroupSizeY_EXT= */ 1,
+        /* .maxMeshWorkGroupSizeZ_EXT= */ 1,
+        /* .maxTaskWorkGroupSizeX_EXT= */ 1,
+        /* .maxTaskWorkGroupSizeY_EXT= */ 1,
+        /* .maxTaskWorkGroupSizeZ_EXT= */ 1,
+        /* .maxMeshViewCountEXT= */ 1,
+#endif
+
 #ifdef GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT
         /*.maxDualSourceDrawBuffersEXT =*/1,
 #endif

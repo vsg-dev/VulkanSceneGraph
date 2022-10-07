@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Array2D.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 #include <vsg/state/DescriptorImage.h>
@@ -66,6 +67,10 @@ void Text::setup(uint32_t minimumAllocation)
     technique->setup(this, minimumAllocation);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// createTextShaderSet
+//
 ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
 {
     if (options)
@@ -98,6 +103,7 @@ ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
     shaderSet->addAttributeBinding("inOutlineColor", "CPU_LAYOUT", 2, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
     shaderSet->addAttributeBinding("inOutlineWidth", "CPU_LAYOUT", 3, VK_FORMAT_R32_SFLOAT, floatArray::create(1));
     shaderSet->addAttributeBinding("inTexCoord", "CPU_LAYOUT", 4, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
+    shaderSet->addAttributeBinding("inCenterAndAutoScaleDistance", "BILLBOARD", 5, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
 
     // only used when using GPU Layout
     shaderSet->addUniformBinding("glyphMetrics", "GPU_LAYOUT", 0, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vec4Array2D::create(1, 1));
@@ -105,4 +111,28 @@ ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
     shaderSet->addUniformBinding("text", "GPU_LAYOUT", 1, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, uivec4Array2D::create(1, 1));
 
     return shaderSet;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CountGlyphs
+//
+void CountGlyphs::apply(const stringValue& text)
+{
+    count += text.value().size();
+}
+
+void CountGlyphs::apply(const ubyteArray& text)
+{
+    count += text.size();
+}
+
+void CountGlyphs::apply(const ushortArray& text)
+{
+    count += text.size();
+}
+
+void CountGlyphs::apply(const uintArray& text)
+{
+    count += text.size();
 }

@@ -134,6 +134,7 @@ set(SOURCES
     text/Font.cpp
     text/StandardLayout.cpp
     text/Text.cpp
+    text/TextGroup.cpp
 
     traversals/RecordTraversal.cpp
     traversals/CompileTraversal.cpp
@@ -257,7 +258,7 @@ if (glslang_FOUND)
     set(CMAKE_REQUIRED_INCLUDES ${glslang_INCLUDE_DIR})
 
     if (NOT GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
-        check_cxx_source_runs("
+        check_cxx_source_compiles("
             #include <glslang/Include/ResourceLimits.h>
 
             int main()
@@ -269,8 +270,12 @@ if (glslang_FOUND)
         " GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
     endif()
 
+    if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
+        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT")
+    endif()
+
     if (NOT GLSLANG_EShLanguage_EShLangRayGen)
-        check_cxx_source_runs("
+        check_cxx_source_compiles("
             #include <glslang/Public/ShaderLang.h>
 
             int main()
@@ -282,7 +287,7 @@ if (glslang_FOUND)
     endif()
 
     if (NOT GLSLANG_EShLanguage_EShLangRayGenNV)
-        check_cxx_source_runs("
+        check_cxx_source_compiles("
             #include <glslang/Public/ShaderLang.h>
 
             int main()
@@ -299,9 +304,21 @@ if (glslang_FOUND)
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_EShLangRayGenNV")
     endif()
 
-    # check whether glslang/build_info.h exists
-    if (GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
-        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT")
+    if (NOT DEFINED GLSLANG_ResourceLimits_maxMeshViewCountEXT)
+        check_cxx_source_compiles("
+            #include <glslang/Include/ResourceLimits.h>
+
+            int main()
+            {
+                TBuiltInResource resource;
+                resource.maxMeshViewCountEXT = 0;
+                return 0;
+            }
+        " GLSLANG_ResourceLimits_maxMeshViewCountEXT)
+    endif()
+
+    if (GLSLANG_ResourceLimits_maxMeshViewCountEXT)
+        set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxMeshViewCountEXT")
     endif()
 
     install(

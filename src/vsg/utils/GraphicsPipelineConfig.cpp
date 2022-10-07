@@ -114,7 +114,7 @@ void GraphicsPipelineConfig::reset()
     shaderHints->defines.clear();
 }
 
-bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride)
+bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format)
 {
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
@@ -122,7 +122,7 @@ bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputR
         // set up bindings
         uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(vertexInputState->vertexAttributeDescriptions.size());
         if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
-        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, attributeBinding.format, 0});
+        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
         vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, stride, vertexInputRate});
         return true;
     }
@@ -134,10 +134,12 @@ bool GraphicsPipelineConfig::assignArray(DataList& arrays, const std::string& na
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
     {
+        VkFormat format = array ? array->getLayout().format : VK_FORMAT_UNDEFINED;
+
         // set up bindings
         uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(arrays.size());
         if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
-        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, attributeBinding.format, 0});
+        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
         vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, array->getLayout().stride, vertexInputRate});
 
         arrays.push_back(array);

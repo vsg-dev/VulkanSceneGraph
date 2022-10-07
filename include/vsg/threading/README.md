@@ -1,4 +1,4 @@
-## Threading class that build ontop of std::threading functionality
+## Threading class that build on top of std::threading functionality
 
 * [ActivityStatus.h](ActivityStatus.h)
 * [Affinity.h](Affinity.h)

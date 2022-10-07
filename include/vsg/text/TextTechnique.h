@@ -25,6 +25,8 @@ namespace vsg
     {
     public:
         virtual void setup(Text* text, uint32_t minimumAllocation = 0) = 0;
+        virtual void setup(TextGroup* text, uint32_t minimumAllocation = 0) = 0;
+        virtual dbox extents() const = 0;
     };
     VSG_type_name(vsg::TextTechnique);
 

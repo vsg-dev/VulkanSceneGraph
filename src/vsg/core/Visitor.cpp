@@ -504,7 +504,28 @@ void Visitor::apply(SpotLight& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Vulkan Object
+// Text Objects
+//
+void Visitor::apply(Text& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(TextGroup& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(TextTechnique& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(TextLayout& value)
+{
+    apply(static_cast<Object&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Vulkan Objects
 //
 void Visitor::apply(BufferInfo& value)
 {
