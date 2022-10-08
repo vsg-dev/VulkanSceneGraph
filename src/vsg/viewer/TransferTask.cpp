@@ -170,10 +170,13 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 
 void TransferTask::assign(const ImageInfoList& imageInfoList)
 {
-    info("TransferTask::assign(imageInfoList) ", imageInfoList.size());
+    Logger::Level level = Logger::LOGGER_DEBUG;
+    //level = Logger::LOGGER_INFO;
+
+    log(level, "TransferTask::assign(imageInfoList) ", imageInfoList.size());
     for (auto& imageInfo : imageInfoList)
     {
-        info("    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
+        log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
         _dynamicImageInfoSet.insert(imageInfo);
     }
 
@@ -184,14 +187,17 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
     for(auto& imageInfo : _dynamicImageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
-        VkDeviceSize imageSize = data->dataSize();
 
-        VkDeviceSize endOfEntry = offset + imageSize;
+        VkFormat targetFormat = imageInfo->imageView->format;
+        auto targetTraits = getFormatTraits(targetFormat);
+        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+
+        VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
     _dynamicImageTotalSize = offset;
 
-    info("    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
+    log(level, "    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
 }
 
 void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
@@ -229,7 +235,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
 void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo)
 {
     Logger::Level level = Logger::LOGGER_DEBUG;
-    level = Logger::LOGGER_INFO;
+    //level = Logger::LOGGER_INFO;
 
     uint32_t deviceID = device->deviceID;
     auto& imageStagingBuffer = frame.staging;
@@ -237,41 +243,6 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
 
     auto& data = imageInfo.imageView->image->data;
-
-    auto source_offset = offset;
-
-    log(level, "ImageInfo needs copying ", data);
-
-    // copy data.
-    VkFormat sourceFormat = data->getLayout().format;
-    VkFormat targetFormat = imageInfo.imageView->format;
-    if (sourceFormat == targetFormat)
-    {
-        info("    sourceFormat and targetFormat compatible.");
-        std::memcpy(ptr, data->dataPointer(), data->dataSize());
-        offset += data->dataSize();
-    }
-    else
-    {
-        auto sourceTraits = getFormatTraits(sourceFormat);
-        auto targetTraits = getFormatTraits(targetFormat);
-        if (sourceTraits.size == targetTraits.size)
-        {
-            info("    sourceTraits.size and targetTraits.size compatible.");
-            std::memcpy(ptr, data->dataPointer(), data->dataSize());
-            offset += data->dataSize();
-        }
-        else
-        {
-            VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
-
-            info("    sourceTraits.size and targetTraits.size not compatible. dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
-
-            return;
-        }
-    }
-
-    // transfer data.
     auto& textureImage = imageInfo.imageView->image;
     auto aspectMask = imageInfo.imageView->subresourceRange.aspectMask;
     VkImageLayout targetImageLayout = imageInfo.imageLayout;
@@ -282,6 +253,71 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     auto depth = data->depth();
     auto mipmapOffsets = data->computeMipmapOffsets();
     uint32_t mipLevels = 1; // TODO : how to set?
+
+    auto source_offset = offset;
+
+    log(level, "ImageInfo needs copying ", data);
+
+    // copy data.
+    VkFormat sourceFormat = data->getLayout().format;
+    VkFormat targetFormat = imageInfo.imageView->format;
+    if (sourceFormat == targetFormat)
+    {
+        log(level, "    sourceFormat and targetFormat compatible.");
+        std::memcpy(ptr, data->dataPointer(), data->dataSize());
+        offset += data->dataSize();
+    }
+    else
+    {
+        auto sourceTraits = getFormatTraits(sourceFormat);
+        auto targetTraits = getFormatTraits(targetFormat);
+        if (sourceTraits.size == targetTraits.size)
+        {
+            log(level, "    sourceTraits.size and targetTraits.size compatible.");
+            std::memcpy(ptr, data->dataPointer(), data->dataSize());
+            offset += data->dataSize();
+        }
+        else
+        {
+            VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+
+            layout.format = targetFormat;
+            layout.stride = targetTraits.size;
+
+            log(level, "    sourceTraits.size and targetTraits.size not compatible. dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
+
+            // set up a vec4 worth of default values for the type
+            const uint8_t* default_ptr = targetTraits.defaultValue;
+            uint32_t bytesFromSource = sourceTraits.size;
+            uint32_t bytesToTarget = targetTraits.size;
+
+            offset += imageTotalSize;
+
+            // copy data
+            using value_type = uint8_t;
+            const value_type* src_ptr = reinterpret_cast<const value_type*>(data->dataPointer());
+
+            value_type* dest_ptr = reinterpret_cast<value_type*>(ptr);
+
+            size_t valueCount = data->valueCount();
+            for (size_t i = 0; i < valueCount; ++i)
+            {
+                uint32_t s = 0;
+                for (; s < bytesFromSource; ++s)
+                {
+                    (*dest_ptr++) = *(src_ptr++);
+                }
+
+                const value_type* src_default = default_ptr;
+                for (; s < bytesToTarget; ++s)
+                {
+                    (*dest_ptr++) = *(src_default++);
+                }
+            }
+        }
+    }
+
+    // transfer data.
 
     uint32_t faceWidth = width;
     uint32_t faceHeight = height;
