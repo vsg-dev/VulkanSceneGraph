@@ -252,11 +252,11 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     auto height = data->height();
     auto depth = data->depth();
     auto mipmapOffsets = data->computeMipmapOffsets();
-    uint32_t mipLevels = 1; // TODO : how to set?
+    uint32_t mipLevels = vsg::computeNumMipMapLevels(data, imageInfo.sampler);
 
     auto source_offset = offset;
 
-    log(level, "ImageInfo needs copying ", data);
+    log(level, "ImageInfo needs copying ", data, ", mipLevels = ", mipLevels);
 
     // copy data.
     VkFormat sourceFormat = data->getLayout().format;
