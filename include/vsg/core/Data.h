@@ -46,6 +46,12 @@ namespace vsg
         BOTTOM_LEFT = 2
     };
 
+    enum DataVariance : uint8_t
+    {
+        STATIC_DATA = 0,
+        DYNAMIC_DATA = 1
+    };
+
     template<typename T>
     struct stride_iterator
     {
@@ -105,7 +111,7 @@ namespace vsg
             uint8_t blockDepth = 1;
             uint8_t origin = TOP_LEFT; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
             int8_t imageViewType = -1; /// -1 signifies undefined VkImageViewType, if value >=0 then value should be treated as valid VkImageViewType.
-            bool dynamic = false;      /// If dynamic is true then the data values may change during the lifetime of the vsg::Data.
+            DataVariance dataVariance = STATIC_DATA; /// hint as how the data values may change during the lifetime of the vsg::Data.
             AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;
 
             int compare(const Layout& rhs) const
@@ -170,6 +176,8 @@ namespace vsg
 
         /** Get the Layout.*/
         Layout getLayout() const { return _layout; }
+
+        bool dynamic() const { return _layout.dataVariance >= STATIC_DATA; }
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;

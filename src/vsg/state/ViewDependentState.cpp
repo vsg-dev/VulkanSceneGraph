@@ -113,7 +113,7 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 ViewDependentState::ViewDependentState(uint32_t maxNumberLights) :
     lightData(vec4Array::create(maxNumberLights)) // spot light requires 3 vec4's per light
 {
-    lightData->getLayout().dynamic = true;
+    lightData->getLayout().dataVariance = DYNAMIC_DATA;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
 
     DescriptorSetLayoutBindings descriptorBindings{

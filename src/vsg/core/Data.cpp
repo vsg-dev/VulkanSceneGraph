@@ -34,14 +34,14 @@ void Data::read(Input& input)
 
     uint32_t format = 0;
 
-    if (input.version_greater_equal(0, 5, 5))
+    if (input.version_greater_equal(0, 5, 7))
     {
-        input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType, _layout.dynamic);
+        input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType, _layout.dataVariance);
     }
     else
     {
         input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
-        _layout.dynamic = false;
+        _layout.dataVariance = STATIC_DATA;
     }
 
     _layout.format = VkFormat(format);
@@ -52,9 +52,9 @@ void Data::write(Output& output) const
     Object::write(output);
 
     uint32_t format = _layout.format;
-    if (output.version_greater_equal(0, 5, 5))
+    if (output.version_greater_equal(0, 5, 7))
     {
-        output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType, _layout.dynamic);
+        output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType, _layout.dataVariance);
     }
     else
     {

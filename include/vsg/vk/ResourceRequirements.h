@@ -102,7 +102,7 @@ namespace vsg
 
         inline void apply(ref_ptr<BufferInfo> bufferInfo)
         {
-            if (bufferInfo && bufferInfo->data && bufferInfo->data->getLayout().dynamic)
+            if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
             {
                 requirements.dynamicBufferInfos.push_back(bufferInfo);
             }
@@ -113,7 +113,7 @@ namespace vsg
             if (imageInfo && imageInfo->imageView && imageInfo->imageView->image)
             {
                 auto& data = imageInfo->imageView->image->data;
-                if (data && data->getLayout().dynamic)
+                if (data && data->dynamic())
                 {
                     requirements.dynamicImageInfos.push_back(imageInfo);
                 }
