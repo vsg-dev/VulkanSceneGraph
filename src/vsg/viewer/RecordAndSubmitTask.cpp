@@ -189,7 +189,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ", compileResult.dynamicBufferInfos.size());
-    if (!compileResult.dynamicBufferInfos.empty())
+    if (!compileResult.dynamicBufferInfos.empty() || !compileResult.dynamicImageInfos.empty())
     {
         //for(auto& bufferInfo : compileResult.dynamicBufferInfos)
         //{
