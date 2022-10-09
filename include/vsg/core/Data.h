@@ -177,7 +177,7 @@ namespace vsg
         /** Get the Layout.*/
         Layout getLayout() const { return _layout; }
 
-        bool dynamic() const { return _layout.dataVariance >= STATIC_DATA; }
+        bool dynamic() const { return _layout.dataVariance >= DYNAMIC_DATA; }
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
