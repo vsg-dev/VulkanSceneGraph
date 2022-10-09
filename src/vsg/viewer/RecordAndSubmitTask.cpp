@@ -28,10 +28,10 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
         _indices.emplace_back(numBuffers); // numBuffers is used to signify unset value
     }
 
-    _frames.resize(numBuffers);
+    _fences.resize(numBuffers);
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
-        _frames[i].fence = vsg::Fence::create(device);
+        _fences[i] = vsg::Fence::create(device);
     }
 
     transferTask = vsg::TransferTask::create(in_device, numBuffers);
@@ -74,7 +74,7 @@ size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
 Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 {
     size_t i = index(relativeFrameIndex);
-    return i < _frames.size() ? _frames[i].fence.get() : nullptr;
+    return i < _fences.size() ? _fences[i].get() : nullptr;
 }
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)

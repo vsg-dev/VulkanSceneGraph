@@ -60,13 +60,7 @@ namespace vsg
     protected:
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;
-
-        struct Frame
-        {
-            ref_ptr<Fence> fence;
-        };
-
-        std::vector<Frame> _frames;
+        std::vector<ref_ptr<Fence>> _fences;
     };
     VSG_type_name(vsg::RecordAndSubmitTask);
 
