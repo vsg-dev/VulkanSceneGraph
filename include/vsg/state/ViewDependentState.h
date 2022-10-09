@@ -104,7 +104,6 @@ namespace vsg
             node.lightDescriptorSet->accept(visitor);
         }
 
-
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 

@@ -59,7 +59,6 @@ void RecordAndSubmitTask::advance()
     // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
 
-
     if (transferTask)
     {
         transferTask->advance();
@@ -186,7 +185,6 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 
     return queue->submit(submitInfo, current_fence);
 }
-
 
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {

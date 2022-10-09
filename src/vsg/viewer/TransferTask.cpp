@@ -82,9 +82,9 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
     VkDeviceSize alignment = 4;
 
     _dynamicDataTotalRegions = 0;
-    for(auto& [buffer, bufferInfos] : _dynamicDataMap)
+    for (auto& [buffer, bufferInfos] : _dynamicDataMap)
     {
-        for(auto& offset_bufferInfo : bufferInfos)
+        for (auto& offset_bufferInfo : bufferInfos)
         {
             auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
@@ -112,16 +112,16 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
     VkBufferCopy* pRegions = copyRegions.data();
 
     // copy any modified BufferInfo
-    for(auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
+    for (auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
     {
         auto& buffer = buffer_itr->first;
         auto& bufferInfos = buffer_itr->second;
 
         uint32_t regionCount = 0;
-        for(auto bufferInfo_itr = bufferInfos.begin(); bufferInfo_itr != bufferInfos.end();)
+        for (auto bufferInfo_itr = bufferInfos.begin(); bufferInfo_itr != bufferInfos.end();)
         {
             auto& bufferInfo = bufferInfo_itr->second;
-            if (bufferInfo->referenceCount()==1)
+            if (bufferInfo->referenceCount() == 1)
             {
                 log(level, "BufferInfo only ref left ", bufferInfo, ", ", bufferInfo->referenceCount());
                 bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
@@ -184,7 +184,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    for(auto& imageInfo : _dynamicImageInfoSet)
+    for (auto& imageInfo : _dynamicImageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
 
@@ -206,7 +206,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
     level = Logger::LOGGER_INFO;
 
     // transfer any modified ImageInfo
-    for(auto imageInfo_itr = _dynamicImageInfoSet.begin(); imageInfo_itr != _dynamicImageInfoSet.end();)
+    for (auto imageInfo_itr = _dynamicImageInfoSet.begin(); imageInfo_itr != _dynamicImageInfoSet.end();)
     {
         auto& imageInfo = *imageInfo_itr;
         if (imageInfo->referenceCount() == 1)
@@ -216,14 +216,14 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
         }
         else
         {
-            #if 0
+#if 0
                 auto& data = imageInfo->imageView->image->data;
 
                 if (data->getModifiedCount(imageInfo->copiedModifiedCounts[deviceID]))
                 {
                     ++numTransferred;
                 }
-            #endif
+#endif
 
             _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
 
@@ -615,7 +615,6 @@ VkResult TransferTask::transferDynamicData()
     }
 
     log(level, "   totalSize = ", totalSize);
-
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

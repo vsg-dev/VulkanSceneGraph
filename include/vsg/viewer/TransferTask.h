@@ -34,7 +34,7 @@ namespace vsg
 
         ref_ptr<Device> device;
         Semaphores waitSemaphores;
-        Semaphores signalSemaphores;       // connect to Presentation.waitSemaphores
+        Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
         /// advance the currentFrameIndex
         void advance();
@@ -52,7 +52,6 @@ namespace vsg
         ref_ptr<Semaphore> currentTransferCompletedSemaphore;
 
     protected:
-
         using OffsetBufferInfoMap = std::map<uint32_t, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 

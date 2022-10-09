@@ -40,8 +40,8 @@ namespace vsg
         ref_ptr<Device> device;
         Windows windows;
         Semaphores waitSemaphores;
-        CommandGraphs commandGraphs;       // assign in application setup
-        Semaphores signalSemaphores;       // connect to Presentation.waitSemaphores
+        CommandGraphs commandGraphs; // assign in application setup
+        Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
         ref_ptr<TransferTask> transferTask;
 
         /// advance the currentFrameIndex
@@ -58,7 +58,6 @@ namespace vsg
         ref_ptr<DatabasePager> databasePager;
 
     protected:
-
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;
 

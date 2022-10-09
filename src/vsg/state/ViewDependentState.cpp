@@ -117,8 +117,7 @@ ViewDependentState::ViewDependentState(uint32_t maxNumberLights) :
     lightDataBufferInfo = BufferInfo::create(lightData.get());
 
     DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}
-    };
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
     lightDescriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo}, 0); // hardwired position for now

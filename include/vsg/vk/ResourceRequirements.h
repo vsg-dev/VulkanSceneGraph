@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/nodes/Bin.h>
 #include <vsg/state/BufferInfo.h>
-#include <vsg/state/ImageInfo.h>
 #include <vsg/state/Descriptor.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/state/ResourceHints.h>
 #include <vsg/vk/DescriptorPool.h>
 
