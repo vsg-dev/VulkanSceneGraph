@@ -114,7 +114,6 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
     // copy any modified BufferInfo
     for (auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
     {
-        auto& buffer = buffer_itr->first;
         auto& bufferInfos = buffer_itr->second;
 
         uint32_t regionCount = 0;
@@ -148,6 +147,8 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 
         if (regionCount > 0)
         {
+            auto& buffer = buffer_itr->first;
+
             vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
 
             log(level, "   vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
@@ -203,7 +204,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
 {
     Logger::Level level = Logger::LOGGER_DEBUG;
-    level = Logger::LOGGER_INFO;
+    //level = Logger::LOGGER_INFO;
 
     // transfer any modified ImageInfo
     for (auto imageInfo_itr = _dynamicImageInfoSet.begin(); imageInfo_itr != _dynamicImageInfoSet.end();)
@@ -576,7 +577,7 @@ VkResult TransferTask::transferDynamicData()
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
     auto& semaphore = frame.transferCompledSemaphore;
-    auto& copyRegions = frame.copyRegions;
+    const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
     log(level, "TransferTask::record() ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
