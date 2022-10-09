@@ -112,21 +112,6 @@ void DescriptorBuffer::compile(Context& context)
         break;
     }
 
-#if 0
-    bool requiresAssingmentOfBuffers = false;
-    for (auto& bufferInfo : bufferInfoList)
-    {
-        if (bufferInfo->buffer == nullptr) requiresAssingmentOfBuffers = true;
-    }
-
-    auto deviceID = context.deviceID;
-
-    if (requiresAssingmentOfBuffers)
-    {
-        vsg::createBufferAndTransferData(context, bufferInfoList, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
-    }
-#else
-
     bool requiresAssingmentOfBuffers = false;
     for (auto& bufferInfo : bufferInfoList)
     {
@@ -212,7 +197,6 @@ void DescriptorBuffer::compile(Context& context)
             }
         }
     }
-#endif
 }
 
 void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) const
