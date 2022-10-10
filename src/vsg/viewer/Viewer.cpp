@@ -536,7 +536,7 @@ void Viewer::setupThreading()
                 ref_ptr<Barrier> recordCompletedBarrier;
             };
 
-            uint numThreads = task->commandGraphs.size();
+            uint32_t numThreads = task->commandGraphs.size();
             if (task->earlyTransferTask) ++numThreads;
 
             ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, numThreads);

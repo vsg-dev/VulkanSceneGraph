@@ -93,8 +93,9 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
     VkDeviceSize alignment = 4;
 
     _dynamicDataTotalRegions = 0;
-    for (auto& [buffer, bufferInfos] : _dynamicDataMap)
+    for (auto& entry : _dynamicDataMap)
     {
+        auto& bufferInfos = entry.second;
         for (auto& offset_bufferInfo : bufferInfos)
         {
             auto& bufferInfo = offset_bufferInfo.second;
