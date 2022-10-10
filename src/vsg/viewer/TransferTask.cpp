@@ -638,13 +638,13 @@ VkResult TransferTask::transferDynamicData()
 
     VkDeviceSize offset = 0;
 
-    // transfer the modifed BufferInfo and ImageInfo
+    // transfer the modified BufferInfo and ImageInfo
     _transferBufferInfos(vk_commandBuffer, frame, offset);
     _transferImageInfos(vk_commandBuffer, frame, offset);
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    // if no regions to copy have been found then commandBuffer will be empty so no need to submit it to queue and use the assocaited single semaphore
+    // if no regions to copy have been found then commandBuffer will be empty so no need to submit it to queue and use the associated single semaphore
     if (offset > 0)
     {
         // submit the transfer commands
