@@ -55,7 +55,7 @@ namespace vsg
             BufferInfoList bufferInfos;
             ImageInfoList imageInfos;
 
-            explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty() ; }
+            explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty(); }
         };
 
         DynamicData earlyDynamicData;

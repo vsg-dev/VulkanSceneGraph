@@ -473,7 +473,7 @@ void Viewer::setupThreading()
     }
 
     // check if there is any point in setting up threading
-    if (numValidTasks==0)
+    if (numValidTasks == 0)
     {
         return;
     }
@@ -550,7 +550,6 @@ void Viewer::setupThreading()
                     // primary thread starts the task
                     data->task->start();
 
-
                     data->recordStartBarrier->arrive_and_wait();
 
                     //vsg::info("run_primary");
@@ -597,7 +596,7 @@ void Viewer::setupThreading()
 
                     //vsg::info("run_transfer");
 
-                    /*VkResult result =*/ transferTask->transferDynamicData();
+                    /*VkResult result =*/transferTask->transferDynamicData();
 
                     data->recordCompletedBarrier->arrive_and_wait();
                 }
