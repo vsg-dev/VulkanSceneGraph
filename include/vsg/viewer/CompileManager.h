@@ -24,8 +24,8 @@ namespace vsg
         uint32_t maxSlot = 0;
         bool containsPagedLOD = false;
         ResourceRequirements::Views views;
-        BufferInfoList dynamicBufferInfos;
-        ImageInfoList dynamicImageInfos;
+        ResourceRequirements::DynamicData earlyDynamicData;
+        ResourceRequirements::DynamicData lateDynamicData;
 
         explicit operator bool() const noexcept { return result == VK_SUCCESS; }
     };

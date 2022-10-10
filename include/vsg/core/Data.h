@@ -48,8 +48,10 @@ namespace vsg
 
     enum DataVariance : uint8_t
     {
-        STATIC_DATA = 0,
-        DYNAMIC_DATA = 1
+        STATIC_DATA = 0, /** treat data as if doesn't not change .*/
+        STATIC_DATA_UNREF_AFTER_TRANSFER = 1, /** unref this vsg::Data after the data has been transferred to the GPU memory .*/
+        DYNAMIC_DATA = 2, /** data is updated prior to the record traversal and will need transferring to GPU memory.*/
+        DYNAMIC_DATA_TRANSFER_AFTER_RECORD = 3 /** data is updated during the record traversal and will need transferring to GPU memory.*/
     };
 
     template<typename T>

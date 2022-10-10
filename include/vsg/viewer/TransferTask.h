@@ -32,6 +32,8 @@ namespace vsg
 
         virtual VkResult transferDynamicData(); // transfer dynamicBufferInfos entries to GPU
 
+        virtual bool containsDataToTransfer() const;
+
         ref_ptr<Device> device;
         Semaphores waitSemaphores;
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
@@ -45,6 +47,7 @@ namespace vsg
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
         Fence* fence(size_t relativeFrameIndex = 0);
 
+        void assign(const ResourceRequirements::DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
         void assign(const ImageInfoList& imageInfoList);
 

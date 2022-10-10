@@ -70,6 +70,17 @@ Fence* TransferTask::fence(size_t relativeFrameIndex)
     return i < _frames.size() ? _frames[i].fence.get() : nullptr;
 }
 
+bool TransferTask::containsDataToTransfer() const
+{
+    return !_dynamicDataMap.empty() || !_dynamicImageInfoSet.empty();
+}
+
+void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
+{
+    assign(dynamicData.bufferInfos);
+    assign(dynamicData.imageInfos);
+}
+
 void TransferTask::assign(const BufferInfoList& bufferInfoList)
 {
     for (auto& bufferInfo : bufferInfoList)

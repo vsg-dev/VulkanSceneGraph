@@ -50,8 +50,16 @@ namespace vsg
         using Views = std::map<const View*, BinDetails>;
         using BinStack = std::stack<BinDetails>;
 
-        BufferInfoList dynamicBufferInfos;
-        ImageInfoList dynamicImageInfos;
+        struct DynamicData
+        {
+            BufferInfoList bufferInfos;
+            ImageInfoList imageInfos;
+
+            explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty() ; }
+        };
+
+        DynamicData earlyDynamicData;
+        DynamicData lateDynamicData;
 
         Descriptors descriptors;
         DescriptorSets descriptorSets;
@@ -104,7 +112,14 @@ namespace vsg
         {
             if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
             {
-                requirements.dynamicBufferInfos.push_back(bufferInfo);
+                if (bufferInfo->data->getLayout().dataVariance == DYNAMIC_DATA)
+                {
+                    requirements.earlyDynamicData.bufferInfos.push_back(bufferInfo);
+                }
+                else // DYNAMIC_DATA_TRANSFER_AFTER_RECORD)
+                {
+                    requirements.lateDynamicData.bufferInfos.push_back(bufferInfo);
+                }
             }
         }
 
@@ -115,7 +130,14 @@ namespace vsg
                 auto& data = imageInfo->imageView->image->data;
                 if (data && data->dynamic())
                 {
-                    requirements.dynamicImageInfos.push_back(imageInfo);
+                    if (data->getLayout().dataVariance == DYNAMIC_DATA)
+                    {
+                        requirements.earlyDynamicData.imageInfos.push_back(imageInfo);
+                    }
+                    else // DYNAMIC_DATA_TRANSFER_AFTER_RECORD)
+                    {
+                        requirements.lateDynamicData.imageInfos.push_back(imageInfo);
+                    }
                 }
             }
         }
