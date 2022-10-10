@@ -80,6 +80,16 @@ namespace vsg
         ref_ptr<ImageView> imageView;
         VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
+        /// return true if the BufferInfo's data has been modified and should be copied to the buffer.
+        bool requiresCopy(uint32_t deviceID)
+        {
+            if (!imageView || !imageView->image) return false;
+            auto& data = imageView->image->data;
+            return data && data->getModifiedCount(copiedModifiedCounts[deviceID]);
+        }
+
+        vk_buffer<ModifiedCount> copiedModifiedCounts;
+
     protected:
         virtual ~ImageInfo();
     };

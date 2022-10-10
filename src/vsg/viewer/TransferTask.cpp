@@ -112,7 +112,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
 
-    uint32_t deviceID = device->deviceID;
+    auto deviceID = device->deviceID;
     auto& staging = frame.staging;
     auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
@@ -139,7 +139,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
             }
             else
             {
-                if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+                if (bufferInfo->requiresCopy(deviceID))
                 {
                     // copy data to staging buffer memory
                     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
@@ -218,6 +218,8 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
 
+    auto deviceID = device->deviceID;
+
     // transfer any modified ImageInfo
     for (auto imageInfo_itr = _dynamicImageInfoSet.begin(); imageInfo_itr != _dynamicImageInfoSet.end();)
     {
@@ -229,16 +231,10 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
         }
         else
         {
-#if 0
-                auto& data = imageInfo->imageView->image->data;
-
-                if (data->getModifiedCount(imageInfo->copiedModifiedCounts[deviceID]))
-                {
-                    ++numTransferred;
-                }
-#endif
-
-            _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
+            if (imageInfo->requiresCopy(deviceID))
+            {
+                _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
+            }
 
             ++imageInfo_itr;
         }
