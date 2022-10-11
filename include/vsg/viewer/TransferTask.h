@@ -90,6 +90,4 @@ namespace vsg
     };
     VSG_type_name(vsg::TransferTask);
 
-    using TransferTasks = std::vector<ref_ptr<TransferTask>>;
-
 } // namespace vsg
