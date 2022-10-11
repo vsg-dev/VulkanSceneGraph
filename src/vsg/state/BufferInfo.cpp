@@ -220,6 +220,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
             bufferInfo->range = bufferInfo->data->dataSize();
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+            //info("  BufferInfo.data = ", bufferInfo->data, ", dynamic = ", bufferInfo->data->getLayout().dynamic);
         }
     }
 

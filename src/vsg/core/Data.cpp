@@ -33,7 +33,17 @@ void Data::read(Input& input)
     Object::read(input);
 
     uint32_t format = 0;
-    input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
+
+    if (input.version_greater_equal(0, 5, 7))
+    {
+        input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType, _layout.dataVariance);
+    }
+    else
+    {
+        input.read("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
+        _layout.dataVariance = STATIC_DATA;
+    }
+
     _layout.format = VkFormat(format);
 }
 
@@ -42,7 +52,14 @@ void Data::write(Output& output) const
     Object::write(output);
 
     uint32_t format = _layout.format;
-    output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
+    if (output.version_greater_equal(0, 5, 7))
+    {
+        output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType, _layout.dataVariance);
+    }
+    else
+    {
+        output.write("Layout", format, _layout.stride, _layout.maxNumMipmaps, _layout.blockWidth, _layout.blockHeight, _layout.blockDepth, _layout.origin, _layout.imageViewType);
+    }
 }
 
 Data::MipmapOffsets Data::computeMipmapOffsets() const

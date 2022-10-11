@@ -118,6 +118,8 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.maxSlot = requirements.maxSlot;
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
+    result.earlyDynamicData = requirements.earlyDynamicData;
+    result.lateDynamicData = requirements.lateDynamicData;
 
     auto compileTraversal = compileTraversals->take_when_available();
 

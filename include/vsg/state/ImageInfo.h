@@ -17,6 +17,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    struct FormatTraits
+    {
+        int size = 0;
+        int numBitsPerComponent = 0;
+        int numComponents = 0;
+        bool packed = false;
+        int blockWidth = 1;
+        int blockHeight = 1;
+        int blockDepth = 1;
+        uint8_t defaultValue[32];
+
+        template<typename T>
+        void assign4(T value)
+        {
+            T* ptr = reinterpret_cast<T*>(defaultValue);
+            (*ptr++) = value;
+            (*ptr++) = value;
+            (*ptr++) = value;
+            (*ptr++) = value;
+        }
+    };
+
+    extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
 
     /// Settings that map to VkDescriptorImageInfo
@@ -55,6 +79,16 @@ namespace vsg
         ref_ptr<Sampler> sampler;
         ref_ptr<ImageView> imageView;
         VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        /// return true if the ImageInfo's data has been modified and should be copied to the GPU image.
+        bool requiresCopy(uint32_t deviceID)
+        {
+            if (!imageView || !imageView->image) return false;
+            auto& data = imageView->image->data;
+            return data && data->getModifiedCount(copiedModifiedCounts[deviceID]);
+        }
+
+        vk_buffer<ModifiedCount> copiedModifiedCounts;
 
     protected:
         virtual ~ImageInfo();
