@@ -24,19 +24,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // TransferTask
+    /// TransferTask manages a collection of dynamically updated vsg::Data associated with GPU memory associated vsg::BufferInfo and vsg::ImageInfo.
+    /// During the viewer.compile(..) traversal the collection of dynamic data that has dataVariance of DYNAMIC_DATA* is assigned to the approapriate TransferTask
+    /// and then each new frame that collection of data is checked to see if the modification count has changed, if it has that data is copied to the associated BufferInfo/ImageInfo.
+    /// vsg::Data that are orphaned so the TransferTask has the only remainly reference to them are automatically removed.
     class VSG_DECLSPEC TransferTask : public Inherit<Object, TransferTask>
     {
     public:
         explicit TransferTask(Device* in_device, uint32_t numBuffers = 3);
 
-        virtual VkResult transferDynamicData(); // transfer dynamicBufferInfos entries to GPU
+        /// transfer any vsg::Data entries, that have been updated, to have the associated GPU memory.
+        virtual VkResult transferDynamicData();
 
         virtual bool containsDataToTransfer() const;
 
         ref_ptr<Device> device;
         Semaphores waitSemaphores;
-        Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
+        Semaphores signalSemaphores;
 
         /// advance the currentFrameIndex
         void advance();
