@@ -451,7 +451,6 @@ void RecordTraversal::apply(const View& view)
     if (_viewDependentState)
     {
         _viewDependentState->pack();
-        _viewDependentState->copy();
     }
 
     // swap back previous bin setup.

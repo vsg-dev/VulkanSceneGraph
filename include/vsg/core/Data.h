@@ -46,6 +46,14 @@ namespace vsg
         BOTTOM_LEFT = 2
     };
 
+    enum DataVariance : uint8_t
+    {
+        STATIC_DATA = 0,                       /** treat data as if doesn't not change .*/
+        STATIC_DATA_UNREF_AFTER_TRANSFER = 1,  /** unref this vsg::Data after the data has been transferred to the GPU memory .*/
+        DYNAMIC_DATA = 2,                      /** data is updated prior to the record traversal and will need transferring to GPU memory.*/
+        DYNAMIC_DATA_TRANSFER_AFTER_RECORD = 3 /** data is updated during the record traversal and will need transferring to GPU memory.*/
+    };
+
     template<typename T>
     struct stride_iterator
     {
@@ -103,8 +111,9 @@ namespace vsg
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
             uint8_t blockDepth = 1;
-            uint8_t origin = TOP_LEFT; /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
-            int8_t imageViewType = -1; /// -1 signifies undefined VkImageViewType, if value >=0 then value should be treated as valid VkImageViewType
+            uint8_t origin = TOP_LEFT;               /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
+            int8_t imageViewType = -1;               /// -1 signifies undefined VkImageViewType, if value >=0 then value should be treated as valid VkImageViewType.
+            DataVariance dataVariance = STATIC_DATA; /// hint as how the data values may change during the lifetime of the vsg::Data.
             AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;
 
             int compare(const Layout& rhs) const
@@ -169,6 +178,8 @@ namespace vsg
 
         /** Get the Layout.*/
         Layout getLayout() const { return _layout; }
+
+        bool dynamic() const { return _layout.dataVariance >= DYNAMIC_DATA; }
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;

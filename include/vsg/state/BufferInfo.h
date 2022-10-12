@@ -53,8 +53,17 @@ namespace vsg
         ref_ptr<Data> data;
         ref_ptr<BufferInfo> parent;
 
-        /// return true if the BufferInfo's data has been modified and should be copied to the buffer.
-        bool requiresCopy(uint32_t deviceID) const { return data && data->differentModifiedCount(copiedModifiedCounts[deviceID]); }
+        /// return true if the BufferInfo's data has been modified and should be copied to the buffer
+        bool requiresCopy(uint32_t deviceID) const
+        {
+            return data && data->differentModifiedCount(copiedModifiedCounts[deviceID]);
+        }
+
+        /// return true if the BufferInfo's data has been modified and should be copied to the buffer, and sync the moificationCounts
+        bool syncModifiedCounts(uint32_t deviceID)
+        {
+            return data && data->getModifiedCount(copiedModifiedCounts[deviceID]);
+        }
 
         vk_buffer<ModifiedCount> copiedModifiedCounts;
 

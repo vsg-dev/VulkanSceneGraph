@@ -19,14 +19,23 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-RecordAndSubmitTask::RecordAndSubmitTask(Device* device, uint32_t numBuffers)
+RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers) :
+    device(in_device)
 {
     _currentFrameIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
-        _fences.emplace_back(vsg::Fence::create(device));
         _indices.emplace_back(numBuffers); // numBuffers is used to signify unset value
     }
+
+    _fences.resize(numBuffers);
+    for (uint32_t i = 0; i < numBuffers; ++i)
+    {
+        _fences[i] = vsg::Fence::create(device);
+    }
+
+    earlyTransferTask = vsg::TransferTask::create(in_device, numBuffers);
+    lateTransferTask = vsg::TransferTask::create(in_device, numBuffers);
 }
 
 void RecordAndSubmitTask::advance()
@@ -50,18 +59,43 @@ void RecordAndSubmitTask::advance()
 
     // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
+
+    if (earlyTransferTask) earlyTransferTask->advance();
+    if (lateTransferTask) lateTransferTask->advance();
+}
+
+size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
+{
+    return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size();
+}
+
+/// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
+Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
+{
+    size_t i = index(relativeFrameIndex);
+    return i < _fences.size() ? _fences[i].get() : nullptr;
 }
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CommandBuffers recordedCommandBuffers;
     if (VkResult result = start(); result != VK_SUCCESS) return result;
+
+    if (earlyTransferTask)
+    {
+        if (VkResult result = earlyTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
+    }
+
     if (VkResult result = record(recordedCommandBuffers, frameStamp); result != VK_SUCCESS) return result;
+
     return finish(recordedCommandBuffers);
 }
 
 VkResult RecordAndSubmitTask::start()
 {
+    if (earlyTransferTask) earlyTransferTask->currentTransferCompletedSemaphore = {};
+    if (lateTransferTask) lateTransferTask->currentTransferCompletedSemaphore = {};
+
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {
@@ -79,12 +113,16 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
     }
+
     return VK_SUCCESS;
 }
 
 VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 {
-    auto current_fence = fence();
+    if (lateTransferTask)
+    {
+        if (VkResult result = lateTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
+    }
 
     if (recordedCommandBuffers.empty())
     {
@@ -99,6 +137,8 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     std::vector<VkPipelineStageFlags> vk_waitStages;
     std::vector<VkSemaphore> vk_signalSemaphores;
 
+    auto current_fence = fence();
+
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     for (auto& commandBuffer : recordedCommandBuffers)
     {
@@ -108,6 +148,18 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     }
 
     current_fence->dependentSemaphores() = signalSemaphores;
+
+    if (earlyTransferTask && earlyTransferTask->currentTransferCompletedSemaphore)
+    {
+        vk_waitSemaphores.emplace_back(*earlyTransferTask->currentTransferCompletedSemaphore);
+        vk_waitStages.emplace_back(earlyTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
+    }
+
+    if (lateTransferTask && lateTransferTask->currentTransferCompletedSemaphore)
+    {
+        vk_waitSemaphores.emplace_back(*lateTransferTask->currentTransferCompletedSemaphore);
+        vk_waitStages.emplace_back(lateTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
+    }
 
     for (auto& window : windows)
     {
@@ -144,32 +196,32 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
-#if 0
-    debug("pdo.graphicsQueue->submit(..) current_fence = ", current_fence);
-    debug("    submitInfo.waitSemaphoreCount = ", submitInfo.waitSemaphoreCount);
-    for (uint32_t i = 0; i < submitInfo.waitSemaphoreCount; ++i)
-    {
-        debug("        submitInfo.pWaitSemaphores[", i, "] = ", submitInfo.pWaitSemaphores[i]);
-        debug("        submitInfo.pWaitDstStageMask[", i, "] = ", submitInfo.pWaitDstStageMask[i]);
-    }
-    debug("    submitInfo.commandBufferCount = ", submitInfo.commandBufferCount);
-    for (uint32_t i = 0; i < submitInfo.commandBufferCount; ++i)
-    {
-        debug("        submitInfo.pCommandBuffers[", i, "] = ", submitInfo.pCommandBuffers[i]);
-    }
-    debug("    submitInfo.signalSemaphoreCount = ", submitInfo.signalSemaphoreCount);
-    for (uint32_t i = 0; i < submitInfo.signalSemaphoreCount; ++i)
-    {
-        debug("        submitInfo.pSignalSemaphores[", i, "] = ", submitInfo.pSignalSemaphores[i]);
-    }
-    debug('\n');
-#endif
-
     return queue->submit(submitInfo, current_fence);
 }
 
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
+    //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ", compileResult.dynamicBufferInfos.size());
+    if (compileResult.earlyDynamicData || compileResult.lateDynamicData)
+    {
+        //for(auto& bufferInfo : compileResult.dynamicBufferInfos)
+        //{
+        //    info("    ", bufferInfo, ", ", bufferInfo->data);
+        //}
+        for (auto& task : tasks)
+        {
+            if (task->earlyTransferTask && compileResult.earlyDynamicData)
+            {
+                task->earlyTransferTask->assign(compileResult.earlyDynamicData);
+            }
+
+            if (task->lateTransferTask && compileResult.lateDynamicData)
+            {
+                task->lateTransferTask->assign(compileResult.lateDynamicData);
+            }
+        }
+    }
+
     // assign database pager if required
     for (auto& task : tasks)
     {

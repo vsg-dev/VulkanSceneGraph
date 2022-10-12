@@ -19,6 +19,7 @@ useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
 useStlAlgorithm:*/include/vsg/vk/vk_buffer.h
+useStlAlgorithm:*/src/vsg/nodes/VertexDraw.cpp
 useStlAlgorithm:*/src/vsg/io/VSG.cpp
 useStlAlgorithm:*/src/vsg/commands/BindVertexBuffers.cpp
 useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp

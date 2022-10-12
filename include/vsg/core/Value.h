@@ -43,16 +43,16 @@ namespace vsg
         Value() :
             _value{} { dirty(); }
         Value(const Value& rhs) :
-            _value(rhs._value) { dirty(); }
+            Data(rhs), _value(rhs._value) { dirty(); }
         explicit Value(const value_type& in_value) :
             _value(in_value) { dirty(); }
 
         template<typename... Args>
-        explicit Value(Args... args) :
+        explicit Value(Args&&... args) :
             _value(args...) { dirty(); }
 
         template<typename... Args>
-        static ref_ptr<Value> create(Args... args)
+        static ref_ptr<Value> create(Args&&... args)
         {
             return ref_ptr<Value>(new Value(args...));
         }
