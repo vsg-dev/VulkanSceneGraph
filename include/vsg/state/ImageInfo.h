@@ -80,8 +80,16 @@ namespace vsg
         ref_ptr<ImageView> imageView;
         VkImageLayout imageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        /// return true if the ImageInfo's data has been modified and should be copied to the GPU image.
-        bool requiresCopy(uint32_t deviceID)
+        /// return true if the ImageInfo's data has been modified and should be copied to the buffer
+        bool requiresCopy(uint32_t deviceID) const
+        {
+            if (!imageView || !imageView->image) return false;
+            auto& data = imageView->image->data;
+            return data && data->differentModifiedCount(copiedModifiedCounts[deviceID]);
+        }
+
+        /// return true if the ImageInfo's data has been modified and should be copied to the buffer, and sync the moificationCounts
+        bool syncModifiedCounts(uint32_t deviceID)
         {
             if (!imageView || !imageView->image) return false;
             auto& data = imageView->image->data;
