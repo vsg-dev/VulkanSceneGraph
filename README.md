@@ -23,7 +23,7 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 * Native windowing and event support under Windows, Linux, Android, macOS and iOS.
 * Support for double matrices in Camera and Transform class providing support for large database coordinates system such as whole earth/GIS rendering whilst minimizing precision issues.
 * Modern CMake build system that provides config installation alongside binaries making it easier to find and use all the appropriate build options for using the VulkanSceneGraph in your own projects.
-* Minimal and complete approach to design - the whole VulkanSceneGraph interface and implementation, providing all the above functionality, takes 55 thousand lines of code, compared to over 58 thousand for GLM headers, or vulkan.hpp (C++ wrapper for Vulkan) at over 94 thousand lines of code.  The VulkanSceneGraph replaces both and provides much more functionality besides.
+* Minimal and complete approach to design - the whole VulkanSceneGraph interface and implementation, providing all the above functionality, takes 61 thousand lines of code, compared to over 58 thousand for GLM headers, or vulkan.hpp (C++ wrapper for Vulkan) at over 94 thousand lines of code.  The VulkanSceneGraph replaces both and provides much more functionality besides.
 
 ### Features provided by companion projects:
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
