@@ -1,7 +1,0 @@
-* [ArrayState.cpp](ArrayState.cpp) 
-* [CompileTraversal.cpp](CompileTraversal.cpp) 
-* [ComputeBounds.cpp](ComputeBounds.cpp) 
-* [Intersector.cpp](Intersector.cpp) 
-* [LineSegmentIntersector.cpp](LineSegmentIntersector.cpp) 
-* [LoadPagedLOD.cpp](LoadPagedLOD.cpp) 
-* [RecordTraversal.cpp](RecordTraversal.cpp) 
