@@ -1,0 +1,93 @@
+
+trigger:
+- master
+
+variables:
+- name: UBUNTU_DEP_LIST
+  value: "libvulkan-dev"
+- name: WINDOWS_SDK_URL
+  value: "https://sdk.lunarg.com/sdk/download/1.3.224.1/windows/VulkanSDK-1.3.224.1-Installer.exe"
+- name: MACOS_SDK_URL
+  value: "https://sdk.lunarg.com/sdk/download/1.3.224.1/mac/vulkansdk-macos-1.3.224.1.dmg"
+
+jobs:
+- job: Ubuntu
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - script: |
+      sudo apt-get install -y ${UBUNTU_DEP_LIST}
+    displayName: "download and install deps"
+  - script: |
+      mkdir build
+      cd build
+      cmake .. -DBUILD_SHARED_LIBS=ON
+    displayName: 'cmake'
+  - script: |
+      CORE_COUNT=$(grep processor /proc/cpuinfo | wc -l)
+      CORES=$((${CORE_COUNT} + 1))
+      cd build
+      make -j $CORE_COUNT
+    displayName: "build"
+
+- job: Windows
+  pool:
+    vmImage: "windows-latest"
+  steps:
+  - powershell: "Invoke-WebRequest -OutFile ./vulkansdk.exe $(WINDOWS_SDK_URL)"
+    displayName: "download Vulkan SDK"
+  - bash: |
+      CWD=$(pwd)
+      VK_SDK=${CWD}/VK_SDK
+      ./vulkansdk.exe --root ${VK_SDK} --accept-licenses --default-answer --confirm-command install
+      rm -f ./vulkansdk.exe
+      echo export VK_SDK_PATH=${VK_SDK} >> vars.sh
+      echo export VULKAN_SDK=${VK_SDK} >> vars.sh
+    displayName: "install Vulkan SDK"
+  - bash: |
+      source vars.sh
+      cmake .
+    displayName: "cmake"
+  - task: VSBuild@1
+    inputs:
+      solution: 'VSG.sln'
+    displayName: "vsbuild"
+
+- job: macOS
+  pool:
+    vmImage: "macOS-latest"
+  steps:
+  - script: |
+      CWD=$(pwd)
+      DMG_URL=${MACOS_SDK_URL}
+      TARGET_DMG="vulkansdk.dmg"
+      wget --quiet ${DMG_URL} -O ${TARGET_DMG}
+      VK_SDK=$CWD/VulkanSDK
+      VK_SDK_DMG=$(hdiutil attach ${TARGET_DMG} | grep Volumes | awk '{print $3}')
+      cd ${VK_SDK_DMG}
+      sudo ./InstallVulkan.app/Contents/MacOS/InstallVulkan --root $VK_SDK --accept-licenses --default-answer --confirm-command install
+      cd ${CWD}
+      echo export VULKAN_SDK="$VK_SDK/macOS" >> vars.sh
+      echo export VK_LAYER_PATH="$VULKAN_SDK/etc/vulkan/explicit_layer.d" >> vars.sh
+      echo export VK_ICD_FILENAMES="$VULKAN_SDK/etc/vulkan/icd.d/MoltenVK_icd.json" >> vars.sh
+      echo PATH="$VULKAN_SDK:$VULKAN_SDK/bin:$PATH" >> vars.sh
+      echo DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH" >> vars.sh
+      hdiutil detach ${VK_SDK_DMG} && rm -f ${TARGET_DMG}
+    displayName: "install Vulkan SDK"
+  - script: |
+      source vars.sh
+      mkdir build
+      cd build
+      cmake .. -G "Xcode"
+    displayName: "cmake"
+  - script: |
+      cd build
+      xcodebuild -list -project vsg.xcodeproj
+    displayName: "xcode: list targets, build configurations and schemes"
+  - script: |
+      CORE_COUNT=$(python -c 'import multiprocessing as mp; print(mp.cpu_count())')
+      CORES=$((${CORE_COUNT} + 1))
+      cd build
+      xcodebuild -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=${CORES} -target vsg -project vsg.xcodeproj
+    displayName: "xcodebuild"
+
