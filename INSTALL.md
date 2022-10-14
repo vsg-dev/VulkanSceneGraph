@@ -24,7 +24,7 @@
 
 ## Optional dependenices
 
-* [glslang & SPIRV-Tools](https://github.com/KhronosGroup/glslang) are required when built-in GLSL -> SPIR-V (required by Vulkan) compilation is needed, such as when you need the VulkanSceneGraphs shader composition and compilation capailities. SPIRV-Tools is built as part of glslang but can be packaged separately on common linux distributions. VulkanSDK provides glslang. Unless you know you don't require them for your application we recommend building the VulkanSceneGraph with glslang and SPIRV-Tools.
+* [glslang & SPIRV-Tools](https://github.com/KhronosGroup/glslang) are required when built-in GLSL -> SPIR-V (required by Vulkan) compilation is needed, such as when you need the VulkanSceneGraphs shader composition and compilation capailities. SPIRV-Tools nowadays is packaged separately on common linux distributions, but can be build as part of glslang. VulkanSDK provides glslang. Unless you know you don't require them for your application we recommend building the VulkanSceneGraph with glslang and SPIRV-Tools.
 
 ---
 
