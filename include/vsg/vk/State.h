@@ -195,9 +195,9 @@ namespace vsg
         template<class M>
         void computeLodScale(const M& proj, const M& mv)
         {
-            auto f = -proj[1][1];
-            auto scale = f * std::sqrt((square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5);
-            double inv_scale = 1.0 / scale;
+            value_type f = -proj[1][1];
+            value_type scale = f * std::sqrt((square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5);
+            value_type inv_scale = value_type(1.0) / scale;
             lodScale.set(mv[0][2] * inv_scale,
                          mv[1][2] * inv_scale,
                          mv[2][2] * inv_scale,
