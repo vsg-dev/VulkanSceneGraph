@@ -137,15 +137,15 @@ void RecordTraversal::apply(const QuadGroup& group)
 
 void RecordTraversal::apply(const LOD& lod)
 {
-    auto sphere = lod.bound;
+    const auto& sphere = lod.bound;
 
     // check if lod bounding sphere is in view frustum.
-    if (!_state->intersect(sphere))
+    auto lodDistance = _state->lodDistance(sphere);
+    if (lodDistance < 0.0)
     {
         return;
     }
 
-    auto lodDistance = _state->lodDistance(sphere);
     for (auto& child : lod.children)
     {
         auto cutoff = lodDistance * child.minimumScreenHeightRatio;
@@ -160,12 +160,12 @@ void RecordTraversal::apply(const LOD& lod)
 
 void RecordTraversal::apply(const PagedLOD& plod)
 {
-    auto sphere = plod.bound;
-
+    const auto& sphere = plod.bound;
     auto frameCount = _frameStamp->frameCount;
 
     // check if lod bounding sphere is in view frustum.
-    if (!_state->intersect(sphere))
+    auto lodDistance = _state->lodDistance(sphere);
+    if (lodDistance < 0.0)
     {
         if ((frameCount - plod.frameHighResLastUsed) > 1 && _culledPagedLODs)
         {
@@ -174,8 +174,6 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
         return;
     }
-
-    auto lodDistance = _state->lodDistance(sphere);
 
     // check the high res child to see if it's visible
     {

@@ -306,7 +306,10 @@ namespace vsg
         template<typename T>
         T lodDistance(const t_sphere<T>& s) const
         {
-            const auto& lodScale = _frustumStack.top().lodScale;
+            const auto& frustum = _frustumStack.top();
+            if (frustum.intersect(s)) return -1.0;
+
+            const auto& lodScale = frustum.lodScale;
             return std::abs(lodScale[0] * s.x + lodScale[1] * s.y + lodScale[2] * s.z + lodScale[3]);
         }
     };
