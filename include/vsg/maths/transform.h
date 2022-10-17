@@ -34,6 +34,9 @@ namespace vsg
     constexpr float degrees(float radians) noexcept { return radians * (180.0f / PIf); }
     constexpr double degrees(double radians) noexcept { return radians * (180.0 / PI); }
 
+    constexpr float square(float v) noexcept { return v * v; };
+    constexpr double square(double v) noexcept { return v * v; };
+
     /// Hermite interpolation between edge0 and edge1
     template<typename T>
     T smoothstep(T edge0, T edge1, T x)

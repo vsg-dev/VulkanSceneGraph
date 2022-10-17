@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/PushConstants.h>
 #include <vsg/maths/plane.h>
+#include <vsg/maths/transform.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/vk/CommandBuffer.h>
 
@@ -195,7 +196,6 @@ namespace vsg
         void computeLodScale(const M& proj, const M& mv)
         {
             auto f = -proj[1][1];
-            auto square = [](value_type v) { return v * v; };
             auto scale = f * std::sqrt((square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5);
             double inv_scale = 1.0 / scale;
             lodScale.set(mv[0][2] * inv_scale,
