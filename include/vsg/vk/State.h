@@ -196,8 +196,8 @@ namespace vsg
         void computeLodScale(const M& proj, const M& mv)
         {
             value_type f = -proj[1][1];
-            value_type scale = f * std::sqrt((square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5);
-            value_type inv_scale = value_type(1.0) / scale;
+            value_type sc = value_type(1.0) / (f * std::sqrt((square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5));
+            value_type inv_scale = value_type(1.0) / sc;
             lodScale.set(mv[0][2] * inv_scale,
                          mv[1][2] * inv_scale,
                          mv[2][2] * inv_scale,
@@ -307,7 +307,7 @@ namespace vsg
         T lodDistance(const t_sphere<T>& s) const
         {
             const auto& frustum = _frustumStack.top();
-            if (frustum.intersect(s)) return -1.0;
+            if (!frustum.intersect(s)) return -1.0;
 
             const auto& lodScale = frustum.lodScale;
             return std::abs(lodScale[0] * s.x + lodScale[1] * s.y + lodScale[2] * s.z + lodScale[3]);
