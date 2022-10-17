@@ -145,16 +145,11 @@ void RecordTraversal::apply(const LOD& lod)
         return;
     }
 
-    const auto& proj = _state->projectionMatrixStack.top();
-    const auto& mv = _state->modelviewMatrixStack.top();
-    auto f = -proj[1][1];
-
-    auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
-    auto rf = sphere.r * f;
-
+    auto lodDistance = _state->lodDistance(sphere);
     for (auto& child : lod.children)
     {
-        bool child_visible = rf > (child.minimumScreenHeightRatio * distance);
+        auto cutoff = lodDistance * child.minimumScreenHeightRatio;
+        bool child_visible = sphere.r > cutoff;
         if (child_visible)
         {
             child.node->accept(*this);
@@ -180,18 +175,14 @@ void RecordTraversal::apply(const PagedLOD& plod)
         return;
     }
 
-    const auto& proj = _state->projectionMatrixStack.top();
-    const auto& mv = _state->modelviewMatrixStack.top();
-    auto f = -proj[1][1];
-
-    auto distance = std::abs(mv[0][2] * sphere.x + mv[1][2] * sphere.y + mv[2][2] * sphere.z + mv[3][2]);
-    auto rf = sphere.r * f;
+    auto lodDistance = _state->lodDistance(sphere);
 
     // check the high res child to see if it's visible
     {
         const auto& child = plod.children[0];
-        auto cutoff = child.minimumScreenHeightRatio * distance;
-        bool child_visible = rf > cutoff;
+
+        auto cutoff = lodDistance * child.minimumScreenHeightRatio;
+        bool child_visible = sphere.r > cutoff;
         if (child_visible)
         {
             auto previousHighResUsed = plod.frameHighResLastUsed.exchange(frameCount);
@@ -208,7 +199,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
             }
             else if (_databasePager)
             {
-                auto priority = rf / cutoff;
+                auto priority = sphere.r / cutoff;
                 exchange_if_greater(plod.priority, priority);
 
                 auto previousRequestCount = plod.requestCount.fetch_add(1);
@@ -235,8 +226,8 @@ void RecordTraversal::apply(const PagedLOD& plod)
     // check the low res child to see if it's visible
     {
         const auto& child = plod.children[1];
-        auto cutoff = child.minimumScreenHeightRatio * distance;
-        bool child_visible = rf > cutoff;
+        auto cutoff = lodDistance * child.minimumScreenHeightRatio;
+        bool child_visible = sphere.r > cutoff;
         if (child_visible)
         {
             if (child.node)

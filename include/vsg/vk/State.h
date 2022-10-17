@@ -155,7 +155,9 @@ namespace vsg
     {
         using value_type = MatrixStack::value_type;
         using Plane = t_plane<value_type>;
+        using Vector = t_vec4<value_type>;
         Plane face[POLYTOPE_SIZE];
+        Vector lodScale;
 
         Frustum()
         {
@@ -189,8 +191,21 @@ namespace vsg
             if constexpr (POLYTOPE_SIZE >= 6) face[5] = pt.face[5] * matrix;
         }
 
+        template<class M>
+        void computeLodScale(const M& proj, const M& mv)
+        {
+            auto f = -proj[1][1];
+            auto square = [](value_type v) { return v * v; };
+            auto scale = f * std::sqrt((square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5);
+            double inv_scale = 1.0 / scale;
+            lodScale.set(mv[0][2] * inv_scale,
+                         mv[1][2] * inv_scale,
+                         mv[2][2] * inv_scale,
+                         mv[3][2] * inv_scale);
+        }
+
         template<typename T>
-        bool intersect(const t_sphere<T>& s)
+        bool intersect(const t_sphere<T>& s) const
         {
             auto negative_radius = -s.radius;
             if (distance(face[0], s.center) < negative_radius) return false;
@@ -268,11 +283,13 @@ namespace vsg
         inline void pushFrustum()
         {
             _frustumStack.push(Frustum(_frustumProjected, modelviewMatrixStack.top()));
+            _frustumStack.top().computeLodScale(projectionMatrixStack.top(), modelviewMatrixStack.top());
         }
 
         inline void applyFrustum()
         {
             _frustumStack.top().set(_frustumProjected, modelviewMatrixStack.top());
+            _frustumStack.top().computeLodScale(projectionMatrixStack.top(), modelviewMatrixStack.top());
         }
 
         inline void popFrustum()
@@ -281,9 +298,16 @@ namespace vsg
         }
 
         template<typename T>
-        bool intersect(const t_sphere<T>& s)
+        bool intersect(const t_sphere<T>& s) const
         {
             return _frustumStack.top().intersect(s);
+        }
+
+        template<typename T>
+        T lodDistance(const t_sphere<T>& s) const
+        {
+            const auto& lodScale = _frustumStack.top().lodScale;
+            return std::abs(lodScale[0] * s.x + lodScale[1] * s.y + lodScale[2] * s.z + lodScale[3]);
         }
     };
 
