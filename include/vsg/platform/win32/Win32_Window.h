@@ -91,7 +91,7 @@ namespace vsgWin32
             }
             else
             {
-                keySymbol = KEY_Undefined;
+                keySymbol = vsg::KEY_Undefined;
             }
 
             return true;
