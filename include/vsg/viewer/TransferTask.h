@@ -59,7 +59,7 @@ namespace vsg
         ref_ptr<Semaphore> currentTransferCompletedSemaphore;
 
     protected:
-        using OffsetBufferInfoMap = std::map<uint32_t, ref_ptr<BufferInfo>>;
+        using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
         VkDeviceSize _dynamicDataTotalRegions = 0;
