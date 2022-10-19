@@ -98,7 +98,7 @@ ShaderCompiler::~ShaderCompiler()
 
 bool ShaderCompiler::supported() const
 {
-    return VSG_SUPPORTS_ShaderCompiler==1;
+    return VSG_SUPPORTS_ShaderCompiler == 1;
 }
 
 #if VSG_SUPPORTS_ShaderCompiler
