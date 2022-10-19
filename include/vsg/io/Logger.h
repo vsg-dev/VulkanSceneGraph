@@ -152,7 +152,6 @@ namespace vsg
             error_implementation(_stream.str());
         }
 
-
         inline void fatal(char* message) { fatal(std::string_view(message)); }
         inline void fatal(const char* message) { fatal(std::string_view(message)); }
         inline void fatal(std::string& message) { fatal(std::string_view(message)); }
@@ -296,7 +295,6 @@ namespace vsg
     {
         Logger::instance()->error_stream(print);
     }
-
 
     /// write warn message to the current vsg::Logger::instance().
     template<typename... Args>
