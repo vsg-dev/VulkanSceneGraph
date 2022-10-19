@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
@@ -28,6 +29,7 @@ Logger::Logger()
     // level = LOGGER_INFO; // default, print info and above messages
     // level = LOGGER_WARN; // print warn and above messages
     // level = LOGGER_ERROR; // print error and above messages
+    // level = LOGGER_FATAL; // print error and above messages
 }
 
 Logger::Logger(const Logger& rhs) :
@@ -109,6 +111,7 @@ void Logger::log(Level msg_level, const std::string_view& message)
     case (LOGGER_INFO): info_implementation(message); break;
     case (LOGGER_WARN): warn_implementation(message); break;
     case (LOGGER_ERROR): error_implementation(message); break;
+    case (LOGGER_FATAL): fatal_implementation(message); break;
     default: break;
     }
 }
@@ -129,6 +132,7 @@ void Logger::log_stream(Level msg_level, PrintToStreamFunction print)
     case (LOGGER_INFO): info_implementation(_stream.str()); break;
     case (LOGGER_WARN): warn_implementation(_stream.str()); break;
     case (LOGGER_ERROR): error_implementation(_stream.str()); break;
+    case (LOGGER_FATAL): fatal_implementation(_stream.str()); break;
     default: break;
     }
 }
@@ -165,6 +169,12 @@ void StdLogger::warn_implementation(const std::string_view& message)
 void StdLogger::error_implementation(const std::string_view& message)
 {
     std::cerr << errorPrefix << message << std::endl;
+}
+
+void StdLogger::fatal_implementation(const std::string_view& message)
+{
+    std::cerr << fatalPrefix << message << std::endl;
+    throw vsg::Exception{std::string(message)};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,6 +233,13 @@ void ThreadLogger::error_implementation(const std::string_view& message)
     std::cerr << errorPrefix << message << std::endl;
 }
 
+void ThreadLogger::fatal_implementation(const std::string_view& message)
+{
+    print_id(std::cout, std::this_thread::get_id());
+    std::cerr << fatalPrefix << message << std::endl;
+    throw vsg::Exception{std::string(message)};
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // NullLogger
@@ -243,4 +260,8 @@ void NullLogger::warn_implementation(const std::string_view&)
 }
 void NullLogger::error_implementation(const std::string_view&)
 {
+}
+void NullLogger::fatal_implementation(const std::string_view& message)
+{
+    throw vsg::Exception{std::string(message)};
 }

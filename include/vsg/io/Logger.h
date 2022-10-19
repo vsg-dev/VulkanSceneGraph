@@ -37,7 +37,8 @@ namespace vsg
             LOGGER_INFO = 2,
             LOGGER_WARN = 3,
             LOGGER_ERROR = 4,
-            LOGGER_OFF = 5
+            LOGGER_FATAL = 5,
+            LOGGER_OFF = 6
         };
 
         Level level = LOGGER_INFO;
@@ -151,6 +152,33 @@ namespace vsg
             error_implementation(_stream.str());
         }
 
+
+        inline void fatal(char* message) { fatal(std::string_view(message)); }
+        inline void fatal(const char* message) { fatal(std::string_view(message)); }
+        inline void fatal(std::string& message) { fatal(std::string_view(message)); }
+        inline void fatal(const std::string& message) { fatal(std::string_view(message)); }
+
+        void fatal(const std::string_view& str)
+        {
+            if (level > LOGGER_DEBUG) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            fatal_implementation(str);
+        }
+
+        template<typename... Args>
+        void fatal(Args&&... args)
+        {
+            if (level > LOGGER_ERROR) return;
+
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _stream.str({});
+            _stream.clear();
+            (_stream << ... << args);
+
+            fatal_implementation(_stream.str());
+        }
+
         using PrintToStreamFunction = std::function<void(std::ostream&)>;
 
         /// thread safe access to stream for writing debug output.
@@ -164,6 +192,9 @@ namespace vsg
 
         /// thread safe access to stream for writing error output.
         void error_stream(PrintToStreamFunction print);
+
+        /// thread safe access to stream for writing fatal output and throwing vsg::Exception
+        void fatal_stream(PrintToStreamFunction print);
 
         /// pass message to debug()/info()/warn()/error() based on specified level
         inline void log(Level msg_level, char* message) { log(msg_level, std::string_view(message)); }
@@ -190,6 +221,7 @@ namespace vsg
             case (LOGGER_INFO): info_implementation(_stream.str()); break;
             case (LOGGER_WARN): warn_implementation(_stream.str()); break;
             case (LOGGER_ERROR): error_implementation(_stream.str()); break;
+            case (LOGGER_FATAL): fatal_implementation(_stream.str()); break;
             default: break;
             }
         }
@@ -207,6 +239,7 @@ namespace vsg
         virtual void info_implementation(const std::string_view& message) = 0;
         virtual void warn_implementation(const std::string_view& message) = 0;
         virtual void error_implementation(const std::string_view& message) = 0;
+        virtual void fatal_implementation(const std::string_view& message) = 0;
     };
     VSG_type_name(vsg::Logger);
 
@@ -264,6 +297,20 @@ namespace vsg
         Logger::instance()->error_stream(print);
     }
 
+
+    /// write warn message to the current vsg::Logger::instance().
+    template<typename... Args>
+    void fatal(Args&&... args)
+    {
+        Logger::instance()->fatal(args...);
+    }
+
+    /// thread safe access to stream for writing warn output.
+    inline void fatal_stream(Logger::PrintToStreamFunction print)
+    {
+        Logger::instance()->fatal_stream(print);
+    }
+
     /// write message at specified level to the current vsg::Logger::instance() logger.
     template<typename... Args>
     void log(Logger::Level msg_level, Args&&... args)
@@ -287,6 +334,7 @@ namespace vsg
         std::string infoPrefix = "info: ";
         std::string warnPrefix = "Warning: ";
         std::string errorPrefix = "ERROR: ";
+        std::string fatalPrefix = "FATAL: ";
 
         void flush() override;
 
@@ -295,6 +343,7 @@ namespace vsg
         void info_implementation(const std::string_view& message) override;
         void warn_implementation(const std::string_view& message) override;
         void error_implementation(const std::string_view& message) override;
+        void fatal_implementation(const std::string_view& message) override;
     };
     VSG_type_name(vsg::StdLogger);
 
@@ -311,6 +360,7 @@ namespace vsg
         std::string infoPrefix = "info: ";
         std::string warnPrefix = "Warning: ";
         std::string errorPrefix = "ERROR: ";
+        std::string fatalPrefix = "FATAL: ";
 
         void flush() override;
 
@@ -321,6 +371,7 @@ namespace vsg
         void info_implementation(const std::string_view& message) override;
         void warn_implementation(const std::string_view& message) override;
         void error_implementation(const std::string_view& message) override;
+        void fatal_implementation(const std::string_view& message) override;
 
         std::map<std::thread::id, std::string> _threadPrefixes;
     };
@@ -337,6 +388,7 @@ namespace vsg
         void info_implementation(const std::string_view&) override;
         void warn_implementation(const std::string_view&) override;
         void error_implementation(const std::string_view&) override;
+        void fatal_implementation(const std::string_view&) override;
     };
     VSG_type_name(vsg::NullLogger);
 
