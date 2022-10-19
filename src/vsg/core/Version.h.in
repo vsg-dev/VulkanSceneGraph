@@ -27,7 +27,11 @@ extern "C"
     #define VSG_VERSION_STRING   "@VSG_VERSION_MAJOR@.@VSG_VERSION_MINOR@.@VSG_VERSION_PATCH@"
     #define VSG_SOVERSION_STRING "@VSG_SOVERSION@"
 
+    /// maximum number of logical vkDevice supported
     #define VSG_MAX_DEVICES @VSG_MAX_DEVICES@
+
+    /// vsg::ShaderCompiler support enabled when 1, disabled when 0
+    #define VSG_SUPPORTS_ShaderCompiler @VSG_SUPPORTS_ShaderCompiler@
 
     struct VsgVersion
     {
