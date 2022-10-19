@@ -12,6 +12,10 @@ namespace vsg
         ShaderCompiler();
         virtual ~ShaderCompiler();
 
+        /// return true if shader compilation is supported by this build of VulkanSceneGraph
+        /// you can also use the VSG_SUPPORTS_ShaderCompiler define provided by include/vsg/core/Version.h
+        bool supported() const;
+
         // default ShaderCompileSettings
         ref_ptr<ShaderCompileSettings> defaults;
 

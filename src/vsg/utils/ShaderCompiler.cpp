@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
@@ -18,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/utils/ShaderCompiler.h>
 
-#ifdef HAS_GLSLANG
+#if VSG_SUPPORTS_ShaderCompiler
 #    include <glslang/Public/ShaderLang.h>
 #    include <glslang/SPIRV/GlslangToSpv.h>
 
@@ -47,7 +48,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#ifdef HAS_GLSLANG
+#if VSG_SUPPORTS_ShaderCompiler
 static std::atomic_uint s_intialized = 0;
 
 static void s_initializeProcess()
@@ -90,12 +91,17 @@ ShaderCompiler::ShaderCompiler() :
 
 ShaderCompiler::~ShaderCompiler()
 {
-#ifdef HAS_GLSLANG
+#if VSG_SUPPORTS_ShaderCompiler
     s_finalizeProcess();
 #endif
 }
 
-#ifdef HAS_GLSLANG
+bool ShaderCompiler::supported() const
+{
+    return VSG_SUPPORTS_ShaderCompiler==1;
+}
+
+#if VSG_SUPPORTS_ShaderCompiler
 bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, ref_ptr<const Options> options)
 {
     // need to balance the inits.

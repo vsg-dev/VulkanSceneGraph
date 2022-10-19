@@ -252,8 +252,6 @@ endif()
 if (glslang_FOUND)
     set(LIBRARIES ${LIBRARIES} PUBLIC ${glslang_LIBRARIES})
 
-    set(EXTRA_DEFINES ${EXTRA_DEFINES} HAS_GLSLANG)
-
     include(CheckCXXSourceRuns)
 
     set(CMAKE_REQUIRED_LIBRARIES ${glslang_LIBRARY})

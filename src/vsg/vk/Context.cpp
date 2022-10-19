@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/traversals/CompileTraversal.h>
 
+#include <vsg/core/Version.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/CopyAndReleaseImage.h>
@@ -141,7 +142,7 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 {
     if (shaderCompiler) return shaderCompiler;
 
-#ifdef HAS_GLSLANG
+#if VSG_SUPPORTS_ShaderCompiler
     shaderCompiler = ShaderCompiler::create();
 
     if (device && device->getInstance())

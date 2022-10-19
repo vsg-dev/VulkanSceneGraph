@@ -22,8 +22,6 @@ include(vsgMacros)
 vsg_setup_dir_vars()
 vsg_setup_build_vars()
 
-# this line needs to be after the call to setup_build_vars()
-configure_file("${VSG_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
 
 if (MSVC)
     # Increase Number of Sections in .Obj file
@@ -43,7 +41,10 @@ if (NOT DEFINED glslang_FOUND)
     find_package(vsg_glslang CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
 endif()
 
-if (NOT glslang_FOUND)
+if (glslang_FOUND)
+    set(VSG_SUPPORTS_ShaderCompiler 1)
+else()
+    set(VSG_SUPPORTS_ShaderCompiler 0)
     message("--   Support for compiling GLSL to SPIR-V and associated shader composition is not available.")
 endif()
 
@@ -62,6 +63,9 @@ else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()
+
+# this line needs to be after the call to setup_build_vars()
+configure_file("${VSG_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
 
 vsg_add_target_docs(
     FILES
