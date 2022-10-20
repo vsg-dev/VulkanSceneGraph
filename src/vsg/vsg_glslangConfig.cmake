@@ -49,8 +49,6 @@ if (DEFINED ENV{VULKAN_SDK})
     endif()
 endif()
 
-find_package(SPIRV-Tools QUIET)
-find_package(SPIRV-Tools-opt QUIET)
 
 find_path(glslang_INCLUDE_DIR
     NAMES glslang/Public/ShaderLang.h
@@ -106,6 +104,14 @@ find_library(SPIRV-Tools-opt_LIBRARY
     NAMES SPIRV-Tools-opt
     PATHS ${ADDITIONAL_PATHS_LIBS}
 )
+
+if (NOT SPIRV-Tools_LIBRARY)
+    find_package(SPIRV-Tools QUIET)
+endif()
+
+if (NOT SPIRV-Tools-opt_LIBRARY)
+    find_package(SPIRV-Tools-opt QUIET)
+endif()
 
 if(WIN32)
 
