@@ -48,8 +48,8 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
-        void setup(Text* text, uint32_t minimumAllocation = 0) override;
-        void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
+        void setup(Text* text, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) override;
+        void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) override;
         dbox extents() const override { return textExtents; }
 
         // implementation data structure

@@ -34,13 +34,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
+void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
     if (!text || !(text->text) || !text->font || !text->layout) return;
 
     const auto& font = text->font;
     auto& layout = text->layout;
-    auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet();
+    auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(options);
 
     textExtents = layout->extents(text->text, *(text->font));
 
@@ -53,12 +53,12 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
     scenegraph = createRenderingSubgraph(shaderSet, font, layout->requiresBillboard(), quads, minimumAllocation);
 }
 
-void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
+void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
     if (!textGroup || textGroup->children.empty()) return;
 
     const auto& font = textGroup->font;
-    auto shaderSet = textGroup->shaderSet ? textGroup->shaderSet : createTextShaderSet();
+    auto shaderSet = textGroup->shaderSet ? textGroup->shaderSet : createTextShaderSet(options);
 
     auto& first_text = textGroup->children.front();
     auto& layout = first_text->layout;

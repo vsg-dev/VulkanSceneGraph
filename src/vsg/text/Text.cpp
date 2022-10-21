@@ -40,7 +40,7 @@ void Text::read(Input& input)
     input.readObject("layout", layout);
     input.readObject("text", text);
 
-    setup();
+    setup(0, input.options);
 }
 
 void Text::write(Output& output) const
@@ -59,12 +59,12 @@ void Text::write(Output& output) const
     output.writeObject("text", text);
 }
 
-void Text::setup(uint32_t minimumAllocation)
+void Text::setup(uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
     if (!layout) layout = StandardLayout::create();
     if (!technique) technique = CpuLayoutTechnique::create();
 
-    technique->setup(this, minimumAllocation);
+    technique->setup(this, minimumAllocation, options);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

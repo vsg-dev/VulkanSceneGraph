@@ -52,7 +52,7 @@ void TextGroup::read(Input& input)
 
     input.readObjects("children", children);
 
-    setup();
+    setup(0, input.options);
 }
 
 void TextGroup::write(Output& output) const
@@ -80,11 +80,11 @@ void TextGroup::addChild(ref_ptr<Text> text)
     children.push_back(text);
 }
 
-void TextGroup::setup(uint32_t minimumAllocation)
+void TextGroup::setup(uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
     if (children.empty()) return;
 
     if (!technique) technique = CpuLayoutTechnique::create();
 
-    technique->setup(this, minimumAllocation);
+    technique->setup(this, minimumAllocation, options);
 }

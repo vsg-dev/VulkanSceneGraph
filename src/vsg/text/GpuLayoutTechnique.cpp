@@ -42,7 +42,7 @@ void assignValue(T& dest, const T& src, bool& updated)
     updated = true;
 }
 
-void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
+void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
     auto layout = text->layout;
     if (!layout) return;
@@ -185,7 +185,8 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         stateGroup = StateGroup::create();
         scenegraph = stateGroup;
 
-        auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet();
+        auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(options);
+
         auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
 
         auto& sharedObjects = text->font->sharedObjects;
@@ -309,7 +310,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation)
         }
     }
 }
-void GpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation)
+void GpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
-    info("GpuLayoutTechnique::setup(", textGroup, ", ", minimumAllocation, ") not yet supported");
+    info("GpuLayoutTechnique::setup(", textGroup, ", ", minimumAllocation, options, ") not yet supported");
 }
