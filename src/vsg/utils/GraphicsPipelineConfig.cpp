@@ -20,12 +20,20 @@ DescriptorConfig::DescriptorConfig(ref_ptr<ShaderSet> in_shaderSet) :
 {
 }
 
+void DescriptorConfig::addDefine(const std::string& define)
+{
+    if (std::find(defines.begin(), defines.end(), define) == defines.end())
+    {
+        defines.push_back(define);
+    }
+}
+
 bool DescriptorConfig::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler)
 {
     if (auto& textureBinding = shaderSet->getUniformBinding(name))
     {
         // set up bindings
-        if (!textureBinding.define.empty()) defines.push_back(textureBinding.define);
+        if (!textureBinding.define.empty()) addDefine(textureBinding.define);
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
 
         if (!sampler) sampler = Sampler::create();
@@ -43,7 +51,7 @@ bool DescriptorConfig::assignUniform(const std::string& name, ref_ptr<Data> data
     if (auto& uniformBinding = shaderSet->getUniformBinding(name))
     {
         // set up bindings
-        if (!uniformBinding.define.empty()) defines.push_back(uniformBinding.define);
+        if (!uniformBinding.define.empty()) addDefine(uniformBinding.define);
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
 
         auto uniform = DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding);
@@ -114,6 +122,11 @@ void GraphicsPipelineConfig::reset()
     shaderHints->defines.clear();
 }
 
+void GraphicsPipelineConfig::addDefine(const std::string& define)
+{
+    shaderHints->addDefine(define);
+}
+
 bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format)
 {
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
@@ -121,7 +134,7 @@ bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputR
     {
         // set up bindings
         uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(vertexInputState->vertexAttributeDescriptions.size());
-        if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
+        if (!attributeBinding.define.empty()) addDefine(attributeBinding.define);
         vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
         vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, stride, vertexInputRate});
         return true;
@@ -138,7 +151,7 @@ bool GraphicsPipelineConfig::assignArray(DataList& arrays, const std::string& na
 
         // set up bindings
         uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(arrays.size());
-        if (!attributeBinding.define.empty()) shaderHints->defines.push_back(attributeBinding.define);
+        if (!attributeBinding.define.empty()) addDefine(attributeBinding.define);
         vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
         vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, array->getLayout().stride, vertexInputRate});
 
@@ -153,7 +166,7 @@ bool GraphicsPipelineConfig::assignTexture(Descriptors& descriptors, const std::
     if (auto& textureBinding = shaderSet->getUniformBinding(name))
     {
         // set up bindings
-        if (!textureBinding.define.empty()) shaderHints->defines.push_back(textureBinding.define);
+        if (!textureBinding.define.empty()) addDefine(textureBinding.define);
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
 
         if (!sampler) sampler = Sampler::create();
@@ -171,7 +184,7 @@ bool GraphicsPipelineConfig::assignUniform(Descriptors& descriptors, const std::
     if (auto& uniformBinding = shaderSet->getUniformBinding(name))
     {
         // set up bindings
-        if (!uniformBinding.define.empty()) shaderHints->defines.push_back(uniformBinding.define);
+        if (!uniformBinding.define.empty()) addDefine(uniformBinding.define);
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
 
         auto uniform = vsg::DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding);

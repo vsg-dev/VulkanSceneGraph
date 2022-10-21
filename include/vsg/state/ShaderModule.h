@@ -51,6 +51,9 @@ namespace vsg
         bool forwardCompatible = false;
         std::vector<std::string> defines;
 
+        /// convinience function that adds a define string to the defines vector if it doesn't already exist in list.
+        void addDefine(const std::string& define);
+
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
