@@ -23,14 +23,6 @@ using namespace vsg;
 //
 // ShaderCompileSettings
 //
-void ShaderCompileSettings::addDefine(const std::string& define)
-{
-    if (std::find(defines.begin(), defines.end(), define) == defines.end())
-    {
-        defines.push_back(define);
-    }
-}
-
 int ShaderCompileSettings::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);

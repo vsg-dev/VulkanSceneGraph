@@ -129,29 +129,11 @@ const UniformBinding& ShaderSet::getUniformBinding(const std::string& name) cons
     return _nullUniformBinding;
 }
 
-ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::vector<std::string>& defines) const
+ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>& defines) const
 {
-    // make sure the defines are unique.  TODO: figure out a better way of handling defines in ShaderHits etc.
-    std::set<std::string> uniqueDefines;
-    for (auto& define : defines)
-    {
-        uniqueDefines.insert(define);
-    }
-
     for (auto& definesArrayState : definesArrayStates)
     {
-        size_t numMatches = 0;
-        for (auto& define : uniqueDefines)
-        {
-            if (std::find(definesArrayState.defines.begin(), definesArrayState.defines.end(), define) != definesArrayState.defines.end())
-            {
-                ++numMatches;
-            }
-        }
-        if (definesArrayState.defines.size() == numMatches)
-        {
-            return definesArrayState.arrayState;
-        }
+        if (definesArrayState.defines == defines) return definesArrayState.arrayState;
     }
 
     return {};

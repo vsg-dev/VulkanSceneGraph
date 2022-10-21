@@ -197,7 +197,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
         if (billboard)
         {
-            config->shaderHints->defines.push_back("BILLBOARD");
+            config->shaderHints->defines.insert("BILLBOARD");
         }
 
         // set up sampler for atlas.

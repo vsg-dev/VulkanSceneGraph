@@ -49,10 +49,7 @@ namespace vsg
         int defaultVersion = 450;
         SpirvTarget target = SPIRV_1_0;
         bool forwardCompatible = false;
-        std::vector<std::string> defines;
-
-        /// convinience function that adds a define string to the defines vector if it doesn't already exist in list.
-        void addDefine(const std::string& define);
+        std::set<std::string> defines;
 
         int compare(const Object& rhs_object) const override;
 

@@ -211,8 +211,10 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         shader->setEnvTarget(glslang::EShTargetSpv, targetLanguageVersion);
 
         std::string finalShaderSource = vsg::insertIncludes(vsg_shader->module->source, options);
-        if (!settings->defines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, settings->defines);
-        if (!defines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, defines);
+
+        std::vector<std::string> combinedDefines(defines);
+        for(auto& define : settings->defines) combinedDefines.push_back(define);
+        if (!combinedDefines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, combinedDefines);
 
         const char* str = finalShaderSource.c_str();
         shader->setStrings(&str, 1);

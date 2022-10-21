@@ -43,15 +43,12 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
 
-        /// convinience function that adds a define string to the defines vector if it doesn't already exist in list.
-        void addDefine(const std::string& define);
-
         // assign Descriptors to a DescriptorSet
         void init();
 
         // filled in by assingTexture(..) and assingUnfiorm(..)
         Descriptors descriptors;
-        std::vector<std::string> defines;
+        std::set<std::string> defines;
         DescriptorSetLayoutBindings descriptorBindings;
 
         // filled in by init()
@@ -81,9 +78,6 @@ namespace vsg
         ref_ptr<DescriptorSetLayout> additionalDescrptorSetLayout;
 
         void reset();
-
-        /// convinience function that adds a define string to the defines vector if it doesn't already exist in list.
-        void addDefine(const std::string& define);
 
         bool enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format = VK_FORMAT_UNDEFINED);
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);

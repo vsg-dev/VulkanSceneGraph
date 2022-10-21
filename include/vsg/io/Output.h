@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/FileSystem.h>
 
+#include <set>
 #include <unordered_map>
 
 namespace vsg
@@ -139,7 +140,7 @@ namespace vsg
         }
 
         template<typename T>
-        void writeValues(const char* propertyName, const T& values)
+        void writeValues(const char* propertyName, const std::vector<T>& values)
         {
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
@@ -147,6 +148,19 @@ namespace vsg
             for (uint32_t i = 0; i < numElements; ++i)
             {
                 write("element", values[i]);
+            }
+        }
+
+
+        template<typename T>
+        void writeValues(const char* propertyName, const std::set<T>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            for(auto& value : values)
+            {
+                write("element", value);
             }
         }
 
