@@ -20,8 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
 
-#include "shaders/text_frag.cpp"
-#include "shaders/text_vert.cpp"
+#include "shaders/text_ShaderSet.cpp"
 
 using namespace vsg;
 
@@ -79,38 +78,7 @@ ref_ptr<ShaderSet> vsg::createTextShaderSet(ref_ptr<const Options> options)
         if (auto itr = options->shaderSets.find("text"); itr != options->shaderSets.end()) return itr->second;
     }
 
-    // load shaders
-    auto vertexShader = read_cast<ShaderStage>("shaders/text.vert", options);
-    if (!vertexShader) vertexShader = text_vert(); // fallback to shaders/text_vert.cpp
-
-    auto fragmentShader = read_cast<ShaderStage>("shaders/text.frag", options);
-    if (!fragmentShader) fragmentShader = text_frag(); // fallback to shaders/text_frag.cpp
-
-    uint32_t numTextIndices = 256;
-    vertexShader->specializationConstants = vsg::ShaderStage::SpecializationConstants{
-        {0, vsg::uintValue::create(numTextIndices)} // numTextIndices
-    };
-
-    auto shaderSet = ShaderSet::create(ShaderStages{vertexShader, fragmentShader});
-
-    // used for both CPU and GPU layouts
-    shaderSet->addAttributeBinding("inPosition", "", 0, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
-    shaderSet->addUniformBinding("textureAtlas", "", 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, vec4Array2D::create(1, 1));
-    shaderSet->addPushConstantRange("pc", "", VK_SHADER_STAGE_VERTEX_BIT, 0, 128);
-
-    // only used when using CPU Layout
-    shaderSet->addAttributeBinding("inColor", "CPU_LAYOUT", 1, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
-    shaderSet->addAttributeBinding("inOutlineColor", "CPU_LAYOUT", 2, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
-    shaderSet->addAttributeBinding("inOutlineWidth", "CPU_LAYOUT", 3, VK_FORMAT_R32_SFLOAT, floatArray::create(1));
-    shaderSet->addAttributeBinding("inTexCoord", "CPU_LAYOUT", 4, VK_FORMAT_R32G32B32_SFLOAT, vec3Array::create(1));
-    shaderSet->addAttributeBinding("inCenterAndAutoScaleDistance", "BILLBOARD", 5, VK_FORMAT_R32G32B32A32_SFLOAT, vec4Array::create(1));
-
-    // only used when using GPU Layout
-    shaderSet->addUniformBinding("glyphMetrics", "GPU_LAYOUT", 0, 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT, vec4Array2D::create(1, 1));
-    shaderSet->addUniformBinding("textLayout", "GPU_LAYOUT", 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, TextLayoutValue::create());
-    shaderSet->addUniformBinding("text", "GPU_LAYOUT", 1, 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, uivec4Array2D::create(1, 1));
-
-    return shaderSet;
+    return text_ShaderSet();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
