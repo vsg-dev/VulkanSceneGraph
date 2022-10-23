@@ -37,9 +37,10 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     }
     if (!shaderSet)
     {
-        //shaderSet = createFlatShadedShaderSet(options);
+        if (stateInfo.lighting) shaderSet = createPhongShaderSet(options);
+        else shaderSet = createFlatShadedShaderSet(options);
         //shaderSet = createPhysicsBasedRenderingShaderSet(options);
-        shaderSet = createPhongShaderSet(options);
+
     }
 
     auto graphicsPipelineConfig = vsg::GraphicsPipelineConfig::create(shaderSet);
