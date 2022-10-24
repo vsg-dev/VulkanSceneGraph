@@ -102,8 +102,6 @@ void GraphicsPipeline::compile(Context& context)
             auto shaderCompiler = context.getOrCreateShaderCompiler();
             if (shaderCompiler)
             {
-                vsg::info("Compiling GraphicsPipeline");
-
                 shaderCompiler->compile(stages); // may need to map defines and paths in some fashion
             }
             else
