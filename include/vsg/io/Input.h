@@ -168,9 +168,9 @@ namespace vsg
 
             for (uint32_t i = 0; i < numElements; ++i)
             {
-                T value;
-                read("element", value);
-                values.insert(value);
+                T v;
+                read("element", v);
+                values.insert(v);
             }
         }
 
