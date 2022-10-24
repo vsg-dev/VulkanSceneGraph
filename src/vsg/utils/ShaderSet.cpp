@@ -25,8 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/ShaderSet.h>
 
 #include "shaders/flat_ShaderSet.cpp"
-#include "shaders/phong_ShaderSet.cpp"
 #include "shaders/pbr_ShaderSet.cpp"
+#include "shaders/phong_ShaderSet.cpp"
 
 using namespace vsg;
 

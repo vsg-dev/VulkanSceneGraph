@@ -37,8 +37,10 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     }
     if (!shaderSet)
     {
-        if (stateInfo.lighting) shaderSet = createPhongShaderSet(options);
-        else shaderSet = createFlatShadedShaderSet(options);
+        if (stateInfo.lighting)
+            shaderSet = createPhongShaderSet(options);
+        else
+            shaderSet = createFlatShadedShaderSet(options);
         //shaderSet = createPhysicsBasedRenderingShaderSet(options);
     }
 

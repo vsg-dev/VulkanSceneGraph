@@ -151,14 +151,13 @@ namespace vsg
             }
         }
 
-
         template<typename T>
         void writeValues(const char* propertyName, const std::set<T>& values)
         {
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
 
-            for(auto& value : values)
+            for (auto& value : values)
             {
                 write("element", value);
             }

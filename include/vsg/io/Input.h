@@ -158,7 +158,6 @@ namespace vsg
             }
         }
 
-
         template<typename T>
         void readValues(const char* propertyName, std::set<T>& values)
         {
