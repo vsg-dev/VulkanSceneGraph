@@ -59,6 +59,14 @@ namespace vsg
             return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
 
+        /// convenience method for casting a read object to a specified type.
+        template<class T>
+        vsg::ref_ptr<T> read_cast(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options = {}) const
+        {
+            auto object = read(ptr, size, options);
+            return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
+        }
+
         /// read object from specified file, return object on success, return null ref_ptr<> on failure.
         virtual vsg::ref_ptr<vsg::Object> read(const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
         virtual vsg::ref_ptr<vsg::Object> read(std::istream& /*fin*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
