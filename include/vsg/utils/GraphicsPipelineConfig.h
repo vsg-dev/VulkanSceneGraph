@@ -48,7 +48,7 @@ namespace vsg
 
         // filled in by assingTexture(..) and assingUnfiorm(..)
         Descriptors descriptors;
-        std::vector<std::string> defines;
+        std::set<std::string> defines;
         DescriptorSetLayoutBindings descriptorBindings;
 
         // filled in by init()

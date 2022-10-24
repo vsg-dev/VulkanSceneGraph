@@ -61,7 +61,7 @@ namespace vsg
 
     struct VSG_DECLSPEC DefinesArrayState
     {
-        std::vector<std::string> defines;
+        std::set<std::string> defines;
         ref_ptr<ArrayState> arrayState;
 
         int compare(const DefinesArrayState& rhs) const;
@@ -80,7 +80,7 @@ namespace vsg
         std::vector<UniformBinding> uniformBindings;
         std::vector<PushConstantRange> pushConstantRanges;
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
-        std::vector<std::string> optionalDefines;
+        std::set<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
 
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
@@ -105,7 +105,7 @@ namespace vsg
         const UniformBinding& getUniformBinding(const std::string& name) const;
 
         /// get the first ArrayState that has matches with defines in the specified list of defines.
-        ref_ptr<ArrayState> getSuitableArrayState(const std::vector<std::string>& defines) const;
+        ref_ptr<ArrayState> getSuitableArrayState(const std::set<std::string>& defines) const;
 
         /// get the ShaderStages variant that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});

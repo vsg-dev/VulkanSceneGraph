@@ -56,7 +56,7 @@ namespace vsg
 
         /// create the rendering backend.
         /// minimumAllocation provides a hint for the minimum number of glyphs to allocate space for.
-        virtual void setup(uint32_t minimumAllocation = 0);
+        virtual void setup(uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {});
     };
     VSG_type_name(vsg::TextGroup);
 } // namespace vsg

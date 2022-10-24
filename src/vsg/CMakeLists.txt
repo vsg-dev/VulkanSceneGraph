@@ -129,6 +129,7 @@ set(SOURCES
     io/tile.cpp
     io/read.cpp
     io/write.cpp
+    io/mem_stream.cpp
 
     text/CpuLayoutTechnique.cpp
     text/GpuLayoutTechnique.cpp

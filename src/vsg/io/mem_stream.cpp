@@ -1,8 +1,6 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2020 Robert Osfield
+Copyright(c) 2022 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,22 +10,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Inherit.h>
+#include <vsg/io/mem_stream.h>
 
-namespace vsg
+using namespace vsg;
+
+mem_stream::mem_stream(const uint8_t* ptr, size_t length) :
+    std::istream(&_buffer),
+    _buffer(ptr, length)
 {
+    rdbuf(&_buffer);
+}
 
-    // forward declare Text
-    class Text;
-
-    // base class for implementation of rendering backend for Text
-    class VSG_DECLSPEC TextTechnique : public Inherit<Object, TextTechnique>
-    {
-    public:
-        virtual void setup(Text* text, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) = 0;
-        virtual void setup(TextGroup* text, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) = 0;
-        virtual dbox extents() const = 0;
-    };
-    VSG_type_name(vsg::TextTechnique);
-
-} // namespace vsg
+mem_stream::mem_buffer::mem_buffer(const uint8_t* ptr, size_t length)
+{
+    setg((char*)(ptr), (char*)(ptr), (char*)(ptr) + length);
+}

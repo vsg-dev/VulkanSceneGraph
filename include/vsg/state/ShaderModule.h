@@ -49,7 +49,7 @@ namespace vsg
         int defaultVersion = 450;
         SpirvTarget target = SPIRV_1_0;
         bool forwardCompatible = false;
-        std::vector<std::string> defines;
+        std::set<std::string> defines;
 
         int compare(const Object& rhs_object) const override;
 

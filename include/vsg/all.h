@@ -190,6 +190,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/SecondaryCommandGraph.h>
 #include <vsg/viewer/Trackball.h>
+#include <vsg/viewer/TransferTask.h>
 #include <vsg/viewer/UpdateOperations.h>
 #include <vsg/viewer/View.h>
 #include <vsg/viewer/ViewMatrix.h>
@@ -241,6 +242,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/VSG.h>
 #include <vsg/io/convert_utf.h>
+#include <vsg/io/mem_stream.h>
 #include <vsg/io/read.h>
 #include <vsg/io/read_line.h>
 #include <vsg/io/spirv.h>

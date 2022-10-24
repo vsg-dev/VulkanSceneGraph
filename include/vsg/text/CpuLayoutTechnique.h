@@ -36,8 +36,8 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
-        void setup(Text* text, uint32_t minimumAllocation = 0) override;
-        void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0) override;
+        void setup(Text* text, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) override;
+        void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) override;
         dbox extents() const override { return textExtents; }
 
         virtual ref_ptr<Node> createRenderingSubgraph(ref_ptr<ShaderSet> shaderSet, ref_ptr<Font> font, bool billboard, TextQuads& textQuads, uint32_t minimumAllocation);

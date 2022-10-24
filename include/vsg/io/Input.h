@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/ObjectFactory.h>
 
+#include <set>
 #include <unordered_map>
 
 namespace vsg
@@ -143,7 +144,7 @@ namespace vsg
         }
 
         template<typename T>
-        void readValues(const char* propertyName, T& values)
+        void readValues(const char* propertyName, std::vector<T>& values)
         {
             if (!matchPropertyName(propertyName)) return;
 
@@ -154,6 +155,22 @@ namespace vsg
             for (uint32_t i = 0; i < numElements; ++i)
             {
                 read("element", values[i]);
+            }
+        }
+
+        template<typename T>
+        void readValues(const char* propertyName, std::set<T>& values)
+        {
+            if (!matchPropertyName(propertyName)) return;
+
+            uint32_t numElements = 0;
+            read(1, &numElements);
+
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                T v;
+                read("element", v);
+                values.insert(v);
             }
         }
 

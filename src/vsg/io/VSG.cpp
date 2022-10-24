@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/BinaryOutput.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/VSG.h>
+#include <vsg/io/mem_stream.h>
 
 using namespace vsg;
 
@@ -124,14 +125,11 @@ vsg::ref_ptr<vsg::Object> VSG::read(const vsg::Path& filename, ref_ptr<const Opt
 
 vsg::ref_ptr<vsg::Object> VSG::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
 {
-    if (options)
+    if (options && !options->extensionHint.empty())
     {
-        if (!options->extensionHint.empty())
+        if (options->extensionHint != ".vsgb" && options->extensionHint != ".vsgt")
         {
-            if (options->extensionHint != ".vsgb" && options->extensionHint != ".vsgt")
-            {
-                return {};
-            }
+            return {};
         }
     }
 
@@ -154,35 +152,16 @@ vsg::ref_ptr<vsg::Object> VSG::read(std::istream& fin, vsg::ref_ptr<const vsg::O
 
 vsg::ref_ptr<vsg::Object> VSG::read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
 {
-    if (options)
+    if (options && !options->extensionHint.empty())
     {
-        if (!options->extensionHint.empty())
+        if (options->extensionHint != ".vsgb" && options->extensionHint != ".vsgt")
         {
-            if (options->extensionHint != ".vsgb" && options->extensionHint != ".vsgt")
-            {
-                return {};
-            }
+            return {};
         }
     }
 
-    std::string str(reinterpret_cast<const char*>(ptr), size);
-    std::istringstream stream(str);
-
-    auto [type, version] = readHeader(stream);
-    if (type == BINARY)
-    {
-        vsg::BinaryInput input(stream, _objectFactory, options);
-        input.version = version;
-        return input.readObject("Root");
-    }
-    else if (type == ASCII)
-    {
-        vsg::AsciiInput input(stream, _objectFactory, options);
-        input.version = version;
-        return input.readObject("Root");
-    }
-
-    return {};
+    mem_stream fin(ptr, size);
+    return read(fin, options);
 }
 
 bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const

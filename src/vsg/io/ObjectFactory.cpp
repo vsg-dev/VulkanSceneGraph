@@ -247,6 +247,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::StandardLayout>();
     add<vsg::CpuLayoutTechnique>();
     add<vsg::GpuLayoutTechnique>();
+    add<vsg::TextLayoutValue>();
 
     // ui
     add<vsg::UIEvent>();

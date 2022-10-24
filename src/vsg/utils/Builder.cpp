@@ -37,9 +37,11 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     }
     if (!shaderSet)
     {
-        //shaderSet = createFlatShadedShaderSet(options);
+        if (stateInfo.lighting)
+            shaderSet = createPhongShaderSet(options);
+        else
+            shaderSet = createFlatShadedShaderSet(options);
         //shaderSet = createPhysicsBasedRenderingShaderSet(options);
-        shaderSet = createPhongShaderSet(options);
     }
 
     auto graphicsPipelineConfig = vsg::GraphicsPipelineConfig::create(shaderSet);
@@ -61,7 +63,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
         graphicsPipelineConfig->assignTexture(descriptors, "diffuseMap", stateInfo.image, sampler);
 
-        if (stateInfo.greyscale) defines.push_back("VSG_GREYSACLE_DIFFUSE_MAP");
+        if (stateInfo.greyscale) defines.insert("VSG_GREYSACLE_DIFFUSE_MAP");
     }
 
     if (stateInfo.displacementMap)
@@ -108,7 +110,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     if (stateInfo.two_sided)
     {
         graphicsPipelineConfig->rasterizationState->cullMode = VK_CULL_MODE_NONE;
-        defines.push_back("VSG_TWO_SIDED_LIGHTING");
+        defines.insert("VSG_TWO_SIDED_LIGHTING");
     }
 
     graphicsPipelineConfig->colorBlendState->attachments = ColorBlendState::ColorBlendAttachments{
