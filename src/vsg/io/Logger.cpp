@@ -45,6 +45,7 @@ Logger::~Logger()
 ref_ptr<Logger>& Logger::instance()
 {
     static ref_ptr<Logger> s_logger = StdLogger::create();
+    //static ref_ptr<Logger> s_logger = ThreadLogger::create();
     return s_logger;
 }
 
@@ -153,12 +154,12 @@ void StdLogger::flush()
 
 void StdLogger::debug_implementation(const std::string_view& message)
 {
-    std::cout << debugPrefix << message << '\n';
+    std::cout << debugPrefix << message << std::endl;
 }
 
 void StdLogger::info_implementation(const std::string_view& message)
 {
-    std::cout << infoPrefix << message << '\n';
+    std::cout << infoPrefix << message << std::endl;
 }
 
 void StdLogger::warn_implementation(const std::string_view& message)
@@ -212,13 +213,13 @@ void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
 void ThreadLogger::debug_implementation(const std::string_view& message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cout << debugPrefix << message << '\n';
+    std::cout << debugPrefix << message << std::endl;
 }
 
 void ThreadLogger::info_implementation(const std::string_view& message)
 {
     print_id(std::cout, std::this_thread::get_id());
-    std::cout << infoPrefix << message << '\n';
+    std::cout << infoPrefix << message << std::endl;
 }
 
 void ThreadLogger::warn_implementation(const std::string_view& message)
