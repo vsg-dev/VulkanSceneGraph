@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
+#include <vsg/io/ReaderWriter.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
 
@@ -182,7 +183,8 @@ void DatabasePager::start()
                     continue;
                 }
 
-                auto subgraph = vsg::read_cast<vsg::Node>(plod->filename, plod->options);
+                auto read_object = vsg::read(plod->filename, plod->options);
+                auto subgraph = read_object.cast<Node>();
 
                 if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::Reading, PagedLOD::Compiling))
                 {
@@ -207,7 +209,9 @@ void DatabasePager::start()
                 }
                 else
                 {
-                    debug("Failed to read ", plod, " ", plod->filename);
+                    if (auto read_error = read_object.cast<ReadError>()) warn(read_error->message);
+                    else warn("Failed to read ", plod, " ", plod->filename);
+
                     databasePager.requestDiscarded(plod);
                 }
             }
