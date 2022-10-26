@@ -41,8 +41,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-tile::tile()
+tile::tile(ref_ptr<TileDatabaseSettings> in_settings, ref_ptr<const Options> in_options) :
+    settings(in_settings)
 {
+    init(in_options);
 }
 
 vsg::dvec3 tile::computeLatitudeLongitudeAltitude(const vsg::dvec3& src) const
@@ -114,7 +116,7 @@ vsg::ref_ptr<vsg::Object> tile::read(const vsg::Path& filename, vsg::ref_ptr<con
         uint32_t x, y, lod;
         sstr >> x >> y >> lod;
 
-        vsg::debug("read(", filename, ") -> tile_info = ", tile_info, ", x = ", x, ", y = ", y, ", z = ", lod);
+        vsg::debug("read(", filename, ") -> tile_info = ", tile_info, ", x = ", x, ", y = ", y, ", z = ", lod, ", tile = ", this, ", settings =  ", settings);
 
         return read_subtile(x, y, lod, options);
     }
@@ -271,9 +273,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
     if (group->children.size() != 4)
     {
-        vsg::warn("Could not load all 4 subtiles, loaded only ", group->children.size(), " tiles.");
-
-        return {};
+        return ReadError::create("vsg::tile::read_subtile(..) could not load all 4 subtiles.");
     }
 
     return group;

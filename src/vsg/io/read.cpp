@@ -43,11 +43,6 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
             spirv rw;
             return rw.read(filename, options);
         }
-        else if (ext == ".tile")
-        {
-            tile rw;
-            return rw.read(filename, options);
-        }
         else
         {
             // no means of loading file
