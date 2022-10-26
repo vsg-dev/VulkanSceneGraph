@@ -78,9 +78,7 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
 
     if (settings->ellipsoidModel) setObject("EllipsoidModel", settings->ellipsoidModel);
 
-    auto tileReader = tile::create();
-    tileReader->settings = settings;
-    tileReader->init(options);
+    auto tileReader = tile::create(settings, options);
 
     auto local_options = options ? vsg::Options::create(*options) : vsg::Options::create();
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);

@@ -19,17 +19,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// tile reader that is used by th vsg::TileDatabase node to implement the reading of external tiles
     class VSG_DECLSPEC tile : public Inherit<ReaderWriter, tile>
     {
     public:
-        tile();
+        tile(ref_ptr<TileDatabaseSettings> in_settings, ref_ptr<const Options> in_options);
+
         tile(const tile&) = delete;
         tile& operator=(const tile&) = delete;
 
         ref_ptr<TileDatabaseSettings> settings;
-
-        // initialize data structures
-        void init(ref_ptr<const Options> options);
 
         // read the tile
         ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {}) const override;
@@ -40,6 +39,10 @@ namespace vsg
         mutable double totalTimeReadingTiles{0.0};
 
     protected:
+
+        // initialize data structures
+        void init(ref_ptr<const Options> options);
+
         dvec3 computeLatitudeLongitudeAltitude(const dvec3& src) const;
         dbox computeTileExtents(uint32_t x, uint32_t y, uint32_t level) const;
         Path getTilePath(const Path& src, uint32_t x, uint32_t y, uint32_t level) const;

@@ -286,7 +286,6 @@ ObjectFactory::ObjectFactory()
     add<vsg::CompositeReaderWriter>();
     add<vsg::VSG>();
     add<vsg::spirv>();
-    add<vsg::tile>();
     add<vsg::ArrayState>();
     add<vsg::NullArrayState>();
 
