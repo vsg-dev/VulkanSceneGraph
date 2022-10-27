@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/maths/transform.h>
+#include <vsg/maths/common.h>
 #include <vsg/nodes/Node.h>
 
 namespace vsg

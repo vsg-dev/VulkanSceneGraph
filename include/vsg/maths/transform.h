@@ -12,61 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/ConstVisitor.h>
-#include <vsg/core/visit.h>
-#include <vsg/maths/mat3.h>
-#include <vsg/maths/mat4.h>
-#include <vsg/maths/quat.h>
-#include <vsg/maths/vec3.h>
-
-#include <cmath>
+#include <vsg/maths/common.h>
 
 namespace vsg
 {
-    constexpr float PIf = 3.14159265358979323846f;
-    constexpr double PI = 3.14159265358979323846;
-
-    /// convert degrees to radians
-    constexpr float radians(float degrees) noexcept { return degrees * (PIf / 180.0f); }
-    constexpr double radians(double degrees) noexcept { return degrees * (PI / 180.0); }
-
-    /// convert radians to degrees
-    constexpr float degrees(float radians) noexcept { return radians * (180.0f / PIf); }
-    constexpr double degrees(double radians) noexcept { return radians * (180.0 / PI); }
-
-    constexpr float square(float v) noexcept { return v * v; };
-    constexpr double square(double v) noexcept { return v * v; };
-
-    /// Hermite interpolation between edge0 and edge1
-    template<typename T>
-    T smoothstep(T edge0, T edge1, T x)
-    {
-        if (x <= edge0)
-            return edge0;
-        else if (x >= edge1)
-            return edge1;
-        double r = (x - edge0) / (edge1 - edge0);
-        return edge0 + (r * r * (3.0 - 2.0 * r)) * (edge1 - edge0);
-    }
-
-    /// Hermite interpolation between 0.0 and 1.0
-    template<typename T>
-    T smoothstep(T r)
-    {
-        if (r <= 0.0)
-            return 0.0;
-        else if (r >= 1.0)
-            return 1.0;
-        return r * r * (3.0 - 2.0 * r);
-    }
-
-    template<typename T>
-    T mix(T start, T end, T r)
-    {
-        T one_minus_r = 1.0 - r;
-        return start * one_minus_r + end * r;
-    }
-
+    /// create a 4x4 matrix that respresents the rotation by a quaternion
     template<typename T>
     constexpr t_mat4<T> rotate(const t_quat<T>& q)
     {
@@ -90,6 +40,7 @@ namespace vsg
                          zero, zero, zero, 1.0);
     }
 
+    /// create a 4x4 matrix that respresents the rotation by a radian angle around an x, y, z axis
     template<typename T>
     t_mat4<T> rotate(T angle_radians, T x, T y, T z)
     {
@@ -102,12 +53,14 @@ namespace vsg
                          0, 0, 0, 1);
     }
 
+    /// create a 4x4 matrix that respresents the rotation by a radian angle around an vec3 axis
     template<typename T>
     t_mat4<T> rotate(T angle_radians, const t_vec3<T>& v)
     {
         return rotate(angle_radians, v.value[0], v.value[1], v.value[2]);
     }
 
+    /// create a 4x4 matrix that respresents the translation by x, y, z
     template<typename T>
     constexpr t_mat4<T> translate(T x, T y, T z)
     {
@@ -117,12 +70,14 @@ namespace vsg
                          x, y, z, 1);
     }
 
+    /// create a 4x4 matrix that respresents the translation by vec3
     template<typename T>
     constexpr t_mat4<T> translate(const t_vec3<T>& v)
     {
         return translate(v.value[0], v.value[1], v.value[2]);
     }
 
+    /// create a 4x4 matrix that respresents the scale by sx, sy, zz
     template<typename T>
     constexpr t_mat4<T> scale(T sx, T sy, T sz)
     {
@@ -132,12 +87,14 @@ namespace vsg
                          0, 0, 0, 1);
     }
 
+    /// create a 4x4 matrix that respresents the scale by vec3
     template<typename T>
     constexpr t_mat4<T> scale(const t_vec3<T>& v)
     {
         return scale(v.value[0], v.value[1], v.value[2]);
     }
 
+    /// transpose a 3x3 matrix
     template<typename T>
     constexpr t_mat3<T> transpose(const t_mat3<T>& m)
     {
@@ -146,6 +103,7 @@ namespace vsg
                          m[0][2], m[1][2], m[2][2]);
     }
 
+    /// transpose a 4x4 matrix
     template<typename T>
     constexpr t_mat4<T> transpose(const t_mat4<T>& m)
     {
@@ -155,10 +113,11 @@ namespace vsg
                          m[0][3], m[1][3], m[2][3], m[3][3]);
     }
 
-    // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
-    // For best precision we record setting up Windows with windowTraits->depthFormat = VK_FORMAT_D32_SFLOAT;
-    // Background reading : https://developer.nvidia.com/content/depth-precision-visualized
-    //                      https://vincent-p.github.io/posts/vulkan_perspective_matrix/
+    /// create a 4x4 matrix for an Reverse depth perspective matrix,
+    /// Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
+    /// For best precision we record setting up Windows with windowTraits->depthFormat = VK_FORMAT_D32_SFLOAT;
+    /// Background reading : https://developer.nvidia.com/content/depth-precision-visualized
+    //.                      https://vincent-p.github.io/posts/vulkan_perspective_matrix/
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
@@ -170,7 +129,7 @@ namespace vsg
                          0, 0, (zFar * zNear) * r, 0);
     }
 
-    // Reverse depth convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
+    /// create a 4x4 matrix for an Reverse depth perspective matrix, convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
     template<typename T>
     constexpr t_mat4<T> perspective(T left, T right, T bottom, T top, T zNear, T zFar)
     {
@@ -180,7 +139,7 @@ namespace vsg
                          0.0, 0.0, zNear * zFar / (zFar - zNear), 0.0);
     }
 
-    // from vulkan cookbook with reverse depth
+    /// create a 4x4 matrix for an orthographic projection, from vulkan cookbook with reverse depth
     template<typename T>
     constexpr t_mat4<T> orthographic(T left, T right, T bottom, T top, T zNear, T zFar)
     {
