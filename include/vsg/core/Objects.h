@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Simple container class that has a list of vsg::Object as children
     class VSG_DECLSPEC Objects : public Inherit<Object, Objects>
     {
     public:

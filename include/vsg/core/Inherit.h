@@ -22,8 +22,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // Use the Curiously Recurring Template Pattern
-    // to provide the classes versions of accept(..) and sizeofObject()
+    /// Inherit<> uses the Curiously Recurring Template Pattern
+    /// to provide the classes versions of create, accept(..), RTTI and sizeofObject()
     template<class ParentClass, class Subclass>
     class Inherit : public ParentClass
     {
