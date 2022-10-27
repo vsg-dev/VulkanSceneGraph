@@ -102,7 +102,7 @@ namespace vsg
         return 0;
     }
 
-    /// less functor for comparing ref_pptr<Objects> typically used with std::set<> etc.
+    /// less functor for comparing ref_ptr<Object> typically used with std::set<> etc.
     struct DerefenceLess
     {
         template<class P>
