@@ -29,6 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     template<typename T>
     class Array2D : public Data
     {
@@ -241,6 +242,7 @@ namespace vsg
         }
 
         // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
+        // when the data is stored in a separate vsg::Data object then return nullptr and do not attempt to release data.
         void* dataRelease() override
         {
             if (!_storage)
