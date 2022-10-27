@@ -16,6 +16,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// Exception object that can be thrown from VSG code, such as failed Vulkan calls where the result value will the VkResult value
+    /// returned from failed Vulkan call.
     struct Exception
     {
         std::string message;
