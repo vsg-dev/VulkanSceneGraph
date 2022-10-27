@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// return sample from an image equivalent to how the sample is computed on the GPU.
     template<class A>
     typename A::value_type sample(const Sampler& sampler, const A& image, vec2 coord)
     {
