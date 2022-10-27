@@ -53,7 +53,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
 
 #### Current development tasks:
 
-### 4. Release Phase,  Spring 2022
+### 4. Release Phase,  Spring - Fall 2022
 **Goal: Test scene graph library against real-world applications and shake down the API and implementation for it's first stable release.**
 
 * Refinement of API and implementation
