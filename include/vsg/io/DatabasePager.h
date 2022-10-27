@@ -30,6 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Class used by the DatabasePager to keep track of PagedLOD nodes
     class CulledPagedLODs : public Inherit<Object, CulledPagedLODs>
     {
     public:
@@ -49,6 +50,7 @@ namespace vsg
         std::vector<const PagedLOD*> newHighresRequired;
     };
 
+    /// Thread safe queue for tracking PagedLOD that needs to be loaded, compiled or merged by the DatabasePager
     class VSG_DECLSPEC DatabaseQueue : public Inherit<Object, DatabaseQueue>
     {
     public:
@@ -88,6 +90,8 @@ namespace vsg
     };
     VSG_type_name(vsg::DatabaseQueue);
 
+    /// Multi-threaded database pager for reading, compiling loaded PagedLOD subgraphs and updating the scene graph
+    /// with newly loaded subgraphs and pruning expired PageLOD subgraphs
     class VSG_DECLSPEC DatabasePager : public Inherit<Object, DatabasePager>
     {
     public:

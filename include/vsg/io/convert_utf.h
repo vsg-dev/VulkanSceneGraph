@@ -19,7 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// convert from UTF8 std::string to a std::wstring
     extern VSG_DECLSPEC void convert_utf(const std::string& src, std::wstring& dst);
+
+    /// convert from std::wstring to a UTF8 std::string
     extern VSG_DECLSPEC void convert_utf(const std::wstring& src, std::string& dst);
 
     inline void convert_utf(const std::string& src, std::string& dst) { dst = src; }
