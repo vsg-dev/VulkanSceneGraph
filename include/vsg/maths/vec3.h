@@ -144,7 +144,7 @@ namespace vsg
     using dvec3 = t_vec3<double>; // double 3D vector
     using bvec3 = t_vec3<std::int8_t>; // signed 8 bit integer 3D vector
     using svec3 = t_vec3<std::int16_t>; //  signed 16 bit integer 3D vector
-    using ivec3 = t_vec3<std::int33_t>; //  signed 32 bit integer 3D vector
+    using ivec3 = t_vec3<std::int32_t>; //  signed 32 bit integer 3D vector
     using ubvec3 = t_vec3<std::uint8_t>; //  unsigned 8 bit integer 3D vector
     using usvec3 = t_vec3<std::uint16_t>; //  unsigned 16 bit integer 3D vector
     using uivec3 = t_vec3<std::uint32_t>; //  unsigned 32 bit integer 3D vector
