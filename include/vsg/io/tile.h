@@ -28,9 +28,10 @@ namespace vsg
         tile(const tile&) = delete;
         tile& operator=(const tile&) = delete;
 
+        /// settings provided by the vsg::TileDatabase node
         ref_ptr<TileDatabaseSettings> settings;
 
-        // read the tile
+        /// read the tile
         ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {}) const override;
 
         // timing stats
@@ -39,7 +40,7 @@ namespace vsg
         mutable double totalTimeReadingTiles{0.0};
 
     protected:
-        // initialize data structures
+        /// initialize internal data structures
         void init(ref_ptr<const Options> options);
 
         dvec3 computeLatitudeLongitudeAltitude(const dvec3& src) const;

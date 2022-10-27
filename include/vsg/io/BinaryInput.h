@@ -22,6 +22,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// vsg::Input subclass that implements reading from a binary input stream.
+    /// Used by VSG ReaderWriter when reading native .vsgb binary files.
     class VSG_DECLSPEC BinaryInput : public vsg::Input
     {
     public:
@@ -57,11 +59,13 @@ namespace vsg
         // read in an individual string
         void _read(std::string& value);
 
-        // read one or more strings
+        /// read one or more strings
         void read(size_t num, std::string* value) override;
+
+        /// read one or more paths
         void read(size_t num, Path* value) override;
 
-        // read object
+        /// read object
         vsg::ref_ptr<vsg::Object> read() override;
 
     protected:

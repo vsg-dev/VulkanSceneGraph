@@ -346,6 +346,8 @@ namespace vsg
     VSG_type_name(vsg::StdLogger);
 
     /// Logger that prefixes message lines with user defined thread prefix, or std::thread::id when none is assigned.
+    /// To use the ThreadLogger use:
+    ///     vsg::Logger::instance() = ThreadLogger::create();
     class VSG_DECLSPEC ThreadLogger : public vsg::Inherit<vsg::Logger, ThreadLogger>
     {
     public:
@@ -376,6 +378,8 @@ namespace vsg
     VSG_type_name(vsg::ThreadLogger);
 
     /// Logger that ignores all messages
+    /// To use the NullLogger use:
+    ///     vsg::Logger::instance() = NullLogger::create();
     class VSG_DECLSPEC NullLogger : public Inherit<Logger, NullLogger>
     {
     public:

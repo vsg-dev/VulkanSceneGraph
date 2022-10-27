@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// ReadError object is returned by ReaderWriter::read(..)/vsg::read(..) calls for cases where files can be read by a ReaderWriter
+    /// but an error in reading has occcurred
     struct ReadError : public Inherit<Object, ReadError>
     {
         explicit ReadError(const std::string& msg) :
@@ -28,15 +30,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ReadError);
 
-    struct WriteError : public Inherit<Object, WriteError>
-    {
-        explicit WriteError(const std::string& msg) :
-            message(msg) {}
-
-        std::string message;
-    };
-    VSG_type_name(vsg::WriteError);
-
+    /// Base class from providing support for reading and/or writing various file formats and IO protocols
     class VSG_DECLSPEC ReaderWriter : public Inherit<Object, ReaderWriter>
     {
     public:
@@ -67,13 +61,19 @@ namespace vsg
             return vsg::ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
 
-        /// read object from specified file, return object on success, return null ref_ptr<> on failure.
+        /// read object from file, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.
         virtual vsg::ref_ptr<vsg::Object> read(const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
+
+        /// read object from input sream, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.
         virtual vsg::ref_ptr<vsg::Object> read(std::istream& /*fin*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
+
+        /// read object from memory block, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.
         virtual vsg::ref_ptr<vsg::Object> read(const uint8_t* /*ptr*/, size_t /*size*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
 
-        /// write object to specified file, return true on success, return false on failure.
+        /// write object to file, return true on success, return false on failure.
         virtual bool write(const vsg::Object* /*object*/, const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
+
+        /// write object to output stream, return true on success, return false on failure.
         virtual bool write(const vsg::Object* /*object*/, std::ostream& /*fout*/, vsg::ref_ptr<const vsg::Options> = {}) const { return false; }
 
         /// read the command line arguments for any options appropriate for this ReaderWriter
@@ -100,6 +100,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ReaderWriter);
 
+    /// Class for managing a list of ReaderWriter, providing a single read/write call to invoke each RaderWriter in turn until success
     class VSG_DECLSPEC CompositeReaderWriter : public Inherit<ReaderWriter, CompositeReaderWriter>
     {
     public:

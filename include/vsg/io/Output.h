@@ -34,6 +34,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Base class that provides a means of writing out a range of data types to an output stream.
+    /// Used by vsg::Object::write(Output&) implementations across the VSG to provide native serialization to binary/ascii files
     class VSG_DECLSPEC Output
     {
     public:
@@ -163,7 +165,7 @@ namespace vsg
             }
         }
 
-        // match propertyname and write value(s)
+        /// match propertyname and write value(s)
         template<typename... Args>
         void write(const char* propertyName, Args&... args)
         {
