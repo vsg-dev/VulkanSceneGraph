@@ -30,7 +30,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    // stream support for vsg::t_vec2
+
+    /// convinience function for writing/streaming values to a std::string
+    template<typename... Args>
+    std::string make_string(const Args&... args)
+    {
+        std::ostringstream stream;
+        (stream << ... << args);
+        return stream.str();
+    }
+
+    /// output stream support for vsg::t_vec2
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec2<T>& vec)
     {
@@ -38,6 +48,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg::t_vec2
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_vec2<T>& vec)
     {
@@ -45,7 +56,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg::t_vec3
+    /// output stream support for vsg::t_vec3
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec3<T>& vec)
     {
@@ -53,6 +64,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg::t_vec3
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_vec3<T>& vec)
     {
@@ -60,7 +72,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg::t_vec4
+    /// output stream support for vsg::t_vec4
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_vec4<T>& vec)
     {
@@ -68,6 +80,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg::t_vec4
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_vec4<T>& vec)
     {
@@ -75,7 +88,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg:t_quat
+    /// output stream support for vsg:t_quat
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_quat<T>& q)
     {
@@ -83,6 +96,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg:t_quat
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_quat<T>& q)
     {
@@ -90,7 +104,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg::t_plane
+    /// output stream support for vsg::t_plane
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_plane<T>& vec)
     {
@@ -98,6 +112,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg::t_plane
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_plane<T>& vec)
     {
@@ -105,7 +120,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg::t_mat3
+    /// output stream support for vsg::t_mat3
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_mat3<T>& mat)
     {
@@ -116,7 +131,17 @@ namespace vsg
         return output;
     }
 
-    // stream support for vsg::t_mat4
+    /// input stream support for vsg::t_mat3
+    template<typename T>
+    std::istream& operator>>(std::istream& input, vsg::t_mat3<T>& mat)
+    {
+        input >> mat(0, 0) >> mat(1, 0) >> mat(2, 0);
+        input >> mat(0, 1) >> mat(1, 1) >> mat(2, 1);
+        input >> mat(0, 2) >> mat(1, 2) >> mat(2, 2);
+        return input;
+    }
+
+    /// output stream support for vsg::t_mat4
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_mat4<T>& mat)
     {
@@ -128,6 +153,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg::t_mat4
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_mat4<T>& mat)
     {
@@ -138,7 +164,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg::t_box
+    /// output stream support for vsg::t_box
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_box<T>& bx)
     {
@@ -148,6 +174,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for vsg::t_box
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_box<T>& bx)
     {
@@ -156,7 +183,7 @@ namespace vsg
         return input;
     }
 
-    // stream support for vsg::ref_ptr
+    /// output stream support for vsg::ref_ptr
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::ref_ptr<T>& ptr)
     {
@@ -167,7 +194,7 @@ namespace vsg
         return output;
     }
 
-    // stream support for std::pair
+    /// output stream support for std::pair
     template<typename T, typename R>
     std::ostream& operator<<(std::ostream& output, const std::pair<T, R>& wd)
     {
@@ -175,6 +202,7 @@ namespace vsg
         return output;
     }
 
+    /// input stream support for std::pair
     template<typename T, typename R>
     std::istream& operator>>(std::istream& input, std::pair<T, R>& wd)
     {
@@ -182,27 +210,21 @@ namespace vsg
         return input;
     }
 
-    template<typename... Args>
-    std::string make_string(const Args&... args)
-    {
-        std::ostringstream stream;
-        (stream << ... << args);
-        return stream.str();
-    }
-
-    // stream support for enums
+    /// output stream support for enums
     template<typename T>
     std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::ostream>::type& stream, const T& e)
     {
         return stream << static_cast<typename std::underlying_type<T>::type>(e);
     }
 
+    /// output stream support for vsg::Path
     inline std::ostream& operator<<(std::ostream& output, const vsg::Path& path)
     {
         output << path.string();
         return output;
     }
 
+    /// input stream support for vsg::Path
     inline std::istream& operator>>(std::istream& input, vsg::Path& path)
     {
         std::string str;

@@ -28,6 +28,7 @@ namespace vsg
         tile(const tile&) = delete;
         tile& operator=(const tile&) = delete;
 
+        // settings provided by the vsg::TileDatabase node
         ref_ptr<TileDatabaseSettings> settings;
 
         // read the tile
