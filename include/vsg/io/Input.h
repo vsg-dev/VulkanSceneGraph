@@ -37,6 +37,8 @@ namespace vsg
     // forward declare
     class Options;
 
+    /// Base class that provides a means of read a range of data types to an input stream.
+    /// Used by vsg::Object::read(Input&) implementations across the VSG to provide native serialization from binary/ascii files
     class VSG_DECLSPEC Input
     {
     public:
@@ -104,7 +106,7 @@ namespace vsg
         void read(size_t num, plane* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dplane* value) { read(num * value->size(), value->data()); }
 
-        // treat non standard type as raw data,
+        /// treat non standard type as raw data,
         template<typename T>
         void read(size_t num, T* value)
         {
@@ -174,7 +176,7 @@ namespace vsg
             }
         }
 
-        // match property name and read value(s)
+        /// match property name and read value(s)
         template<typename... Args>
         void read(const char* propertyName, Args&... args)
         {
@@ -184,7 +186,7 @@ namespace vsg
             (read(1, &(args)), ...);
         }
 
-        // read object of a particular type
+        /// read object of a particular type
         ref_ptr<Object> readObject(const char* propertyName)
         {
             if (!matchPropertyName(propertyName)) return ref_ptr<Object>();
@@ -192,7 +194,7 @@ namespace vsg
             return read();
         }
 
-        // read object of a particular type
+        /// read object of a particular type
         template<class T>
         ref_ptr<T> readObject(const char* propertyName)
         {
@@ -202,7 +204,7 @@ namespace vsg
             return ref_ptr<T>(dynamic_cast<T*>(object.get()));
         }
 
-        // read object of a particular type
+        /// read object of a particular type
         template<class T>
         void readObject(const char* propertyName, ref_ptr<T>& arg)
         {
@@ -211,7 +213,7 @@ namespace vsg
             arg = read().cast<T>();
         }
 
-        // read a value of particular type
+        /// read a value of particular type
         template<typename T>
         T readValue(const char* propertyName)
         {
