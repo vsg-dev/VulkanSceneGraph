@@ -30,7 +30,7 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
 * [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph integration library that enables converting of OSG to VSG scene graph and use of OpenSceneGraph loaders.
 * [vsgImGui](https://github.com/vsg-dev/vsgImGui) ImGui integration enabling UI in graphics window.
-* [vsgQt](https://github.com/vsg-dev/vsgQt) - Qt integration with VulkanSceneGraph.
+* [vsgQt](https://github.com/vsg-dev/vsgQt) Qt integration with VulkanSceneGraph.
 * [vsgUnity](https://github.com/vsg-dev/vsgUnity) plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) tests & examples.
 * [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
