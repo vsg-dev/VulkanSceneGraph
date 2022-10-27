@@ -20,6 +20,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// External provides a means to loading objects from external files, such as shaderws, textures or models
+    /// To use set up the External object with all the pairs of [filename, object] that should be managed externally
+    /// then assign the External object, as use value, to root node of the scene graph that you wish to use external objects with
+    /// so that when serializing the External object is initialized and external objects are loaded before they are
+    /// needed by the rest of the subgraph i.e.
+    ///     auto external = vsg::External::create("mytexture.png", texture);
+    ///     scene->setObject("external", external); // scene uses the texture object somewhere within it.
     class VSG_DECLSPEC External : public Inherit<Object, External>
     {
     public:
