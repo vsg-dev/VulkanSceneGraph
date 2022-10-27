@@ -473,7 +473,7 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
     scenegraph->add(bindDescriptorSet);
 
     // set up model transformation node
-    auto transform = vsg::MatrixTransform::create(); // VK_SHADER_STAGE_VERTEX_BIT
+    auto transform = vsg::MatrixTransform::create();
 
     // add transform to root of the scene graph
     scenegraph->addChild(transform);
