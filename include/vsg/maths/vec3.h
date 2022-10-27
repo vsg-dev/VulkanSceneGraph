@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// t_vec3 template class that a represents a 3D vector
     template<typename T>
     struct t_vec3
     {
@@ -139,14 +140,14 @@ namespace vsg
         }
     };
 
-    using vec3 = t_vec3<float>;
-    using dvec3 = t_vec3<double>;
-    using bvec3 = t_vec3<std::int8_t>;
-    using svec3 = t_vec3<std::int16_t>;
-    using ivec3 = t_vec3<std::int32_t>;
-    using ubvec3 = t_vec3<std::uint8_t>;
-    using usvec3 = t_vec3<std::uint16_t>;
-    using uivec3 = t_vec3<std::uint32_t>;
+    using vec3 = t_vec3<float>; // float 3D vector
+    using dvec3 = t_vec3<double>; // double 3D vector
+    using bvec3 = t_vec3<std::int8_t>; // signed 8 bit integer 3D vector
+    using svec3 = t_vec3<std::int16_t>; //  signed 16 bit integer 3D vector
+    using ivec3 = t_vec3<std::int33_t>; //  signed 32 bit integer 3D vector
+    using ubvec3 = t_vec3<std::uint8_t>; //  unsigned 8 bit integer 3D vector
+    using usvec3 = t_vec3<std::uint16_t>; //  unsigned 16 bit integer 3D vector
+    using uivec3 = t_vec3<std::uint32_t>; //  unsigned 32 bit integer 3D vector
 
     VSG_type_name(vsg::vec3);
     VSG_type_name(vsg::dvec3);

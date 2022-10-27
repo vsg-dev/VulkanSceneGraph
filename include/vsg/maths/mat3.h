@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// t_mat3 template class that represents a 3x3 matrix.
     template<typename T>
     struct t_mat3
     {
@@ -97,8 +98,8 @@ namespace vsg
         const T* data() const { return value[0].data(); }
     };
 
-    using mat3 = t_mat3<float>;
-    using dmat3 = t_mat3<double>;
+    using mat3 = t_mat3<float>; /// float 3x3 matrix
+    using dmat3 = t_mat3<double>; /// double 3x3 matrix
 
     VSG_type_name(vsg::mat3);
     VSG_type_name(vsg::dmat3);

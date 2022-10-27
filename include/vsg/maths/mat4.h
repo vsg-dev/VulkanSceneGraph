@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// t_mat4 template class that represents a 4x4 matrix.
     template<typename T>
     struct t_mat4
     {
@@ -109,8 +110,8 @@ namespace vsg
         const T* data() const { return value[0].data(); }
     };
 
-    using mat4 = t_mat4<float>;
-    using dmat4 = t_mat4<double>;
+    using mat4 = t_mat4<float>; /// float 4x4 matrix
+    using dmat4 = t_mat4<double>; /// double 4x4 matrix
 
     VSG_type_name(vsg::mat4);
     VSG_type_name(vsg::dmat4);

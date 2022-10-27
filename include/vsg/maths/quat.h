@@ -29,6 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// t_quat template class that a represents quaternion
     template<typename T>
     struct t_quat
     {
@@ -142,8 +143,8 @@ namespace vsg
         }
     };
 
-    using quat = t_quat<float>;
-    using dquat = t_quat<double>;
+    using quat = t_quat<float>; /// float quaternion
+    using dquat = t_quat<double>; /// double quaternion
 
     VSG_type_name(vsg::quat);
     VSG_type_name(vsg::dquat);
