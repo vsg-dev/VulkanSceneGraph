@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// t_box template class that represent a axis aligned bounding box
     template<typename T>
     struct t_box
     {
@@ -79,8 +80,8 @@ namespace vsg
         }
     };
 
-    using box = t_box<float>;
-    using dbox = t_box<double>;
+    using box = t_box<float>; /// float box class
+    using dbox = t_box<double>; /// double box class
 
     VSG_type_name(vsg::box);
     VSG_type_name(vsg::dbox);

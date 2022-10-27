@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// template sphere class
     template<typename T>
     struct t_sphere
     {
@@ -111,8 +112,8 @@ namespace vsg
         const T* data() const { return value; }
     };
 
-    using sphere = t_sphere<float>;
-    using dsphere = t_sphere<double>;
+    using sphere = t_sphere<float>; /// float sphere class
+    using dsphere = t_sphere<double>; /// double sphere class
 
     VSG_type_name(vsg::sphere);
     VSG_type_name(vsg::dsphere);
