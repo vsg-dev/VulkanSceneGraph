@@ -15,6 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// smart pointer that works with objects that have intrusive reference counting, such as all vsg::Object
+    /// broadly similar in role to std::shared_ptr<> but half size and faster thanks to lower memory footprint and better cache coherency
     template<class T>
     class ref_ptr
     {
