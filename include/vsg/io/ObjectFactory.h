@@ -21,6 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Singleton factory class to provides means for creating instances of VSG objects given the namespace::class name
+    /// Used by the VSG ReaderWriter to create objects serialized from files/streams/memory.
     class VSG_DECLSPEC ObjectFactory : public vsg::Object
     {
     public:

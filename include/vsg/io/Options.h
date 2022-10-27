@@ -28,6 +28,7 @@ namespace vsg
 
     using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
 
+    /// Class for passing IO related options to vsg::read/write calls.
     class VSG_DECLSPEC Options : public Inherit<Object, Options>
     {
     public:
