@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Class for managing paths/filename with full support for wide and single wide path strings.
+    /// Similar in role and features to std::filesystem::path, but is able to work on older compilers.
     class VSG_DECLSPEC Path
     {
     public:
