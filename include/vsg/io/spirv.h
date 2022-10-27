@@ -30,6 +30,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace vsg
 {
 
+    /// ReaderWriter for reading and writing spirv shader files.
     class VSG_DECLSPEC spirv : public Inherit<ReaderWriter, spirv>
     {
     public:
