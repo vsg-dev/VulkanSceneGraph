@@ -39,7 +39,6 @@ namespace vsg
         mutable double totalTimeReadingTiles{0.0};
 
     protected:
-
         // initialize data structures
         void init(ref_ptr<const Options> options);
 
