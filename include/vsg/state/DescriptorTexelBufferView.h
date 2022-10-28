@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// DescriptorTexelBufferView is Descriptor class that encapsulates texelBufferViews used to set VkWriteDescriptorSet.pTexelBufferViews
     class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
     public:
