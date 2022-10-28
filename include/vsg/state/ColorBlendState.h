@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// ColorBlendState ecaspualtes to VkPipelineColorBlendStateCreateInfo settings pass when setting up GraphicsPipeline
+    /// ColorBlendState encapsulates to VkPipelineColorBlendStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>
     {
     public:
