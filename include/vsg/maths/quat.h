@@ -143,7 +143,7 @@ namespace vsg
         }
     };
 
-    using quat = t_quat<float>; /// float quaternion
+    using quat = t_quat<float>;   /// float quaternion
     using dquat = t_quat<double>; /// double quaternion
 
     VSG_type_name(vsg::quat);

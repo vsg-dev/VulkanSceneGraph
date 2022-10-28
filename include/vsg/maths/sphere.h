@@ -112,7 +112,7 @@ namespace vsg
         const T* data() const { return value; }
     };
 
-    using sphere = t_sphere<float>; /// float sphere class
+    using sphere = t_sphere<float>;   /// float sphere class
     using dsphere = t_sphere<double>; /// double sphere class
 
     VSG_type_name(vsg::sphere);
