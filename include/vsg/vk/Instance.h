@@ -37,6 +37,7 @@ namespace vsg
     /// return names of layers that are supported from the desired list.
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
 
+    /// Instance encapsulate the vkInstance.
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
@@ -46,7 +47,7 @@ namespace vsg
         const uint32_t apiVersion = VK_API_VERSION_1_0;
 
         operator VkInstance() const { return _instance; }
-        VkInstance getInstance() const { return _instance; }
+        VkInstance vk() const { return _instance; }
 
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }

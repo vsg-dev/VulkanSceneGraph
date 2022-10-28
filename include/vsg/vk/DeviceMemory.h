@@ -22,10 +22,15 @@ namespace vsg
     class Buffer;
     class Image;
 
+    /// DeviceMemory enacpsualtes vkDeviceMemory.
+    /// DeviceMemory maps to memory on the CPU or GPU dependending on the properties that it's set up with.
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:
         DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo = nullptr);
+
+        operator VkDeviceMemory() const { return _deviceMemory; }
+        VkDeviceMemory vk() const { return _deviceMemory; }
 
         void copy(VkDeviceSize offset, VkDeviceSize size, const void* src_data);
         void copy(VkDeviceSize offset, const Data* data);
@@ -33,8 +38,6 @@ namespace vsg
         /// wrapper of vkMapMemory
         VkResult map(VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData);
         void unmap();
-
-        operator VkDeviceMemory() const { return _deviceMemory; }
 
         const VkMemoryRequirements& getMemoryRequirements() const { return _memoryRequirements; }
         const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }

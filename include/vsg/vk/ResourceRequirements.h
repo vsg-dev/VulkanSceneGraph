@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// ResourceRequirements provides a container for various Vulkan resource requirements that be used to help guide allocation of resources.
     class VSG_DECLSPEC ResourceRequirements
     {
     public:
@@ -76,6 +77,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ResourceRequirements);
 
+    /// CollectResourceRequirements is a visitor class that collects the ResourceRequirements of a scene graph
     class VSG_DECLSPEC CollectResourceRequirements : public Inherit<ConstVisitor, CollectResourceRequirements>
     {
     public:

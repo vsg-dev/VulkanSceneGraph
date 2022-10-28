@@ -23,12 +23,13 @@ namespace vsg
     // forward declare
     class Fence;
 
+    /// Queue encapsulates a single vkQueue, used to submit vulkan commands for processing.
     class VSG_DECLSPEC Queue : public Inherit<Object, Queue>
     {
     public:
         operator VkQueue() const { return _vkQueue; }
+        VkQueue vk() const { return _vkQueue; }
 
-        VkQueue queue() const { return _vkQueue; }
         uint32_t queueFamilyIndex() const { return _queueFamilyIndex; }
         uint32_t queueIndex() const { return _queueIndex; }
 

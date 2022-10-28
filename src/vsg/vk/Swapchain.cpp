@@ -131,20 +131,30 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 //
 // SwapchainImage
 //
-
-SwapchainImage::SwapchainImage(VkImage image, Device* device) :
-    Inherit(image, device)
+namespace vsg
 {
-}
-
-SwapchainImage::~SwapchainImage()
-{
-    for (auto& vd : _vulkanData)
+    // helper class that disabled the automatic clear up of the sawp chain image as the swap chain itself manages it's lifetime
+    class SwapchainImage : public Inherit<Image, SwapchainImage>
     {
-        vd.deviceMemory = nullptr;
-        vd.image = VK_NULL_HANDLE;
-    }
-}
+    public:
+        SwapchainImage(VkImage image, Device* device) :
+            Inherit(image, device)
+        {
+        }
+
+    protected:
+        virtual ~SwapchainImage()
+        {
+            for (auto& vd : _vulkanData)
+            {
+                vd.deviceMemory = nullptr;
+                vd.image = VK_NULL_HANDLE;
+            }
+        }
+    };
+    VSG_type_name(vsg::SwapchainImage);
+
+} // namespace vsg
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //

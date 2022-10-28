@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// struct for holding available swapchain capabiilties available on device
     struct SwapChainSupportDetails
     {
         VkSurfaceCapabilitiesKHR capabilities;
@@ -30,6 +31,7 @@ namespace vsg
     extern VSG_DECLSPEC VkExtent2D selectSwapExtent(const SwapChainSupportDetails& details, uint32_t width, uint32_t height);
     extern VSG_DECLSPEC VkPresentModeKHR selectSwapPresentMode(const SwapChainSupportDetails& details, VkPresentModeKHR preferredPresentMode = VK_PRESENT_MODE_MAILBOX_KHR);
 
+    /// Swapchain preferences passed via WindowTraits::swapchainPreferences to guide swapchain creation associated with Window creation.
     struct SwapchainPreferences
     {
         uint32_t imageCount = 3; // default to triple buffering
@@ -38,22 +40,14 @@ namespace vsg
         VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     };
 
-    class SwapchainImage : public Inherit<Image, SwapchainImage>
-    {
-    public:
-        SwapchainImage(VkImage image, Device* device);
-
-    protected:
-        virtual ~SwapchainImage();
-    };
-    VSG_type_name(vsg::SwapchainImage);
-
+    /// Swapchain encpasulates vkSwapchainKHR
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:
         Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, ref_ptr<Swapchain> oldSwapchain = {});
 
         operator VkSwapchainKHR() const { return _swapchain; }
+        VkSwapchainKHR vk() const { return _swapchain; }
 
         VkFormat getImageFormat() const { return _format; }
 

@@ -23,7 +23,8 @@ namespace vsg
     public:
         DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes);
 
-        operator const VkDescriptorPool&() const { return _descriptorPool; }
+        operator VkDescriptorPool() const { return _descriptorPool; }
+        VkDescriptorPool vk() const { return _descriptorPool; }
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }

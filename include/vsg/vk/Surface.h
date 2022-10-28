@@ -17,12 +17,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// Surface encapsulates VkSurfaceKHR
     class VSG_DECLSPEC Surface : public Inherit<Object, Surface>
     {
     public:
         Surface(VkSurfaceKHR surface, Instance* instance);
 
         operator VkSurfaceKHR() const { return _surface; }
+        VkSurfaceKHR vk() const { return _surface; }
 
         Instance* getInstance() { return _instance; }
         const Instance* getInstance() const { return _instance; }

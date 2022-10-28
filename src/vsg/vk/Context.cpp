@@ -80,7 +80,7 @@ void BuildAccelerationStructureCommand::setScratchBuffer(ref_ptr<Buffer> scratch
     _scratchBuffer = scratchBuffer;
     auto extensions = _device->getExtensions();
     VkBufferDeviceAddressInfo devAddressInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, _scratchBuffer->vk(_device->deviceID)};
-    _accelerationStructureInfo.scratchData.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(_device->getDevice(), &devAddressInfo);
+    _accelerationStructureInfo.scratchData.deviceAddress = extensions->vkGetBufferDeviceAddressKHR(*_device, &devAddressInfo);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

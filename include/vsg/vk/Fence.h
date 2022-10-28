@@ -17,19 +17,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// Fernce encapsulates vkFence
+    /// Used for syncronizating the completion of Vulkan command submissions to queues
     class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
     {
     public:
         explicit Fence(Device* device, VkFenceCreateFlags flags = 0);
+
+        operator VkFence() const { return _vkFence; }
+        VkFence vk() const { return _vkFence; }
 
         VkResult wait(uint64_t timeout) const;
 
         VkResult reset() const;
 
         VkResult status() const { return vkGetFenceStatus(*_device, _vkFence); }
-
-        operator VkFence() const { return _vkFence; }
-        VkFence vk() const { return _vkFence; }
 
         bool hasDependencies() const { return (_dependentSemaphores.size() + _dependentCommandBuffers.size()) > 0; }
 
