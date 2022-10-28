@@ -20,6 +20,7 @@ namespace vsg
 
     extern VSG_DECLSPEC VkImageAspectFlags computeAspectFlagsForFormat(VkFormat format);
 
+    /// ImageView class encapsulates VkImageView and VkImageViewCreateInfo settings used to set it up.
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
