@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// convenience template function for submitting Vulkan commands to a queue
     template<typename F>
     void submitCommandsToQueue(CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
     {
@@ -54,6 +55,7 @@ namespace vsg
         }
     }
 
+    /// convenience template function for submitting Vulkan commands to a queue and wait for completion.
     template<typename F>
     void submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
     {
