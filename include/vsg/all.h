@@ -42,6 +42,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/box.h>
 #include <vsg/maths/clamp.h>
 #include <vsg/maths/color.h>
+#include <vsg/maths/common.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
@@ -98,7 +99,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/ExecuteCommands.h>
 #include <vsg/commands/NextSubPass.h>
 #include <vsg/commands/PipelineBarrier.h>
-#include <vsg/commands/PushConstants.h>
 #include <vsg/commands/ResetQueryPool.h>
 #include <vsg/commands/ResolveImage.h>
 #include <vsg/commands/SetDepthBias.h>
@@ -130,6 +130,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/PipelineLayout.h>
+#include <vsg/state/PushConstants.h>
 #include <vsg/state/QueryPool.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/ResourceHints.h>
