@@ -27,6 +27,7 @@ namespace vsg
 
 #define POLYTOPE_SIZE 5
 
+    /// StateStack used internally by vsg::State to manage stack of vsg::StateCommand
     template<class T>
     class StateStack
     {
@@ -70,6 +71,7 @@ namespace vsg
         }
     };
 
+    /// MatrixStack used internally by vsg::State to manage stack of project or modelview matrices
     class MatrixStack
     {
     public:
@@ -152,6 +154,7 @@ namespace vsg
         }
     };
 
+    /// Frustum used internally by vsg::State to manage view fustum culling during vsg::RecordTraversal
     struct Frustum
     {
         using value_type = MatrixStack::value_type;
@@ -220,6 +223,7 @@ namespace vsg
         }
     };
 
+    /// vsg::State used by vsg::RecordTraversal to manage state stacks, projection, modelview matrix and frustum stacks.
     class State : public Inherit<Object, State>
     {
     public:

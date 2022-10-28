@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// maps to VkAttachmentDescription
+    /// AttachmentDescription is used by RenderPass to specify VkAttachmentDescription settings
     struct AttachmentDescription
     {
         VkAttachmentDescriptionFlags flags;
@@ -31,7 +31,7 @@ namespace vsg
     };
     VSG_type_name(vsg::AttachmentDescription);
 
-    /// maps to VkSubpassDependency
+    /// SubpassDependency is used by RenderPass to specify VkSubpassDependency settings
     struct SubpassDependency
     {
         uint32_t srcSubpass = 0;
@@ -47,7 +47,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SubpassDependency);
 
-    /// maps to VkAttachmentReference
+    /// AttachmentReference is used by RenderPass to specify VkAttachmentReference settings
     struct AttachmentReference
     {
         uint32_t attachment = 0;
@@ -58,7 +58,7 @@ namespace vsg
     };
     VSG_type_name(vsg::AttachmentReference);
 
-    /// maps to VkSubpassDescription
+    /// SubpassDescription is used by RenderPass to specify VkSubpassDescription settings
     struct SubpassDescription
     {
         VkSubpassDescriptionFlags flags = 0;
@@ -81,7 +81,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SubpassDescription);
 
-    /// encapsulation of VkRenderPass
+    /// RenderPass encapsulation of VkRenderPass
     class VSG_DECLSPEC RenderPass : public Inherit<Object, RenderPass>
     {
     public:
@@ -94,7 +94,7 @@ namespace vsg
 
         operator VkRenderPass() const { return _renderPass; }
 
-        /// configuration of RenderPass used when creating vkRenderPass
+        // configuration of RenderPass used when creating vkRenderPass
         const ref_ptr<Device> device;
         const Attachments attachments;
         const Subpasses subpasses;
