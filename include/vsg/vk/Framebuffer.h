@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Framebuffer encapsulates vkFramebuffer used a rendering target associated with Window or for render to texture
     class VSG_DECLSPEC Framebuffer : public Inherit<Object, Framebuffer>
     {
     public:

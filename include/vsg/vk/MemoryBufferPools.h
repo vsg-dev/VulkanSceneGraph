@@ -21,6 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// MemoryBufferPools manages a pool of vsg::DeviceMemory and vsg::Buffer that use them.
+    /// Methods are providding for getting Buffer from the pool, sharing memory to make better use of device memory.
     class VSG_DECLSPEC MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
     {
     public:

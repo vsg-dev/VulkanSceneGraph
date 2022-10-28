@@ -37,6 +37,7 @@ namespace vsg
     /// return names of layers that are supported from the desired list.
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
 
+    /// Instance encapsulate the vkInstance.
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:

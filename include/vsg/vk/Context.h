@@ -37,6 +37,7 @@ namespace vsg
     class View;
     class ViewDependentState;
 
+    /// Helper command for settings up RayTracing structures.
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
@@ -60,6 +61,8 @@ namespace vsg
     };
     VSG_type_name(vsg::BuildAccelerationStructureCommand);
 
+    /// Context manages details about Device, View or other state during compile traversal.
+    /// The CompileTraversal uses the Device as it traverses the scene graph creating Vulkan objects and transferring any data to the GPU
     class VSG_DECLSPEC Context : public Inherit<Object, Context>
     {
     public:

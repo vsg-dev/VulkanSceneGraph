@@ -22,7 +22,8 @@ namespace vsg
 
     extern VSG_DECLSPEC bool isExtensionListSupported(const Names& extensionList);
 
-    // TODO need to reorganize so that the Device "has a" extension structure and avoid the usage of static container
+    /// Extensions manages a set of Vulkan extension function pointers.
+    /// The vsg::Device "has a" Extensions object that can be accessed via device->getExtentsions().
     class VSG_DECLSPEC Extensions : public Inherit<Object, Extensions>
     {
     public:

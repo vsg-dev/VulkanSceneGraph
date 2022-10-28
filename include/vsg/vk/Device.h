@@ -32,10 +32,17 @@ namespace vsg
 
     using QueueSettings = std::vector<QueueSetting>;
 
+    /// Device enacpsulate vkDeivce, a logical handle to the PhysicalDevice with capabilities specified during construction.
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
         Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names layers, Names deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr);
+
+        operator VkDevice() const { return _device; }
+        VkDevice vk() const { return _device; }
+
+        static uint32_t maxNumDevices();
+        const uint32_t deviceID = 0;
 
         Instance* getInstance() { return _instance.get(); }
         const Instance* getInstance() const { return _instance.get(); }
@@ -46,16 +53,9 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
-        const Extensions* getExtensions() const { return _extensions.get(); }
-
-        operator VkDevice() const { return _device; }
-        VkDevice vk() const { return _device; }
-
-        static uint32_t maxNumDevices();
-
-        const uint32_t deviceID = 0;
-
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
+
+        const Extensions* getExtensions() const { return _extensions.get(); }
 
         /// get the address of specified function using vkGetDeviceProcAddr
         template<typename T>
