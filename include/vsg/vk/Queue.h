@@ -28,8 +28,8 @@ namespace vsg
     {
     public:
         operator VkQueue() const { return _vkQueue; }
+        VkQueue vk() const { return _vkQueue; }
 
-        VkQueue queue() const { return _vkQueue; }
         uint32_t queueFamilyIndex() const { return _queueFamilyIndex; }
         uint32_t queueIndex() const { return _queueIndex; }
 

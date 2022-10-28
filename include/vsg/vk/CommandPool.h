@@ -25,6 +25,7 @@ namespace vsg
         CommandPool(Device* device, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags = 0);
 
         operator VkCommandPool() const { return _commandPool; }
+        VkCommandPool vk() const { return _commandPool; }
 
         void reset(VkCommandPoolResetFlags flags = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT) const { vkResetCommandPool(*_device, _commandPool, flags); }
 

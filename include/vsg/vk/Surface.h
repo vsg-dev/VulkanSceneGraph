@@ -24,6 +24,7 @@ namespace vsg
         Surface(VkSurfaceKHR surface, Instance* instance);
 
         operator VkSurfaceKHR() const { return _surface; }
+        VkSurfaceKHR vk() const { return _surface; }
 
         Instance* getInstance() { return _instance; }
         const Instance* getInstance() const { return _instance; }

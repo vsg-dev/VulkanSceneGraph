@@ -17,13 +17,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    /// PhysicalDevice encapsualtes VkPhysicalDevice
     class VSG_DECLSPEC PhysicalDevice : public Inherit<Object, PhysicalDevice>
     {
     public:
         observer_ptr<Instance> getInstance() { return _instance; }
 
         operator VkPhysicalDevice() const { return _device; }
-        VkPhysicalDevice getPhysicalDevice() const { return _device; }
+        VkPhysicalDevice vk() const { return _device; }
 
         int getQueueFamily(VkQueueFlags queueFlags) const;
         std::pair<int, int> getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;

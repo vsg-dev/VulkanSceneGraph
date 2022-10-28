@@ -93,6 +93,7 @@ namespace vsg
         RenderPass(Device* in_device, const Attachments& in_attachments, const Subpasses& in_subpasses, const Dependencies& in_dependencies, const CorrelatedViewMasks& in_correlatedViewMasks = {});
 
         operator VkRenderPass() const { return _renderPass; }
+        VkRenderPass vk() const { return _renderPass; }
 
         // configuration of RenderPass used when creating vkRenderPass
         const ref_ptr<Device> device;

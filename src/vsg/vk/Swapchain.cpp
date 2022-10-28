@@ -137,7 +137,7 @@ namespace vsg
     class SwapchainImage : public Inherit<Image, SwapchainImage>
     {
     public:
-        SwapchainImage(VkImage image, Device* device):
+        SwapchainImage(VkImage image, Device* device) :
             Inherit(image, device)
         {
         }
@@ -154,7 +154,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SwapchainImage);
 
-}
+} // namespace vsg
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //

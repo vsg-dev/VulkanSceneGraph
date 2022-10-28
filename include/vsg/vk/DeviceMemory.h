@@ -35,6 +35,7 @@ namespace vsg
         void unmap();
 
         operator VkDeviceMemory() const { return _deviceMemory; }
+        VkDeviceMemory vk() const { return _deviceMemory; }
 
         const VkMemoryRequirements& getMemoryRequirements() const { return _memoryRequirements; }
         const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }

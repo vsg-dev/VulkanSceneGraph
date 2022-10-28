@@ -28,6 +28,7 @@ namespace vsg
     public:
         const VkCommandBuffer* data() const { return &_commandBuffer; }
         operator VkCommandBuffer() const { return _commandBuffer; }
+        VkCommandBuffer vk() const { return _commandBuffer; }
 
         std::atomic_uint& numDependentSubmissions() { return _numDependentSubmissions; }
 

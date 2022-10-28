@@ -49,7 +49,7 @@ namespace vsg
         const Extensions* getExtensions() const { return _extensions.get(); }
 
         operator VkDevice() const { return _device; }
-        VkDevice getDevice() const { return _device; }
+        VkDevice vk() const { return _device; }
 
         static uint32_t maxNumDevices();
 

@@ -47,6 +47,7 @@ namespace vsg
         Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* surface, uint32_t width, uint32_t height, SwapchainPreferences& preferences, ref_ptr<Swapchain> oldSwapchain = {});
 
         operator VkSwapchainKHR() const { return _swapchain; }
+        VkSwapchainKHR vk() const { return _swapchain; }
 
         VkFormat getImageFormat() const { return _format; }
 
