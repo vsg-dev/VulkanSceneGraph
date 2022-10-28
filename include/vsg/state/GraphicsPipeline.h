@@ -22,6 +22,9 @@ namespace vsg
     // forward declare
     class Context;
 
+    /// Base class for setting up the various pipeline states with the VkGraphicsPipelineCreateInfo
+    /// Subclasses are ColorBlendState, DepthStencilState, DynamicState, InputAssemblyState,
+    /// MultisampleState, RasterizationState, TessellationState, VertexInputState and ViewportState.
     class VSG_DECLSPEC GraphicsPipelineState : public Inherit<Object, GraphicsPipelineState>
     {
     public:
@@ -36,12 +39,15 @@ namespace vsg
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
 
+    /// GraphicsPipeline encapsulates graphics VkPipeline and the VkGraphicsPipelineCreateInfo settings used to set it up.
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>
     {
     public:
         GraphicsPipeline();
 
         GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0);
+
+        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
 
         /// VkGraphicsPipelineCreateInfo settings
         ShaderStages stages;
@@ -62,8 +68,6 @@ namespace vsg
         void release(uint32_t viewID) { _implementation[viewID] = {}; }
         void release() { _implementation.clear(); }
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
-
     protected:
         virtual ~GraphicsPipeline();
 
@@ -83,7 +87,7 @@ namespace vsg
     };
     VSG_type_name(vsg::GraphicsPipeline);
 
-    /// Encapsulation for vkCmdBindPipeline
+    /// BindGraphicsPipeline state command encapsulates the vkCmdBindPipeline call for a GraphicsPipeline.
     class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
     {
     public:

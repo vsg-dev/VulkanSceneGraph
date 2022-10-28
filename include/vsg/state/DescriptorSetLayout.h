@@ -23,17 +23,18 @@ namespace vsg
     using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
     using DescriptorPoolSizes = std::vector<VkDescriptorPoolSize>;
 
+    /// DescriptorSetLayout encapsulates VkDescriptorSetLayout and VkDescriptorSetLayoutCreateInfo settings used to set it up.
     class VSG_DECLSPEC DescriptorSetLayout : public Inherit<Object, DescriptorSetLayout>
     {
     public:
         DescriptorSetLayout();
         explicit DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
 
-        /// VkDescriptorSetLayoutCreateInfo settings
-        DescriptorSetLayoutBindings bindings;
-
         /// Vulkan VkDescriptorSetLayout handle
         virtual VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
+
+        /// VkDescriptorSetLayoutCreateInfo settings
+        DescriptorSetLayoutBindings bindings;
 
         /// map the descriptor bindigs to the descriptor pool sizes that will be required to represent them.
         void getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes);

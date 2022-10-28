@@ -18,11 +18,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// encapsulation of vkQueryPool
+    /// QueryPool encapsulates the VkQueryPool and the VkQueryPoolCreateInfo settings used to set it up.
     class VSG_DECLSPEC QueryPool : public Inherit<Object, QueryPool>
     {
     public:
         QueryPool();
+
+        operator VkQueryPool() const { return _queryPool; }
+        VkQueryPool vk() const { return _queryPool; }
 
         VkQueryPoolCreateFlags flags = 0;
         VkQueryType queryType = VK_QUERY_TYPE_TIMESTAMP;
@@ -38,8 +41,6 @@ namespace vsg
         VkResult getResults(std::vector<uint64_t>& results, uint32_t firstQuery = 0, VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT | VK_QUERY_RESULT_64_BIT) const;
 
         void compile(Context& context);
-
-        operator VkQueryPool() const { return _queryPool; }
 
     protected:
         ~QueryPool();

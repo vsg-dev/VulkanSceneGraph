@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// TessellationState encapsulates to VkPipelineTessellationStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC TessellationState : public Inherit<GraphicsPipelineState, TessellationState>
     {
     public:

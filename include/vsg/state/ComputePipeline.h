@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// ComputePipeline encapsulates compute VkPipeline and the VkComputePipelineCreateInfo settings used to set it up.
     class VSG_DECLSPEC ComputePipeline : public Inherit<Object, ComputePipeline>
     {
     public:
@@ -59,6 +60,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ComputePipeline);
 
+    /// BindComputePipeline state command encapsulates the vkCmdBindPipeline call for a ComputePipeline.
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
     {
     public:

@@ -18,32 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    struct FormatTraits
-    {
-        int size = 0;
-        int numBitsPerComponent = 0;
-        int numComponents = 0;
-        bool packed = false;
-        int blockWidth = 1;
-        int blockHeight = 1;
-        int blockDepth = 1;
-        uint8_t defaultValue[32];
 
-        template<typename T>
-        void assign4(T value)
-        {
-            T* ptr = reinterpret_cast<T*>(defaultValue);
-            (*ptr++) = value;
-            (*ptr++) = value;
-            (*ptr++) = value;
-            (*ptr++) = value;
-        }
-    };
-
-    extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
-    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
-
-    /// Settings that map to VkDescriptorImageInfo
+    /// ImageInfo class provides the VkDescriptorImageInfo settings used when setting up vsg::/vkDescriptorImage
     class VSG_DECLSPEC ImageInfo : public Inherit<Object, ImageInfo>
     {
     public:
@@ -104,5 +80,35 @@ namespace vsg
     VSG_type_name(vsg::ImageInfo);
 
     using ImageInfoList = std::vector<ref_ptr<ImageInfo>>;
+
+    /// format traits hints that can be used when initialize image data
+    struct FormatTraits
+    {
+        int size = 0;
+        int numBitsPerComponent = 0;
+        int numComponents = 0;
+        bool packed = false;
+        int blockWidth = 1;
+        int blockHeight = 1;
+        int blockDepth = 1;
+        uint8_t defaultValue[32];
+
+        template<typename T>
+        void assign4(T value)
+        {
+            T* ptr = reinterpret_cast<T*>(defaultValue);
+            (*ptr++) = value;
+            (*ptr++) = value;
+            (*ptr++) = value;
+            (*ptr++) = value;
+        }
+    };
+
+    /// return the traits suitable for specified VkFDormat.
+    extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
+
+    /// reuten the number of mip map levels specified by Data/Sampler.
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
+
 
 } // namespace vsg

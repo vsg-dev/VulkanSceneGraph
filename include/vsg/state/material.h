@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// simple material struct for passing material settings as unifom value to fragment shader
     struct material
     {
         vec4 ambientColor;
@@ -48,6 +49,8 @@ namespace vsg
     VSG_value(materialValue, material);
     VSG_array(materialArray, material);
 
+    /// PhongMaterial struct for passing material settings, suitable for phong lighting model, as unifom value to fragment shader
+    /// Used in conjunction with vsg::createPhongShaderSet().
     struct PhongMaterial
     {
         vec4 ambient{1.0f, 1.0f, 1.0f, 0.9f};
@@ -87,6 +90,8 @@ namespace vsg
     VSG_value(PhongMaterialValue, PhongMaterial);
     VSG_array(PhongMaterialArray, PhongMaterial);
 
+    /// PbrMaterial struct for passing material settings, suitable for phong lighting model, as unifom value to fragment shader
+    /// Used in conjunction with vsg::createPhysicsBasedRenderingShaderSet().
     struct PbrMaterial
     {
         vec4 baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};

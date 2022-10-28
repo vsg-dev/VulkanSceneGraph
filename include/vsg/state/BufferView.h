@@ -20,19 +20,20 @@ namespace vsg
     // forward declare
     class Context;
 
+    /// BufferView encapsulates VkBufferView and the VkBufferViewCreateInfo settings used to set it up.
     class VSG_DECLSPEC BufferView : public Inherit<Object, BufferView>
     {
     public:
         BufferView(Buffer* buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range);
+
+        /// Vulkan VkImage handle
+        VkBufferView vk(uint32_t deviceID) const { return _vulkanData[deviceID].bufferView; }
 
         // VkBufferViewCreateInfo settings
         ref_ptr<Buffer> buffer;
         VkFormat format = VK_FORMAT_UNDEFINED;
         VkDeviceSize offset = 0;
         VkDeviceSize range = 0;
-
-        /// Vulkan VkImage handle
-        VkBufferView vk(uint32_t deviceID) const { return _vulkanData[deviceID].bufferView; }
 
         int compare(const Object& rhs_object) const override;
 

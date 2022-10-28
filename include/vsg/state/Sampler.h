@@ -19,6 +19,7 @@ namespace vsg
 {
     class Context;
 
+    /// Sampler encapsulates the VkSampler and the VkSamplerCreateInfo settings used to set it up.
     class VSG_DECLSPEC Sampler : public Inherit<Object, Sampler>
     {
     public:

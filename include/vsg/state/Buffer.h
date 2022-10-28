@@ -20,19 +20,21 @@ namespace vsg
     // forward declare
     class Context;
 
+    /// Buffer encapsulates VkBuffer and VkBufferCreateInfo settings used to set it up.
+    /// Buffer is used map blocks of DeviceMemory for use with BufferInfo associated DescriptorBuffer/BufferView/Vertex/Index arrays.
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:
         Buffer(VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode);
+
+        /// Vulkan VkImage handle
+        VkBuffer vk(uint32_t deviceID) const { return _vulkanData[deviceID].buffer; }
 
         // VkBufferCreateInfo settings
         VkBufferCreateFlags flags = 0;
         VkDeviceSize size;
         VkBufferUsageFlags usage;
         VkSharingMode sharingMode;
-
-        /// Vulkan VkImage handle
-        VkBuffer vk(uint32_t deviceID) const { return _vulkanData[deviceID].buffer; }
 
         /// return the number of VulkanData entries.
         uint32_t sizeVulkanData() const { return _vulkanData.size(); }
