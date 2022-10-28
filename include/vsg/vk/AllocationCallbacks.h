@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Adapter class that provides a means of managing the lifetime of VkAllocationCallbacks.
     class VSG_DECLSPEC AllocationCallbacks : public Inherit<Object, AllocationCallbacks>, public VkAllocationCallbacks
     {
     public:
@@ -28,6 +29,7 @@ namespace vsg
     protected:
         virtual ~AllocationCallbacks() {}
     };
+
     /*
  * for reference:
  *
