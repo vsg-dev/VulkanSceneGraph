@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// InputAssemblyState ecaspualtes to VkPipelineInputAssemblyStateCreateInfo settings pass when setting up GraphicsPipeline
     class VSG_DECLSPEC InputAssemblyState : public Inherit<GraphicsPipelineState, InputAssemblyState>
     {
     public:
