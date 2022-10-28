@@ -21,6 +21,7 @@ namespace vsg
     // forward declare
     class DescriptorPool;
 
+    /// DescriptorSet encpasulates VkDescriptorSet and VkDescriptorSetAllocateInfo settings used to describe the Descriptors associated with the descriptor set.
     class VSG_DECLSPEC DescriptorSet : public Inherit<Object, DescriptorSet>
     {
     public:

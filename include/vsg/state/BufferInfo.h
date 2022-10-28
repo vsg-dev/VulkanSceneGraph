@@ -22,7 +22,7 @@ namespace vsg
     class Context;
     class CommandBuffer;
 
-    /// Settings that map to VkDescriptorBufferInfo
+    /// BufferInfo encapsulates the settings that map to VkDescriptorBufferInfo
     class VSG_DECLSPEC BufferInfo : public Inherit<Object, BufferInfo>
     {
     public:
