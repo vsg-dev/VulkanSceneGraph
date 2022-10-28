@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// BindDescriptorSets state command encapsualtes vkCmdBindDescriptorSets call and associated settings for multiple DescriptorSets.
+    /// BindDescriptorSets state command encapsulates vkCmdBindDescriptorSets call and associated settings for multiple DescriptorSets.
     class VSG_DECLSPEC BindDescriptorSets : public Inherit<StateCommand, BindDescriptorSets>
     {
     public:
@@ -84,7 +84,7 @@ namespace vsg
     };
     VSG_type_name(vsg::BindDescriptorSets);
 
-    /// BindDescriptorSet state command encapsualtes vkCmdBindDescriptorSets call and associated settings for a single DescriptorSet.
+    /// BindDescriptorSet state command encapsulates vkCmdBindDescriptorSets call and associated settings for a single DescriptorSet.
     /// Functionality the same as assigning a single DescriptorSet to a BindDescriptorSets but has slighhtly lower memory footprint and CPU overhead.
     class VSG_DECLSPEC BindDescriptorSet : public Inherit<StateCommand, BindDescriptorSet>
     {

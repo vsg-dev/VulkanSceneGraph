@@ -21,6 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// ArrayState base class provides a mechanism for CPU mapping of array data that is processed in novel ways on the GPU.
+    /// Assigned to StategGroup that are associted GraphicsPipline that use vertex shaders with novel vertex processing,
+    /// and used during traversal such as ComputeTraversal and IntersectionTraversal.
     class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {
     public:
@@ -102,6 +105,7 @@ namespace vsg
     };
     VSG_type_name(vsg::NullArrayState);
 
+    /// PositionArrayState is ArrayState subclass for mapping vertex array data for instanced geometries.
     class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
     {
     public:
@@ -122,6 +126,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PositionArrayState);
 
+    /// DisplacementMapArrayState is ArrayState subclass for mapping vertex array data for displacement mapped geometries.
     class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
     {
     public:
@@ -155,6 +160,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DisplacementMapArrayState);
 
+    /// PositionAndDisplacementMapArrayState is ArrayState subclass for mapping vertex array data for instanced, displacement mapped geometries.
     class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<DisplacementMapArrayState, PositionAndDisplacementMapArrayState>
     {
     public:
