@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// NextSubPass command encapsulates vkCmdNextSubpass call and settings.
     class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
     {
     public:

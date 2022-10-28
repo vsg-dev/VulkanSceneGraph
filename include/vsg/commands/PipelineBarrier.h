@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// VulkanInfo is a base class for implemention extensions assigned via next pointer in Vulkan strucures
     struct VSG_DECLSPEC VulkanInfo : public Inherit<Object, VulkanInfo>
     {
         ref_ptr<VulkanInfo> next;
@@ -27,6 +28,7 @@ namespace vsg
         virtual void* assign(CommandBuffer& commandBuffer) const = 0;
     };
 
+    /// MemoryBarrier encapsulates VkMemoryBarrier settings
     struct VSG_DECLSPEC MemoryBarrier : public Inherit<Object, MemoryBarrier>
     {
         MemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
@@ -43,6 +45,7 @@ namespace vsg
     VSG_type_name(vsg::MemoryBarrier);
     using MemoryBarriers = std::vector<ref_ptr<MemoryBarrier>>;
 
+    /// BufferMemoryBarrier encapsulates VkBufferMemoryBarrier settings
     struct VSG_DECLSPEC BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
     {
         BufferMemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
@@ -74,6 +77,7 @@ namespace vsg
     VSG_type_name(vsg::BufferMemoryBarrier);
     using BufferMemoryBarriers = std::vector<ref_ptr<BufferMemoryBarrier>>;
 
+    /// ImageMemoryBarrier encapsulates vkImageMemoryBarrier settings.
     struct VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
     {
         ImageMemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
@@ -108,7 +112,7 @@ namespace vsg
     VSG_type_name(vsg::ImageMemoryBarrier);
     using ImageMemoryBarriers = std::vector<ref_ptr<ImageMemoryBarrier>>;
 
-    // TODO decide where SampleLocations belongs, possibly RenderPass?
+    /// SampleLocations encapsulates the VkSampleLocationsInfoEXT settings associated with VK_EXT_sample_locations extension
     struct VSG_DECLSPEC SampleLocations : public Inherit<VulkanInfo, SampleLocations>
     {
         VkSampleCountFlagBits sampleLocationsPerPixel = VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
@@ -118,6 +122,7 @@ namespace vsg
         void* assign(CommandBuffer& commandBuffer) const override;
     };
 
+    /// PipelineBarrier command encapsulates vkCmdPipelineBarrier call and associated lists of MemoryBarrier, BufferMemoryBarrier and ImageMemoryBarrier.
     class VSG_DECLSPEC PipelineBarrier : public Inherit<Command, PipelineBarrier>
     {
     public:

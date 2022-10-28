@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdResolveImage functionality
+    /// ResolveImage command encapsulates vkCmdResolveImage functionality
     class VSG_DECLSPEC ResolveImage : public Inherit<Command, ResolveImage>
     {
     public:

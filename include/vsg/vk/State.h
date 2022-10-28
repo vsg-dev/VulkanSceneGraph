@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/PushConstants.h>
+#include <vsg/state/PushConstants.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/transform.h>
 #include <vsg/nodes/MatrixTransform.h>

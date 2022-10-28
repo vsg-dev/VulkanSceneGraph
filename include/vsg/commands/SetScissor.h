@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdSetScissor functionality, associated with dynamic updating a GraphicsPipeline's ViewportState
+    /// SetScissor command encapsulates of vkCmdSetScissor functionality, associated with dynamic updating a GraphicsPipeline's ViewportState
     class VSG_DECLSPEC SetScissor : public Inherit<Command, SetScissor>
     {
     public:

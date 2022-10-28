@@ -58,7 +58,6 @@ set(SOURCES
     commands/Event.cpp
     commands/NextSubPass.cpp
     commands/Dispatch.cpp
-    commands/PushConstants.cpp
     commands/Draw.cpp
     commands/DrawIndirect.cpp
     commands/DrawIndexed.cpp
@@ -109,6 +108,7 @@ set(SOURCES
     state/DynamicState.cpp
     state/ViewDependentState.cpp
     state/QueryPool.cpp
+    state/PushConstants.cpp
 
     io/convert_utf.cpp
     io/FileSystem.cpp
