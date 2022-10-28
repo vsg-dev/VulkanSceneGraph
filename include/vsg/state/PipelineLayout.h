@@ -22,6 +22,7 @@ namespace vsg
 
     using PushConstantRanges = std::vector<VkPushConstantRange>;
 
+    /// PipelineLayout encapsulates VkPipelineLayout and the VkPipelineLayoutCreateInfo settings used to set it up.
     class VSG_DECLSPEC PipelineLayout : public Inherit<Object, PipelineLayout>
     {
     public:
