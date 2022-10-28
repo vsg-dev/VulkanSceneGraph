@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdDepthBias functionality, associated with dynamic updating a GraphicsPipeline's RasterizationState.depthBias* values.
+    /// SetDepthBias command encapsulates vkCmdDepthBias functionality, associated with dynamic updating a GraphicsPipeline's RasterizationState.depthBias* values.
     class VSG_DECLSPEC SetDepthBias : public Inherit<Command, SetDepthBias>
     {
     public:

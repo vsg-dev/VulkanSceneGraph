@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// PushConstants state command encapsulates vkCmdPushConstants functionality
     class VSG_DECLSPEC PushConstants : public Inherit<StateCommand, PushConstants>
     {
     public:

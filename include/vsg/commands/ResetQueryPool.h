@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// encapsulation of vkCmdResetQueryPool
+    /// ResetQueryPool command encaspsulates vkCmdResetQueryPool functionality
     class VSG_DECLSPEC ResetQueryPool : public Inherit<Command, ResetQueryPool>
     {
     public:
