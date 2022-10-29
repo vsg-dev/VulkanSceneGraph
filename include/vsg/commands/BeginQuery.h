@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// encapsulation of vkCmdBeginQuery
+    /// BeginQuery command encapsulates vkCmdBeginQuery call and associated functionality.
     class VSG_DECLSPEC BeginQuery : public Inherit<Command, BeginQuery>
     {
     public:

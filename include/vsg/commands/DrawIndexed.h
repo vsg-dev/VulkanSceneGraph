@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// DrawIndexed command encapsulates vkCmdDrawIndexed call and associatesd settings
     class VSG_DECLSPEC DrawIndexed : public Inherit<Command, DrawIndexed>
     {
     public:

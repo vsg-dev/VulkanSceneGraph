@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// BindVertexBuffers command encapsulates vkBindVertexBuffers call and associated settings.
     class VSG_DECLSPEC BindVertexBuffers : public Inherit<Command, BindVertexBuffers>
     {
     public:

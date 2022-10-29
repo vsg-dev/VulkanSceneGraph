@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdBlitImage functionality
+    /// BlitImage command encapsulates vkCmdBlitImage functionality and associated settings
     class VSG_DECLSPEC BlitImage : public Inherit<Command, BlitImage>
     {
     public:

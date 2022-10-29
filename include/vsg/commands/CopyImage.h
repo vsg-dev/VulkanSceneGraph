@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdCopyImage functionality
+    /// CopyImage command encapsulates vkCmdCopyImage and associated settings
     class VSG_DECLSPEC CopyImage : public Inherit<Command, CopyImage>
     {
     public:

@@ -20,6 +20,7 @@ namespace vsg
     class CommandBuffer;
     class Context;
 
+    /// Command base class from encapsualting vkCmd* calls and associated settings.
     class VSG_DECLSPEC Command : public Inherit<Node, Command>
     {
     public:
