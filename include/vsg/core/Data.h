@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// ModifiedCount provides a count value to keep track of modifications to data.
     struct ModifiedCount
     {
         uint32_t count = 0;
@@ -97,6 +98,8 @@ namespace vsg
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
     };
 
+    /// Data base class for abstracting data such a values, vertices, images etc.
+    /// Main subclasses are vsg::Value, vsg::Array, vsg::Array2D and vsg::Array3D.
     class VSG_DECLSPEC Data : public Object
     {
     public:
