@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /** Wrapper for vkCmdDispatch, used for dispatching a Compute command.*/
+    /** Dispatch command encapsulates vkCmdDispatch, used for dispatching a Compute command.*/
     class VSG_DECLSPEC Dispatch : public Inherit<Command, Dispatch>
     {
     public:
