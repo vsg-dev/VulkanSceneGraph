@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/VSG.h>
+#include <vsg/io/glsl.h>
 #include <vsg/io/read.h>
 #include <vsg/io/spirv.h>
 #include <vsg/io/tile.h>
@@ -41,6 +42,11 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         else if (ext == ".spv")
         {
             spirv rw;
+            return rw.read(filename, options);
+        }
+        else if (glsl::extensionSupported(ext))
+        {
+            glsl rw;
             return rw.read(filename, options);
         }
         else

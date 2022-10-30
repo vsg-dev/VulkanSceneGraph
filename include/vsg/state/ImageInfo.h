@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-
     /// ImageInfo class provides the VkDescriptorImageInfo settings used when setting up vsg::/vkDescriptorImage
     class VSG_DECLSPEC ImageInfo : public Inherit<Object, ImageInfo>
     {
@@ -109,6 +108,5 @@ namespace vsg
 
     /// reuten the number of mip map levels specified by Data/Sampler.
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
-
 
 } // namespace vsg
