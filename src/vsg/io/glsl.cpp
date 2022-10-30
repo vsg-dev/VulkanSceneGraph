@@ -20,7 +20,7 @@ glsl::glsl()
 }
 
 // set up the static s_extensionToStage so that it can be used for extension/feature checks
-std::map<Path, VkShaderStageFlagBits>  glsl::s_extensionToStage{
+std::map<Path, VkShaderStageFlagBits> glsl::s_extensionToStage{
     {".vert", VK_SHADER_STAGE_VERTEX_BIT},
     {".tesc", VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
     {".tese", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
@@ -36,8 +36,7 @@ std::map<Path, VkShaderStageFlagBits>  glsl::s_extensionToStage{
     {".rmiss", VK_SHADER_STAGE_MISS_BIT_KHR},
     {".rcall", VK_SHADER_STAGE_CALLABLE_BIT_KHR},
     {".glsl", VK_SHADER_STAGE_ALL},
-    {".hlsl", VK_SHADER_STAGE_ALL}
-};
+    {".hlsl", VK_SHADER_STAGE_ALL}};
 
 bool glsl::extensionSupported(const Path& ext)
 {

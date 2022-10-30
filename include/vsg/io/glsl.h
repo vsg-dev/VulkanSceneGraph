@@ -51,4 +51,3 @@ namespace vsg
     VSG_type_name(vsg::glsl);
 
 } // namespace vsg
-
