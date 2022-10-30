@@ -11,6 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/VSG.h>
+#include <vsg/io/spirv.h>
+#include <vsg/io/glsl.h>
 #include <vsg/io/write.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -41,6 +43,16 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
         if (ext == ".vsga" || ext == ".vsgt" || ext == ".vsgb")
         {
             VSG rw;
+            fileWritten = rw.write(object, filename, options);
+        }
+        else if (ext == ".spv")
+        {
+            spirv rw;
+            fileWritten = rw.write(object, filename, options);
+        }
+        else if (glsl::extensionSupported(ext))
+        {
+            glsl rw;
             fileWritten = rw.write(object, filename, options);
         }
     }

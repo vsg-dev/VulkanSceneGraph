@@ -127,6 +127,7 @@ set(SOURCES
     io/VSG.cpp
     io/spirv.cpp
     io/tile.cpp
+    io/glsl.cpp
     io/read.cpp
     io/write.cpp
     io/mem_stream.cpp
