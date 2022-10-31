@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Barrier provides a means for syncornization multiple threads that all release together once specified number of of threads joined the Barrier.
     class Barrier : public Inherit<Object, Barrier>
     {
     public:

@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Affinity struct provides a set of cpu ids that a thread can be set to have affinity to.
     struct Affinity
     {
         Affinity() {}
