@@ -18,6 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Light node a base class for different light types - AmbientLight, DirectionalLight, PointLight and SpotLight.
+    /// Used to by the RecordTraversal to represent a light source that is placed in the LightData uniform used by the shaders when implementing lighting.
+    /// Provides name, color and intensity settings common to all Light types.
     class VSG_DECLSPEC Light : public Inherit<Node, Light>
     {
     public:
@@ -33,6 +36,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Light);
 
+    /// AmbientLight represents an ambient light source
     class VSG_DECLSPEC AmbientLight : public Inherit<Light, AmbientLight>
     {
     public:
@@ -44,6 +48,7 @@ namespace vsg
     };
     VSG_type_name(vsg::AmbientLight);
 
+    /// DirectionalLight represents a directional light source - used for light sources that are treated as if at infinity, like sun/moon.
     class VSG_DECLSPEC DirectionalLight : public Inherit<Light, DirectionalLight>
     {
     public:
@@ -57,6 +62,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DirectionalLight);
 
+    /// PointLight represents a local point light source where all light radiants event from the light position.
     class VSG_DECLSPEC PointLight : public Inherit<Light, PointLight>
     {
     public:
@@ -70,6 +76,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PointLight);
 
+    /// SpotLight represents a local point light source which intensity varies as a spot light.
     class VSG_DECLSPEC SpotLight : public Inherit<Light, SpotLight>
     {
     public:

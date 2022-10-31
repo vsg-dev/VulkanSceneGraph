@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// CullNode that enables view frustum culling on a list of children.
     class VSG_DECLSPEC CullGroup : public Inherit<Group, CullGroup>
     {
     public:
