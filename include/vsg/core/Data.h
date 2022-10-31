@@ -221,9 +221,10 @@ namespace vsg
 
         ModifiedCount _modifiedCount;
 
+#if 1
     public:
 
-        /// deprecaated: provided for backwards compatibility, use Properties instead.
+        /// deprecated: provided for backwards compatibility, use Properties instead.
         using Layout = Properties;
 
         /// deprecated: use data->propertes = proerpties instead.
@@ -239,7 +240,7 @@ namespace vsg
         Layout& getLayout() { return properties; }
         /// deprecated: use data->propertes
         Layout getLayout() const { return properties; }
-
+#endif
     };
     VSG_type_name(vsg::Data);
 

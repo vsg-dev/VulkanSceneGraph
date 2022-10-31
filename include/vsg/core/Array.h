@@ -56,18 +56,18 @@ namespace vsg
             dirty();
         }
 
-        explicit Array(uint32_t numElements, Layout layout = {}) :
-            Data(layout, sizeof(value_type)),
+        explicit Array(uint32_t numElements, Properties in_properties = {}) :
+            Data(in_properties, sizeof(value_type)),
             _data(_allocate(numElements)),
             _size(numElements) { dirty(); }
 
-        Array(uint32_t numElements, value_type* data, Layout layout = {}) :
-            Data(layout, sizeof(value_type)),
+        Array(uint32_t numElements, value_type* data, Properties in_properties = {}) :
+            Data(in_properties, sizeof(value_type)),
             _data(data),
             _size(numElements) { dirty(); }
 
-        Array(uint32_t numElements, const value_type& value, Layout layout = {}) :
-            Data(layout, sizeof(value_type)),
+        Array(uint32_t numElements, const value_type& value, Properties in_properties = {}) :
+            Data(in_properties, sizeof(value_type)),
             _data(_allocate(numElements)),
             _size(numElements)
         {
@@ -75,12 +75,12 @@ namespace vsg
             dirty();
         }
 
-        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout()) :
+        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}) :
             Data(),
             _data(nullptr),
             _size(0)
         {
-            assign(data, offset, stride, numElements, layout);
+            assign(data, offset, stride, numElements, in_properties);
         }
 
         explicit Array(std::initializer_list<value_type> l) :
@@ -227,11 +227,11 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t numElements, value_type* data, Layout layout = Layout())
+        void assign(uint32_t numElements, value_type* data, Properties in_properties = {})
         {
             _delete();
 
-            properties = layout;
+            properties = in_properties;
             properties.stride = sizeof(value_type);
             _size = numElements;
             _data = data;
@@ -240,12 +240,12 @@ namespace vsg
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Layout layout = Layout())
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {})
         {
             _delete();
 
             _storage = storage;
-            properties = layout;
+            properties = in_properties;
             properties.stride = stride;
             if (_storage && _storage->dataPointer())
             {

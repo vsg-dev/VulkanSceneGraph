@@ -141,8 +141,8 @@ void ImageInfo::computeNumMipMapLevels()
         if (generatMipmaps)
         {
             // check that the data isn't compressed.
-            auto layout = data->getLayout();
-            if (layout.blockWidth > 1 || layout.blockHeight > 1 || layout.blockDepth > 1)
+            const auto& properties = data->properties;
+            if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
             {
                 sampler->maxLod = 0.0f;
                 mipLevels = 1;

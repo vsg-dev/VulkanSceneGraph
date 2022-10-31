@@ -38,15 +38,15 @@ Image::Image(ref_ptr<Data> in_data) :
 {
     if (data)
     {
-        auto layout = data->getLayout();
+        auto properties = data->properties;
         auto mipmapOffsets = data->computeMipmapOffsets();
         auto dimensions = data->dimensions();
 
-        uint32_t width = data->width() * layout.blockWidth;
-        uint32_t height = data->height() * layout.blockHeight;
-        uint32_t depth = data->depth() * layout.blockDepth;
+        uint32_t width = data->width() * properties.blockWidth;
+        uint32_t height = data->height() * properties.blockHeight;
+        uint32_t depth = data->depth() * properties.blockDepth;
 
-        switch (layout.imageViewType)
+        switch (properties.imageViewType)
         {
         case (VK_IMAGE_VIEW_TYPE_1D):
             imageType = VK_IMAGE_TYPE_1D;
@@ -92,7 +92,7 @@ Image::Image(ref_ptr<Data> in_data) :
             break;
         }
 
-        format = layout.format;
+        format = properties.format;
         mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
         extent = VkExtent3D{width, height, depth};
 

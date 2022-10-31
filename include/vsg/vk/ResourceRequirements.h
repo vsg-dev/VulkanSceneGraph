@@ -114,7 +114,7 @@ namespace vsg
         {
             if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
             {
-                if (bufferInfo->data->getLayout().dataVariance == DYNAMIC_DATA)
+                if (bufferInfo->data->properties.dataVariance == DYNAMIC_DATA)
                 {
                     requirements.earlyDynamicData.bufferInfos.push_back(bufferInfo);
                 }
@@ -132,7 +132,7 @@ namespace vsg
                 auto& data = imageInfo->imageView->image->data;
                 if (data && data->dynamic())
                 {
-                    if (data->getLayout().dataVariance == DYNAMIC_DATA)
+                    if (data->properties.dataVariance == DYNAMIC_DATA)
                     {
                         requirements.earlyDynamicData.imageInfos.push_back(imageInfo);
                     }

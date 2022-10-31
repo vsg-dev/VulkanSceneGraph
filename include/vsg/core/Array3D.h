@@ -59,8 +59,8 @@ namespace vsg
             dirty();
         }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, Layout layout = {}) :
-            Data(layout, sizeof(value_type)),
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
+            Data(in_properties, sizeof(value_type)),
             _data(_allocate(width * height * depth)),
             _width(width),
             _height(height),
@@ -69,15 +69,15 @@ namespace vsg
             dirty();
         }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = {}) :
-            Data(layout, sizeof(value_type)),
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {}) :
+            Data(in_properties, sizeof(value_type)),
             _data(data),
             _width(width),
             _height(height),
             _depth(depth) { dirty(); }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Layout layout = {}) :
-            Data(layout, sizeof(value_type)),
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Properties in_properties = {}) :
+            Data(in_properties, sizeof(value_type)),
             _data(_allocate(width * height * depth)),
             _width(width),
             _height(height),
@@ -87,14 +87,14 @@ namespace vsg
             dirty();
         }
 
-        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout()) :
+        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
             Data(),
             _data(nullptr),
             _width(0),
             _height(0),
             _depth(0)
         {
-            assign(data, offset, stride, width, height, depth, layout);
+            assign(data, offset, stride, width, height, depth, in_properties);
         }
 
         template<typename... Args>
@@ -217,11 +217,11 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Layout layout = Layout())
+        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {})
         {
             _delete();
 
-            properties = layout;
+            properties = in_properties;
             properties.stride = sizeof(value_type);
             _width = width;
             _height = height;
@@ -232,12 +232,12 @@ namespace vsg
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Layout layout = Layout())
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {})
         {
             _delete();
 
             _storage = storage;
-            properties = layout;
+            properties = in_properties;
             properties.stride = stride;
             if (_storage && _storage->dataPointer())
             {

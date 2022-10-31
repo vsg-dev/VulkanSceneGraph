@@ -135,7 +135,7 @@ void ArrayState::apply(const vsg::Data& array)
         if (!proxy_vertices) proxy_vertices = vsg::vec3Array::create();
 
         uint32_t numVertices = static_cast<uint32_t>(arrays[vertexAttribute.binding]->dataSize()) / vertexAttribute.stride;
-        proxy_vertices->assign(arrays[vertexAttribute.binding], vertexAttribute.offset, vertexAttribute.stride, numVertices, array.getLayout());
+        proxy_vertices->assign(arrays[vertexAttribute.binding], vertexAttribute.offset, vertexAttribute.stride, numVertices, array.properties);
 
         vertices = proxy_vertices;
     }
