@@ -792,8 +792,8 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setDelegate:windowDelegate];
 
     [_window setTitle:[NSString stringWithUTF8String:traits->windowTitle.c_str()]];
-    [_window setAcceptsMouseMovedEvents:NO];
-    [_window setRestorable:NO];
+    [_window setAcceptsMouseMovedEvents:YES];
+    [_window setRestorable:YES];
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
 
@@ -836,7 +836,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     pos.y = ymax-std::clamp(traits->y,0,ymax);
     // show
     [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width , [_window frame].size.height) display:YES];
-
+    
     //vsgMacOS::createApplicationMenus();
     [NSApp activateIgnoringOtherApps:YES];
     [_window makeKeyAndOrderFront:nil];
