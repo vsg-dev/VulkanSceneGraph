@@ -69,14 +69,20 @@ namespace vsg
         void read(Input& input) override
         {
             Data::read(input);
-            input.read("Value", _value);
+            if (input.version_greater_equal(0, 6, 1))
+                input.read("value", _value);
+            else
+                input.read("Value", _value);
             dirty();
         }
 
         void write(Output& output) const override
         {
             Data::write(output);
-            output.write("Value", _value);
+            if (output.version_greater_equal(0, 6, 1))
+                output.write("value", _value);
+            else
+                output.write("Value", _value);
         }
 
         std::size_t valueSize() const override { return sizeof(value_type); }

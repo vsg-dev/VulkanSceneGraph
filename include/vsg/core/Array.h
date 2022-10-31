@@ -43,7 +43,7 @@ namespace vsg
             _size(0) {}
 
         Array(const Array& rhs) :
-            Data(rhs._layout, sizeof(value_type)),
+            Data(rhs.properties, sizeof(value_type)),
             _data(nullptr),
             _size(rhs._size)
         {
@@ -87,7 +87,7 @@ namespace vsg
             _data(_allocate(l.size())),
             _size(static_cast<uint32_t>(l.size()))
         {
-            _layout.stride = sizeof(value_type);
+            properties.stride = sizeof(value_type);
 
             iterator itr = begin();
             for (const value_type& v : l) { (*itr++) = v; }
@@ -143,13 +143,13 @@ namespace vsg
             if (auto data_storage = input.readObject<Data>("storage"))
             {
                 uint32_t offset = input.readValue<uint32_t>("offset");
-                assign(data_storage, offset, _layout.stride, width_size, _layout);
+                assign(data_storage, offset, properties.stride, width_size, properties);
                 return;
             }
 
             if (input.matchPropertyName("data"))
             {
-                std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, _layout.maxNumMipmaps);
+                std::size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, properties.maxNumMipmaps);
 
                 if (_data) // if data already may be able to reuse it
                 {
@@ -165,7 +165,7 @@ namespace vsg
                     _data = _allocate(new_total_size);
                 }
 
-                _layout.stride = sizeof(value_type);
+                properties.stride = sizeof(value_type);
                 _size = width_size;
                 _storage = nullptr;
 
@@ -193,7 +193,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        std::size_t size() const { return (_layout.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, _layout.maxNumMipmaps); }
+        std::size_t size() const { return (properties.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, properties.maxNumMipmaps); }
 
         bool empty() const { return _size == 0; }
 
@@ -212,7 +212,7 @@ namespace vsg
 
             clear();
 
-            _layout = rhs._layout;
+            properties = rhs.properties;
             _size = rhs._size;
 
             if (_size != 0)
@@ -231,8 +231,8 @@ namespace vsg
         {
             _delete();
 
-            _layout = layout;
-            _layout.stride = sizeof(value_type);
+            properties = layout;
+            properties.stride = sizeof(value_type);
             _size = numElements;
             _data = data;
             _storage = nullptr;
@@ -245,8 +245,8 @@ namespace vsg
             _delete();
 
             _storage = storage;
-            _layout = layout;
-            _layout.stride = stride;
+            properties = layout;
+            properties.stride = stride;
             if (_storage && _storage->dataPointer())
             {
                 _data = reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_storage->dataPointer()) + offset);
@@ -281,7 +281,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
-        std::size_t dataSize() const override { return size() * _layout.stride; }
+        std::size_t dataSize() const override { return size() * properties.stride; }
 
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
@@ -298,8 +298,8 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * _layout.stride); }
-        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * _layout.stride); }
+        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * properties.stride); }
+        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * properties.stride); }
 
         value_type& operator[](std::size_t i) { return *data(i); }
         const value_type& operator[](std::size_t i) const { return *data(i); }
@@ -312,11 +312,11 @@ namespace vsg
         Data* storage() { return _storage; }
         const Data* storage() const { return _storage; }
 
-        iterator begin() { return iterator{_data, _layout.stride}; }
-        const_iterator begin() const { return const_iterator{_data, _layout.stride}; }
+        iterator begin() { return iterator{_data, properties.stride}; }
+        const_iterator begin() const { return const_iterator{_data, properties.stride}; }
 
-        iterator end() { return iterator{data(_size), _layout.stride}; }
-        const_iterator end() const { return const_iterator{data(_size), _layout.stride}; }
+        iterator end() { return iterator{data(_size), properties.stride}; }
+        const_iterator end() const { return const_iterator{data(_size), properties.stride}; }
 
     protected:
         virtual ~Array()
@@ -326,9 +326,9 @@ namespace vsg
 
         value_type* _allocate(size_t size) const
         {
-            if (_layout.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+            if (properties.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
                 return new value_type[size];
-            else if (_layout.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
+            else if (properties.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
                 return new (std::malloc(sizeof(value_type) * size)) value_type[size];
             else
                 return new (vsg::allocate(sizeof(value_type) * size, ALLOCATOR_AFFINITY_DATA)) value_type[size];
@@ -338,11 +338,11 @@ namespace vsg
         {
             if (!_storage && _data)
             {
-                if (_layout.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+                if (properties.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
                     delete[] _data;
-                else if (_layout.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
+                else if (properties.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
                     std::free(_data);
-                else if (_layout.allocatorType != 0)
+                else if (properties.allocatorType != 0)
                     vsg::deallocate(_data);
             }
         }
