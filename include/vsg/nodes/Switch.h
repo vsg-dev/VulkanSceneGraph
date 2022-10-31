@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
     /// Switch node for toggling on/off recording of children.
     class VSG_DECLSPEC Switch : public Inherit<Node, Switch>
     {
