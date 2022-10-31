@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Atomic management of whether threads watching this ActivityStatus object should be active or safely exit
+    /// ActivityStatus provides atomic management of whether threads watching this ActivityStatus object should be active or safely exit
     class ActivityStatus : public Inherit<Object, ActivityStatus>
     {
     public:

@@ -19,6 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// OperationThreads provides a collection of std::threads that share a single OperationQueue.
+    /// Each thread polls the queue for vsg::Operation to process, when one is available it's removed
+    /// from the queue and it's Operation::run() method.
     class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
     {
     public:

@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// FrameBlock provides mechanism for synchronization threads that are waiting on the start of new frame,
     class FrameBlock : public Inherit<Object, FrameBlock>
     {
     public:

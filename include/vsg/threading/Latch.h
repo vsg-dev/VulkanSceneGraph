@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Latch provides a means for syncornization multiple threads that waits for the latch count to be decremented to zero.
     class Latch : public Inherit<Object, Latch>
     {
     public:
