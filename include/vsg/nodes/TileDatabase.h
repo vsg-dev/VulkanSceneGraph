@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// TileDatabaseSettings provides the settings used by vsg::TileDatabase & vsg::tile ReaderWriter to guide paging in image, DEM tiles from disk/http/.
     class VSG_DECLSPEC TileDatabaseSettings : public Inherit<Object, TileDatabaseSettings>
     {
     public:
@@ -46,6 +47,8 @@ namespace vsg
     };
     VSG_type_name(vsg::TileDatabaseSettings);
 
+    /// TileDatabase node is the root node of a paged tile database graph that is automatically populated
+    /// by the vsg::tile ReaderWriter using the TileDatabaseSettings as a guide to the source of data and sizing
     class VSG_DECLSPEC TileDatabase : public Inherit<Node, TileDatabase>
     {
     public:
