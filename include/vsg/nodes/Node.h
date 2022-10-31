@@ -17,6 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// Node base class used for internal nodes within the scene graph.
+    /// Specializes new/delete so that nodes are automatically allocated alongside of other nodes via vsg::Allocator's MEMORY_NODES_OBJECTS affinity.
     class VSG_DECLSPEC Node : public Inherit<Object, Node>
     {
     public:
