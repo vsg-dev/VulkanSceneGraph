@@ -18,8 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // TODO: Robert review
-    /// IndexRatio is a pair of index and ratio used specify the baricetric coords of primitives that have been intersected.
+    /// IndexRatio is a pair of index and ratio used specify the baricentric coords of primitives that have been intersected.
     struct IndexRatio
     {
         uint32_t index;
