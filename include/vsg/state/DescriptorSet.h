@@ -59,7 +59,7 @@ namespace vsg
 
     public:
         /// Wrapper class for the management of the Vulkan VkDescriptorSet handle.
-        //. This is an internal implementation class that is only public to enable use within DescriptorPool and Context,
+        /// This is an internal implementation class that is only public to enable use within DescriptorPool and Context,
         /// it is not intended to be used directly by VulkanSceneGraph users.
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
