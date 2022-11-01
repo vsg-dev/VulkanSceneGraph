@@ -43,7 +43,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Camera);
 
-    /// FindCameras is visitor that traversals a secene graph to collect the Cameras found within it.
+    /// FindCameras is visitor that traversals a scene graph to collect the Cameras found within it.
     class VSG_DECLSPEC FindCameras : public Inherit<Visitor, FindCameras>
     {
     public:

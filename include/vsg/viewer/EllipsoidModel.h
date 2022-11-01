@@ -22,7 +22,8 @@ namespace vsg
     const double WGS_84_RADIUS_EQUATOR = 6378137.0;
     const double WGS_84_RADIUS_POLAR = 6356752.3142;
 
-    /// EllipsoidModel provides a ellipsoid defination of celastral body and helper methods for computing positions/transforms on that ellipsoid.
+    /// EllipsoidModel provides a ellipsoid definition of celastral body and helper methods for computing positions/transforms on that ellipsoid.
+    /// Defaults to WGS_84 elliosoid model of Earth.
     class VSG_DECLSPEC EllipsoidModel : public Inherit<Object, EllipsoidModel>
     {
     public:

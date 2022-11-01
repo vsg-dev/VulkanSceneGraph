@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// AccelerationGeometry encapsualtes settings for acceleration geometries.
+    /// AccelerationGeometry encapsulates settings for acceleration geometries.
     class VSG_DECLSPEC AccelerationGeometry : public Inherit<Object, AccelerationGeometry>
     {
     public:
