@@ -221,7 +221,7 @@ void GraphicsPipelineConfig::init()
     }
 
     vsg::DescriptorSetLayouts desriptorSetLayouts{descriptorSetLayout};
-    if (additionalDescrptorSetLayout) desriptorSetLayouts.push_back(additionalDescrptorSetLayout);
+    if (additionalDescriptorSetLayout) desriptorSetLayouts.push_back(additionalDescriptorSetLayout);
 
     layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
 

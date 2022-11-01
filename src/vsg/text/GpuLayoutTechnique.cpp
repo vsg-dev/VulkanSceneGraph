@@ -270,7 +270,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         auto textArrayDescriptorSetLayout = DescriptorSetLayout::create(textArrayDescriptorBindings);
         if (sharedObjects) sharedObjects->share(textArrayDescriptorSetLayout);
 
-        config->additionalDescrptorSetLayout = textArrayDescriptorSetLayout;
+        config->additionalDescriptorSetLayout = textArrayDescriptorSetLayout;
 
         if (sharedObjects)
             sharedObjects->share(config, [](auto gpc) { gpc->init(); });

@@ -91,7 +91,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
     else
         vdsl = ViewDescriptorSetLayout::create();
-    graphicsPipelineConfig->additionalDescrptorSetLayout = vdsl;
+    graphicsPipelineConfig->additionalDescriptorSetLayout = vdsl;
 
     graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);
     graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12);

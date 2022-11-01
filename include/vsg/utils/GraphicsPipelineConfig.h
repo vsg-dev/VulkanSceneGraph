@@ -75,7 +75,7 @@ namespace vsg
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;
         ref_ptr<ShaderSet> shaderSet;
-        ref_ptr<DescriptorSetLayout> additionalDescrptorSetLayout;
+        ref_ptr<DescriptorSetLayout> additionalDescriptorSetLayout;
 
         void reset();
 
