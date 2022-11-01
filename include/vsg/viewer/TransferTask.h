@@ -25,9 +25,9 @@ namespace vsg
 {
 
     /// TransferTask manages a collection of dynamically updated vsg::Data associated with GPU memory associated vsg::BufferInfo and vsg::ImageInfo.
-    /// During the viewer.compile(..) traversal the collection of dynamic data that has dataVariance of DYNAMIC_DATA* is assigned to the approapriate TransferTask
+    /// During the viewer.compile(..) traversal the collection of dynamic data that has dataVariance of DYNAMIC_DATA* is assigned to the appropriate TransferTask
     /// and then each new frame that collection of data is checked to see if the modification count has changed, if it has that data is copied to the associated BufferInfo/ImageInfo.
-    /// vsg::Data that are orphaned so the TransferTask has the only remainly reference to them are automatically removed.
+    /// vsg::Data that are orphaned so the TransferTask has the only remaining reference to them are automatically removed.
     class VSG_DECLSPEC TransferTask : public Inherit<Object, TransferTask>
     {
     public:

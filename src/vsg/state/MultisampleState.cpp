@@ -60,7 +60,7 @@ void MultisampleState::read(Input& input)
     input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
     input.read("minSampleShading", minSampleShading);
 
-    sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask")); // TODO review capitialization
+    sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask")); // TODO review capitalization
     for (auto& mask : sampleMasks)
     {
         input.readValue<uint32_t>("value", mask);
@@ -78,7 +78,7 @@ void MultisampleState::write(Output& output) const
     output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
     output.write("minSampleShading", minSampleShading);
 
-    output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size()); // TODO review capitialization
+    output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size()); // TODO review capitalization
     for (auto& mask : sampleMasks)
     {
         output.writeValue<uint32_t>("value", mask);

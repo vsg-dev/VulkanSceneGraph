@@ -23,7 +23,7 @@ namespace vsg
 {
 
     /// Commands is a command that acts as a container for other commands.
-    /// vsg::Commands is a functionally equivalent to use vgsg::Group but is faster thanks to lowering CPU overhead in applying
+    /// vsg::Commands is a functionally equivalent to use vsg::Group but is faster thanks to lowering CPU overhead in applying
     /// the state stack prior to vsg::Command call.
     class VSG_DECLSPEC Commands : public Inherit<Command, Commands>
     {

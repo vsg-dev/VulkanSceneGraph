@@ -226,7 +226,7 @@ namespace vsg
         /// deprecated: provided for backwards compatibility, use Properties instead.
         using Layout = Properties;
 
-        /// deprecated: use data->propertes = proerpties instead.
+        /// deprecated: use data->properties = properties instead.
         void setLayout(Layout layout)
         {
             VkFormat previous_format = properties.format; // temporary hack to keep applications that call setFormat(..) before setProperties(..) working
@@ -235,9 +235,9 @@ namespace vsg
             if (properties.format == 0 && previous_format != 0) properties.format = previous_format; // temporary hack to keep existing applications working
             if (properties.stride == 0 && previous_stride != 0) properties.stride = previous_stride; // make sure the layout as a valid stride.
         }
-        /// deprecated: use data->propertes
+        /// deprecated: use data->properties
         Layout& getLayout() { return properties; }
-        /// deprecated: use data->propertes
+        /// deprecated: use data->properties
         Layout getLayout() const { return properties; }
 #endif
     };

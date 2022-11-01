@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// CopyQueryPoolResults commands encapsules vkCmdCopyQueryPoolResults and associated settings
+    /// CopyQueryPoolResults commands encapsulates vkCmdCopyQueryPoolResults and associated settings
     class VSG_DECLSPEC CopyQueryPoolResults : public Inherit<Command, CopyQueryPoolResults>
     {
     public:

@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Draw command encapsulates vkCmdDraw call and associatesd settings
+    /// Draw command encapsulates vkCmdDraw call and associated settings
     class VSG_DECLSPEC Draw : public Inherit<Command, Draw>
     {
     public:

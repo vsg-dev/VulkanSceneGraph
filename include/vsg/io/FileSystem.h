@@ -28,8 +28,8 @@ namespace vsg
     /// get the specified environmental variable.
     extern VSG_DECLSPEC std::string getEnv(const char* env_var);
 
-    /// parse the specified environmental variable using platorm specific deliminator, returning list of Paths
-    /// deliminator used is ; under Windows, and : on all other platforms.
+    /// parse the specified environmental variable using platorm specific delimiter, returning list of Paths
+    /// delimiter used is ; under Windows, and : on all other platforms.
     extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
     /// parsing multiple environmental variables, parsing them to return a list of Paths.
@@ -66,7 +66,7 @@ namespace vsg
     /// return the full filename path if specified filename can be found in the list of paths.
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
 
-    /// return the full filename path path if specified filename can be found in the options->paths list.
+    /// return the full filename path if specified filename can be found in the options->paths list.
     /// If options is null and the filename can be found using it's existing path that filename is return, otherwise empty Path{} is returned.
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Options* options);
 

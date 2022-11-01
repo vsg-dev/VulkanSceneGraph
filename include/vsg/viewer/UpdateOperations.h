@@ -39,7 +39,7 @@ namespace vsg
         /// add updated operation
         virtual void add(ref_ptr<Operation> op, RunBehavior runBehavior = ONE_TIME);
 
-        /// clear all update operationrs
+        /// clear all update operations
         void clear();
 
         /// get a copy of all current one time updated operations

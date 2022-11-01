@@ -95,7 +95,7 @@ namespace vsg
         /// allocate or reuse a DescriptorSet::Implementation from the available DescriptorPool
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
-        /// reserve resources that may be needed during compile travversal..
+        /// reserve resources that may be needed during compile traversal..
         void reserve(const ResourceRequirements& requirements);
 
         // used by GraphicsPipeline.cpp

@@ -26,7 +26,7 @@ namespace vsg
 
         void set(bool flag) noexcept { _active.exchange(flag); }
 
-        /// return true if the caller should continue with current activity or false if they should be cancelled
+        /// return true if the caller should continue with current activity or false if they should be canceled
         bool active() const noexcept { return _active; }
 
         /// return true if the caller should cancel current activity

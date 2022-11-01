@@ -68,7 +68,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
             dsi->_descriptorPool = this;
             _reclingList.erase(itr);
             --_availableDescriptorSet;
-            // debug("DescriptorPool::allocateDescriptorSet(..) resusing ", dsi)   ;
+            // debug("DescriptorPool::allocateDescriptorSet(..) reusing ", dsi)   ;
             return dsi;
         }
     }

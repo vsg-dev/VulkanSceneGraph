@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// External provides a means to loading objects from external files, such as shaderws, textures or models
+    /// External provides a means to loading objects from external files, such as shaders, textures or models
     /// To use set up the External object with all the pairs of [filename, object] that should be managed externally
     /// then assign the External object, as use value, to root node of the scene graph that you wish to use external objects with
     /// so that when serializing the External object is initialized and external objects are loaded before they are

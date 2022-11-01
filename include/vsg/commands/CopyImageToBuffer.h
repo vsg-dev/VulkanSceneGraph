@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// CopyImageToBuffer commands encapsulates vkCmdCopyImageToBuffer and associted settings
+    /// CopyImageToBuffer commands encapsulates vkCmdCopyImageToBuffer and associated settings
     class VSG_DECLSPEC CopyImageToBuffer : public Inherit<Command, CopyImageToBuffer>
     {
     public:

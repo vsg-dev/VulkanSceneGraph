@@ -32,7 +32,7 @@ void UpdateOperations::add(ref_ptr<Operation> op, RunBehavior runBehavior)
         _updateOperationsAllFrames.push_back(op);
 }
 
-/// clear all update operationrs
+/// clear all update operations
 void UpdateOperations::clear()
 {
     std::scoped_lock<std::mutex> lock(_updateOperationMutex);

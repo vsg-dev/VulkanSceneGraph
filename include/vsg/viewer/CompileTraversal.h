@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// CompileTraversal traverses a scene graph invoke all the StateCommand/Command::compile(..) methods to create all Vulkan objects, allocated GPU memory and and transfer data to GPU.
+    /// CompileTraversal traverses a scene graph invoke all the StateCommand/Command::compile(..) methods to create all Vulkan objects, allocated GPU memory and transfer data to GPU.
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:
@@ -50,7 +50,7 @@ namespace vsg
         /// add a compile Context for Framebuffer and associated View
         void add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
 
-        /// add a compile Context for Wdinow and associated View
+        /// add a compile Context for Window and associated View
         void add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for all the Views assigned to a Viewer

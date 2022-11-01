@@ -21,7 +21,7 @@ namespace vsg
     // forward declare
     class DescriptorPool;
 
-    /// DescriptorSet encpasulates VkDescriptorSet and VkDescriptorSetAllocateInfo settings used to describe the Descriptors associated with the descriptor set.
+    /// DescriptorSet encapsulates VkDescriptorSet and VkDescriptorSetAllocateInfo settings used to describe the Descriptors associated with the descriptor set.
     class VSG_DECLSPEC DescriptorSet : public Inherit<Object, DescriptorSet>
     {
     public:
@@ -58,8 +58,8 @@ namespace vsg
         VkDescriptorSet vk(uint32_t deviceID) const;
 
     public:
-        /// Wrapper class for the managemnt of the Vulkan VkDescriptorSet handle.
-        //. This is an intnrnal implementation class that is only public to enable use within DescriptorPool and Context,
+        /// Wrapper class for the management of the Vulkan VkDescriptorSet handle.
+        //. This is an internal implementation class that is only public to enable use within DescriptorPool and Context,
         /// it is not intended to be used directly by VulkanSceneGraph users.
         class VSG_DECLSPEC Implementation : public Inherit<Object, Implementation>
         {
