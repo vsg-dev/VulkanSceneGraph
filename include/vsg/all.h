@@ -146,8 +146,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 
-// Traversal header files
-
 // Threading header files
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
