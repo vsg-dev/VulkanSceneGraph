@@ -17,6 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// Intersector is a base class for intersecting the scene graph.
+    /// The LineSegmentIntersector subclass adds support for line segment intersections.
     class VSG_DECLSPEC Intersector : public Inherit<ConstVisitor, Intersector>
     {
     public:
