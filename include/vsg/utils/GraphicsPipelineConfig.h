@@ -31,6 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// DescriptorConfig utility provides a means of setting up descriptors using ShaderSet as a guide for required layouts/bindings.
     class VSG_DECLSPEC DescriptorConfig : public vsg::Inherit<Object, DescriptorConfig>
     {
     public:
@@ -56,6 +57,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorConfig);
 
+    /// GraphicsPipelineConfig utility provides a means of setting up state and geometry using ShaderSet as a guide for required layouts/bindings.
     class VSG_DECLSPEC GraphicsPipelineConfig : public vsg::Inherit<Object, GraphicsPipelineConfig>
     {
     public:

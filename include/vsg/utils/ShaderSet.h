@@ -33,6 +33,7 @@ namespace vsg
 
         explicit operator bool() const noexcept { return !name.empty(); }
     };
+    VSG_type_name(vsg::AttributeBinding);
 
     struct VSG_DECLSPEC UniformBinding
     {
@@ -49,6 +50,7 @@ namespace vsg
 
         explicit operator bool() const noexcept { return !name.empty(); }
     };
+    VSG_type_name(vsg::UniformBinding);
 
     struct VSG_DECLSPEC PushConstantRange
     {
@@ -58,6 +60,7 @@ namespace vsg
 
         int compare(const PushConstantRange& rhs) const;
     };
+    VSG_type_name(vsg::PushConstantRange);
 
     struct VSG_DECLSPEC DefinesArrayState
     {
@@ -66,7 +69,9 @@ namespace vsg
 
         int compare(const DefinesArrayState& rhs) const;
     };
+    VSG_type_name(vsg::DefinesArrayState);
 
+    /// ShaderSet provides collection of shader related settings to provide a form of shader introspection.
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
     {
     public:

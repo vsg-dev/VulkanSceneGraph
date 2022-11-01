@@ -6,6 +6,11 @@
 
 namespace vsg
 {
+
+    /// ShaderCompiler integrates with GLSLang to provide shader compilation from GLSL shaders to SPIRV shaders usable by Vulkan.
+    /// To be able to compile GLSL the VulkanSceneGraph has to be compiled against GLSLang, you can check whether shader compilation
+    /// is supported via the VSG_SUPPORTS_ShaderCompiler #define provided in include/core/Version.h, if the value 1 then shader compilation
+    /// is support. You can also check the ShaderCompile::supported() method.
     class VSG_DECLSPEC ShaderCompiler : public Inherit<Visitor, ShaderCompiler>
     {
     public:
@@ -33,4 +38,6 @@ namespace vsg
     protected:
         bool _initialized = false;
     };
+    VSG_type_name(vsg::ShaderCompiler);
+
 } // namespace vsg
