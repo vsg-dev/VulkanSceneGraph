@@ -36,6 +36,7 @@ namespace vsg
             output.write("firstTask", firstTask);
         }
     };
+    VSG_type_name(vsg::DrawMeshTasksIndirectCommand);
 
     template<>
     constexpr bool has_read_write<DrawMeshTasksIndirectCommand>() { return true; }
