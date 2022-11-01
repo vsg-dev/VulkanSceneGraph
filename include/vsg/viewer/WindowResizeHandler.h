@@ -21,6 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// WindowResizeHandler event handler that tracks window size changes and
+    /// rescales Camera projection matrices and viewports to fit with the new window dimensions.
     class VSG_DECLSPEC WindowResizeHandler : public Inherit<Visitor, WindowResizeHandler>
     {
     public:

@@ -90,8 +90,8 @@ namespace vsg
     VSG_type_name(vsg::GeometryInfo);
 
     /// Builder class that creates sugraphs that can render primitive geometries.
-    /// Suppported shapes are Box, Capsule, Cone, Cylinder, Disk, Quad, Sphere and HeightField.
-    /// Uses GeometryInfo and StateInfo to guide the geometry possition/size and rendering state.
+    /// Supported shapes are Box, Capsule, Cone, Cylinder, Disk, Quad, Sphere and HeightField.
+    /// Uses GeometryInfo and StateInfo to guide the geometry position/size and rendering state.
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:
