@@ -73,6 +73,7 @@ set(SOURCES
     commands/EndQuery.cpp
     commands/CopyQueryPoolResults.cpp
     commands/ExecuteCommands.cpp
+    commands/CopyImageViewToWindow.cpp
 
     state/ArrayState.cpp
     state/BindDescriptorSet.cpp
@@ -157,7 +158,6 @@ set(SOURCES
     viewer/WindowAdapter.cpp
     viewer/WindowTraits.cpp
     viewer/Trackball.cpp
-    viewer/CopyImageViewToWindow.cpp
     viewer/CommandGraph.cpp
     viewer/SecondaryCommandGraph.cpp
     viewer/RenderGraph.cpp
