@@ -25,6 +25,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Viewer provides high level viewer functionality for managing windows, handling events and recording and submitting
+    /// command graphs for compute and rendering.
     class VSG_DECLSPEC Viewer : public Inherit<Object, Viewer>
     {
     public:

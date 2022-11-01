@@ -25,12 +25,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// Window base class provides a cross platform window
+    /// The Android_Window, iOS_Window, MacOS_Window, Xcb_Window and Win32_Window classes from Window provide
+    /// the platform specific implementations of Window that are create by Window::create(traits).
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
+        /// static Window::create(traits) method creates a platform specific Window instance based on specified window traits.
         static ref_ptr<Window> create(vsg::ref_ptr<WindowTraits> traits);
 
         virtual const char* instanceExtensionSurfaceName() const = 0;

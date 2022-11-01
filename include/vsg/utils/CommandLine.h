@@ -38,6 +38,8 @@ namespace vsg
     // forward declare
     class Options;
 
+    /// CommandLine provides a convenient way parse command line arguments.
+    /// Almost all examples in vsgExamples use vsg::CommandLine so look to them for a usage guide.
     class VSG_DECLSPEC CommandLine
     {
     public:

@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// CompileTraversal traverses a scene graph invoke all the StateCommand/Command::compile(..) methods to create all Vulkan objects, allocated GPU memory and and transfer data to GPU.
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:

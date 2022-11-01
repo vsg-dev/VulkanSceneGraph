@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// CopyImageViewToWindow command copies a source ImageView to a Window's curent imageView.
     class VSG_DECLSPEC CopyImageViewToWindow : public Inherit<Command, CopyImageViewToWindow>
     {
     public:
@@ -31,5 +32,6 @@ namespace vsg
 
         void record(CommandBuffer& commandBuffer) const override;
     };
+    VSG_type_name(vsg::CopyImageViewToWindow);
 
 } // namespace vsg

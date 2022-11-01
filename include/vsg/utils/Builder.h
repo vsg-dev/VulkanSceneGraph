@@ -20,6 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// StateInfo struct provides state related settings supported by Builder
     struct StateInfo
     {
         bool lighting = true;
@@ -36,6 +38,7 @@ namespace vsg
     };
     VSG_type_name(vsg::StateInfo);
 
+    /// GeometryInfo struct provides geometry related settings supported by Builder
     struct GeometryInfo
     {
         GeometryInfo() = default;
@@ -86,6 +89,9 @@ namespace vsg
     };
     VSG_type_name(vsg::GeometryInfo);
 
+    /// Builder class that creates sugraphs that can render primitive geometries.
+    /// Supported shapes are Box, Capsule, Cone, Cylinder, Disk, Quad, Sphere and HeightField.
+    /// Uses GeometryInfo and StateInfo to guide the geometry position/size and rendering state.
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:

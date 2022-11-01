@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// ComputeBounds traverses a scene graph computing an overall bounding box that encloses all the geometry in that scene graph.
     class VSG_DECLSPEC ComputeBounds : public Inherit<ConstVisitor, ComputeBounds>
     {
     public:

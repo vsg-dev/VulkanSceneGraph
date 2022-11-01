@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    VSG_type_name(vsg::TouchEvent);
+    /// TouchEvent is a base class touch events.
     class VSG_DECLSPEC TouchEvent : public Inherit<WindowEvent, TouchEvent>
     {
     public:
@@ -38,8 +38,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::TouchEvent);
 
-    VSG_type_name(vsg::TouchDownEvent);
+    /// TouchDownEvent represents a touch down event.
     class TouchDownEvent : public Inherit<TouchEvent, TouchDownEvent>
     {
     public:
@@ -48,8 +49,9 @@ namespace vsg
         TouchDownEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
+    VSG_type_name(vsg::TouchDownEvent);
 
-    VSG_type_name(vsg::TouchUpEvent);
+    /// TouchUpEvent represents a touch up event.
     class TouchUpEvent : public Inherit<TouchEvent, TouchUpEvent>
     {
     public:
@@ -58,8 +60,9 @@ namespace vsg
         TouchUpEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
+    VSG_type_name(vsg::TouchUpEvent);
 
-    VSG_type_name(vsg::TouchMoveEvent);
+    /// TouchMoveEvent represents a touch move event.
     class TouchMoveEvent : public Inherit<TouchEvent, TouchMoveEvent>
     {
     public:
@@ -68,5 +71,6 @@ namespace vsg
         TouchMoveEvent(Window* in_window, time_point in_time, uint32_t in_x, uint32_t in_y, uint32_t in_id) :
             Inherit(in_window, in_time, in_x, in_y, in_id) {}
     };
+    VSG_type_name(vsg::TouchMoveEvent);
 
 } // namespace vsg

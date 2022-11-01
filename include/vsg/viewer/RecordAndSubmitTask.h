@@ -25,7 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // RecordAndSubmitTask
+    /// RecordAndSubmitTask manages the recording of it's list of CommanGraph to CommandBuffer which are then submitted to associated vulkan Queue.
     class VSG_DECLSPEC RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:

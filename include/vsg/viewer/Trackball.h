@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+
+    /// Trackball is an event handler that provides mouse and touch controlled 3d trackball camera view manipulation.
     class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
     {
     public:
@@ -127,5 +129,6 @@ namespace vsg
 
         double _animationDuration = 0.0;
     };
+    VSG_type_name(vsg::Trackball);
 
 } // namespace vsg

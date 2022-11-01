@@ -21,6 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// AnimationPath class provides a container of path control points and
+    /// animation via using the computeMatrix()/computeLocation() methods.
     class VSG_DECLSPEC AnimationPath : public Inherit<Object, AnimationPath>
     {
     public:
@@ -56,6 +58,8 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationPath);
 
+    /// AnimationPathHandler event handler animates Camera or MatrixTransform along an AnimationPath.
+    /// To automatically update attach the AnimationPathHandler to the viewer using Viewer::addEventHandler().
     class VSG_DECLSPEC AnimationPathHandler : public Inherit<Visitor, AnimationPathHandler>
     {
     public:

@@ -223,7 +223,6 @@ namespace vsg
 
 #if 1
     public:
-
         /// deprecated: provided for backwards compatibility, use Properties instead.
         using Layout = Properties;
 

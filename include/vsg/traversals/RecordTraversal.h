@@ -54,6 +54,7 @@ namespace vsg
 
     VSG_type_name(vsg::RecordTraversal);
 
+    /// RecordTraversal traverses a scene graph doing view frustum culling and invoking state/commands to record them to Vulkan command buffer
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
