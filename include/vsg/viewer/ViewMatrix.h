@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// ViewMatrix is a base class for specify the Camera view matrix and it's inverse.
+    /// ViewMatrix is a base class for specifying the Camera view matrix and it's inverse.
     class VSG_DECLSPEC ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:
@@ -31,7 +31,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewMatrix);
 
-    /// LookAt is a ViewMatrix that implements gluLookAt style model for specify the view matrix.
+    /// LookAt is a ViewMatrix that implements gluLookAt model for specify the view matrix.
     class VSG_DECLSPEC LookAt : public Inherit<ViewMatrix, LookAt>
     {
     public:

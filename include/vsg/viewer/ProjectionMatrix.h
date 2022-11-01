@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // Base class for projection matrices
+    /// ProjectionMatrix is a base class for specifying the Camera projection matrix and it's inverse.
     class VSG_DECLSPEC ProjectionMatrix : public Inherit<Object, ProjectionMatrix>
     {
     public:
@@ -36,6 +36,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ProjectionMatrix);
 
+    /// Perspective is a ProjectionMatrix that implements gluPerspective model for setting projection matrix.
     class VSG_DECLSPEC Perspective : public Inherit<ProjectionMatrix, Perspective>
     {
     public:
@@ -72,6 +73,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Perspective);
 
+    /// Orthographic is a ProjectionMatrix that implements glOtho model for setting projection matrix.
     class Orthographic : public Inherit<ProjectionMatrix, Orthographic>
     {
     public:
@@ -114,6 +116,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Orthographic);
 
+    /// RelativeViewMatrix is a ProjectionMatrix that decorates another ProjectionMatrix and premulitplies it's transform matrix to give a relative projection matrix.
     class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
     {
     public:
@@ -140,6 +143,8 @@ namespace vsg
     };
     VSG_type_name(vsg::RelativeProjection);
 
+    /// EllipsoidPerspective is a ProjectionMatrix that implements gluPerspective model for setting projection matrix,
+    /// with automatic clampping of the near/far to an ellispoidModel, typically used for rendering whole eath models.
     class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {
     public:
