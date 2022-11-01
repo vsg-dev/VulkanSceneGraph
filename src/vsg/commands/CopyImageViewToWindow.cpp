@@ -11,10 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/CopyImage.h>
+#include <vsg/commands/CopyImageViewToWindow.h>
 #include <vsg/commands/PipelineBarrier.h>
-
 #include <vsg/io/Options.h>
-#include <vsg/viewer/CopyImageViewToWindow.h>
 
 using namespace vsg;
 
