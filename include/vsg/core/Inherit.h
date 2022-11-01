@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 
-#include <vsg/traversals/RecordTraversal.h>
+#include <vsg/viewer/RecordTraversal.h>
 
 namespace vsg
 {

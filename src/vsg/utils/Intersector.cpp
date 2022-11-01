@@ -24,7 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Transform.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/traversals/Intersector.h>
+#include <vsg/utils/Intersector.h>
 
 using namespace vsg;
 

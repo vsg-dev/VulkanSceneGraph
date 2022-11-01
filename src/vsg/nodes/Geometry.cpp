@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/nodes/Geometry.h>
-#include <vsg/traversals/RecordTraversal.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 

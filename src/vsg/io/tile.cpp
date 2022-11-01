@@ -32,8 +32,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
-#include <vsg/traversals/ComputeBounds.h>
 #include <vsg/ui/UIEvent.h>
+#include <vsg/utils/ComputeBounds.h>
 #include <vsg/vk/ResourceRequirements.h>
 
 #include "shaders/simple_tile_frag.cpp"

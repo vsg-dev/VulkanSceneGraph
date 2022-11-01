@@ -146,14 +146,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 
-// Traversal header files
-#include <vsg/traversals/CompileTraversal.h>
-#include <vsg/traversals/ComputeBounds.h>
-#include <vsg/traversals/Intersector.h>
-#include <vsg/traversals/LineSegmentIntersector.h>
-#include <vsg/traversals/LoadPagedLOD.h>
-#include <vsg/traversals/RecordTraversal.h>
-
 // Threading header files
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
@@ -184,10 +176,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/viewer/CloseHandler.h>
 #include <vsg/viewer/CommandGraph.h>
 #include <vsg/viewer/CompileManager.h>
+#include <vsg/viewer/CompileTraversal.h>
 #include <vsg/viewer/EllipsoidModel.h>
 #include <vsg/viewer/Presentation.h>
 #include <vsg/viewer/ProjectionMatrix.h>
 #include <vsg/viewer/RecordAndSubmitTask.h>
+#include <vsg/viewer/RecordTraversal.h>
 #include <vsg/viewer/RenderGraph.h>
 #include <vsg/viewer/SecondaryCommandGraph.h>
 #include <vsg/viewer/Trackball.h>
@@ -256,7 +250,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/ComputeBounds.h>
 #include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/Intersector.h>
+#include <vsg/utils/LineSegmentIntersector.h>
+#include <vsg/utils/LoadPagedLOD.h>
 #include <vsg/utils/ShaderCompiler.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>

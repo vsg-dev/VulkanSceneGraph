@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/state/ShaderModule.h>
-#include <vsg/traversals/CompileTraversal.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 

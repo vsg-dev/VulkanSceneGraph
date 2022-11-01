@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/TextGroup.h>
-#include <vsg/traversals/ComputeBounds.h>
+#include <vsg/utils/ComputeBounds.h>
 
 using namespace vsg;
 

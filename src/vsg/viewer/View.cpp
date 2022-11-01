@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
-#include <vsg/traversals/RecordTraversal.h>
 #include <vsg/viewer/View.h>
 
 using namespace vsg;

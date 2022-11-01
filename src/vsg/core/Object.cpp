@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
 
-#include <vsg/traversals/RecordTraversal.h>
-
 #include <vsg/io/Input.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
