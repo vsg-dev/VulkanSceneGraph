@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    VSG_type_name(vsg::WindowEvent);
+    /// WindowEvent is the base class for events related to a window.
     class VSG_DECLSPEC WindowEvent : public Inherit<UIEvent, WindowEvent>
     {
     public:
@@ -34,8 +34,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::WindowEvent);
 
-    VSG_type_name(vsg::ExposeWindowEvent);
+    /// ExposeWindowEvent represents a window expose event.
     class VSG_DECLSPEC ExposeWindowEvent : public Inherit<WindowEvent, ExposeWindowEvent>
     {
     public:
@@ -56,8 +57,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::ExposeWindowEvent);
 
-    VSG_type_name(vsg::ConfigureWindowEvent);
+    /// ExposeWindowEvent represents a window configure event - such as changes to the size of the window.
     class VSG_DECLSPEC ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
     {
     public:
@@ -78,8 +80,9 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::ConfigureWindowEvent);
 
-    VSG_type_name(vsg::CloseWindowEvent);
+    /// CloseWindowEvent represents a window close event.
     class CloseWindowEvent : public Inherit<WindowEvent, CloseWindowEvent>
     {
     public:
@@ -88,5 +91,6 @@ namespace vsg
         CloseWindowEvent(Window* in_window, time_point in_time) :
             Inherit(in_window, in_time) {}
     };
+    VSG_type_name(vsg::CloseWindowEvent);
 
 } // namespace vsg

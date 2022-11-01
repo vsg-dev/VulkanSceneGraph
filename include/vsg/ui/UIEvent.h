@@ -23,7 +23,7 @@ namespace vsg
     using clock = std::chrono::steady_clock;
     using time_point = clock::time_point;
 
-    VSG_type_name(vsg::UIEvent);
+    /// UIEvent is a base class for user interface events
     class VSG_DECLSPEC UIEvent : public Inherit<Object, UIEvent>
     {
     public:
@@ -38,6 +38,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
+    VSG_type_name(vsg::UIEvent);
 
     using UIEvents = std::list<ref_ptr<UIEvent>>;
     using EventHandlers = std::list<vsg::ref_ptr<vsg::Visitor>>;

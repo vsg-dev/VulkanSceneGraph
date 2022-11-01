@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// PlayEvents replays events.
+    /// See vsginput example to see how it's used.
     class VSG_DECLSPEC PlayEvents : public vsg::Inherit<vsg::Visitor, PlayEvents>
     {
     public:
@@ -37,12 +39,10 @@ namespace vsg
         bool dispatchFrameEvents(vsg::UIEvents& viewer_events);
 
         void apply(vsg::UIEvent& event) override;
-
         void apply(vsg::FrameEvent& event) override;
-
         void apply(vsg::ConfigureWindowEvent& event) override;
-
         void apply(vsg::ExposeWindowEvent& event) override;
     };
+    VSG_type_name(vsg::PlayEvents);
 
 } // namespace vsg

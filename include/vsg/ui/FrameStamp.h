@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// FrameStamp respresents the time and frame count of a specific frame.
     class VSG_DECLSPEC FrameStamp : public Inherit<Object, FrameStamp>
     {
     public:

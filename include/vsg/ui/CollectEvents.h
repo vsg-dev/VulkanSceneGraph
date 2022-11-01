@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// CollectEvents is a visitor that collects ui events into a list of events.
     class VSG_DECLSPEC CollectEvents : public vsg::Inherit<vsg::Visitor, CollectEvents>
     {
     public:
@@ -27,5 +28,6 @@ namespace vsg
         void apply(vsg::Object& object) override;
         void apply(vsg::UIEvent& event) override;
     };
+    VSG_type_name(vsg::CollectEvents);
 
 } // namespace vsg
