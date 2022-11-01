@@ -30,8 +30,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/threading/atomics.h>
-#include <vsg/traversals/RecordTraversal.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/viewer/RecordTraversal.h>
 #include <vsg/viewer/View.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/RenderPass.h>

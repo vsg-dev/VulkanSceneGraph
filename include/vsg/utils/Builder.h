@@ -14,9 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/box.h>
 #include <vsg/maths/sphere.h>
-#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
+#include <vsg/viewer/CompileTraversal.h>
 
 namespace vsg
 {

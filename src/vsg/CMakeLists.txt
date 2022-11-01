@@ -140,12 +140,6 @@ set(SOURCES
     text/Text.cpp
     text/TextGroup.cpp
 
-    traversals/RecordTraversal.cpp
-    traversals/CompileTraversal.cpp
-    traversals/ComputeBounds.cpp
-    traversals/Intersector.cpp
-    traversals/LineSegmentIntersector.cpp
-    traversals/LoadPagedLOD.cpp
 
     threading/Affinity.cpp
     threading/OperationThreads.cpp
@@ -169,6 +163,8 @@ set(SOURCES
     viewer/ViewMatrix.cpp
     viewer/ProjectionMatrix.cpp
     viewer/UpdateOperations.cpp
+    viewer/RecordTraversal.cpp
+    viewer/CompileTraversal.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp
@@ -224,6 +220,10 @@ set(SOURCES
     utils/ShaderSet.cpp
     utils/GraphicsPipelineConfig.cpp
     utils/ShaderCompiler.cpp
+    utils/ComputeBounds.cpp
+    utils/Intersector.cpp
+    utils/LineSegmentIntersector.cpp
+    utils/LoadPagedLOD.cpp
 )
 
 # add platform specific Window implementation

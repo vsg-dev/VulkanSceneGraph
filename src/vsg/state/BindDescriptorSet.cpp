@@ -14,9 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/BindDescriptorSet.h>
-#include <vsg/traversals/CompileTraversal.h>
 #include <vsg/viewer/View.h>
-#include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
