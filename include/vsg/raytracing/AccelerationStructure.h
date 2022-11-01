@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// AccelerationStructure is a base class for top/bottom level acceleration structure classes.
     class VSG_DECLSPEC AccelerationStructure : public Inherit<Object, AccelerationStructure>
     {
     public:
