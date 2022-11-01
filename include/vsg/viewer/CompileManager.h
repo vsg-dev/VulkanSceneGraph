@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// CompileResult struct encapsulates the results of compile traversal.
+    /// Used to help guide further operations done with the compiled subgraph.
     struct CompileResult
     {
         VkResult result = VK_INCOMPLETE;
@@ -30,6 +32,7 @@ namespace vsg
         explicit operator bool() const noexcept { return result == VK_SUCCESS; }
     };
 
+    /// ComppileManager is a helper class that compiles subgraphs for the window/framebuffer associated with the CompileManager.
     class VSG_DECLSPEC CompileManager : public Inherit<Object, CompileManager>
     {
     public:

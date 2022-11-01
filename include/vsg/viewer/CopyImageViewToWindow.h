@@ -32,6 +32,6 @@ namespace vsg
 
         void record(CommandBuffer& commandBuffer) const override;
     };
-    VSG_type_name(vsg::CompileManager);
+    VSG_type_name(vsg::CopyImageViewToWindow);
 
 } // namespace vsg
