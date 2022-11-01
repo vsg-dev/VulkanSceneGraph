@@ -256,7 +256,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     auto aspectMask = imageInfo.imageView->subresourceRange.aspectMask;
     VkImageLayout targetImageLayout = imageInfo.imageLayout;
 
-    auto layout = data->getLayout();
+    auto properties = data->properties;
     auto width = data->width();
     auto height = data->height();
     auto depth = data->depth();
@@ -268,7 +268,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     log(level, "ImageInfo needs copying ", data, ", mipLevels = ", mipLevels);
 
     // copy data.
-    VkFormat sourceFormat = data->getLayout().format;
+    VkFormat sourceFormat = data->properties.format;
     VkFormat targetFormat = imageInfo.imageView->format;
     if (sourceFormat == targetFormat)
     {
@@ -290,8 +290,8 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
         {
             VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
 
-            layout.format = targetFormat;
-            layout.stride = targetTraits.size;
+            properties.format = targetFormat;
+            properties.stride = targetTraits.size;
 
             log(level, "    sourceTraits.size and targetTraits.size not compatible. dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
 
@@ -356,11 +356,11 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
         break;
     }
 
-    uint32_t destWidth = faceWidth * layout.blockWidth;
-    uint32_t destHeight = faceHeight * layout.blockHeight;
-    uint32_t destDepth = faceDepth * layout.blockDepth;
+    uint32_t destWidth = faceWidth * properties.blockWidth;
+    uint32_t destHeight = faceHeight * properties.blockHeight;
+    uint32_t destDepth = faceDepth * properties.blockDepth;
 
-    const auto valueSize = layout.stride; // data->valueSize();
+    const auto valueSize = properties.stride; // data->valueSize();
 
     bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
     bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
@@ -370,7 +370,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     if (generatMipmaps)
     {
         VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), layout.format, &props);
+        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), properties.format, &props);
         const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
 
         if (!isBlitPossible)

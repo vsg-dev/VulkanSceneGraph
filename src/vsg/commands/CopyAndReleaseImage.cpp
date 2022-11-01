@@ -34,7 +34,7 @@ CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageIn
 {
     if (source->data)
     {
-        layout = source->data->getLayout();
+        layout = source->data->properties;
         width = source->data->width();
         height = source->data->height();
         depth = source->data->depth();
@@ -68,7 +68,7 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint
     if (!data) return;
     if (!stagingMemoryBufferPools) return;
 
-    VkFormat sourceFormat = data->getLayout().format;
+    VkFormat sourceFormat = data->properties.format;
     VkFormat targetFormat = dest->imageView->format;
 
     if (sourceFormat == targetFormat)

@@ -400,7 +400,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     float sCoordScale = 1.0f / float(numCols - 1);
     float tCoordScale = 1.0f / float(numRows - 1);
     float tCoordOrigin = 0.0;
-    if (textureData->getLayout().origin == vsg::TOP_LEFT)
+    if (textureData->properties.origin == vsg::TOP_LEFT)
     {
         tCoordScale = -tCoordScale;
         tCoordOrigin = 1.0f;
@@ -496,7 +496,7 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
          {1.0f, 1.0f, 1.0f},
          {1.0f, 1.0f, 1.0f}}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-    uint8_t origin = textureData->getLayout().origin; // in Vulkan the origin is by default top left.
+    uint8_t origin = textureData->properties.origin; // in Vulkan the origin is by default top left.
     float left = 0.0f;
     float right = 1.0f;
     float top = (origin == vsg::TOP_LEFT) ? 0.0f : 1.0f;

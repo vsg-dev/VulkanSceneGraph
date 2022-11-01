@@ -36,7 +36,7 @@ namespace vsg
 
             uint32_t mipLevels = 1;
 
-            Data::Layout layout;
+            Data::Properties layout;
             uint32_t width = 0;
             uint32_t height = 0;
             uint32_t depth = 0;

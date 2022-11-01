@@ -134,13 +134,13 @@ bool GraphicsPipelineConfig::assignArray(DataList& arrays, const std::string& na
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
     {
-        VkFormat format = array ? array->getLayout().format : VK_FORMAT_UNDEFINED;
+        VkFormat format = array ? array->properties.format : VK_FORMAT_UNDEFINED;
 
         // set up bindings
         uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(arrays.size());
         if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
         vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
-        vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, array->getLayout().stride, vertexInputRate});
+        vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, array->properties.stride, vertexInputRate});
 
         arrays.push_back(array);
         return true;

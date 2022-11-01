@@ -171,8 +171,8 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
 vec3 Builder::y_texcoord(const StateInfo& info) const
 {
 
-    if ((info.image && info.image->getLayout().origin == Origin::TOP_LEFT) ||
-        (info.displacementMap && info.displacementMap->getLayout().origin == Origin::TOP_LEFT))
+    if ((info.image && info.image->properties.origin == Origin::TOP_LEFT) ||
+        (info.displacementMap && info.displacementMap->properties.origin == Origin::TOP_LEFT))
     {
         return {1.0f, -1.0f, 0.0f};
     }

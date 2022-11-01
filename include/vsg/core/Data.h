@@ -103,10 +103,10 @@ namespace vsg
     class VSG_DECLSPEC Data : public Object
     {
     public:
-        /* Layout used for specifying the format of the data, use of mipmaps, block compressed data and origin.
+        /* Properties used for specifying the format of the data, use of mipmaps, block compressed data and origin.
          * Default of no mipmapping and {1,1,1} is uncompressed.
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
-        struct Layout
+        struct Properties
         {
             VkFormat format = VK_FORMAT_UNDEFINED;
             uint32_t stride = 0;
@@ -119,7 +119,7 @@ namespace vsg
             DataVariance dataVariance = STATIC_DATA; /// hint as how the data values may change during the lifetime of the vsg::Data.
             AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;
 
-            int compare(const Layout& rhs) const
+            int compare(const Properties& rhs) const
             {
                 return compare_region(format, allocatorType, rhs.format);
             }
@@ -127,13 +127,13 @@ namespace vsg
 
         Data() {}
 
-        explicit Data(Layout layout) :
-            _layout(layout) {}
+        explicit Data(Properties layout) :
+            properties(layout) {}
 
-        Data(Layout layout, uint32_t min_stride) :
-            _layout(layout)
+        Data(Properties layout, uint32_t min_stride) :
+            properties(layout)
         {
-            if (_layout.stride < min_stride) _layout.stride = min_stride;
+            if (properties.stride < min_stride) properties.stride = min_stride;
         }
 
         /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_DATA
@@ -150,7 +150,7 @@ namespace vsg
 
             auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-            if ((result = _layout.compare(rhs._layout))) return result;
+            if ((result = properties.compare(rhs.properties))) return result;
 
             // the shorter data is less
             if (dataSize() < rhs.dataSize()) return -1;
@@ -166,23 +166,10 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        /** Set Layout */
-        void setLayout(Layout layout)
-        {
-            VkFormat previous_format = _layout.format; // temporary hack to keep applications that call setFormat(..) before setLayout(..) working
-            uint32_t previous_stride = _layout.stride;
-            _layout = layout;
-            if (_layout.format == 0 && previous_format != 0) _layout.format = previous_format; // temporary hack to keep existing applications working
-            if (_layout.stride == 0 && previous_stride != 0) _layout.stride = previous_stride; // make sure the layout as a valid stride.
-        }
+        /// properties of the data such as format, origin, stride, dataVariance etc.
+        Properties properties;
 
-        /** Get the Layout.*/
-        Layout& getLayout() { return _layout; }
-
-        /** Get the Layout.*/
-        Layout getLayout() const { return _layout; }
-
-        bool dynamic() const { return _layout.dataVariance >= DYNAMIC_DATA; }
+        bool dynamic() const { return properties.dataVariance >= DYNAMIC_DATA; }
 
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
@@ -203,9 +190,9 @@ namespace vsg
         virtual std::uint32_t height() const = 0;
         virtual std::uint32_t depth() const = 0;
 
-        bool contiguous() const { return valueSize() == _layout.stride; }
+        bool contiguous() const { return valueSize() == properties.stride; }
 
-        uint32_t stride() const { return _layout.stride ? _layout.stride : static_cast<uint32_t>(valueSize()); }
+        uint32_t stride() const { return properties.stride ? properties.stride : static_cast<uint32_t>(valueSize()); }
 
         using MipmapOffsets = std::vector<std::size_t>;
         MipmapOffsets computeMipmapOffsets() const;
@@ -232,8 +219,28 @@ namespace vsg
     protected:
         virtual ~Data() {}
 
-        Layout _layout;
         ModifiedCount _modifiedCount;
+
+#if 1
+    public:
+
+        /// deprecated: provided for backwards compatibility, use Properties instead.
+        using Layout = Properties;
+
+        /// deprecated: use data->propertes = proerpties instead.
+        void setLayout(Layout layout)
+        {
+            VkFormat previous_format = properties.format; // temporary hack to keep applications that call setFormat(..) before setProperties(..) working
+            uint32_t previous_stride = properties.stride;
+            properties = layout;
+            if (properties.format == 0 && previous_format != 0) properties.format = previous_format; // temporary hack to keep existing applications working
+            if (properties.stride == 0 && previous_stride != 0) properties.stride = previous_stride; // make sure the layout as a valid stride.
+        }
+        /// deprecated: use data->propertes
+        Layout& getLayout() { return properties; }
+        /// deprecated: use data->propertes
+        Layout getLayout() const { return properties; }
+#endif
     };
     VSG_type_name(vsg::Data);
 
