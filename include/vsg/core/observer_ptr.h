@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// weak smart pointer that works in conjection with vsg::ref_ptr<> and vsg::Object/vsg::Auxiliary to
+    /// weak smart pointer that works in conjunction with vsg::ref_ptr<> and vsg::Object/vsg::Auxiliary to
     /// provide broadly similar functionality to std::weak_ptr<>.
     template<class T>
     class observer_ptr

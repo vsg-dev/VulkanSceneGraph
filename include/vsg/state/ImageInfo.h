@@ -106,7 +106,7 @@ namespace vsg
     /// return the traits suitable for specified VkFDormat.
     extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
 
-    /// reuten the number of mip map levels specified by Data/Sampler.
+    /// return the number of mip map levels specified by Data/Sampler.
     extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
 
 } // namespace vsg

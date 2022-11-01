@@ -20,7 +20,7 @@ namespace vsg
     // forward declare
     class ExecuteCommands;
 
-    /// SecondaryCommandGraph is a specializatin of CommandGraph that provdide Vulkan secondary command buffer support.
+    /// SecondaryCommandGraph is a specialization of CommandGraph that provides Vulkan secondary command buffer support.
     class VSG_DECLSPEC SecondaryCommandGraph : public Inherit<CommandGraph, SecondaryCommandGraph>
     {
     public:

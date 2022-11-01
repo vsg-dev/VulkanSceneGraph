@@ -20,7 +20,7 @@ namespace vsg
 {
 
     /// ReadError object is returned by ReaderWriter::read(..)/vsg::read(..) calls for cases where files can be read by a ReaderWriter
-    /// but an error in reading has occcurred
+    /// but an error in reading has occurred
     struct ReadError : public Inherit<Object, ReadError>
     {
         explicit ReadError(const std::string& msg) :
@@ -64,7 +64,7 @@ namespace vsg
         /// read object from file, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.
         virtual vsg::ref_ptr<vsg::Object> read(const vsg::Path& /*filename*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
 
-        /// read object from input sream, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.
+        /// read object from input stream, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.
         virtual vsg::ref_ptr<vsg::Object> read(std::istream& /*fin*/, vsg::ref_ptr<const vsg::Options> = {}) const { return vsg::ref_ptr<vsg::Object>(); }
 
         /// read object from memory block, return object on success, return null ref_ptr<> if format not supported, or return ReadError on failure.

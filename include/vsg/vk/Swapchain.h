@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// struct for holding available swapchain capabiilties available on device
+    /// struct for holding available swapchain capabilities available on device
     struct SwapChainSupportDetails
     {
         VkSurfaceCapabilitiesKHR capabilities;
@@ -40,7 +40,7 @@ namespace vsg
         VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     };
 
-    /// Swapchain encpasulates vkSwapchainKHR
+    /// Swapchain encapsulates vkSwapchainKHR
     class VSG_DECLSPEC Swapchain : public Inherit<Object, Swapchain>
     {
     public:

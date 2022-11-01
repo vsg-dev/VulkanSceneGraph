@@ -21,7 +21,7 @@ namespace vsg
       * provided by the TextGroup node, any local Text entries for these are discarded. The individual Text's are
       * positioned by their local TextLayout.TextGroup does not provide view frustum culling or level of detail, but you
       * can add this if require it by decorating the TextGroup with a CullNode/LOD and after TextGroup::setup() is called
-      * to initialize the rendering compomemt you can use the TextGroup->technique->extents() value to help set the
+      * to initialize the rendering component you can use the TextGroup->technique->extents() value to help set the
       * CullNode/LOD.bounds value.*/
     class VSG_DECLSPEC TextGroup : public vsg::Inherit<vsg::Node, TextGroup>
     {

@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// BuildAccelerationStructureTraversal is helper class for traversal of a scene graph to reuired accerelation structures.
+    /// BuildAccelerationStructureTraversal is helper class for traversal of a scene graph to required acceleration structures.
     class VSG_DECLSPEC BuildAccelerationStructureTraversal : public Visitor
     {
     public:

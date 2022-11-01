@@ -93,7 +93,7 @@ namespace vsg
     };
     VSG_type_name(vsg::LookAt);
 
-    /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and premulitplies it's transform matrix to give a relative view matrix.
+    /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and pre-multiplies it's transform matrix to give a relative view matrix.
     class RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
     {
     public:
@@ -115,8 +115,8 @@ namespace vsg
     VSG_type_name(vsg::RelativeViewMatrix);
 
     /// TrackingViewMatrix is a ViewMatrix that tracks an object in the scene graph.
-    /// The view matrix is computed by accumulating the transform matrix encourated
-    /// along a objectPath and then premultilying this by specified matrix.
+    /// The view matrix is computed by accumulating the transform matrix encountered
+    /// along a objectPath and then pre-multiplying this by specified matrix.
     class VSG_DECLSPEC TrackingViewMatrix : public Inherit<ViewMatrix, TrackingViewMatrix>
     {
     public:

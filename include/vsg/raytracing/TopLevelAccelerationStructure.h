@@ -79,7 +79,7 @@ namespace vsg
 
     using GeometryInstances = std::vector<ref_ptr<GeometryInstance>>;
 
-    /// TopLevelAccelerationStructure encpasulates the set up of the top level acceleration structure containing an array of VkGeometryInstance
+    /// TopLevelAccelerationStructure encapsulates the set up of the top level acceleration structure containing an array of VkGeometryInstance
     class VSG_DECLSPEC TopLevelAccelerationStructure : public Inherit<AccelerationStructure, TopLevelAccelerationStructure>
     {
     public:
