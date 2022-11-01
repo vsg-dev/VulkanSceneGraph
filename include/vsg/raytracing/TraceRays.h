@@ -34,5 +34,6 @@ namespace vsg
         uint32_t height = 0;
         uint32_t depth = 0;
     };
+    VSG_type_name(vsg::TraceRays);
 
 } // namespace vsg

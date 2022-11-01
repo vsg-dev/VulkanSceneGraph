@@ -52,5 +52,6 @@ namespace vsg
         std::map<VertexIndexDraw*, ref_ptr<BottomLevelAccelerationStructure>> _vertexIndexDrawBlasMap;
         std::map<Geometry*, ref_ptr<BottomLevelAccelerationStructure>> _geometryBlasMap;
     };
+    VSG_type_name(vsg::BuildAccelerationStructureTraversal);
 
 } // namespace vsg

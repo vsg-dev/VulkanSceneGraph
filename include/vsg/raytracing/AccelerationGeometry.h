@@ -43,6 +43,7 @@ namespace vsg
         ref_ptr<BufferInfo> _indexBuffer;
         VkAccelerationStructureGeometryKHR _geometry;
     };
+    VSG_type_name(vsg::AccelerationGeometry);
 
     using AccelerationGeometries = std::vector<ref_ptr<AccelerationGeometry>>;
 

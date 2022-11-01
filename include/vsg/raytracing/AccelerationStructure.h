@@ -49,6 +49,7 @@ namespace vsg
 
         ref_ptr<Device> _device;
     };
+    VSG_type_name(vsg::AccelerationStructure);
 
     using AccelerationStructures = std::vector<ref_ptr<AccelerationStructure>>;
 

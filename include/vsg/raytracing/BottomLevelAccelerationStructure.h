@@ -31,5 +31,6 @@ namespace vsg
         // compiled data
         std::vector<VkAccelerationStructureGeometryKHR> _vkGeometries;
     };
+    VSG_type_name(vsg::BottomLevelAccelerationStructure);
 
 } // namespace vsg

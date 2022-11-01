@@ -74,6 +74,8 @@ namespace vsg
         uint32_t flags;
         ref_ptr<BottomLevelAccelerationStructure> accelerationStructure;
     };
+    VSG_type_name(vsg::GeometryInstance);
+
     using GeometryInstances = std::vector<ref_ptr<GeometryInstance>>;
 
     class VSG_DECLSPEC TopLevelAccelerationStructure : public Inherit<AccelerationStructure, TopLevelAccelerationStructure>
@@ -90,5 +92,6 @@ namespace vsg
         ref_ptr<VkGeometryInstanceArray> _instances;
         ref_ptr<Buffer> _instanceBuffer;
     };
+    VSG_type_name(vsg::TopLevelAccelerationStructure);
 
 } // namespace vsg
