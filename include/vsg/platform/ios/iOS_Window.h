@@ -27,6 +27,7 @@ namespace vsgiOS
 {
     extern vsg::Names getInstanceExtensions();
 
+    /// KeyboardMap maps iOS keyboard events to vsg::KeySymbol
     class KeyboardMap : public vsg::Object
     {
     public:
@@ -41,6 +42,7 @@ namespace vsgiOS
     };
 
 
+    /// iOS_Window implements iOS specific window creation, event handling and vulkan Surface setup.
     class iOS_Window : public vsg::Inherit<vsg::Window, iOS_Window>
     {
     public:

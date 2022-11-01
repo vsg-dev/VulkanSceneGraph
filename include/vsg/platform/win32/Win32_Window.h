@@ -120,6 +120,7 @@ namespace vsgWin32
     }
 
 
+    /// Win32_Window implements Win32 specific window creation, event handling and vulkan Surface setup.
     class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
     public:

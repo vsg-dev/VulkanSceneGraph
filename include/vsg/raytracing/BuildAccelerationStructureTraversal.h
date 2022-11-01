@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// BuildAccelerationStructureTraversal is helper class for traversal of a scene graph to reuired accerelation structures.
     class VSG_DECLSPEC BuildAccelerationStructureTraversal : public Visitor
     {
     public:
@@ -52,5 +53,6 @@ namespace vsg
         std::map<VertexIndexDraw*, ref_ptr<BottomLevelAccelerationStructure>> _vertexIndexDrawBlasMap;
         std::map<Geometry*, ref_ptr<BottomLevelAccelerationStructure>> _geometryBlasMap;
     };
+    VSG_type_name(vsg::BuildAccelerationStructureTraversal);
 
 } // namespace vsg

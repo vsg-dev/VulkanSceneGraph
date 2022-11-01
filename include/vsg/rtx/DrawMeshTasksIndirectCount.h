@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// DrawMeshTasksIndirectCount command encapsulates vkCmdDrawMeshTasksIndirectCountNV call and associated parameters.
     class VSG_DECLSPEC DrawMeshTasksIndirectCount : public Inherit<Command, DrawMeshTasksIndirectCount>
     {
     public:

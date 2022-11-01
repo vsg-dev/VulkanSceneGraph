@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // DrawMeshTasks command encapsulates vkCmdDrawMeshTasksNV call and associated parameters.
     class VSG_DECLSPEC DrawMeshTasks : public Inherit<Command, DrawMeshTasks>
     {
     public:

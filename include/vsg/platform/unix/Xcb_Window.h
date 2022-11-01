@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsgXcb
 {
 
+    /// KeyboardMap maps Xcb keyboard events to vsg::KeySymbol
     class KeyboardMap : public vsg::Object
     {
     public:
@@ -42,12 +43,14 @@ namespace vsgXcb
     };
 
 
+    ///  Xcb_Surface implements XcbSurface creation.
     class Xcb_Surface : public vsg::Surface
     {
     public:
         Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, xcb_window_t window);
     };
 
+    /// Xcb_Window implements Xcb specific window creation, event handling and vulkan Surface setup.
     class Xcb_Window : public vsg::Inherit<vsg::Window, Xcb_Window>
     {
     public:

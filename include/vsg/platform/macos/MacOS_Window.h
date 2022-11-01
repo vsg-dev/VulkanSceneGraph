@@ -26,6 +26,7 @@ namespace vsgMacOS
 {
     extern vsg::Names getInstanceExtensions();
 
+    /// KeyboardMap maps macOS keyboard events to vsg::KeySymbol
     class KeyboardMap : public vsg::Object
     {
     public:
@@ -39,7 +40,7 @@ namespace vsgMacOS
         kVKKeyCodeToKeySymbolMap _keycodeMap;
     };
 
-
+    /// MacOS_Window implements macOS specific window creation, event handling and vulkan Surface setup.
     class MacOS_Window : public vsg::Inherit<vsg::Window, MacOS_Window>
     {
     public:

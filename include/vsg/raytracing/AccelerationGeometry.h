@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// AccelerationGeometry encapsulates settings for acceleration geometries.
     class VSG_DECLSPEC AccelerationGeometry : public Inherit<Object, AccelerationGeometry>
     {
     public:
@@ -43,6 +44,7 @@ namespace vsg
         ref_ptr<BufferInfo> _indexBuffer;
         VkAccelerationStructureGeometryKHR _geometry;
     };
+    VSG_type_name(vsg::AccelerationGeometry);
 
     using AccelerationGeometries = std::vector<ref_ptr<AccelerationGeometry>>;
 

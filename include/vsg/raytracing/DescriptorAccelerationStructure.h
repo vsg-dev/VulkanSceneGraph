@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// DescriptorAccelerationStructure descriptor encpasulates of VkAccelerationStructure.
     class VSG_DECLSPEC DescriptorAccelerationStructure : public Inherit<Descriptor, DescriptorAccelerationStructure>
     {
     public:

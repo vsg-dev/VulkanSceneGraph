@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// TraceRays command encapsulates vkCmdTraceRaysKHR call and associated settings.
     class VSG_DECLSPEC TraceRays : public Inherit<Command, TraceRays>
     {
     public:
@@ -34,5 +35,6 @@ namespace vsg
         uint32_t height = 0;
         uint32_t depth = 0;
     };
+    VSG_type_name(vsg::TraceRays);
 
 } // namespace vsg
