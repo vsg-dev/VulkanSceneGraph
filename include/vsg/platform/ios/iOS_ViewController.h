@@ -1,8 +1,8 @@
 #include <UIKit/UIKit.h>
 
 
-#include <vsg/viewer/WindowTraits.h>
-#include <vsg/viewer/Window.h>
+#include <vsg/app/WindowTraits.h>
+#include <vsg/app/Window.h>
 
 #pragma mark -
 #pragma mark vsg_iOS_View

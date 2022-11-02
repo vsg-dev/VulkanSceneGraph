@@ -27,12 +27,12 @@ useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
 useStlAlgorithm:*/src/vsg/threading/Affinity.cpp
 useStlAlgorithm:*/src/vsg/traversals/Intersector.cpp
-useStlAlgorithm:*/src/vsg/viewer/Presentation.cpp
-useStlAlgorithm:*/src/vsg/viewer/ExecuteCommands.cpp
-useStlAlgorithm:*/src/vsg/viewer/RecordAndSubmitTask.cpp
-useStlAlgorithm:*/src/vsg/viewer/src/vsg/utils/Builder.cpp
-useStlAlgorithm:*/src/vsg/viewer/Viewer.cpp
-useStlAlgorithm:*/src/vsg/viewer/CompileManager.cpp
+useStlAlgorithm:*/src/vsg/app/Presentation.cpp
+useStlAlgorithm:*/src/vsg/app/ExecuteCommands.cpp
+useStlAlgorithm:*/src/vsg/app/RecordAndSubmitTask.cpp
+useStlAlgorithm:*/src/vsg/app/src/vsg/utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/app/Viewer.cpp
+useStlAlgorithm:*/src/vsg/app/CompileManager.cpp
 useStlAlgorithm:*/src/vsg/vk/Device.cpp
 useStlAlgorithm:*/src/vsg/vk/DeviceMemory.cpp
 useStlAlgorithm:*/src/vsg/vk/Framebuffer.cpp
@@ -73,7 +73,7 @@ unusedStructMember:*include/vsg/nodes/LOD.h
 unusedStructMember:*include/vsg/nodes/PagedLOD.h
 unusedStructMember:*include/vsg/state/ArrayState.h
 unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
-unusedStructMember:*include/vsg/viewer/Trackball.h
+unusedStructMember:*include/vsg/app/Trackball.h
 unusedStructMember:*include/vsg/vk/ResourceRequirements.h
 unusedStructMember:*include/vsg/vk/Device.h
 unusedStructMember:*include/vsg/vk/RenderPass.h
@@ -115,7 +115,7 @@ knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
 useInitializationList:*/include/vsg/core/ScratchMemory.h
 useInitializationList:*/src/vsg/vk/Extensions.cpp
 useInitializationList:*/src/vsg/vk/Context.cpp
-useInitializationList:*/src/vsg/viewer/Viewer.cpp
+useInitializationList:*/src/vsg/app/Viewer.cpp
 
 // suppress inappropriate warning about insertion.
 stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
@@ -134,4 +134,4 @@ variableScope:*/include/vsg/utils/SharedObjects.h
 variableScope:*/src/vsg/utils/SharedObjects.cpp
 
 // suppress really stupid warning of pointerLessThanZero
-pointerLessThanZero:*/src/vsg/viewer/Viewer.cpp
+pointerLessThanZero:*/src/vsg/app/Viewer.cpp

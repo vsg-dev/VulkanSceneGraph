@@ -1,6 +1,6 @@
 #include <vsg/platform/ios/iOS_ViewController.h>
 #include <vsg/platform/ios/iOS_Window.h>
-#include <vsg/viewer/Viewer.h>
+#include <vsg/app/Viewer.h>
 
 #pragma mark -
 #pragma mark vsg_iOS_ViewController

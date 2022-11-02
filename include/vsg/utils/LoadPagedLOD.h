@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/Camera.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/maths/transform.h>
-#include <vsg/viewer/Camera.h>
 
 #include <stack>
 
