@@ -50,7 +50,7 @@ namespace vsg
         /// add a compile Context for Framebuffer and associated View
         void add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
 
-        /// add a compile Context for Wdinow and associated View
+        /// add a compile Context for Window and associated View
         void add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for all the Views assigned to a Viewer
@@ -67,7 +67,7 @@ namespace vsg
             if (record() && wait) waitForCompletion();
         }
 
-        // implement compile of relevant nodes in the app/scene graph
+        // implement compile of relevant nodes in the scene graph
         void apply(Object& object) override;
         void apply(Command& command) override;
         void apply(Commands& commands) override;
