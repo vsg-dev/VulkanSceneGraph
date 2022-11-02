@@ -116,7 +116,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Orthographic);
 
-    /// RelativeViewMatrix is a ProjectionMatrix that decorates another ProjectionMatrix and premulitplies it's transform matrix to give a relative projection matrix.
+    /// RelativeViewMatrix is a ProjectionMatrix that decorates another ProjectionMatrix and pre-multiplies it's transform matrix to give a relative projection matrix.
     class RelativeProjection : public Inherit<ProjectionMatrix, RelativeProjection>
     {
     public:
@@ -144,7 +144,7 @@ namespace vsg
     VSG_type_name(vsg::RelativeProjection);
 
     /// EllipsoidPerspective is a ProjectionMatrix that implements gluPerspective model for setting projection matrix,
-    /// with automatic clampping of the near/far to an ellispoidModel, typically used for rendering whole eath models.
+    /// with automatic clamping of the near/far to an ellispoidModel, typically used for rendering whole earth models.
     class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {
     public:

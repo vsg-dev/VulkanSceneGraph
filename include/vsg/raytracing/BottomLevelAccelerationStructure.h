@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// BottomLevelAccelerationStructure encapsulates bottom level acceleration strucutrre.
+    /// BottomLevelAccelerationStructure encapsulates bottom level acceleration structure.
     class VSG_DECLSPEC BottomLevelAccelerationStructure : public Inherit<AccelerationStructure, BottomLevelAccelerationStructure>
     {
     public:

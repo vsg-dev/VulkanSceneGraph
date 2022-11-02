@@ -22,7 +22,7 @@ namespace vsg
 {
 
     /// ArrayState base class provides a mechanism for CPU mapping of array data that is processed in novel ways on the GPU.
-    /// Assigned to StategGroup that are associted GraphicsPipline that use vertex shaders with novel vertex processing,
+    /// Assigned to StategGroup that are associated GraphicsPipline that use vertex shaders with novel vertex processing,
     /// and used during traversal such as ComputeTraversal and IntersectionTraversal.
     class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {

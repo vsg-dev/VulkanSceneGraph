@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Convienince template function that sets the value of an atmmoic if the passsed in value is less than the value of the atomic.
+    /// Convenience template function that sets the value of an atomic if the passed in value is less than the value of the atomic.
     template<typename T>
     void exchange_if_lower(std::atomic<T>& reference, T t)
     {
@@ -25,7 +25,7 @@ namespace vsg
         while (t < original_value && !reference.compare_exchange_weak(original_value, t)) {}
     };
 
-    /// Convienince template function that sets the value of an atmmoic if the passsed in value is greater than the value of the atomic.
+    /// Convenience template function that sets the value of an atomic if the passed in value is greater than the value of the atomic.
     template<typename T>
     void exchange_if_greater(std::atomic<T>& reference, T t)
     {
@@ -33,7 +33,7 @@ namespace vsg
         while (t > original_value && !reference.compare_exchange_weak(original_value, t)) {}
     };
 
-    /// Convienince template function that multiplies the value of an atomic by specified value
+    /// Convenience template function that multiplies the value of an atomic by specified value
     template<typename T>
     void exchange_multiply(std::atomic<T>& reference, T t)
     {
@@ -41,7 +41,8 @@ namespace vsg
         while (!reference.compare_exchange_weak(original_value, original_value * t)) {}
     };
 
-    /// Convienince template function that modifies an atomic if it's value matches the from value, and sets it to to, otherwise trues fales without modifiying the atomic.
+    //! TODO: Robert review
+    /// Convenience template function that modifies an atomic if it's value matches the from value, and sets it to, otherwise trues fales without modifying the atomic.
     template<typename T>
     bool compare_exchange(std::atomic<T>& reference, T from, T to)
     {

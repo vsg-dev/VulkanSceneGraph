@@ -22,8 +22,8 @@ namespace vsg
     class Buffer;
     class Image;
 
-    /// DeviceMemory enacpsualtes vkDeviceMemory.
-    /// DeviceMemory maps to memory on the CPU or GPU dependending on the properties that it's set up with.
+    /// DeviceMemory encapsulates vkDeviceMemory.
+    /// DeviceMemory maps to memory on the CPU or GPU depending on the properties that it's set up with.
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:

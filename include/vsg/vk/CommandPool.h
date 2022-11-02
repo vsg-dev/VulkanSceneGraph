@@ -19,7 +19,7 @@ namespace vsg
     // forward declare
     class CommandBuffer;
 
-    /// CommandPool ecapsulates vkCommandPool.
+    /// CommandPool encapsulates vkCommandPool.
     /// CommandPool are used in Vulkan as a source of Commands that are recorded to a CommandBuffer during the RecordTraversal, or dedicated command submissions.
     class VSG_DECLSPEC CommandPool : public Inherit<Object, CommandPool>
     {

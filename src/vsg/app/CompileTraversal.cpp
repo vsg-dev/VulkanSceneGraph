@@ -317,7 +317,7 @@ void CompileTraversal::apply(View& view)
 
         view.traverse(*this);
 
-        // restore previous pipeline sttes
+        // restore previous pipeline states
         context->defaultPipelineStates = previousDefaultPipelineStates;
         context->overridePipelineStates = previousOverridePipelineStates;
     }

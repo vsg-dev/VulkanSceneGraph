@@ -58,7 +58,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ShaderCompileSettings);
 
-    /// ShaderModule ecnapsulates the VkShaderModule nad the VkShaderModuleCreateInfo settings used to set it up.
+    /// ShaderModule encapsulates the VkShaderModule and the VkShaderModuleCreateInfo settings used to set it up.
     /// ShaderModule are assigned to ShaderStage, which are assigned to GraphicsPipeline/ComputePipeline etc.
     class VSG_DECLSPEC ShaderModule : public Inherit<Object, ShaderModule>
     {

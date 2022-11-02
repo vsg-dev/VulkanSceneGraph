@@ -132,7 +132,7 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 //
 namespace vsg
 {
-    // helper class that disabled the automatic clear up of the sawp chain image as the swap chain itself manages it's lifetime
+    // helper class that disabled the automatic clear up of the swap chain image as the swap chain itself manages it's lifetime
     class SwapchainImage : public Inherit<Image, SwapchainImage>
     {
     public:

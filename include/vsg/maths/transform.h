@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// create a 4x4 matrix that respresents the rotation by a quaternion
+    /// create a 4x4 matrix that represents the rotation by a quaternion
     template<typename T>
     constexpr t_mat4<T> rotate(const t_quat<T>& q)
     {
@@ -40,7 +40,7 @@ namespace vsg
                          zero, zero, zero, 1.0);
     }
 
-    /// create a 4x4 matrix that respresents the rotation by a radian angle around an x, y, z axis
+    /// create a 4x4 matrix that represents the rotation by a radian angle around an x, y, z axis
     template<typename T>
     t_mat4<T> rotate(T angle_radians, T x, T y, T z)
     {
@@ -53,14 +53,14 @@ namespace vsg
                          0, 0, 0, 1);
     }
 
-    /// create a 4x4 matrix that respresents the rotation by a radian angle around an vec3 axis
+    /// create a 4x4 matrix that represents the rotation by a radian angle around an vec3 axis
     template<typename T>
     t_mat4<T> rotate(T angle_radians, const t_vec3<T>& v)
     {
         return rotate(angle_radians, v.value[0], v.value[1], v.value[2]);
     }
 
-    /// create a 4x4 matrix that respresents the translation by x, y, z
+    /// create a 4x4 matrix that represents the translation by x, y, z
     template<typename T>
     constexpr t_mat4<T> translate(T x, T y, T z)
     {
@@ -70,14 +70,14 @@ namespace vsg
                          x, y, z, 1);
     }
 
-    /// create a 4x4 matrix that respresents the translation by vec3
+    /// create a 4x4 matrix that represents the translation by vec3
     template<typename T>
     constexpr t_mat4<T> translate(const t_vec3<T>& v)
     {
         return translate(v.value[0], v.value[1], v.value[2]);
     }
 
-    /// create a 4x4 matrix that respresents the scale by sx, sy, zz
+    /// create a 4x4 matrix that represents the scale by sx, sy, zz
     template<typename T>
     constexpr t_mat4<T> scale(T sx, T sy, T sz)
     {
@@ -87,7 +87,7 @@ namespace vsg
                          0, 0, 0, 1);
     }
 
-    /// create a 4x4 matrix that respresents the scale by vec3
+    /// create a 4x4 matrix that represents the scale by vec3
     template<typename T>
     constexpr t_mat4<T> scale(const t_vec3<T>& v)
     {

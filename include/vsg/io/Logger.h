@@ -322,7 +322,7 @@ namespace vsg
         Logger::instance()->log_stream(msg_level, print);
     }
 
-    /// default Logger that sends debug and info messages to std:cout, and warn and errpr messages to std::cert
+    /// default Logger that sends debug and info messages to std:cout, and warn and error messages to std::cert
     class VSG_DECLSPEC StdLogger : public Inherit<Logger, StdLogger>
     {
     public:

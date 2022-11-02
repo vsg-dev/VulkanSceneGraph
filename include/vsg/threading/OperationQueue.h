@@ -45,7 +45,7 @@ namespace vsg
             _cv.notify_one();
         }
 
-        /// add multiple obects to the back of the queue
+        /// add multiple objects to the back of the queue
         template<typename Iterator>
         void add(Iterator begin, Iterator end)
         {
@@ -128,7 +128,7 @@ namespace vsg
         ref_ptr<ActivityStatus> _status;
     };
 
-    // clang-foramt screws up handling of VSG_tyoe_name macro so have to switch it off.
+    // clang-format screws up handling of VSG_tyoe_name macro so have to switch it off.
     // clang-format off
 
     /// Operation base class

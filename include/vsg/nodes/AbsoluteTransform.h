@@ -17,9 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// MatrixTransform is a transform node that provides a 4x4 martrix that is used to position subgraphs in absolute coordinate frame.
+    /// MatrixTransform is a transform node that provides a 4x4 matrix that is used to position subgraphs in absolute coordinate frame.
     /// During the RecordTraversal the matrix is directly pushed to the State::modelviewMatrixStack stack without the normal multiplication.
-    /// After the subgraphs is traversed the matrix is popped fromo the State::modelviewMatrixStack.
+    /// After the subgraphs is traversed the matrix is popped from the State::modelviewMatrixStack.
     class VSG_DECLSPEC AbsoluteTransform : public Inherit<Transform, AbsoluteTransform>
     {
     public:

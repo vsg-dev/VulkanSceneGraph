@@ -36,7 +36,7 @@ namespace vsg
         /// VkDescriptorSetLayoutCreateInfo settings
         DescriptorSetLayoutBindings bindings;
 
-        /// map the descriptor bindigs to the descriptor pool sizes that will be required to represent them.
+        /// map the descriptor bindings to the descriptor pool sizes that will be required to represent them.
         void getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes);
 
         int compare(const Object& rhs_object) const override;

@@ -17,8 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// Fernce encapsulates vkFence
-    /// Used for syncronizating the completion of Vulkan command submissions to queues
+    /// Fence encapsulates vkFence
+    /// Used for synchronizing the completion of Vulkan command submissions to queues
     class VSG_DECLSPEC Fence : public Inherit<Object, Fence>
     {
     public:
