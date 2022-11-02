@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/threading/ActivityStatus.h>
 
-#include <vsg/viewer/CompileManager.h>
+#include <vsg/app/CompileManager.h>
 
 #include <condition_variable>
 #include <list>

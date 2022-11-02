@@ -144,27 +144,27 @@ set(SOURCES
     threading/Affinity.cpp
     threading/OperationThreads.cpp
 
-    viewer/Camera.cpp
-    viewer/CompileManager.cpp
-    viewer/EllipsoidModel.cpp
-    viewer/Viewer.cpp
-    viewer/Window.cpp
-    viewer/WindowAdapter.cpp
-    viewer/WindowTraits.cpp
-    viewer/Trackball.cpp
-    viewer/CommandGraph.cpp
-    viewer/SecondaryCommandGraph.cpp
-    viewer/RenderGraph.cpp
-    viewer/Presentation.cpp
-    viewer/RecordAndSubmitTask.cpp
-    viewer/TransferTask.cpp
-    viewer/WindowResizeHandler.cpp
-    viewer/View.cpp
-    viewer/ViewMatrix.cpp
-    viewer/ProjectionMatrix.cpp
-    viewer/UpdateOperations.cpp
-    viewer/RecordTraversal.cpp
-    viewer/CompileTraversal.cpp
+    app/Camera.cpp
+    app/CompileManager.cpp
+    app/EllipsoidModel.cpp
+    app/Viewer.cpp
+    app/Window.cpp
+    app/WindowAdapter.cpp
+    app/WindowTraits.cpp
+    app/Trackball.cpp
+    app/CommandGraph.cpp
+    app/SecondaryCommandGraph.cpp
+    app/RenderGraph.cpp
+    app/Presentation.cpp
+    app/RecordAndSubmitTask.cpp
+    app/TransferTask.cpp
+    app/WindowResizeHandler.cpp
+    app/View.cpp
+    app/ViewMatrix.cpp
+    app/ProjectionMatrix.cpp
+    app/UpdateOperations.cpp
+    app/RecordTraversal.cpp
+    app/CompileTraversal.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp

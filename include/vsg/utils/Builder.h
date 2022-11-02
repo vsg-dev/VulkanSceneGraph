@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/CompileTraversal.h>
 #include <vsg/maths/box.h>
 #include <vsg/maths/sphere.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
-#include <vsg/viewer/CompileTraversal.h>
 
 namespace vsg
 {

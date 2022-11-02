@@ -10,7 +10,7 @@
 
 
 
-#include <vsg/viewer/Window.h>
+#include <vsg/app/Window.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vulkan/vulkan_metal.h>
 #include <UIKit/UiKit.h>

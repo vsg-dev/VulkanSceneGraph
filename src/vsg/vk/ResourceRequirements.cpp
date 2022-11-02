@@ -10,8 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/vk/ResourceRequirements.h>
-
+#include <vsg/app/View.h>
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/nodes/Bin.h>
@@ -23,8 +22,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/MultisampleState.h>
-#include <vsg/viewer/View.h>
 #include <vsg/vk/RenderPass.h>
+#include <vsg/vk/ResourceRequirements.h>
 
 using namespace vsg;
 

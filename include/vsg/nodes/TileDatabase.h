@@ -12,12 +12,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/EllipsoidModel.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/Sampler.h>
-#include <vsg/viewer/EllipsoidModel.h>
 
 namespace vsg
 {

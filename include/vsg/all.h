@@ -171,29 +171,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/UIEvent.h>
 #include <vsg/ui/WindowEvent.h>
 
-// Viewer header files
-#include <vsg/viewer/Camera.h>
-#include <vsg/viewer/CloseHandler.h>
-#include <vsg/viewer/CommandGraph.h>
-#include <vsg/viewer/CompileManager.h>
-#include <vsg/viewer/CompileTraversal.h>
-#include <vsg/viewer/EllipsoidModel.h>
-#include <vsg/viewer/Presentation.h>
-#include <vsg/viewer/ProjectionMatrix.h>
-#include <vsg/viewer/RecordAndSubmitTask.h>
-#include <vsg/viewer/RecordTraversal.h>
-#include <vsg/viewer/RenderGraph.h>
-#include <vsg/viewer/SecondaryCommandGraph.h>
-#include <vsg/viewer/Trackball.h>
-#include <vsg/viewer/TransferTask.h>
-#include <vsg/viewer/UpdateOperations.h>
-#include <vsg/viewer/View.h>
-#include <vsg/viewer/ViewMatrix.h>
-#include <vsg/viewer/Viewer.h>
-#include <vsg/viewer/Window.h>
-#include <vsg/viewer/WindowAdapter.h>
-#include <vsg/viewer/WindowResizeHandler.h>
-#include <vsg/viewer/WindowTraits.h>
+// Application header files
+#include <vsg/app/Camera.h>
+#include <vsg/app/CloseHandler.h>
+#include <vsg/app/CommandGraph.h>
+#include <vsg/app/CompileManager.h>
+#include <vsg/app/CompileTraversal.h>
+#include <vsg/app/EllipsoidModel.h>
+#include <vsg/app/Presentation.h>
+#include <vsg/app/ProjectionMatrix.h>
+#include <vsg/app/RecordAndSubmitTask.h>
+#include <vsg/app/RecordTraversal.h>
+#include <vsg/app/RenderGraph.h>
+#include <vsg/app/SecondaryCommandGraph.h>
+#include <vsg/app/Trackball.h>
+#include <vsg/app/TransferTask.h>
+#include <vsg/app/UpdateOperations.h>
+#include <vsg/app/View.h>
+#include <vsg/app/ViewMatrix.h>
+#include <vsg/app/Viewer.h>
+#include <vsg/app/Window.h>
+#include <vsg/app/WindowAdapter.h>
+#include <vsg/app/WindowResizeHandler.h>
+#include <vsg/app/WindowTraits.h>
 
 // Vulkan related header files
 #include <vsg/vk/AllocationCallbacks.h>

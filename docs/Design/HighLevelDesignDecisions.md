@@ -39,7 +39,7 @@ For convenience high level include/vsg/all.h head to includes all vsg/*/*.h
 Categories of functionality placed in appropriate named subdirectories i.e.
 
 * [src/vsg/core/](../../src/vsg/core/)Visitor.cpp
-* [src/vsg/viewer/](../../src/vsg/viewer/)Viewer.cpp
+* [src/vsg/app/](../../src/vsg/app/)Viewer.cpp
 
 
 **Memory:** To address the main scene graph performance bottleneck have a general goal of improving cache coherency and lowering memory bandwidth load.
