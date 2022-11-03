@@ -18,3 +18,4 @@ else()
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/vsgTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake")
