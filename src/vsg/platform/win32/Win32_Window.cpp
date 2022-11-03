@@ -322,107 +322,129 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     const auto& windowTitle = traits->windowTitle;
 #endif
 
-    // register window class
-    WNDCLASSEX wc;
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    wc.lpfnWndProc = Win32WindowProc;
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = ::GetModuleHandle(NULL);
-    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = 0;
-    wc.lpszMenuName = 0;
-    wc.lpszClassName = windowClass.c_str();
-    wc.hIconSm = 0;
+    bool createWindow = true;
 
-    if (::RegisterClassEx(&wc) == 0)
+    if (traits->nativeWindow.has_value())
     {
-        auto lastError = ::GetLastError();
-        if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED};
-    }
-
-    // fetch screen display information
-
-    std::vector<DISPLAY_DEVICE> displayDevices;
-    DISPLAY_DEVICE displayDevice;
-    displayDevice.cb = sizeof(displayDevice);
-
-    for (uint32_t deviceNum = 0; EnumDisplayDevices(nullptr, deviceNum, &displayDevice, 0); ++deviceNum)
-    {
-        if (displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
-        if (!(displayDevice.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)) continue;
-
-        displayDevices.push_back(displayDevice);
-    }
-
-    // assume a traits->screenNum of < 0 will default to screen 0
-    int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
-    if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-
-    DEVMODE deviceMode;
-    deviceMode.dmSize = sizeof(deviceMode);
-    deviceMode.dmDriverExtra = 0;
-
-    if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-
-    // setup window rect and style
-    int32_t screenx = 0;
-    int32_t screeny = 0;
-    RECT windowRect;
-
-    uint32_t windowStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-    uint32_t extendedStyle = 0;
-
-    if(!traits->fullscreen)
-    {
-        screenx = deviceMode.dmPosition.x + traits->x;
-        screeny = deviceMode.dmPosition.y + traits->y;
-
-        windowRect.left = screenx;
-        windowRect.top = screeny;
-        windowRect.right = windowRect.left + traits->width;
-        windowRect.bottom = windowRect.top + traits->height;
-
-        if (traits->decoration)
+        auto nativeWindow = std::any_cast<HWND>(traits->nativeWindow);
+        if (nativeWindow)
         {
-            windowStyle |= WS_OVERLAPPEDWINDOW;
-
-            extendedStyle |= WS_EX_WINDOWEDGE |
-                WS_EX_APPWINDOW |
-                WS_EX_OVERLAPPEDWINDOW |
-                WS_EX_ACCEPTFILES |
-                WS_EX_LTRREADING;
-
-            // if decorated call adjust to account for borders etc
-            if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-
+            _window = nativeWindow;
+            createWindow = false;
         }
     }
-    else
+
+    if (createWindow)
     {
-        screenx = deviceMode.dmPosition.x;
-        screeny = deviceMode.dmPosition.y;
+        // register window class
+        WNDCLASSEX wc;
+        wc.cbSize = sizeof(WNDCLASSEX);
+        wc.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+        wc.lpfnWndProc = Win32WindowProc;
+        wc.cbClsExtra = 0;
+        wc.cbWndExtra = 0;
+        wc.hInstance = ::GetModuleHandle(NULL);
+        wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hbrBackground = 0;
+        wc.lpszMenuName = 0;
+        wc.lpszClassName = windowClass.c_str();
+        wc.hIconSm = 0;
 
-        windowRect.left = screenx;
-        windowRect.top = screeny;
-        windowRect.right = windowRect.left + deviceMode.dmPelsWidth;
-        windowRect.bottom = windowRect.top + deviceMode.dmPelsHeight;
+        if (::RegisterClassEx(&wc) == 0)
+        {
+            auto lastError = ::GetLastError();
+            if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED};
+        }
+
+        // fetch screen display information
+
+        std::vector<DISPLAY_DEVICE> displayDevices;
+        DISPLAY_DEVICE displayDevice;
+        displayDevice.cb = sizeof(displayDevice);
+
+        for (uint32_t deviceNum = 0; EnumDisplayDevices(nullptr, deviceNum, &displayDevice, 0); ++deviceNum)
+        {
+            if (displayDevice.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) continue;
+            if (!(displayDevice.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP)) continue;
+
+            displayDevices.push_back(displayDevice);
+        }
+
+        // assume a traits->screenNum of < 0 will default to screen 0
+        int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
+        if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+
+        DEVMODE deviceMode;
+        deviceMode.dmSize = sizeof(deviceMode);
+        deviceMode.dmDriverExtra = 0;
+
+        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+
+        // setup window rect and style
+        int32_t screenx = 0;
+        int32_t screeny = 0;
+        RECT windowRect;
+
+        uint32_t windowStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+        uint32_t extendedStyle = 0;
+
+        if (!traits->fullscreen)
+        {
+            screenx = deviceMode.dmPosition.x + traits->x;
+            screeny = deviceMode.dmPosition.y + traits->y;
+
+            windowRect.left = screenx;
+            windowRect.top = screeny;
+            windowRect.right = windowRect.left + traits->width;
+            windowRect.bottom = windowRect.top + traits->height;
+
+            if (traits->decoration)
+            {
+                windowStyle |= WS_OVERLAPPEDWINDOW;
+
+                extendedStyle |= WS_EX_WINDOWEDGE |
+                                 WS_EX_APPWINDOW |
+                                 WS_EX_OVERLAPPEDWINDOW |
+                                 WS_EX_ACCEPTFILES |
+                                 WS_EX_LTRREADING;
+
+                // if decorated call adjust to account for borders etc
+                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+            }
+        }
+        else
+        {
+            screenx = deviceMode.dmPosition.x;
+            screeny = deviceMode.dmPosition.y;
+
+            windowRect.left = screenx;
+            windowRect.top = screeny;
+            windowRect.right = windowRect.left + deviceMode.dmPelsWidth;
+            windowRect.bottom = windowRect.top + deviceMode.dmPelsHeight;
+        }
+
+        // create the window
+        _window = ::CreateWindowEx(extendedStyle, windowClass.c_str(), windowTitle.c_str(), windowStyle,
+                                   windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
+                                   NULL, NULL, ::GetModuleHandle(NULL), NULL);
+
+        if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+
+        // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
+        SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+        // reposition once the window has been created to account for borders etc
+        ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
+
+        traits->x = windowRect.left;
+        traits->y = windowRect.top;
+        traits->systemConnection = wc.hInstance;
+
+        ShowWindow(_window, SW_SHOW);
+        SetForegroundWindow(_window);
+        SetFocus(_window);
     }
-
-    // create the window
-    _window = ::CreateWindowEx(extendedStyle, windowClass.c_str(), windowTitle.c_str(), windowStyle,
-                               windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
-                               NULL, NULL, ::GetModuleHandle(NULL), NULL);
-
-    if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
-
-    // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-    SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
-    // reposition once the window has been created to account for borders etc
-    ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
 
     // get client rect to find final width height of the view
     RECT clientRect;
@@ -441,18 +463,12 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     _extent2D.height = finalHeight;
 
     // assign dimensions
-    traits->x = windowRect.left;
-    traits->y = windowRect.top;
     traits->width = finalWidth;
     traits->height = finalHeight;
 
-    ShowWindow(_window, SW_SHOW);
-    SetForegroundWindow(_window);
-    SetFocus(_window);
-    _windowMapped = true;
-
-    traits->systemConnection = wc.hInstance;
     traits->nativeWindow = _window;
+
+    _windowMapped = true;
 }
 
 Win32_Window::~Win32_Window()
