@@ -26,7 +26,7 @@ useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
 useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
 useStlAlgorithm:*/src/vsg/threading/Affinity.cpp
-useStlAlgorithm:*/src/vsg/traversals/Intersector.cpp
+useStlAlgorithm:*/src/vsg/utils/Intersector.cpp
 useStlAlgorithm:*/src/vsg/app/Presentation.cpp
 useStlAlgorithm:*/src/vsg/app/ExecuteCommands.cpp
 useStlAlgorithm:*/src/vsg/app/RecordAndSubmitTask.cpp
@@ -43,7 +43,7 @@ useStlAlgorithm:*/src/vsg/vk/RenderPass.cpp
 useStlAlgorithm:*/src/vsg/core/Allocator.cpp
 useStlAlgorithm:*/src/vsg/core/MemorySlots.cpp
 useStlAlgorithm:*/src/vsg/state/ArrayState.cpp
-useStlAlgorithm:*/src/vsg/traversals/CompileTraversal.cpp
+useStlAlgorithm:*/src/vsg/app/CompileTraversal.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/include/vsg/utils/CommandLine.h
@@ -72,7 +72,7 @@ unusedStructMember:*include/vsg/nodes/Bin.h
 unusedStructMember:*include/vsg/nodes/LOD.h
 unusedStructMember:*include/vsg/nodes/PagedLOD.h
 unusedStructMember:*include/vsg/state/ArrayState.h
-unusedStructMember:*include/vsg/traversals/LineSegmentIntersector.h
+unusedStructMember:*include/vsg/utils/LineSegmentIntersector.h
 unusedStructMember:*include/vsg/app/Trackball.h
 unusedStructMember:*include/vsg/vk/ResourceRequirements.h
 unusedStructMember:*include/vsg/vk/Device.h
