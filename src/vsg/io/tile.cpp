@@ -32,12 +32,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
+#include <vsg/state/BindDescriptorSet.h>
+#include <vsg/state/ViewDependentState.h>
+#include <vsg/state/material.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/utils/ComputeBounds.h>
 #include <vsg/vk/ResourceRequirements.h>
-
-#include "shaders/simple_tile_frag.cpp"
-#include "shaders/simple_tile_vert.cpp"
 
 using namespace vsg;
 
@@ -132,10 +132,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
         for (uint32_t x = 0; x < settings->noX; ++x)
         {
             auto imagePath = getTilePath(settings->imageLayer, x, y, lod);
-            //auto terrainPath = getTilePath(terrainLayer, x, y, lod);
-
             auto imageTile = vsg::read_cast<vsg::Data>(imagePath, options);
-            //auto terrainTile = vsg::read(terrainPath, options);
 
             if (imageTile)
             {
@@ -281,88 +278,90 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
 void tile::init(vsg::ref_ptr<const vsg::Options> options)
 {
-    if (!descriptorSetLayout)
+    if (settings->shaderSet)
     {
-        vsg::DescriptorSetLayoutBindings descriptorBindings{
-            {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr} // { binding, descriptorTpe, descriptorCount, stageFlags, pImmutableSamplers}
-        };
-
-        descriptorSetLayout = vsg::DescriptorSetLayout::create(descriptorBindings);
+        _shaderSet = settings->shaderSet;
+    }
+    else
+    {
+        if (settings->lighting)
+            _shaderSet = createPhongShaderSet(options);
+        else
+            _shaderSet = createFlatShadedShaderSet(options);
     }
 
-    if (!pipelineLayout)
-    {
-        vsg::PushConstantRanges pushConstantRanges{
-            {VK_SHADER_STAGE_VERTEX_BIT, 0, 128} // projection view, and model matrices, actual push constant calls automatically provided by the VSG's DispatchTraversal
-        };
+    _sampler = vsg::Sampler::create();
+    _sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    _sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    _sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    _sampler->anisotropyEnable = VK_TRUE;
+    _sampler->maxAnisotropy = 16.0f;
+    _sampler->maxLod = static_cast<float>(settings->mipmapLevelsHint);
 
-        pipelineLayout = vsg::PipelineLayout::create(vsg::DescriptorSetLayouts{descriptorSetLayout}, pushConstantRanges);
+    _graphicsPipelineConfig = GraphicsPipelineConfig::create(_shaderSet);
+
+    if (settings->imageLayer)
+    {
+        _graphicsPipelineConfig->enableTexture("diffuseMap");
+    }
+#if 0
+    if (settings->terrainLayer)
+    {
+        _graphicsPipelineConfig->enableTexture("displacementMap");
+    }
+#endif
+    _graphicsPipelineConfig->enableUniform("material");
+
+    _graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);
+    _graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);
+    _graphicsPipelineConfig->enableArray("vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, 8, VK_FORMAT_R32G32_SFLOAT);
+    _graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16, VK_FORMAT_R32G32B32A32_SFLOAT);
+
+    if (settings->lighting)
+    {
+        auto vdsl = ViewDescriptorSetLayout::create();
+        _graphicsPipelineConfig->additionalDescriptorSetLayout = vdsl;
     }
 
-    if (!sampler)
+    if (auto& materialBinding = _shaderSet->getUniformBinding("material"))
     {
-        sampler = vsg::Sampler::create();
-        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        sampler->anisotropyEnable = VK_TRUE;
-        sampler->maxAnisotropy = 16.0f;
-
-        if (settings) sampler->maxLod = static_cast<float>(settings->mipmapLevelsHint);
+        ref_ptr<Data> mat = materialBinding.data;
+        if (!mat) mat = vsg::PhongMaterialValue::create();
+        _material = vsg::DescriptorBuffer::create(mat, materialBinding.binding, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+    }
+    else
+    {
+        auto mat = vsg::PhongMaterialValue::create();
+        _material = vsg::DescriptorBuffer::create(mat, 10, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     }
 
-    if (!graphicsPipeline)
-    {
-        auto vertexShader = vsg::read_cast<vsg::ShaderStage>("shaders/simple_tile.vert", options);
-        if (!vertexShader) vertexShader = simple_tile_vert(); // fallback to shaders/simple_tile_vert.cpp
-
-        auto fragmentShader = vsg::read_cast<vsg::ShaderStage>("shaders/simple_tile.frag", options);
-        if (!fragmentShader) fragmentShader = simple_tile_frag(); // fallback to shaders/simple_tile_frag.cpp
-
-        if (!vertexShader || !fragmentShader)
-        {
-            vsg::error("Could not create shaders.");
-        }
-
-        vsg::VertexInputState::Bindings vertexBindingsDescriptions{
-            VkVertexInputBindingDescription{0, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // vertex data
-            VkVertexInputBindingDescription{1, sizeof(vsg::vec3), VK_VERTEX_INPUT_RATE_VERTEX}, // colour data
-            VkVertexInputBindingDescription{2, sizeof(vsg::vec2), VK_VERTEX_INPUT_RATE_VERTEX}  // tex coord data
-        };
-
-        vsg::VertexInputState::Attributes vertexAttributeDescriptions{
-            VkVertexInputAttributeDescription{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}, // vertex data
-            VkVertexInputAttributeDescription{1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0}, // colour data
-            VkVertexInputAttributeDescription{2, 2, VK_FORMAT_R32G32_SFLOAT, 0},    // tex coord data
-        };
-
-        vsg::GraphicsPipelineStates pipelineStates{
-            vsg::VertexInputState::create(vertexBindingsDescriptions, vertexAttributeDescriptions),
-            vsg::InputAssemblyState::create(),
-            vsg::RasterizationState::create(),
-            vsg::MultisampleState::create(),
-            vsg::ColorBlendState::create(),
-            vsg::DepthStencilState::create()};
-
-        graphicsPipeline = vsg::GraphicsPipeline::create(pipelineLayout, vsg::ShaderStages{vertexShader, fragmentShader}, pipelineStates);
-    }
+    _graphicsPipelineConfig->init();
 }
 
 vsg::ref_ptr<vsg::StateGroup> tile::createRoot() const
 {
     auto root = vsg::StateGroup::create();
-    root->add(vsg::BindGraphicsPipeline::create(graphicsPipeline));
+    root->add(_graphicsPipelineConfig->bindGraphicsPipeline);
+
+    if (settings->lighting)
+    {
+        auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 1);
+        root->add(bindViewDescriptorSets);
+    }
 
     return root;
 }
 
 vsg::ref_ptr<vsg::Node> tile::createTile(const vsg::dbox& tile_extents, vsg::ref_ptr<vsg::Data> sourceData) const
 {
-#if 1
-    return createECEFTile(tile_extents, sourceData);
-#else
-    return createTextureQuad(tile_extents, sourceData);
-#endif
+    if (settings->ellipsoidModel)
+    {
+        return createECEFTile(tile_extents, sourceData);
+    }
+    else
+    {
+        return createTextureQuad(tile_extents, sourceData);
+    }
 }
 
 vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg::ref_ptr<vsg::Data> textureData) const
@@ -372,10 +371,15 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     auto localToWorld = settings->ellipsoidModel->computeLocalToWorldTransform(center);
     auto worldToLocal = vsg::inverse(localToWorld);
 
-    // create texture image and associated DescriptorSets and binding
-    auto texture = vsg::DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    vsg::dmat3 normalMatrix(localToWorld(0,0), localToWorld(0,1), localToWorld(0,2),
+                            localToWorld(1,0), localToWorld(1,1), localToWorld(1,2),
+                            localToWorld(2,0), localToWorld(2,1), localToWorld(2,2));
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, vsg::Descriptors{texture});
+    // create texture image, material and associated DescriptorSets and binding
+    auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
+
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture, _material});
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
@@ -406,12 +410,13 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
         tCoordOrigin = 1.0f;
     }
 
-    vsg::vec3 color(1.0f, 1.0f, 1.0f);
+    vsg::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
     // set up vertex coords
     auto vertices = vsg::vec3Array::create(numVertices);
-    auto colors = vsg::vec3Array::create(numVertices);
+    auto normals = vsg::vec3Array::create(numVertices);
     auto texcoords = vsg::vec2Array::create(numVertices);
+    auto colors = vsg::vec4Value::create(color);
     for (uint32_t r = 0; r < numRows; ++r)
     {
         for (uint32_t c = 0; c < numCols; ++c)
@@ -421,12 +426,13 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
 
             auto ecef = settings->ellipsoidModel->convertLatLongAltitudeToECEF(latitudeLongitudeAltitude);
             vsg::vec3 vertex(worldToLocal * ecef);
+            vsg::vec3 normal(normalize(ecef * normalMatrix));
             vsg::vec2 texcoord(float(c) * sCoordScale, tCoordOrigin + float(r) * tCoordScale);
 
             uint32_t vi = c + r * numCols;
             vertices->set(vi, vertex);
-            colors->set(vi, color);
             texcoords->set(vi, texcoord);
+            normals->set(vi, normal);
         }
     }
 
@@ -449,7 +455,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
 
     // setup geometry
     auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, colors, texcoords}));
+    drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, normals, texcoords, colors}));
     drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
     drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->size()), 1, 0, 0, 0));
 
@@ -464,9 +470,9 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
     if (!textureData) return {};
 
     // create texture image and associated DescriptorSets and binding
-    auto texture = vsg::DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, vsg::Descriptors{texture});
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture});
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();

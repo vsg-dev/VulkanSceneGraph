@@ -77,11 +77,12 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture(descriptors, "displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    // set up pass of material
-    auto mat = vsg::PhongMaterialValue::create();
-    mat->value().specular = vec4(0.5f, 0.5f, 0.5f, 1.0f);
-
-    graphicsPipelineConfig->assignUniform(descriptors, "material", mat);
+    if (auto& materialBinding = shaderSet->getUniformBinding("material"))
+    {
+        ref_ptr<Data> mat = materialBinding.data;
+        if (!mat) mat = vsg::PhongMaterialValue::create();
+        graphicsPipelineConfig->assignUniform(descriptors, "material", mat);
+    }
 
     if (sharedObjects) sharedObjects->share(descriptors);
 

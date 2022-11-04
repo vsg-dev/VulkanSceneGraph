@@ -104,9 +104,15 @@ namespace vsg
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
 
         /// get the AttributeBinding associated with name
+        AttributeBinding& getAttributeBinding(const std::string& name);
+
+        /// get the UniformBinding associated with name
+        UniformBinding& getUniformBinding(const std::string& name);
+
+        /// get the const AttributeBinding associated with name
         const AttributeBinding& getAttributeBinding(const std::string& name) const;
 
-        /// get the AttributeBinding associated with name
+        /// get the const UniformBinding associated with name
         const UniformBinding& getUniformBinding(const std::string& name) const;
 
         /// get the first ArrayState that has matches with defines in the specified list of defines.
@@ -123,8 +129,8 @@ namespace vsg
     protected:
         virtual ~ShaderSet();
 
-        const AttributeBinding _nullAttributeBinding;
-        const UniformBinding _nullUniformBinding;
+        AttributeBinding _nullAttributeBinding;
+        UniformBinding _nullUniformBinding;
     };
     VSG_type_name(vsg::ShaderSet);
 

@@ -35,6 +35,12 @@ void TileDatabaseSettings::read(vsg::Input& input)
     input.read("imageLayer", imageLayer);
     input.read("terrainLayer", terrainLayer);
     input.read("mipmapLevelsHint", mipmapLevelsHint);
+
+    if (input.version_greater_equal(0, 7, 1))
+    {
+        input.read("lighting", lighting);
+        input.readObject("shaderSet", shaderSet);
+    }
 }
 
 void TileDatabaseSettings::write(vsg::Output& output) const
@@ -50,6 +56,12 @@ void TileDatabaseSettings::write(vsg::Output& output) const
     output.write("imageLayer", imageLayer);
     output.write("terrainLayer", terrainLayer);
     output.write("mipmapLevelsHint", mipmapLevelsHint);
+
+    if (output.version_greater_equal(0, 7, 1))
+    {
+        output.write("lighting", lighting);
+        output.writeObject("shaderSet", shaderSet);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
