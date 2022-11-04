@@ -297,12 +297,12 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     {
         _graphicsPipelineConfig->enableTexture("diffuseMap");
     }
-
+#if 0
     if (settings->terrainLayer)
     {
         _graphicsPipelineConfig->enableTexture("displacementMap");
     }
-
+#endif
     _graphicsPipelineConfig->enableUniform("material");
 
     _graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);
