@@ -53,9 +53,9 @@ namespace vsg
     /// Used in conjunction with vsg::createPhongShaderSet().
     struct PhongMaterial
     {
-        vec4 ambient{1.0f, 1.0f, 1.0f, 0.9f};
-        vec4 diffuse{1.0f, 1.0f, 1.0f, 0.9f};
-        vec4 specular{0.0f, 0.0f, 0.0f, 0.2f};
+        vec4 ambient{1.0f, 1.0f, 1.0f, 1.0f};
+        vec4 diffuse{1.0f, 1.0f, 1.0f, 1.0f};
+        vec4 specular{0.2f, 0.2f, 0.2f, 1.0f};
         vec4 emissive{0.0f, 0.0f, 0.0f, 0.0f};
         float shininess{100.0f};
         float alphaMask{1.0f};
@@ -97,7 +97,7 @@ namespace vsg
         vec4 baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
         vec4 emissiveFactor{0.0f, 0.0f, 0.0f, 1.0f};
         vec4 diffuseFactor{1.0f, 1.0f, 1.0f, 1.0f};
-        vec4 specularFactor{0.0f, 0.0f, 0.0f, 1.0f};
+        vec4 specularFactor{0.2f, 0.2f, 0.2f, 1.0f};
         float metallicFactor{1.0f};
         float roughnessFactor{1.0f};
         float alphaMask{1.0f};
