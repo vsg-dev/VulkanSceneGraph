@@ -119,6 +119,24 @@ const AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name) 
     return _nullAttributeBinding;
 }
 
+UniformBinding& ShaderSet::getUniformBinding(const std::string& name)
+{
+    for (auto& binding : uniformBindings)
+    {
+        if (binding.name == name) return binding;
+    }
+    return _nullUniformBinding;
+}
+
+AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name)
+{
+    for (auto& binding : attributeBindings)
+    {
+        if (binding.name == name) return binding;
+    }
+    return _nullAttributeBinding;
+}
+
 const UniformBinding& ShaderSet::getUniformBinding(const std::string& name) const
 {
     for (auto& binding : uniformBindings)
