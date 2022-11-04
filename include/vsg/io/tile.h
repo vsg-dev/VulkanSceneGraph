@@ -60,11 +60,7 @@ namespace vsg
 
         ref_ptr<ShaderSet> _shaderSet;
         ref_ptr<GraphicsPipelineConfig> _graphicsPipelineConfig;
-
-        ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-        ref_ptr<PipelineLayout> pipelineLayout;
-        ref_ptr<Sampler> sampler;
-        ref_ptr<GraphicsPipeline> graphicsPipeline;
+        ref_ptr<Sampler> _sampler;
     };
     VSG_type_name(vsg::tile);
 

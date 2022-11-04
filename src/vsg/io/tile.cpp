@@ -283,13 +283,13 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     else
         _shaderSet = createFlatShadedShaderSet(options);
 
-    sampler = vsg::Sampler::create();
-    sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    sampler->anisotropyEnable = VK_TRUE;
-    sampler->maxAnisotropy = 16.0f;
-    sampler->maxLod = static_cast<float>(settings->mipmapLevelsHint);
+    _sampler = vsg::Sampler::create();
+    _sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    _sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    _sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    _sampler->anisotropyEnable = VK_TRUE;
+    _sampler->maxAnisotropy = 16.0f;
+    _sampler->maxLod = static_cast<float>(settings->mipmapLevelsHint);
 
     _graphicsPipelineConfig = GraphicsPipelineConfig::create(_shaderSet);
 
@@ -317,16 +317,12 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     }
 
     _graphicsPipelineConfig->init();
-
-    descriptorSetLayout = _graphicsPipelineConfig->descriptorSetLayout;
-    pipelineLayout = _graphicsPipelineConfig->layout;
-    graphicsPipeline = _graphicsPipelineConfig->graphicsPipeline;
 }
 
 vsg::ref_ptr<vsg::StateGroup> tile::createRoot() const
 {
     auto root = vsg::StateGroup::create();
-    root->add(vsg::BindGraphicsPipeline::create(graphicsPipeline));
+    root->add(_graphicsPipelineConfig->bindGraphicsPipeline);
 
     if (settings->lighting)
     {
@@ -361,12 +357,12 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
                             localToWorld(2,0), localToWorld(2,1), localToWorld(2,2));
 
     // create texture image, material and associated DescriptorSets and binding
-    auto texture = vsg::DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
     auto mat = vsg::PhongMaterialValue::create();
     auto material = vsg::DescriptorBuffer::create(mat, 10, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, vsg::Descriptors{texture, material});
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture, material});
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
@@ -457,9 +453,9 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
     if (!textureData) return {};
 
     // create texture image and associated DescriptorSets and binding
-    auto texture = vsg::DescriptorImage::create(sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, vsg::Descriptors{texture});
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture});
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
