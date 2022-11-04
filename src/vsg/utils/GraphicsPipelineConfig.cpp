@@ -129,6 +129,32 @@ bool GraphicsPipelineConfig::enableArray(const std::string& name, VkVertexInputR
     return false;
 }
 
+bool GraphicsPipelineConfig::enableTexture(const std::string& name)
+{
+    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    {
+        // set up bindings
+        if (!textureBinding.define.empty()) shaderHints->defines.insert(textureBinding.define);
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
+
+        return true;
+    }
+    return false;
+}
+
+bool GraphicsPipelineConfig::enableUniform(const std::string& name)
+{
+    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    {
+        // set up bindings
+        if (!uniformBinding.define.empty()) shaderHints->defines.insert(uniformBinding.define);
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
+
+        return true;
+    }
+    return false;
+}
+
 bool GraphicsPipelineConfig::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
