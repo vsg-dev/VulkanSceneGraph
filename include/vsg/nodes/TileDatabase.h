@@ -44,6 +44,12 @@ namespace vsg
         Path imageLayer;
         Path terrainLayer;
         uint32_t mipmapLevelsHint = 16;
+
+        /// hint of whether to use flat shaded shaders or with lighting enabled.
+        bool lighting = true;
+
+        /// optional shaderSet to use for setting up shaders, if left null use vsg::createTileShaderSet().
+        ref_ptr<ShaderSet> shaderSet;
     };
     VSG_type_name(vsg::TileDatabaseSettings);
 
