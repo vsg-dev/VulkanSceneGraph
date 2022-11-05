@@ -30,7 +30,11 @@ void ResourceHints::read(Input& input)
     input.read("maxSlot", maxSlot);
     input.read("numDescriptorSets", numDescriptorSets);
 
-    descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize")); // TODO need to fix capitalization?
+    if (input.version_greater_equal(0, 7, 3))
+        descriptorPoolSizes.resize(input.readValue<uint32_t>("descriptorPoolSizes"));
+    else
+        descriptorPoolSizes.resize(input.readValue<uint32_t>("NumDescriptorPoolSize"));
+
     for (auto& [type, count] : descriptorPoolSizes)
     {
         input.readValue<uint32_t>("type", type);
@@ -48,7 +52,11 @@ void ResourceHints::write(Output& output) const
     output.write("maxSlot", maxSlot);
     output.write("numDescriptorSets", numDescriptorSets);
 
-    output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size()); // TODO need to fix capitalization?
+    if (output.version_greater_equal(0, 7, 3))
+        output.writeValue<uint32_t>("descriptorPoolSizes", descriptorPoolSizes.size());
+    else
+        output.writeValue<uint32_t>("NumDescriptorPoolSize", descriptorPoolSizes.size());
+
     for (auto& [type, count] : descriptorPoolSizes)
     {
         output.writeValue<uint32_t>("type", type);

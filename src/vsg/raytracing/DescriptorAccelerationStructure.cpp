@@ -54,7 +54,6 @@ void DescriptorAccelerationStructure::compile(Context& context)
 
 void DescriptorAccelerationStructure::assignTo(Context& context, VkWriteDescriptorSet& wds) const
 {
-    // TODO HERE
     Descriptor::assignTo(context, wds);
 
     auto descriptorAccelerationStructureInfo = context.scratchMemory->allocate<VkWriteDescriptorSetAccelerationStructureKHR>(1);

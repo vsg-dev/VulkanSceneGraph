@@ -28,13 +28,16 @@ void BufferView::VulkanData::release()
     }
 }
 
-BufferView::BufferView(Buffer* in_buffer, VkFormat in_format, VkDeviceSize in_offset, VkDeviceSize in_range) :
+BufferView::BufferView()
+{
+}
+
+BufferView::BufferView(ref_ptr<Buffer> in_buffer, VkFormat in_format, VkDeviceSize in_offset, VkDeviceSize in_range) :
     buffer(in_buffer),
     format(in_format),
     offset(in_offset),
     range(in_range)
 {
-    // TODO need to put memory slot in place
 }
 
 BufferView::~BufferView()

@@ -322,8 +322,6 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
-    // TODO, should record Traits within Window? Should pass back selected screeenNum?
-
     // get the screeen
     const xcb_setup_t* setup = xcb_get_setup(_connection);
 
