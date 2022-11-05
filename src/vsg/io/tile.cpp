@@ -32,7 +32,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/VertexInputState.h>
-#include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/state/material.h>
 #include <vsg/ui/UIEvent.h>
@@ -298,7 +297,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     _sampler->maxAnisotropy = 16.0f;
     _sampler->maxLod = static_cast<float>(settings->mipmapLevelsHint);
 
-    _graphicsPipelineConfig = GraphicsPipelineConfig::create(_shaderSet);
+    _graphicsPipelineConfig = GraphicsPipelineConfigurator::create(_shaderSet);
 
     if (settings->imageLayer)
     {
@@ -371,13 +370,12 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     auto localToWorld = settings->ellipsoidModel->computeLocalToWorldTransform(center);
     auto worldToLocal = vsg::inverse(localToWorld);
 
-    vsg::dmat3 normalMatrix(localToWorld(0,0), localToWorld(0,1), localToWorld(0,2),
-                            localToWorld(1,0), localToWorld(1,1), localToWorld(1,2),
-                            localToWorld(2,0), localToWorld(2,1), localToWorld(2,2));
+    vsg::dmat3 normalMatrix(localToWorld(0, 0), localToWorld(0, 1), localToWorld(0, 2),
+                            localToWorld(1, 0), localToWorld(1, 1), localToWorld(1, 2),
+                            localToWorld(2, 0), localToWorld(2, 1), localToWorld(2, 2));
 
     // create texture image, material and associated DescriptorSets and binding
     auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
 
     auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture, _material});
 
