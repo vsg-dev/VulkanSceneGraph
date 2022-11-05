@@ -29,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/TextGroup.h>
-#include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
@@ -236,7 +236,7 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
     {
         stategroup = StateGroup::create();
 
-        auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
+        auto config = vsg::GraphicsPipelineConfigurator::create(shaderSet);
 
         auto& sharedObjects = font->sharedObjects;
         if (!sharedObjects) sharedObjects = SharedObjects::create();

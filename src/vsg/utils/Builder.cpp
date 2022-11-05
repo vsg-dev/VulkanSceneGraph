@@ -17,7 +17,7 @@
 #include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
-#include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/GraphicsPipelineConfigurator.h>
 
 using namespace vsg;
 
@@ -44,7 +44,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         //shaderSet = createPhysicsBasedRenderingShaderSet(options);
     }
 
-    auto graphicsPipelineConfig = vsg::GraphicsPipelineConfig::create(shaderSet);
+    auto graphicsPipelineConfig = vsg::GraphicsPipelineConfigurator::create(shaderSet);
 
     auto& defines = graphicsPipelineConfig->shaderHints->defines;
 

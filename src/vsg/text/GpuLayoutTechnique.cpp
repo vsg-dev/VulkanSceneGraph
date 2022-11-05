@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/text/GpuLayoutTechnique.h>
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/Text.h>
-#include <vsg/utils/GraphicsPipelineConfig.h>
+#include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -187,7 +187,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
         auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(options);
 
-        auto config = vsg::GraphicsPipelineConfig::create(shaderSet);
+        auto config = vsg::GraphicsPipelineConfigurator::create(shaderSet);
 
         auto& sharedObjects = text->font->sharedObjects;
         if (!sharedObjects) sharedObjects = SharedObjects::create();

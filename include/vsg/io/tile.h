@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/ShaderSet.h>
-#include <vsg/utils/GraphicsPipelineConfig.h>
 
 namespace vsg
 {
@@ -59,7 +59,7 @@ namespace vsg
         ref_ptr<StateGroup> createRoot() const;
 
         ref_ptr<ShaderSet> _shaderSet;
-        ref_ptr<GraphicsPipelineConfig> _graphicsPipelineConfig;
+        ref_ptr<GraphicsPipelineConfigurator> _graphicsPipelineConfig;
         ref_ptr<Sampler> _sampler;
         ref_ptr<DescriptorBuffer> _material;
     };

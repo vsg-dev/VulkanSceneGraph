@@ -31,37 +31,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// DescriptorConfig utility provides a means of setting up descriptors using ShaderSet as a guide for required layouts/bindings.
-    class VSG_DECLSPEC DescriptorConfig : public vsg::Inherit<Object, DescriptorConfig>
+    /// GraphicsPipelineConfigurator utility provides a means of setting up state and geometry using ShaderSet as a guide for required layouts/bindings.
+    class VSG_DECLSPEC GraphicsPipelineConfigurator : public vsg::Inherit<Object, GraphicsPipelineConfigurator>
     {
     public:
-        DescriptorConfig(ref_ptr<ShaderSet> in_shaderSet = {});
-
-        ref_ptr<ShaderSet> shaderSet;
-        bool blending = false;
-        bool two_sided = false;
-
-        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
-
-        // assign Descriptors to a DescriptorSet
-        void init();
-
-        // filled in by assingTexture(..) and assingUnfiorm(..)
-        Descriptors descriptors;
-        std::set<std::string> defines;
-        DescriptorSetLayoutBindings descriptorBindings;
-
-        // filled in by init()
-        ref_ptr<DescriptorSet> descriptorSet;
-    };
-    VSG_type_name(vsg::DescriptorConfig);
-
-    /// GraphicsPipelineConfig utility provides a means of setting up state and geometry using ShaderSet as a guide for required layouts/bindings.
-    class VSG_DECLSPEC GraphicsPipelineConfig : public vsg::Inherit<Object, GraphicsPipelineConfig>
-    {
-    public:
-        GraphicsPipelineConfig(ref_ptr<ShaderSet> in_shaderSet = {});
+        GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         // inputs to setup of GraphicsPipeline, the default sets are taken from any provided by ShaderSet::defaultGraphicsPipelineStates
         ref_ptr<ColorBlendState> colorBlendState;
@@ -103,6 +77,32 @@ namespace vsg
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
     };
-    VSG_type_name(vsg::GraphicsPipelineConfig);
+    VSG_type_name(vsg::GraphicsPipelineConfigurator);
+
+    /// DescriptorConfigurator utility provides a means of setting up descriptors using ShaderSet as a guide for required layouts/bindings.
+    class VSG_DECLSPEC DescriptorConfigurator : public vsg::Inherit<Object, DescriptorConfigurator>
+    {
+    public:
+        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+
+        ref_ptr<ShaderSet> shaderSet;
+        bool blending = false;
+        bool two_sided = false;
+
+        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
+
+        // assign Descriptors to a DescriptorSet
+        void init();
+
+        // filled in by assingTexture(..) and assingUnfiorm(..)
+        Descriptors descriptors;
+        std::set<std::string> defines;
+        DescriptorSetLayoutBindings descriptorBindings;
+
+        // filled in by init()
+        ref_ptr<DescriptorSet> descriptorSet;
+    };
+    VSG_type_name(vsg::DescriptorConfigurator);
 
 } // namespace vsg

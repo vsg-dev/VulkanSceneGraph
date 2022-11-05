@@ -10,25 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/commands/BindIndexBuffer.h>
-#include <vsg/commands/BindVertexBuffers.h>
-#include <vsg/commands/Commands.h>
-#include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
-#include <vsg/state/BindDescriptorSet.h>
-#include <vsg/state/ColorBlendState.h>
-#include <vsg/state/DepthStencilState.h>
-#include <vsg/state/DescriptorImage.h>
-#include <vsg/state/InputAssemblyState.h>
-#include <vsg/state/MultisampleState.h>
-#include <vsg/state/RasterizationState.h>
-#include <vsg/state/VertexInputState.h>
 #include <vsg/text/CpuLayoutTechnique.h>
+#include <vsg/text/GpuLayoutTechnique.h>
 #include <vsg/text/StandardLayout.h>
 #include <vsg/text/TextGroup.h>
-#include <vsg/utils/GraphicsPipelineConfig.h>
 #include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;

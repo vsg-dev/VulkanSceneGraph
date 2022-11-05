@@ -218,7 +218,7 @@ set(SOURCES
     utils/Builder.cpp
     utils/SharedObjects.cpp
     utils/ShaderSet.cpp
-    utils/GraphicsPipelineConfig.cpp
+    utils/GraphicsPipelineConfigurator.cpp
     utils/ShaderCompiler.cpp
     utils/ComputeBounds.cpp
     utils/Intersector.cpp
