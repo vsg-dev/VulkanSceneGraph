@@ -35,7 +35,6 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
 
     size_t Megabyte = 1024 * 1024;
 
-    // TODO need to set to a more sensible default
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte)));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(16 * Megabyte)));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte)));

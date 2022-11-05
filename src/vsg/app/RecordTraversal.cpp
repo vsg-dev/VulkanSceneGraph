@@ -422,7 +422,6 @@ void RecordTraversal::apply(const View& view)
 
     if (view.camera)
     {
-        // TODO push/pop project and view matrices
         setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         view.traverse(*this);
