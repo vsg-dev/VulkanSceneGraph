@@ -25,7 +25,6 @@ Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidMo
 {
     if (!_lookAt)
     {
-        // TODO: need to work out how to map the original ViewMatrix to a LookAt and back, for now just fallback to assigning our own LookAt
         _lookAt = new LookAt;
     }
 
@@ -511,7 +510,7 @@ void Trackball::pan(const dvec2& delta)
     dvec3 sideNormal = cross(lookNormal, upNormal);
 
     double distance = length(lookVector);
-    distance *= 0.25; // TODO use Camera project matrix to guide how much to scale
+    distance *= 0.25;
 
     if (_ellipsoidModel)
     {

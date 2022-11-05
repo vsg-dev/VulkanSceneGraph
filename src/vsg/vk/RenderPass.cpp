@@ -38,7 +38,6 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
     correlatedViewMasks(in_correlatedViewMasks),
     maxSamples(computeMaxSamples(in_attachments))
 {
-    // TODO, assign ScratchMemory to Device.
     auto scratchMemory = ScratchMemory::create(1024);
 
     // vkCreateRenderPass2 is only supported in Vulkan 1.2 and later.

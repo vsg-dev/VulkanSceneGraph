@@ -108,7 +108,7 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT; // TODO
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
     if (_executeCommands.size() > 1) beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
     VkCommandBufferInheritanceInfo inheritanceInfo;

@@ -105,4 +105,8 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorConfigurator);
 
+    /// provide for backwards compatibility
+    using GraphicsPipelineConfig = GraphicsPipelineConfigurator;
+    using DescriptorConfig = DescriptorConfigurator;
+
 } // namespace vsg

@@ -290,15 +290,19 @@ Path vsg::executableFilePath()
     if (result && result < std::size(buf))
         path = buf;
 #elif defined(__linux__)
-    // TODO need to handle case where executable filename is longer than PATH_MAX
-    // See https://stackoverflow.com/questions/5525668/how-to-implement-readlink-to-find-the-path
-    char buf[PATH_MAX + 1];
-    ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
-    if (len != -1)
+
+    std::vector<char> buffer(1024);
+    ssize_t len = 0;
+    while ( (len = ::readlink("/proc/self/exe", buffer.data(), buffer.size())) == static_cast<ssize_t>(buffer.size()))
     {
-        buf[len] = '\0';
-        path = buf;
+        buffer.resize(buffer.size() * 2);
     }
+
+    // add terminator to string.
+    buffer[len] = '\0';
+
+    return buffer.data();
+
 #elif defined(__APPLE__)
 #    if TARGET_OS_MAC
     char realPathName[PATH_MAX + 1];

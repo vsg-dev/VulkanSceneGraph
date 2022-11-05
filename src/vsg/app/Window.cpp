@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/core/Exception.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/SubmitCommands.h>
 
@@ -32,7 +33,6 @@ Window::Window(ref_ptr<WindowTraits> traits) :
 
 Window::~Window()
 {
-    // do we need to call clear()?
 }
 
 void Window::clear()
@@ -447,7 +447,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
     }
     else
     {
-        // TODO: Need to think about what should happen on failure
+        vsg::debug("Window::acquireNextImage(uint64_t timeout) _swapchain->acquireNextImage(...) failed with result = ", result);
     }
 
     return result;

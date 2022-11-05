@@ -123,8 +123,6 @@ struct TriangleIntersector
             return false;
         }
 
-        // TODO : handle hit
-
         dvec3 intersection = dvec3(dvec3(v0) * double(r0) + dvec3(v1) * double(r1) + dvec3(v2) * double(r2));
         intersector.add(intersection, double(r), {{i0, r0}, {i1, r1}, {i2, r2}}, instanceIndex);
 

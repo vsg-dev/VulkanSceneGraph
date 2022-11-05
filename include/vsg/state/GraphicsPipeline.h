@@ -79,7 +79,6 @@ namespace vsg
 
             VkPipeline _pipeline;
 
-            // TODO need to convert to use Implementation versions of RenderPass and PipelineLayout
             ref_ptr<Device> _device;
         };
 

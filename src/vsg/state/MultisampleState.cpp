@@ -60,7 +60,11 @@ void MultisampleState::read(Input& input)
     input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
     input.read("minSampleShading", minSampleShading);
 
-    sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask")); // TODO review capitalization
+    if (input.version_greater_equal(0, 7, 3))
+        sampleMasks.resize(input.readValue<uint32_t>("sampleMasks"));
+    else
+        sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask"));
+
     for (auto& mask : sampleMasks)
     {
         input.readValue<uint32_t>("value", mask);
@@ -78,7 +82,11 @@ void MultisampleState::write(Output& output) const
     output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
     output.write("minSampleShading", minSampleShading);
 
-    output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size()); // TODO review capitalization
+    if (output.version_greater_equal(0, 7, 3))
+        output.writeValue<uint32_t>("sampleMasks", sampleMasks.size());
+    else
+        output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size());
+
     for (auto& mask : sampleMasks)
     {
         output.writeValue<uint32_t>("value", mask);

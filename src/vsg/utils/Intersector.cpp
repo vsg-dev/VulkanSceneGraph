@@ -130,38 +130,7 @@ void Intersector::apply(const VertexIndexDraw& vid)
 
     PushPopNode ppn(_nodePath, &vid);
 
-#if 0
-    dsphere bound;
-    if (!vid.getValue("bound", bound))
-    {
-        // TODO ignores instancing
-        box bb;
-        for (auto& vertex : *arrayState.vertices) bb.add(vertex);
-
-        if (bb.valid())
-        {
-            bound.center = (bb.min + bb.max) * 0.5f;
-            bound.radius = length(bb.max - bb.min) * 0.5f;
-
-            // hacky but better to reuse results.  Perhaps use a std::map<> to avoid a breaking const, or make the visitor non const?
-            const_cast<VertexIndexDraw&>(vid).setValue("bound", bound);
-        }
-
-        //debug("Computed bounding sphere : ", bound.center, ", ", bound.radius);
-    }
-    else
-    {
-        //debug("Found bounding sphere : ", bound.center, ", ", bound.radius);
-    }
-
-    if (intersects(bound))
-    {
-
-        intersectDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
-    }
-#else
     intersectDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
-#endif
 }
 
 void Intersector::apply(const Geometry& geometry)

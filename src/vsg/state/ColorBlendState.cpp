@@ -69,7 +69,12 @@ void ColorBlendState::read(Input& input)
     input.readValue<uint32_t>("logicOp", logicOp);
     input.readValue<uint32_t>("logicOpEnable", logicOpEnable);
 
-    attachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments")); // TODO review capitalization
+
+    if (input.version_greater_equal(0, 7, 3))
+        attachments.resize(input.readValue<uint32_t>("attachments"));
+    else
+        attachments.resize(input.readValue<uint32_t>("NumColorBlendAttachments"));
+
     for (auto& colorBlendAttachment : attachments)
     {
         input.readValue<uint32_t>("blendEnable", colorBlendAttachment.blendEnable);
@@ -92,7 +97,11 @@ void ColorBlendState::write(Output& output) const
     output.writeValue<uint32_t>("logicOp", logicOp);
     output.writeValue<uint32_t>("logicOpEnable", logicOpEnable);
 
-    output.writeValue<uint32_t>("NumColorBlendAttachments", attachments.size()); // TODO review capitalization
+    if (output.version_greater_equal(0, 7, 3))
+        output.writeValue<uint32_t>("attachments", attachments.size());
+    else
+        output.writeValue<uint32_t>("NumColorBlendAttachments", attachments.size());
+
     for (auto& colorBlendAttachment : attachments)
     {
         output.writeValue<uint32_t>("blendEnable", colorBlendAttachment.blendEnable);
