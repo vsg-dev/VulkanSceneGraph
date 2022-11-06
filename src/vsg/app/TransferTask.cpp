@@ -577,7 +577,9 @@ VkResult TransferTask::transferDynamicData()
 
     size_t frameIndex = index(0);
     if (frameIndex > _frames.size()) return VK_SUCCESS;
-    if (_dynamicDataMap.empty() && _dynamicImageInfoSet.empty()) return VK_SUCCESS;
+
+    VkDeviceSize totalSize = _dynamicDataTotalSize + _dynamicImageTotalSize;
+    if (totalSize == 0) return VK_SUCCESS;
 
     uint32_t deviceID = device->deviceID;
     auto& frame = _frames[frameIndex];
@@ -610,7 +612,6 @@ VkResult TransferTask::transferDynamicData()
     VkResult result = VK_SUCCESS;
 
     // allocate staging buffer if required
-    VkDeviceSize totalSize = _dynamicDataTotalSize + _dynamicImageTotalSize;
     if (!staging || staging->size < totalSize)
     {
         VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
