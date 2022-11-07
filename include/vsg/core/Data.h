@@ -108,6 +108,9 @@ namespace vsg
          * A single block (Block64/Block128) is stored as a single value with the Data object. */
         struct Properties
         {
+            Properties() = default;
+            Properties(const Properties& rhs) = default;
+
             VkFormat format = VK_FORMAT_UNDEFINED;
             uint32_t stride = 0;
             uint8_t maxNumMipmaps = 0;
@@ -119,10 +122,8 @@ namespace vsg
             DataVariance dataVariance = STATIC_DATA; /// hint as how the data values may change during the lifetime of the vsg::Data.
             AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;
 
-            int compare(const Properties& rhs) const
-            {
-                return compare_region(format, allocatorType, rhs.format);
-            }
+            int compare(const Properties& rhs) const;
+            Properties& operator=(const Properties& rhs);
         };
 
         Data() {}

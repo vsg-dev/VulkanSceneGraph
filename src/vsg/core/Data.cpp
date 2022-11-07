@@ -18,6 +18,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+int Data::Properties::compare(const Properties& rhs) const
+{
+    return compare_region(format, allocatorType, rhs.format);
+}
+
+Data::Properties& Data::Properties::operator=(const Properties& rhs)
+{
+    if (&rhs == this) return *this;
+
+    format = rhs.format;
+    if (rhs.stride != 0) stride = rhs.stride;
+    maxNumMipmaps = rhs.maxNumMipmaps;
+    blockWidth = rhs.blockWidth;
+    blockHeight = rhs.blockHeight;
+    blockDepth = rhs.blockDepth;
+    origin = rhs.origin;
+    imageViewType = rhs.imageViewType;
+    dataVariance = rhs.dataVariance;
+    allocatorType = rhs.allocatorType;
+
+    return *this;
+}
+
 void* Data::operator new(std::size_t count)
 {
     return vsg::allocate(count, vsg::ALLOCATOR_AFFINITY_DATA);
