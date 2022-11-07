@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC BufferView : public Inherit<Object, BufferView>
     {
     public:
-
         BufferView();
         BufferView(ref_ptr<Buffer> buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range);
 

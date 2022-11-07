@@ -293,7 +293,7 @@ Path vsg::executableFilePath()
 
     std::vector<char> buffer(1024);
     ssize_t len = 0;
-    while ( (len = ::readlink("/proc/self/exe", buffer.data(), buffer.size())) == static_cast<ssize_t>(buffer.size()))
+    while ((len = ::readlink("/proc/self/exe", buffer.data(), buffer.size())) == static_cast<ssize_t>(buffer.size()))
     {
         buffer.resize(buffer.size() * 2);
     }

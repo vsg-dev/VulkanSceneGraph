@@ -69,7 +69,6 @@ void ColorBlendState::read(Input& input)
     input.readValue<uint32_t>("logicOp", logicOp);
     input.readValue<uint32_t>("logicOpEnable", logicOpEnable);
 
-
     if (input.version_greater_equal(0, 7, 3))
         attachments.resize(input.readValue<uint32_t>("attachments"));
     else
