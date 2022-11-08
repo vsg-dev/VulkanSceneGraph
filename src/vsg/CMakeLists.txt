@@ -323,9 +323,11 @@ if (glslang_FOUND)
         set(EXTRA_DEFINES ${EXTRA_DEFINES} "GLSLANG_ResourceLimits_maxMeshViewCountEXT")
     endif()
 
+    set(FIND_DEPENDENCY_GLSLANG "include(\"\${CMAKE_CURRENT_LIST_DIR}/vsg_glslangConfig.cmake\")")
+
     install(
         FILES vsg_glslangConfig.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg_glslang
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg
     )
 endif()
 
@@ -440,8 +442,15 @@ target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/includ
 
 target_link_libraries(vsg ${LIBRARIES})
 
-
 install(TARGETS vsg ${INSTALL_TARGETS_DEFAULT_FLAGS})
+
+install(
+    FILES
+        "${VSG_SOURCE_DIR}/cmake/FindVulkan.cmake"
+        "${VSG_SOURCE_DIR}/cmake/vsgMacros.cmake"
+    DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}/cmake/vsg
+)
 
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
@@ -453,7 +462,7 @@ if (NOT(${VSG_BINARY_DIR} STREQUAL ${VSG_SOURCE_DIR}))
 endif()
 
 if (glslang_FOUND)
-    set(FIND_DEPENDENCY_GLSLANG "find_dependency(vsg_glslang)")
+
 endif()
 
 vsg_add_cmake_support_files(
