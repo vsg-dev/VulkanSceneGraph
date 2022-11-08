@@ -110,6 +110,7 @@ namespace vsg
         {
             Properties() = default;
             Properties(const Properties& rhs) = default;
+            explicit Properties(VkFormat in_format) : format(in_format) {}
 
             VkFormat format = VK_FORMAT_UNDEFINED;
             uint32_t stride = 0;
