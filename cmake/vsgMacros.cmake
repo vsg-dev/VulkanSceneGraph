@@ -6,7 +6,6 @@
 if(NOT _vsg_macros_included)
     message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
     set(_vsg_macros_included 1)
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 endif()
 
 #

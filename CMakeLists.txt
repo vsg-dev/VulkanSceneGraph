@@ -105,8 +105,6 @@ if (${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
 
 endif()
 
-install(FILES "${VSG_SOURCE_DIR}/cmake/FindVulkan.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
-
 #
 # src directory contains all the source of the vsg library
 #
