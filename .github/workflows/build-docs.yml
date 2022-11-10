@@ -15,7 +15,7 @@ jobs:
       - name: Configure VulkanSceneGraph
         run: cmake -S . -B . -DCMAKE_BUILD_TYPE=Release
       - name: Build Documentation
-        run: make -j 2
+        run: make -j 2 docs
       - name: Publish Docs
         uses: actions/upload-artifact@v1
         with:
