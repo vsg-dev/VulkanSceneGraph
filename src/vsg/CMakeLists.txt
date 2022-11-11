@@ -456,6 +456,7 @@ install(TARGETS vsg ${INSTALL_TARGETS_DEFAULT_FLAGS})
 install(
     FILES
         "${VSG_SOURCE_DIR}/cmake/FindVulkan.cmake"
+        "${VSG_SOURCE_DIR}/cmake/uninstall.cmake"
         "${VSG_SOURCE_DIR}/cmake/vsgMacros.cmake"
     DESTINATION
         ${CMAKE_INSTALL_LIBDIR}/cmake/vsg
