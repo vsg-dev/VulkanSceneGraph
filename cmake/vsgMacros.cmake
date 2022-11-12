@@ -234,12 +234,16 @@ macro(vsg_add_target_clang_format)
         foreach(EXCLUDE ${ARGS_EXCLUDES})
             list(REMOVE_ITEM FILES_TO_FORMAT ${EXCLUDE})
         endforeach()
-        add_custom_target(clang-format
+        if (NOT TARGET clang-format)
+            add_custom_target(clang-format)
+        endif()
+        add_custom_target(clang-format-${PROJECT_NAME}
             COMMAND ${CLANGFORMAT} -i ${FILES_TO_FORMAT}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             COMMENT "Automated code format using clang-format"
         )
-        set_target_properties(clang-format PROPERTIES FOLDER ${PROJECT_NAME})
+        set_target_properties(clang-format-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
+        add_dependencies(clang-format clang-format-${PROJECT_NAME})
     endif()
 endmacro()
 
@@ -247,10 +251,14 @@ endmacro()
 # add 'clobber' build target to clear all the non git registered files/directories
 #
 macro(vsg_add_target_clobber)
-    add_custom_target(clobber
-        COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR} clean -d -f -x
+    if (NOT TARGET clobber)
+        add_custom_target(clobber)
+    endif()
+    add_custom_target(clobber-${PROJECT_NAME}
+        COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
     )
-    set_target_properties(clobber PROPERTIES FOLDER ${PROJECT_NAME})
+    set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
+    add_dependencies(clobber clobber-${PROJECT_NAME})
 endmacro()
 
 #
@@ -285,7 +293,10 @@ macro(vsg_add_target_cppcheck)
             set(SUPPRESSION_LIST "--suppressions-list=${ARGS_SUPPRESSIONS_LIST}")
         endif()
         set(CPPCHECK_EXTRA_OPTIONS "" CACHE STRING "additional commandline options to use when invoking cppcheck")
-        add_custom_target(cppcheck
+        if (NOT TARGET cppcheck)
+            add_custom_target(cppcheck)
+        endif()
+        add_custom_target(cppcheck-${PROJECT_NAME}
             COMMAND ${CPPCHECK} -j ${CPU_CORES} --quiet --enable=style --language=c++
                 ${CPPCHECK_EXTRA_OPTIONS}
                 ${SUPPRESSION_LIST}
@@ -294,6 +305,7 @@ macro(vsg_add_target_cppcheck)
             COMMENT "Static code analysis using cppcheck"
         )
         set_target_properties(cppcheck PROPERTIES FOLDER ${PROJECT_NAME})
+        add_dependencies(cppcheck cppcheck-${PROJECT_NAME})
     endif()
 endmacro()
 
@@ -315,13 +327,16 @@ macro(vsg_add_target_docs)
     if (DOXYGEN_FOUND)
         set(DOXYGEN_GENERATE_HTML YES)
         set(DOXYGEN_GENERATE_MAN NO)
-
+        if (NOT TARGET docs)
+            add_custom_target(docs)
+        endif()
         doxygen_add_docs(
-            docs
+            docs-${PROJECT_NAME}
             ${ARGS_FILES}
             COMMENT "Use doxygen to Generate html documentation"
         )
         set_target_properties(docs PROPERTIES FOLDER ${PROJECT_NAME})
+        add_dependencies(docs docs-${PROJECT_NAME})
     endif()
 endmacro()
 
@@ -331,16 +346,20 @@ endmacro()
 macro(vsg_add_target_uninstall)
     # we are running inside VulkanSceneGraph
     if (PROJECT_NAME STREQUAL "vsg")
-        # install file for client packages
-        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/uninstall.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vsg)
         set(DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+    elseif(vsg_DIR)
+        set(DIR ${vsg_DIR})
     else()
         set(DIR ${CMAKE_CURRENT_LIST_DIR})
     endif()
-    add_custom_target(uninstall
+    if (NOT TARGET uninstall)
+        add_custom_target(uninstall)
+    endif()
+    add_custom_target(uninstall-${PROJECT_NAME}
         COMMAND ${CMAKE_COMMAND} -P ${DIR}/uninstall.cmake
     )
-    set_target_properties(uninstall PROPERTIES FOLDER ${PROJECT_NAME})
+    set_target_properties(uninstall-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
+    add_dependencies(uninstall uninstall-${PROJECT_NAME})
 endmacro()
 
 #
