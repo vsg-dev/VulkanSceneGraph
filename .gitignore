@@ -13,6 +13,7 @@ Doxyfile.docs
 docs/ExplorationPhase/3rdPartyResources.md.backup
 vsgConfigVersion.cmake
 vsgConfig.cmake
+Doxyfile.docs-vsg
 
 html
 
