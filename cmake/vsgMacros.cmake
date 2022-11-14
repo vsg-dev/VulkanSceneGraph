@@ -251,14 +251,22 @@ endmacro()
 # add 'clobber' build target to clear all the non git registered files/directories
 #
 macro(vsg_add_target_clobber)
-    if (NOT TARGET clobber)
-        add_custom_target(clobber)
+    # in source builds does not support dependencies here
+    # see https://github.com/vsg-dev/VulkanSceneGraph/pull/566#issuecomment-1312496507
+    if (PROJECT_BINARY_DIR STREQUAL PROJECT_SOURCE_DIR)
+        add_custom_target(clobber
+            COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
+        )
+    else()
+        if (NOT TARGET clobber)
+            add_custom_target(clobber)
+        endif()
+        add_custom_target(clobber-${PROJECT_NAME}
+            COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
+        )
+        set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
+        add_dependencies(clobber clobber-${PROJECT_NAME})
     endif()
-    add_custom_target(clobber-${PROJECT_NAME}
-        COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
-    )
-    set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
-    add_dependencies(clobber clobber-${PROJECT_NAME})
 endmacro()
 
 #
