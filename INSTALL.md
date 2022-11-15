@@ -204,6 +204,24 @@ For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targe
 	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
+### Using VSG provided cmake macro to generate cmake support files
+
+Projects that install a library must generate some cmake-related files so that the library can be found by ```find_package()```. To simplify the generation of these files, the cmake macro ```vsg_add_cmake_support_files()``` has been added. 
+
+In addition to calling the macro, it requires a template for creating the xxxConfig.cmake file, as given in the following example:
+
+	src/xxx/
+	      CMakeLists.txt
+	      xxxConfig.cmake.in
+
+In the file ``CMakeLists.txt`` the call then looks like this:
+
+	    vsg_add_cmake_support_files(
+	        CONFIG_TEMPLATE xxxConfig.cmake.in
+	    )
+
+Hints for the structure of the template file can be found at https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#creating-a-package-configuration-file.
+
 ---
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
