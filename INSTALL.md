@@ -171,6 +171,39 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
+### Using VSG provided cmake macros within your own projects
+
+The build system provides macros that create specific cmake targets to use in their project. Examples include: Setup of common cmake variables, Formatting source code, performing static code analysis, creating API documentation, cleaning up source directories, and removing installed files. Documentation of the available macros (the public ones starting with ```vsg_```) are at https://github.com/vsg-dev/VulkanSceneGraph/blob/master/cmake/vsgMacros.cmake.
+
+For example, a bare minimum CMakeLists.txt file adding the mentioned cmake target would be:
+
+	cmake_minimum_required(VERSION 3.7)
+	find_package(vsg REQUIRED)
+
+	vsg_setup_dir_vars()
+	vsg_setup_build_vars()
+
+	vsg_add_target_clang_format(
+	    FILES
+	        ${PROJECT_SOURCE_DIR}/include/*/*.h
+	        ${PROJECT_SOURCE_DIR}/src/*/*.cpp
+	)
+	vsg_add_target_cppcheck(
+	    FILES
+	        ${PROJECT_SOURCE_DIR}/include/*/*.h
+	        ${PROJECT_SOURCE_DIR}/src/*/*.cpp
+	)
+	vsg_add_target_clobber()
+	vsg_add_target_docs(
+	    FILES
+	        ${PROJECT_SOURCE_DIR}/include/*/*.h
+	)
+	vsg_add_target_uninstall()
+
+	add_executable(myapp "myapp.cpp")
+	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
+	target_link_libraries(myapp vsg::vsg)
+
 ---
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
