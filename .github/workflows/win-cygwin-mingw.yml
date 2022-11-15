@@ -35,8 +35,19 @@ jobs:
     - uses: actions/checkout@v2 
     - name: Setup Cygwin
       uses: egor-tensin/setup-cygwin@v3
-      with:
-        packages: cmake gcc-g++ ninja pkg-config libxcb-devel
+      #with:
+        #packages: cmake gcc-g++ ninja pkg-config libxcb-devel
+        
+    - name: Package installation workaround
+      run: C:\tools\cygwin\cygwinsetup.exe \
+           --quiet-mode \
+           --no-desktop \
+           --no-startmenu \
+           --root C:\tools\cygwin\ \
+           --local-package-dir C:\tools\cygwin\packages \
+           --site "http://mirrors.kernel.org/sourceware/cygwin/" \
+           --packages cmake gcc-g++ ninja pkg-config libxcb-devel
+
     - name: Build in Cygwin
       env:
         VSG_BUILD_PATH: ${{ github.workspace }}
