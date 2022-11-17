@@ -9,9 +9,9 @@ endmacro()
 
 macro(BUILD_ALL_H)
 
-    set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    set(INCLUDE_DIR ${VSG_SOURCE_DIR}/include)
 
-    file(GLOB CORE_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/core/*.h )
+    file(GLOB CORE_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/core/*.h RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/vsg/core/*.h )
     file(GLOB MATHS_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/maths/*.h )
     file(GLOB NODES_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/nodes/*.h )
     file(GLOB THREADING_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/threading/*.h )
@@ -26,7 +26,7 @@ macro(BUILD_ALL_H)
     file(GLOB RAYTRACING_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/raytracing/*.h )
     file(GLOB RTX_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/rtx/*.h )
 
-    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/cmake/header_license_preamble.txt ALL_H_CONTENTS)
+    file(READ ${VSG_SOURCE_DIR}/cmake/header_license_preamble.txt ALL_H_CONTENTS)
     APPEND_INCLUDES(ALL_H_CONTENTS CORE_HEADERS "// Core header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS MATHS_HEADERS "// Maths header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS NODES_HEADERS "// Node header files\n")
@@ -42,7 +42,7 @@ macro(BUILD_ALL_H)
     APPEND_INCLUDES(ALL_H_CONTENTS RAYTRACING_HEADERS "// Ray tracing header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS RTX_HEADERS "// RTX mesh  header files\n")
 
-    file(WRITE include/vsg/all.h ${ALL_H_CONTENTS})
+    file(WRITE ${INCLUDE_DIR}/vsg/all.h ${ALL_H_CONTENTS})
 
 endmacro()
 
