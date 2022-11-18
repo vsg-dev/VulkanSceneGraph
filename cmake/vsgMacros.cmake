@@ -77,8 +77,11 @@ macro(vsg_setup_dir_vars)
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    )
+        )
     endif()
+
+    # provide backwards compatibility to VulkanSceneGraph-1.0.0
+    set(INSTALL_TARGETS_DEFAULT_FLAGS ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
 endmacro()
 
 #
