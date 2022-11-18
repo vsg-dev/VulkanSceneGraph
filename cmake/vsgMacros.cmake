@@ -60,7 +60,7 @@ macro(vsg_setup_dir_vars)
         # set up local bin directory to place all binaries
         make_directory(${OUTPUT_BINDIR})
         make_directory(${OUTPUT_LIBDIR})
-        set(INSTALL_TARGETS_DEFAULT_FLAGS
+        set(VSG_INSTALL_TARGETS_DEFAULT_FLAGS
             EXPORT ${PROJECT_NAME}Targets
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -71,14 +71,17 @@ macro(vsg_setup_dir_vars)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
         # set up local bin directory to place all binaries
         make_directory(${OUTPUT_LIBDIR})
-        set(INSTALL_TARGETS_DEFAULT_FLAGS
+        set(VSG_INSTALL_TARGETS_DEFAULT_FLAGS
             EXPORT ${PROJECT_NAME}Targets
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    )
+        )
     endif()
+
+    # provide backwards compatibility to VulkanSceneGraph-1.0.0
+    set(INSTALL_TARGETS_DEFAULT_FLAGS ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
 endmacro()
 
 #
