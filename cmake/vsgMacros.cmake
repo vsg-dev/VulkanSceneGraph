@@ -2,6 +2,8 @@
 # macros provided by the vsg library
 #
 
+find_package(Git QUIET)
+
 # give hint for cmake developers
 if(NOT _vsg_macros_included)
     message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
@@ -162,52 +164,55 @@ endmacro()
 #    branch-test  show the command to create a branch in the git repository
 #
 macro(vsg_add_option_maintainer)
-    set(options)
-    set(oneValueArgs PREFIX RCLEVEL)
-    set(multiValueArgs)
-    cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    option(MAINTAINER "Enable maintainer build methods, such as making git branches and tags." OFF)
-    if(MAINTAINER)
+    if(Git_FOUND)
+        set(options)
+        set(oneValueArgs PREFIX RCLEVEL)
+        set(multiValueArgs)
+        cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-        #
-        # Provide target for tagging a release
-        #
-        set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+        option(MAINTAINER "Enable maintainer build methods, such as making git branches and tags." OFF)
+        if(MAINTAINER)
 
-        set(GITCOMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR})
-        set(ECHO ${CMAKE_COMMAND} -E echo)
-        set(REMOTE origin)
+            #
+            # Provide target for tagging a release
+            #
+            set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
-        if(ARGS_RCLEVEL EQUAL 0)
-            set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION})
-        else()
-            set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION}-rc${ARGS_RCLEVEL})
+            set(GITCOMMAND ${GIT_EXECUTABLE} -C ${CMAKE_CURRENT_SOURCE_DIR})
+            set(ECHO ${CMAKE_COMMAND} -E echo)
+            set(REMOTE origin)
+
+            if(ARGS_RCLEVEL EQUAL 0)
+                set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION})
+            else()
+                set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION}-rc${ARGS_RCLEVEL})
+            endif()
+
+            set(RELEASE_MESSAGE "Release ${RELEASE_NAME}")
+            set(BRANCH_MESSAGE "Branch ${VSG_BRANCH}")
+
+            add_custom_target(tag-test
+                COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m \"${RELEASE_MESSAGE}\"
+                COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
+            )
+
+            add_custom_target(tag-run
+                COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m "${RELEASE_MESSAGE}"
+                COMMAND ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
+            )
+
+            add_custom_target(branch-test
+                COMMAND ${ECHO} ${GITCOMMAND} branch ${VSG_BRANCH}
+                COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
+            )
+
+            add_custom_target(branch-run
+                COMMAND ${GITCOMMAND} branch ${VSG_BRANCH}
+                COMMAND ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
+            )
+
         endif()
-
-        set(RELEASE_MESSAGE "Release ${RELEASE_NAME}")
-        set(BRANCH_MESSAGE "Branch ${VSG_BRANCH}")
-
-        add_custom_target(tag-test
-            COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m \"${RELEASE_MESSAGE}\"
-            COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
-        )
-
-        add_custom_target(tag-run
-            COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m "${RELEASE_MESSAGE}"
-            COMMAND ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
-        )
-
-        add_custom_target(branch-test
-            COMMAND ${ECHO} ${GITCOMMAND} branch ${VSG_BRANCH}
-            COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
-        )
-
-        add_custom_target(branch-run
-            COMMAND ${GITCOMMAND} branch ${VSG_BRANCH}
-            COMMAND ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
-        )
-
     endif()
 endmacro()
 
@@ -262,21 +267,23 @@ endmacro()
 # project and added as a dependency to the parent target 'clobber'
 #
 macro(vsg_add_target_clobber)
-    # in source builds does not support dependencies here
-    # see https://github.com/vsg-dev/VulkanSceneGraph/pull/566#issuecomment-1312496507
-    if (PROJECT_BINARY_DIR STREQUAL PROJECT_SOURCE_DIR)
-        add_custom_target(clobber
-            COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
-        )
-    else()
-        if (NOT TARGET clobber)
-            add_custom_target(clobber)
+    if(Git_FOUND)
+        # in source builds does not support dependencies here
+        # see https://github.com/vsg-dev/VulkanSceneGraph/pull/566#issuecomment-1312496507
+        if (PROJECT_BINARY_DIR STREQUAL PROJECT_SOURCE_DIR)
+            add_custom_target(clobber
+                COMMAND ${GIT_EXECUTABLE} -C ${PROJECT_SOURCE_DIR} clean -d -f -x
+            )
+        else()
+            if (NOT TARGET clobber)
+                add_custom_target(clobber)
+            endif()
+            add_custom_target(clobber-${PROJECT_NAME}
+                COMMAND ${GIT_EXECUTABLE} -C ${PROJECT_SOURCE_DIR} clean -d -f -x
+            )
+            set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
+            add_dependencies(clobber clobber-${PROJECT_NAME})
         endif()
-        add_custom_target(clobber-${PROJECT_NAME}
-            COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
-        )
-        set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
-        add_dependencies(clobber clobber-${PROJECT_NAME})
     endif()
 endmacro()
 
