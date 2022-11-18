@@ -450,7 +450,7 @@ if (NOT(${VSG_BINARY_DIR} STREQUAL ${VSG_SOURCE_DIR}))
 endif()
 
 # install lib
-install(TARGETS vsg ${INSTALL_TARGETS_DEFAULT_FLAGS})
+install(TARGETS vsg ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
 
 # instal cmake config files.
 install(
