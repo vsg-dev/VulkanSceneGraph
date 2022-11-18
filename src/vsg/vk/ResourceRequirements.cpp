@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/MultisampleState.h>
@@ -254,6 +255,11 @@ void CollectResourceRequirements::apply(const Geometry& geometry)
 {
     for (auto& bufferInfo : geometry.arrays) apply(bufferInfo);
     apply(geometry.indices);
+}
+
+void CollectResourceRequirements::apply(const VertexDraw& vd)
+{
+    for (auto& bufferInfo : vd.arrays) apply(bufferInfo);
 }
 
 void CollectResourceRequirements::apply(const VertexIndexDraw& vid)

@@ -2,6 +2,8 @@
 # macros provided by the vsg library
 #
 
+find_package(Git QUIET)
+
 # give hint for cmake developers
 if(NOT _vsg_macros_included)
     message(STATUS "Reading 'vsg_...' macros from ${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake - look there for documentation")
@@ -58,7 +60,7 @@ macro(vsg_setup_dir_vars)
         # set up local bin directory to place all binaries
         make_directory(${OUTPUT_BINDIR})
         make_directory(${OUTPUT_LIBDIR})
-        set(INSTALL_TARGETS_DEFAULT_FLAGS
+        set(VSG_INSTALL_TARGETS_DEFAULT_FLAGS
             EXPORT ${PROJECT_NAME}Targets
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -69,14 +71,17 @@ macro(vsg_setup_dir_vars)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
         # set up local bin directory to place all binaries
         make_directory(${OUTPUT_LIBDIR})
-        set(INSTALL_TARGETS_DEFAULT_FLAGS
+        set(VSG_INSTALL_TARGETS_DEFAULT_FLAGS
             EXPORT ${PROJECT_NAME}Targets
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    )
+        )
     endif()
+
+    # provide backwards compatibility to VulkanSceneGraph-1.0.0
+    set(INSTALL_TARGETS_DEFAULT_FLAGS ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
 endmacro()
 
 #
@@ -162,52 +167,55 @@ endmacro()
 #    branch-test  show the command to create a branch in the git repository
 #
 macro(vsg_add_option_maintainer)
-    set(options)
-    set(oneValueArgs PREFIX RCLEVEL)
-    set(multiValueArgs)
-    cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    option(MAINTAINER "Enable maintainer build methods, such as making git branches and tags." OFF)
-    if(MAINTAINER)
+    if(Git_FOUND)
+        set(options)
+        set(oneValueArgs PREFIX RCLEVEL)
+        set(multiValueArgs)
+        cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-        #
-        # Provide target for tagging a release
-        #
-        set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+        option(MAINTAINER "Enable maintainer build methods, such as making git branches and tags." OFF)
+        if(MAINTAINER)
 
-        set(GITCOMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR})
-        set(ECHO ${CMAKE_COMMAND} -E echo)
-        set(REMOTE origin)
+            #
+            # Provide target for tagging a release
+            #
+            set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
-        if(ARGS_RCLEVEL EQUAL 0)
-            set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION})
-        else()
-            set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION}-rc${ARGS_RCLEVEL})
+            set(GITCOMMAND ${GIT_EXECUTABLE} -C ${CMAKE_CURRENT_SOURCE_DIR})
+            set(ECHO ${CMAKE_COMMAND} -E echo)
+            set(REMOTE origin)
+
+            if(ARGS_RCLEVEL EQUAL 0)
+                set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION})
+            else()
+                set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION}-rc${ARGS_RCLEVEL})
+            endif()
+
+            set(RELEASE_MESSAGE "Release ${RELEASE_NAME}")
+            set(BRANCH_MESSAGE "Branch ${VSG_BRANCH}")
+
+            add_custom_target(tag-test
+                COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m \"${RELEASE_MESSAGE}\"
+                COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
+            )
+
+            add_custom_target(tag-run
+                COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m "${RELEASE_MESSAGE}"
+                COMMAND ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
+            )
+
+            add_custom_target(branch-test
+                COMMAND ${ECHO} ${GITCOMMAND} branch ${VSG_BRANCH}
+                COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
+            )
+
+            add_custom_target(branch-run
+                COMMAND ${GITCOMMAND} branch ${VSG_BRANCH}
+                COMMAND ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
+            )
+
         endif()
-
-        set(RELEASE_MESSAGE "Release ${RELEASE_NAME}")
-        set(BRANCH_MESSAGE "Branch ${VSG_BRANCH}")
-
-        add_custom_target(tag-test
-            COMMAND ${ECHO} ${GITCOMMAND} tag -a ${RELEASE_NAME} -m \"${RELEASE_MESSAGE}\"
-            COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
-        )
-
-        add_custom_target(tag-run
-            COMMAND ${GITCOMMAND} tag -a ${RELEASE_NAME} -m "${RELEASE_MESSAGE}"
-            COMMAND ${GITCOMMAND} push ${REMOTE} ${RELEASE_NAME}
-        )
-
-        add_custom_target(branch-test
-            COMMAND ${ECHO} ${GITCOMMAND} branch ${VSG_BRANCH}
-            COMMAND ${ECHO} ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
-        )
-
-        add_custom_target(branch-run
-            COMMAND ${GITCOMMAND} branch ${VSG_BRANCH}
-            COMMAND ${GITCOMMAND} push ${REMOTE} ${VSG_BRANCH}
-        )
-
     endif()
 endmacro()
 
@@ -219,6 +227,13 @@ endmacro()
 #    FILES      list with file names or file name pattern
 #    EXCLUDES   list with file names to exclude from the list
 #               given by the FILES argument
+#
+# To support cmake projects with submodules, it is necessary to use
+# PROJECT_SOURCE_DIR as prefix for file names.
+#
+# If vsg is used in a cmake project with submodules, additional targets
+# named 'clang-format-${PROJECT}' are created for the corresponding
+# project and added as a dependency to the parent target 'clang-format'.
 #
 macro(vsg_add_target_clang_format)
     set(options)
@@ -250,15 +265,29 @@ endmacro()
 #
 # add 'clobber' build target to clear all the non git registered files/directories
 #
+# If vsg is used in a cmake project with submodules and out-of-source builds, additional
+# targets named 'clobber-${PROJECT}' are created for the corresponding
+# project and added as a dependency to the parent target 'clobber'
+#
 macro(vsg_add_target_clobber)
-    if (NOT TARGET clobber)
-        add_custom_target(clobber)
+    if(Git_FOUND)
+        # in source builds does not support dependencies here
+        # see https://github.com/vsg-dev/VulkanSceneGraph/pull/566#issuecomment-1312496507
+        if (PROJECT_BINARY_DIR STREQUAL PROJECT_SOURCE_DIR)
+            add_custom_target(clobber
+                COMMAND ${GIT_EXECUTABLE} -C ${PROJECT_SOURCE_DIR} clean -d -f -x
+            )
+        else()
+            if (NOT TARGET clobber)
+                add_custom_target(clobber)
+            endif()
+            add_custom_target(clobber-${PROJECT_NAME}
+                COMMAND ${GIT_EXECUTABLE} -C ${PROJECT_SOURCE_DIR} clean -d -f -x
+            )
+            set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
+            add_dependencies(clobber clobber-${PROJECT_NAME})
+        endif()
     endif()
-    add_custom_target(clobber-${PROJECT_NAME}
-        COMMAND git -C ${PROJECT_SOURCE_DIR} clean -d -f -x
-    )
-    set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER ${PROJECT_NAME})
-    add_dependencies(clobber clobber-${PROJECT_NAME})
 endmacro()
 
 #
@@ -272,6 +301,13 @@ endmacro()
 # used global cmake variables:
 #
 #    CPPCHECK_EXTRA_OPTIONS - add extra options to cppcheck command line
+#
+# To support cmake projects with submodules, it is necessary to use
+# PROJECT_SOURCE_DIR as prefix for file names.
+
+# If vsg is used in a cmake project with submodules, additional targets
+# named 'cppcheck-${PROJECT}' are created for the corresponding
+# project and added as a dependency to the parent target 'cppcheck'.
 #
 macro(vsg_add_target_cppcheck)
     set(options)
@@ -310,11 +346,18 @@ macro(vsg_add_target_cppcheck)
 endmacro()
 
 #
-# add 'docs' build target
+# add 'docs' build target to provide API documentation generated by doxygen
 #
 # available arguments:
 #
 #    FILES      list with file or directory names
+#
+# To support cmake projects with submodules, it is necessary to use
+# PROJECT_SOURCE_DIR as prefix for file names.
+#
+# If vsg is used in a cmake project with submodules, additional targets
+# named 'docs-${PROJECT}' are created for the corresponding
+# project and added as a dependency to the parent target 'docs'.
 #
 macro(vsg_add_target_docs)
     set(options)
@@ -342,6 +385,10 @@ endmacro()
 
 #
 # add 'uninstall' build target
+#
+# If vsg is used in a cmake project with submodules, additional targets
+# named 'uninstall-${PROJECT}' are created for the corresponding
+# project and added as a dependency to the parent target 'uninstall'.
 #
 macro(vsg_add_target_uninstall)
     # we are running inside VulkanSceneGraph
