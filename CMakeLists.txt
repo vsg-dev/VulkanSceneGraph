@@ -87,21 +87,16 @@ vsg_add_target_docs(
         ${VSG_SOURCE_DIR}/include/vsg
 )
 
-# only provide custom targets if not building as a submodule/FetchContent
-if (${CMAKE_CURRENT_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
+add_custom_target(build_all_h
+    COMMAND ${CMAKE_COMMAND} -DVSG_SOURCE_DIR=${VSG_SOURCE_DIR} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
+)
+set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
-    # automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
-    add_custom_target(build_all_h
-        COMMAND ${CMAKE_COMMAND} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
-    )
-    set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
-
-    vsg_add_option_maintainer(
-        PREFIX VulkanSceneGraph
-        RCLEVEL ${VSG_RELEASE_CANDIDATE}
-    )
-
-endif()
+vsg_add_option_maintainer(
+    PREFIX VulkanSceneGraph
+    RCLEVEL ${VSG_RELEASE_CANDIDATE}
+)
 
 #
 # src directory contains all the source of the vsg library
