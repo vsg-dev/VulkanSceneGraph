@@ -383,6 +383,8 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
             if (layout.horizontalAlignment != BASELINE_ALIGNMENT || layout.verticalAlignment != BASELINE_ALIGNMENT)
             {
+                vec2 alignment(0.0f, 0.0f);
+
                 float left = textQuads[start_of_conversion].vertices[0].x;
                 float right = textQuads[start_of_conversion].vertices[1].x;
                 float bottom = textQuads[start_of_conversion].vertices[0].y;
@@ -398,19 +400,21 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
                 switch (layout.horizontalAlignment)
                 {
-                case (BASELINE_ALIGNMENT): offset.x = 0.0f; break;
-                case (LEFT_ALIGNMENT): offset.x = -left; break;
-                case (CENTER_ALIGNMENT): offset.x = -(right + left) * 0.5f; break;
-                case (RIGHT_ALIGNMENT): offset.x = -right; break;
+                case (BASELINE_ALIGNMENT): alignment.x = 0.0f; break;
+                case (LEFT_ALIGNMENT): alignment.x = -left; break;
+                case (CENTER_ALIGNMENT): alignment.x = -(right + left) * 0.5f; break;
+                case (RIGHT_ALIGNMENT): alignment.x = -right; break;
                 }
 
                 switch (layout.verticalAlignment)
                 {
-                case (BASELINE_ALIGNMENT): offset.y = 0.0f; break;
-                case (TOP_ALIGNMENT): offset.y = -top; break;
-                case (CENTER_ALIGNMENT): offset.y = -(bottom + top) * 0.5f; break;
-                case (BOTTOM_ALIGNMENT): offset.y = -bottom; break;
+                case (BASELINE_ALIGNMENT): alignment.y = 0.0f; break;
+                case (TOP_ALIGNMENT): alignment.y = -top; break;
+                case (CENTER_ALIGNMENT): alignment.y = -(bottom + top) * 0.5f; break;
+                case (BOTTOM_ALIGNMENT): alignment.y = -bottom; break;
                 }
+
+                offset = layout.horizontal * alignment.x + layout.vertical * alignment.y;
             }
 
             if (!layout.billboard)
