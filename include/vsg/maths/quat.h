@@ -259,7 +259,7 @@ namespace vsg
     template<typename T>
     constexpr t_quat<T> inverse(const t_quat<T>& v)
     {
-        t_quat<T> c = conj(v);
+        t_quat<T> c = conjugate(v);
         T inverse_len = static_cast<T>(1.0) / length(v);
         return t_quat<T>(c[0] * inverse_len, c[1] * inverse_len, c[2] * inverse_len, c[3] * inverse_len);
     }
