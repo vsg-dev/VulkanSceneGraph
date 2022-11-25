@@ -41,7 +41,7 @@ namespace vsg
     public:
         Output(ref_ptr<const Options> in_options = {});
 
-        Options& operator=(const Options& rhs) = delete;
+        Output& operator=(const Output& rhs) = delete;
 
         /// write property name if appropriate for format
         virtual void writePropertyName(const char* propertyName) = 0;
@@ -50,7 +50,7 @@ namespace vsg
         virtual void writeEndOfLine() = 0;
 
         /// write contiguous array of value(s)
-        virtual void write(size_t num, const int8_t* values) = 0;
+        virtual void write(size_t num, const int8_t* value) = 0;
         virtual void write(size_t num, const uint8_t* value) = 0;
         virtual void write(size_t num, const int16_t* value) = 0;
         virtual void write(size_t num, const uint16_t* value) = 0;

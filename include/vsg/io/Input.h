@@ -44,7 +44,7 @@ namespace vsg
     public:
         Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options = {});
 
-        Options& operator=(const Options& rhs) = delete;
+        Input& operator=(const Input& rhs) = delete;
 
         /// return true if property name matches the next token in the stream, or if property names are not required for format
         virtual bool matchPropertyName(const char* propertyName) = 0;
