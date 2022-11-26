@@ -452,7 +452,7 @@ endif()
 # install lib
 install(TARGETS vsg ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
 
-# instal cmake config files.
+# install cmake config files.
 install(
     FILES
         "${VSG_SOURCE_DIR}/cmake/FindVulkan.cmake"
