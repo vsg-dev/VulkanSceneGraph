@@ -149,17 +149,20 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
 
     auto projectionMatrix = camera.projectionMatrix->transform();
     auto viewMatrix = camera.viewMatrix->transform();
-    auto inv_projectionViewMatrix = vsg::inverse(projectionMatrix * viewMatrix);
 
     bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
 
     vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.maxDepth : viewport.minDepth);
     vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.minDepth : viewport.maxDepth);
 
-    vsg::dvec3 world_near = inv_projectionViewMatrix * ndc_near;
-    vsg::dvec3 world_far = inv_projectionViewMatrix * ndc_far;
+    auto inv_projectionMatrix = vsg::inverse(projectionMatrix);
+    vsg::dvec3 eye_near = inv_projectionMatrix * ndc_near;
+    vsg::dvec3 eye_far = inv_projectionMatrix * ndc_far;
+    _lineSegmentStack.push_back(LineSegment{eye_near, eye_far});
 
-    _lineSegmentStack.push_back(LineSegment{world_near, world_far});
+    dmat4 eyeToWorld = inverse(viewMatrix);
+    _matrixStack.push_back(viewMatrix);
+    _lineSegmentStack.push_back(LineSegment{eyeToWorld * eye_near, eyeToWorld * eye_far});
 }
 
 LineSegmentIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex) :
@@ -177,18 +180,10 @@ LineSegmentIntersector::Intersection::Intersection(const dvec3& in_localIntersec
 ref_ptr<LineSegmentIntersector::Intersection> LineSegmentIntersector::add(const dvec3& coord, double ratio, const IndexRatios& indexRatios, uint32_t instanceIndex)
 {
     ref_ptr<Intersection> intersection;
-    if (_matrixStack.empty())
-    {
-        dmat4 m;
-        intersection = Intersection::create(coord, coord, ratio, m, _nodePath, arrayStateStack.back()->arrays, indexRatios, instanceIndex);
-        intersections.emplace_back(intersection);
-    }
-    else
-    {
-        auto& localToWorld = _matrixStack.back();
-        intersection = Intersection::create(coord, localToWorld * coord, ratio, localToWorld, _nodePath, arrayStateStack.back()->arrays, indexRatios, instanceIndex);
-        intersections.emplace_back(intersection);
-    }
+
+    auto localToWorld = computeTransform(_nodePath);
+    intersection = Intersection::create(coord, localToWorld * coord, ratio, localToWorld, _nodePath, arrayStateStack.back()->arrays, indexRatios, instanceIndex);
+    intersections.emplace_back(intersection);
 
     return intersection;
 }
