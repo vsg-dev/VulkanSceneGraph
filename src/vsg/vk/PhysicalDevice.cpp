@@ -59,6 +59,11 @@ int PhysicalDevice::getQueueFamily(VkQueueFlags queueFlags) const
         }
     }
 
+    if (bestFamily < 0 && queueFlags == VK_QUEUE_TRANSFER_BIT)
+    {
+        return getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    }
+
     return bestFamily;
 }
 

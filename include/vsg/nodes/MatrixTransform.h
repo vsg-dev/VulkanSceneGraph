@@ -33,7 +33,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        dmat4 transform(const dmat4& m) const override { return m * matrix; }
+        dmat4 transform(const dmat4& mv) const override { return mv * matrix; }
 
     protected:
     };

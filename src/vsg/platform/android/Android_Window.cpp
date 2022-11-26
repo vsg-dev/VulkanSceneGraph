@@ -322,14 +322,22 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
 {
     _keyboard = new KeyboardMap;
 
-    ANativeWindow* nativeWindow = std::any_cast<ANativeWindow*>(traits->nativeWindow);
-
-    if (nativeWindow == nullptr)
+    if( ! traits->getValue("nativeWindow", _window ) )
     {
-        throw Exception{"Error: vsg::Android_Window::Android_Window(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        vsg::log(vsg::Logger::LOGGER_WARN, "Value 'nativeWindow' not provided on WindowTraits object. Falling back to std::any_cast<ANativeWindow*> for Android window setup.");
     }
 
-    _window = nativeWindow;
+    if( _window == nullptr )
+    {
+        ANativeWindow* nativeWindow = std::any_cast<ANativeWindow*>(traits->nativeWindow);
+
+        if (nativeWindow == nullptr)
+        {
+            throw Exception{"Error: vsg::Android_Window::Android_Window(...) failed to create Window, traits->nativeHandle is not a valid ANativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        }
+
+        _window = nativeWindow;
+    }
 
     // we could get the width height from the window?
     uint32_t finalWidth = traits->width;

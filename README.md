@@ -52,7 +52,7 @@ The VulkanSceneGraph project is comprised of the main VulkanSceneGraph library (
 ## Public discussion list/forum
 The [VulkanSceneGraph Discussion Group](https://github.com/vsg-dev/VulkanSceneGraph/discussions) is the place for project news, discussions of latest developments and any questions you have on how to use the VulkanSceneGraph, and associated projects, in your applications.
 
-For the first part of this projects life we used [vsg-users](https://groups.google.com/forum/#!forum/vsg-users) google group, this will be kept available as an archive of old disucssions.
+For the first part of this projects life we used [vsg-users](https://groups.google.com/forum/#!forum/vsg-users) google group, this will be kept available as an archive of old discussions.
 
 ## Professional Support
 Project lead, [Robert Osfield](mailto:robert.osfield@gmail.com), provides OpenSceneGraph and VulkanSceneGraph related services, the associated income supports open source development work and public support on both projects.  Services provided:

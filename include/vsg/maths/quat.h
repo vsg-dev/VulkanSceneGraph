@@ -156,6 +156,24 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr bool operator!=(const t_quat<T>& lhs, const t_quat<T>& rhs)
+    {
+        return lhs[0] != rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
+    }
+
+    template<typename T>
+    constexpr bool operator<(const t_quat<T>& lhs, const t_quat<T>& rhs)
+    {
+        if (lhs[0] < rhs[0]) return true;
+        if (lhs[0] > rhs[0]) return false;
+        if (lhs[1] < rhs[1]) return true;
+        if (lhs[1] > rhs[1]) return false;
+        if (lhs[2] < rhs[2]) return true;
+        if (lhs[2] > rhs[2]) return false;
+        return lhs[3] < rhs[3];
+    }
+
+    template<typename T>
     constexpr t_quat<T> operator-(const t_quat<T>& lhs, const t_quat<T>& rhs)
     {
         return t_quat<T>(lhs[0] - rhs[0], lhs[1] - rhs[1], lhs[2] - rhs[2], lhs[3] - rhs[3]);
