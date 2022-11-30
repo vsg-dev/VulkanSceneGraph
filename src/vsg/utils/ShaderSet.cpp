@@ -150,7 +150,8 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>
 {
     for (auto& definesArrayState : definesArrayStates)
     {
-        if (definesArrayState.defines == defines) return definesArrayState.arrayState;
+        bool includes = std::includes(defines.begin(), defines.end(), definesArrayState.defines.begin(), definesArrayState.defines.end());
+        if (includes) return definesArrayState.arrayState;
     }
 
     return {};
