@@ -152,7 +152,7 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>
     // so check each one against the entries in the definesArrayState
     // are relevant to the final matching.
     std::set<std::string> relevant_defines;
-    for(auto& define : defines)
+    for (auto& define : defines)
     {
         for (auto& definesArrayState : definesArrayStates)
         {
