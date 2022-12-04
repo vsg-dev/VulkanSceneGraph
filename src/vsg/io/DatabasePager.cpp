@@ -257,7 +257,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
 
 void DatabasePager::requestDiscarded(PagedLOD* plod)
 {
-    //std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
+    std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
     //plod->pending = nullptr;
     plod->requestCount.exchange(0);
     plod->requestStatus.exchange(PagedLOD::NoRequest);
