@@ -88,7 +88,7 @@ void RenderGraph::setClearValues(VkClearColorValue clearColor, VkClearDepthStenc
 VkExtent2D RenderGraph::getExtent() const
 {
     if (framebuffer)
-        return VkExtent2D{framebuffer->width(), framebuffer->height()};
+        return framebuffer->extent2D();
     else if (window)
         return window->extent2D();
     else
