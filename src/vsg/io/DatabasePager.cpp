@@ -196,6 +196,7 @@ void DatabasePager::start()
                     // compile plod
                     if (auto result = databasePager.compileManager->compile(subgraph))
                     {
+                        std::scoped_lock<std::mutex> lock(databasePager.pendingPagedLODMutex);
                         plod->requestStatus.exchange(PagedLOD::MergeRequest);
 
                         // move to the merge queue;
