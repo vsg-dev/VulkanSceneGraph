@@ -21,7 +21,7 @@ namespace vsg
 
     enum FileType
     {
-        FILE_NOT_FOUND,
+        FILE_NOT_FOUND = 0,
         REGULAR_FILE,
         DIRECTORY
     };
@@ -180,6 +180,9 @@ namespace vsg
     protected:
         string_type _string;
     };
+    VSG_type_name(vsg::Path);
+
+    using Paths = std::vector<Path>;
 
     /// directly join two paths without a path separator
     inline Path operator+(const Path& lhs, const Path& rhs)

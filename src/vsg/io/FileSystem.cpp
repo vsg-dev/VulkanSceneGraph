@@ -103,6 +103,32 @@ Paths vsg::getEnvPaths(const char* env_var)
     return filepaths;
 }
 
+
+#if !defined(S_ISDIR)
+#  if defined( _S_IFDIR) && !defined( __S_IFDIR)
+#    define __S_IFDIR _S_IFDIR
+#  endif
+#  define S_ISDIR(mode) (mode&__S_IFDIR)
+#endif
+
+FileType vsg::fileType(const Path& path)
+{
+#if defined(_MSC_VER)
+    struct __stat64 stbuf;
+    if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
+#else
+    struct stat64 stbuf;
+    if (stat64(path.c_str(), &stbuf) != 0 ) return FILE_NOT_FOUND;
+#endif
+
+    if ((stbuf.st_mode & S_IFDIR) != 0)
+        return DIRECTORY;
+    else if ((stbuf.st_mode & S_IFREG) != 0)
+        return REGULAR_FILE;
+    else
+        return FILE_NOT_FOUND;
+}
+
 bool vsg::fileExists(const Path& path)
 {
 #if defined(_MSC_VER)
@@ -349,27 +375,44 @@ FILE* vsg::fopen(const Path& path, const char* mode)
 #endif
 }
 
-#if !defined(S_ISDIR)
-#  if defined( _S_IFDIR) && !defined( __S_IFDIR)
-#    define __S_IFDIR _S_IFDIR
-#  endif
-#  define S_ISDIR(mode) (mode&__S_IFDIR)
-#endif
-
-FileType vsg::fileType(const Path& path)
-{
 #if defined(_MSC_VER)
-    struct stat64 stbuf;
-    if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
-#else
-    struct stat64 stbuf;
-    if (stat64(path.c_str(), &stbuf) != 0 ) return FILE_NOT_FOUND;
-#endif
+// Microsoft API for reading directories
+Paths vsg::getDirectoryContents(const Path& directoryName)
+{
+    LPDWORD strlength = 0;
+    PWSTR   linkName = nullptr;
 
-    if ((stbuf.st_mode & S_IFDIR) != 0)
-        return DIRECTORY;
-    else if ((stbuf.st_mode & S_IFREG) != 0)
-        return REGULAR_FILE;
-    else
-        return FILE_NOT_FOUND;
+    auto handle = FindFirstFileNameW(directoryName.c_str(), 0, strLength, linkName),
+    if (handle == INVALID_HANDLE_VALUE) return {};
+
+    Paths paths;
+    do
+    {
+        paths.push_back(linkName);
+    }
+    while (FindNextFileNameW(handle, strLength, linkName);
+
+    FindClose(handle);
+
+    return paths;
 }
+#else
+// posix API for reading directories
+#include <dirent.h>
+Paths vsg::getDirectoryContents(const Path& directoryName)
+{
+    auto handle = opendir(directoryName.c_str());
+    if (handle == 0) return {};
+
+    Paths paths;
+    dirent* rc = nullptr;
+    while((rc = readdir(handle)) != nullptr)
+    {
+        paths.push_back(rc->d_name);
+    }
+
+    closedir(handle);
+
+    return paths;
+}
+#endif
