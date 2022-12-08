@@ -38,7 +38,7 @@ void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineState
     dest_PipelineStates.push_back(src_PipelineState);
 }
 
-void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, GraphicsPipelineStates& src_PipelineStates)
+void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
 {
     for(auto& src_PipelineState : src_PipelineStates)
     {
