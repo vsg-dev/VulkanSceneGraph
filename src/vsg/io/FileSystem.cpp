@@ -390,7 +390,7 @@ Paths vsg::getDirectoryContents(const Path& directoryName)
     {
         paths.push_back(linkName);
     }
-    while (FindNextFileNameW(handle, strLength, linkName);
+    while (FindNextFileNameW(handle, strLength, linkName));
 
     FindClose(handle);
 
