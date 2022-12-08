@@ -379,10 +379,10 @@ FILE* vsg::fopen(const Path& path, const char* mode)
 // Microsoft API for reading directories
 Paths vsg::getDirectoryContents(const Path& directoryName)
 {
-    LPDWORD strlength = 0;
+    LPDWORD strLength = 0;
     PWSTR   linkName = nullptr;
 
-    auto handle = FindFirstFileNameW(directoryName.c_str(), 0, strLength, linkName),
+    auto handle = FindFirstFileNameW(directoryName.c_str(), 0, strLength, linkName);
     if (handle == INVALID_HANDLE_VALUE) return {};
 
     Paths paths;
