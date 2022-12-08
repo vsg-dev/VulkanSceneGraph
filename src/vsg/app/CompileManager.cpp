@@ -126,47 +126,54 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     // if no CompileTraversals are available abort compile
     if (!compileTraversal) return result;
 
-    std::list<ref_ptr<Context>> contexts;
+    auto run_compile_traversal = [&]() -> void
+    {
+        for (auto& context : compileTraversal->contexts)
+        {
+            ref_ptr<View> view = context->view;
+            if (view && !binStack.empty())
+            {
+                if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                {
+                    result.views[view] = binStack.top();
+                }
+            }
+
+            context->reserve(requirements);
+        }
+
+        object->accept(*compileTraversal);
+
+        //debug("Finished compile traversal ", object);
+
+        compileTraversal->record(); // records and submits to queue
+        compileTraversal->waitForCompletion();
+
+        debug("Finished waiting for compile ", object);
+    };
+
     if (contextSelection)
     {
+        std::list<ref_ptr<Context>> contexts;
+
         for (auto& context : compileTraversal->contexts)
         {
             if (contextSelection(*context)) contexts.push_back(context);
         }
+
+        compileTraversal->contexts.swap(contexts);
+
+        run_compile_traversal();
+
+        compileTraversal->contexts.swap(contexts);
     }
     else
     {
-        contexts = compileTraversal->contexts;
+        run_compile_traversal();
     }
 
-    compileTraversal->contexts.swap(contexts);
-
-    for (auto& context : compileTraversal->contexts)
-    {
-        ref_ptr<View> view = context->view;
-        if (view && !binStack.empty())
-        {
-            if (auto itr = result.views.find(view.get()); itr == result.views.end())
-            {
-                result.views[view] = binStack.top();
-            }
-        }
-
-        context->reserve(requirements);
-    }
-
-    object->accept(*compileTraversal);
-
-    //debug("Finished compile traversal ", object);
-
-    compileTraversal->record(); // records and submits to queue
-    compileTraversal->waitForCompletion();
-
-    debug("Finished waiting for compile ", object);
 
     compileTraversals->add(compileTraversal);
-
-    compileTraversal->contexts.swap(contexts);
 
     result.result = VK_SUCCESS;
     return result;
