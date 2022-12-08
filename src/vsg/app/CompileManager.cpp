@@ -133,13 +133,13 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
         {
             if (contextSelection(*context)) contexts.push_back(context);
         }
+
+        compileTraversal->contexts.swap(contexts);
     }
     else
     {
         contexts = compileTraversal->contexts;
     }
-
-    compileTraversal->contexts.swap(contexts);
 
     for (auto& context : compileTraversal->contexts)
     {
@@ -166,7 +166,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     compileTraversals->add(compileTraversal);
 
-    compileTraversal->contexts.swap(contexts);
+    // compileTraversal->contexts.swap(contexts);
 
     result.result = VK_SUCCESS;
     return result;
