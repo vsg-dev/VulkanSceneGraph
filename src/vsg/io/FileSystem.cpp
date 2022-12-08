@@ -116,6 +116,9 @@ FileType vsg::fileType(const Path& path)
 #if defined(_MSC_VER)
     struct __stat64 stbuf;
     if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
+#elif defined(__APPLE__)
+    struct stat stbuf;
+    if (stat(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
 #else
     struct stat64 stbuf;
     if (stat64(path.c_str(), &stbuf) != 0 ) return FILE_NOT_FOUND;
