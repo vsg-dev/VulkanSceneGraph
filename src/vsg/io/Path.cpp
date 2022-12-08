@@ -131,3 +131,8 @@ Path& Path::append(const Path& right)
 
     return *this;
 }
+
+FileType Path::type() const
+{
+    return vsg::fileType(*this);
+}

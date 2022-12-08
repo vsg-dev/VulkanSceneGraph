@@ -19,6 +19,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    enum FileType
+    {
+        FILE_NOT_FOUND = 0,
+        REGULAR_FILE,
+        DIRECTORY
+    };
+
     /// Class for managing paths/filename with full support for wide and single wide path strings.
     /// Similar in role and features to std::filesystem::path, but is able to work on older compilers.
     class VSG_DECLSPEC Path
@@ -168,9 +175,14 @@ namespace vsg
         Path& replace(size_type pos, size_type n, const char* str);
         Path& replace(size_type pos, size_type n, const wchar_t* str);
 
+        FileType type() const;
+
     protected:
         string_type _string;
     };
+    VSG_type_name(vsg::Path);
+
+    using Paths = std::vector<Path>;
 
     /// directly join two paths without a path separator
     inline Path operator+(const Path& lhs, const Path& rhs)
