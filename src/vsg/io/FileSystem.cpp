@@ -348,3 +348,28 @@ FILE* vsg::fopen(const Path& path, const char* mode)
     return ::fopen(path.c_str(), mode);
 #endif
 }
+
+#if !defined(S_ISDIR)
+#  if defined( _S_IFDIR) && !defined( __S_IFDIR)
+#    define __S_IFDIR _S_IFDIR
+#  endif
+#  define S_ISDIR(mode) (mode&__S_IFDIR)
+#endif
+
+FileType vsg::fileType(const Path& path)
+{
+#if defined(_MSC_VER)
+    struct stat64 stbuf;
+    if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
+#else
+    struct stat64 stbuf;
+    if (stat64(path.c_str(), &stbuf) != 0 ) return FILE_NOT_FOUND;
+#endif
+
+    if ((stbuf.st_mode & S_IFDIR) != 0)
+        return DIRECTORY;
+    else if ((stbuf.st_mode & S_IFREG) != 0)
+        return REGULAR_FILE;
+    else
+        return FILE_NOT_FOUND;
+}

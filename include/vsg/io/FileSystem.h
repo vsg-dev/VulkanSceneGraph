@@ -43,6 +43,9 @@ namespace vsg
     }
 
     /// return true if a specified file/path exist on system.
+    extern VSG_DECLSPEC FileType fileType(const Path& path);
+
+    /// return true if a specified file/path exist on system.
     extern VSG_DECLSPEC bool fileExists(const Path& path);
 
     /// return path stripped of the filename or final path component.
