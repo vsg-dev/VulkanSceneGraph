@@ -42,7 +42,7 @@ namespace vsg
         return paths;
     }
 
-    /// return true if a specified file/path exist on system.
+    /// return file type, see include/vsg/io/Path.h for FileType enum,
     extern VSG_DECLSPEC FileType fileType(const Path& path);
 
     /// return true if a specified file/path exist on system.
