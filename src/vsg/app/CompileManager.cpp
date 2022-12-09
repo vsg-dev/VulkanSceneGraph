@@ -126,8 +126,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     // if no CompileTraversals are available abort compile
     if (!compileTraversal) return result;
 
-    auto run_compile_traversal = [&]() -> void
-    {
+    auto run_compile_traversal = [&]() -> void {
         for (auto& context : compileTraversal->contexts)
         {
             ref_ptr<View> view = context->view;
@@ -171,7 +170,6 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     {
         run_compile_traversal();
     }
-
 
     compileTraversals->add(compileTraversal);
 

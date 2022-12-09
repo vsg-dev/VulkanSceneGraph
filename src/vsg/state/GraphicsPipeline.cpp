@@ -27,7 +27,7 @@ using namespace vsg;
 void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
 {
     // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState
-    for(auto& original_pipelineState : dest_PipelineStates)
+    for (auto& original_pipelineState : dest_PipelineStates)
     {
         if (original_pipelineState->type_info() == src_PipelineState->type_info())
         {
@@ -40,7 +40,7 @@ void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineState
 
 void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
 {
-    for(auto& src_PipelineState : src_PipelineStates)
+    for (auto& src_PipelineState : src_PipelineStates)
     {
         mergeGraphicsPipelineStates(dest_PipelineStates, src_PipelineState);
     }

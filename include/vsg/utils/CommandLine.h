@@ -218,14 +218,14 @@ namespace vsg
         const char* str = _argv[i];
         if (!str) return false;
 
-        if (std::strcmp(str, "true")==0 || std::strcmp(str, "True")==0 || std::strcmp(str, "TRUE")==0 || std::strcmp(str, "1")==0)
+        if (std::strcmp(str, "true") == 0 || std::strcmp(str, "True") == 0 || std::strcmp(str, "TRUE") == 0 || std::strcmp(str, "1") == 0)
         {
             v = true;
             ++i;
             return true;
         }
 
-        if (std::strcmp(str, "false")==0 || std::strcmp(str, "False")==0 || std::strcmp(str, "FALSE")==0 || std::strcmp(str, "0")==0)
+        if (std::strcmp(str, "false") == 0 || std::strcmp(str, "False") == 0 || std::strcmp(str, "FALSE") == 0 || std::strcmp(str, "0") == 0)
         {
             v = false;
             ++i;

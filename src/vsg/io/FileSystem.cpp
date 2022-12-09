@@ -103,12 +103,11 @@ Paths vsg::getEnvPaths(const char* env_var)
     return filepaths;
 }
 
-
 #if !defined(S_ISDIR)
-#  if defined( _S_IFDIR) && !defined( __S_IFDIR)
-#    define __S_IFDIR _S_IFDIR
-#  endif
-#  define S_ISDIR(mode) (mode&__S_IFDIR)
+#    if defined(_S_IFDIR) && !defined(__S_IFDIR)
+#        define __S_IFDIR _S_IFDIR
+#    endif
+#    define S_ISDIR(mode) (mode & __S_IFDIR)
 #endif
 
 FileType vsg::fileType(const Path& path)
@@ -118,7 +117,7 @@ FileType vsg::fileType(const Path& path)
     if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
 #else
     struct stat64 stbuf;
-    if (stat64(path.c_str(), &stbuf) != 0 ) return FILE_NOT_FOUND;
+    if (stat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
 #endif
 
     if ((stbuf.st_mode & S_IFDIR) != 0)
@@ -380,7 +379,7 @@ FILE* vsg::fopen(const Path& path, const char* mode)
 Paths vsg::getDirectoryContents(const Path& directoryName)
 {
     LPDWORD strLength = 0;
-    PWSTR   linkName = nullptr;
+    PWSTR linkName = nullptr;
 
     auto handle = FindFirstFileNameW(directoryName.c_str(), 0, strLength, linkName);
     if (handle == INVALID_HANDLE_VALUE) return {};
@@ -389,8 +388,7 @@ Paths vsg::getDirectoryContents(const Path& directoryName)
     do
     {
         paths.push_back(linkName);
-    }
-    while (FindNextFileNameW(handle, strLength, linkName));
+    } while (FindNextFileNameW(handle, strLength, linkName));
 
     FindClose(handle);
 
@@ -398,7 +396,7 @@ Paths vsg::getDirectoryContents(const Path& directoryName)
 }
 #else
 // posix API for reading directories
-#include <dirent.h>
+#    include <dirent.h>
 Paths vsg::getDirectoryContents(const Path& directoryName)
 {
     auto handle = opendir(directoryName.c_str());
@@ -406,7 +404,7 @@ Paths vsg::getDirectoryContents(const Path& directoryName)
 
     Paths paths;
     dirent* rc = nullptr;
-    while((rc = readdir(handle)) != nullptr)
+    while ((rc = readdir(handle)) != nullptr)
     {
         paths.push_back(rc->d_name);
     }
