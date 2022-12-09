@@ -800,7 +800,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     
     // create view
     _view = [[vsg_MacOS_NSView alloc] initWithVsgWindow:this];
-    [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
+    // [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
     [_view setAutoresizingMask: (NSViewWidthSizable | NSViewHeightSizable) ];
     [_view setWantsLayer:YES];
 
