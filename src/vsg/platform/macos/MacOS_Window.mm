@@ -796,6 +796,10 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setRestorable:YES];
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
+    if (traits->fullscreen)
+    {
+        [_window toggleFullScreen:nil];
+    }
 
     
     // create view
