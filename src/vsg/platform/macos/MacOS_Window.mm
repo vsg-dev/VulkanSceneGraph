@@ -796,10 +796,6 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setRestorable:YES];
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
-    if (traits->fullscreen)
-    {
-        [_window toggleFullScreen:nil];
-    }
 
     
     // create view
@@ -812,6 +808,14 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setContentView:_view];
     _window.initialFirstResponder = _view;
     [_window makeFirstResponder:_view];
+
+    if (traits->fullscreen)
+    {
+        NSRect screenFrame = [[NSScreen mainScreen] frame];
+        [_window setBackgroundColor: NSColor.whiteColor];
+        [_window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [_window toggleFullScreen:NSApp.delegate];
+    }
 
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
     [_metalLayer setContentsScale:devicePixelScale];
