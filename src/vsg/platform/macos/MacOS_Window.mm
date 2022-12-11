@@ -812,7 +812,6 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     if (traits->fullscreen)
     {
         NSRect screenFrame = [[NSScreen mainScreen] frame];
-        [_window setBackgroundColor: NSColor.whiteColor];
         [_window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
         [_window toggleFullScreen:NSApp.delegate];
     }
