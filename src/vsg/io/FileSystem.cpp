@@ -51,7 +51,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 const char envPathDelimiter = ';';
 #else
 const char envPathDelimiter = ':';
@@ -59,7 +59,7 @@ const char envPathDelimiter = ':';
 
 std::string vsg::getEnv(const char* env_var)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     char env_value[4096];
     std::size_t len;
     if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
@@ -77,7 +77,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 {
     if (!env_var) return {};
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     char env_value[4096];
     std::size_t len;
     if (auto error = getenv_s(&len, env_value, sizeof(env_value) - 1, env_var); error != 0 || len == 0)
@@ -116,7 +116,7 @@ Paths vsg::getEnvPaths(const char* env_var)
 
 FileType vsg::fileType(const Path& path)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     struct __stat64 stbuf;
     if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
 #elif defined(__APPLE__)
@@ -137,7 +137,7 @@ FileType vsg::fileType(const Path& path)
 
 bool vsg::fileExists(const Path& path)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     return _waccess(path.c_str(), 0) == 0;
 #else
     return access(path.c_str(), F_OK) == 0;
@@ -292,10 +292,8 @@ bool vsg::makeDirectory(const Path& path)
             continue;
         }
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
         if (int status = _wmkdir(directory_to_create.c_str()); status != 0)
-#elif defined(__MINGW32__)
-        if (int status = mkdir(directory_to_create.c_str()); status != 0)
 #else // POSIX
         if (int status = mkdir(directory_to_create.c_str(), 0755); status != 0)
 #endif
@@ -366,7 +364,7 @@ Path vsg::executableFilePath()
 
 FILE* vsg::fopen(const Path& path, const char* mode)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     std::wstring wMode;
     convert_utf(mode, wMode);
 
@@ -381,7 +379,7 @@ FILE* vsg::fopen(const Path& path, const char* mode)
 #endif
 }
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 // Microsoft API for reading directories
 Paths vsg::getDirectoryContents(const Path& directoryName)
 {
