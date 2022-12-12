@@ -38,15 +38,15 @@ Window::~Window()
 void Window::clear()
 {
     _frames.clear();
-    _swapchain = 0;
+    _swapchain = nullptr;
 
-    _depthImage = 0;
-    _depthImageView = 0;
+    _depthImage = nullptr;
+    _depthImageView = nullptr;
 
-    _renderPass = 0;
-    _surface = 0;
-    _device = 0;
-    _physicalDevice = 0;
+    _renderPass = nullptr;
+    _surface = nullptr;
+    _device = nullptr;
+    _physicalDevice = nullptr;
 }
 
 void Window::share(Window& window)
@@ -264,11 +264,11 @@ void Window::buildSwapchain()
         _frames.clear();
         _indices.clear();
 
-        _depthImageView = 0;
-        _depthImage = 0;
+        _depthImageView = nullptr;
+        _depthImage = nullptr;
 
-        _multisampleImage = 0;
-        _multisampleImageView = 0;
+        _multisampleImage = nullptr;
+        _multisampleImageView = nullptr;
     }
 
     // is width and height even required here as the surface appear to control it.
@@ -455,7 +455,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
 bool Window::pollEvents(vsg::UIEvents& events)
 {
-    if (bufferedEvents.size() > 0)
+    if (!bufferedEvents.empty())
     {
         events.splice(events.end(), bufferedEvents);
         bufferedEvents.clear();

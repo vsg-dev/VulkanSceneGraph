@@ -32,7 +32,7 @@ AccelerationStructure::AccelerationStructure(VkAccelerationStructureTypeKHR type
     _accelerationStructureInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
     _accelerationStructureInfo.type = type;
     _accelerationStructureInfo.createFlags = 0; // probably be useful to set this somehow
-    _accelerationStructureInfo.buffer = 0;
+    _accelerationStructureInfo.buffer = nullptr;
     _accelerationStructureInfo.deviceAddress = 0;
     _accelerationStructureInfo.offset = 0;
     _accelerationStructureInfo.size = 0;

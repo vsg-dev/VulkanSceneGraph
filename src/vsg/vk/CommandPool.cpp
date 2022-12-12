@@ -64,6 +64,6 @@ void CommandPool::free(CommandBuffer* commandBuffer)
     {
         std::scoped_lock<std::mutex> lock(_mutex);
         vkFreeCommandBuffers(*_device, _commandPool, 1, commandBuffer->data());
-        commandBuffer->_commandBuffer = 0;
+        commandBuffer->_commandBuffer = nullptr;
     }
 }

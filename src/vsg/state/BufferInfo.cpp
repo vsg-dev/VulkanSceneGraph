@@ -73,7 +73,7 @@ void BufferInfo::release()
         buffer->release(offset, range);
     }
 
-    buffer = 0;
+    buffer = nullptr;
     offset = 0;
     range = 0;
 }
@@ -361,7 +361,7 @@ void vsg::assignVulkanArrayData(uint32_t deviceID, const BufferInfoList& arrays,
         else
         {
             // error, no buffer to assign
-            vkd.vkBuffers[i] = 0;
+            vkd.vkBuffers[i] = nullptr;
             vkd.offsets[i] = 0;
         }
     }

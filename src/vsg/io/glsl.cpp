@@ -71,11 +71,7 @@ ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options)
 
         auto sm = ShaderModule::create(source);
 
-        if (stage_itr->second == VK_SHADER_STAGE_ALL)
-        {
-            return sm;
-        }
-        else
+        if (stage_itr->second != VK_SHADER_STAGE_ALL)
         {
             return ShaderStage::create(stage_itr->second, "main", sm);
         }

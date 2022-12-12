@@ -137,12 +137,12 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
         if (imageInfo->sampler)
             info.sampler = imageInfo->sampler->vk(context.deviceID);
         else
-            info.sampler = 0;
+            info.sampler = nullptr;
 
         if (imageInfo->imageView)
             info.imageView = imageInfo->imageView->vk(context.deviceID);
         else
-            info.imageView = 0;
+            info.imageView = nullptr;
 
         info.imageLayout = imageInfo->imageLayout;
     }

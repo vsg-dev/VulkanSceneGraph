@@ -403,7 +403,7 @@ Paths vsg::getDirectoryContents(const Path& directoryName)
 Paths vsg::getDirectoryContents(const Path& directoryName)
 {
     auto handle = opendir(directoryName.c_str());
-    if (handle == 0) return {};
+    if (handle == nullptr) return {};
 
     Paths paths;
     dirent* rc = nullptr;

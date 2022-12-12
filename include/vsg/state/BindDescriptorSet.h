@@ -76,7 +76,7 @@ namespace vsg
 
         struct VulkanData
         {
-            VkPipelineLayout _vkPipelineLayout = 0;
+            VkPipelineLayout _vkPipelineLayout = nullptr;
             std::vector<VkDescriptorSet> _vkDescriptorSets;
         };
 
@@ -151,7 +151,7 @@ namespace vsg
 
         struct VulkanData
         {
-            VkPipelineLayout _vkPipelineLayout = 0;
+            VkPipelineLayout _vkPipelineLayout = nullptr;
             VkDescriptorSet _vkDescriptorSet;
         };
 

@@ -141,7 +141,7 @@ namespace vsg
                 auto stageFlags = commandBuffer.getCurrentPushConstantStageFlags();
 
                 // don't attempt to push matrices if no pipeline is current or no stages are enabled for push constants
-                if (pipeline == 0 || stageFlags == 0)
+                if (pipeline == nullptr || stageFlags == 0)
                 {
                     return;
                 }

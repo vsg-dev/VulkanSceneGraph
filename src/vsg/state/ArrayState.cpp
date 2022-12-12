@@ -266,7 +266,7 @@ ref_ptr<ArrayState> DisplacementMapArrayState::clone(ref_ptr<ArrayState> arraySt
 
 void DisplacementMapArrayState::apply(const DescriptorImage& di)
 {
-    if (di.imageInfoList.size() >= 1)
+    if (!di.imageInfoList.empty())
     {
         auto& imageInfo = *di.imageInfoList[0];
         if (imageInfo.imageView && imageInfo.imageView->image)
