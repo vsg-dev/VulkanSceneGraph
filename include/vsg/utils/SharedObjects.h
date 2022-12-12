@@ -129,7 +129,7 @@ namespace vsg
 
         mutable std::recursive_mutex _mutex;
         std::map<std::type_index, ref_ptr<Object>> _defaults;
-        std::map<std::type_index, std::set<ref_ptr<Object>, DerefenceLess>> _sharedObjects;
+        std::map<std::type_index, std::set<ref_ptr<Object>, DereferenceLess>> _sharedObjects;
     };
     VSG_type_name(vsg::SharedObjects);
 

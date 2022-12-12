@@ -31,7 +31,7 @@ namespace vsg
         std::pair<int, int> getQueueFamily(VkQueueFlags queueFlags, Surface* surface) const;
 
         using QueueFamilyProperties = std::vector<VkQueueFamilyProperties>;
-        const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamiles; }
+        const QueueFamilyProperties& getQueueFamilyProperties() const { return _queueFamilies; }
 
         const VkPhysicalDeviceFeatures& getFeatures() const { return _features; }
         const VkPhysicalDeviceProperties& getProperties() const { return _properties; }
@@ -87,7 +87,7 @@ namespace vsg
 
         VkPhysicalDeviceFeatures _features;
         VkPhysicalDeviceProperties _properties;
-        QueueFamilyProperties _queueFamiles;
+        QueueFamilyProperties _queueFamilies;
 
         PFN_vkGetPhysicalDeviceFeatures2 _vkGetPhysicalDeviceFeatures2 = nullptr;
         PFN_vkGetPhysicalDeviceProperties2 _vkGetPhysicalDeviceProperties2 = nullptr;

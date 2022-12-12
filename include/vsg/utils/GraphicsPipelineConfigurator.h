@@ -95,7 +95,7 @@ namespace vsg
         // assign Descriptors to a DescriptorSet
         void init();
 
-        // filled in by assingTexture(..) and assingUnfiorm(..)
+        // filled in by assignTexture(..) and assignUniform(..)
         Descriptors descriptors;
         std::set<std::string> defines;
         DescriptorSetLayoutBindings descriptorBindings;

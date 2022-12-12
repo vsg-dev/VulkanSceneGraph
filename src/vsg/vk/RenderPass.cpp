@@ -49,11 +49,11 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
         auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2* {
             if (attachmentDescriptions.empty()) return nullptr;
 
-            auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription2>(attachmentDescriptions.size());
+            auto vk_attachmentDescriptions = scratchMemory->allocate<VkAttachmentDescription2>(attachmentDescriptions.size());
             for (size_t i = 0; i < attachmentDescriptions.size(); ++i)
             {
                 auto& src = attachmentDescriptions[i];
-                auto& dst = vk_attachementDescriptions[i];
+                auto& dst = vk_attachmentDescriptions[i];
 
                 dst.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
                 dst.pNext = nullptr;
@@ -67,27 +67,27 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
                 dst.initialLayout = src.initialLayout;
                 dst.finalLayout = src.finalLayout;
             }
-            return vk_attachementDescriptions;
+            return vk_attachmentDescriptions;
         };
 
         auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription2* {
             if (subpassDescriptions.empty()) return nullptr;
 
-            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference2* {
+            auto copyAttachmentReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference2* {
                 if (attachmentReferences.empty()) return nullptr;
 
-                auto vk_attachements = scratchMemory->allocate<VkAttachmentReference2>(attachmentReferences.size());
+                auto vk_attachments = scratchMemory->allocate<VkAttachmentReference2>(attachmentReferences.size());
                 for (size_t i = 0; i < attachmentReferences.size(); ++i)
                 {
                     auto& src = attachmentReferences[i];
-                    auto& dst = vk_attachements[i];
+                    auto& dst = vk_attachments[i];
                     dst.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
                     dst.pNext = nullptr;
                     dst.attachment = src.attachment;
                     dst.layout = src.layout;
                     dst.aspectMask = src.aspectMask;
                 }
-                return vk_attachements;
+                return vk_attachments;
             };
 
             auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription2>(subpassDescriptions.size());
@@ -101,11 +101,11 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
                 dst.pipelineBindPoint = src.pipelineBindPoint;
                 dst.viewMask = src.viewMask;
                 dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
-                dst.pInputAttachments = copyAttachementReference(src.inputAttachments);
+                dst.pInputAttachments = copyAttachmentReference(src.inputAttachments);
                 dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
-                dst.pColorAttachments = copyAttachementReference(src.colorAttachments);
-                dst.pResolveAttachments = copyAttachementReference(src.resolveAttachments);
-                dst.pDepthStencilAttachment = copyAttachementReference(src.depthStencilAttachments);
+                dst.pColorAttachments = copyAttachmentReference(src.colorAttachments);
+                dst.pResolveAttachments = copyAttachmentReference(src.resolveAttachments);
+                dst.pDepthStencilAttachment = copyAttachmentReference(src.depthStencilAttachments);
                 dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
                 dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
 
@@ -116,7 +116,7 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
                     depthStencilResolve->pNext = nullptr;
                     depthStencilResolve->depthResolveMode = src.depthResolveMode;
                     depthStencilResolve->stencilResolveMode = src.stencilResolveMode;
-                    depthStencilResolve->pDepthStencilResolveAttachment = copyAttachementReference(src.depthStencilResolveAttachments);
+                    depthStencilResolve->pDepthStencilResolveAttachment = copyAttachmentReference(src.depthStencilResolveAttachments);
                     ;
 
                     dst.pNext = depthStencilResolve;
@@ -170,11 +170,11 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
         auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription* {
             if (attachmentDescriptions.empty()) return nullptr;
 
-            auto vk_attachementDescriptions = scratchMemory->allocate<VkAttachmentDescription>(attachmentDescriptions.size());
+            auto vk_attachmentDescriptions = scratchMemory->allocate<VkAttachmentDescription>(attachmentDescriptions.size());
             for (size_t i = 0; i < attachmentDescriptions.size(); ++i)
             {
                 auto& src = attachmentDescriptions[i];
-                auto& dst = vk_attachementDescriptions[i];
+                auto& dst = vk_attachmentDescriptions[i];
 
                 dst.flags = src.flags;
                 dst.format = src.format;
@@ -186,25 +186,25 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
                 dst.initialLayout = src.initialLayout;
                 dst.finalLayout = src.finalLayout;
             }
-            return vk_attachementDescriptions;
+            return vk_attachmentDescriptions;
         };
 
         auto copySubpasses = [&scratchMemory](const Subpasses& subpassDescriptions) -> VkSubpassDescription* {
             if (subpassDescriptions.empty()) return nullptr;
 
-            auto copyAttachementReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference* {
+            auto copyAttachmentReference = [&scratchMemory](const std::vector<AttachmentReference>& attachmentReferences) -> VkAttachmentReference* {
                 if (attachmentReferences.empty()) return nullptr;
 
-                auto vk_attachements = scratchMemory->allocate<VkAttachmentReference>(attachmentReferences.size());
+                auto vk_attachments = scratchMemory->allocate<VkAttachmentReference>(attachmentReferences.size());
                 for (size_t i = 0; i < attachmentReferences.size(); ++i)
                 {
                     auto& src = attachmentReferences[i];
-                    auto& dst = vk_attachements[i];
+                    auto& dst = vk_attachments[i];
                     dst.attachment = src.attachment;
                     dst.layout = src.layout;
                     // dst.aspectMask = src.aspectMask; // only VkAttachmentReference2
                 }
-                return vk_attachements;
+                return vk_attachments;
             };
 
             auto vk_subpassDescription = scratchMemory->allocate<VkSubpassDescription>(subpassDescriptions.size());
@@ -215,11 +215,11 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
                 dst.flags = src.flags;
                 dst.pipelineBindPoint = src.pipelineBindPoint;
                 dst.inputAttachmentCount = static_cast<uint32_t>(src.inputAttachments.size());
-                dst.pInputAttachments = copyAttachementReference(src.inputAttachments);
+                dst.pInputAttachments = copyAttachmentReference(src.inputAttachments);
                 dst.colorAttachmentCount = static_cast<uint32_t>(src.colorAttachments.size());
-                dst.pColorAttachments = copyAttachementReference(src.colorAttachments);
-                dst.pResolveAttachments = copyAttachementReference(src.resolveAttachments);
-                dst.pDepthStencilAttachment = copyAttachementReference(src.depthStencilAttachments);
+                dst.pColorAttachments = copyAttachmentReference(src.colorAttachments);
+                dst.pResolveAttachments = copyAttachmentReference(src.resolveAttachments);
+                dst.pDepthStencilAttachment = copyAttachmentReference(src.depthStencilAttachments);
                 dst.preserveAttachmentCount = static_cast<uint32_t>(src.preserveAttachments.size());
                 dst.pPreserveAttachments = src.preserveAttachments.empty() ? nullptr : src.preserveAttachments.data();
             }

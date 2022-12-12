@@ -23,7 +23,7 @@ namespace vsg
     {
     public:
         SetViewport();
-        SetViewport(uint32_t in_firstViewport, const Viewports& in_vieports);
+        SetViewport(uint32_t in_firstViewport, const Viewports& in_viewports);
 
         uint32_t firstViewport = 0;
         Viewports viewports;

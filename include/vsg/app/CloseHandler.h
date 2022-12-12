@@ -29,7 +29,7 @@ namespace vsg
 
         virtual void close()
         {
-            // take a ref_ptr<> of the oberserv_ptr<> to be able to safely access it
+            // take a ref_ptr<> of the observer_ptr<> to be able to safely access it
             ref_ptr<Viewer> viewer = _viewer;
             if (viewer) viewer->close();
         }

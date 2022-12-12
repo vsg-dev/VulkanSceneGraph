@@ -89,7 +89,7 @@ namespace vsg
         GraphicsPipelineStates defaultGraphicsPipelineStates;
 
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
-        std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DerefenceLess> variants;
+        std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DereferenceLess> variants;
 
         /// mutex used be getShaderStages(..) so ensure the variants map can be used from multiple threads.
         std::mutex mutex;

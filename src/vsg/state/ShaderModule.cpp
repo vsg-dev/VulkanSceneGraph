@@ -121,7 +121,7 @@ void ShaderModule::write(Output& output) const
     output.writeObject("hints", hints);
     output.write("source", source);
     output.writeValue<uint32_t>("code", code.size());
-    output.writePropertyName(""); // convenient way of forcing an indent to the appropriate column when writing out to ascii, doesn't require a matching matchProprertyName() in ShaderModel::read(..).
+    output.writePropertyName(""); // convenient way of forcing an indent to the appropriate column when writing out to ascii, doesn't require a matching matchPropertyName() in ShaderModel::read(..).
     output.write(code.size(), code.data());
     output.writeEndOfLine();
 }

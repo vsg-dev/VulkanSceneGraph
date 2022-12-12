@@ -89,7 +89,7 @@ namespace vsg
 
         // scene graph nodes
         void apply(const Group& group);
-        void apply(const QuadGroup& quadGrouo);
+        void apply(const QuadGroup& quadGroup);
         void apply(const LOD& lod);
         void apply(const PagedLOD& pagedLOD);
         void apply(const CullGroup& cullGroup);
