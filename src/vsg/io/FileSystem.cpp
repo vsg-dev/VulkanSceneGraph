@@ -51,7 +51,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 const char envPathDelimiter = ';';
 #else
 const char envPathDelimiter = ':';
