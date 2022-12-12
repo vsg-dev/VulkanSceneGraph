@@ -31,6 +31,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #        endif
 #    endif
 
+#    ifdef __MINGW32__
+#        include <sys/stat.h>
+#    endif
+
 #else
 #    include <errno.h>
 #    include <sys/stat.h>
