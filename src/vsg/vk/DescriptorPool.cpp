@@ -60,22 +60,22 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     DescriptorPoolSizes descriptorPoolSizes;
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
-    for (auto itr = _reclingList.begin(); itr != _reclingList.end(); ++itr)
+    for (auto itr = _recyclingList.begin(); itr != _recyclingList.end(); ++itr)
     {
         if (vsg::compare_value_container(descriptorPoolSizes, (*itr)->_descriptorPoolSizes) == 0)
         {
             auto dsi = *itr;
             dsi->_descriptorPool = this;
-            _reclingList.erase(itr);
+            _recyclingList.erase(itr);
             --_availableDescriptorSet;
             // debug("DescriptorPool::allocateDescriptorSet(..) reusing ", dsi)   ;
             return dsi;
         }
     }
 
-    if (_availableDescriptorSet == _reclingList.size())
+    if (_availableDescriptorSet == _recyclingList.size())
     {
-        //debug("The only available vkDescriptoSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
+        //debug("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};
     }
 
@@ -118,14 +118,14 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
 {
     {
         std::scoped_lock<std::mutex> lock(mutex);
-        _reclingList.push_back(dsi);
+        _recyclingList.push_back(dsi);
         ++_availableDescriptorSet;
     }
 
     dsi->_descriptorPool = {};
 }
 
-bool DescriptorPool::getAvailablity(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
+bool DescriptorPool::getAvailability(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
 {
     std::scoped_lock<std::mutex> lock(mutex);
 

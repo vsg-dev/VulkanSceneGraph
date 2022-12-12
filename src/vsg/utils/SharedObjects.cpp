@@ -77,7 +77,7 @@ void SharedObjects::prune()
 
     auto loadedObject_id = std::type_index(typeid(LoadedObject));
 
-    // record observer pointers for each LoadedOjbect object so we can clear them to prevent local references keeping them from being pruned
+    // record observer pointers for each LoadedObject object so we can clear them to prevent local references keeping them from being pruned
     auto& loadedObjects = _sharedObjects[loadedObject_id];
     std::vector<observer_ptr<Object>> observedLoadedObjects(loadedObjects.size());
     auto observedLoadedObject_itr = observedLoadedObjects.begin();

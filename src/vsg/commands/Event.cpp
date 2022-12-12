@@ -76,7 +76,7 @@ void SetEvent::record(CommandBuffer& commandBuffer) const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ReetEvent
+// ResetEvent
 //
 ResetEvent::ResetEvent(ref_ptr<Event> in_event, VkPipelineStageFlags in_stageMask) :
     event(in_event),

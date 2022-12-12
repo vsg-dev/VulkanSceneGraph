@@ -40,12 +40,12 @@ void FrameEvent::read(Input& input)
 {
     UIEvent::read(input);
 
-    input.readObject("frameStamo", frameStamp);
+    input.readObject("frameStamp", frameStamp);
 }
 
 void FrameEvent::write(Output& output) const
 {
     UIEvent::write(output);
 
-    output.writeObject("frameStamo", frameStamp);
+    output.writeObject("frameStamp", frameStamp);
 }

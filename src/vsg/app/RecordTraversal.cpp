@@ -125,13 +125,13 @@ void RecordTraversal::apply(const Group& group)
 #endif
 }
 
-void RecordTraversal::apply(const QuadGroup& group)
+void RecordTraversal::apply(const QuadGroup& quadGroup)
 {
     //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
-    vsg::QuadGroup::t_traverse(group, *this);
+    vsg::QuadGroup::t_traverse(quadGroup, *this);
 #else
-    group.traverse(*this);
+    quadGroup.traverse(*this);
 #endif
 }
 
@@ -191,7 +191,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
             if (child.node)
             {
-                // high res visible and availably so traverse it
+                // high res visible and available so traverse it
                 child.node->accept(*this);
                 return;
             }

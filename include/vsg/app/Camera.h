@@ -50,7 +50,7 @@ namespace vsg
         // cameras that have been found
         std::map<RefObjectPath, ref_ptr<Camera>> cameras;
 
-        void apply(Object& objct) override;
+        void apply(Object& object) override;
         void apply(Camera& camera) override;
 
     protected:

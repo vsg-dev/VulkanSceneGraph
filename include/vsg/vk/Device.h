@@ -59,13 +59,13 @@ namespace vsg
 
         /// get the address of specified function using vkGetDeviceProcAddr
         template<typename T>
-        bool getProcAddr(T& procAdddress, const char* pName, const char* pNameFallback = nullptr) const
+        bool getProcAddr(T& procAddress, const char* pName, const char* pNameFallback = nullptr) const
         {
-            procAdddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pName));
-            if (procAdddress) return true;
+            procAddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pName));
+            if (procAddress) return true;
 
-            if (pNameFallback) procAdddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pNameFallback));
-            return (procAdddress);
+            if (pNameFallback) procAddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pNameFallback));
+            return (procAddress);
         }
 
     protected:

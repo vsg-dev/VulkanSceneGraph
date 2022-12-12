@@ -36,7 +36,7 @@ namespace vsg
 
 namespace vsgXcb
 {
-    // window decoation
+    // window decoration
     struct MotifHints
     {
         enum Flags : uint32_t
@@ -322,7 +322,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
-    // get the screeen
+    // get the screen
     const xcb_setup_t* setup = xcb_get_setup(_connection);
 
     _keyboard = new KeyboardMap;
@@ -517,7 +517,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
 
 Xcb_Window::~Xcb_Window()
 {
-    // detach Vulkan obects
+    // detach Vulkan objects
     clear();
 
     if (_connection != nullptr)
@@ -636,17 +636,17 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
             }
 
-            bool previousConfigureEventsIsEquvilant = false;
+            bool previousConfigureEventsIsEqual = false;
             for(auto previousEvent : events)
             {
                 vsg::ConfigureWindowEvent* cwe = dynamic_cast<vsg::ConfigureWindowEvent*>(previousEvent.get());
                 if (cwe)
                 {
-                    previousConfigureEventsIsEquvilant = (cwe->x==x) && (cwe->y==y) && (cwe->width==configure->width) && (cwe->height==configure->height);
+                    previousConfigureEventsIsEqual = (cwe->x==x) && (cwe->y==y) && (cwe->width==configure->width) && (cwe->height==configure->height);
                 }
             }
 
-            if (!previousConfigureEventsIsEquvilant)
+            if (!previousConfigureEventsIsEqual)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
                 bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, configure->width, configure->height));
@@ -721,8 +721,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 }
                 else
                 {
-                    uint32_t pressedButtoMask = 1 << (7+button_press->detail);
-                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
+                    uint32_t pressedButtonMask = 1 << (7+button_press->detail);
+                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtonMask;
                     bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
                 }
             }
@@ -737,8 +737,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (button_release->same_screen && button_release->detail !=4 && button_release->detail !=5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-                uint32_t releasedButtoMask = 1 << (7+button_release->detail);
-                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtoMask;
+                uint32_t releasedButtonMask = 1 << (7+button_release->detail);
+                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtonMask;
                 bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 

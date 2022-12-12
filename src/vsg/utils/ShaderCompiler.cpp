@@ -46,11 +46,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 #if VSG_SUPPORTS_ShaderCompiler
-static std::atomic_uint s_intialized = 0;
+static std::atomic_uint s_initialized = 0;
 
 static void s_initializeProcess()
 {
-    if (s_intialized.fetch_add(1) == 0)
+    if (s_initialized.fetch_add(1) == 0)
     {
         glslang::InitializeProcess();
     }
@@ -58,7 +58,7 @@ static void s_initializeProcess()
 
 static void s_finalizeProcess()
 {
-    if (s_intialized.fetch_sub(1) == 1)
+    if (s_initialized.fetch_sub(1) == 1)
     {
         glslang::FinalizeProcess();
     }

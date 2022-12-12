@@ -209,7 +209,7 @@ void Context::reserve(const ResourceRequirements& requirements)
     DescriptorPoolSizes available_descriptorPoolSizes;
     for (auto& descriptorPool : descriptorPools)
     {
-        descriptorPool->getAvailablity(available_maxSets, available_descriptorPoolSizes);
+        descriptorPool->getAvailability(available_maxSets, available_descriptorPoolSizes);
     }
 
     auto required_maxSets = maxSets;

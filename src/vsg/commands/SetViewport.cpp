@@ -21,9 +21,9 @@ SetViewport::SetViewport() :
 {
 }
 
-SetViewport::SetViewport(uint32_t in_firstViewport, const Viewports& in_vieports) :
+SetViewport::SetViewport(uint32_t in_firstViewport, const Viewports& in_viewports) :
     firstViewport(in_firstViewport),
-    viewports(in_vieports)
+    viewports(in_viewports)
 {
 }
 
