@@ -236,7 +236,7 @@ namespace vsg
 
     // specialize matching of bool parameters
     template<>
-    inline bool CommandLine::read(const std::string& match, bool& value)
+    inline bool CommandLine::read(const std::string& match, bool& v)
     {
         for (int i = 1; i < *_argc; ++i)
         {
@@ -246,9 +246,9 @@ namespace vsg
                 ++i;
 
                 // match any parameters
-                if (!read(i, value))
+                if (!read(i, v))
                 {
-                    value = true;
+                    v = true;
                 }
 
                 remove(start, i - start);
