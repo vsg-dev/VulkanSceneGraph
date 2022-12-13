@@ -108,6 +108,11 @@ void DeviceMemory::copy(VkDeviceSize offset, VkDeviceSize size, const void* src_
     unmap();
 }
 
+void DeviceMemory::copy(VkDeviceSize offset, const Data* data)
+{
+    copy(offset, data->dataSize(), data->dataPointer());
+}
+
 MemorySlots::OptionalOffset DeviceMemory::reserve(VkDeviceSize size)
 {
     std::scoped_lock<std::mutex> lock(_mutex);
