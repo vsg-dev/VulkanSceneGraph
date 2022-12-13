@@ -73,7 +73,7 @@ void BufferInfo::release()
         buffer->release(offset, range);
     }
 
-    buffer = 0;
+    buffer = nullptr;
     offset = 0;
     range = 0;
 }

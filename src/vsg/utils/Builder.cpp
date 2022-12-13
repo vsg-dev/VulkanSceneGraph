@@ -195,7 +195,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -345,7 +345,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -585,7 +585,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -806,7 +806,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -1064,7 +1064,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -1178,7 +1178,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -1270,7 +1270,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};
@@ -1390,7 +1390,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     auto positions = info.positions;
     if (positions)
     {
-        if (positions->size() >= 1)
+        if (!positions->empty())
             instanceCount = static_cast<uint32_t>(positions->size());
         else
             positions = {};

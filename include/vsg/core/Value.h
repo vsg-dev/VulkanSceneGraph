@@ -60,7 +60,7 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
         const char* className() const noexcept override { return type_name<Value>(); }
         const std::type_info& type_info() const noexcept override { return typeid(*this); }
-        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Value) == type ? true : Data::is_compatible(type); }
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Value) == type || Data::is_compatible(type); }
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
