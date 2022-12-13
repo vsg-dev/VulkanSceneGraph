@@ -101,6 +101,19 @@ void Logger::error_stream(PrintToStreamFunction print)
     error_implementation(_stream.str());
 }
 
+void Logger::fatal_stream(PrintToStreamFunction print)
+{
+    if (level > LOGGER_FATAL) return;
+
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _stream.str({});
+    _stream.clear();
+
+    print(_stream);
+
+    fatal_implementation(_stream.str());
+}
+
 void Logger::log(Level msg_level, const std::string_view& message)
 {
     if (level > msg_level) return;

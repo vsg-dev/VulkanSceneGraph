@@ -66,8 +66,6 @@ namespace vsg
     class VSG_DECLSPEC Context : public Inherit<Object, Context>
     {
     public:
-        Context();
-
         explicit Context(Device* in_device, const ResourceRequirements& resourceRequirements = {});
 
         Context(const Context& context);
