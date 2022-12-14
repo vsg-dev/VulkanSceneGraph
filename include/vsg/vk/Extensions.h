@@ -23,7 +23,7 @@ namespace vsg
     extern VSG_DECLSPEC bool isExtensionListSupported(const Names& extensionList);
 
     /// Extensions manages a set of Vulkan extension function pointers.
-    /// The vsg::Device "has a" Extensions object that can be accessed via device->getExtentsions().
+    /// The vsg::Device "has a" Extensions object that can be accessed via device->getExtensions().
     class VSG_DECLSPEC Extensions : public Inherit<Object, Extensions>
     {
     public:
