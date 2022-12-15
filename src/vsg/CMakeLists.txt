@@ -432,6 +432,9 @@ set_property(TARGET vsg PROPERTY VERSION ${VSG_VERSION_MAJOR}.${VSG_VERSION_MINO
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
+if(MINGW)
+    set_property(TARGET vsg PROPERTY RUNTIME_OUTPUT_NAME vsg-${VSG_SOVERSION})
+endif()
 
 target_compile_definitions(vsg PRIVATE ${EXTRA_DEFINES})
 target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include> $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>)
