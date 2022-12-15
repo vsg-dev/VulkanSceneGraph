@@ -1166,6 +1166,82 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     return subgraph;
 }
 
+ref_ptr<Node> Builder::createLine(const GeometryInfo& info, const StateInfo& stateInfo)
+{
+    auto& subgraph = _lines[info];
+    if (subgraph)
+    {
+        return subgraph;
+    }
+
+    uint32_t instanceCount = 1;
+    auto positions = info.positions;
+    if (positions)
+    {
+        if (positions->size() >= 1)
+            instanceCount = static_cast<uint32_t>(positions->size());
+        else
+            positions = {};
+    }
+
+    auto colors = info.colors;
+    if (colors && colors->valueCount() != instanceCount) colors = {};
+    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+
+    vsg::StateInfo localStateInfo(stateInfo);
+    localStateInfo.wireframe = true;
+    auto scenegraph = createStateGroup(localStateInfo);
+
+    auto dx = info.dx;
+    auto dy = info.dy;
+    auto dz = info.dz;
+    auto origin = info.position - dx * 0.5f - dy * 0.5f;
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
+    auto normal = normalize(cross(dx, dy));
+
+    auto vertices = vec3Array::create(
+        {origin,
+         origin + dx + dy + dz}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_INSTANCE, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+
+    auto normals = vec3Array::create(
+        {normal,
+         normal}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+
+    auto texcoords = vec2Array::create(
+        {{0.0f, t_origin},
+         {1.0f, t_origin}}); // VK_FORMAT_R32G32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
+
+    ref_ptr<ushortArray> indices;
+    indices = ushortArray::create(
+        {0, 1});
+
+    if (info.transform != identity)
+    {
+        transform(info.transform, vertices, normals);
+    }
+
+    // setup geometry
+    auto vid = VertexIndexDraw::create();
+
+    DataList arrays;
+    arrays.push_back(vertices);
+    if (normals) arrays.push_back(normals);
+    if (texcoords) arrays.push_back(texcoords);
+    if (colors) arrays.push_back(colors);
+    if (positions) arrays.push_back(positions);
+    vid->assignArrays(arrays);
+
+    vid->assignIndices(indices);
+    vid->indexCount = static_cast<uint32_t>(indices->size());
+    vid->instanceCount = instanceCount;
+
+    scenegraph->addChild(vid);
+
+    if (compileTraversal) compileTraversal->compile(scenegraph);
+
+    return scenegraph;
+}
+
 ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _boxes[info];

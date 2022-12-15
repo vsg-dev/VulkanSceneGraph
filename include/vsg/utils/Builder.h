@@ -90,7 +90,7 @@ namespace vsg
     VSG_type_name(vsg::GeometryInfo);
 
     /// Builder class that creates subgraphs that can render primitive geometries.
-    /// Supported shapes are Box, Capsule, Cone, Cylinder, Disk, Quad, Sphere and HeightField.
+    /// Supported shapes are Box, Capsule, Cone, Cylinder, Disk, Line, Quad, Sphere and HeightField.
     /// Uses GeometryInfo and StateInfo to guide the geometry position/size and rendering state.
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
@@ -105,6 +105,7 @@ namespace vsg
         ref_ptr<Node> createCone(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createCylinder(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createDisk(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
+        ref_ptr<Node> createLine(const GeometryInfo& info, const StateInfo& stateInfo = {});
         ref_ptr<Node> createQuad(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createSphere(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
         ref_ptr<Node> createHeightField(const GeometryInfo& info = {}, const StateInfo& stateInfo = {});
@@ -126,6 +127,7 @@ namespace vsg
         GeometryMap _capsules;
         GeometryMap _cones;
         GeometryMap _cylinders;
+        GeometryMap _lines;
         GeometryMap _quads;
         GeometryMap _spheres;
         GeometryMap _heightfields;
