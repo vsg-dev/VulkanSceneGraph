@@ -152,7 +152,7 @@ namespace vsg
                 _depth = d;
                 _storage = nullptr;
 
-                input.read(new_size, _data);
+                if (_data) input.read(new_size, _data);
 
                 dirty();
             }
@@ -181,7 +181,8 @@ namespace vsg
 
         std::size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<std::size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, properties.maxNumMipmaps); }
 
-        bool empty() const { return _width == 0 && _height == 0 && _depth == 0; }
+        bool available() const { return _data != nullptr; }
+        bool empty() const { return _data == nullptr; }
 
         void clear()
         {
@@ -279,6 +280,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
+        bool dataAvailable() const override { return available(); }
         std::size_t dataSize() const override { return size() * properties.stride; }
 
         void* dataPointer() override { return _data; }
@@ -333,7 +335,9 @@ namespace vsg
 
         value_type* _allocate(size_t size) const
         {
-            if (properties.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+            if (size == 0)
+                return nullptr;
+            else if (properties.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
                 return new value_type[size];
             else if (properties.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
                 return new (std::malloc(sizeof(value_type) * size)) value_type[size];

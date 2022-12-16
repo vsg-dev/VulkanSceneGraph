@@ -177,6 +177,7 @@ namespace vsg
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
 
+        virtual bool dataAvailable() const = 0;
         virtual std::size_t dataSize() const = 0;
 
         virtual void* dataPointer() = 0;

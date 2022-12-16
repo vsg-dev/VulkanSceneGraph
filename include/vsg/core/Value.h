@@ -88,6 +88,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return 1; }
 
+        bool dataAvailable() const override { return true; }
         std::size_t dataSize() const override { return sizeof(value_type); }
 
         void* dataPointer() override { return &_value; }
