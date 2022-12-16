@@ -120,7 +120,7 @@ namespace vsg
             uint32_t previous = 0;
             uint32_t next = 0;
             ref_ptr<PagedLOD> plod;
-            List* list = 0;
+            List* list = nullptr;
         };
 
         using Elements = std::vector<Element>;
