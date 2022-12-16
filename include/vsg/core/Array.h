@@ -126,7 +126,7 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
         const char* className() const noexcept override { return type_name<Array>(); }
         const std::type_info& type_info() const noexcept override { return typeid(*this); }
-        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Array) == type ? true : Data::is_compatible(type); }
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Array) == type || Data::is_compatible(type); }
 
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
@@ -169,7 +169,7 @@ namespace vsg
                 _size = width_size;
                 _storage = nullptr;
 
-                input.read(new_total_size, _data);
+                if (_data) input.read(new_total_size, _data);
 
                 dirty();
             }
@@ -195,7 +195,8 @@ namespace vsg
 
         std::size_t size() const { return (properties.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, properties.maxNumMipmaps); }
 
-        bool empty() const { return _size == 0; }
+        bool available() const { return _data != nullptr; }
+        bool empty() const { return _data == nullptr; }
 
         void clear()
         {
@@ -281,6 +282,7 @@ namespace vsg
         std::size_t valueSize() const override { return sizeof(value_type); }
         std::size_t valueCount() const override { return size(); }
 
+        bool dataAvailable() const override { return available(); }
         std::size_t dataSize() const override { return size() * properties.stride; }
 
         void* dataPointer() override { return _data; }
@@ -326,7 +328,9 @@ namespace vsg
 
         value_type* _allocate(size_t size) const
         {
-            if (properties.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
+            if (size == 0)
+                return nullptr;
+            else if (properties.allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
                 return new value_type[size];
             else if (properties.allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
                 return new (std::malloc(sizeof(value_type) * size)) value_type[size];

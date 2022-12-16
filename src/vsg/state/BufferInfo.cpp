@@ -73,7 +73,7 @@ void BufferInfo::release()
         buffer->release(offset, range);
     }
 
-    buffer = 0;
+    buffer.reset();
     offset = 0;
     range = 0;
 }

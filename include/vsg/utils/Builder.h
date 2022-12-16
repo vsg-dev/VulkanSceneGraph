@@ -118,7 +118,8 @@ namespace vsg
 
     private:
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
-
+        ref_ptr<Data> instancePositions(const GeometryInfo& info, uint32_t& instanceCount);
+        ref_ptr<Data> instanceColors(const GeometryInfo& info, uint32_t instanceCount);
         vec3 y_texcoord(const StateInfo& info) const;
 
         using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;
