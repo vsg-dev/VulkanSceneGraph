@@ -2,7 +2,7 @@ name: windows-mingw-cygwin
 on:
   workflow_dispatch:
 jobs:
-  mingw:
+  mingw-shared:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -22,14 +22,41 @@ jobs:
 
     - name: Put MSYS2_MinGW64 on PATH
       run: echo "D:/a/_temp/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      
+
+    - name: CMake Configure
+      run: cmake -B build -DBUILD_SHARED_LIBS=1
+
+    - name: CMake Build
+      run: cmake --build build
+
+  mingw-static:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Vulkan SDK
+      uses: humbletim/install-vulkan-sdk@v1.1.1
+      with:
+        version: latest
+        cache: true
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          git
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-ninja
+
+    - name: Put MSYS2_MinGW64 on PATH
+      run: echo "D:/a/_temp/msys64/mingw64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
     - name: CMake Configure
       run: cmake -B build
 
     - name: CMake Build
       run: cmake --build build
 
-  cygwin:
+  cygwin-shared:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2 
@@ -37,7 +64,46 @@ jobs:
       uses: egor-tensin/setup-cygwin@v3
       #with:
         #packages: cmake gcc-g++ ninja pkg-config libxcb-devel
-        
+
+    - name: Package installation workaround
+      run: C:\tools\cygwin\cygwinsetup.exe \
+           --quiet-mode \
+           --no-desktop \
+           --no-startmenu \
+           --root C:\tools\cygwin\ \
+           --local-package-dir C:\tools\cygwin\packages \
+           --site "http://mirrors.kernel.org/sourceware/cygwin/" \
+           --packages cmake gcc-g++ ninja pkg-config libxcb-devel
+
+    - name: Build in Cygwin
+      env:
+        VSG_BUILD_PATH: ${{ github.workspace }}
+      run: |
+        build_vsg() {
+            cd $(cygpath -u $VSG_BUILD_PATH)
+            SDK_VERSION=$(curl -sL "https://vulkan.lunarg.com/sdk/latest/linux.txt")
+            curl -s -L -o "vulkan_sdk.tar.gz" https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.gz
+            mkdir -p vulkan_sdk
+            VULKAN_SDK="vulkan_sdk"
+            tar -C "$VULKAN_SDK" --strip-components 2 -xf vulkan_sdk.tar.gz $SDK_VERSION/x86_64
+            export VULKAN_SDK
+            export PATH=$PATH:$VULKAN_SDK/bin
+            mkdir build && cd build
+            cmake .. -G Ninja -D Vulkan_LIBRARY="$VULKAN_SDK/lib/libvulkan.so" -DBUILD_SHARED_LIBS=1
+            ninja -v
+        }
+        build_vsg
+      shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+
+  cygwin-static:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Cygwin
+      uses: egor-tensin/setup-cygwin@v3
+      #with:
+        #packages: cmake gcc-g++ ninja pkg-config libxcb-devel
+
     - name: Package installation workaround
       run: C:\tools\cygwin\cygwinsetup.exe \
            --quiet-mode \
