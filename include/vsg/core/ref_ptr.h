@@ -67,7 +67,7 @@ namespace vsg
 
         void reset()
         {
-            if (_ptr) _ptr->ref();
+            if (_ptr) _ptr->unref();
             _ptr = nullptr;
         }
 
