@@ -173,7 +173,7 @@ vsg::ref_ptr<vsg::Data> Builder::instancePositions(const GeometryInfo& info, uin
 {
     instanceCount = 1;
 
-    if (info.positions && info.positions->size() >= 1)
+    if (info.positions && info.positions->available())
     {
         instanceCount = static_cast<uint32_t>(info.positions->size());
         return info.positions;
