@@ -77,32 +77,44 @@ KeyboardMap::KeyboardMap()
             {'8', KEY_8},
             {'9', KEY_9},
 
-            {'a', KEY_a},
-            {'b', KEY_b},
-            {'c', KEY_c},
-            {'d', KEY_d},
-            {'e', KEY_e},
-            {'f', KEY_f},
-            {'g', KEY_g},
-            {'h', KEY_h},
-            {'i', KEY_i},
-            {'j', KEY_j},
-            {'k', KEY_k},
-            {'l', KEY_l},
-            {'m', KEY_m},
-            {'n', KEY_n},
-            {'o', KEY_o},
-            {'p', KEY_p},
-            {'q', KEY_q},
-            {'r', KEY_r},
-            {'s', KEY_s},
-            {'t', KEY_t},
-            {'u', KEY_u},
-            {'z', KEY_v},
-            {'w', KEY_w},
-            {'x', KEY_x},
-            {'y', KEY_y},
-            {'z', KEY_z},
+            // In this map it is incorrect to have map-keys that are not
+            // not explicitly listed or mentioned in Windows 10 SDKs WinUser.h
+            // 
+            // Here is an example that illustrates the issue.
+            // Lower case 'p' generates a keycode dec(112), i.e., hex(0x70)
+            // while VK_F1 also has value dec(112) i.e., hex(0x70)
+            // This means the initial mapping of 
+            // {'p',   KEY_p} is overwritten by the later mapping
+            // {VK_F1, KEY_F1},
+            // BottomLine: The keyboard is <WindowsVirtualKey> -> <VSG KeyCode>
+            // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+            // 
+            //{'a', KEY_a},
+            //{'b', KEY_b},
+            //{'c', KEY_c},
+            //{'d', KEY_d},
+            //{'e', KEY_e},
+            //{'f', KEY_f},
+            //{'g', KEY_g},
+            //{'h', KEY_h},
+            //{'i', KEY_i},
+            //{'j', KEY_j},
+            //{'k', KEY_k},
+            //{'l', KEY_l},
+            //{'m', KEY_m},
+            //{'n', KEY_n},
+            //{'o', KEY_o},
+            //{'p', KEY_p},
+            //{'q', KEY_q},
+            //{'r', KEY_r},
+            //{'s', KEY_s},
+            //{'t', KEY_t},
+            //{'u', KEY_u},
+            //{'z', KEY_v},
+            //{'w', KEY_w},
+            //{'x', KEY_x},
+            //{'y', KEY_y},
+            //{'z', KEY_z},
 
             {'A', KEY_A},
             {'B', KEY_B},
