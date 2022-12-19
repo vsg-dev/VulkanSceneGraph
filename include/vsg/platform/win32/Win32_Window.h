@@ -33,46 +33,50 @@ namespace vsgWin32
         KeyboardMap();
 
         using VirtualKeyToKeySymbolMap = std::map<uint16_t, vsg::KeySymbol>;
+        using ASCIIToKeySymbolMap = std::map<uint16_t, vsg::KeySymbol>;
 
         bool getKeySymbol(WPARAM wParam, LPARAM lParam, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
         {
             uint16_t modifierMask = 0;
 
             //bool rightSide = (lParam & 0x01000000) != 0;
-            uint32_t virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, 3, ::GetKeyboardLayout(0));
+            // scan_code -> windows virtual key -> vsg key symbol
+            uint32_t scan_code = (lParam >> 16) & 0xff;
+            uint32_t virtualKey = ::MapVirtualKeyEx(scan_code, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
             auto itr = _keycodeMap.find(virtualKey);
             if (itr == _keycodeMap.end()) return false;
+            keySymbol = itr->second; // this is our vsg code for the virtual key. (i.e like a scan code)
 
             // windows will report the opposite of Xcb so start with the key as our modifiedKeySymbol
             // see: https://github.com/vsg-dev/VulkanSceneGraph/issues/342
             modifiedKeySymbol = itr->second;
 
             BYTE keyState[256];
-            if (virtualKey==0 || !::GetKeyboardState(keyState))
+            if (virtualKey == 0 || !::GetKeyboardState(keyState))
             {
                 return false;
             }
 
             switch (virtualKey)
             {
-                case VK_LSHIFT:
-                case VK_RSHIFT:
-                    modifierMask |= vsg::KeyModifier::MODKEY_Shift;
-                    break;
+            case VK_LSHIFT:
+            case VK_RSHIFT:
+                modifierMask |= vsg::KeyModifier::MODKEY_Shift;
+                break;
 
-                case VK_LCONTROL:
-                case VK_RCONTROL:
-                    modifierMask |= vsg::KeyModifier::MODKEY_Control;
-                    break;
+            case VK_LCONTROL:
+            case VK_RCONTROL:
+                modifierMask |= vsg::KeyModifier::MODKEY_Control;
+                break;
 
-                case VK_LMENU:
-                case VK_RMENU:
-                    modifierMask |= vsg::KeyModifier::MODKEY_Alt;
-                    break;
+            case VK_LMENU:
+            case VK_RMENU:
+                modifierMask |= vsg::KeyModifier::MODKEY_Alt;
+                break;
 
-                default:
-                    virtualKey = static_cast<int>(wParam);
-                    break;
+            default:
+                virtualKey = static_cast<int>(wParam);
+                break;
             }
 
             if (keyState[VK_CAPITAL] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
@@ -82,23 +86,28 @@ namespace vsgWin32
 
             // our actual keystroke is what we get after the ::ToAscii call
             char asciiKey[2];
-            int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam>>16)&0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
-            if (numChars>0)
-            {
-                itr = _keycodeMap.find(asciiKey[0]);
-                if (itr != _keycodeMap.end()) keySymbol = itr->second;
-                else keySymbol = static_cast<vsg::KeySymbol>(asciiKey[0]);
-            }
-            else
-            {
-                keySymbol = vsg::KEY_Undefined;
-            }
+            int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam >> 16) & 0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
 
+            if (numChars > 0)
+            {
+                // its ascii so lets look for it in our ascii translation map
+                ASCIIToKeySymbolMap::iterator itr = _ascii2vsgmap.find(asciiKey[0]);
+                if (itr != _ascii2vsgmap.end())
+                {
+                    modifiedKeySymbol = itr->second;
+                }
+                else
+                {
+                    modifiedKeySymbol = vsg::KEY_Undefined;
+                    //vsg::debug("Please add ascii character %c to the _ascii2vsgmap.", asciiKey[0]);
+                }
+            }
             return true;
         }
 
     protected:
         VirtualKeyToKeySymbolMap _keycodeMap;
+        ASCIIToKeySymbolMap _ascii2vsgmap;
     };
 
 
