@@ -33,22 +33,32 @@ namespace vsgWin32
         KeyboardMap();
 
         using VirtualKeyToKeySymbolMap = std::map<uint16_t, vsg::KeySymbol>;
-        using ASCIIToKeySymbolMap = std::map<uint16_t, vsg::KeySymbol>;
+        using ASCIIToVSGMap = std::map<uint16_t, vsg::KeySymbol>;
 
         bool getKeySymbol(WPARAM wParam, LPARAM lParam, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
         {
             uint16_t modifierMask = 0;
 
-            //bool rightSide = (lParam & 0x01000000) != 0;
+            // In this method we do the following
             // scan_code -> windows virtual key -> vsg key symbol
+            
+            //// We first use MapVirtualKeyEx to the Windows Virtual Key for the key that was pressed.
             uint32_t scan_code = (lParam >> 16) & 0xff;
             uint32_t virtualKey = ::MapVirtualKeyEx(scan_code, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
             auto itr = _keycodeMap.find(virtualKey);
-            if (itr == _keycodeMap.end()) return false;
-            keySymbol = itr->second; // this is our vsg code for the virtual key. (i.e like a scan code)
+            if (itr == _keycodeMap.end())
+            {
+                // since we could not find the vsg equivalent of the windows virtual key
+                // we return false. If indeed it should be recognized by vsg, ensure that it is in _keycodeMap.
+                // so that we do not return false.
+                return false;
+            }
 
-            // windows will report the opposite of Xcb so start with the key as our modifiedKeySymbol
-            // see: https://github.com/vsg-dev/VulkanSceneGraph/issues/342
+            keySymbol = itr->second; // unmodified key symbol.
+            //// Now we figure out the "actual" semantic key value  
+            // We start with assuming that the modifiedKeySymbol is the same as keySymbol
+            // If it i
+            // and figure out if there were any modifiers pressed at the same time.
             modifiedKeySymbol = itr->second;
 
             BYTE keyState[256];
@@ -91,15 +101,16 @@ namespace vsgWin32
             if (numChars > 0)
             {
                 // its ascii so lets look for it in our ascii translation map
-                ASCIIToKeySymbolMap::iterator itr = _ascii2vsgmap.find(asciiKey[0]);
+                ASCIIToVSGMap::iterator itr = _ascii2vsgmap.find(asciiKey[0]);
                 if (itr != _ascii2vsgmap.end())
                 {
                     modifiedKeySymbol = itr->second;
                 }
                 else
                 {
+                    // its ascii but is missing from our _ascii2vsgmap
+                    // we should really add this key to the _ascii2vsgmap
                     modifiedKeySymbol = vsg::KEY_Undefined;
-                    //vsg::debug("Please add ascii character %c to the _ascii2vsgmap.", asciiKey[0]);
                 }
             }
             return true;
@@ -107,9 +118,8 @@ namespace vsgWin32
 
     protected:
         VirtualKeyToKeySymbolMap _keycodeMap;
-        ASCIIToKeySymbolMap _ascii2vsgmap;
+        ASCIIToVSGMap _ascii2vsgmap;
     };
-
 
     vsg::ButtonMask getButtonMask(WPARAM wParam)
     {
@@ -120,20 +130,20 @@ namespace vsgWin32
 
     uint32_t getButtonDownEventDetail(UINT buttonMsg)
     {
-        return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
+        return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3
+                                                                                                                : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
 
     uint32_t getButtonUpEventDetail(UINT buttonMsg)
     {
-        return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3 : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
+        return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3
+                                                                                                          : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
     }
-
 
     /// Win32_Window implements Win32 specific window creation, event handling and vulkan Surface setup.
     class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
     public:
-
         Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Win32_Window() = delete;
         Win32_Window(const Win32_Window&) = delete;

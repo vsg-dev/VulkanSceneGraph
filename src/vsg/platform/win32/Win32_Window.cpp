@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/platform/win32/Win32_Window.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
@@ -60,71 +61,138 @@ namespace vsgWin32
 
 KeyboardMap::KeyboardMap()
 {
+
+    //| Dec | VSG                       | Hex | Oct | Char | Description                      |
+    //|---- |---------------------------|-----|-----|------|----------------------------------|
     _ascii2vsgmap = {
-        {'0', KEY_0},
-        {'1', KEY_1},
-        {'2', KEY_2},
-        {'3', KEY_3},
-        {'4', KEY_4},
-        {'5', KEY_5},
-        {'6', KEY_6},
-        {'7', KEY_7},
-        {'8', KEY_8},
-        {'9', KEY_9},
-
-        {'a', KEY_a},
-        {'b', KEY_b},
-        {'c', KEY_c},
-        {'d', KEY_d},
-        {'e', KEY_e},
-        {'f', KEY_f},
-        {'g', KEY_g},
-        {'h', KEY_h},
-        {'i', KEY_i},
-        {'j', KEY_j},
-        {'k', KEY_k},
-        {'l', KEY_l},
-        {'m', KEY_m},
-        {'n', KEY_n},
-        {'o', KEY_o},
-        {'p', KEY_p},
-        {'q', KEY_q},
-        {'r', KEY_r},
-        {'s', KEY_s},
-        {'t', KEY_t},
-        {'u', KEY_u},
-        {'z', KEY_v},
-        {'w', KEY_w},
-        {'x', KEY_x},
-        {'y', KEY_y},
-        {'z', KEY_z},
-
-        {'A', KEY_A},
-        {'B', KEY_B},
-        {'C', KEY_C},
-        {'D', KEY_D},
-        {'E', KEY_E},
-        {'F', KEY_F},
-        {'G', KEY_G},
-        {'H', KEY_H},
-        {'I', KEY_I},
-        {'J', KEY_J},
-        {'K', KEY_K},
-        {'L', KEY_L},
-        {'M', KEY_M},
-        {'N', KEY_N},
-        {'O', KEY_O},
-        {'P', KEY_P},
-        {'Q', KEY_Q},
-        {'R', KEY_R},
-        {'S', KEY_S},
-        {'T', KEY_T},
-        {'U', KEY_U},
-        {'V', KEY_V},
-        {'W', KEY_W},
-        {'X', KEY_X},
-        {'Y', KEY_Y},
-        {'Z', KEY_Z},
+        {0, KEY_Undefined},           //| 00  | 000 | ^@    | Null (NUL)                      |
+        {1, KEY_Undefined},           //| 01  | 001 | ^A    | Start of heading (SOH)          |
+        {2, KEY_Undefined},           //| 02  | 002 | ^B    | Start of text (STX)             |
+        {3, KEY_Undefined},           //| 03  | 003 | ^C    | End of text (ETX)               |
+        {4, KEY_Undefined},           //| 04  | 004 | ^D    | End of transmission (EOT)       |
+        {5, KEY_Undefined},           //| 05  | 005 | ^E    | Enquiry (ENQ)                   |
+        {6, KEY_Undefined},           //| 06  | 006 | ^F    | Acknowledge (ACK)               |
+        {7, KEY_Undefined},           //| 07  | 007 | ^G    | Bell (BEL)                      |
+        {8, KEY_Undefined},           //| 08  | 010 | ^H    | Backspace (BS)                  |
+        {9, KEY_Undefined},           //| 09  | 011 | ^I    | Horizontal tab (HT)             |
+        {10, KEY_Undefined},          //| 0A  | 012 | ^J    | Line feed (LF)                  |
+        {11, KEY_Undefined},          //| 0B  | 013 | ^K    | Vertical tab (VT)               |
+        {12, KEY_Undefined},          //| 0C  | 014 | ^L    | New page/form feed (FF)         |
+        {13, KEY_Undefined},          //| 0D  | 015 | ^M    | Carriage return (CR)            |
+        {14, KEY_Undefined},          //| 0E  | 016 | ^N    | Shift out (SO)                  |
+        {15, KEY_Undefined},          //| 0F  | 017 | ^O    | Shift in (SI)                   |
+        {16, KEY_Undefined},          //| 10  | 020 | ^P    | Data link escape (DLE)          |
+        {17, KEY_Undefined},          //| 11  | 021 | ^Q    | Device control 1 (DC1)          |
+        {18, KEY_Undefined},          //| 12  | 022 | ^R    | Device control 2 (DC2)          |
+        {19, KEY_Undefined},          //| 13  | 023 | ^S    | Device control 3 (DC3)          |
+        {20, KEY_Undefined},          //| 14  | 024 | ^T    | Device control 4 (DC4)          |
+        {21, KEY_Undefined},          //| 15  | 025 | ^U    | Negative acknowledge (NAK)      |
+        {22, KEY_Undefined},          //| 16  | 026 | ^V    | Synchronous idle (SYN)          |
+        {23, KEY_Undefined},          //| 17  | 027 | ^W    | End of transmission block (ETB) |
+        {24, KEY_Undefined},          //| 18  | 030 | ^X    | Cancel (CAN)                    |
+        {25, KEY_Undefined},          //| 19  | 031 | ^Y    | End of medium (EM)              |
+        {26, KEY_Undefined},          //| 1A  | 032 | ^Z    | Substitute (SUB)                |
+        {27, KEY_Undefined},          //| 1B  | 033 | ^[    | Escape (ESC)                    |
+        {28, KEY_Undefined},          //| 1C  | 034 | ^\    | File separator (FS)             |
+        {29, KEY_Undefined},          //| 1D  | 035 | ^]    | Group separator (GS)            |
+        {30, KEY_Undefined},          //| 1E  | 036 | ^^    | Record separator (RS)           |
+        {31, KEY_Undefined},          //| 1F  | 037 | ^_    | Unit separator (US)             |
+        {32, KEY_Undefined},          //| 20  | 040 | Space |                                 |
+        {33, KEY_Exclaim},            //| 21  | 041 | !     | Exclamation mark                |
+        {34, KEY_Exclaim},            //| 22  | 042 | "     | Quotation mark/Double quote     |
+        {35, KEY_Hash},               //| 23  | 043 | #     | Number sign                     |
+        {36, KEY_Dollar},             //| 24  | 044 | $     | Dollar sign                     |
+        {37, KEY_Percent},            //| 25  | 045 | %     | Percent sign                    |
+        {38, KEY_Ampersand},          //| 26  | 046 | &amp; | Ampersand                       |
+        {39, KEY_Quote},              //| 27  | 047 | '     | Apostrophe/Single quote         |
+        {40, KEY_Leftparen},          //| 28  | 050 | (     | Left parenthesis                |
+        {41, KEY_Rightparen},         //| 29  | 051 | )     | Right parenthesis               |
+        {42, KEY_Asterisk},           //| 2A  | 052 | *     | Asterisk                        |
+        {43, KEY_Plus},               //| 2B  | 053 | +     | Plus sign                       |
+        {44, KEY_Comma},              //| 2C  | 054 | ,     | Comma                           |
+        {45, KEY_Minus},              //| 2D  | 055 | -     | Hyphen/Minus                    |
+        {46, KEY_Period},             //| 2E  | 056 | .     | Full stop/Period                |
+        {47, KEY_Slash},              //| 2F  | 057 | /     | Solidus/Slash                   |
+        {48, KEY_0},                  //| 30  | 060 | 0     | Digit zero                      |
+        {49, KEY_1},                  //| 31  | 061 | 1     | Digit one                       |
+        {50, KEY_2},                  //| 32  | 062 | 2     | Digit two                       |
+        {51, KEY_3},                  //| 33  | 063 | 3     | Digit three                     |
+        {52, KEY_4},                  //| 34  | 064 | 4     | Digit four                      |
+        {53, KEY_5},                  //| 35  | 065 | 5     | Digit five                      |
+        {54, KEY_6},                  //| 36  | 066 | 6     | Digit six                       |
+        {55, KEY_7},                  //| 37  | 067 | 7     | Digit seven                     |
+        {56, KEY_8},                  //| 38  | 070 | 8     | Digit eight                     |
+        {57, KEY_9},                  //| 39  | 071 | 9     | Digit nine                      |
+        {58, KEY_Colon},              //| 3A  | 072 | :     | Colon                           |
+        {59, KEY_Semicolon},          //| 3B  | 073 | ;     | Semicolon                       |
+        {60, KEY_Less},               //| 3C  | 074 | <     | Less-than sign                  |
+        {61, KEY_Equals},             //| 3D  | 075 | =     | Equal/Equality sign             |
+        {62, KEY_Greater},            //| 3E  | 076 | >     | Greater-than sign               |
+        {63, KEY_Question},           //| 3F  | 077 | ?     | Question mark                   |
+        {64, KEY_At},                 //| 40  | 100 | @     | Commercial at/At sign           |
+        {65, KEY_A},                  //| 41  | 101 | A     | Latin capital letter A          |
+        {66, KEY_B},                  //| 42  | 102 | B     | Latin capital letter B          |
+        {67, KEY_C},                  //| 43  | 103 | C     | Latin capital letter C          |
+        {68, KEY_D},                  //| 44  | 104 | D     | Latin capital letter D          |
+        {69, KEY_E},                  //| 45  | 105 | E     | Latin capital letter E          |
+        {70, KEY_F},                  //| 46  | 106 | F     | Latin capital letter F          |
+        {71, KEY_G},                  //| 47  | 107 | G     | Latin capital letter G          |
+        {72, KEY_H},                  //| 48  | 110 | H     | Latin capital letter H          |
+        {73, KEY_I},                  //| 49  | 111 | I     | Latin capital letter I          |
+        {74, KEY_J},                  //| 4A  | 112 | J     | Latin capital letter J          |
+        {75, KEY_K},                  //| 4B  | 113 | K     | Latin capital letter K          |
+        {76, KEY_L},                  //| 4C  | 114 | L     | Latin capital letter L          |
+        {77, KEY_M},                  //| 4D  | 115 | M     | Latin capital letter M          |
+        {78, KEY_N},                  //| 4E  | 116 | N     | Latin capital letter N          |
+        {79, KEY_O},                  //| 4F  | 117 | O     | Latin capital letter O          |
+        {80, KEY_P},                  //| 50  | 120 | P     | Latin capital letter P          |
+        {81, KEY_Q},                  //| 51  | 121 | Q     | Latin capital letter Q          |
+        {82, KEY_R},                  //| 52  | 122 | R     | Latin capital letter R          |
+        {83, KEY_S},                  //| 53  | 123 | S     | Latin capital letter S          |
+        {84, KEY_T},                  //| 54  | 124 | T     | Latin capital letter T          |
+        {85, KEY_U},                  //| 55  | 125 | U     | Latin capital letter U          |
+        {86, KEY_V},                  //| 56  | 126 | V     | Latin capital letter V          |
+        {87, KEY_W},                  //| 57  | 127 | W     | Latin capital letter W          |
+        {88, KEY_X},                  //| 58  | 130 | X     | Latin capital letter X          |
+        {89, KEY_Y},                  //| 59  | 131 | Y     | Latin capital letter Y          |
+        {90, KEY_Z},                  //| 5A  | 132 | Z     | Latin capital letter Z          |
+        {91, KEY_Leftbracket},        //| 5B  | 133 | [     | Left square bracket             |
+        {92, KEY_Backslash},          //| 5C  | 134 | \     | Reverse solidus/Backslash       |
+        {93, KEY_Rightbracket},       //| 5D  | 135 | ]     | Right square bracket            |
+        {94, KEY_Caret},              //| 5E  | 136 | ^     | Circumflex accent/Caret         |
+        {95, KEY_Underscore},         //| 5F  | 137 | _     | Underscore/Low line             |
+        {96, KEY_Backquote},          //| 60  | 140 | `     | Grave accent                    |
+        {97, KEY_a},                  //| 61  | 141 | a     | Latin small letter a            |
+        {98, KEY_b},                  //| 62  | 142 | b     | Latin small letter b            |
+        {99, KEY_c},                  //| 63  | 143 | c     | Latin small letter c            |
+        {100, KEY_d},                 //| 64  | 144 | d     | Latin small letter d            |
+        {101, KEY_e},                 //| 65  | 145 | e     | Latin small letter e            |
+        {102, KEY_f},                 //| 66  | 146 | f     | Latin small letter f            |
+        {103, KEY_g},                 //| 67  | 147 | g     | Latin small letter g            |
+        {104, KEY_h},                 //| 68  | 150 | h     | Latin small letter h            |
+        {105, KEY_i},                 //| 69  | 151 | i     | Latin small letter i            |
+        {106, KEY_j},                 //| 6A  | 152 | j     | Latin small letter j            |
+        {107, KEY_k},                 //| 6B  | 153 | k     | Latin small letter k            |
+        {108, KEY_l},                 //| 6C  | 154 | l     | Latin small letter l            |
+        {109, KEY_m},                 //| 6D  | 155 | m     | Latin small letter m            |
+        {110, KEY_n},                 //| 6E  | 156 | n     | Latin small letter n            |
+        {111, KEY_o},                 //| 6F  | 157 | o     | Latin small letter o            |
+        {112, KEY_p},                 //| 70  | 160 | p     | Latin small letter p            |
+        {113, KEY_q},                 //| 71  | 161 | q     | Latin small letter q            |
+        {114, KEY_r},                 //| 72  | 162 | r     | Latin small letter r            |
+        {115, KEY_s},                 //| 73  | 163 | s     | Latin small letter s            |
+        {116, KEY_t},                 //| 74  | 164 | t     | Latin small letter t            |
+        {117, KEY_u},                 //| 75  | 165 | u     | Latin small letter u            |
+        {118, KEY_v},                 //| 76  | 166 | v     | Latin small letter v            |
+        {119, KEY_w},                 //| 77  | 167 | w     | Latin small letter w            |
+        {120, KEY_x},                 //| 78  | 170 | x     | Latin small letter x            |
+        {121, KEY_y},                 //| 79  | 171 | y     | Latin small letter y            |
+        {122, KEY_z},                 //| 7A  | 172 | z     | Latin small letter z            |
+        {123, KEY_Leftcurlybracket},  //| 7B  | 173 | {     | Left curly bracket              |
+        {124, KEY_Verticalslash},     //| 7C  | 174 | |     | Vertical line/Vertical bar      |
+        {125, KEY_Rightcurlybracket}, //| 7D  | 175 | }     | Right curly bracket             |
+        {126, KEY_Tilde},             //| 7E  | 176 | ~     | Tilde                           |
+        {127, KEY_Undefined},         //| 7F  | 177 | DEL   | Delete (DEL)                    |
     };
 
     _keycodeMap =
@@ -146,16 +214,16 @@ KeyboardMap::KeyboardMap()
 
             // In this map it is incorrect to have map-keys that are not
             // not explicitly listed or mentioned in Windows 10 SDKs WinUser.h
-            // 
+            //
             // Here is an example that illustrates the issue.
             // Lower case 'p' generates a keycode dec(112), i.e., hex(0x70)
             // while VK_F1 also has value dec(112) i.e., hex(0x70)
-            // This means the initial mapping of 
+            // This means the initial mapping of
             // {'p',   KEY_p} is overwritten by the later mapping
             // {VK_F1, KEY_F1},
-            // BottomLine: The keyboard is <WindowsVirtualKey> -> <VSG KeyCode>
+            // BottomLine: The map is <WindowsVirtualKey> -> <VSG KeyCode>
             // https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-            // 
+            //
             //{'a', KEY_a},
             //{'b', KEY_b},
             //{'c', KEY_c},
@@ -224,33 +292,33 @@ KeyboardMap::KeyboardMap()
             {VK_END, KEY_End}, /* EOL */
             //{ KEY_Begin = 0xFF58, /* BOL */
 
-//            {'!', KEY_Exclaim},
-//            {'"', KEY_Quotedbl},
-//            {'#', KEY_Hash},
-//            {'$', KEY_Dollar},
-//            {'&', KEY_Ampersand},
+            //            {'!', KEY_Exclaim},
+            //            {'"', KEY_Quotedbl},
+            //            {'#', KEY_Hash},
+            //            {'$', KEY_Dollar},
+            //            {'&', KEY_Ampersand},
             {VK_OEM_7, KEY_Quote},
-//            {'(', KEY_Leftparen},
-//            {')', KEY_Rightparen},
-//            {'*', KEY_Asterisk},
-//            {'+', KEY_Plus},
+            //            {'(', KEY_Leftparen},
+            //            {')', KEY_Rightparen},
+            //            {'*', KEY_Asterisk},
+            //            {'+', KEY_Plus},
             {VK_OEM_COMMA, KEY_Comma},
             {VK_OEM_MINUS, KEY_Minus},
             {VK_OEM_PERIOD, KEY_Period},
             {VK_OEM_2, KEY_Slash},
-//            {':', KEY_Colon},
+            //            {':', KEY_Colon},
             {VK_OEM_1, KEY_Semicolon},
-//            {'<', KEY_Less},
+            //            {'<', KEY_Less},
             {VK_OEM_PLUS, KEY_Equals}, // + isn't an unmodded key, why does windows map is as a virtual??
-//            {'>', KEY_Greater},
-//            {'?', KEY_Question},
-//            {'@', KEY_At},
+                                       //            {'>', KEY_Greater},
+                                       //            {'?', KEY_Question},
+                                       //            {'@', KEY_At},
             {VK_OEM_4, KEY_Leftbracket},
             {VK_OEM_5, KEY_Backslash},
             {VK_OEM_6, KEY_Rightbracket},
-//            {'|', KEY_Caret},
-//            {'_', KEY_Underscore},
-//            {0xc0, KEY_Backquote},
+            //            {'|', KEY_Caret},
+            //            {'_', KEY_Underscore},
+            //            {0xc0, KEY_Backquote},
 
             {VK_BACK, KEY_BackSpace}, /* back space, back char */
             {VK_TAB, KEY_Tab},
@@ -578,7 +646,7 @@ void Win32_Window::_initSurface()
 
 bool Win32_Window::visible() const
 {
-    return _window!=0 && _windowMapped;
+    return _window != 0 && _windowMapped;
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)
@@ -643,8 +711,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_PAINT:
         ValidateRect(_window, NULL);
         break;
-    case WM_MOUSEMOVE:
-    {
+    case WM_MOUSEMOVE: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -653,8 +720,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-    {
+    case WM_RBUTTONDOWN: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -665,8 +731,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
-    case WM_RBUTTONUP:
-    {
+    case WM_RBUTTONUP: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -677,24 +742,20 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
-    case WM_RBUTTONDBLCLK:
-    {
+    case WM_RBUTTONDBLCLK: {
         //::SetCapture(_window);
     }
     break;
-    case WM_MOUSEWHEEL:
-    {
-        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
+    case WM_MOUSEWHEEL: {
+        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam) < 0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
     }
-    case WM_MOVE:
-    {
+    case WM_MOVE: {
         bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         break;
     }
-    case WM_SIZE:
-    {
-        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw==0 || winh==0)
+    case WM_SIZE: {
+        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
         {
             _windowMapped = false;
         }
@@ -708,8 +769,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_EXITSIZEMOVE:
         break;
     case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-    {
+    case WM_SYSKEYDOWN: {
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
@@ -720,8 +780,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_KEYUP:
-    case WM_SYSKEYUP:
-    {
+    case WM_SYSKEYUP: {
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
