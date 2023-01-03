@@ -256,7 +256,7 @@ if (glslang_FOUND)
 
     include(CheckCXXSourceRuns)
 
-    set(CMAKE_REQUIRED_LIBRARIES ${glslang_LIBRARY})
+    set(CMAKE_REQUIRED_LIBRARIES ${glslang_LIBRARIES})
     set(CMAKE_REQUIRED_INCLUDES ${glslang_INCLUDE_DIR})
 
     if (NOT GLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT)
