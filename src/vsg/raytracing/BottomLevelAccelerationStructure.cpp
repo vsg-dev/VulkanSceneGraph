@@ -28,7 +28,7 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Device* devic
 
 void BottomLevelAccelerationStructure::compile(Context& context)
 {
-    if (geometries.size() == 0) return;                    // no data
+    if (geometries.empty()) return;                        // no data
     if (_vkGeometries.size() == geometries.size()) return; // already compiled
 
     for (auto& geom : geometries)

@@ -169,9 +169,28 @@ void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr
     }
 }
 
+vsg::ref_ptr<vsg::Data> Builder::instancePositions(const GeometryInfo& info, uint32_t& instanceCount)
+{
+    instanceCount = 1;
+
+    if (info.positions && info.positions->available())
+    {
+        instanceCount = static_cast<uint32_t>(info.positions->size());
+        return info.positions;
+    }
+    return {};
+}
+
+vsg::ref_ptr<vsg::Data> Builder::instanceColors(const GeometryInfo& info, uint32_t instanceCount)
+{
+    if (info.colors && (info.colors->valueCount() == instanceCount))
+        return info.colors;
+    else
+        return vec4Array::create(instanceCount, info.color);
+}
+
 vec3 Builder::y_texcoord(const StateInfo& info) const
 {
-
     if ((info.image && info.image->properties.origin == Origin::TOP_LEFT) ||
         (info.displacementMap && info.displacementMap->properties.origin == Origin::TOP_LEFT))
     {
@@ -192,18 +211,8 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     }
 
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
@@ -342,19 +351,8 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     }
 
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
-
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
@@ -582,19 +580,8 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     }
 
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
-
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
@@ -803,19 +790,8 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     }
 
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
-
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
@@ -1061,19 +1037,8 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     }
 
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
-
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
@@ -1175,18 +1140,8 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     }
 
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
 
     auto scenegraph = createStateGroup(stateInfo);
 
@@ -1264,21 +1219,10 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
         return subgraph;
     }
 
-    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
@@ -1384,21 +1328,10 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
         return subgraph;
     }
 
-    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
     uint32_t instanceCount = 1;
-    auto positions = info.positions;
-    if (positions)
-    {
-        if (positions->size() >= 1)
-            instanceCount = static_cast<uint32_t>(positions->size());
-        else
-            positions = {};
-    }
-
-    auto colors = info.colors;
-    if (colors && colors->valueCount() != instanceCount) colors = {};
-    if (!colors) colors = vec4Array::create(instanceCount, info.color);
+    auto positions = instancePositions(info, instanceCount);
+    auto colors = instanceColors(info, instanceCount);
+    auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);

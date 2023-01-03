@@ -59,6 +59,12 @@ namespace vsg
         {
         }
 
+        void reset()
+        {
+            _ptr = nullptr;
+            _auxiliary.reset();
+        }
+
         template<class R>
         observer_ptr& operator=(R* ptr)
         {

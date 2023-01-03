@@ -65,6 +65,12 @@ namespace vsg
             if (_ptr) _ptr->unref();
         }
 
+        void reset()
+        {
+            if (_ptr) _ptr->unref();
+            _ptr = nullptr;
+        }
+
         ref_ptr& operator=(T* ptr)
         {
             if (ptr == _ptr) return *this;
