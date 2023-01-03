@@ -122,10 +122,16 @@ namespace vsg
         inline operator const string_type&() const noexcept { return _string; }
         inline const value_type* c_str() const noexcept { return _string.c_str(); }
 #if defined(__MINGW32__)
-        inline operator const value_type* () const noexcept { return _string.c_str(); }
+        inline operator const value_type*() const noexcept
+        {
+            return _string.c_str();
+        }
 #endif
 
-        reference operator[](size_type pos) { return _string[pos]; }
+        reference operator[](size_type pos)
+        {
+            return _string[pos];
+        }
         const_reference operator[](size_type pos) const { return _string[pos]; }
 
         void clear() noexcept { _string.clear(); }

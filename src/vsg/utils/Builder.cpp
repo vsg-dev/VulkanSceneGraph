@@ -183,8 +183,10 @@ vsg::ref_ptr<vsg::Data> Builder::instancePositions(const GeometryInfo& info, uin
 
 vsg::ref_ptr<vsg::Data> Builder::instanceColors(const GeometryInfo& info, uint32_t instanceCount)
 {
-    if (info.colors && (info.colors->valueCount() == instanceCount)) return info.colors;
-    else return vec4Array::create(instanceCount, info.color);
+    if (info.colors && (info.colors->valueCount() == instanceCount))
+        return info.colors;
+    else
+        return vec4Array::create(instanceCount, info.color);
 }
 
 vec3 Builder::y_texcoord(const StateInfo& info) const
