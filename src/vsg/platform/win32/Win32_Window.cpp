@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
+
 using namespace vsg;
 using namespace vsgWin32;
 
