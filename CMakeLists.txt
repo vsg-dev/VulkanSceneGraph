@@ -71,6 +71,12 @@ vsg_add_target_clang_format(
     FILES
         ${VSG_SOURCE_DIR}/include/vsg/*/*.h
         ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/platform/unix/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/platform/unix/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/platform/win32/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/platform/win32/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/platform/android/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/platform/android/*.cpp
 )
 vsg_add_target_clobber()
 vsg_add_target_cppcheck(
