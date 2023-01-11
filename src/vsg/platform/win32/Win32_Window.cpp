@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/platform/win32/Win32_Window.h>
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/platform/win32/Win32_Window.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
@@ -60,7 +60,7 @@ namespace vsgWin32
 
 KeyboardMap::KeyboardMap()
 {
-    // Note that Windows virutal key 'A' etc. corresponds to the unmodified character 
+    // Note that Windows virutal key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
     // will modify this map.
     // clang-format off
     _vk2vsg =
@@ -292,9 +292,6 @@ KeyboardMap::KeyboardMap()
             {VK_OEM_CLEAR                         ,              KEY_Undefined}
         };
     // clang-format on
-
-    // clang-format off
-
 }
 
 Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
@@ -490,7 +487,7 @@ void Win32_Window::_initSurface()
 
 bool Win32_Window::visible() const
 {
-    return _window!=0 && _windowMapped;
+    return _window != 0 && _windowMapped;
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)
@@ -555,8 +552,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_PAINT:
         ValidateRect(_window, NULL);
         break;
-    case WM_MOUSEMOVE:
-    {
+    case WM_MOUSEMOVE: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -565,8 +561,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-    {
+    case WM_RBUTTONDOWN: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -577,8 +572,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
-    case WM_RBUTTONUP:
-    {
+    case WM_RBUTTONUP: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -589,24 +583,20 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
-    case WM_RBUTTONDBLCLK:
-    {
+    case WM_RBUTTONDBLCLK: {
         //::SetCapture(_window);
     }
     break;
-    case WM_MOUSEWHEEL:
-    {
-        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
+    case WM_MOUSEWHEEL: {
+        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam) < 0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
     }
-    case WM_MOVE:
-    {
+    case WM_MOVE: {
         bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         break;
     }
-    case WM_SIZE:
-    {
-        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw==0 || winh==0)
+    case WM_SIZE: {
+        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
         {
             _windowMapped = false;
         }
@@ -620,8 +610,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_EXITSIZEMOVE:
         break;
     case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-    {
+    case WM_SYSKEYDOWN: {
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
@@ -632,8 +621,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_KEYUP:
-    case WM_SYSKEYUP:
-    {
+    case WM_SYSKEYUP: {
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
