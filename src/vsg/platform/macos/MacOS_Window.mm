@@ -402,6 +402,10 @@ namespace vsgMacOS {
 } // namespace vsgMacOS
 
 KeyboardMap::KeyboardMap() {
+    // An explanation of mapping from uppercase to lowercase
+    // The map _vk2vsg represents mapping from MacOS produced keycode
+    // of the key that was physically pressed to the vsg character
+    // that is produced when the key is pressed and no modifiers are active.
     // clang-format off
     _vk2vsg =
             {
@@ -435,7 +439,7 @@ KeyboardMap::KeyboardMap() {
                     {kVK_ANSI_8,              vsg::KEY_8},
                     {kVK_ANSI_0,              vsg::KEY_0},
                     {kVK_ANSI_RightBracket,   vsg::KEY_Rightbracket},
-                    {kVK_ANSI_O,              vsg::KEY_O},
+                    {kVK_ANSI_O,              vsg::KEY_o},
                     {kVK_ANSI_U,              vsg::KEY_u},
                     {kVK_ANSI_LeftBracket,    vsg::KEY_Leftbracket},
                     {kVK_ANSI_I,              vsg::KEY_i},
