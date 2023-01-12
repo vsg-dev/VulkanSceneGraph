@@ -37,7 +37,7 @@ namespace vsgMacOS
         bool getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier);
 
     protected:
-        kVKKeyCodeToKeySymbolMap _keycodeMap;
+        kVKKeyCodeToKeySymbolMap _vk2vsg;
     };
 
     /// MacOS_Window implements macOS specific window creation, event handling and vulkan Surface setup.
