@@ -128,7 +128,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     renderPassInfo.renderArea = renderArea;
 
 #if 0
-    debug("RenaderGraph() ", this, " renderArea.offset.x = ", renderArea.offset.x, ", renderArea.offset.y = ", renderArea.offset.y
+    info("RenderGraph() ", this, " renderArea.offset.x = ", renderArea.offset.x, ", renderArea.offset.y = ", renderArea.offset.y
                 , ", renderArea.extent.width = ", renderArea.extent.width, ", renderArea.extent.height = ", renderArea.extent.height);
 #endif
 
