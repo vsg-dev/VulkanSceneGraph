@@ -494,7 +494,7 @@ KeyboardMap::KeyboardMap()
         { kVK_ANSI_S, KEY_s },
         { kVK_ANSI_T, KEY_t },
         { kVK_ANSI_U, KEY_u },
-        { kVK_ANSI_Z, KEY_v },
+        { kVK_ANSI_V, KEY_v },
         { kVK_ANSI_W, KEY_w },
         { kVK_ANSI_X, KEY_x },
         { kVK_ANSI_Y, KEY_y },
