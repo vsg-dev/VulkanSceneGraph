@@ -524,7 +524,6 @@ KeyboardMap::KeyboardMap() {
                     {kVK_UpArrow,             vsg::KEY_Up}
             };
     // clang-format on
-
 }
 
 void KeyboardMap::getModifierKeyChanges(NSEvent *anEvent, ModifierKeyChanges &changes) {
