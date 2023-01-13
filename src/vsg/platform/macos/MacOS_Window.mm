@@ -455,7 +455,7 @@ KeyboardMap::KeyboardMap() {
                     {kVK_ANSI_N,              vsg::KEY_n},
                     {kVK_ANSI_M,              vsg::KEY_m},
                     {kVK_ANSI_Period,         vsg::KEY_Period},
-                    {kVK_ANSI_Grave,          vsg::KEY_Undefined},
+                    {kVK_ANSI_Grave,          vsg::KEY_Backquote},
                     {kVK_ANSI_KeypadDecimal,  vsg::KEY_KP_Decimal},
                     {kVK_ANSI_KeypadMultiply, vsg::KEY_KP_Multiply},
                     {kVK_ANSI_KeypadPlus,     vsg::KEY_KP_Add},
@@ -477,7 +477,7 @@ KeyboardMap::KeyboardMap() {
                     {kVK_Return,              vsg::KEY_Return},
                     {kVK_Tab,                 vsg::KEY_Tab},
                     {kVK_Space,               vsg::KEY_Space},
-                    {kVK_Delete,              vsg::KEY_Delete},
+                    {kVK_Delete,              vsg::KEY_BackSpace},
                     {kVK_Escape,              vsg::KEY_Escape},
                     {kVK_Command,             vsg::KEY_Meta_L},
                     {kVK_Shift,               vsg::KEY_Shift_L},
@@ -518,13 +518,68 @@ KeyboardMap::KeyboardMap() {
                     {kVK_F2,                  vsg::KEY_F2},
                     {kVK_PageDown,            vsg::KEY_Page_Down},
                     {kVK_F1,                  vsg::KEY_F1},
-                    {kVK_LeftArrow,           vsg::KEY_KP_Left},
-                    {kVK_RightArrow,          vsg::KEY_KP_Right},
-                    {kVK_DownArrow,           vsg::KEY_KP_Down},
-                    {kVK_UpArrow,             vsg::KEY_KP_Up}
+                    {kVK_LeftArrow,           vsg::KEY_Left},
+                    {kVK_RightArrow,          vsg::KEY_Right},
+                    {kVK_DownArrow,           vsg::KEY_Down},
+                    {kVK_UpArrow,             vsg::KEY_Up}
             };
     // clang-format on
 
+}
+
+void KeyboardMap::getModifierKeyChanges(NSEvent *anEvent, ModifierKeyChanges &changes) {
+
+    NSEventModifierFlags modifierFlags = [anEvent modifierFlags];
+    // Then save the current flags for next time around.
+    NSEventModifierFlags changedFlags = _lastFlags ^ modifierFlags; // xor the last and now to get what changedFlags.
+    _lastFlags = modifierFlags; // this must come after the xor.
+
+    // The below code could likely be accomplished with just bit masks but the if statements are clearer.
+    // Work out any mod keys such as ctrl, alt, shift etc. are pressed
+    // There must be a way to differentiate between left and right modifier keys on Mac
+    // But for now I do not know how do do so. Hence for all modifier keys the "left" key is chosen.
+    if (changedFlags & NSEventModifierFlagOption) {
+        if (modifierFlags & NSEventModifierFlagOption) {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Alt_L, true));
+        } else {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Alt_L, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagControl) {
+        if (modifierFlags & NSEventModifierFlagControl) {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Control_L, true));
+        } else {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Control_L, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagShift) {
+        if (modifierFlags & NSEventModifierFlagShift) {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Shift_L, true));
+        } else {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Shift_L, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagCapsLock) {
+        if (modifierFlags & NSEventModifierFlagCapsLock) {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Caps_Lock, true));
+        } else {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Caps_Lock, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagNumericPad) {
+        if (modifierFlags & NSEventModifierFlagNumericPad) {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Num_Lock, true));
+        } else {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Num_Lock, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagCommand) {
+        if (modifierFlags & NSEventModifierFlagCommand) {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Meta_L, true));
+        } else {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Meta_L, false));
+        }
+    }
 }
 
 bool KeyboardMap::getKeySymbol(NSEvent *anEvent, vsg::KeySymbol &keySymbol, vsg::KeySymbol &modifiedKeySymbol,
@@ -779,10 +834,37 @@ bool MacOS_Window::handleNSEvent(NSEvent *anEvent) {
             return true;
         }
             // keyboard events
+        case NSEventTypeFlagsChanged: {
+            // This event type is triggered when ever a ctrl, alt etc keys are pressed.
+            // Not sure why this is not just a KeyUp or KeyDown event.
+            // both the modified and unmodified symbols for ctrl, alt, option, etc are the same
+            // no modifiers for the modifiers themselves.
+            vsg::KeyModifier modifier = static_cast<vsg::KeyModifier>(0);
+            ModifierKeyChanges modifierKeyChanges;
+            _keyboard->getModifierKeyChanges(anEvent, modifierKeyChanges);
+
+            // If none of the flags that changed interest us, return indicating we did not process it.
+//            if (modifierKeyChanges.empty()) { return false; }
+
+            // otherwise loop through the flag keysymbols and create events.
+            for (auto &pair: modifierKeyChanges) {
+                if (pair.second) {
+                    // key was pressed
+                    bufferedEvents.emplace_back(
+                            vsg::KeyPressEvent::create(this, getEventTime([anEvent timestamp]), pair.first, pair.first,
+                                                       modifier));
+                } else {
+                    // key was released
+                    bufferedEvents.emplace_back(
+                            vsg::KeyReleaseEvent::create(this, getEventTime([anEvent timestamp]), pair.first,
+                                                         pair.first,
+                                                         modifier));
+                }
+            }
+            return true;
+        }
         case NSEventTypeKeyDown:
-        case NSEventTypeKeyUp:
-            //case NSEventTypeFlagsChanged:
-        {
+        case NSEventTypeKeyUp: {
             vsg::KeySymbol keySymbol, modifiedKeySymbol;
             vsg::KeyModifier keyModifier;
             if (!_keyboard->getKeySymbol(anEvent, keySymbol, modifiedKeySymbol, keyModifier))
