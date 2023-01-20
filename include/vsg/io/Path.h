@@ -184,6 +184,8 @@ namespace vsg
         Path& replace(size_type pos, size_type n, const char* str);
         Path& replace(size_type pos, size_type n, const wchar_t* str);
 
+        Path& erase(size_t pos = 0, size_t len = Path::npos);
+
         FileType type() const;
 
     protected:

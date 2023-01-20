@@ -83,17 +83,35 @@ vsg::dbox tile::computeTileExtents(uint32_t x, uint32_t y, uint32_t level) const
 
 vsg::Path tile::getTilePath(const vsg::Path& src, uint32_t x, uint32_t y, uint32_t level) const
 {
-    auto replace = [](vsg::Path& path, const std::string& match, uint32_t value) {
+    auto replace = [](Path& path, const std::string& match, uint32_t value) {
         std::stringstream sstr;
         sstr << value;
         auto levelPos = path.find(match);
-        if (levelPos != vsg::Path::npos) path.replace(levelPos, match.length(), sstr.str());
+        if (levelPos != Path::npos) path.replace(levelPos, match.length(), sstr.str());
     };
 
     vsg::Path path = src;
-    replace(path, "{z}", level);
-    replace(path, "{x}", x);
-    replace(path, "{y}", y);
+    if (auto quadkeyPos = path.find("{quadkey}"); quadkeyPos != Path::npos)
+    {
+        std::string quadkey;
+        uint32_t mask = 1 << level;
+        for(uint32_t i = level + 1; i > 0; --i)
+        {
+            char digit = '0';
+            if ((x & mask) != 0) digit += 1;
+            if ((y & mask) != 0) digit += 2;
+            quadkey.push_back(digit);
+            mask = mask >> 1;
+        }
+
+        path.replace(quadkeyPos, 9, quadkey); // 9 is char length of {quadkey}
+    }
+    else
+    {
+        replace(path, "{z}", level);
+        replace(path, "{x}", x);
+        replace(path, "{y}", y);
+    }
 
     return path;
 }
