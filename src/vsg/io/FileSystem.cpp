@@ -170,9 +170,16 @@ Path vsg::fileExtension(const Path& path)
     return path.substr(dot);
 }
 
-Path vsg::lowerCaseFileExtension(const Path& path)
+Path vsg::lowerCaseFileExtension(const Path& path, bool pruneExtras)
 {
     Path ext = fileExtension(path);
+
+    if (pruneExtras)
+    {
+        auto question_mark = ext.find_first_of('?');
+        if (question_mark != ext.npos) ext.erase(question_mark, Path::npos);
+    }
+
     for (auto& c : ext) c = std::tolower(c);
     return ext;
 }
