@@ -50,12 +50,41 @@ vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<co
     vsg::Path found_filename = vsg::findFile(filename, options);
     if (!found_filename) return {};
 
-    vsg::ShaderModule::SPIRV spirv_module;
-    readFile(spirv_module, found_filename);
+    auto sm = vsg::ShaderModule::create();
+    readFile(sm->code, found_filename);
+    return sm;
+}
 
-    auto sm = vsg::ShaderModule::create(spirv_module);
+ref_ptr<vsg::Object> spirv::read(std::istream& fin, ref_ptr<const Options> options) const
+{
+    if (!compatibleExtension(options, ".spv")) return {};
 
-    vsg::info("read ", sm);
+    fin.seekg (0, fin.end);
+    size_t fileSize = fin.tellg();
+
+    using value_type = vsg::ShaderModule::SPIRV::value_type;
+    size_t valueSize = sizeof(value_type);
+    size_t bufferSize = (fileSize + valueSize - 1) / valueSize;
+
+    auto sm = vsg::ShaderModule::create();
+    sm->code.resize(bufferSize);
+
+    fin.seekg(0);
+    fin.read(reinterpret_cast<char*>(sm->code.data()), fileSize);
+
+    return sm;
+}
+
+ref_ptr<vsg::Object> spirv::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
+{
+    if (!compatibleExtension(options, ".spv")) return {};
+
+    using value_type = vsg::ShaderModule::SPIRV::value_type;
+    size_t valueSize = sizeof(value_type);
+    size_t bufferSize = (size + valueSize - 1) / valueSize;
+
+    auto sm = vsg::ShaderModule::create();
+    sm->code.assign(reinterpret_cast<const value_type*>(ptr), reinterpret_cast<const value_type*>(ptr) + bufferSize);
 
     return sm;
 }
