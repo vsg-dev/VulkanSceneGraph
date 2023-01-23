@@ -91,8 +91,6 @@ ref_ptr<vsg::Object> spirv::read(const uint8_t* ptr, size_t size, ref_ptr<const 
 
 bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    info("spirv::write(", object->className(), ", ", filename, ", ", options, ") compatible ", compatibleExtension(filename, options, ".spv"));
-
     if (!compatibleExtension(filename, options, ".spv")) return false;
 
     const vsg::ShaderStage* ss = dynamic_cast<const vsg::ShaderStage*>(object);

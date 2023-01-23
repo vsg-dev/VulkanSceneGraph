@@ -46,6 +46,24 @@ bool glsl::extensionSupported(const Path& ext)
     return s_extensionToStage.find(ext) != s_extensionToStage.end();
 }
 
+ref_ptr<Object> glsl::createShader(const Path& found_filename, std::string& source, VkShaderStageFlagBits stageFlagBits, ref_ptr<const Options> options) const
+{
+    // handle any #includes in the source
+    if (source.find("include") != std::string::npos)
+    {
+        source = insertIncludes(source, prependPathToOptionsIfRequired(found_filename, options));
+    }
+
+    auto sm = ShaderModule::create(source);
+
+    if (stageFlagBits != VK_SHADER_STAGE_ALL)
+    {
+        return ShaderStage::create(stageFlagBits, "main", sm);
+    }
+
+    return sm;
+}
+
 ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options) const
 {
     auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
@@ -55,31 +73,43 @@ ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options)
     Path found_filename = findFile(filename, options);
     if (!found_filename) return {};
 
-    std::string source;
-
     std::ifstream fin(found_filename, std::ios::ate | std::ios::binary);
+    fin.seekg (0, fin.end);
     size_t fileSize = fin.tellg();
 
-    source.resize(fileSize);
+    std::string source(fileSize, ' ');
 
     fin.seekg(0);
-    fin.read(reinterpret_cast<char*>(source.data()), fileSize);
+    fin.read(source.data(), fileSize);
     fin.close();
 
-    // handle any #includes in the source
-    if (source.find("include") != std::string::npos)
-    {
-        source = insertIncludes(source, prependPathToOptionsIfRequired(found_filename, options));
-    }
+    return createShader(found_filename, source, stage_itr->second, options);
+}
 
-    auto sm = ShaderModule::create(source);
+ref_ptr<vsg::Object> glsl::read(std::istream& fin, ref_ptr<const Options> options) const
+{
+    auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
+    if (stage_itr == s_extensionToStage.end()) return {};
 
-    if (stage_itr->second != VK_SHADER_STAGE_ALL)
-    {
-        return ShaderStage::create(stage_itr->second, "main", sm);
-    }
+    fin.seekg (0, fin.end);
+    size_t fileSize = fin.tellg();
 
-    return sm;
+    std::string source(fileSize, ' ');
+
+    fin.seekg(0);
+    fin.read(source.data(), fileSize);
+
+    return createShader({}, source, stage_itr->second, options);
+}
+
+ref_ptr<vsg::Object> glsl::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
+{
+    auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
+    if (stage_itr == s_extensionToStage.end()) return {};
+
+    std::string source(reinterpret_cast<const char*>(ptr), size);
+
+    return createShader({}, source, stage_itr->second, options);
 }
 
 bool glsl::write(const Object* object, const Path& filename, ref_ptr<const Options> options) const
