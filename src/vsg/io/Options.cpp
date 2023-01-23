@@ -148,8 +148,6 @@ bool Options::readOptions(CommandLine& arguments)
     if (arguments.read("--file-cache", fileCache)) read = true;
     if (arguments.read("--extension-hint", extensionHint)) read = true;
 
-    vsg::info("Options::readOptions() extensionHint = ", extensionHint);
-
     return read;
 }
 
