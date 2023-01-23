@@ -44,8 +44,6 @@ namespace vsg
         bool write(const Object* object, const Path& filename, ref_ptr<const Options> options = {}) const override;
 
         bool getFeatures(Features& features) const override;
-
-    protected:
     };
     VSG_type_name(vsg::spirv);
 

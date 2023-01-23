@@ -47,8 +47,6 @@ namespace vsg
 
         /// built-in supported extensions
         static bool extensionSupported(const vsg::Path& path);
-
-    protected:
     };
     VSG_type_name(vsg::txt);
 

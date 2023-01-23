@@ -45,47 +45,47 @@ spirv::spirv()
 
 vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    auto ext = vsg::lowerCaseFileExtension(filename);
-    if (ext == ".spv")
-    {
-        vsg::Path found_filename = vsg::findFile(filename, options);
-        if (!found_filename) return {};
+    if (!compatibleExtension(filename, options, ".spv")) return {};
 
-        vsg::ShaderModule::SPIRV spirv_module;
-        readFile(spirv_module, found_filename);
+    vsg::Path found_filename = vsg::findFile(filename, options);
+    if (!found_filename) return {};
 
-        auto sm = vsg::ShaderModule::create(spirv_module);
-        return sm;
-    }
-    return vsg::ref_ptr<vsg::Object>();
+    vsg::ShaderModule::SPIRV spirv_module;
+    readFile(spirv_module, found_filename);
+
+    auto sm = vsg::ShaderModule::create(spirv_module);
+
+    vsg::info("read ", sm);
+
+    return sm;
 }
 
-bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> /*options*/) const
+bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    auto ext = vsg::lowerCaseFileExtension(filename);
-    if (ext == ".spv")
-    {
-        const vsg::ShaderStage* ss = dynamic_cast<const vsg::ShaderStage*>(object);
-        const vsg::ShaderModule* sm = ss ? ss->module.get() : dynamic_cast<const vsg::ShaderModule*>(object);
-        if (sm)
-        {
-            if (sm->code.empty())
-            {
-                vsg::ShaderCompiler sc;
-                if (!sc.compile(vsg::ref_ptr<vsg::ShaderStage>(const_cast<vsg::ShaderStage*>(ss))))
-                {
-                    warn("spirv::write() Failed compile to spv.");
-                    return false;
-                }
-            }
+    info("spirv::write(", object->className(), ", ", filename, ", ", options, ") compatible ", compatibleExtension(filename, options, ".spv"));
 
-            if (!sm->code.empty())
+    if (!compatibleExtension(filename, options, ".spv")) return false;
+
+    const vsg::ShaderStage* ss = dynamic_cast<const vsg::ShaderStage*>(object);
+    const vsg::ShaderModule* sm = ss ? ss->module.get() : dynamic_cast<const vsg::ShaderModule*>(object);
+    if (sm)
+    {
+        if (sm->code.empty())
+        {
+            vsg::ShaderCompiler sc;
+            if (!sc.compile(vsg::ref_ptr<vsg::ShaderStage>(const_cast<vsg::ShaderStage*>(ss))))
             {
-                std::ofstream fout(filename);
-                fout.write(reinterpret_cast<const char*>(sm->code.data()), sm->code.size() * sizeof(vsg::ShaderModule::SPIRV::value_type));
-                fout.close();
-                return true;
+                warn("spirv::write() Failed compile to spv.");
+                return false;
             }
+        }
+
+        if (!sm->code.empty())
+        {
+            std::ofstream fout(filename);
+            fout.write(reinterpret_cast<const char*>(sm->code.data()), sm->code.size() * sizeof(vsg::ShaderModule::SPIRV::value_type));
+            fout.close();
+            return true;
         }
     }
     return false;

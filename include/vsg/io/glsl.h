@@ -47,9 +47,6 @@ namespace vsg
 
         /// return true if .ext is supported
         static bool extensionSupported(const vsg::Path& path);
-
-    protected:
-        static std::map<vsg::Path, VkShaderStageFlagBits> s_extensionToStage;
     };
     VSG_type_name(vsg::glsl);
 

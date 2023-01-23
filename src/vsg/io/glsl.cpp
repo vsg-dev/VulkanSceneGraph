@@ -15,12 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-glsl::glsl()
+namespace
 {
-}
-
 // set up the static s_extensionToStage so that it can be used for extension/feature checks
-std::map<Path, VkShaderStageFlagBits> glsl::s_extensionToStage{
+std::map<Path, VkShaderStageFlagBits> s_extensionToStage{
     {".vert", VK_SHADER_STAGE_VERTEX_BIT},
     {".tesc", VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
     {".tese", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
@@ -37,6 +35,11 @@ std::map<Path, VkShaderStageFlagBits> glsl::s_extensionToStage{
     {".rcall", VK_SHADER_STAGE_CALLABLE_BIT_KHR},
     {".glsl", VK_SHADER_STAGE_ALL},
     {".hlsl", VK_SHADER_STAGE_ALL}};
+}
+
+glsl::glsl()
+{
+}
 
 bool glsl::extensionSupported(const Path& ext)
 {
@@ -45,59 +48,56 @@ bool glsl::extensionSupported(const Path& ext)
 
 ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options) const
 {
-    auto ext = lowerCaseFileExtension(filename);
-    auto stage_itr = s_extensionToStage.find(ext);
-    if (stage_itr != s_extensionToStage.end())
+    auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
+    if (stage_itr == s_extensionToStage.end()) stage_itr = s_extensionToStage.find(lowerCaseFileExtension(filename));
+    if (stage_itr == s_extensionToStage.end()) return {};
+
+    Path found_filename = findFile(filename, options);
+    if (!found_filename) return {};
+
+    std::string source;
+
+    std::ifstream fin(found_filename, std::ios::ate | std::ios::binary);
+    size_t fileSize = fin.tellg();
+
+    source.resize(fileSize);
+
+    fin.seekg(0);
+    fin.read(reinterpret_cast<char*>(source.data()), fileSize);
+    fin.close();
+
+    // handle any #includes in the source
+    if (source.find("include") != std::string::npos)
     {
-        Path found_filename = findFile(filename, options);
-        if (!found_filename) return {};
-
-        std::string source;
-
-        std::ifstream fin(found_filename, std::ios::ate | std::ios::binary);
-        size_t fileSize = fin.tellg();
-
-        source.resize(fileSize);
-
-        fin.seekg(0);
-        fin.read(reinterpret_cast<char*>(source.data()), fileSize);
-        fin.close();
-
-        // handle any #includes in the source
-        if (source.find("include") != std::string::npos)
-        {
-            source = insertIncludes(source, prependPathToOptionsIfRequired(found_filename, options));
-        }
-
-        auto sm = ShaderModule::create(source);
-
-        if (stage_itr->second != VK_SHADER_STAGE_ALL)
-        {
-            return ShaderStage::create(stage_itr->second, "main", sm);
-        }
-
-        return sm;
+        source = insertIncludes(source, prependPathToOptionsIfRequired(found_filename, options));
     }
-    return {};
+
+    auto sm = ShaderModule::create(source);
+
+    if (stage_itr->second != VK_SHADER_STAGE_ALL)
+    {
+        return ShaderStage::create(stage_itr->second, "main", sm);
+    }
+
+    return sm;
 }
 
-bool glsl::write(const Object* object, const Path& filename, ref_ptr<const Options> /*options*/) const
+bool glsl::write(const Object* object, const Path& filename, ref_ptr<const Options> options) const
 {
-    auto ext = lowerCaseFileExtension(filename);
-    auto stage_itr = s_extensionToStage.find(ext);
-    if (stage_itr != s_extensionToStage.end())
+    auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
+    if (stage_itr == s_extensionToStage.end()) stage_itr = s_extensionToStage.find(lowerCaseFileExtension(filename));
+    if (stage_itr == s_extensionToStage.end()) return false;
+
+    const ShaderStage* ss = dynamic_cast<const ShaderStage*>(object);
+    const ShaderModule* sm = ss ? ss->module.get() : dynamic_cast<const ShaderModule*>(object);
+    if (sm)
     {
-        const ShaderStage* ss = dynamic_cast<const ShaderStage*>(object);
-        const ShaderModule* sm = ss ? ss->module.get() : dynamic_cast<const ShaderModule*>(object);
-        if (sm)
+        if (!sm->source.empty())
         {
-            if (!sm->source.empty())
-            {
-                std::ofstream fout(filename);
-                fout.write(sm->source.data(), sm->source.size());
-                fout.close();
-                return true;
-            }
+            std::ofstream fout(filename);
+            fout.write(sm->source.data(), sm->source.size());
+            fout.close();
+            return true;
         }
     }
     return false;

@@ -24,7 +24,7 @@ namespace vsg
     template<typename T>
     bool contains(const T& value, const std::set<T>& container)
     {
-        return container.count(value) == 0;
+        return container.count(value) != 0;
     }
 
     /// return true vector container contains value
