@@ -38,10 +38,10 @@ txt::txt()
     supportedExtensions = s_txt_extensionSupported;
 }
 
+
 vsg::ref_ptr<vsg::Object> txt::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    auto ext = vsg::lowerCaseFileExtension(filename);
-    if (supportedExtensions.count(ext) == 0) return {};
+    if (!compatibleExtension(filename, options, supportedExtensions)) return {};
 
     vsg::Path found_filename = vsg::findFile(filename, options);
     if (!found_filename) return {};
@@ -54,7 +54,7 @@ vsg::ref_ptr<vsg::Object> txt::read(const vsg::Path& filename, vsg::ref_ptr<cons
 
 ref_ptr<vsg::Object> txt::read(std::istream& fin, ref_ptr<const Options> options) const
 {
-    if (options && options->extensionHint && supportedExtensions.count(options->extensionHint) == 0) return {};
+    if (!compatibleExtension(options, supportedExtensions)) return {};
 
     vsg::ref_ptr<vsg::stringValue> contents = vsg::stringValue::create();
     auto& buffer = contents->value();
@@ -71,7 +71,7 @@ ref_ptr<vsg::Object> txt::read(std::istream& fin, ref_ptr<const Options> options
 
 ref_ptr<vsg::Object> txt::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
 {
-    if (options && options->extensionHint && supportedExtensions.count(options->extensionHint) == 0) return {};
+    if (!compatibleExtension(options, supportedExtensions)) return {};
 
     return vsg::stringValue::create(std::string(reinterpret_cast<const char*>(ptr), size));
 }
