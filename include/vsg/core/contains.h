@@ -20,21 +20,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// return true set container contains value
+    /// return true if set container contains value
     template<typename T>
     bool contains(const T& value, const std::set<T>& container)
     {
         return container.count(value) != 0;
     }
 
-    /// return true vector container contains value
+    /// return true if vector container contains value
     template<typename T>
     bool contains(const T& value, const std::vector<T>& container)
     {
         return std::find(container.begin(), container.end(), value) != container.end();
     }
 
-    /// return true list of arguments contains value
+    /// return true if list of arguments contains value
     template<typename T, typename... Args>
     bool contains(const T& value, const Args&... args)
     {
