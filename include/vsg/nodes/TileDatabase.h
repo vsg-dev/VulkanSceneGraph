@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/Sampler.h>
+#include <vsg/utils/ShaderSet.h>
 
 namespace vsg
 {

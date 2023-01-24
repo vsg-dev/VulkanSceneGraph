@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2021 Robert Osfield
+Copyright(c) 2023 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -25,33 +25,29 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <vsg/io/ReaderWriter.h>
 
-#include <map>
+#include <set>
 
 namespace vsg
 {
 
-    /// glsl ReaderWriter supports reading and writing GLSL shader files.
-    class VSG_DECLSPEC glsl : public vsg::Inherit<vsg::ReaderWriter, glsl>
+    /// ReaderWriter for reading and writing text files of different types such as .txt, ,md, .json, .xml
+    class VSG_DECLSPEC txt : public Inherit<ReaderWriter, txt>
     {
     public:
-        glsl();
+        txt();
 
-        vsg::ref_ptr<vsg::Object> read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
-        ref_ptr<vsg::Object> read(std::istream& fin, ref_ptr<const Options> options = {}) const override;
-        ref_ptr<vsg::Object> read(const uint8_t* ptr, size_t size, ref_ptr<const Options> = {}) const override;
-
-        bool write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options = {}) const override;
+        ref_ptr<Object> read(const Path& filename, ref_ptr<const Options> options = {}) const override;
+        ref_ptr<Object> read(std::istream& fin, ref_ptr<const Options> options = {}) const override;
+        ref_ptr<Object> read(const uint8_t* ptr, size_t size, ref_ptr<const Options> = {}) const override;
 
         bool getFeatures(Features& features) const override;
 
-        /// return true if .ext is supported
+        /// supported extensions, users may add/remove entries to customize which types of files can be read as a text string.
+        std::set<vsg::Path> supportedExtensions;
+
+        /// built-in supported extensions
         static bool extensionSupported(const vsg::Path& path);
-
-    protected:
-
-        ref_ptr<Object> createShader(const Path& found_filename, std::string& source, VkShaderStageFlagBits stageFlagBits, vsg::ref_ptr<const vsg::Options> options) const;
-
     };
-    VSG_type_name(vsg::glsl);
+    VSG_type_name(vsg::txt);
 
 } // namespace vsg

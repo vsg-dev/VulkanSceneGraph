@@ -129,6 +129,7 @@ set(SOURCES
     io/spirv.cpp
     io/tile.cpp
     io/glsl.cpp
+    io/txt.cpp
     io/read.cpp
     io/write.cpp
     io/mem_stream.cpp
@@ -139,7 +140,6 @@ set(SOURCES
     text/StandardLayout.cpp
     text/Text.cpp
     text/TextGroup.cpp
-
 
     threading/Affinity.cpp
     threading/OperationThreads.cpp
