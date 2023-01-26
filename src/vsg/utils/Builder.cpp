@@ -103,7 +103,11 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16);
     }
 
-    if (stateInfo.instance_positions_vec3)
+    if (stateInfo.billboard)
+    {
+        graphicsPipelineConfig->enableArray("vsg_position_scaleDistance", VK_VERTEX_INPUT_RATE_INSTANCE, 16);
+    }
+    else if (stateInfo.instance_positions_vec3)
     {
         graphicsPipelineConfig->enableArray("vsg_position", VK_VERTEX_INPUT_RATE_INSTANCE, 12);
     }
@@ -173,9 +177,9 @@ vsg::ref_ptr<vsg::Data> Builder::instancePositions(const GeometryInfo& info, uin
 {
     instanceCount = 1;
 
-    if (info.positions && info.positions->available())
+    if (info.positions && info.positions->dataAvailable())
     {
-        instanceCount = static_cast<uint32_t>(info.positions->size());
+        instanceCount = static_cast<uint32_t>(info.positions->valueCount());
         return info.positions;
     }
     return {};
