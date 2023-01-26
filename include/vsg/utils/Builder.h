@@ -75,7 +75,7 @@ namespace vsg
             dz.set(0.0f, 0.0f, sp.radius * 2.0f);
         }
 
-        /// used for instancing (use vec3Array for {x,y,z}) and billboard (use vsg4Array for {x,y,z,scaleDistance})
+        /// when using geometry instancing use vec3Array with vec3{x,y,z} and for billboard use vec4Array with vec4{x,y,z,scaleDistance}
         ref_ptr<Data> positions;
         ref_ptr<Data> colors;
 
