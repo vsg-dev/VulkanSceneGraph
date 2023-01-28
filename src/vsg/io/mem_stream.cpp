@@ -21,6 +21,22 @@ mem_stream::mem_stream(const uint8_t* ptr, size_t length) :
     rdbuf(&_buffer);
 }
 
+mem_stream::mem_stream(const std::string_view& sv) :
+    mem_stream(reinterpret_cast<const uint8_t*>(sv.data()), sv.size())
+{
+}
+
+mem_stream::mem_stream(const std::string& str, std::string::size_type pos, std::string::size_type length) :
+    mem_stream(reinterpret_cast<const uint8_t*>(&(str[pos])), length)
+{
+}
+
+void mem_stream::set(const uint8_t* ptr, size_t length)
+{
+    _buffer.set(ptr, length);
+    clear();
+}
+
 mem_stream::mem_buffer::mem_buffer(const uint8_t* ptr, size_t length)
 {
     setg((char*)(ptr), (char*)(ptr), (char*)(ptr) + length);
