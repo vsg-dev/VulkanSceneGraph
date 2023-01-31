@@ -47,6 +47,10 @@ namespace vsg
 
         /// built-in supported extensions
         static bool extensionSupported(const vsg::Path& path);
+
+    protected:
+
+        ref_ptr<Object> _read(std::istream& fin, ref_ptr<const Options> options = {}) const;
     };
     VSG_type_name(vsg::txt);
 

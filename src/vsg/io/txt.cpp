@@ -38,24 +38,8 @@ txt::txt()
     supportedExtensions = s_txt_extensionSupported;
 }
 
-
-vsg::ref_ptr<vsg::Object> txt::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
+ref_ptr<Object> txt::_read(std::istream& fin, ref_ptr<const Options>) const
 {
-    if (!compatibleExtension(filename, options, supportedExtensions)) return {};
-
-    vsg::Path found_filename = vsg::findFile(filename, options);
-    if (!found_filename) return {};
-
-    std::ifstream fin(filename, std::ios::ate | std::ios::binary);
-    if (!fin.is_open()) return {};
-
-    return read(fin, options);
-}
-
-ref_ptr<vsg::Object> txt::read(std::istream& fin, ref_ptr<const Options> options) const
-{
-    if (!compatibleExtension(options, supportedExtensions)) return {};
-
     vsg::ref_ptr<vsg::stringValue> contents = vsg::stringValue::create();
     auto& buffer = contents->value();
 
@@ -67,6 +51,30 @@ ref_ptr<vsg::Object> txt::read(std::istream& fin, ref_ptr<const Options> options
     fin.read(reinterpret_cast<char*>(buffer.data()), fileSize);
 
     return contents;
+}
+
+vsg::ref_ptr<vsg::Object> txt::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
+{
+    vsg::info("txt::read() ", filename);
+
+    if (!compatibleExtension(filename, options, supportedExtensions)) return {};
+
+    vsg::Path found_filename = vsg::findFile(filename, options);
+    if (!found_filename) return {};
+
+    vsg::info("   txt::read() found ", found_filename);
+
+    std::ifstream fin(filename, std::ios::ate | std::ios::binary);
+    if (!fin.is_open()) return {};
+
+    return _read(fin, options);
+}
+
+ref_ptr<vsg::Object> txt::read(std::istream& fin, ref_ptr<const Options> options) const
+{
+    if (!compatibleExtension(options, supportedExtensions)) return {};
+
+    return _read(fin, options);
 }
 
 ref_ptr<vsg::Object> txt::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
