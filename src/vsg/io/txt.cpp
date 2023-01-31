@@ -55,14 +55,10 @@ ref_ptr<Object> txt::_read(std::istream& fin, ref_ptr<const Options>) const
 
 vsg::ref_ptr<vsg::Object> txt::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    vsg::info("txt::read() ", filename);
-
     if (!compatibleExtension(filename, options, supportedExtensions)) return {};
 
     vsg::Path found_filename = vsg::findFile(filename, options);
     if (!found_filename) return {};
-
-    vsg::info("   txt::read() found ", found_filename);
 
     std::ifstream fin(filename, std::ios::ate | std::ios::binary);
     if (!fin.is_open()) return {};
