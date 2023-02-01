@@ -71,6 +71,16 @@ RecordTraversal::~RecordTraversal()
     if (_frameStamp) _frameStamp->unref();
 }
 
+CommandBuffer* RecordTraversal::getCommandBuffer()
+{
+    return _state->_commandBuffer;
+}
+
+uint32_t RecordTraversal::deviceID() const
+{
+    return _state->_commandBuffer->deviceID;
+}
+
 void RecordTraversal::setFrameStamp(FrameStamp* fs)
 {
     if (fs == _frameStamp) return;
