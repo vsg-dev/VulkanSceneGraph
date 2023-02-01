@@ -75,7 +75,14 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 
+        /// get the current State object used to track state and projection/modelview matrices for current subgraph being traversed
         State* getState() { return _state; }
+
+        /// get the current CommandBuffer for current subgraph being traversed
+        CommandBuffer* getCommandBuffer();
+
+        /// get the current DeviceID for current subgraph being traversed
+        uint32_t deviceID() const;
 
         void setFrameStamp(FrameStamp* fs);
         FrameStamp* getFrameStamp() { return _frameStamp; }
