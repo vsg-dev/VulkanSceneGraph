@@ -203,3 +203,18 @@ ref_ptr<TileDatabaseSettings> vsg::createBingMapsSettings(const std::string& ima
 
     return settings;
 }
+
+ref_ptr<TileDatabaseSettings> vsg::createOpenStreetMapSettings(ref_ptr<const Options> options)
+{
+    auto settings = vsg::TileDatabaseSettings::create();
+    settings->extents = {{-180.0, -90.0, 0.0}, {180.0, 90.0, 1.0}};
+    settings->noX = 1;
+    settings->noY = 1;
+    settings->maxLevel = 17;
+    settings->originTopLeft = true;
+    settings->lighting = false;
+    settings->projection = "EPSG:3857";  // Spherical Mecator
+    settings->imageLayer = "http://a.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+    return settings;
+}

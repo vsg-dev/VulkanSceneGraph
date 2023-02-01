@@ -93,4 +93,7 @@ namespace vsg
     ///    api key: https://www.microsoft.com/en-us/maps/create-a-bing-maps-key
     extern VSG_DECLSPEC ref_ptr<TileDatabaseSettings> createBingMapsSettings(const std::string& imagerySet, const std::string& culture, const std::string& key, ref_ptr<const Options> options);
 
+    /// convienice function for creating a TileDatabaseSettings for reading OpenStreetMap imagery
+    extern VSG_DECLSPEC ref_ptr<TileDatabaseSettings> createOpenStreetMapSettings(ref_ptr<const Options> options);
+
 } // namespace vsg
