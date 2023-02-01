@@ -36,8 +36,11 @@ namespace vsg
         using value_type = ref_ptr<Operation>;
         using container_type = std::list<value_type>;
 
-        /// add updated operation
+        /// add operation
         virtual void add(ref_ptr<Operation> op, RunBehavior runBehavior = ONE_TIME);
+
+        /// remove operation
+        virtual void remove(ref_ptr<Operation> op);
 
         /// clear all update operations
         void clear();
