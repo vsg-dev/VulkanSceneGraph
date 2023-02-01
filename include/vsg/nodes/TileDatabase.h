@@ -80,4 +80,13 @@ namespace vsg
     };
     VSG_type_name(vsg::TileDatabase);
 
+    /// convienice function for getting the part of string that enclosed between a start_match and end_match string
+    extern VSG_DECLSPEC std::string_view find_field(const std::string& source, const std::string_view& start_match, const std::string_view& end_match);
+
+    /// convienice function for replacing all instances of a match string with the replacement string.
+    extern VSG_DECLSPEC void replace(std::string& source, const std::string_view& match, const std::string_view& replacement);
+
+    /// convienice function for creating a TileDatabaseSettings for reading Bing Maps imagery
+    extern VSG_DECLSPEC ref_ptr<TileDatabaseSettings> createBingMapsSettings(const std::string& imagerySet, const std::string& culture, const std::string& key, ref_ptr<const Options> options);
+
 } // namespace vsg
