@@ -87,6 +87,10 @@ namespace vsg
     extern VSG_DECLSPEC void replace(std::string& source, const std::string_view& match, const std::string_view& replacement);
 
     /// convienice function for creating a TileDatabaseSettings for reading Bing Maps imagery
+    /// Bing Maps official documentation:
+    ///    metadata (includes imagerySet details): https://learn.microsoft.com/en-us/bingmaps/rest-services/imagery/get-imagery-metadata
+    ///    culture codes: https://learn.microsoft.com/en-us/bingmaps/rest-services/common-parameters-and-types/supported-culture-codes
+    ///    api key: https://www.microsoft.com/en-us/maps/create-a-bing-maps-key
     extern VSG_DECLSPEC ref_ptr<TileDatabaseSettings> createBingMapsSettings(const std::string& imagerySet, const std::string& culture, const std::string& key, ref_ptr<const Options> options);
 
 } // namespace vsg

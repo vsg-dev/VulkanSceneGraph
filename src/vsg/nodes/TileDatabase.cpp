@@ -139,7 +139,7 @@ ref_ptr<TileDatabaseSettings> vsg::createBingMapsSettings(const std::string& ima
     settings->noY = 2;
     settings->maxLevel = 19;
     settings->originTopLeft = true;
-    settings->lighting = false;
+    settings->lighting = true;
     settings->projection = "EPSG:3857"; // Spherical Mecator
 
     if (!key.empty())
