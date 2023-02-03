@@ -17,25 +17,25 @@ using namespace vsg;
 
 namespace
 {
-// set up the static s_extensionToStage so that it can be used for extension/feature checks
-std::map<Path, VkShaderStageFlagBits> s_extensionToStage{
-    {".vert", VK_SHADER_STAGE_VERTEX_BIT},
-    {".tesc", VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
-    {".tese", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
-    {".geom", VK_SHADER_STAGE_GEOMETRY_BIT},
-    {".frag", VK_SHADER_STAGE_FRAGMENT_BIT},
-    {".comp", VK_SHADER_STAGE_COMPUTE_BIT},
-    {".mesh", VK_SHADER_STAGE_MESH_BIT_NV},
-    {".task", VK_SHADER_STAGE_TASK_BIT_NV},
-    {".rgen", VK_SHADER_STAGE_RAYGEN_BIT_KHR},
-    {".rint", VK_SHADER_STAGE_INTERSECTION_BIT_KHR},
-    {".rahit", VK_SHADER_STAGE_ANY_HIT_BIT_KHR},
-    {".rchit", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
-    {".rmiss", VK_SHADER_STAGE_MISS_BIT_KHR},
-    {".rcall", VK_SHADER_STAGE_CALLABLE_BIT_KHR},
-    {".glsl", VK_SHADER_STAGE_ALL},
-    {".hlsl", VK_SHADER_STAGE_ALL}};
-}
+    // set up the static s_extensionToStage so that it can be used for extension/feature checks
+    std::map<Path, VkShaderStageFlagBits> s_extensionToStage{
+        {".vert", VK_SHADER_STAGE_VERTEX_BIT},
+        {".tesc", VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT},
+        {".tese", VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT},
+        {".geom", VK_SHADER_STAGE_GEOMETRY_BIT},
+        {".frag", VK_SHADER_STAGE_FRAGMENT_BIT},
+        {".comp", VK_SHADER_STAGE_COMPUTE_BIT},
+        {".mesh", VK_SHADER_STAGE_MESH_BIT_NV},
+        {".task", VK_SHADER_STAGE_TASK_BIT_NV},
+        {".rgen", VK_SHADER_STAGE_RAYGEN_BIT_KHR},
+        {".rint", VK_SHADER_STAGE_INTERSECTION_BIT_KHR},
+        {".rahit", VK_SHADER_STAGE_ANY_HIT_BIT_KHR},
+        {".rchit", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
+        {".rmiss", VK_SHADER_STAGE_MISS_BIT_KHR},
+        {".rcall", VK_SHADER_STAGE_CALLABLE_BIT_KHR},
+        {".glsl", VK_SHADER_STAGE_ALL},
+        {".hlsl", VK_SHADER_STAGE_ALL}};
+} // namespace
 
 glsl::glsl()
 {
@@ -74,7 +74,7 @@ ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options)
     if (!found_filename) return {};
 
     std::ifstream fin(found_filename, std::ios::ate | std::ios::binary);
-    fin.seekg (0, fin.end);
+    fin.seekg(0, fin.end);
     size_t fileSize = fin.tellg();
 
     std::string source(fileSize, ' ');
@@ -91,7 +91,7 @@ ref_ptr<vsg::Object> glsl::read(std::istream& fin, ref_ptr<const Options> option
     auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
     if (stage_itr == s_extensionToStage.end()) return {};
 
-    fin.seekg (0, fin.end);
+    fin.seekg(0, fin.end);
     size_t fileSize = fin.tellg();
 
     std::string source(fileSize, ' ');

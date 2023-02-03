@@ -17,16 +17,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 static std::set<vsg::Path> s_txt_extensionSupported{
-        ".txt",
-        ".text",
-        ".md",
-        ".json",
-        ".xml",
-        ".sh",
-        ".bat"
-    };
+    ".txt",
+    ".text",
+    ".md",
+    ".json",
+    ".xml",
+    ".sh",
+    ".bat"};
 
 bool txt::extensionSupported(const vsg::Path& path)
 {
@@ -43,7 +41,7 @@ ref_ptr<Object> txt::_read(std::istream& fin, ref_ptr<const Options>) const
     vsg::ref_ptr<vsg::stringValue> contents = vsg::stringValue::create();
     auto& buffer = contents->value();
 
-    fin.seekg (0, fin.end);
+    fin.seekg(0, fin.end);
     size_t fileSize = fin.tellg();
     buffer.resize(fileSize);
 
@@ -82,7 +80,7 @@ ref_ptr<vsg::Object> txt::read(const uint8_t* ptr, size_t size, ref_ptr<const Op
 
 bool txt::getFeatures(Features& features) const
 {
-    for(auto& ext : supportedExtensions)
+    for (auto& ext : supportedExtensions)
     {
         features.extensionFeatureMap[ext] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY);
     }

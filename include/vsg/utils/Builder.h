@@ -31,7 +31,7 @@ namespace vsg
         bool wireframe = false;
         bool instance_colors_vec4 = true;
         bool instance_positions_vec3 = false; // user must assign GeometyInfo.position with vec3Array containing positions
-        bool billboard = false;  // user must assign GeometyInfo.position with vec4Array containing position_scaleDistance, overrides instance_positions_vec3 setting
+        bool billboard = false;               // user must assign GeometyInfo.position with vec4Array containing position_scaleDistance, overrides instance_positions_vec3 setting
 
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;

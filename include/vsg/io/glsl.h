@@ -48,9 +48,7 @@ namespace vsg
         static bool extensionSupported(const vsg::Path& path);
 
     protected:
-
         ref_ptr<Object> createShader(const Path& found_filename, std::string& source, VkShaderStageFlagBits stageFlagBits, vsg::ref_ptr<const vsg::Options> options) const;
-
     };
     VSG_type_name(vsg::glsl);
 

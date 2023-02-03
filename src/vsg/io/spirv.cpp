@@ -59,7 +59,7 @@ ref_ptr<vsg::Object> spirv::read(std::istream& fin, ref_ptr<const Options> optio
 {
     if (!compatibleExtension(options, ".spv")) return {};
 
-    fin.seekg (0, fin.end);
+    fin.seekg(0, fin.end);
     size_t fileSize = fin.tellg();
 
     using value_type = vsg::ShaderModule::SPIRV::value_type;

@@ -100,7 +100,6 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
     return child.valid();
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  createBingMapsSettings
@@ -120,7 +119,7 @@ std::string_view vsg::find_field(const std::string& source, const std::string_vi
 
 void vsg::replace(std::string& source, const std::string_view& match, const std::string_view& replacement)
 {
-    for(;;)
+    for (;;)
     {
         auto pos = source.find(match);
         if (pos == std::string::npos) break;
@@ -213,7 +212,7 @@ ref_ptr<TileDatabaseSettings> vsg::createOpenStreetMapSettings(ref_ptr<const Opt
     settings->maxLevel = 17;
     settings->originTopLeft = true;
     settings->lighting = false;
-    settings->projection = "EPSG:3857";  // Spherical Mecator
+    settings->projection = "EPSG:3857"; // Spherical Mecator
     settings->imageLayer = "http://a.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     return settings;

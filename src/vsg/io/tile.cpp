@@ -95,7 +95,7 @@ vsg::Path tile::getTilePath(const vsg::Path& src, uint32_t x, uint32_t y, uint32
     {
         std::string quadkey;
         uint32_t mask = 1 << level;
-        for(uint32_t i = level + 1; i > 0; --i)
+        for (uint32_t i = level + 1; i > 0; --i)
         {
             char digit = '0';
             if ((x & mask) != 0) digit += 1;
