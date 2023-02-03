@@ -25,8 +25,8 @@ namespace vsg
     {
     public:
         mem_stream(const uint8_t* ptr, size_t length);
-        mem_stream(const std::string_view& sv);
         mem_stream(const std::string& str, std::string::size_type pos, std::string::size_type length);
+        explicit mem_stream(const std::string_view& sv);
 
         /// set the mem_stream to memory block
         void set(const uint8_t* ptr, size_t length);
