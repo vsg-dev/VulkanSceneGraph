@@ -199,6 +199,8 @@ bool VSG::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Opt
 
     if (options)
     {
+        if (options->extensionHint && options->extensionHint == ".vsgb") asciiFormat = false;
+
         std::string version_string;
         if (options->getValue("version", version_string))
         {

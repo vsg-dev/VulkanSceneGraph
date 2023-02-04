@@ -31,9 +31,9 @@ bool txt::extensionSupported(const vsg::Path& path)
     return s_txt_extensionSupported.count(path);
 }
 
-txt::txt()
+txt::txt():
+    supportedExtensions{s_txt_extensionSupported}
 {
-    supportedExtensions = s_txt_extensionSupported;
 }
 
 ref_ptr<Object> txt::_read(std::istream& fin, ref_ptr<const Options>) const
