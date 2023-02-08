@@ -614,15 +614,12 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case (XCB_CONFIGURE_NOTIFY): {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explicitly get the new geometry and substitute if required to avoid inconsistencies
+            // Xcb configure events x,y values can be behave differently on different window managers so use getWindowGeometry(..) to avoid inconsistencies
             int32_t x = configure->x;
             int32_t y = configure->y;
             uint32_t width = configure->width;
             uint32_t height = configure->height;
-            if (configure->x == 0 && configure->y == 0)
-            {
-                vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
-            }
+            vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
 
             bool previousConfigureEventsIsEqual = false;
             for (auto previousEvent : events)
@@ -630,14 +627,14 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 vsg::ConfigureWindowEvent* cwe = dynamic_cast<vsg::ConfigureWindowEvent*>(previousEvent.get());
                 if (cwe)
                 {
-                    previousConfigureEventsIsEqual = (cwe->x == x) && (cwe->y == y) && (cwe->width == configure->width) && (cwe->height == configure->height);
+                    previousConfigureEventsIsEqual = (cwe->x == x) && (cwe->y == y) && (cwe->width == width) && (cwe->height == height);
                 }
             }
 
             if (!previousConfigureEventsIsEqual)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, configure->width, configure->height));
+                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, width, height));
                 _extent2D.width = width;
                 _extent2D.height = height;
             }
