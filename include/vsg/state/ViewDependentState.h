@@ -118,6 +118,7 @@ namespace vsg
         virtual void pack();
         virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
 
+        ref_ptr<vec4Array> viewportData;
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
