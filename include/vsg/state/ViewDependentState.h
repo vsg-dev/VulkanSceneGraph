@@ -96,12 +96,12 @@ namespace vsg
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:
-        ViewDependentState(uint32_t maxNumberLights = 64);
+        ViewDependentState(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1);
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            node.lightDescriptorSet->accept(visitor);
+            node.descriptorSet->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -120,9 +120,13 @@ namespace vsg
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
+
+        ref_ptr<vec4Array> viewportData;
+        ref_ptr<BufferInfo> viewportDataBufferInfo;
+
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-        ref_ptr<DescriptorBuffer> lightDescriptor;
-        ref_ptr<DescriptorSet> lightDescriptorSet;
+        ref_ptr<DescriptorBuffer> descriptor;
+        ref_ptr<DescriptorSet> descriptorSet;
 
     protected:
         ~ViewDependentState();

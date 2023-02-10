@@ -110,18 +110,24 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(uint32_t maxNumberLights) :
-    lightData(vec4Array::create(maxNumberLights)) // spot light requires 3 vec4's per light
+ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxViewports) :
+    lightData(vec4Array::create(maxNumberLights)), // spot light requires 3 vec4's per light
+    viewportData(vec4Array::create(maxViewports))
 {
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
 
+    viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
+    viewportDataBufferInfo = BufferInfo::create(viewportData.get());
+
     DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+    };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    lightDescriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo}, 0); // hardwired position for now
-    lightDescriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{lightDescriptor});
+    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor});
 }
 
 ViewDependentState::~ViewDependentState()
@@ -131,7 +137,7 @@ ViewDependentState::~ViewDependentState()
 void ViewDependentState::compile(Context& context)
 {
     //info("ViewDependentState::compile()");
-    lightDescriptorSet->compile(context);
+    descriptorSet->compile(context);
 }
 
 void ViewDependentState::clear()
@@ -197,6 +203,6 @@ void ViewDependentState::pack()
 
 void ViewDependentState::bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet)
 {
-    auto vk = lightDescriptorSet->vk(commandBuffer.deviceID);
+    auto vk = descriptorSet->vk(commandBuffer.deviceID);
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, 1, &vk, 0, nullptr);
 }
