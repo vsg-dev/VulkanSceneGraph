@@ -439,11 +439,12 @@ void RecordTraversal::apply(const View& view)
             auto& viewportData = _viewDependentState->viewportData;
             auto& viewports = view.camera->viewportState->viewports;
 
-            for(auto dest_itr = viewportData->begin(), auto src_ptr = viewports.begin();
-                dest_itr != viewportData->end() && src_ptr != viewports.end();
-                ++dest_itr, ++src_ptr)
+            auto dest_itr = viewportData->begin();
+            for(auto src_itr = viewports.begin();
+                dest_itr != viewportData->end() && src_itr != viewports.end();
+                ++dest_itr, ++src_itr)
             {
-                auto& dest_viewport = *dest_ptr;
+                auto& dest_viewport = *dest_itr;
                 vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
                 if (dest_viewport != src_viewport)
                 {
