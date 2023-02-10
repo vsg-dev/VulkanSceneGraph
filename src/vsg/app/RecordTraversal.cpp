@@ -434,25 +434,22 @@ void RecordTraversal::apply(const View& view)
     {
         setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
-        if (view.camera->viewportState)
+        if (view.camera->viewportState && _viewDependentState->viewportData)
         {
             auto& viewportData = _viewDependentState->viewportData;
-            if (!viewportData || view.camera->viewportState->viewports.size() != viewportData->size())
-            {
-                viewportData = vsg::vec4Array::create(view.camera->viewportState->viewports.size());
-                viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
-            }
+            auto& viewports = view.camera->viewportState->viewports;
 
-            auto itr = viewportData->begin();
-            for(auto& viewport : view.camera->viewportState->viewports)
+            for(auto dest_itr = viewportData->begin(), auto src_ptr = viewports.begin();
+                dest_itr != viewportData->end() && src_ptr != viewports.end();
+                ++dest_itr, ++src_ptr)
             {
-                vec4 vp(viewport.x, viewport.y, viewport.width, viewport.height);
-                if (*itr != vp)
+                auto& dest_viewport = *dest_ptr;
+                vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
+                if (dest_viewport != src_viewport)
                 {
-                    *itr = vp;
+                    dest_viewport = src_viewport;
                     viewportData->dirty();
                 }
-                ++itr;
             }
         }
 
