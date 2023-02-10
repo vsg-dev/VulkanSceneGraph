@@ -31,7 +31,7 @@ bool txt::extensionSupported(const vsg::Path& path)
     return s_txt_extensionSupported.count(path);
 }
 
-txt::txt():
+txt::txt() :
     supportedExtensions{s_txt_extensionSupported}
 {
 }
