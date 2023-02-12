@@ -122,21 +122,35 @@ namespace vsg
         bool getValue(const std::string& key, T& value) const;
 
         /// assign an Object associated with key
-        void setObject(const std::string& key, Object* object);
+        void setObject(const std::string& key, ref_ptr<Object> object);
 
-        /// get Object associated with key, return nullptr if no object associated with key has been assigned
+        /// get Object pointer associated with key, return nullptr if no object associated with key has been assigned
         Object* getObject(const std::string& key);
 
-        /// get const Object associated with key, return nullptr if no object associated with key has been assigned
+        /// get const Object pointer associated with key, return nullptr if no object associated with key has been assigned
         const Object* getObject(const std::string& key) const;
 
-        /// get object of specified type associated with key, return nullptr if no object associated with key has been assigned
+        /// get object pointer of specified type associated with key, return nullptr if no object associated with key has been assigned
         template<class T>
         T* getObject(const std::string& key) { return dynamic_cast<T*>(getObject(key)); }
 
-        /// get const object of specified type associated with key, return nullptr if no object associated with key has been assigned
+        /// get const object pointer of specified type associated with key, return nullptr if no object associated with key has been assigned
         template<class T>
         const T* getObject(const std::string& key) const { return dynamic_cast<const T*>(getObject(key)); }
+
+        /// get ref_ptr<Object> associated with key, return nullptr if no object associated with key has been assigned
+        ref_ptr<Object> getRefObject(const std::string& key);
+
+        /// get ref_ptr<const Object> pointer associated with key, return nullptr if no object associated with key has been assigned
+        ref_ptr<const Object> getRefObject(const std::string& key) const;
+
+        /// get ref_ptr<T> of specified type associated with key, return nullptr if no object associated with key has been assigned
+        template<class T>
+        ref_ptr<T> getRefObject(const std::string& key) { return getRefObject(key).cast<T>(); }
+
+        /// get ref_ptr<const T>  of specified type associated with key, return nullptr if no object associated with key has been assigned
+        template<class T>
+        const ref_ptr<const T> getRefObject(const std::string& key) const { return getRefObject(key).cast<const T>(); }
 
         /// remove meta object or value associated with key
         void removeObject(const std::string& key);

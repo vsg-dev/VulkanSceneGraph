@@ -37,9 +37,42 @@ namespace vsg
         void unref_nodelete() const;
         inline unsigned int referenceCount() const { return _referenceCount.load(); }
 
-        void setObject(const std::string& key, Object* object);
-        Object* getObject(const std::string& key);
-        const Object* getObject(const std::string& key) const;
+        void setObject(const std::string& key, ref_ptr<Object> object)
+        {
+            userObjects[key] = object;
+        }
+
+        Object* getObject(const std::string& key)
+        {
+            if (auto itr = userObjects.find(key); itr != userObjects.end())
+                return itr->second.get();
+            else
+                return nullptr;
+        }
+
+        const Object* getObject(const std::string& key) const
+        {
+            if (auto itr = userObjects.find(key); itr != userObjects.end())
+                return itr->second.get();
+            else
+                return nullptr;
+        }
+
+        ref_ptr<Object> getRefObject(const std::string& key)
+        {
+            if (auto itr = userObjects.find(key); itr != userObjects.end())
+                return itr->second;
+            else
+                return {};
+        }
+
+        ref_ptr<const Object> getRefObject(const std::string& key) const
+        {
+            if (auto itr = userObjects.find(key); itr != userObjects.end())
+                return itr->second;
+            else
+                return {};
+        }
 
         using ObjectMap = std::map<std::string, vsg::ref_ptr<Object>>;
 
