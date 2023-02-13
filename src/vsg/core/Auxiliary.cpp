@@ -74,27 +74,3 @@ void Auxiliary::resetConnectedObject()
 
     _connectedObject = nullptr;
 }
-
-void Auxiliary::setObject(const std::string& key, Object* object)
-{
-    userObjects[key] = object;
-    //debug("Auxiliary::setObject( [", key, "] = ", object, ", ", userObjects.size());
-}
-
-Object* Auxiliary::getObject(const std::string& key)
-{
-    //debug("Auxiliary::getObject( [", key, "])");
-    if (auto itr = userObjects.find(key); itr != userObjects.end())
-        return itr->second.get();
-    else
-        return nullptr;
-}
-
-const Object* Auxiliary::getObject(const std::string& key) const
-{
-    //debug("Auxiliary::getObject( [", key, "]) const");
-    if (auto itr = userObjects.find(key); itr != userObjects.end())
-        return itr->second.get();
-    else
-        return nullptr;
-}

@@ -135,7 +135,7 @@ namespace vsg
     void Object::setValue(const std::string& key, const T& value)
     {
         using ValueT = Value<T>;
-        setObject(key, new ValueT(value));
+        setObject(key, ValueT::create(value));
     }
 
     template<typename T>
@@ -154,6 +154,7 @@ namespace vsg
             return false;
         }
     }
+
 
     /// convenience function for getting a value from the first object with the named value, falling back to specified defaultValue when none is available.
     /// usage:   auto flag = vsg::value<bool>(false, "flag", object1);
