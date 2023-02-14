@@ -179,12 +179,12 @@ ref_ptr<TileDatabaseSettings> vsg::createBingMapsSettings(const std::string& ima
             auto imageUrl = vsg::find_field(str, "<ImageUrl>", "</ImageUrl>");
             if (!imageUrl.empty())
             {
-                std::string url(imageUrl.substr());
+                std::string url(imageUrl);
 
                 auto sumbdomain = vsg::find_field(str, "<ImageUrlSubdomains><string>", "</string>");
                 if (!sumbdomain.empty())
                 {
-                    vsg::replace(url, "{subdomain}", sumbdomain.substr());
+                    vsg::replace(url, "{subdomain}", sumbdomain);
                 }
 
                 vsg::replace(url, "{culture}", culture);
