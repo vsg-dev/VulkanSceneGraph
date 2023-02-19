@@ -1,3 +1,0 @@
-[submodule "src/vsg/ShaderCompiler"]
-	path = src/vsg/ShaderCompiler
-	url = https://github.com/robertosfield/ShaderCompiler.git
