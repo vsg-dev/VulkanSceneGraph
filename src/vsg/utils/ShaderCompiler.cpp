@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #if VSG_SUPPORTS_ShaderCompiler
 #    include <glslang/Public/ShaderLang.h>
-#    include <glslang/SPIRV/GlslangToSpv.h>
+#    include <SPIRV/GlslangToSpv.h>
 
 #    if GLSLANG_EShLangRayGenNV
 // map NV variants to modern versions

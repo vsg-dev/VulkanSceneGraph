@@ -230,7 +230,6 @@ if (${VSG_SUPPORTS_ShaderCompiler})
 
     # include glslang source code directly into the VulkanScenegraph library build.
     include(../glslang/build_vars.cmake)
-
 endif()
 
 # set up library dependencies
@@ -362,7 +361,14 @@ if(WIN32)
 endif()
 
 target_compile_definitions(vsg PRIVATE ${EXTRA_DEFINES})
-target_include_directories(vsg PUBLIC $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include> $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>)
+target_include_directories(vsg
+    PUBLIC
+        $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>
+    PRIVATE
+        $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/src/glslang>
+        $<BUILD_INTERFACE:${GLSLANG_GENERATED_INCLUDEDIR}>
+)
 
 target_link_libraries(vsg ${LIBRARIES})
 
