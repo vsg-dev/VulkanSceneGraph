@@ -37,16 +37,8 @@ find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
 find_package(Threads REQUIRED)
 
-if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
-endif()
 
-if (glslang_FOUND)
-    set(VSG_SUPPORTS_ShaderCompiler 1)
-else()
-    set(VSG_SUPPORTS_ShaderCompiler 0)
-    message("--   Support for compiling GLSL to SPIR-V and associated shader composition is not available.")
-endif()
+set(VSG_SUPPORTS_ShaderCompiler 1)
 
 if (ANDROID)
     find_library(AndroidLib android)
