@@ -28,11 +28,11 @@
 
 ### Installing dependencies
 
-Ubuntu:
-	sudo apt-get install cmake-curses-gui g++ git libvulkan-dev
+* Ubuntu:  
+	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev`
 
-Gentoo:
-	emerge dev-util/vulkan-tools
+* Gentoo:  
+	`emerge dev-util/vulkan-tools`
 
 ### Build
 Command line instructions for default build of static library (.a) in source:
@@ -51,7 +51,6 @@ Command line instructions for building shared library (.so) out of source:
     cmake ../VulkanSceneGraph -DBUILD_SHARED_LIBS=ON
     make -j 8
     make install
-
 
 ---
 
