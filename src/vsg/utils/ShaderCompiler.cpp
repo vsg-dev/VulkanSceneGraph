@@ -20,8 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/ShaderCompiler.h>
 
 #if VSG_SUPPORTS_ShaderCompiler
-#    include <glslang/Public/ShaderLang.h>
 #    include <SPIRV/GlslangToSpv.h>
+#    include <glslang/Public/ShaderLang.h>
 
 #    if GLSLANG_EShLangRayGenNV
 // map NV variants to modern versions
