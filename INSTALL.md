@@ -19,7 +19,7 @@
 ## Prerequisites
 
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
-* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositoies or using VulkanSDK.
+* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositories or using VulkanSDK.
 * [CMake](https://www.cmake.org) 3.7 or later.
 
 ---
