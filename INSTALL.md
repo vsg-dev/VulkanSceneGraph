@@ -22,10 +22,6 @@
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositoies or using VulkanSDK.
 * [CMake](https://www.cmake.org) 3.7 or later.
 
-## Optional dependenices
-
-* [glslang & SPIRV-Tools](https://github.com/KhronosGroup/glslang) are required when built-in GLSL -> SPIR-V (required by Vulkan) compilation is needed, such as when you need the VulkanSceneGraphs shader composition and compilation capailities. SPIRV-Tools nowadays is packaged separately on common linux distributions, but can be build as part of glslang. VulkanSDK provides glslang. Unless you know you don't require them for your application we recommend building the VulkanSceneGraph with glslang and SPIRV-Tools.
-
 ---
 
 ## Quick build instructions for Unix from the command line
@@ -33,9 +29,6 @@
 ### Gentoo dependencies
 1. essential dependencies:
 	emerge dev-util/vulkan-tools
-
-2. optional dependencies:
-	emerge dev-util/glslang dev-util/spirv-tools 
 
 ### Build
 Command line instructions for default build of static library (.a/.lib) in source:
@@ -327,7 +320,3 @@ That's it, we've installed the MoltenVK sdk, built VSG and prepared are machine 
 **Important Note!**
 
 Xcode typically ignores the system environment variables, so when running a VSG application from within Xcode you may run into issues. One solution is to add the environment variables to to the run scheme. This can be done by going to 'Product>Scheme>Edit Scheme>Arguments. Then added the above mentioned environment variables.
-
-
-
-
