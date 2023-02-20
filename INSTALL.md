@@ -26,12 +26,16 @@
 
 ## Quick build instructions for Unix from the command line
 
-### Gentoo dependencies
-1. essential dependencies:
+### Installing dependencies
+
+Ubuntu:
+	sudo apt-get install cmake-curses-gui g++ git libvulkan-dev
+
+Gentoo:
 	emerge dev-util/vulkan-tools
 
 ### Build
-Command line instructions for default build of static library (.a/.lib) in source:
+Command line instructions for default build of static library (.a) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
@@ -39,7 +43,7 @@ Command line instructions for default build of static library (.a/.lib) in sourc
     make -j 8
     make install
 
-Command line instructions for building shared library (.so/.lib + .dll) out of source:
+Command line instructions for building shared library (.so) out of source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     mkdir vsg-shared-build
@@ -104,23 +108,28 @@ Once you have generated the build system using *cmake* as above, you can list th
     make help
 
 This lists the options:
-
-    ... all (the default if no target is provided)
+```
+	... all (the default if no target is provided)
 	... clean
 	... depend
-	... install/strip
-	... install/local
-	... rebuild_cache
-	... clobber
-	... install
-	... docs
-	... uninstall
-	... build_all_h
-	... list_install_components
-	... cppcheck
-	... clang-format
 	... edit_cache
+	... install
+	... install/local
+	... install/strip
+	... list_install_components
+	... rebuild_cache
+	... build_all_h
+	... clang-format
+	... clang-format-vsg
+	... clobber
+	... cppcheck
+	... cppcheck-vsg
+	... docs
+	... docs-vsg
+	... uninstall
+	... uninstall-vsg
 	... vsg
+```
 
 Most of these are standard options which you can look up in CMake and make documentation, the following are ones we've added so require explanation:
 
