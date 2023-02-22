@@ -71,3 +71,8 @@ src/vsg/vsg.dir/
 DerivedData/
 *.build
 *.xcodeproj
+
+#glslang automatically generated files
+include/glslang
+src/vsg/CHANGES.md
+
