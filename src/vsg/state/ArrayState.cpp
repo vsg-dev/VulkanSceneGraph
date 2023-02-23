@@ -458,21 +458,25 @@ void BillboardArrayState::apply(const VertexInputState& vas)
 
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
 {
-    auto positions = arrays[positionAttribute.binding].cast<vec4Array>();
-
-    vsg::info("BillboardArrayState::vertexArray() ", positions);
-
-    if (positions && (instanceIndex < positions->size()))
+    struct GetValue : public ConstVisitor
     {
-        auto position = positions->at(instanceIndex);
-        auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
-        auto src_vertex_itr = vertices->begin();
-        for (auto& v : *new_vertices)
-        {
-            v = *(src_vertex_itr++) + vsg::vec3(position.x, position.y, position.z);
-        }
-        return new_vertices;
-    }
+        GetValue(uint32_t i) : index(i) {}
+        uint32_t index;
+        vec4 value;
 
-    return vertices;
+        void apply(const vec4Value& data) override { value = data.value(); }
+        void apply(const vec4Array& data) override { value = data[index]; }
+    } gv(instanceIndex);
+
+    // get the position_distanceScale value
+    arrays[positionAttribute.binding]->accept(gv);
+    auto& position = gv.value;
+
+    auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
+    auto src_vertex_itr = vertices->begin();
+    for (auto& v : *new_vertices)
+    {
+        v = *(src_vertex_itr++) + vsg::vec3(position.x, position.y, position.z);
+    }
+    return new_vertices;
 }
