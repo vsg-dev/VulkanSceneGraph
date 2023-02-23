@@ -179,4 +179,27 @@ namespace vsg
     };
     VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
 
+
+    /// PositionArrayState is ArrayState subclass for mapping vertex array data for instanced geometries.
+    class VSG_DECLSPEC BillboardArrayState : public Inherit<ArrayState, BillboardArrayState>
+    {
+    public:
+        BillboardArrayState();
+        BillboardArrayState(const BillboardArrayState& rhs);
+        explicit BillboardArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> clone() override;
+        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+
+        uint32_t position_attribute_location = 4;
+        AttributeDetails positionAttribute;
+
+        using ArrayState::apply;
+
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
+    };
+    VSG_type_name(vsg::BillboardArrayState);
+
+
 } // namespace vsg
