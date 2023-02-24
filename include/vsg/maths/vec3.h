@@ -61,7 +61,7 @@ namespace vsg
 
         template<typename R>
         constexpr t_vec3(const t_vec2<R>& v, value_type in_z) :
-        value{v.x, v.y, in_z} {}
+            value{v.x, v.y, in_z} {}
 
         template<typename R>
         constexpr explicit t_vec3(const t_vec3<R>& v) :

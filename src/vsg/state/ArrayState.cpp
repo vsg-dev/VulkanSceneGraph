@@ -458,7 +458,8 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
 {
     struct GetValue : public ConstVisitor
     {
-        GetValue(uint32_t i) : index(i) {}
+        GetValue(uint32_t i) :
+            index(i) {}
         uint32_t index;
         vec4 value;
 
@@ -486,7 +487,7 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
             0.0, 0.0, 1.0, 0.0,
             center_eye.x, center_eye.y, center_eye.z, 1.0);
 
-    dmat4 billboard_mv = T*S;
+    dmat4 billboard_mv = T * S;
     dmat4 billboard_to_local = vsg::inverse(mv) * billboard_mv;
 
     auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
