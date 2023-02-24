@@ -454,27 +454,6 @@ void BillboardArrayState::apply(const VertexInputState& vas)
     getAttributeDetails(vas, position_attribute_location, positionAttribute);
 }
 
-#include <vsg/io/Logger.h>
-
-#if 0
-mat4 computeBillboadMatrix(vec4 center_eye, float autoScaleDistance)
-{
-    float distance = -center_eye.z;
-
-    float scale = (distance < autoScaleDistance) ? distance/autoScaleDistance : 1.0;
-    mat4 S = mat4(scale, 0.0, 0.0, 0.0,
-                  0.0, scale, 0.0, 0.0,
-                  0.0, 0.0, scale, 0.0,
-                  0.0, 0.0, 0.0, 1.0);
-
-    mat4 T = mat4(1.0, 0.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0, 0.0,
-                  0.0, 0.0, 1.0, 0.0,
-                  center_eye.x, center_eye.y, center_eye.z, 1.0);
-    return T*S;
-}
-#endif
-
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
 {
     struct GetValue : public ConstVisitor
