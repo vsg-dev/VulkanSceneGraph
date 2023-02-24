@@ -456,6 +456,25 @@ void BillboardArrayState::apply(const VertexInputState& vas)
 
 #include <vsg/io/Logger.h>
 
+#if 0
+mat4 computeBillboadMatrix(vec4 center_eye, float autoScaleDistance)
+{
+    float distance = -center_eye.z;
+
+    float scale = (distance < autoScaleDistance) ? distance/autoScaleDistance : 1.0;
+    mat4 S = mat4(scale, 0.0, 0.0, 0.0,
+                  0.0, scale, 0.0, 0.0,
+                  0.0, 0.0, scale, 0.0,
+                  0.0, 0.0, 0.0, 1.0);
+
+    mat4 T = mat4(1.0, 0.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0, 0.0,
+                  0.0, 0.0, 1.0, 0.0,
+                  center_eye.x, center_eye.y, center_eye.z, 1.0);
+    return T*S;
+}
+#endif
+
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
 {
     struct GetValue : public ConstVisitor
@@ -470,13 +489,33 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
 
     // get the position_distanceScale value
     arrays[positionAttribute.binding]->accept(gv);
-    auto& position = gv.value;
+    dvec3 position(gv.value.xyz);
+    double autoDistanceScale = gv.value.w;
+
+    auto& mv = matrixStack.back();
+    auto center_eye = mv * position;
+    double distance = -center_eye.z;
+
+    double scale = (distance < autoDistanceScale) ? distance / autoDistanceScale : 1.0;
+    dmat4 S(scale, 0.0, 0.0, 0.0,
+            0.0, scale, 0.0, 0.0,
+            0.0, 0.0, scale, 0.0,
+            0.0, 0.0, 0.0, 1.0);
+
+    dmat4 T(1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            center_eye.x, center_eye.y, center_eye.z, 1.0);
+
+    dmat4 billboard_mv = T*S;
+    dmat4 billboard_to_local = vsg::inverse(mv) * billboard_mv;
 
     auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
     auto src_vertex_itr = vertices->begin();
     for (auto& v : *new_vertices)
     {
-        v = *(src_vertex_itr++) + vsg::vec3(position.x, position.y, position.z);
+        auto& sv = *(src_vertex_itr++);
+        v = vec3(billboard_to_local * dvec3(sv));
     }
     return new_vertices;
 }

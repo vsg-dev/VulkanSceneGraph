@@ -51,6 +51,7 @@ namespace vsg
             VkVertexInputRate inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
         };
 
+        std::vector<dmat4> matrixStack;
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         uint32_t vertex_attribute_location = 0;
         AttributeDetails vertexAttribute;
