@@ -70,7 +70,8 @@ namespace vsg
 
     protected:
         ArrayStateStack arrayStateStack;
-        std::vector<dmat4>& MatrixStack() { return arrayStateStack.back()->matrixStack; }
+        std::vector<dmat4>& localToWorldStack() { return arrayStateStack.back()->localToWorldStack; }
+        std::vector<dmat4>& worldToLocalStack() { return arrayStateStack.back()->worldToLocalStack; }
 
         ref_ptr<const ushortArray> ushort_indices;
         ref_ptr<const uintArray> uint_indices;

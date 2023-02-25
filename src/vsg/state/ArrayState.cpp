@@ -472,7 +472,9 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     dvec3 position(gv.value.xyz);
     double autoDistanceScale = gv.value.w;
 
-    auto& mv = matrixStack.back();
+    auto& mv = localToWorldStack.back();
+    auto& inverse_mv = worldToLocalStack.back();
+
     auto center_eye = mv * position;
     double distance = -center_eye.z;
 
@@ -488,7 +490,7 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
             center_eye.x, center_eye.y, center_eye.z, 1.0);
 
     dmat4 billboard_mv = T * S;
-    dmat4 billboard_to_local = vsg::inverse(mv) * billboard_mv;
+    dmat4 billboard_to_local = inverse_mv * billboard_mv;
 
     auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
     auto src_vertex_itr = vertices->begin();
