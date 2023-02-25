@@ -68,10 +68,14 @@ namespace vsg
         /// intersect with a vkCmdDrawIndexed primitive
         virtual bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) = 0;
 
+        /// get the current local to world matrix stack
+        std::vector<dmat4>& localToWorldStack() { return arrayStateStack.back()->localToWorldStack; }
+
+        /// get the current world to local matrix stack
+        std::vector<dmat4>& worldToLocalStack() { return arrayStateStack.back()->worldToLocalStack; }
+
     protected:
         ArrayStateStack arrayStateStack;
-        std::vector<dmat4>& localToWorldStack() { return arrayStateStack.back()->localToWorldStack; }
-        std::vector<dmat4>& worldToLocalStack() { return arrayStateStack.back()->worldToLocalStack; }
 
         ref_ptr<const ushortArray> ushort_indices;
         ref_ptr<const uintArray> uint_indices;
