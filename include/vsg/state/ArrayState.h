@@ -182,7 +182,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
 
-    /// PositionArrayState is ArrayState subclass for mapping vertex array data for instanced geometries.
+    /// BillboardArrayState is ArrayState subclass for mapping vertex array data for billboard instanced geometries.
     class VSG_DECLSPEC BillboardArrayState : public Inherit<ArrayState, BillboardArrayState>
     {
     public:
