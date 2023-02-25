@@ -21,8 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #if VSG_SUPPORTS_ShaderCompiler
 #    include <SPIRV/GlslangToSpv.h>
-#    include <glslang/Public/ShaderLang.h>
 #    include <glslang/Public/ResourceLimits.h>
+#    include <glslang/Public/ShaderLang.h>
 #endif
 
 #include <algorithm>

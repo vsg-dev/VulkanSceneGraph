@@ -69,8 +69,9 @@ namespace vsg
         virtual bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) = 0;
 
     protected:
-        std::vector<dmat4> _matrixStack;
         ArrayStateStack arrayStateStack;
+        std::vector<dmat4>& localToWorldStack() { return arrayStateStack.back()->localToWorldStack; }
+        std::vector<dmat4>& worldToLocalStack() { return arrayStateStack.back()->worldToLocalStack; }
 
         ref_ptr<const ushortArray> ushort_indices;
         ref_ptr<const uintArray> uint_indices;
