@@ -454,6 +454,8 @@ void BillboardArrayState::apply(const VertexInputState& vas)
     getAttributeDetails(vas, position_attribute_location, positionAttribute);
 }
 
+#include <vsg/io/Logger.h>
+
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
 {
     struct GetValue : public ConstVisitor
@@ -472,25 +474,33 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     dvec3 position(gv.value.xyz);
     double autoDistanceScale = gv.value.w;
 
-    auto& mv = localToWorldStack.back();
-    auto& inverse_mv = worldToLocalStack.back();
+    dmat4 billboard_to_local;
+    if (!localToWorldStack.empty() && !worldToLocalStack.empty())
+    {
+        auto& mv = localToWorldStack.back();
+        auto& inverse_mv = worldToLocalStack.back();
 
-    auto center_eye = mv * position;
-    double distance = -center_eye.z;
+        auto center_eye = mv * position;
+        double distance = -center_eye.z;
 
-    double scale = (distance < autoDistanceScale) ? distance / autoDistanceScale : 1.0;
-    dmat4 S(scale, 0.0, 0.0, 0.0,
-            0.0, scale, 0.0, 0.0,
-            0.0, 0.0, scale, 0.0,
-            0.0, 0.0, 0.0, 1.0);
+        double scale = (distance < autoDistanceScale) ? distance / autoDistanceScale : 1.0;
+        dmat4 S(scale, 0.0, 0.0, 0.0,
+                0.0, scale, 0.0, 0.0,
+                0.0, 0.0, scale, 0.0,
+                0.0, 0.0, 0.0, 1.0);
 
-    dmat4 T(1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            center_eye.x, center_eye.y, center_eye.z, 1.0);
+        dmat4 T(1.0, 0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0, 0.0,
+                0.0, 0.0, 1.0, 0.0,
+                center_eye.x, center_eye.y, center_eye.z, 1.0);
 
-    dmat4 billboard_mv = T * S;
-    dmat4 billboard_to_local = inverse_mv * billboard_mv;
+        dmat4 billboard_mv = T * S;
+        billboard_to_local = inverse_mv * billboard_mv;
+    }
+    else
+    {
+        billboard_to_local = vsg::translate(position);
+    }
 
     auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
     auto src_vertex_itr = vertices->begin();
