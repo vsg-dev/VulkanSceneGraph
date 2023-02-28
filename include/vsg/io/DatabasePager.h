@@ -63,11 +63,6 @@ namespace vsg
 
         void add(ref_ptr<PagedLOD> plod);
 
-        // add the plod reference to the queue then set the plod parameter to nullptr to ensure calling thread can't delete it
-        void add_then_reset(ref_ptr<PagedLOD>& plod);
-
-        void add(Nodes& nodes);
-
         ref_ptr<PagedLOD> take_when_available();
 
         Nodes take_all()

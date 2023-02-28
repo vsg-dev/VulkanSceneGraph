@@ -41,23 +41,6 @@ void DatabaseQueue::add(ref_ptr<PagedLOD> plod)
     _cv.notify_one();
 }
 
-void DatabaseQueue::add_then_reset(ref_ptr<PagedLOD>& plod)
-{
-    std::scoped_lock lock(_mutex);
-    _queue.emplace_back(plod);
-    _cv.notify_one();
-    plod = nullptr;
-}
-
-void DatabaseQueue::add(Nodes& nodes)
-{
-    std::scoped_lock lock(_mutex);
-
-    _queue.insert(_queue.end(), nodes.begin(), nodes.end());
-
-    _cv.notify_one();
-}
-
 ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 {
     // debug("DatabaseQueue::take_when_available() A size = ", _queue.size());
