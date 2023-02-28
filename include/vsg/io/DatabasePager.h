@@ -70,8 +70,6 @@ namespace vsg
 
         ref_ptr<PagedLOD> take_when_available();
 
-        Nodes take_all_when_available();
-
         Nodes take_all()
         {
             std::scoped_lock lock(_mutex);

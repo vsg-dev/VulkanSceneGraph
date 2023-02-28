@@ -105,33 +105,6 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     return plod;
 }
 
-DatabaseQueue::Nodes DatabaseQueue::take_all_when_available()
-{
-    std::chrono::duration waitDuration = std::chrono::milliseconds(100);
-
-    std::unique_lock lock(_mutex);
-
-    // wait to the conditional variable signals that an operation has been added
-    while (_queue.empty() && _status->active())
-    {
-        // debug("take_all_when_available() Waiting on condition variable", _queue.size());
-        _cv.wait_for(lock, waitDuration);
-    }
-
-    // if the threads we are associated with should no longer running go for a quick exit and return nothing.
-    if (_status->cancel())
-    {
-        return {};
-    }
-
-    // debug("DatabaseQueue::take_all_when_available() ", _queue.size());
-
-    // remove and return the head of the queue
-    Nodes nodes;
-    nodes.swap(_queue);
-    return nodes;
-}
-
 /////////////////////////////////////////////////////////////////////////
 //
 // DatabasePager
