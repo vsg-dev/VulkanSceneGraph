@@ -20,7 +20,7 @@ namespace vsg
 
     /// CompileResult struct encapsulates the results of compile traversal.
     /// Used to help guide further operations done with the compiled subgraph.
-    struct CompileResult
+    struct VSG_DECLSPEC CompileResult
     {
         VkResult result = VK_INCOMPLETE;
         uint32_t maxSlot = 0;
@@ -30,6 +30,10 @@ namespace vsg
         ResourceRequirements::DynamicData lateDynamicData;
 
         explicit operator bool() const noexcept { return result == VK_SUCCESS; }
+
+        void reset();
+        void add(const CompileResult& cr);
+        bool requiresViewerUpdate() const;
     };
 
     /// ComppileManager is a helper class that compiles subgraphs for the window/framebuffer associated with the CompileManager.
