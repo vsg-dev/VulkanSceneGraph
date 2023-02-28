@@ -65,13 +65,7 @@ namespace vsg
 
         ref_ptr<PagedLOD> take_when_available();
 
-        Nodes take_all()
-        {
-            std::scoped_lock lock(_mutex);
-            Nodes nodes;
-            nodes.swap(_queue);
-            return nodes;
-        }
+        Nodes take_all();
 
     protected:
         virtual ~DatabaseQueue();

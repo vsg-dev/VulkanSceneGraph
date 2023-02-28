@@ -88,6 +88,14 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     return plod;
 }
 
+DatabaseQueue::Nodes DatabaseQueue::take_all()
+{
+    std::scoped_lock lock(_mutex);
+    Nodes nodes;
+    nodes.swap(_queue);
+    return nodes;
+}
+
 /////////////////////////////////////////////////////////////////////////
 //
 // DatabasePager
