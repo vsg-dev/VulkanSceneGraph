@@ -145,7 +145,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Viewer);
 
-    /// update Viewer data structures to match the needs of newly compile subgraph
+    /// update Viewer data structures to match the needs of newly compiled subgraph
     extern VSG_DECLSPEC void updateViewer(Viewer& viewer, const CompileResult& compileResult);
 
 } // namespace vsg
