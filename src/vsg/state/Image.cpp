@@ -126,7 +126,19 @@ int Image::compare(const Object& rhs_object) const
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(data, rhs.data))) return result;
-    return compare_region(flags, initialLayout, rhs.flags);
+
+    if ((result = compare_value(flags, rhs.flags))) return result;
+    if ((result = compare_value(imageType, rhs.imageType))) return result;
+    if ((result = compare_value(format, rhs.format))) return result;
+    if ((result = compare_memory(extent, rhs.extent))) return result;
+    if ((result = compare_value(mipLevels, rhs.mipLevels))) return result;
+    if ((result = compare_value(arrayLayers, rhs.arrayLayers))) return result;
+    if ((result = compare_value(samples, rhs.samples))) return result;
+    if ((result = compare_value(tiling, rhs.tiling))) return result;
+    if ((result = compare_value(usage, rhs.usage))) return result;
+    if ((result = compare_value(sharingMode, rhs.sharingMode))) return result;
+    if ((result = compare_value_container(queueFamilyIndices, rhs.queueFamilyIndices))) return result;
+    return compare_value(initialLayout, rhs.initialLayout);
 }
 
 VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
