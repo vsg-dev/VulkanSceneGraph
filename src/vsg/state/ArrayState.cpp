@@ -460,7 +460,7 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
 {
     struct GetValue : public ConstVisitor
     {
-        GetValue(uint32_t i) :
+        explicit GetValue(uint32_t i) :
             index(i) {}
         uint32_t index;
         vec4 value;
