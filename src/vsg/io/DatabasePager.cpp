@@ -64,8 +64,6 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 
     // debug("DatabaseQueue::take_when_available() D ", _queue.size());
 
-#if 1
-
     // find the PagedLOD with the highest priority;
     auto itr = _queue.begin();
     auto highest_itr = itr++;
@@ -79,12 +77,6 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     _queue.erase(highest_itr);
 
     // debug("Returning ", plod.get(), std::dec, ", size = ", _queue.size());
-
-#else
-    // remove and return the head of the queue
-    ref_ptr<PagedLOD> plod = _queue.front();
-    _queue.erase(_queue.begin());
-#endif
     return plod;
 }
 
