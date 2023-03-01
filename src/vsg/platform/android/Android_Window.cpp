@@ -322,12 +322,12 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
 {
     _keyboard = new KeyboardMap;
 
-    if( ! traits->getValue("nativeWindow", _window ) )
+    if (!traits->getValue("nativeWindow", _window))
     {
         vsg::log(vsg::Logger::LOGGER_WARN, "Value 'nativeWindow' not provided on WindowTraits object. Falling back to std::any_cast<ANativeWindow*> for Android window setup.");
     }
 
-    if( _window == nullptr )
+    if (_window == nullptr)
     {
         ANativeWindow* nativeWindow = std::any_cast<ANativeWindow*>(traits->nativeWindow);
 
@@ -380,7 +380,7 @@ void Android_Window::resize()
     _extent2D.width = ANativeWindow_getWidth(_window);
     _extent2D.height = ANativeWindow_getHeight(_window);
 
-    vsg::debug("resize event = wh: ", _extent2D.width, ", ",_extent2D.height);
+    vsg::debug("resize event = wh: ", _extent2D.width, ", ", _extent2D.height);
 
     buildSwapchain();
 }
@@ -474,18 +474,18 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
 
         switch (action)
         {
-            case AKEY_EVENT_ACTION_DOWN:
-                vsg::debug("key down event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
-                bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
-                break;
-            case AKEY_EVENT_ACTION_UP:
-                vsg::debug("key up event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
-                bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
-                break;
-                //case AKEY_EVENT_ACTION_MULTIPLE:
-                //   bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
-                //   break;
-            default: break;
+        case AKEY_EVENT_ACTION_DOWN:
+            vsg::debug("key down event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
+            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+            break;
+        case AKEY_EVENT_ACTION_UP:
+            vsg::debug("key up event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
+            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+            break;
+            //case AKEY_EVENT_ACTION_MULTIPLE:
+            //   bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
+            //   break;
+        default: break;
         }
         return true;
     }

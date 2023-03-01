@@ -57,16 +57,21 @@ namespace vsg
         constexpr t_vec4(const t_vec4& v) :
             value{v.x, v.y, v.z, v.w} {}
         constexpr t_vec4& operator=(const t_vec4&) = default;
+
         constexpr t_vec4(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
             value{in_x, in_y, in_z, in_w} {}
-        constexpr t_vec4(const t_vec2<T>& v, value_type in_z, value_type in_w) :
-            value{v.x, v.y, in_z, in_w} {}
-        constexpr t_vec4(const t_vec3<T>& v, value_type in_w) :
-            value{v.x, v.y, v.z, in_w} {}
 
         template<typename R>
         constexpr explicit t_vec4(const t_vec4<R>& v) :
             value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), static_cast<T>(v.w)} {}
+
+        template<typename R>
+        constexpr t_vec4(const t_vec2<R>& v, value_type in_z, value_type in_w) :
+            value{static_cast<T>(v.x), static_cast<T>(v.y), in_z, in_w} {}
+
+        template<typename R>
+        constexpr t_vec4(const t_vec3<R>& v, value_type in_w) :
+            value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), in_w} {}
 
         constexpr std::size_t size() const { return 4; }
 

@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/platform/win32/Win32_Window.h>
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/platform/win32/Win32_Window.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
 
@@ -60,250 +60,238 @@ namespace vsgWin32
 
 KeyboardMap::KeyboardMap()
 {
-    _keycodeMap =
+    // Note that Windows virutal key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
+    // will modify this map.
+    // clang-format off
+    _vk2vsg =
         {
-            {0x0, KEY_Undefined},
-
-            {VK_SPACE, KEY_Space},
-
-            {'0', KEY_0},
-            {'1', KEY_1},
-            {'2', KEY_2},
-            {'3', KEY_3},
-            {'4', KEY_4},
-            {'5', KEY_5},
-            {'6', KEY_6},
-            {'7', KEY_7},
-            {'8', KEY_8},
-            {'9', KEY_9},
-
-            {'a', KEY_a},
-            {'b', KEY_b},
-            {'c', KEY_c},
-            {'d', KEY_d},
-            {'e', KEY_e},
-            {'f', KEY_f},
-            {'g', KEY_g},
-            {'h', KEY_h},
-            {'i', KEY_i},
-            {'j', KEY_j},
-            {'k', KEY_k},
-            {'l', KEY_l},
-            {'m', KEY_m},
-            {'n', KEY_n},
-            {'o', KEY_o},
-            {'p', KEY_p},
-            {'q', KEY_q},
-            {'r', KEY_r},
-            {'s', KEY_s},
-            {'t', KEY_t},
-            {'u', KEY_u},
-            {'z', KEY_v},
-            {'w', KEY_w},
-            {'x', KEY_x},
-            {'y', KEY_y},
-            {'z', KEY_z},
-
-            {'A', KEY_A},
-            {'B', KEY_B},
-            {'C', KEY_C},
-            {'D', KEY_D},
-            {'E', KEY_E},
-            {'F', KEY_F},
-            {'G', KEY_G},
-            {'H', KEY_H},
-            {'I', KEY_I},
-            {'J', KEY_J},
-            {'K', KEY_K},
-            {'L', KEY_L},
-            {'M', KEY_M},
-            {'N', KEY_N},
-            {'O', KEY_O},
-            {'P', KEY_P},
-            {'Q', KEY_Q},
-            {'R', KEY_R},
-            {'S', KEY_S},
-            {'T', KEY_T},
-            {'U', KEY_U},
-            {'V', KEY_V},
-            {'W', KEY_W},
-            {'X', KEY_X},
-            {'Y', KEY_Y},
-            {'Z', KEY_Z},
-
-            /* Cursor control & motion */
-
-            {VK_HOME, KEY_Home},
-            {VK_LEFT, KEY_Left},   /* Move left, left arrow */
-            {VK_UP, KEY_Up},       /* Move up, up arrow */
-            {VK_RIGHT, KEY_Right}, /* Move right, right arrow */
-            {VK_DOWN, KEY_Down},   /* Move down, down arrow */
-            {VK_PRIOR, KEY_Prior}, /* Prior, previous */
-            //{ VK_, KEY_Page_Up = 0xFF55,
-            {VK_NEXT, KEY_Next}, /* Next */
-            //KEY_Page_Down = 0xFF56,
-            {VK_END, KEY_End}, /* EOL */
-            //{ KEY_Begin = 0xFF58, /* BOL */
-
-            {'!', KEY_Exclaim},
-            {'"', KEY_Quotedbl},
-            {'#', KEY_Hash},
-            {'$', KEY_Dollar},
-            {'&', KEY_Ampersand},
-            {VK_OEM_7, KEY_Quote},
-            {'(', KEY_Leftparen},
-            {')', KEY_Rightparen},
-            {'*', KEY_Asterisk},
-            {'+', KEY_Plus},
-            {VK_OEM_COMMA, KEY_Comma},
-            {VK_OEM_MINUS, KEY_Minus},
-            {VK_OEM_PERIOD, KEY_Period},
-            {VK_OEM_2, KEY_Slash},
-            {':', KEY_Colon},
-            {VK_OEM_1, KEY_Semicolon},
-            {'<', KEY_Less},
-            {VK_OEM_PLUS, KEY_Equals}, // + isn't an unmodded key, why does windows map is as a virtual??
-            {'>', KEY_Greater},
-            {'?', KEY_Question},
-            {'@', KEY_At},
-            {VK_OEM_4, KEY_Leftbracket},
-            {VK_OEM_5, KEY_Backslash},
-            {VK_OEM_6, KEY_Rightbracket},
-            {'|', KEY_Caret},
-            {'_', KEY_Underscore},
-            {0xc0, KEY_Backquote},
-
-            {VK_BACK, KEY_BackSpace}, /* back space, back char */
-            {VK_TAB, KEY_Tab},
-            //    KEY_Linefeed = 0xFF0A, /* Linefeed, LF */
-            {VK_CLEAR, KEY_Clear},
-            {VK_RETURN, KEY_Return}, /* Return, enter */
-            {VK_PAUSE, KEY_Pause},   /* Pause, hold */
-            {VK_SCROLL, KEY_Scroll_Lock},
-            //    KEY_Sys_Req = 0xFF15,
-            {VK_ESCAPE, KEY_Escape},
-            {VK_DELETE, KEY_Delete}, /* Delete, rubout */
-
-            /* Misc Functions */
-
-            {VK_SELECT, KEY_Select}, /* Select, mark */
-            {VK_PRINT, KEY_Print},
-            {VK_EXECUTE, KEY_Execute}, /* Execute, run, do */
-            {VK_INSERT, KEY_Insert},   /* Insert, insert here */
-            //{ KEY_Undo = 0xFF65,    /* Undo, oops */
-            //KEY_Redo = 0xFF66,    /* redo, again */
-            {VK_APPS, KEY_Menu}, /* On Windows, this is VK_APPS, the context-menu key */
-            // KEY_Find = 0xFF68,    /* Find, search */
-            {VK_CANCEL, KEY_Cancel}, /* Cancel, stop, abort, exit */
-            {VK_HELP, KEY_Help},     /* Help */
-            //{ KEY_Break = 0xFF6B,
-            //KEY_Mode_switch = 0xFF7E,   /* Character set switch */
-            //KEY_Script_switch = 0xFF7E, /* Alias for mode_switch */
-            {VK_NUMLOCK, KEY_Num_Lock},
-
-            /* Keypad Functions, keypad numbers cleverly chosen to map to ascii */
-
-            //KEY_KP_Space = 0xFF80, /* space */
-            //KEY_KP_Tab = 0xFF89,
-            //KEY_KP_Enter = 0xFF8D, /* enter */
-            //KEY_KP_F1 = 0xFF91,    /* PF1, KP_A, ... */
-            //KEY_KP_F2 = 0xFF92,
-            //KEY_KP_F3 = 0xFF93,
-            //KEY_KP_F4 = 0xFF94,
-            //KEY_KP_Home = 0xFF95,
-            //KEY_KP_Left = 0xFF96,
-            //KEY_KP_Up = 0xFF97,
-            //KEY_KP_Right = 0xFF98,
-            //KEY_KP_Down = 0xFF99,
-            //KEY_KP_Prior = 0xFF9A,
-            //KEY_KP_Page_Up = 0xFF9A,
-            //KEY_KP_Next = 0xFF9B,
-            //KEY_KP_Page_Down = 0xFF9B,
-            //KEY_KP_End = 0xFF9C,
-            //KEY_KP_Begin = 0xFF9D,
-            //KEY_KP_Insert = 0xFF9E,
-            //KEY_KP_Delete = 0xFF9F,
-            //KEY_KP_Equal = 0xFFBD, /* equals */
-            //KEY_KP_Multiply = 0xFFAA,
-            //KEY_KP_Add = 0xFFAB,
-            //KEY_KP_Separator = 0xFFAC, /* separator, often comma */
-            //KEY_KP_Subtract = 0xFFAD,
-            //KEY_KP_Decimal = 0xFFAE,
-            //KEY_KP_Divide = 0xFFAF,
-
-            {VK_NUMPAD0, KEY_KP_0},
-            {VK_NUMPAD1, KEY_KP_1},
-            {VK_NUMPAD2, KEY_KP_2},
-            {VK_NUMPAD3, KEY_KP_3},
-            {VK_NUMPAD4, KEY_KP_4},
-            {VK_NUMPAD5, KEY_KP_5},
-            {VK_NUMPAD6, KEY_KP_6},
-            {VK_NUMPAD7, KEY_KP_7},
-            {VK_NUMPAD8, KEY_KP_8},
-            {VK_NUMPAD9, KEY_KP_9},
-
-            /*
-        * Auxiliary Functions; note the duplicate definitions for left and right
-        * function keys;  Sun keyboards and a few other manufactures have such
-        * function key groups on the left and/or right sides of the keyboard.
-        * We've not found a keyboard with more than 35 function keys total.
-        */
-
-            {VK_F1, KEY_F1},
-            {VK_F2, KEY_F2},
-            {VK_F3, KEY_F3},
-            {VK_F4, KEY_F4},
-            {VK_F5, KEY_F5},
-            {VK_F6, KEY_F6},
-            {VK_F7, KEY_F7},
-            {VK_F8, KEY_F8},
-            {VK_F9, KEY_F9},
-            {VK_F10, KEY_F10},
-            {VK_F11, KEY_F11},
-            {VK_F12, KEY_F12},
-            {VK_F13, KEY_F13},
-            {VK_F14, KEY_F14},
-            {VK_F15, KEY_F15},
-            {VK_F16, KEY_F16},
-            {VK_F17, KEY_F17},
-            {VK_F18, KEY_F18},
-            {VK_F19, KEY_F19},
-            {VK_F20, KEY_F20},
-            {VK_F21, KEY_F21},
-            {VK_F22, KEY_F22},
-            {VK_F23, KEY_F23},
-            {VK_F24, KEY_F24},
-
-            //KEY_F25 = 0xFFD6,
-            //KEY_F26 = 0xFFD7,
-            //KEY_F27 = 0xFFD8,
-            //KEY_F28 = 0xFFD9,
-            //KEY_F29 = 0xFFDA,
-            //KEY_F30 = 0xFFDB,
-            //KEY_F31 = 0xFFDC,
-            //KEY_F32 = 0xFFDD,
-            //KEY_F33 = 0xFFDE,
-            //KEY_F34 = 0xFFDF,
-            //KEY_F35 = 0xFFE0,
-
-            /* Modifiers */
-
-            {VK_LSHIFT, KEY_Shift_L},     /* Left shift */
-            {VK_RSHIFT, KEY_Shift_R},     /* Right shift */
-            {VK_LCONTROL, KEY_Control_L}, /* Left control */
-            {VK_RCONTROL, KEY_Control_R}, /* Right control */
-            {VK_CAPITAL, KEY_Caps_Lock},  /* Caps lock */
-            //KEY_Shift_Lock = 0xFFE6, /* Shift lock */
-
-            //KEY_Meta_L = 0xFFE7,  /* Left meta */
-            //KEY_Meta_R = 0xFFE8,  /* Right meta */
-            {VK_LMENU, KEY_Alt_L},  /* Left alt */
-            {VK_RMENU, KEY_Alt_R},  /* Right alt */
-            {VK_LWIN, KEY_Super_L}, /* Left super */
-            {VK_RWIN, KEY_Super_R}  /* Right super */
-            //KEY_Hyper_L = 0xFFED, /* Left hyper */
-            //KEY_Hyper_R = 0xFFEE  /* Right hyper */
+            {0x0                                  ,              KEY_Undefined},
+            {'0'                                  ,              KEY_0},
+            {'1'                                  ,              KEY_1},
+            {'2'                                  ,              KEY_2},
+            {'3'                                  ,              KEY_3},
+            {'4'                                  ,              KEY_4},
+            {'5'                                  ,              KEY_5},
+            {'6'                                  ,              KEY_6},
+            {'7'                                  ,              KEY_7},
+            {'8'                                  ,              KEY_8},
+            {'9'                                  ,              KEY_9},
+            {'A'                                  ,              KEY_a},
+            {'B'                                  ,              KEY_b},
+            {'C'                                  ,              KEY_c},
+            {'D'                                  ,              KEY_d},
+            {'E'                                  ,              KEY_e},
+            {'F'                                  ,              KEY_f},
+            {'G'                                  ,              KEY_g},
+            {'H'                                  ,              KEY_h},
+            {'I'                                  ,              KEY_i},
+            {'J'                                  ,              KEY_j},
+            {'K'                                  ,              KEY_k},
+            {'L'                                  ,              KEY_l},
+            {'M'                                  ,              KEY_m},
+            {'N'                                  ,              KEY_n},
+            {'O'                                  ,              KEY_o},
+            {'P'                                  ,              KEY_p},
+            {'Q'                                  ,              KEY_q},
+            {'R'                                  ,              KEY_r},
+            {'S'                                  ,              KEY_s},
+            {'T'                                  ,              KEY_t},
+            {'U'                                  ,              KEY_u},
+            {'V'                                  ,              KEY_v},
+            {'W'                                  ,              KEY_w},
+            {'X'                                  ,              KEY_x},
+            {'Y'                                  ,              KEY_y},
+            {'Z'                                  ,              KEY_z},
+            {VK_LBUTTON                           ,              KEY_Undefined},
+            {VK_RBUTTON                           ,              KEY_Undefined},
+            {VK_CANCEL                            ,              KEY_Undefined},
+            {VK_MBUTTON                           ,              KEY_Undefined},
+            {VK_XBUTTON1                          ,              KEY_Undefined}, /* NOT contiguous with L & RBUTTON */
+            {VK_XBUTTON2                          ,              KEY_Undefined}, /* NOT contiguous with L & RBUTTON */
+            {VK_BACK                              ,              KEY_BackSpace},
+            {VK_TAB                               ,              KEY_Tab},
+            {VK_CLEAR                             ,              KEY_Clear},
+            {VK_RETURN                            ,              KEY_Return},
+            {VK_SHIFT                             ,              KEY_Undefined},
+            {VK_CONTROL                           ,              KEY_Undefined},
+            {VK_MENU                              ,              KEY_Undefined},
+            {VK_PAUSE                             ,              KEY_Pause},
+            {VK_CAPITAL                           ,              KEY_Undefined},
+            {VK_KANA                              ,              KEY_Undefined},
+            {VK_HANGEUL                           ,              KEY_Undefined},
+            {VK_HANGUL                            ,              KEY_Undefined},
+            {VK_JUNJA                             ,              KEY_Undefined},
+            {VK_FINAL                             ,              KEY_Undefined},
+            {VK_HANJA                             ,              KEY_Undefined},
+            {VK_KANJI                             ,              KEY_Undefined},
+//            {VK_IME_ON                            ,              KEY_Undefined},
+//            {VK_IME_OFF                           ,              KEY_Undefined},
+            {VK_ESCAPE                            ,              KEY_Escape   },
+            {VK_CONVERT                           ,              KEY_Undefined},
+            {VK_NONCONVERT                        ,              KEY_Undefined},
+            {VK_ACCEPT                            ,              KEY_Undefined},
+            {VK_MODECHANGE                        ,              KEY_Undefined},
+            {VK_SPACE                             ,              KEY_Space    },
+            {VK_PRIOR                             ,              KEY_Prior    },
+            {VK_NEXT                              ,              KEY_Next     },
+            {VK_END                               ,              KEY_End      },
+            {VK_HOME                              ,              KEY_Home     },
+            {VK_LEFT                              ,              KEY_Left     },
+            {VK_UP                                ,              KEY_Up       },
+            {VK_RIGHT                             ,              KEY_Right    },
+            {VK_DOWN                              ,              KEY_Down     },
+            {VK_SELECT                            ,              KEY_Select},
+            {VK_PRINT                             ,              KEY_Print},
+            {VK_EXECUTE                           ,              KEY_Execute},
+            {VK_SNAPSHOT                          ,              KEY_Undefined},
+            {VK_INSERT                            ,              KEY_Insert},
+            {VK_DELETE                            ,              KEY_Delete},
+            {VK_HELP                              ,              KEY_Help},
+            {VK_LWIN                              ,              KEY_Super_L},
+            {VK_RWIN                              ,              KEY_Super_R},
+            {VK_APPS                              ,              KEY_Undefined},
+            {VK_SLEEP                             ,              KEY_Undefined},
+            {VK_NUMPAD0                           ,              KEY_Undefined},
+            {VK_NUMPAD1                           ,              KEY_Undefined},
+            {VK_NUMPAD2                           ,              KEY_Undefined},
+            {VK_NUMPAD3                           ,              KEY_Undefined},
+            {VK_NUMPAD4                           ,              KEY_Undefined},
+            {VK_NUMPAD5                           ,              KEY_Undefined},
+            {VK_NUMPAD6                           ,              KEY_Undefined},
+            {VK_NUMPAD7                           ,              KEY_Undefined},
+            {VK_NUMPAD8                           ,              KEY_Undefined},
+            {VK_NUMPAD9                           ,              KEY_Undefined},
+            {VK_MULTIPLY                          ,              KEY_Undefined},
+            {VK_ADD                               ,              KEY_Undefined},
+            {VK_SEPARATOR                         ,              KEY_Undefined},
+            {VK_SUBTRACT                          ,              KEY_Undefined},
+            {VK_DECIMAL                           ,              KEY_Undefined},
+            {VK_DIVIDE                            ,              KEY_Undefined},
+            {VK_F1                                ,              KEY_F1},
+            {VK_F2                                ,              KEY_F2},
+            {VK_F3                                ,              KEY_F3},
+            {VK_F4                                ,              KEY_F4},
+            {VK_F5                                ,              KEY_F5},
+            {VK_F6                                ,              KEY_F6},
+            {VK_F7                                ,              KEY_F7},
+            {VK_F8                                ,              KEY_F8},
+            {VK_F9                                ,              KEY_F9},
+            {VK_F10                               ,              KEY_F10},
+            {VK_F11                               ,              KEY_F11},
+            {VK_F12                               ,              KEY_F12},
+            {VK_F13                               ,              KEY_F13},
+            {VK_F14                               ,              KEY_F14},
+            {VK_F15                               ,              KEY_F15},
+            {VK_F16                               ,              KEY_F16},
+            {VK_F17                               ,              KEY_F17},
+            {VK_F18                               ,              KEY_F18},
+            {VK_F19                               ,              KEY_F19},
+            {VK_F20                               ,              KEY_F20},
+            {VK_F21                               ,              KEY_F21},
+            {VK_F22                               ,              KEY_F22},
+            {VK_F23                               ,              KEY_F23},
+            {VK_F24                               ,              KEY_F24},
+            {VK_NAVIGATION_VIEW                   ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_MENU                   ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_UP                     ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_DOWN                   ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_LEFT                   ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_RIGHT                  ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_ACCEPT                 ,              KEY_Undefined},   // reserved
+            {VK_NAVIGATION_CANCEL                 ,              KEY_Undefined},   // reserved
+            {VK_NUMLOCK                           ,              KEY_Undefined},
+            {VK_SCROLL                            ,              KEY_Undefined},
+            {VK_LSHIFT                            ,              KEY_Shift_L},
+            {VK_RSHIFT                            ,              KEY_Shift_R},
+            {VK_LCONTROL                          ,              KEY_Control_L},
+            {VK_RCONTROL                          ,              KEY_Control_R},
+            {VK_LMENU                             ,              KEY_Menu},
+            {VK_RMENU                             ,              KEY_Menu},
+            {VK_BROWSER_BACK                      ,              KEY_Undefined},
+            {VK_BROWSER_FORWARD                   ,              KEY_Undefined},
+            {VK_BROWSER_REFRESH                   ,              KEY_Undefined},
+            {VK_BROWSER_STOP                      ,              KEY_Undefined},
+            {VK_BROWSER_SEARCH                    ,              KEY_Undefined},
+            {VK_BROWSER_FAVORITES                 ,              KEY_Undefined},
+            {VK_BROWSER_HOME                      ,              KEY_Undefined},
+            {VK_VOLUME_MUTE                       ,              KEY_Undefined},
+            {VK_VOLUME_DOWN                       ,              KEY_Undefined},
+            {VK_VOLUME_UP                         ,              KEY_Undefined},
+            {VK_MEDIA_NEXT_TRACK                  ,              KEY_Undefined},
+            {VK_MEDIA_PREV_TRACK                  ,              KEY_Undefined},
+            {VK_MEDIA_STOP                        ,              KEY_Undefined},
+            {VK_MEDIA_PLAY_PAUSE                  ,              KEY_Undefined},
+            {VK_LAUNCH_MAIL                       ,              KEY_Undefined},
+            {VK_LAUNCH_MEDIA_SELECT               ,              KEY_Undefined},
+            {VK_LAUNCH_APP1                       ,              KEY_Undefined},
+            {VK_LAUNCH_APP2                       ,              KEY_Undefined},
+            {VK_OEM_1                             ,              KEY_Semicolon},    // ';:' for US
+            {VK_OEM_PLUS                          ,              KEY_Equals     },    // '+' any country
+            {VK_OEM_COMMA                         ,              KEY_Comma    },    // ',' any country
+            {VK_OEM_MINUS                         ,              KEY_Minus    },    // '-' any country
+            {VK_OEM_PERIOD                        ,              KEY_Period   },    // '.' any country
+            {VK_OEM_2                             ,              KEY_Slash    },    // '/?' for US
+            {VK_OEM_3                             ,              KEY_Tilde    },    // '`~' for US
+            {VK_GAMEPAD_A                         ,              KEY_Undefined},
+            {VK_GAMEPAD_B                         ,              KEY_Undefined},
+            {VK_GAMEPAD_X                         ,              KEY_Undefined},
+            {VK_GAMEPAD_Y                         ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_SHOULDER            ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_SHOULDER             ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_TRIGGER              ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_TRIGGER             ,              KEY_Undefined},
+            {VK_GAMEPAD_DPAD_UP                   ,              KEY_Undefined},
+            {VK_GAMEPAD_DPAD_DOWN                 ,              KEY_Undefined},
+            {VK_GAMEPAD_DPAD_LEFT                 ,              KEY_Undefined},
+            {VK_GAMEPAD_DPAD_RIGHT                ,              KEY_Undefined},
+            {VK_GAMEPAD_MENU                      ,              KEY_Undefined},
+            {VK_GAMEPAD_VIEW                      ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_THUMBSTICK_BUTTON    ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_THUMBSTICK_BUTTON   ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_THUMBSTICK_UP        ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_THUMBSTICK_DOWN      ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_THUMBSTICK_RIGHT     ,              KEY_Undefined},
+            {VK_GAMEPAD_LEFT_THUMBSTICK_LEFT      ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_THUMBSTICK_UP       ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_THUMBSTICK_DOWN     ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT    ,              KEY_Undefined},
+            {VK_GAMEPAD_RIGHT_THUMBSTICK_LEFT     ,              KEY_Undefined},
+            {VK_OEM_4                             ,              KEY_Leftbracket},  //  '[{' for US
+            {VK_OEM_5                             ,              KEY_Backslash},    //  '\|' for US
+            {VK_OEM_6                             ,              KEY_Rightbracket}, //  ']}' for US
+            {VK_OEM_7                             ,              KEY_Quote},        // ''"' for US
+            {VK_OEM_8                             ,              KEY_Undefined},
+            {VK_OEM_AX                            ,              KEY_Undefined},    //  'AX' key on Japanese AX kbd
+            {VK_OEM_102                           ,              KEY_Undefined},    //  "<>" or "\|" on RT 102-key kbd.
+            {VK_ICO_HELP                          ,              KEY_Undefined},    //  Help key on ICO
+            {VK_ICO_00                            ,              KEY_Undefined},    //  00 key on ICO
+            {VK_PROCESSKEY                        ,              KEY_Undefined},
+            {VK_ICO_CLEAR                         ,              KEY_Undefined},
+            {VK_PACKET                            ,              KEY_Undefined},
+            {VK_OEM_RESET                         ,              KEY_Undefined},
+            {VK_OEM_JUMP                          ,              KEY_Undefined},
+            {VK_OEM_PA1                           ,              KEY_Undefined},
+            {VK_OEM_PA2                           ,              KEY_Undefined},
+            {VK_OEM_PA3                           ,              KEY_Undefined},
+            {VK_OEM_WSCTRL                        ,              KEY_Undefined},
+            {VK_OEM_CUSEL                         ,              KEY_Undefined},
+            {VK_OEM_ATTN                          ,              KEY_Undefined},
+            {VK_OEM_FINISH                        ,              KEY_Undefined},
+            {VK_OEM_COPY                          ,              KEY_Undefined},
+            {VK_OEM_AUTO                          ,              KEY_Undefined},
+            {VK_OEM_ENLW                          ,              KEY_Undefined},
+            {VK_OEM_BACKTAB                       ,              KEY_Undefined},
+            {VK_ATTN                              ,              KEY_Undefined},
+            {VK_CRSEL                             ,              KEY_Undefined},
+            {VK_EXSEL                             ,              KEY_Undefined},
+            {VK_EREOF                             ,              KEY_Undefined},
+            {VK_PLAY                              ,              KEY_Undefined},
+            {VK_ZOOM                              ,              KEY_Undefined},
+            {VK_NONAME                            ,              KEY_Undefined},
+            {VK_PA1                               ,              KEY_Undefined},
+            {VK_OEM_CLEAR                         ,              KEY_Undefined}
         };
+    // clang-format on
 }
 
 Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
@@ -499,7 +487,7 @@ void Win32_Window::_initSurface()
 
 bool Win32_Window::visible() const
 {
-    return _window!=0 && _windowMapped;
+    return _window != 0 && _windowMapped;
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)
@@ -564,8 +552,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_PAINT:
         ValidateRect(_window, NULL);
         break;
-    case WM_MOUSEMOVE:
-    {
+    case WM_MOUSEMOVE: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -574,8 +561,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-    {
+    case WM_RBUTTONDOWN: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -586,8 +572,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     break;
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
-    case WM_RBUTTONUP:
-    {
+    case WM_RBUTTONUP: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
@@ -598,24 +583,20 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     }
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
-    case WM_RBUTTONDBLCLK:
-    {
+    case WM_RBUTTONDBLCLK: {
         //::SetCapture(_window);
     }
     break;
-    case WM_MOUSEWHEEL:
-    {
-        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam)<0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
+    case WM_MOUSEWHEEL: {
+        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam) < 0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
         break;
     }
-    case WM_MOVE:
-    {
+    case WM_MOVE: {
         bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         break;
     }
-    case WM_SIZE:
-    {
-        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw==0 || winh==0)
+    case WM_SIZE: {
+        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
         {
             _windowMapped = false;
         }
@@ -629,8 +610,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_EXITSIZEMOVE:
         break;
     case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-    {
+    case WM_SYSKEYDOWN: {
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))
@@ -641,8 +621,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_KEYUP:
-    case WM_SYSKEYUP:
-    {
+    case WM_SYSKEYUP: {
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
         if (_keyboard->getKeySymbol(wParam, lParam, keySymbol, modifiedKeySymbol, keyModifier))

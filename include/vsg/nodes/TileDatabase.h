@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/state/Sampler.h>
+#include <vsg/utils/ShaderSet.h>
 
 namespace vsg
 {
@@ -78,5 +79,21 @@ namespace vsg
         bool readDatabase(ref_ptr<const Options> options);
     };
     VSG_type_name(vsg::TileDatabase);
+
+    /// convienice function for getting the part of string that enclosed between a start_match and end_match string
+    extern VSG_DECLSPEC std::string_view find_field(const std::string& source, const std::string_view& start_match, const std::string_view& end_match);
+
+    /// convienice function for replacing all instances of a match string with the replacement string.
+    extern VSG_DECLSPEC void replace(std::string& source, const std::string_view& match, const std::string_view& replacement);
+
+    /// convienice function for creating a TileDatabaseSettings for reading Bing Maps imagery
+    /// Bing Maps official documentation:
+    ///    metadata (includes imagerySet details): https://learn.microsoft.com/en-us/bingmaps/rest-services/imagery/get-imagery-metadata
+    ///    culture codes: https://learn.microsoft.com/en-us/bingmaps/rest-services/common-parameters-and-types/supported-culture-codes
+    ///    api key: https://www.microsoft.com/en-us/maps/create-a-bing-maps-key
+    extern VSG_DECLSPEC ref_ptr<TileDatabaseSettings> createBingMapsSettings(const std::string& imagerySet, const std::string& culture, const std::string& key, ref_ptr<const Options> options);
+
+    /// convienice function for creating a TileDatabaseSettings for reading OpenStreetMap imagery
+    extern VSG_DECLSPEC ref_ptr<TileDatabaseSettings> createOpenStreetMapSettings(ref_ptr<const Options> options);
 
 } // namespace vsg

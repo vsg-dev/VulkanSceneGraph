@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vector>
 
 #include <vsg/core/Object.h>
+#include <vsg/core/contains.h>
 #include <vsg/io/Path.h>
 
 namespace vsg
@@ -55,7 +56,8 @@ namespace vsg
     extern VSG_DECLSPEC Path fileExtension(const Path& path);
 
     /// return lower case file extension include the . prefix, i.e. vsg::fileExtension("file.VSGT") returns .vsgt
-    extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path);
+    /// By default prunes extras such as REST strings at the end of the extensions, uses ? as the deliminator for REST additions i.e. ".jpeg?g=42" becomes ".jpeg"
+    extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path, bool pruneExtras = true);
 
     /// return the filename stripped of any paths and extensions, i.e vsg::simpleFilname("path/file.vsgb") returns file
     extern VSG_DECLSPEC Path simpleFilename(const Path& path);

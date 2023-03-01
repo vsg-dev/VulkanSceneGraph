@@ -135,7 +135,7 @@ namespace vsg
     void Object::setValue(const std::string& key, const T& value)
     {
         using ValueT = Value<T>;
-        setObject(key, new ValueT(value));
+        setObject(key, ValueT::create(value));
     }
 
     template<typename T>

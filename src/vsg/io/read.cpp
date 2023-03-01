@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/io/spirv.h>
 #include <vsg/io/tile.h>
+#include <vsg/io/txt.h>
 #include <vsg/threading/OperationThreads.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -30,6 +31,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
                 auto object = readerWriter->read(filename, options);
                 if (object) return object;
             }
+            return {};
         }
 
         auto ext = vsg::lowerCaseFileExtension(filename);
@@ -47,6 +49,11 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         else if (glsl::extensionSupported(ext))
         {
             glsl rw;
+            return rw.read(filename, options);
+        }
+        else if (txt::extensionSupported(ext))
+        {
+            txt rw;
             return rw.read(filename, options);
         }
         else

@@ -41,21 +41,12 @@ void DatabaseQueue::add(ref_ptr<PagedLOD> plod)
     _cv.notify_one();
 }
 
-void DatabaseQueue::add_then_reset(ref_ptr<PagedLOD>& plod)
+void DatabaseQueue::add(ref_ptr<PagedLOD> plod, const CompileResult& cr)
 {
     std::scoped_lock lock(_mutex);
     _queue.emplace_back(plod);
     _cv.notify_one();
-    plod = nullptr;
-}
-
-void DatabaseQueue::add(Nodes& nodes)
-{
-    std::scoped_lock lock(_mutex);
-
-    _queue.insert(_queue.end(), nodes.begin(), nodes.end());
-
-    _cv.notify_one();
+    _compileResult.add(cr);
 }
 
 ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
@@ -81,8 +72,6 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 
     // debug("DatabaseQueue::take_when_available() D ", _queue.size());
 
-#if 1
-
     // find the PagedLOD with the highest priority;
     auto itr = _queue.begin();
     auto highest_itr = itr++;
@@ -96,39 +85,16 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     _queue.erase(highest_itr);
 
     // debug("Returning ", plod.get(), std::dec, ", size = ", _queue.size());
-
-#else
-    // remove and return the head of the queue
-    ref_ptr<PagedLOD> plod = _queue.front();
-    _queue.erase(_queue.begin());
-#endif
     return plod;
 }
 
-DatabaseQueue::Nodes DatabaseQueue::take_all_when_available()
+DatabaseQueue::Nodes DatabaseQueue::take_all(CompileResult& cr)
 {
-    std::chrono::duration waitDuration = std::chrono::milliseconds(100);
-
-    std::unique_lock lock(_mutex);
-
-    // wait to the conditional variable signals that an operation has been added
-    while (_queue.empty() && _status->active())
-    {
-        // debug("take_all_when_available() Waiting on condition variable", _queue.size());
-        _cv.wait_for(lock, waitDuration);
-    }
-
-    // if the threads we are associated with should no longer running go for a quick exit and return nothing.
-    if (_status->cancel())
-    {
-        return {};
-    }
-
-    // debug("DatabaseQueue::take_all_when_available() ", _queue.size());
-
-    // remove and return the head of the queue
+    std::scoped_lock lock(_mutex);
     Nodes nodes;
     nodes.swap(_queue);
+    cr.add(_compileResult);
+    _compileResult.reset();
     return nodes;
 }
 
@@ -199,7 +165,7 @@ void DatabasePager::start()
                         plod->requestStatus.exchange(PagedLOD::MergeRequest);
 
                         // move to the merge queue;
-                        databasePager._toMergeQueue->add(plod);
+                        databasePager._toMergeQueue->add(plod, result);
                     }
                     else
                     {
@@ -265,11 +231,11 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
     --numActiveRequests;
 }
 
-void DatabasePager::updateSceneGraph(FrameStamp* frameStamp)
+void DatabasePager::updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr)
 {
     frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
 
-    auto nodes = _toMergeQueue->take_all();
+    auto nodes = _toMergeQueue->take_all(cr);
 
     if (culledPagedLODs)
     {

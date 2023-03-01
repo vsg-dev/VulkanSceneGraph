@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2022 Robert Osfield
@@ -10,34 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/mem_stream.h>
+#include <algorithm>
+#include <set>
+#include <vector>
 
-using namespace vsg;
-
-mem_stream::mem_stream(const uint8_t* ptr, size_t length) :
-    std::istream(&_buffer),
-    _buffer(ptr, length)
+namespace vsg
 {
-    rdbuf(&_buffer);
-}
 
-mem_stream::mem_stream(const std::string_view& sv) :
-    mem_stream(reinterpret_cast<const uint8_t*>(sv.data()), sv.size())
-{
-}
+    /// return true if set container contains value
+    template<typename T>
+    bool contains(const T& value, const std::set<T>& container)
+    {
+        return container.count(value) != 0;
+    }
 
-mem_stream::mem_stream(const std::string& str, std::string::size_type pos, std::string::size_type length) :
-    mem_stream(reinterpret_cast<const uint8_t*>(&(str[pos])), length)
-{
-}
+    /// return true if vector container contains value
+    template<typename T>
+    bool contains(const T& value, const std::vector<T>& container)
+    {
+        return std::find(container.begin(), container.end(), value) != container.end();
+    }
 
-void mem_stream::set(const uint8_t* ptr, size_t length)
-{
-    _buffer.set(ptr, length);
-    clear();
-}
-
-mem_stream::mem_buffer::mem_buffer(const uint8_t* ptr, size_t length)
-{
-    setg((char*)(ptr), (char*)(ptr), (char*)(ptr) + length);
-}
+    /// return true if list of arguments contains value
+    template<typename T, typename... Args>
+    bool contains(const T& value, const Args&... args)
+    {
+        return ((value == args) || ...);
+    }
+} // namespace vsg

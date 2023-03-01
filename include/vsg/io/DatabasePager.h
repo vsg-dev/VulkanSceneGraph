@@ -63,22 +63,11 @@ namespace vsg
 
         void add(ref_ptr<PagedLOD> plod);
 
-        // add the plod reference to the queue then set the plod parameter to nullptr to ensure calling thread can't delete it
-        void add_then_reset(ref_ptr<PagedLOD>& plod);
-
-        void add(Nodes& nodes);
+        void add(ref_ptr<PagedLOD> plod, const CompileResult& cr);
 
         ref_ptr<PagedLOD> take_when_available();
 
-        Nodes take_all_when_available();
-
-        Nodes take_all()
-        {
-            std::scoped_lock lock(_mutex);
-            Nodes nodes;
-            nodes.swap(_queue);
-            return nodes;
-        }
+        Nodes take_all(CompileResult& result);
 
     protected:
         virtual ~DatabaseQueue();
@@ -86,6 +75,7 @@ namespace vsg
         std::mutex _mutex;
         std::condition_variable _cv;
         Nodes _queue;
+        CompileResult _compileResult;
         ref_ptr<ActivityStatus> _status;
     };
     VSG_type_name(vsg::DatabaseQueue);
@@ -104,7 +94,7 @@ namespace vsg
 
         virtual void request(ref_ptr<PagedLOD> plod);
 
-        virtual void updateSceneGraph(FrameStamp* frameStamp);
+        virtual void updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr);
 
         ref_ptr<const Options> options;
 

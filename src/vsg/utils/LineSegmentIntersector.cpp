@@ -161,7 +161,8 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     _lineSegmentStack.push_back(LineSegment{eye_near, eye_far});
 
     dmat4 eyeToWorld = inverse(viewMatrix);
-    _matrixStack.push_back(viewMatrix);
+    localToWorldStack().push_back(viewMatrix);
+    worldToLocalStack().push_back(eyeToWorld);
     _lineSegmentStack.push_back(LineSegment{eyeToWorld * eye_near, eyeToWorld * eye_far});
 }
 
@@ -190,10 +191,14 @@ ref_ptr<LineSegmentIntersector::Intersection> LineSegmentIntersector::add(const 
 
 void LineSegmentIntersector::pushTransform(const Transform& transform)
 {
-    dmat4 localToWorld = _matrixStack.empty() ? transform.transform(dmat4{}) : transform.transform(_matrixStack.back());
+    auto& l2wStack = localToWorldStack();
+    auto& w2lStack = worldToLocalStack();
+
+    dmat4 localToWorld = l2wStack.empty() ? transform.transform(dmat4{}) : transform.transform(l2wStack.back());
     dmat4 worldToLocal = inverse(localToWorld);
 
-    _matrixStack.push_back(localToWorld);
+    l2wStack.push_back(localToWorld);
+    w2lStack.push_back(worldToLocal);
 
     const auto& worldLineSegment = _lineSegmentStack.front();
     _lineSegmentStack.push_back(LineSegment{worldToLocal * worldLineSegment.start, worldToLocal * worldLineSegment.end});
@@ -202,7 +207,8 @@ void LineSegmentIntersector::pushTransform(const Transform& transform)
 void LineSegmentIntersector::popTransform()
 {
     _lineSegmentStack.pop_back();
-    _matrixStack.pop_back();
+    localToWorldStack().pop_back();
+    worldToLocalStack().pop_back();
 }
 
 bool LineSegmentIntersector::intersects(const dsphere& bs)

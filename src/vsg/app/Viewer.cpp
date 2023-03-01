@@ -643,7 +643,9 @@ void Viewer::update()
     {
         if (task->databasePager)
         {
-            task->databasePager->updateSceneGraph(_frameStamp);
+            CompileResult cr;
+            task->databasePager->updateSceneGraph(_frameStamp, cr);
+            if (cr.requiresViewerUpdate()) updateViewer(*this, cr);
         }
     }
 
