@@ -34,7 +34,7 @@ void CompileResult::add(const CompileResult& cr)
     if (cr.maxSlot > maxSlot) maxSlot = cr.maxSlot;
     if (!containsPagedLOD) containsPagedLOD = cr.containsPagedLOD;
 
-    for(auto& [src_view, src_binDetails] : cr.views)
+    for (auto& [src_view, src_binDetails] : cr.views)
     {
         if (src_binDetails.indices.empty() && src_binDetails.bins.empty()) break;
 
@@ -53,7 +53,7 @@ bool CompileResult::requiresViewerUpdate() const
 
     if (earlyDynamicData || lateDynamicData) return true;
 
-    for(auto& [view, binDetails] : views)
+    for (auto& [view, binDetails] : views)
     {
         if (!binDetails.indices.empty() || !binDetails.bins.empty()) return true;
     }
