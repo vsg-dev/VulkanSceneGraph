@@ -1,6 +1,8 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2021 Robert Osfield
+Copyright(c) 2022 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,42 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
-#include <vsg/ui/ApplicationEvent.h>
+#include <algorithm>
+#include <set>
+#include <vector>
 
-using namespace vsg;
-
-void FrameStamp::read(Input& input)
+namespace vsg
 {
-    Object::read(input);
 
-    uint64_t time_since_epoch;
-    input.readValue<uint64_t>("time", time_since_epoch);
-    time = clock::time_point(clock::time_point::duration(time_since_epoch));
+    /// return true if set container contains value
+    template<typename T>
+    bool contains(const T& value, const std::set<T>& container)
+    {
+        return container.count(value) != 0;
+    }
 
-    input.read("frameCount", frameCount);
-}
+    /// return true if vector container contains value
+    template<typename T>
+    bool contains(const T& value, const std::vector<T>& container)
+    {
+        return std::find(container.begin(), container.end(), value) != container.end();
+    }
 
-void FrameStamp::write(Output& output) const
-{
-    Object::write(output);
-
-    uint64_t time_since_epoch = time.time_since_epoch().count();
-    output.writeValue<uint64_t>("time", time_since_epoch);
-
-    output.write("frameCount", frameCount);
-}
-
-void FrameEvent::read(Input& input)
-{
-    UIEvent::read(input);
-
-    input.readObject("frameStamp", frameStamp);
-}
-
-void FrameEvent::write(Output& output) const
-{
-    UIEvent::write(output);
-
-    output.writeObject("frameStamp", frameStamp);
-}
+    /// return true if list of arguments contains value
+    template<typename T, typename... Args>
+    bool contains(const T& value, const Args&... args)
+    {
+        return ((value == args) || ...);
+    }
+} // namespace vsg

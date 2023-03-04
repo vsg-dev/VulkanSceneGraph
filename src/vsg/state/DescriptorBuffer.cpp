@@ -111,15 +111,15 @@ void DescriptorBuffer::compile(Context& context)
         break;
     }
 
-    bool requiresAssingmentOfBuffers = false;
+    bool requiresAssignmentOfBuffers = false;
     for (auto& bufferInfo : bufferInfoList)
     {
-        if (bufferInfo->buffer == nullptr) requiresAssingmentOfBuffers = true;
+        if (bufferInfo->buffer == nullptr) requiresAssignmentOfBuffers = true;
     }
 
     auto deviceID = context.deviceID;
 
-    if (requiresAssingmentOfBuffers)
+    if (requiresAssignmentOfBuffers)
     {
         VkDeviceSize alignment = 4;
         const auto& limits = context.device->getPhysicalDevice()->getProperties().limits;
@@ -178,8 +178,8 @@ void DescriptorBuffer::compile(Context& context)
                 {
                     auto memRequirements = bufferInfo->buffer->getMemoryRequirements(deviceID);
                     auto memory = vsg::DeviceMemory::create(context.device, memRequirements, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-                    auto [alloacted, offset] = memory->reserve(bufferInfo->buffer->size);
-                    if (alloacted)
+                    auto [allocated, offset] = memory->reserve(bufferInfo->buffer->size);
+                    if (allocated)
                     {
                         bufferInfo->buffer->bind(memory, offset);
                     }

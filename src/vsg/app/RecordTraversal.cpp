@@ -71,6 +71,16 @@ RecordTraversal::~RecordTraversal()
     if (_frameStamp) _frameStamp->unref();
 }
 
+CommandBuffer* RecordTraversal::getCommandBuffer()
+{
+    return _state->_commandBuffer;
+}
+
+uint32_t RecordTraversal::deviceID() const
+{
+    return _state->_commandBuffer->deviceID;
+}
+
 void RecordTraversal::setFrameStamp(FrameStamp* fs)
 {
     if (fs == _frameStamp) return;
@@ -125,13 +135,13 @@ void RecordTraversal::apply(const Group& group)
 #endif
 }
 
-void RecordTraversal::apply(const QuadGroup& group)
+void RecordTraversal::apply(const QuadGroup& quadGroup)
 {
     //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
-    vsg::QuadGroup::t_traverse(group, *this);
+    vsg::QuadGroup::t_traverse(quadGroup, *this);
 #else
-    group.traverse(*this);
+    quadGroup.traverse(*this);
 #endif
 }
 
@@ -191,7 +201,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
             if (child.node)
             {
-                // high res visible and availably so traverse it
+                // high res visible and available so traverse it
                 child.node->accept(*this);
                 return;
             }
@@ -423,6 +433,26 @@ void RecordTraversal::apply(const View& view)
     if (view.camera)
     {
         setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
+
+        if (view.camera->viewportState && _viewDependentState->viewportData)
+        {
+            auto& viewportData = _viewDependentState->viewportData;
+            auto& viewports = view.camera->viewportState->viewports;
+
+            auto dest_itr = viewportData->begin();
+            for (auto src_itr = viewports.begin();
+                 dest_itr != viewportData->end() && src_itr != viewports.end();
+                 ++dest_itr, ++src_itr)
+            {
+                auto& dest_viewport = *dest_itr;
+                vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
+                if (dest_viewport != src_viewport)
+                {
+                    dest_viewport = src_viewport;
+                    viewportData->dirty();
+                }
+            }
+        }
 
         view.traverse(*this);
     }

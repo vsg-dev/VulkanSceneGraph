@@ -28,7 +28,10 @@ namespace vsg
         ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<ImageView> in_imageView, VkImageLayout in_imageLayout = VK_IMAGE_LAYOUT_UNDEFINED) :
             sampler(in_sampler),
             imageView(in_imageView),
-            imageLayout(in_imageLayout) {}
+            imageLayout(in_imageLayout)
+        {
+            computeNumMipMapLevels();
+        }
 
         // Convenience constructor that creates a vsg::ImageView and vsg::Image to represent the data on the GPU.
         template<typename T>
@@ -40,6 +43,8 @@ namespace vsg
             image->usage |= (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
             imageView = ImageView::create(image);
+
+            computeNumMipMapLevels();
         }
 
         ImageInfo(const ImageInfo&) = delete;

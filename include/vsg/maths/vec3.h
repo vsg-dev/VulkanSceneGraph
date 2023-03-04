@@ -58,7 +58,9 @@ namespace vsg
         constexpr t_vec3& operator=(const t_vec3&) = default;
         constexpr t_vec3(value_type in_x, value_type in_y, value_type in_z) :
             value{in_x, in_y, in_z} {}
-        constexpr t_vec3(const t_vec2<T>& v, value_type in_z) :
+
+        template<typename R>
+        constexpr t_vec3(const t_vec2<R>& v, value_type in_z) :
             value{v.x, v.y, in_z} {}
 
         template<typename R>

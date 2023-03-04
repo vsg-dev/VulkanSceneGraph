@@ -148,9 +148,29 @@ const UniformBinding& ShaderSet::getUniformBinding(const std::string& name) cons
 
 ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>& defines) const
 {
+    // not all defines are relevant to the provided ArrayState
+    // so check each one against the entries in the definesArrayState
+    // are relevant to the final matching.
+    std::set<std::string> relevant_defines;
+    for (auto& define : defines)
+    {
+        for (auto& definesArrayState : definesArrayStates)
+        {
+            if (definesArrayState.defines.count(define) != 0)
+            {
+                relevant_defines.insert(define);
+                break;
+            }
+        }
+    }
+
+    // find the matching ArrayState
     for (auto& definesArrayState : definesArrayStates)
     {
-        if (definesArrayState.defines == defines) return definesArrayState.arrayState;
+        if (definesArrayState.defines == relevant_defines)
+        {
+            return definesArrayState.arrayState;
+        }
     }
 
     return {};

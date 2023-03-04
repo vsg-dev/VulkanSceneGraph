@@ -456,250 +456,207 @@ namespace vsgMacOS
 
 KeyboardMap::KeyboardMap()
 {
-    _keycodeMap =
+    // An explanation of mapping from uppercase to lowercase
+    // The map _vk2vsg represents mapping from MacOS produced keycode
+    // of the key that was physically pressed to the vsg character
+    // that is produced when the key is pressed and no modifiers are active.
+    // clang-format off
+    _vk2vsg =
     {
-        { 0xFF, KEY_Undefined },
-
-        { kVK_Space, KEY_Space },
-
-        { kVK_ANSI_0, KEY_0 },
-        { kVK_ANSI_1, KEY_1 },
-        { kVK_ANSI_2, KEY_2 },
-        { kVK_ANSI_3, KEY_3 },
-        { kVK_ANSI_4, KEY_4 },
-        { kVK_ANSI_5, KEY_5 },
-        { kVK_ANSI_6, KEY_6 },
-        { kVK_ANSI_7, KEY_7 },
-        { kVK_ANSI_8, KEY_8 },
-        { kVK_ANSI_9, KEY_9 },
-
-        { kVK_ANSI_A, KEY_a },
-        { kVK_ANSI_B, KEY_b },
-        { kVK_ANSI_C, KEY_c },
-        { kVK_ANSI_D, KEY_d },
-        { kVK_ANSI_E, KEY_e },
-        { kVK_ANSI_F, KEY_f },
-        { kVK_ANSI_G, KEY_g },
-        { kVK_ANSI_H, KEY_h },
-        { kVK_ANSI_I, KEY_i },
-        { kVK_ANSI_J, KEY_j },
-        { kVK_ANSI_K, KEY_k },
-        { kVK_ANSI_L, KEY_l },
-        { kVK_ANSI_M, KEY_m },
-        { kVK_ANSI_N, KEY_n },
-        { kVK_ANSI_O, KEY_o },
-        { kVK_ANSI_P, KEY_p },
-        { kVK_ANSI_Q, KEY_q },
-        { kVK_ANSI_R, KEY_r },
-        { kVK_ANSI_S, KEY_s },
-        { kVK_ANSI_T, KEY_t },
-        { kVK_ANSI_U, KEY_u },
-        { kVK_ANSI_Z, KEY_v },
-        { kVK_ANSI_W, KEY_w },
-        { kVK_ANSI_X, KEY_x },
-        { kVK_ANSI_Y, KEY_y },
-        { kVK_ANSI_Z, KEY_z },
-
-        { 'A', KEY_A },
-        { 'B', KEY_B },
-        { 'C', KEY_C },
-        { 'D', KEY_D },
-        { 'E', KEY_E },
-        { 'F', KEY_F },
-        { 'G', KEY_G },
-        { 'H', KEY_H },
-        { 'I', KEY_I },
-        { 'J', KEY_J },
-        { 'K', KEY_K },
-        { 'L', KEY_L },
-        { 'M', KEY_M },
-        { 'N', KEY_N },
-        { 'O', KEY_O },
-        { 'P', KEY_P },
-        { 'Q', KEY_Q },
-        { 'R', KEY_R },
-        { 'S', KEY_S },
-        { 'T', KEY_T },
-        { 'U', KEY_U },
-        { 'V', KEY_V },
-        { 'W', KEY_W },
-        { 'X', KEY_X },
-        { 'Y', KEY_Y },
-        { 'Z', KEY_Z },
-
-        { '!', KEY_Exclaim },
-        { '"', KEY_Quotedbl },
-        { '#', KEY_Hash },
-        { '$', KEY_Dollar },
-        { '&', KEY_Ampersand },
-        { kVK_ANSI_Quote, KEY_Quote },
-        { '(', KEY_Leftparen },
-        { ')', KEY_Rightparen },
-        { '*', KEY_Asterisk },
-        { '+', KEY_Plus },
-        { kVK_ANSI_Comma, KEY_Comma },
-        { kVK_ANSI_Minus, KEY_Minus },
-        { kVK_ANSI_Period, KEY_Period },
-        { kVK_ANSI_Slash, KEY_Slash },
-        { ':', KEY_Colon },
-        { kVK_ANSI_Semicolon, KEY_Semicolon },
-        { '<', KEY_Less },
-        { kVK_ANSI_Equal, KEY_Equals }, // + isn't an unmodded key, why does windows map is as a virtual??
-        { '>', KEY_Greater },
-        { '?', KEY_Question },
-        { '@', KEY_At},
-        { kVK_ANSI_LeftBracket, KEY_Leftbracket },
-        { kVK_ANSI_Backslash, KEY_Backslash },
-        { kVK_ANSI_RightBracket, KEY_Rightbracket },
-        {'|', KEY_Caret },
-        {'_', KEY_Underscore },
-        {'`', KEY_Backquote },
-
-        { kVK_Delete, KEY_BackSpace }, /* back space, back char */
-        { kVK_Tab, KEY_Tab },
-        //    KEY_Linefeed = 0xFF0A, /* Linefeed, LF */
-        //{ AKEYCODE_CLEAR, KEY_Clear },
-        { kVK_Return, KEY_Return }, /* Return, enter */
-        //{ AKEYCODE_BREAK, KEY_Pause },  /* Pause, hold */
-        //{ AKEYCODE_SCROLL_LOCK, KEY_Scroll_Lock },
-        //    KEY_Sys_Req = 0xFF15,
-        { kVK_Escape, KEY_Escape },
-        { kVK_ForwardDelete, KEY_Delete }, /* Delete, rubout */
-
-        /* Cursor control & motion */
-
-        { kVK_Home, KEY_Home },
-        { kVK_LeftArrow, KEY_Left },          /* Move left, left arrow */
-        { kVK_UpArrow, KEY_Up },              /* Move up, up arrow */
-        { kVK_RightArrow, KEY_Right },        /* Move right, right arrow */
-        { kVK_DownArrow, KEY_Down },          /* Move down, down arrow */
-        //{ AKEYCODE_NAVIGATE_PREVIOUS, KEY_Prior }, /* Prior, previous */
-        { kVK_PageUp, KEY_Page_Up },
-        //{ AKEYCODE_NAVIGATE_NEXT, KEY_Next }, /* Next */
-        { kVK_PageDown, KEY_Page_Down },
-        { kVK_End, KEY_End }, /* EOL */
-        //{ KEY_Begin = 0xFF58, /* BOL */
-
-        /* Misc Functions */
-
-        //{ VK_SELECT, KEY_Select }, /* Select, mark */
-        //{ VK_PRINT, KEY_Print },
-        //{ VK_EXECUTE, KEY_Execute }, /* Execute, run, do */
-        //{ AKEYCODE_INSERT, KEY_Insert }, /* Insert, insert here */
-        //{ KEY_Undo = 0xFF65,    /* Undo, oops */
-        //KEY_Redo = 0xFF66,    /* redo, again */
-        //{ AKEYCODE_MENU, KEY_Menu }, /* On Windows, this is VK_APPS, the context-menu key */
-        // KEY_Find = 0xFF68,    /* Find, search */
-        //{ VK_CANCEL, KEY_Cancel },  /* Cancel, stop, abort, exit */
-        { kVK_Help, KEY_Help }, /* Help */
-        //{ KEY_Break = 0xFF6B,
-        //KEY_Mode_switch = 0xFF7E,   /* Character set switch */
-        //KEY_Script_switch = 0xFF7E, /* Alias for mode_switch */
-        //{ AKEYCODE_NUM_LOCK, KEY_Num_Lock },
-
-        /* Keypad Functions, keypad numbers cleverly chosen to map to ascii */
-
-        //KEY_KP_Space = 0xFF80, /* space */
-        //KEY_KP_Tab = 0xFF89,
-        { kVK_ANSI_KeypadEnter, KEY_KP_Enter }, /* enter */
-        //KEY_KP_F1 = 0xFF91,    /* PF1, KP_A, ... */
-        //KEY_KP_F2 = 0xFF92,
-        //KEY_KP_F3 = 0xFF93,
-        //KEY_KP_F4 = 0xFF94,
-        //KEY_KP_Home = 0xFF95,
-        //KEY_KP_Left = 0xFF96,
-        //KEY_KP_Up = 0xFF97,
-        //KEY_KP_Right = 0xFF98,
-        //KEY_KP_Down = 0xFF99,
-        //KEY_KP_Prior = 0xFF9A,
-        //KEY_KP_Page_Up = 0xFF9A,
-        //KEY_KP_Next = 0xFF9B,
-        //KEY_KP_Page_Down = 0xFF9B,
-        //KEY_KP_End = 0xFF9C,
-        //KEY_KP_Begin = 0xFF9D,
-        //KEY_KP_Insert = 0xFF9E,
-        //KEY_KP_Delete = 0xFF9F,
-        { kVK_ANSI_KeypadEquals, KEY_KP_Equal }, /* equals */
-        { kVK_ANSI_KeypadMultiply, KEY_KP_Multiply },
-        { kVK_ANSI_KeypadPlus, KEY_KP_Add },
-        //{ AKEYCODE_NUMPAD_COMMA, KEY_KP_Separator }, /* separator, often comma */
-        { kVK_ANSI_KeypadMinus, KEY_KP_Subtract },
-        { kVK_ANSI_KeypadDecimal, KEY_KP_Decimal },
-        { kVK_ANSI_KeypadDivide, KEY_KP_Divide },
-
-        { kVK_ANSI_Keypad0, KEY_KP_0 },
-        { kVK_ANSI_Keypad1, KEY_KP_1 },
-        { kVK_ANSI_Keypad2, KEY_KP_2 },
-        { kVK_ANSI_Keypad3, KEY_KP_3 },
-        { kVK_ANSI_Keypad4, KEY_KP_4 },
-        { kVK_ANSI_Keypad5, KEY_KP_5 },
-        { kVK_ANSI_Keypad6, KEY_KP_6 },
-        { kVK_ANSI_Keypad7, KEY_KP_7 },
-        { kVK_ANSI_Keypad8, KEY_KP_8 },
-        { kVK_ANSI_Keypad9, KEY_KP_9 },
-
-        /*
-    * Auxiliary Functions; note the duplicate definitions for left and right
-    * function keys;  Sun keyboards and a few other manufactures have such
-    * function key groups on the left and/or right sides of the keyboard.
-    * We've not found a keyboard with more than 35 function keys total.
-    */
-
-        { kVK_F1, KEY_F1 },
-        { kVK_F2, KEY_F2 },
-        { kVK_F3, KEY_F3 },
-        { kVK_F4, KEY_F4 },
-        { kVK_F5, KEY_F5 },
-        { kVK_F6, KEY_F6 },
-        { kVK_F7, KEY_F7 },
-        { kVK_F8, KEY_F8 },
-        { kVK_F9, KEY_F9 },
-        { kVK_F10, KEY_F10 },
-        { kVK_F11, KEY_F11 },
-        { kVK_F12, KEY_F12 },
-        { kVK_F13, KEY_F13 },
-        { kVK_F14, KEY_F14 },
-        { kVK_F15, KEY_F15 },
-        { kVK_F16, KEY_F16 },
-        { kVK_F17, KEY_F17 },
-        { kVK_F18, KEY_F18 },
-        { kVK_F19, KEY_F19 },
-        { kVK_F20, KEY_F20 },
-        //{ VK_F21, KEY_F21 },
-        //{ VK_F22, KEY_F22 },
-        //{ VK_F23, KEY_F23 },
-        //{ VK_F24, KEY_F24 },
-
-        //KEY_F25 = 0xFFD6,
-        //KEY_F26 = 0xFFD7,
-        //KEY_F27 = 0xFFD8,
-        //KEY_F28 = 0xFFD9,
-        //KEY_F29 = 0xFFDA,
-        //KEY_F30 = 0xFFDB,
-        //KEY_F31 = 0xFFDC,
-        //KEY_F32 = 0xFFDD,
-        //KEY_F33 = 0xFFDE,
-        //KEY_F34 = 0xFFDF,
-        //KEY_F35 = 0xFFE0,
-
-        /* Modifiers */
-
-        { kVK_Shift, KEY_Shift_L },   /* Left shift */
-        { kVK_RightShift, KEY_Shift_R },  /* Right shift */
-        { kVK_Control, KEY_Control_L },  /* Left control */
-        //{ AKEYCODE_CTRL_RIGHT, KEY_Control_R }, // no right control on mac
-        { kVK_CapsLock, KEY_Caps_Lock },  /* Caps lock */
-        //KEY_Shift_Lock = 0xFFE6, /* Shift lock */
-
-        //{ AKEYCODE_META_LEFT, KEY_Meta_L },  /* Left meta */
-        //{ AKEYCODE_META_RIGHT, KEY_Meta_R }, /* Right meta */
-        { kVK_Option, KEY_Alt_L },    /* Left alt */
-        { kVK_RightOption, KEY_Alt_R },   /* Right alt */
-        { kVK_Command, KEY_Super_L }, /* Left super */
-        //{ VK_RWIN, KEY_Super_R } /* Right super */
-        //KEY_Hyper_L = 0xFFED, /* Left hyper */
-        //KEY_Hyper_R = 0xFFEE  /* Right hyper */
+        {kVK_ANSI_A,              vsg::KEY_a},
+        {kVK_ANSI_S,              vsg::KEY_s},
+        {kVK_ANSI_D,              vsg::KEY_d},
+        {kVK_ANSI_F,              vsg::KEY_f},
+        {kVK_ANSI_H,              vsg::KEY_h},
+        {kVK_ANSI_G,              vsg::KEY_g},
+        {kVK_ANSI_Z,              vsg::KEY_z},
+        {kVK_ANSI_X,              vsg::KEY_x},
+        {kVK_ANSI_C,              vsg::KEY_c},
+        {kVK_ANSI_V,              vsg::KEY_v},
+        {kVK_ANSI_B,              vsg::KEY_b},
+        {kVK_ANSI_Q,              vsg::KEY_q},
+        {kVK_ANSI_W,              vsg::KEY_w},
+        {kVK_ANSI_E,              vsg::KEY_e},
+        {kVK_ANSI_R,              vsg::KEY_r},
+        {kVK_ANSI_Y,              vsg::KEY_y},
+        {kVK_ANSI_T,              vsg::KEY_t},
+        {kVK_ANSI_1,              vsg::KEY_1},
+        {kVK_ANSI_2,              vsg::KEY_2},
+        {kVK_ANSI_3,              vsg::KEY_3},
+        {kVK_ANSI_4,              vsg::KEY_4},
+        {kVK_ANSI_6,              vsg::KEY_6},
+        {kVK_ANSI_5,              vsg::KEY_5},
+        {kVK_ANSI_Equal,          vsg::KEY_Equals},
+        {kVK_ANSI_9,              vsg::KEY_9},
+        {kVK_ANSI_7,              vsg::KEY_7},
+        {kVK_ANSI_Minus,          vsg::KEY_Minus},
+        {kVK_ANSI_8,              vsg::KEY_8},
+        {kVK_ANSI_0,              vsg::KEY_0},
+        {kVK_ANSI_RightBracket,   vsg::KEY_Rightbracket},
+        {kVK_ANSI_O,              vsg::KEY_o},
+        {kVK_ANSI_U,              vsg::KEY_u},
+        {kVK_ANSI_LeftBracket,    vsg::KEY_Leftbracket},
+        {kVK_ANSI_I,              vsg::KEY_i},
+        {kVK_ANSI_P,              vsg::KEY_p},
+        {kVK_ANSI_L,              vsg::KEY_l},
+        {kVK_ANSI_J,              vsg::KEY_j},
+        {kVK_ANSI_Quote,          vsg::KEY_Quote},
+        {kVK_ANSI_K,              vsg::KEY_k},
+        {kVK_ANSI_Semicolon,      vsg::KEY_Semicolon},
+        {kVK_ANSI_Backslash,      vsg::KEY_Backslash},
+        {kVK_ANSI_Comma,          vsg::KEY_Comma},
+        {kVK_ANSI_Slash,          vsg::KEY_Slash},
+        {kVK_ANSI_N,              vsg::KEY_n},
+        {kVK_ANSI_M,              vsg::KEY_m},
+        {kVK_ANSI_Period,         vsg::KEY_Period},
+        {kVK_ANSI_Grave,          vsg::KEY_Backquote},
+        {kVK_ANSI_KeypadDecimal,  vsg::KEY_KP_Decimal},
+        {kVK_ANSI_KeypadMultiply, vsg::KEY_KP_Multiply},
+        {kVK_ANSI_KeypadPlus,     vsg::KEY_KP_Add},
+        {kVK_ANSI_KeypadClear,    vsg::KEY_Undefined},
+        {kVK_ANSI_KeypadDivide,   vsg::KEY_KP_Divide},
+        {kVK_ANSI_KeypadEnter,    vsg::KEY_KP_Enter},
+        {kVK_ANSI_KeypadMinus,    vsg::KEY_KP_Subtract},
+        {kVK_ANSI_KeypadEquals,   vsg::KEY_KP_Equal},
+        {kVK_ANSI_Keypad0,        vsg::KEY_KP_0},
+        {kVK_ANSI_Keypad1,        vsg::KEY_KP_1},
+        {kVK_ANSI_Keypad2,        vsg::KEY_KP_2},
+        {kVK_ANSI_Keypad3,        vsg::KEY_KP_3},
+        {kVK_ANSI_Keypad4,        vsg::KEY_KP_4},
+        {kVK_ANSI_Keypad5,        vsg::KEY_KP_5},
+        {kVK_ANSI_Keypad6,        vsg::KEY_KP_6},
+        {kVK_ANSI_Keypad7,        vsg::KEY_KP_7},
+        {kVK_ANSI_Keypad8,        vsg::KEY_KP_8},
+        {kVK_ANSI_Keypad9,        vsg::KEY_KP_9},
+        {kVK_Return,              vsg::KEY_Return},
+        {kVK_Tab,                 vsg::KEY_Tab},
+        {kVK_Space,               vsg::KEY_Space},
+        {kVK_Delete,              vsg::KEY_BackSpace},
+        {kVK_Escape,              vsg::KEY_Escape},
+        {kVK_Command,             vsg::KEY_Meta_L},
+        {kVK_Shift,               vsg::KEY_Shift_L},
+        {kVK_CapsLock,            vsg::KEY_Caps_Lock},
+        {kVK_Option,              vsg::KEY_Undefined},
+        {kVK_Control,             vsg::KEY_Control_L},
+        {kVK_RightCommand,        vsg::KEY_Meta_R},
+        {kVK_RightShift,          vsg::KEY_Shift_R},
+        {kVK_RightOption,         vsg::KEY_Alt_R},
+        {kVK_RightControl,        vsg::KEY_Control_R},
+        {kVK_Function,            vsg::KEY_Undefined},
+        {kVK_F17,                 vsg::KEY_F17},
+        {kVK_VolumeUp,            vsg::KEY_Undefined},
+        {kVK_VolumeDown,          vsg::KEY_Undefined},
+        {kVK_Mute,                vsg::KEY_Undefined},
+        {kVK_F18,                 vsg::KEY_F18},
+        {kVK_F19,                 vsg::KEY_F19},
+        {kVK_F20,                 vsg::KEY_F20},
+        {kVK_F5,                  vsg::KEY_F5},
+        {kVK_F6,                  vsg::KEY_F6},
+        {kVK_F7,                  vsg::KEY_F7},
+        {kVK_F3,                  vsg::KEY_F3},
+        {kVK_F8,                  vsg::KEY_F8},
+        {kVK_F9,                  vsg::KEY_F9},
+        {kVK_F11,                 vsg::KEY_F11},
+        {kVK_F13,                 vsg::KEY_F13},
+        {kVK_F16,                 vsg::KEY_F16},
+        {kVK_F14,                 vsg::KEY_F14},
+        {kVK_F10,                 vsg::KEY_F10},
+        {kVK_F12,                 vsg::KEY_F12},
+        {kVK_F15,                 vsg::KEY_F15},
+        {kVK_Help,                vsg::KEY_Help},
+        {kVK_Home,                vsg::KEY_Home},
+        {kVK_PageUp,              vsg::KEY_Page_Up},
+        {kVK_ForwardDelete,       vsg::KEY_Delete},
+        {kVK_F4,                  vsg::KEY_F4},
+        {kVK_End,                 vsg::KEY_End},
+        {kVK_F2,                  vsg::KEY_F2},
+        {kVK_PageDown,            vsg::KEY_Page_Down},
+        {kVK_F1,                  vsg::KEY_F1},
+        {kVK_LeftArrow,           vsg::KEY_Left},
+        {kVK_RightArrow,          vsg::KEY_Right},
+        {kVK_DownArrow,           vsg::KEY_Down},
+        {kVK_UpArrow,             vsg::KEY_Up}
     };
+    // clang-format on
+}
+
+void KeyboardMap::getModifierKeyChanges(NSEvent* anEvent, ModifierKeyChanges& changes)
+{
+    NSEventModifierFlags modifierFlags = [anEvent modifierFlags];
+    // Then save the current flags for next time around.
+    NSEventModifierFlags changedFlags = _lastFlags ^ modifierFlags; // xor the last and now to get what changedFlags.
+    _lastFlags = modifierFlags; // this must come after the xor.
+
+    // The below code could likely be accomplished with just bit masks but the if statements are clearer.
+    // Work out any mod keys such as ctrl, alt, shift etc. are pressed
+    // There must be a way to differentiate between left and right modifier keys on Mac
+    // But for now I do not know how do do so. Hence for all modifier keys the "left" key is chosen.
+    if (changedFlags & NSEventModifierFlagOption)
+    {
+        if (modifierFlags & NSEventModifierFlagOption)
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Alt_L, true));
+        }
+        else
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Alt_L, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagControl)
+    {
+        if (modifierFlags & NSEventModifierFlagControl)
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Control_L, true));
+        }
+        else
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Control_L, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagShift)
+    {
+        if (modifierFlags & NSEventModifierFlagShift)
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Shift_L, true));
+        }
+        else
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Shift_L, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagCapsLock)
+    {
+        if (modifierFlags & NSEventModifierFlagCapsLock)
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Caps_Lock, true));
+        }
+        else
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Caps_Lock, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagNumericPad)
+    {
+        if (modifierFlags & NSEventModifierFlagNumericPad)
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Num_Lock, true));
+        }
+        else
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Num_Lock, false));
+        }
+    }
+    if (changedFlags & NSEventModifierFlagCommand)
+    {
+        if (modifierFlags & NSEventModifierFlagCommand)
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Meta_L, true));
+        }
+        else
+        {
+            changes.emplace_back(KeySymbolState(vsg::KEY_Meta_L, false));
+        }
+    }
 }
 
 bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
@@ -708,44 +665,44 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     NSEventModifierFlags modifierFlags = [anEvent modifierFlags];
     //NSLog(@"keycode: %d", keycode);
     // try find the raw keycode
-    auto itr = _keycodeMap.find(keycode);
-    if (itr == _keycodeMap.end())
+    auto itr = _vk2vsg.find(keycode);
+    if (itr == _vk2vsg.end())
     {
         // if we don't find it, try the unmodified characters
         NSString* unmodcharacters = [anEvent charactersIgnoringModifiers];
         if ( [unmodcharacters length] == 0 ) return false; // dead key
         unsigned short unmodkeychar = [unmodcharacters characterAtIndex:0];
-        itr = _keycodeMap.find(unmodkeychar);
-        if (itr == _keycodeMap.end()) return false;
+        itr = _vk2vsg.find(unmodkeychar);
+        if (itr == _vk2vsg.end()) return false;
     }
 
+    // Base unmodified key as a vsg::KEY_
     keySymbol = itr->second;
     modifiedKeySymbol = keySymbol;
 
+    // Work out any mod keys such as ctrl, alt, shift etc. are pressed
     uint16_t modifierMask = 0;
-
     if (modifierFlags & NSEventModifierFlagOption) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
     if (modifierFlags & NSEventModifierFlagControl) modifierMask |= vsg::KeyModifier::MODKEY_Control;
     if (modifierFlags & NSEventModifierFlagShift) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
     if (modifierFlags & NSEventModifierFlagCapsLock) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
     if (modifierFlags & NSEventModifierFlagNumericPad) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
+    // cast it to a vsg::KeyModifier type
     keyModifier = (vsg::KeyModifier) modifierMask;
 
-    if(modifierMask == 0) return true;
+    if (modifierMask == 0) return true;
 
     // try find modified by using characters
     NSString* characters = [anEvent characters];
-    if ( [characters length] == 0 ) return true; // dead key
+    if ([characters length] == 0) return true; // dead key
 
     //NSLog(@"characters: %@", characters);
 
-    if ( [characters length] == 1 )
+    if ([characters length] == 1)
     {
         unsigned short keychar = [characters characterAtIndex:0];
-        itr = _keycodeMap.find(keychar);
-        if (itr == _keycodeMap.end()) return true; // still return true, we just don't have a specific modified character
-        modifiedKeySymbol = itr->second;
+        modifiedKeySymbol = static_cast<vsg::KeySymbol>(keychar);
     }
 
     return true;
@@ -800,7 +757,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     
     // create view
     _view = [[vsg_MacOS_NSView alloc] initWithVsgWindow:this];
-    [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
+    // [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
     [_view setAutoresizingMask: (NSViewWidthSizable | NSViewHeightSizable) ];
     [_view setWantsLayer:YES];
 
@@ -808,6 +765,13 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setContentView:_view];
     _window.initialFirstResponder = _view;
     [_window makeFirstResponder:_view];
+
+    if (traits->fullscreen)
+    {
+        NSRect screenFrame = [[NSScreen mainScreen] frame];
+        [_window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [_window toggleFullScreen:NSApp.delegate];
+    }
 
     auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
     [_metalLayer setContentsScale:devicePixelScale];
@@ -832,15 +796,15 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     NSPoint pos;
     int xmax = [[NSScreen mainScreen] frame].size.width - [_window frame].size.width;
     int ymax = [[NSScreen mainScreen] frame].size.height - [_window frame].size.height;
-    pos.x = std::clamp(traits->x,0,xmax);
-    pos.y = ymax-std::clamp(traits->y,0,ymax);
+    pos.x = std::clamp(traits->x, 0, xmax);
+    pos.y = ymax - std::clamp(traits->y, 0, ymax);
     // show
-    [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width , [_window frame].size.height) display:YES];
-    
+    [_window setFrame:CGRectMake(pos.x, pos.y, [_window frame].size.width, [_window frame].size.height) display:YES];
+
     //vsgMacOS::createApplicationMenus();
     [NSApp activateIgnoringOtherApps:YES];
     [_window makeKeyAndOrderFront:nil];
-    
+
     // manually trigger configure here??
     vsg::clock::time_point event_time = vsg::clock::now();
     bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, _traits->x, _traits->y, finalwidth, finalheight));
@@ -906,25 +870,25 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
         {
             NSRect contentRect = [_view frame];
             NSPoint pos = [anEvent locationInWindow];
-            
+
             // dpi scale as needed
             auto devicePixelScale = _traits->hdpi ? [_window backingScaleFactor] : 1.0f;
             contentRect.size.width = contentRect.size.width * devicePixelScale;
             contentRect.size.height = contentRect.size.height * devicePixelScale;
-            
+
             pos.x = pos.x * devicePixelScale;
             pos.y = pos.y * devicePixelScale;
-            
-            
+
+
             NSInteger buttonNumber = [anEvent buttonNumber];
             NSUInteger pressedButtons = [NSEvent pressedMouseButtons];
-            
+
             //vsg:debug("NSEventTypeMouseMoved(etc): ", pos.x, ", ", pos.y);
 
             auto buttonMask = 0;
-            if(pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;
-            if(pressedButtons & (1 << 1)) buttonMask |= vsg::BUTTON_MASK_2;
-            if(pressedButtons & (1 << 2)) buttonMask |= vsg::BUTTON_MASK_3;
+            if (pressedButtons & (1 << 0)) buttonMask |= vsg::BUTTON_MASK_1;
+            if (pressedButtons & (1 << 1)) buttonMask |= vsg::BUTTON_MASK_2;
+            if (pressedButtons & (1 << 2)) buttonMask |= vsg::BUTTON_MASK_3;
 
             switch([anEvent type])
             {
@@ -955,9 +919,37 @@ bool MacOS_Window::handleNSEvent(NSEvent* anEvent)
             return true;
         }
         // keyboard events
+        case NSEventTypeFlagsChanged:
+        {
+            // This event type is triggered when ever a ctrl, alt etc keys are pressed.
+            // Not sure why this is not just a KeyUp or KeyDown event.
+            // both the modified and unmodified symbols for ctrl, alt, option, etc are the same
+            // no modifiers for the modifiers themselves.
+            vsg::KeyModifier modifier = static_cast<vsg::KeyModifier>(0);
+            ModifierKeyChanges modifierKeyChanges;
+            _keyboard->getModifierKeyChanges(anEvent, modifierKeyChanges);
+
+            // If none of the flags that changed interest us, return indicating we did not process it.
+//            if (modifierKeyChanges.empty()) { return false; }
+
+            // otherwise loop through the flag keysymbols and create events.
+            for (auto &pair: modifierKeyChanges)
+            {
+                if (pair.second)
+                {
+                    // key was pressed
+                    bufferedEvents.emplace_back( vsg::KeyPressEvent::create(this, getEventTime([anEvent timestamp]), pair.first, pair.first, modifier) );
+                }
+                else
+                {
+                    // key was released
+                    bufferedEvents.emplace_back( vsg::KeyReleaseEvent::create(this, getEventTime([anEvent timestamp]), pair.first, pair.first, modifier) );
+                }
+            }
+            return true;
+        }
         case NSEventTypeKeyDown:
         case NSEventTypeKeyUp:
-        //case NSEventTypeFlagsChanged:
         {
             vsg::KeySymbol keySymbol, modifiedKeySymbol;
             vsg::KeyModifier keyModifier;

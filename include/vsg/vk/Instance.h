@@ -70,13 +70,13 @@ namespace vsg
 
         /// get the address of specified function using vkGetInstanceProcAddr.
         template<typename T>
-        bool getProcAddr(T& procAdddress, const char* pName, const char* pNameFallback = nullptr) const
+        bool getProcAddr(T& procAddress, const char* pName, const char* pNameFallback = nullptr) const
         {
-            procAdddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pName));
-            if (procAdddress) return true;
+            procAddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pName));
+            if (procAddress) return true;
 
-            if (pNameFallback) procAdddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pNameFallback));
-            return (procAdddress);
+            if (pNameFallback) procAddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pNameFallback));
+            return (procAddress);
         }
 
     protected:

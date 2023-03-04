@@ -142,7 +142,7 @@ void PagedLODContainer::print(std::ostream& fout)
     uint32_t total_size = static_cast<uint32_t>(elements.size());
     fout << "    PagedLODContainer::print() elements.size() = " << total_size << std::endl;
     fout << "        availableList, " << &availableList << ", head  = " << availableList.head << ", tail = " << availableList.tail << " count = " << availableList.count << std::endl;
-    fout << "        actoveList, " << &activeList << ", head  = " << activeList.head << ", tail = " << activeList.tail << " count = " << activeList.count << std::endl;
+    fout << "        activeList, " << &activeList << ", head  = " << activeList.head << ", tail = " << activeList.tail << " count = " << activeList.count << std::endl;
     fout << "        inactiveList = " << &inactiveList << ", head  = " << inactiveList.head << ", tail = " << inactiveList.tail << " count = " << inactiveList.count << std::endl;
 
     for (unsigned i = 0; i < total_size; ++i)

@@ -18,6 +18,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+void CompileResult::reset()
+{
+    result = VK_INCOMPLETE;
+    maxSlot = 0;
+    containsPagedLOD = false;
+    views.clear();
+    earlyDynamicData.clear();
+    lateDynamicData.clear();
+}
+
+void CompileResult::add(const CompileResult& cr)
+{
+    if (result == VK_INCOMPLETE) result = cr.result;
+    if (cr.maxSlot > maxSlot) maxSlot = cr.maxSlot;
+    if (!containsPagedLOD) containsPagedLOD = cr.containsPagedLOD;
+
+    for (auto& [src_view, src_binDetails] : cr.views)
+    {
+        if (src_binDetails.indices.empty() && src_binDetails.bins.empty()) break;
+
+        auto& binDetails = views[src_view];
+        binDetails.indices.insert(src_binDetails.indices.begin(), src_binDetails.indices.end());
+        binDetails.bins.insert(src_binDetails.bins.begin(), src_binDetails.bins.end());
+    }
+
+    earlyDynamicData.add(cr.earlyDynamicData);
+    lateDynamicData.add(cr.lateDynamicData);
+}
+
+bool CompileResult::requiresViewerUpdate() const
+{
+    if (result == VK_INCOMPLETE) return false;
+
+    if (earlyDynamicData || lateDynamicData) return true;
+
+    for (auto& [view, binDetails] : views)
+    {
+        if (!binDetails.indices.empty() || !binDetails.bins.empty()) return true;
+    }
+    return false;
+}
+
 CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 {
     compileTraversals = CompileTraversals::create(viewer.status);
@@ -126,47 +168,52 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     // if no CompileTraversals are available abort compile
     if (!compileTraversal) return result;
 
-    std::list<ref_ptr<Context>> contexts;
+    auto run_compile_traversal = [&]() -> void {
+        for (auto& context : compileTraversal->contexts)
+        {
+            ref_ptr<View> view = context->view;
+            if (view && !binStack.empty())
+            {
+                if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                {
+                    result.views[view] = binStack.top();
+                }
+            }
+
+            context->reserve(requirements);
+        }
+
+        object->accept(*compileTraversal);
+
+        //debug("Finished compile traversal ", object);
+
+        compileTraversal->record(); // records and submits to queue
+        compileTraversal->waitForCompletion();
+
+        debug("Finished waiting for compile ", object);
+    };
+
     if (contextSelection)
     {
+        std::list<ref_ptr<Context>> contexts;
+
         for (auto& context : compileTraversal->contexts)
         {
             if (contextSelection(*context)) contexts.push_back(context);
         }
+
+        compileTraversal->contexts.swap(contexts);
+
+        run_compile_traversal();
+
+        compileTraversal->contexts.swap(contexts);
     }
     else
     {
-        contexts = compileTraversal->contexts;
+        run_compile_traversal();
     }
-
-    compileTraversal->contexts.swap(contexts);
-
-    for (auto& context : compileTraversal->contexts)
-    {
-        ref_ptr<View> view = context->view;
-        if (view && !binStack.empty())
-        {
-            if (auto itr = result.views.find(view.get()); itr == result.views.end())
-            {
-                result.views[view] = binStack.top();
-            }
-        }
-
-        context->reserve(requirements);
-    }
-
-    object->accept(*compileTraversal);
-
-    //debug("Finished compile traversal ", object);
-
-    compileTraversal->record(); // records and submits to queue
-    compileTraversal->waitForCompletion();
-
-    debug("Finished waiting for compile ", object);
 
     compileTraversals->add(compileTraversal);
-
-    compileTraversal->contexts.swap(contexts);
 
     result.result = VK_SUCCESS;
     return result;

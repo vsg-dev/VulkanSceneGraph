@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vector>
 
 #include <vsg/core/Object.h>
+#include <vsg/core/contains.h>
 #include <vsg/io/Path.h>
 
 namespace vsg
@@ -42,6 +43,9 @@ namespace vsg
         return paths;
     }
 
+    /// return file type, see include/vsg/io/Path.h for FileType enum,
+    extern VSG_DECLSPEC FileType fileType(const Path& path);
+
     /// return true if a specified file/path exist on system.
     extern VSG_DECLSPEC bool fileExists(const Path& path);
 
@@ -52,7 +56,8 @@ namespace vsg
     extern VSG_DECLSPEC Path fileExtension(const Path& path);
 
     /// return lower case file extension include the . prefix, i.e. vsg::fileExtension("file.VSGT") returns .vsgt
-    extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path);
+    /// By default prunes extras such as REST strings at the end of the extensions, uses ? as the deliminator for REST additions i.e. ".jpeg?g=42" becomes ".jpeg"
+    extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path, bool pruneExtras = true);
 
     /// return the filename stripped of any paths and extensions, i.e vsg::simpleFilname("path/file.vsgb") returns file
     extern VSG_DECLSPEC Path simpleFilename(const Path& path);
@@ -72,6 +77,9 @@ namespace vsg
 
     /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
     extern VSG_DECLSPEC bool makeDirectory(const Path& path);
+
+    /// get the contents of a directory, return {} if directory name is not a directory
+    extern VSG_DECLSPEC Paths getDirectoryContents(const Path& directoryName);
 
     /// returns the path/filename of the currently executed program.
     extern VSG_DECLSPEC Path executableFilePath();

@@ -121,7 +121,7 @@ void Trackball::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.handled || !_lastPointerEventWithinRenderArea) return;
 
-    if (auto itr = keyViewpoitMap.find(keyPress.keyBase); itr != keyViewpoitMap.end())
+    if (auto itr = keyViewpointMap.find(keyPress.keyBase); itr != keyViewpointMap.end())
     {
         _previousTime = keyPress.time;
 
@@ -549,8 +549,8 @@ void Trackball::addWindow(ref_ptr<Window> window, const ivec2& offset)
 
 void Trackball::addKeyViewpoint(KeySymbol key, ref_ptr<LookAt> lookAt, double duration)
 {
-    keyViewpoitMap[key].lookAt = lookAt;
-    keyViewpoitMap[key].duration = duration;
+    keyViewpointMap[key].lookAt = lookAt;
+    keyViewpointMap[key].duration = duration;
 }
 
 void Trackball::addKeyViewpoint(KeySymbol key, double latitude, double longitude, double altitude, double duration)
@@ -562,8 +562,8 @@ void Trackball::addKeyViewpoint(KeySymbol key, double latitude, double longitude
     lookAt->center = _ellipsoidModel->convertLatLongAltitudeToECEF(dvec3(latitude, longitude, 0.0));
     lookAt->up = normalize(cross(lookAt->center, dvec3(-lookAt->center.y, lookAt->center.x, 0.0)));
 
-    keyViewpoitMap[key].lookAt = lookAt;
-    keyViewpoitMap[key].duration = duration;
+    keyViewpointMap[key].lookAt = lookAt;
+    keyViewpointMap[key].duration = duration;
 }
 
 void Trackball::setViewpoint(ref_ptr<LookAt> lookAt, double duration)

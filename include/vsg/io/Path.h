@@ -19,12 +19,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    enum FileType
+    {
+        FILE_NOT_FOUND = 0,
+        REGULAR_FILE,
+        DIRECTORY
+    };
+
     /// Class for managing paths/filename with full support for wide and single wide path strings.
     /// Similar in role and features to std::filesystem::path, but is able to work on older compilers.
     class VSG_DECLSPEC Path
     {
     public:
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
         using value_type = wchar_t;
         static constexpr value_type windows_separator = L'\\';
         static constexpr value_type posix_separator = L'/';
@@ -114,8 +121,17 @@ namespace vsg
         inline const string_type& native() const noexcept { return _string; }
         inline operator const string_type&() const noexcept { return _string; }
         inline const value_type* c_str() const noexcept { return _string.c_str(); }
+#if defined(__MINGW32__)
+        inline operator const value_type*() const noexcept
+        {
+            return _string.c_str();
+        }
+#endif
 
-        reference operator[](size_type pos) { return _string[pos]; }
+        reference operator[](size_type pos)
+        {
+            return _string[pos];
+        }
         const_reference operator[](size_type pos) const { return _string[pos]; }
 
         void clear() noexcept { _string.clear(); }
@@ -168,9 +184,16 @@ namespace vsg
         Path& replace(size_type pos, size_type n, const char* str);
         Path& replace(size_type pos, size_type n, const wchar_t* str);
 
+        Path& erase(size_t pos = 0, size_t len = Path::npos);
+
+        FileType type() const;
+
     protected:
         string_type _string;
     };
+    VSG_type_name(vsg::Path);
+
+    using Paths = std::vector<Path>;
 
     /// directly join two paths without a path separator
     inline Path operator+(const Path& lhs, const Path& rhs)

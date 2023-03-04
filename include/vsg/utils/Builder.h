@@ -30,7 +30,8 @@ namespace vsg
         bool greyscale = false; /// greyscale image
         bool wireframe = false;
         bool instance_colors_vec4 = true;
-        bool instance_positions_vec3 = false;
+        bool instance_positions_vec3 = false; // user must assign GeometyInfo.position with vec3Array containing positions
+        bool billboard = false;               // user must assign GeometyInfo.position with vec4Array containing position_scaleDistance, overrides instance_positions_vec3 setting
 
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
@@ -74,8 +75,8 @@ namespace vsg
             dz.set(0.0f, 0.0f, sp.radius * 2.0f);
         }
 
-        /// used for instancing
-        ref_ptr<vec3Array> positions;
+        /// when using geometry instancing use vec3Array with vec3{x,y,z} and for billboard use vec4Array with vec4{x,y,z,scaleDistance}
+        ref_ptr<Data> positions;
         ref_ptr<Data> colors;
 
         bool operator<(const GeometryInfo& rhs) const
@@ -118,7 +119,8 @@ namespace vsg
 
     private:
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
-
+        ref_ptr<Data> instancePositions(const GeometryInfo& info, uint32_t& instanceCount);
+        ref_ptr<Data> instanceColors(const GeometryInfo& info, uint32_t instanceCount);
         vec3 y_texcoord(const StateInfo& info) const;
 
         using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;

@@ -65,6 +65,30 @@ void Visitor::apply(doubleValue& value)
 {
     apply(static_cast<Data&>(value));
 }
+void Visitor::apply(vec2Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(vec3Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(vec4Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dvec2Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dvec3Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dvec4Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

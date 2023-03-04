@@ -585,7 +585,7 @@ VkResult TransferTask::transferDynamicData()
     auto& frame = _frames[frameIndex];
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
-    auto& semaphore = frame.transferCompledSemaphore;
+    auto& semaphore = frame.transferCompleteSemaphore;
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 

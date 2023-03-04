@@ -88,7 +88,7 @@ void RenderGraph::setClearValues(VkClearColorValue clearColor, VkClearDepthStenc
 VkExtent2D RenderGraph::getExtent() const
 {
     if (framebuffer)
-        return VkExtent2D{framebuffer->width(), framebuffer->height()};
+        return framebuffer->extent2D();
     else if (window)
         return window->extent2D();
     else
@@ -128,7 +128,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     renderPassInfo.renderArea = renderArea;
 
 #if 0
-    debug("RenaderGraph() ", this, " renderArea.offset.x = ", renderArea.offset.x, ", renderArea.offset.y = ", renderArea.offset.y
+    info("RenderGraph() ", this, " renderArea.offset.x = ", renderArea.offset.x, ", renderArea.offset.y = ", renderArea.offset.y
                 , ", renderArea.extent.width = ", renderArea.extent.width, ", renderArea.extent.height = ", renderArea.extent.height);
 #endif
 

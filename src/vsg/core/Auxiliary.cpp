@@ -62,7 +62,7 @@ bool Auxiliary::signalConnectedObjectToBeDeleted()
     }
 
     // disconnect this Auxiliary object from the ConnectedObject
-    _connectedObject = 0;
+    _connectedObject = nullptr;
 
     // return true, the object should be deleted
     return true;
@@ -72,29 +72,5 @@ void Auxiliary::resetConnectedObject()
 {
     std::scoped_lock<std::mutex> guard(_mutex);
 
-    _connectedObject = 0;
-}
-
-void Auxiliary::setObject(const std::string& key, Object* object)
-{
-    userObjects[key] = object;
-    //debug("Auxiliary::setObject( [", key, "] = ", object, ", ", userObjects.size());
-}
-
-Object* Auxiliary::getObject(const std::string& key)
-{
-    //debug("Auxiliary::getObject( [", key, "])");
-    if (auto itr = userObjects.find(key); itr != userObjects.end())
-        return itr->second.get();
-    else
-        return nullptr;
-}
-
-const Object* Auxiliary::getObject(const std::string& key) const
-{
-    //debug("Auxiliary::getObject( [", key, "]) const");
-    if (auto itr = userObjects.find(key); itr != userObjects.end())
-        return itr->second.get();
-    else
-        return nullptr;
+    _connectedObject = nullptr;
 }

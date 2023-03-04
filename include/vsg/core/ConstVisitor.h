@@ -156,6 +156,12 @@ namespace vsg
         virtual void apply(const uintValue&);
         virtual void apply(const floatValue&);
         virtual void apply(const doubleValue&);
+        virtual void apply(const vec2Value&);
+        virtual void apply(const vec3Value&);
+        virtual void apply(const vec4Value&);
+        virtual void apply(const dvec2Value&);
+        virtual void apply(const dvec3Value&);
+        virtual void apply(const dvec4Value&);
 
         // Arrays
         virtual void apply(const byteArray&);

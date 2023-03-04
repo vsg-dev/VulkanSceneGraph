@@ -98,7 +98,7 @@ bool MemorySlots::check() const
     size_t computedSize = availableSize + reservedSize;
     if (computedSize != _totalMemorySize)
     {
-        warn("MemorySlots::check() ", this, " failed, computeedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
+        warn("MemorySlots::check() ", this, " failed, computedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
         warn_stream([&](auto& fout) { report(fout); });
 
         return false;

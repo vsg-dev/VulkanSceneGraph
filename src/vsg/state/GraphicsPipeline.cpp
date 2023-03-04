@@ -15,9 +15,36 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/state/ViewportState.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
+
+////////////////////////////////////////////////////////////////////////
+//
+// GraphicsPipelineState
+//
+void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
+{
+    // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState
+    for (auto& original_pipelineState : dest_PipelineStates)
+    {
+        if (original_pipelineState->type_info() == src_PipelineState->type_info())
+        {
+            original_pipelineState = src_PipelineState;
+            return;
+        }
+    }
+    dest_PipelineStates.push_back(src_PipelineState);
+}
+
+void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
+{
+    for (auto& src_PipelineState : src_PipelineStates)
+    {
+        mergeGraphicsPipelineStates(dest_PipelineStates, src_PipelineState);
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -118,8 +145,8 @@ void GraphicsPipeline::compile(Context& context)
         }
 
         GraphicsPipelineStates combined_pipelineStates = context.defaultPipelineStates;
-        combined_pipelineStates.insert(combined_pipelineStates.end(), pipelineStates.begin(), pipelineStates.end());
-        combined_pipelineStates.insert(combined_pipelineStates.end(), context.overridePipelineStates.begin(), context.overridePipelineStates.end());
+        mergeGraphicsPipelineStates(combined_pipelineStates, pipelineStates);
+        mergeGraphicsPipelineStates(combined_pipelineStates, context.overridePipelineStates);
 
         _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
     }

@@ -38,6 +38,8 @@ namespace vsg
     VSG_type_name(vsg::GraphicsPipelineState);
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
+    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState);
+    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates);
 
     /// GraphicsPipeline encapsulates graphics VkPipeline and the VkGraphicsPipelineCreateInfo settings used to set it up.
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>

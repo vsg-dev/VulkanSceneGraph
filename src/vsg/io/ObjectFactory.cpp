@@ -295,6 +295,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::PositionAndDisplacementMapArrayState>();
     add<vsg::DisplacementMapArrayState>();
     add<vsg::PositionArrayState>();
+    add<vsg::BillboardArrayState>();
     add<vsg::SharedObjects>();
 
     // application

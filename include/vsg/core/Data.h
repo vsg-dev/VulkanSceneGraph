@@ -144,7 +144,7 @@ namespace vsg
         static void operator delete(void* ptr);
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
-        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type ? true : Object::is_compatible(type); }
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type || Object::is_compatible(type); }
 
         int compare(const Object& rhs_object) const override
         {
@@ -177,6 +177,7 @@ namespace vsg
         virtual std::size_t valueSize() const = 0;
         virtual std::size_t valueCount() const = 0;
 
+        virtual bool dataAvailable() const = 0;
         virtual std::size_t dataSize() const = 0;
 
         virtual void* dataPointer() = 0;

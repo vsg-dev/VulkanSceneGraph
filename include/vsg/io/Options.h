@@ -97,4 +97,19 @@ namespace vsg
     /// convenience function that if a filename has a path, it duplicates the supplied Options object and prepends the path to the new Options::paths, otherwise returns the original Options object.
     extern VSG_DECLSPEC ref_ptr<const vsg::Options> prependPathToOptionsIfRequired(const vsg::Path& filename, ref_ptr<const vsg::Options> options);
 
+    /// return true if the options->extensionHint or filename extension are found in the list of arguments/containers
+    template<typename... Args>
+    bool compatibleExtension(const vsg::Path& filename, const vsg::Options* options, const Args&... args)
+    {
+        if (options && options->extensionHint && contains(options->extensionHint, args...)) return true;
+        return contains(vsg::lowerCaseFileExtension(filename), args...);
+    }
+
+    /// return true if the options->extensionHint is found in the list of arguments/containers
+    template<typename... Args>
+    bool compatibleExtension(const vsg::Options* options, const Args&... args)
+    {
+        return options && options->extensionHint && contains(options->extensionHint, args...);
+    }
+
 } // namespace vsg

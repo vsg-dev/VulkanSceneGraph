@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.0.1
+    VERSION 1.0.3
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
-set(VSG_SOVERSION 10)
-SET(VSG_RELEASE_CANDIDATE 1)
+set(VSG_SOVERSION 11)
+SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
@@ -37,15 +37,20 @@ find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
 find_package(Threads REQUIRED)
 
-if (NOT DEFINED glslang_FOUND)
-    find_package(vsg_glslang CONFIG PATHS ${VSG_SOURCE_DIR}/src/vsg)
-endif()
+# Enable/disable shader compilation support that pulls in glslang
+set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
+if (${VSG_SUPPORTS_ShaderCompiler})
+    if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
+        find_package(Git)
 
-if (glslang_FOUND)
-    set(VSG_SUPPORTS_ShaderCompiler 1)
-else()
-    set(VSG_SUPPORTS_ShaderCompiler 0)
-    message("--   Support for compiling GLSL to SPIR-V and associated shader composition is not available.")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules, or set VSG_SUPPORTS_ShaderCompiler to 0.")
+        endif()
+    endif()
 endif()
 
 if (ANDROID)
@@ -71,6 +76,12 @@ vsg_add_target_clang_format(
     FILES
         ${VSG_SOURCE_DIR}/include/vsg/*/*.h
         ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/platform/unix/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/platform/unix/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/platform/win32/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/platform/win32/*.cpp
+        ${VSG_SOURCE_DIR}/include/vsg/platform/android/*.h
+        ${VSG_SOURCE_DIR}/src/vsg/platform/android/*.cpp
 )
 vsg_add_target_clobber()
 vsg_add_target_cppcheck(

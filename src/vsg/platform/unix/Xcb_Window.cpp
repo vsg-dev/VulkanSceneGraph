@@ -10,20 +10,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
+#include <vsg/platform/unix/Xcb_Window.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/vk/Extensions.h>
-#include <vsg/platform/unix/Xcb_Window.h>
 
 #include <xcb/xproto.h>
 
 #include <chrono>
-#include <thread>
 #include <cstring>
+#include <thread>
 
 namespace vsg
 {
@@ -36,36 +35,36 @@ namespace vsg
 
 namespace vsgXcb
 {
-    // window decoation
+    // window decoration
     struct MotifHints
     {
         enum Flags : uint32_t
         {
-            FLAGS_FUNCTIONS   = 1<<0,
-            FLAGS_DECORATIONS = 1<<1,
-            FLAGS_INPUT_MODE  = 1<<2,
-            FLAGS_STATUS      = 1<<3,
+            FLAGS_FUNCTIONS = 1 << 0,
+            FLAGS_DECORATIONS = 1 << 1,
+            FLAGS_INPUT_MODE = 1 << 2,
+            FLAGS_STATUS = 1 << 3,
         };
 
         enum Functions : uint32_t
         {
-            FUNC_ALL = 1<<0,
-            FUNC_RESIZE = 1<<1,
-            FUNC_MOVE = 1<<2,
-            FUNC_MINIMUMSIZE = 1<<3,
-            FUNC_MAXIMUMSIZE = 1<<4,
-            FUNC_CLOSE = 1<<5
+            FUNC_ALL = 1 << 0,
+            FUNC_RESIZE = 1 << 1,
+            FUNC_MOVE = 1 << 2,
+            FUNC_MINIMUMSIZE = 1 << 3,
+            FUNC_MAXIMUMSIZE = 1 << 4,
+            FUNC_CLOSE = 1 << 5
         };
 
         enum Decorations : uint32_t
         {
-            DECOR_ALL = 1<<0,
-            DECOR_BORDER = 1<<1,
-            DECOR_RESIZE = 1<<2,
-            DECOR_TITLE = 1<<3,
-            DECOR_MENU = 1<<4,
-            DECOR_MINIMUMSIZE = 1<<5,
-            DECOR_MAXIMUMSIZE = 1<<6
+            DECOR_ALL = 1 << 0,
+            DECOR_BORDER = 1 << 1,
+            DECOR_RESIZE = 1 << 2,
+            DECOR_TITLE = 1 << 3,
+            DECOR_MENU = 1 << 4,
+            DECOR_MINIMUMSIZE = 1 << 5,
+            DECOR_MAXIMUMSIZE = 1 << 6
         };
 
         static MotifHints borderless()
@@ -75,7 +74,7 @@ namespace vsgXcb
             return hints;
         }
 
-        static MotifHints window(bool resize=true, bool move=true, bool close=true, bool minimize=true, bool maximize=true)
+        static MotifHints window(bool resize = true, bool move = true, bool close = true, bool minimize = true, bool maximize = true)
         {
             MotifHints hints;
             hints.flags = FLAGS_DECORATIONS | FLAGS_FUNCTIONS;
@@ -92,20 +91,20 @@ namespace vsgXcb
         uint32_t flags{};
         uint32_t functions{};
         uint32_t decorations{};
-        int32_t  input_mode{};
+        int32_t input_mode{};
         uint32_t status{};
     };
 
     class AtomRequest
     {
     public:
-        AtomRequest(xcb_connection_t* connection, const char* atom_name):
+        AtomRequest(xcb_connection_t* connection, const char* atom_name) :
             _connection(connection)
         {
             _cookie = xcb_intern_atom(connection, false, strlen(atom_name), atom_name);
         }
 
-        operator xcb_atom_t ()
+        operator xcb_atom_t()
         {
             if (_connection)
             {
@@ -137,7 +136,7 @@ namespace vsgXcb
         {
             x = geometry_reply->x;
             y = geometry_reply->y;
-            width  = geometry_reply->width;
+            width = geometry_reply->width;
             height = geometry_reply->height;
 
             if (tree_reply)
@@ -160,7 +159,7 @@ namespace vsgXcb
         return false;
     }
 
-}
+} // namespace vsgXcb
 
 using namespace vsg;
 using namespace vsgXcb;
@@ -177,71 +176,73 @@ KeyboardMap::KeyboardMap()
 vsg::KeySymbol KeyboardMap::getKeySymbol(uint16_t keycode, uint16_t modifier)
 {
     auto itr = _keycodeMap.find(KeycodeModifier(keycode, 0));
-    if (itr==_keycodeMap.end()) return vsg::KEY_Undefined;
+    if (itr == _keycodeMap.end()) return vsg::KEY_Undefined;
 
     vsg::KeySymbol baseKeySymbol = itr->second;
-    if (modifier==0) return baseKeySymbol;
+    if (modifier == 0) return baseKeySymbol;
 
-    bool shift = (modifier & vsg::MODKEY_Shift)!=0;
+    bool shift = (modifier & vsg::MODKEY_Shift) != 0;
     uint16_t index = 0;
 
-    if (baseKeySymbol>=vsg::KEY_KP_Space && baseKeySymbol<=vsg::KEY_KP_Divide)
+    if (baseKeySymbol >= vsg::KEY_KP_Space && baseKeySymbol <= vsg::KEY_KP_Divide)
     {
         // numeric keypad values
-        bool numLock = ((modifier & vsg::MODKEY_NumLock)!=0);
+        bool numLock = ((modifier & vsg::MODKEY_NumLock) != 0);
         index = (numLock && !shift) ? 1 : 0;
     }
     else
     {
-        bool capsLock = (modifier & vsg::MODKEY_CapsLock)!=0;
+        bool capsLock = (modifier & vsg::MODKEY_CapsLock) != 0;
         index = (capsLock ? !shift : shift) ? 1 : 0;
     }
-    if (index==0) return baseKeySymbol;
+    if (index == 0) return baseKeySymbol;
 
-    if (itr = _keycodeMap.find(KeycodeModifier(keycode, index)); itr!=_keycodeMap.end()) return itr->second;
+    if (itr = _keycodeMap.find(KeycodeModifier(keycode, index)); itr != _keycodeMap.end()) return itr->second;
     return vsg::KEY_Undefined;
 }
 
 vsg::KeyModifier KeyboardMap::getKeyModifier(vsg::KeySymbol keySym, uint16_t modifier, bool pressed)
 {
-    // values from keysymbdefs.h
-    #define XK_Shift_L                       0xffe1
-    #define XK_Shift_R                       0xffe2
-    #define XK_Control_L                     0xffe3
-    #define XK_Control_R                     0xffe4
-    #define XK_Caps_Lock                     0xffe5
-    #define XK_Shift_Lock                    0xffe6
+// values from keysymbdefs.h
+#define XK_Shift_L 0xffe1
+#define XK_Shift_R 0xffe2
+#define XK_Control_L 0xffe3
+#define XK_Control_R 0xffe4
+#define XK_Caps_Lock 0xffe5
+#define XK_Shift_Lock 0xffe6
 
-    #define XK_Meta_L                        0xffe7
-    #define XK_Meta_R                        0xffe8
-    #define XK_Alt_L                         0xffe9
-    #define XK_Alt_R                         0xffea
-    #define XK_Super_L                       0xffeb
-    #define XK_Super_R                       0xffec
-    #define XK_Hyper_L                       0xffed
-    #define XK_Hyper_R                       0xffee
+#define XK_Meta_L 0xffe7
+#define XK_Meta_R 0xffe8
+#define XK_Alt_L 0xffe9
+#define XK_Alt_R 0xffea
+#define XK_Super_L 0xffeb
+#define XK_Super_R 0xffec
+#define XK_Hyper_L 0xffed
+#define XK_Hyper_R 0xffee
 
     if (keySym >= XK_Shift_L && keySym <= XK_Hyper_R)
     {
         uint16_t mask = 0;
-        switch(keySym)
+        switch (keySym)
         {
-            case(XK_Shift_L):
-            case(XK_Shift_R): mask = XCB_KEY_BUT_MASK_SHIFT; break;
-            case(XK_Control_L):
-            case(XK_Control_R): mask = XCB_KEY_BUT_MASK_CONTROL; break;
-            case(XK_Alt_L):
-            case(XK_Alt_R): mask = XCB_KEY_BUT_MASK_MOD_1; break;
-            case(XK_Meta_L):
-            case(XK_Meta_R): mask = XCB_KEY_BUT_MASK_MOD_2; break;
-            case(XK_Super_L):
-            case(XK_Super_R): mask = XCB_KEY_BUT_MASK_MOD_4; break;
-            case(XK_Hyper_L):
-            case(XK_Hyper_R): mask = XCB_KEY_BUT_MASK_MOD_3; break;
-            default: break;
+        case (XK_Shift_L):
+        case (XK_Shift_R): mask = XCB_KEY_BUT_MASK_SHIFT; break;
+        case (XK_Control_L):
+        case (XK_Control_R): mask = XCB_KEY_BUT_MASK_CONTROL; break;
+        case (XK_Alt_L):
+        case (XK_Alt_R): mask = XCB_KEY_BUT_MASK_MOD_1; break;
+        case (XK_Meta_L):
+        case (XK_Meta_R): mask = XCB_KEY_BUT_MASK_MOD_2; break;
+        case (XK_Super_L):
+        case (XK_Super_R): mask = XCB_KEY_BUT_MASK_MOD_4; break;
+        case (XK_Hyper_L):
+        case (XK_Hyper_R): mask = XCB_KEY_BUT_MASK_MOD_3; break;
+        default: break;
         }
-        if (pressed) modifier = (modifier | mask);
-        else modifier = (modifier & ~mask);
+        if (pressed)
+            modifier = (modifier | mask);
+        else
+            modifier = (modifier & ~mask);
     }
 
     return vsg::KeyModifier(modifier);
@@ -286,14 +287,14 @@ Xcb_Surface::Xcb_Surface(vsg::Instance* instance, xcb_connection_t* connection, 
 Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     Inherit(traits)
 {
-    bool fullscreen =  traits->fullscreen;
+    bool fullscreen = traits->fullscreen;
     uint32_t override_redirect = traits->overrideRedirect;
 
     // open connection
     bool openConnection = true;
     if (traits->systemConnection.has_value())
     {
-        auto nativeConnection = std::any_cast<xcb_connection_t *>(traits->systemConnection);
+        auto nativeConnection = std::any_cast<xcb_connection_t*>(traits->systemConnection);
         if (nativeConnection)
         {
             _connection = nativeConnection;
@@ -322,7 +323,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
-    // get the screeen
+    // get the screen
     const xcb_setup_t* setup = xcb_get_setup(_connection);
 
     _keyboard = new KeyboardMap;
@@ -354,16 +355,16 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
     // select the appropriate screen for the window
     if (traits->screenNum >= 0) screenNum = traits->screenNum;
 
-    int screenCount = xcb_setup_roots_length (setup);
+    int screenCount = xcb_setup_roots_length(setup);
     if (screenNum >= screenCount)
     {
-        warn("request screenNum (",screenNum,") too high, only ",screenCount," screens available. Selecting screen 0 as fallback.");
+        warn("request screenNum (", screenNum, ") too high, only ", screenCount, " screens available. Selecting screen 0 as fallback.");
         screenNum = 0;
     }
 
     xcb_screen_iterator_t screen_iterator = xcb_setup_roots_iterator(setup);
 
-    for(int i=0; i<screenNum; ++i)
+    for (int i = 0; i < screenNum; ++i)
     {
         xcb_screen_next(&screen_iterator);
     }
@@ -391,17 +392,16 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         xcb_visualid_t visual = XCB_COPY_FROM_PARENT;
         uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
         uint32_t event_mask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-                            XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
-                            XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
-                            XCB_EVENT_MASK_FOCUS_CHANGE |
-                            XCB_EVENT_MASK_PROPERTY_CHANGE;
+                              XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
+                              XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+                              XCB_EVENT_MASK_FOCUS_CHANGE |
+                              XCB_EVENT_MASK_PROPERTY_CHANGE;
         uint32_t value_list[] =
             {
                 _screen->black_pixel,
                 XCB_GRAVITY_NORTH_WEST,
                 override_redirect,
-                event_mask
-            };
+                event_mask};
 
         // generate the window id
         _window = xcb_generate_id(_connection);
@@ -410,22 +410,22 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (fullscreen)
         {
             xcb_create_window(_connection, depth, _window, parent,
-                            0, 0, _screen->width_in_pixels, _screen->height_in_pixels,
-                            border_width,
-                            window_class,
-                            visual,
-                            value_mask,
-                            value_list);
+                              0, 0, _screen->width_in_pixels, _screen->height_in_pixels,
+                              border_width,
+                              window_class,
+                              visual,
+                              value_mask,
+                              value_list);
         }
         else
         {
             xcb_create_window(_connection, depth, _window, parent,
-                            traits->x, traits->y, traits->width, traits->height,
-                            border_width,
-                            window_class,
-                            visual,
-                            value_mask,
-                            value_list);
+                              traits->x, traits->y, traits->width, traits->height,
+                              border_width,
+                              window_class,
+                              visual,
+                              value_mask,
+                              value_list);
         }
 
         // set class of window to enable window manager configuration with rules for positioning
@@ -476,7 +476,6 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         }
         xcb_map_window(_connection, _window);
         _windowMapped = true;
-
     }
     else
     {
@@ -517,7 +516,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
 
 Xcb_Window::~Xcb_Window()
 {
-    // detach Vulkan obects
+    // detach Vulkan objects
     clear();
 
     if (_connection != nullptr)
@@ -546,7 +545,7 @@ bool Xcb_Window::valid() const
 
 bool Xcb_Window::visible() const
 {
-    return _window!=0 && _windowMapped;
+    return _window != 0 && _windowMapped;
 }
 
 void Xcb_Window::releaseWindow()
@@ -569,95 +568,80 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         uint8_t response_type = event->response_type & ~0x80;
         switch (response_type)
         {
-        case(XCB_DESTROY_NOTIFY):
-        {
+        case (XCB_DESTROY_NOTIFY): {
             vsg::clock::time_point event_time = vsg::clock::now();
             bufferedEvents.emplace_back(vsg::TerminateEvent::create(event_time));
             break;
         }
-        case(XCB_UNMAP_NOTIFY):
-        {
+        case (XCB_UNMAP_NOTIFY): {
             //debug("xcb_unmap_notify_event_t");
             _windowMapped = false;
             break;
         }
-        case(XCB_MAP_NOTIFY):
-        {
+        case (XCB_MAP_NOTIFY): {
             //debug("xcb_map_notify_event_t");
             _windowMapped = true;
             break;
         }
-        case (XCB_MAPPING_NOTIFY):
-        {
+        case (XCB_MAPPING_NOTIFY): {
             //debug("xcb_mapping_notify_event_t");
             break;
         }
-        case(XCB_LIST_PROPERTIES):
-        {
+        case (XCB_LIST_PROPERTIES): {
             //debug("xcb_list_properties_request_t");
             break;
         }
-        case(XCB_PROPERTY_NOTIFY):
-        {
+        case (XCB_PROPERTY_NOTIFY): {
             //debug("xcb_property_notify_event_t");
             break;
         }
-        case(XCB_FOCUS_IN):
-        {
+        case (XCB_FOCUS_IN): {
             //debug("xcb_focus_in_event_t");
             break;
         }
-        case(XCB_FOCUS_OUT):
-        {
+        case (XCB_FOCUS_OUT): {
             //debug("xcb_focus_out_event_t");
             break;
         }
-        case(XCB_ENTER_NOTIFY):
-        {
+        case (XCB_ENTER_NOTIFY): {
             //debug("xcb_enter_notify_event_t");
             break;
         }
-        case(XCB_LEAVE_NOTIFY):
-        {
+        case (XCB_LEAVE_NOTIFY): {
             //debug("xcb_leave_notify_event_t");
             break;
         }
-        case(XCB_CONFIGURE_NOTIFY):
-        {
+        case (XCB_CONFIGURE_NOTIFY): {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            // Xcb configure events can come with x,y == (0,0) or with values relative to the root, so explicitly get the new geometry and substitute if required to avoid inconsistencies
+            // Xcb configure events x,y values can be behave differently on different window managers so use getWindowGeometry(..) to avoid inconsistencies
             int32_t x = configure->x;
-            int32_t y  = configure->y;
+            int32_t y = configure->y;
             uint32_t width = configure->width;
             uint32_t height = configure->height;
-            if (configure->x==0 && configure->y==0)
-            {
-                vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
-            }
+            vsgXcb::getWindowGeometry(_connection, _window, x, y, width, height);
 
-            bool previousConfigureEventsIsEquvilant = false;
-            for(auto previousEvent : events)
+            bool previousConfigureEventsIsEqual = false;
+            for (auto previousEvent : events)
             {
                 vsg::ConfigureWindowEvent* cwe = dynamic_cast<vsg::ConfigureWindowEvent*>(previousEvent.get());
                 if (cwe)
                 {
-                    previousConfigureEventsIsEquvilant = (cwe->x==x) && (cwe->y==y) && (cwe->width==configure->width) && (cwe->height==configure->height);
+                    previousConfigureEventsIsEqual = (cwe->x == x) && (cwe->y == y) && (cwe->width == width) && (cwe->height == height);
                 }
             }
 
-            if (!previousConfigureEventsIsEquvilant)
+            if (!previousConfigureEventsIsEqual)
             {
                 vsg::clock::time_point event_time = vsg::clock::now();
-                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, configure->width, configure->height));
+                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, x, y, width, height));
                 _extent2D.width = width;
                 _extent2D.height = height;
             }
 
             break;
         }
-        case (XCB_EXPOSE):
-        {
+        case (XCB_EXPOSE): {
             auto expose = reinterpret_cast<const xcb_expose_event_t*>(event);
 
             vsg::clock::time_point event_time = vsg::clock::now();
@@ -665,8 +649,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             break;
         }
-        case XCB_CLIENT_MESSAGE:
-        {
+        case XCB_CLIENT_MESSAGE: {
             auto client_message = reinterpret_cast<const xcb_client_message_event_t*>(event);
 
             if (client_message->data.data32[0] == _wmDeleteWindow)
@@ -676,8 +659,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             }
             break;
         }
-        case XCB_KEY_PRESS:
-        {
+        case XCB_KEY_PRESS: {
             auto key_press = reinterpret_cast<const xcb_key_press_event_t*>(event);
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_press->time - _first_xcb_timestamp);
@@ -689,8 +671,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             break;
         }
-        case XCB_KEY_RELEASE:
-        {
+        case XCB_KEY_RELEASE: {
             auto key_release = reinterpret_cast<const xcb_key_release_event_t*>(event);
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(key_release->time - _first_xcb_timestamp);
@@ -702,8 +683,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             break;
         }
-        case (XCB_BUTTON_PRESS):
-        {
+        case (XCB_BUTTON_PRESS): {
             auto button_press = reinterpret_cast<const xcb_button_press_event_t*>(event);
 
             vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time - _first_xcb_timestamp);
@@ -711,41 +691,39 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (button_press->same_screen)
             {
                 // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
-                if (button_press->detail==4)
+                if (button_press->detail == 4)
                 {
                     bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));
                 }
-                else if (button_press->detail==5)
+                else if (button_press->detail == 5)
                 {
                     bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
                 }
                 else
                 {
-                    uint32_t pressedButtoMask = 1 << (7+button_press->detail);
-                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtoMask;
+                    uint32_t pressedButtonMask = 1 << (7 + button_press->detail);
+                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtonMask;
                     bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
                 }
             }
 
             break;
         }
-        case (XCB_BUTTON_RELEASE):
-        {
+        case (XCB_BUTTON_RELEASE): {
             auto button_release = reinterpret_cast<const xcb_button_release_event_t*>(event);
 
             // ignore button 4 and 5 as X11/Xcb use them as up/down scroll wheel events
-            if (button_release->same_screen && button_release->detail !=4 && button_release->detail !=5)
+            if (button_release->same_screen && button_release->detail != 4 && button_release->detail != 5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-                uint32_t releasedButtoMask = 1 << (7+button_release->detail);
-                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtoMask;
+                uint32_t releasedButtonMask = 1 << (7 + button_release->detail);
+                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtonMask;
                 bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
             break;
         }
-        case (XCB_MOTION_NOTIFY):
-        {
+        case (XCB_MOTION_NOTIFY): {
             auto motion_notify = reinterpret_cast<const xcb_motion_notify_event_t*>(event);
             if (motion_notify->same_screen)
             {
@@ -755,8 +733,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             break;
         }
-        case (XCB_GE_GENERIC):
-        {
+        case (XCB_GE_GENERIC): {
             // can't find meaningful documentation on what information is encoded in a xcb_ge_generic_event_t
             // so no way to map it to anything on the VSG side.
             //
@@ -764,8 +741,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             //debug("generic_event->event_type = ", generic_event->event_type);
             break;
         }
-        default:
-        {
+        default: {
             warn("xcb_event type not handled, response_type = ", static_cast<int>(response_type));
             break;
         }

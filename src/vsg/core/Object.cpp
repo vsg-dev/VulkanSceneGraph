@@ -132,7 +132,7 @@ void Object::write(Output& output) const
     }
 }
 
-void Object::setObject(const std::string& key, Object* object)
+void Object::setObject(const std::string& key, ref_ptr<Object> object)
 {
     getOrCreateAuxiliary()->setObject(key, object);
 }
@@ -147,6 +147,18 @@ const Object* Object::getObject(const std::string& key) const
 {
     if (!_auxiliary) return nullptr;
     return _auxiliary->getObject(key);
+}
+
+ref_ptr<Object> Object::getRefObject(const std::string& key)
+{
+    if (!_auxiliary) return {};
+    return _auxiliary->getRefObject(key);
+}
+
+ref_ptr<const Object> Object::getRefObject(const std::string& key) const
+{
+    if (!_auxiliary) return {};
+    return _auxiliary->getRefObject(key);
 }
 
 void Object::removeObject(const std::string& key)

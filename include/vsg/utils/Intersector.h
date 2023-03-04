@@ -26,7 +26,7 @@ namespace vsg
         using NodePath = std::vector<const Node*>;
         using ArrayStateStack = std::vector<ref_ptr<ArrayState>>;
 
-        Intersector(ref_ptr<ArrayState> intialArrayState = {});
+        Intersector(ref_ptr<ArrayState> initialArrayState = {});
 
         //
         // handle traverse of the scene graph
@@ -68,8 +68,13 @@ namespace vsg
         /// intersect with a vkCmdDrawIndexed primitive
         virtual bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) = 0;
 
+        /// get the current local to world matrix stack
+        std::vector<dmat4>& localToWorldStack() { return arrayStateStack.back()->localToWorldStack; }
+
+        /// get the current world to local matrix stack
+        std::vector<dmat4>& worldToLocalStack() { return arrayStateStack.back()->worldToLocalStack; }
+
     protected:
-        std::vector<dmat4> _matrixStack;
         ArrayStateStack arrayStateStack;
 
         ref_ptr<const ushortArray> ushort_indices;

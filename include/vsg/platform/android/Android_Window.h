@@ -47,7 +47,7 @@ namespace vsgAndroid
             if (metastate & AMETA_CAPS_LOCK_ON) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
             if (metastate & AMETA_NUM_LOCK_ON) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
-            keyModifier = (vsg::KeyModifier) modifierMask;
+            keyModifier = (vsg::KeyModifier)modifierMask;
 
             // need to get the modified key somehow but seems we may need to talk to java for that :(
 
@@ -57,7 +57,6 @@ namespace vsgAndroid
     protected:
         AKeyCodeToKeySymbolMap _keycodeMap;
     };
-
 
     /// Android_Window implements Android specific window creation, event handling and vulkan Surface setup.
     ///
@@ -78,11 +77,10 @@ namespace vsgAndroid
     class Android_Window : public vsg::Inherit<vsg::Window, Android_Window>
     {
     public:
-
         Android_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Android_Window() = delete;
         Android_Window(const Android_Window&) = delete;
-        Android_Window operator = (const Android_Window&) = delete;
+        Android_Window operator=(const Android_Window&) = delete;
 
         const char* instanceExtensionSurfaceName() const override { return "VK_KHR_android_surface"; }
 

@@ -208,4 +208,55 @@ namespace vsg
         Messages _errorMessages;
     };
 
+    // specialize handling of bool parameter
+    template<>
+    inline bool CommandLine::read(int& i, bool& v)
+    {
+        const int num_args = *_argc;
+        if (i >= num_args) return false;
+
+        const char* str = _argv[i];
+        if (!str) return false;
+
+        if (std::strcmp(str, "true") == 0 || std::strcmp(str, "True") == 0 || std::strcmp(str, "TRUE") == 0 || std::strcmp(str, "1") == 0)
+        {
+            v = true;
+            ++i;
+            return true;
+        }
+
+        if (std::strcmp(str, "false") == 0 || std::strcmp(str, "False") == 0 || std::strcmp(str, "FALSE") == 0 || std::strcmp(str, "0") == 0)
+        {
+            v = false;
+            ++i;
+            return true;
+        }
+        return false;
+    }
+
+    // specialize matching of bool parameters
+    template<>
+    inline bool CommandLine::read(const std::string& match, bool& v)
+    {
+        for (int i = 1; i < *_argc; ++i)
+        {
+            if (match == _argv[i])
+            {
+                int start = i;
+                ++i;
+
+                // match any parameters
+                if (!read(i, v))
+                {
+                    v = true;
+                }
+
+                remove(start, i - start);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
 } // namespace vsg

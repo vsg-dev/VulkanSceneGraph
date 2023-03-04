@@ -131,3 +131,14 @@ Path& Path::append(const Path& right)
 
     return *this;
 }
+
+Path& Path::erase(size_t pos, size_t len)
+{
+    _string.erase(pos, len);
+    return *this;
+}
+
+FileType Path::type() const
+{
+    return vsg::fileType(*this);
+}

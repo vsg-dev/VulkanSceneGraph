@@ -65,6 +65,30 @@ void ConstVisitor::apply(const doubleValue& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const vec2Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const vec3Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const vec4Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dvec2Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dvec3Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dvec4Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

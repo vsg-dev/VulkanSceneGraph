@@ -170,6 +170,6 @@ void Bin::write(Output& output) const
 {
     Node::write(output);
 
-    output.write("binNimber", binNumber);
+    output.write("binNumber", binNumber);
     output.write("sortOrder", sortOrder);
 }

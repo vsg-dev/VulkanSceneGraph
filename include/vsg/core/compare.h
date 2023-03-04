@@ -103,7 +103,7 @@ namespace vsg
     }
 
     /// less functor for comparing ref_ptr<Object> typically used with std::set<> etc.
-    struct DerefenceLess
+    struct DereferenceLess
     {
         template<class P>
         bool operator()(const P& lhs, const P& rhs) const

@@ -77,6 +77,16 @@ namespace vsg
         return translate(v.value[0], v.value[1], v.value[2]);
     }
 
+    /// create a 4x4 matrix that represents the scale by {s, s, s}
+    template<typename T>
+    constexpr t_mat4<T> scale(T s)
+    {
+        return t_mat4<T>(s, 0, 0, 0,
+                         0, s, 0, 0,
+                         0, 0, s, 0,
+                         0, 0, 0, 1);
+    }
+
     /// create a 4x4 matrix that represents the scale by sx, sy, zz
     template<typename T>
     constexpr t_mat4<T> scale(T sx, T sy, T sz)

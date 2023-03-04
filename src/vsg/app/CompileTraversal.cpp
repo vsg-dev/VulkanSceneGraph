@@ -235,12 +235,11 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
             auto previousDefaultPipelineStates = context->defaultPipelineStates;
             auto previousOverridePipelineStates = context->overridePipelineStates;
 
-            context->defaultPipelineStates.push_back(ViewportState::create(renderArea));
+            mergeGraphicsPipelineStates(context->defaultPipelineStates, ViewportState::create(renderArea));
 
             if (samples != VK_SAMPLE_COUNT_1_BIT)
             {
-                ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(commandGraph.window->framebufferSamples());
-                context->overridePipelineStates.push_back(defaultMsState);
+                mergeGraphicsPipelineStates(context->overridePipelineStates, MultisampleState::create(commandGraph.window->framebufferSamples()));
             }
 
             commandGraph.traverse(*this);
@@ -277,18 +276,16 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
         if (renderGraph.window)
         {
-            context->defaultPipelineStates.push_back(ViewportState::create(renderGraph.window->extent2D()));
+            mergeGraphicsPipelineStates(context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
         }
         else if (renderGraph.framebuffer)
         {
-            VkExtent2D extent{renderGraph.framebuffer->width(), renderGraph.framebuffer->height()};
-            context->defaultPipelineStates.push_back(ViewportState::create(extent));
+            mergeGraphicsPipelineStates(context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
         }
 
         if (context->renderPass && context->renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
         {
-            ref_ptr<MultisampleState> defaultMsState = MultisampleState::create(context->renderPass->maxSamples);
-            context->overridePipelineStates.push_back(defaultMsState);
+            mergeGraphicsPipelineStates(context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
         }
 
         renderGraph.traverse(*this);
@@ -312,8 +309,8 @@ void CompileTraversal::apply(View& view)
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
 
         // assign view specific pipeline states
-        context->overridePipelineStates.insert(context->overridePipelineStates.end(), view.overridePipelineStates.begin(), view.overridePipelineStates.end());
-        if (view.camera && view.camera->viewportState) context->defaultPipelineStates.emplace_back(view.camera->viewportState);
+        if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->defaultPipelineStates, view.camera->viewportState);
+        mergeGraphicsPipelineStates(context->overridePipelineStates, view.overridePipelineStates);
 
         view.traverse(*this);
 

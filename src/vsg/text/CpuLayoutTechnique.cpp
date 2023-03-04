@@ -62,7 +62,7 @@ void CpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation,
 
     auto& first_text = textGroup->children.front();
     auto& layout = first_text->layout;
-    bool requiresBillboard = layout ? layout->requiresBillboard() : false;
+    bool requiresBillboard = layout && layout->requiresBillboard();
 
     textExtents = {};
     CountGlyphs countGlyphs;

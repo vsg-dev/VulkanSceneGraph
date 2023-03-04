@@ -200,13 +200,9 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
 
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
-    //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ", compileResult.dynamicBufferInfos.size());
+    //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ");
     if (compileResult.earlyDynamicData || compileResult.lateDynamicData)
     {
-        //for(auto& bufferInfo : compileResult.dynamicBufferInfos)
-        //{
-        //    info("    ", bufferInfo, ", ", bufferInfo->data);
-        //}
         for (auto& task : tasks)
         {
             if (task->earlyTransferTask && compileResult.earlyDynamicData)

@@ -57,6 +57,18 @@ namespace vsg
             ImageInfoList imageInfos;
 
             explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty(); }
+
+            void clear()
+            {
+                bufferInfos.clear();
+                imageInfos.clear();
+            }
+
+            void add(const DynamicData& dd)
+            {
+                bufferInfos.insert(bufferInfos.end(), dd.bufferInfos.begin(), dd.bufferInfos.end());
+                imageInfos.insert(imageInfos.end(), dd.imageInfos.begin(), dd.imageInfos.end());
+            }
         };
 
         DynamicData earlyDynamicData;

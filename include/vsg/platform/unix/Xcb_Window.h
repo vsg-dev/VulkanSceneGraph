@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/KeyEvent.h>
 
 #include <xcb/xcb.h>
+
 #include <vulkan/vulkan_xcb.h>
 
 namespace vsgXcb
@@ -32,16 +33,15 @@ namespace vsgXcb
 
         void add(uint16_t keycode, uint16_t modifier, vsg::KeySymbol key);
 
-        void add(uint16_t keycode, std::initializer_list<std::pair<uint16_t, vsg::KeySymbol> > combinations);
+        void add(uint16_t keycode, std::initializer_list<std::pair<uint16_t, vsg::KeySymbol>> combinations);
 
         vsg::KeySymbol getKeySymbol(uint16_t keycode, uint16_t modifier);
         vsg::KeyModifier getKeyModifier(vsg::KeySymbol keySym, uint16_t modifier, bool pressed);
 
     protected:
         KeycodeMap _keycodeMap;
-        uint16_t   _modifierMask;
+        uint16_t _modifierMask;
     };
-
 
     ///  Xcb_Surface implements XcbSurface creation.
     class Xcb_Surface : public vsg::Surface
@@ -54,11 +54,10 @@ namespace vsgXcb
     class Xcb_Window : public vsg::Inherit<vsg::Window, Xcb_Window>
     {
     public:
-
         Xcb_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         Xcb_Window() = delete;
         Xcb_Window(const Xcb_Window&) = delete;
-        Xcb_Window& operator = (const Xcb_Window&) = delete;
+        Xcb_Window& operator=(const Xcb_Window&) = delete;
 
         const char* instanceExtensionSurfaceName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
 
@@ -73,9 +72,7 @@ namespace vsgXcb
 
         void resize() override;
 
-
     protected:
-
         ~Xcb_Window();
 
         void _initSurface() override;

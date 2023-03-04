@@ -464,7 +464,7 @@ void Viewer::setupThreading()
     size_t numEarlyTransferTasks = 0;
     for (auto& task : recordAndSubmitTasks)
     {
-        if (task->commandGraphs.size() >= 1)
+        if (!task->commandGraphs.empty())
         {
             ++numValidTasks;
             numCommandGraphs += task->commandGraphs.size();
@@ -503,7 +503,7 @@ void Viewer::setupThreading()
 
             threads.emplace_back(run, task, _frameBlock, _submissionCompleted);
         }
-        else if (task->commandGraphs.size() >= 1)
+        else if (!task->commandGraphs.empty())
         {
             // we have multiple CommandGraphs in a single Task so set up a thread per CommandGraph
             struct SharedData : public Inherit<Object, SharedData>
@@ -643,7 +643,9 @@ void Viewer::update()
     {
         if (task->databasePager)
         {
-            task->databasePager->updateSceneGraph(_frameStamp);
+            CompileResult cr;
+            task->databasePager->updateSceneGraph(_frameStamp, cr);
+            if (cr.requiresViewerUpdate()) updateViewer(*this, cr);
         }
     }
 

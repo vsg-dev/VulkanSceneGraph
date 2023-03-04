@@ -19,26 +19,23 @@
 ## Prerequisites
 
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
-* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositoies or using VulkanSDK.
+* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositories or using VulkanSDK.
 * [CMake](https://www.cmake.org) 3.7 or later.
-
-## Optional dependenices
-
-* [glslang & SPIRV-Tools](https://github.com/KhronosGroup/glslang) are required when built-in GLSL -> SPIR-V (required by Vulkan) compilation is needed, such as when you need the VulkanSceneGraphs shader composition and compilation capailities. SPIRV-Tools nowadays is packaged separately on common linux distributions, but can be build as part of glslang. VulkanSDK provides glslang. Unless you know you don't require them for your application we recommend building the VulkanSceneGraph with glslang and SPIRV-Tools.
 
 ---
 
 ## Quick build instructions for Unix from the command line
 
-### Gentoo dependencies
-1. essential dependencies:
-	emerge dev-util/vulkan-tools
+### Installing dependencies
 
-2. optional dependencies:
-	emerge dev-util/glslang dev-util/spirv-tools 
+* Ubuntu:  
+	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev`
+
+* Gentoo:  
+	`emerge dev-util/vulkan-tools`
 
 ### Build
-Command line instructions for default build of static library (.a/.lib) in source:
+Command line instructions for default build of static library (.a) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
@@ -46,7 +43,7 @@ Command line instructions for default build of static library (.a/.lib) in sourc
     make -j 8
     make install
 
-Command line instructions for building shared library (.so/.lib + .dll) out of source:
+Command line instructions for building shared library (.so) out of source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     mkdir vsg-shared-build
@@ -54,7 +51,6 @@ Command line instructions for building shared library (.so/.lib + .dll) out of s
     cmake ../VulkanSceneGraph -DBUILD_SHARED_LIBS=ON
     make -j 8
     make install
-
 
 ---
 
@@ -111,23 +107,28 @@ Once you have generated the build system using *cmake* as above, you can list th
     make help
 
 This lists the options:
-
-    ... all (the default if no target is provided)
-	... clean
-	... depend
-	... install/strip
-	... install/local
-	... rebuild_cache
-	... clobber
-	... install
-	... docs
-	... uninstall
-	... build_all_h
-	... list_install_components
-	... cppcheck
-	... clang-format
-	... edit_cache
-	... vsg
+```
+... all (the default if no target is provided)
+... clean
+... depend
+... edit_cache
+... install
+... install/local
+... install/strip
+... list_install_components
+... rebuild_cache
+... build_all_h
+... clang-format
+... clang-format-vsg
+... clobber
+... cppcheck
+... cppcheck-vsg
+... docs
+... docs-vsg
+... uninstall
+... uninstall-vsg
+... vsg
+```
 
 Most of these are standard options which you can look up in CMake and make documentation, the following are ones we've added so require explanation:
 
@@ -327,7 +328,3 @@ That's it, we've installed the MoltenVK sdk, built VSG and prepared are machine 
 **Important Note!**
 
 Xcode typically ignores the system environment variables, so when running a VSG application from within Xcode you may run into issues. One solution is to add the environment variables to to the run scheme. This can be done by going to 'Product>Scheme>Edit Scheme>Arguments. Then added the above mentioned environment variables.
-
-
-
-
