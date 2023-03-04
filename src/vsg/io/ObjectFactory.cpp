@@ -276,7 +276,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::LookAt>();
     add<vsg::Perspective>();
 
-    // rtx
+    // mesh shading
     add<vsg::DrawMeshTasks>();
     add<vsg::DrawMeshTasksIndirect>();
     add<vsg::DrawMeshTasksIndirectCommandArray>();

@@ -13,31 +13,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
-#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
 
-    /// DrawMeshTasksIndirect command encapsulates vkCmdDrawMeshTasksIndirectNV call and associated parameters
-    class VSG_DECLSPEC DrawMeshTasksIndirect : public Inherit<Command, DrawMeshTasksIndirect>
+    // DrawMeshTasks command encapsulates vkCmdDrawMeshTasksEXT call and associated parameters.
+    class VSG_DECLSPEC DrawMeshTasks : public Inherit<Command, DrawMeshTasks>
     {
     public:
-        DrawMeshTasksIndirect();
+        DrawMeshTasks();
 
-        DrawMeshTasksIndirect(ref_ptr<Data> data, uint32_t in_drawCount, uint32_t in_stride);
-
-        DrawMeshTasksIndirect(ref_ptr<Buffer> in_buffer, VkDeviceSize in_offset, uint32_t in_drawCount, uint32_t in_stride);
+        DrawMeshTasks(uint32_t in_groupCountX, uint32_t in_groupCountY, uint32_t in_groupCountZ);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void compile(Context& context) override;
         void record(CommandBuffer& commandBuffer) const override;
 
-        ref_ptr<BufferInfo> drawParameters;
-        uint32_t drawCount = 0;
-        uint32_t stride = 0;
+        uint32_t groupCountX = 0;
+        uint32_t groupCountY = 0;
+        uint32_t groupCountZ = 0;
     };
-    VSG_type_name(vsg::DrawMeshTasksIndirect);
+    VSG_type_name(vsg::DrawMeshTasks);
 
 } // namespace vsg

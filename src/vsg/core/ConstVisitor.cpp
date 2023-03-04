@@ -698,7 +698,7 @@ void ConstVisitor::apply(const CopyQueryPoolResults& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// RTX
+// Mesh shading
 //
 void ConstVisitor::apply(const DrawMeshTasks& dmt)
 {

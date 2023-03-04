@@ -281,8 +281,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/raytracing/TopLevelAccelerationStructure.h>
 #include <vsg/raytracing/TraceRays.h>
 
-// RTX mesh  header files
-#include <vsg/rtx/DrawMeshTasks.h>
-#include <vsg/rtx/DrawMeshTasksIndirect.h>
-#include <vsg/rtx/DrawMeshTasksIndirectCommand.h>
-#include <vsg/rtx/DrawMeshTasksIndirectCount.h>
+// Mesh shading  header files
+#include <vsg/meshshaders/DrawMeshTasks.h>
+#include <vsg/meshshaders/DrawMeshTasksIndirect.h>
+#include <vsg/meshshaders/DrawMeshTasksIndirectCommand.h>
+#include <vsg/meshshaders/DrawMeshTasksIndirectCount.h>

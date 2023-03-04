@@ -698,7 +698,7 @@ void Visitor::apply(CopyQueryPoolResults& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// RTX
+// Mesh shading
 //
 void Visitor::apply(DrawMeshTasks& dmt)
 {

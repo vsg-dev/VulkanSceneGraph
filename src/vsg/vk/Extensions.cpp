@@ -61,8 +61,8 @@ Extensions::Extensions(Device* device)
 
     device->getProcAddr(vkGetBufferDeviceAddressKHR, "vkGetBufferDeviceAddressKHR");
 
-    // VK_NV_mesh_shader
-    device->getProcAddr(vkCmdDrawMeshTasksNV, "vkCmdDrawMeshTasksNV");
-    device->getProcAddr(vkCmdDrawMeshTasksIndirectNV, "vkCmdDrawMeshTasksIndirectNV");
-    device->getProcAddr(vkCmdDrawMeshTasksIndirectCountNV, "vkCmdDrawMeshTasksIndirectCountNV");
+    // VK_EXT_mesh_shader
+    device->getProcAddr(vkCmdDrawMeshTasksEXT, "vkCmdDrawMeshTasksEXT");
+    device->getProcAddr(vkCmdDrawMeshTasksIndirectEXT, "vkCmdDrawMeshTasksIndirectEXT");
+    device->getProcAddr(vkCmdDrawMeshTasksIndirectCountEXT, "vkCmdDrawMeshTasksIndirectCountEXT");
 }
