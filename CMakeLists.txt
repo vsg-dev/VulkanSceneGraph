@@ -7,7 +7,7 @@ project(vsg
 )
 set(VSG_SOVERSION 11)
 SET(VSG_RELEASE_CANDIDATE 0)
-set(Vulkan_MIN_VERSION 1.1.70.0)
+set(Vulkan_MIN_VERSION 1.3.231.1)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
 set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
