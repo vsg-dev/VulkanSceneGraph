@@ -47,10 +47,10 @@ namespace vsg
 
         PFN_vkGetBufferDeviceAddressKHR_Compatibility vkGetBufferDeviceAddressKHR = nullptr;
 
-        // VK_NV_mesh_shader
-        PFN_vkCmdDrawMeshTasksNV vkCmdDrawMeshTasksNV = nullptr;
-        PFN_vkCmdDrawMeshTasksIndirectNV vkCmdDrawMeshTasksIndirectNV = nullptr;
-        PFN_vkCmdDrawMeshTasksIndirectCountNV vkCmdDrawMeshTasksIndirectCountNV = nullptr;
+        // VK_EXT_mesh_shader
+        PFN_vkCmdDrawMeshTasksEXT vkCmdDrawMeshTasksEXT = nullptr;
+        PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = nullptr;
+        PFN_vkCmdDrawMeshTasksIndirectCountEXT vkCmdDrawMeshTasksIndirectCountEXT = nullptr;
     };
 
 } // namespace vsg
