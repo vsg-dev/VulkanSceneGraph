@@ -118,9 +118,32 @@ typedef struct VkRenderPassCreateInfo2KHR
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Definitions not provided prior to 1.1.92
+//  Definitions not provided prior to 1.1.216
 //
-#if VK_HEADER_VERSION < 92
+
+#if VK_HEADER_VERSION < 216
+
+#    define VK_KHR_fragment_shader_barycentric 1
+#    define VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_SPEC_VERSION 1
+#    define VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME "VK_KHR_fragment_shader_barycentric"
+
+#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR VkStructureType(1000203000)
+#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_EXT VkStructureType(1000203000)
+
+typedef struct VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR
+{
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 fragmentShaderBarycentric;
+} VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Definitions not provided prior to 1.1.231
+//
+
+#if VK_HEADER_VERSION < 231
 
 #    define VK_EXT_mesh_shader 1
 #    define VK_EXT_MESH_SHADER_SPEC_VERSION 1
@@ -129,21 +152,8 @@ typedef struct VkRenderPassCreateInfo2KHR
 #    define VK_SHADER_STAGE_TASK_BIT_EXT VkShaderStageFlagBits(0x00000040)
 #    define VK_SHADER_STAGE_MESH_BIT_EXT VkShaderStageFlagBits(0x00000080)
 
-#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR VkStructureType(1000203000)
 #    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT VkStructureType(1000202000)
 #    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT VkStructureType(1000202001)
-#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_EXT VkStructureType(1000203000)
-
-#    define VK_KHR_fragment_shader_barycentric 1
-#    define VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_SPEC_VERSION 1
-#    define VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME "VK_KHR_fragment_shader_barycentric"
-
-typedef struct VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR
-{
-    VkStructureType sType;
-    void* pNext;
-    VkBool32 fragmentShaderBarycentric;
-} VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
 
 typedef struct VkPhysicalDeviceMeshShaderFeaturesEXT {
     VkStructureType    sType;
