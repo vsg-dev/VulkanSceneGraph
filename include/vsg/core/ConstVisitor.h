@@ -325,7 +325,7 @@ namespace vsg
         virtual void apply(const WriteTimestamp&);
         virtual void apply(const CopyQueryPoolResults&);
 
-        // rtx classes
+        // mesh shading classes
         virtual void apply(const DrawMeshTasks&);
         virtual void apply(const DrawMeshTasksIndirect&);
         virtual void apply(const DrawMeshTasksIndirectCount&);

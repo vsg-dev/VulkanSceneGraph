@@ -325,7 +325,7 @@ namespace vsg
         virtual void apply(WriteTimestamp&);
         virtual void apply(CopyQueryPoolResults&);
 
-        // rtx classes
+        // mesh shading classes
         virtual void apply(DrawMeshTasks&);
         virtual void apply(DrawMeshTasksIndirect&);
         virtual void apply(DrawMeshTasksIndirectCount&);
