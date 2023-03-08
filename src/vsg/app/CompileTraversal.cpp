@@ -78,6 +78,8 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
     context->graphicsQueue = device->getQueue(queueFamily);
 
     if (viewport) context->defaultPipelineStates.emplace_back(viewport);
+    else context->defaultPipelineStates.emplace_back(vsg::ViewportState::create(window.extent2D()));
+
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(MultisampleState::create(renderPass->maxSamples));
 
     contexts.push_back(context);
@@ -97,8 +99,8 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 
     context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
 
-    auto viewportState = view->camera->viewportState;
-    if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
+    if (view->camera && view->camera->viewportState) context->defaultPipelineStates.emplace_back(view->camera->viewportState);
+    else context->defaultPipelineStates.emplace_back(vsg::ViewportState::create(window.extent2D()));
 
     context->view = view.get();
     context->viewID = view->viewID;
@@ -121,8 +123,8 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
 
     context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
 
-    auto viewportState = view->camera->viewportState;
-    if (viewportState) context->defaultPipelineStates.emplace_back(viewportState);
+    if (view->camera && view->camera->viewportState) context->defaultPipelineStates.emplace_back(view->camera->viewportState);
+    else context->defaultPipelineStates.emplace_back(vsg::ViewportState::create(framebuffer.extent2D()));
 
     context->view = view.get();
     context->viewID = view->viewID;
