@@ -21,22 +21,22 @@ namespace vsg
     /// Equivalent to VkDrawMeshTasksIndirectCommandEXT that adds read/write support
     struct DrawMeshTasksIndirectCommand
     {
-        uint32_t x;
-        uint32_t y;
-        uint32_t z;
+        uint32_t groupCountX = 0;
+        uint32_t groupCountY = 0;
+        uint32_t groupCountZ = 0;
 
         void read(vsg::Input& input)
         {
-            input.read("groupCountX", x);
-            input.read("groupCountY", y);
-            input.read("groupCountZ", z);
+            input.read("groupCountX", groupCountX);
+            input.read("groupCountY", groupCountY);
+            input.read("groupCountZ", groupCountZ);
         }
 
         void write(vsg::Output& output) const
         {
-            output.write("groupCountX", x);
-            output.write("groupCountY", y);
-            output.write("groupCountZ", z);
+            output.write("groupCountX", groupCountX);
+            output.write("groupCountY", groupCountY);
+            output.write("groupCountZ", groupCountZ);
         }
     };
     VSG_type_name(vsg::DrawMeshTasksIndirectCommand);
