@@ -12,9 +12,9 @@ Discussion of new features:[New Feature Development RoadMap for future VulkanSce
 * [VulkanSceneGraph-1.0.2](https://github.com/vsg-dev/VulkanSceneGraph/releases/tag/VulkanSceneGraph-1.0.2) maintenance release
 * [VulkanSceneGraph-1.0.3](https://github.com/vsg-dev/VulkanSceneGraph/releases/tag/VulkanSceneGraph-1.0.3) maintenance release
 * Billboard support in vsg::Text and standard shaders and geometry - part of 1.0.3
+* Rewrite MeshShader to use Khronos Mesh Shaders functions.
 
 #### Current development tasks:
-* Rewrite MeshShader to use Khronos Mesh Shaders functions.
 * vsgQt support for Wayland
 
 #### Future development tasks:
