@@ -162,6 +162,24 @@ namespace vsg
         virtual void apply(dvec2Value&);
         virtual void apply(dvec3Value&);
         virtual void apply(dvec4Value&);
+        virtual void apply(bvec2Value&);
+        virtual void apply(bvec3Value&);
+        virtual void apply(bvec4Value&);
+        virtual void apply(ubvec2Value&);
+        virtual void apply(ubvec3Value&);
+        virtual void apply(ubvec4Value&);
+        virtual void apply(svec2Value&);
+        virtual void apply(svec3Value&);
+        virtual void apply(svec4Value&);
+        virtual void apply(usvec2Value&);
+        virtual void apply(usvec3Value&);
+        virtual void apply(usvec4Value&);
+        virtual void apply(ivec2Value&);
+        virtual void apply(ivec3Value&);
+        virtual void apply(ivec4Value&);
+        virtual void apply(uivec2Value&);
+        virtual void apply(uivec3Value&);
+        virtual void apply(uivec4Value&);
 
         // Arrays
         virtual void apply(byteArray&);
