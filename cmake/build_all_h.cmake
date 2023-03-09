@@ -40,7 +40,7 @@ macro(BUILD_ALL_H)
     APPEND_INCLUDES(ALL_H_CONTENTS UTILS_HEADERS "// Utility header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS TEXT_HEADERS "// Text header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS RAYTRACING_HEADERS "// Ray tracing header files\n")
-    APPEND_INCLUDES(ALL_H_CONTENTS MESHSHADERS_HEADERS "// MESHSHADERS mesh  header files\n")
+    APPEND_INCLUDES(ALL_H_CONTENTS MESHSHADERS_HEADERS "// Mesh shader header files\n")
 
     file(WRITE ${INCLUDE_DIR}/vsg/all.h ${ALL_H_CONTENTS})
 
