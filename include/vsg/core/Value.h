@@ -181,13 +181,25 @@ namespace vsg
     VSG_value(dvec3Value, dvec3);
     VSG_value(dvec4Value, dvec4);
 
+    VSG_value(bvec2Value, bvec2);
+    VSG_value(bvec3Value, bvec3);
+    VSG_value(bvec4Value, bvec4);
+
     VSG_value(ubvec2Value, ubvec2);
     VSG_value(ubvec3Value, ubvec3);
     VSG_value(ubvec4Value, ubvec4);
 
+    VSG_value(svec2Value, svec2);
+    VSG_value(svec3Value, svec3);
+    VSG_value(svec4Value, svec4);
+
     VSG_value(usvec2Value, usvec2);
     VSG_value(usvec3Value, usvec3);
     VSG_value(usvec4Value, usvec4);
+
+    VSG_value(ivec2Value, ivec2);
+    VSG_value(ivec3Value, ivec3);
+    VSG_value(ivec4Value, ivec4);
 
     VSG_value(uivec2Value, uivec2);
     VSG_value(uivec3Value, uivec3);

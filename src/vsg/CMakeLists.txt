@@ -176,9 +176,9 @@ set(SOURCES
     raytracing/TopLevelAccelerationStructure.cpp
     raytracing/TraceRays.cpp
 
-    rtx/DrawMeshTasks.cpp
-    rtx/DrawMeshTasksIndirect.cpp
-    rtx/DrawMeshTasksIndirectCount.cpp
+    meshshaders/DrawMeshTasks.cpp
+    meshshaders/DrawMeshTasksIndirect.cpp
+    meshshaders/DrawMeshTasksIndirectCount.cpp
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp

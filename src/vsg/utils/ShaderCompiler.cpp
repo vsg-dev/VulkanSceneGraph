@@ -114,8 +114,8 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_MISS_BIT_KHR): return "Miss Shader";
         case (VK_SHADER_STAGE_INTERSECTION_BIT_KHR): return "Intersection Shader";
         case (VK_SHADER_STAGE_CALLABLE_BIT_KHR): return "Callable Shader";
-        case (VK_SHADER_STAGE_TASK_BIT_NV): return "Task Shader";
-        case (VK_SHADER_STAGE_MESH_BIT_NV): return "Mesh Shader";
+        case (VK_SHADER_STAGE_TASK_BIT_EXT): return "Task Shader";
+        case (VK_SHADER_STAGE_MESH_BIT_EXT): return "Mesh Shader";
         default: return "Unknown Shader Type";
         }
         return "";
@@ -168,8 +168,14 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             envStage = EShLangCallable;
             minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
             break;
-        case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; break;
-        case (VK_SHADER_STAGE_MESH_BIT_NV): envStage = EShLangMeshNV; break;
+        case (VK_SHADER_STAGE_TASK_BIT_EXT):
+            envStage = EShLangTask;
+            minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
+            break;
+        case (VK_SHADER_STAGE_MESH_BIT_EXT):
+            envStage = EShLangMesh;
+            minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
+            break;
 
         default: break;
         }

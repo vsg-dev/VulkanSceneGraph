@@ -17,21 +17,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // DrawMeshTasks command encapsulates vkCmdDrawMeshTasksNV call and associated parameters.
+    // DrawMeshTasks command encapsulates vkCmdDrawMeshTasksEXT call and associated parameters.
     class VSG_DECLSPEC DrawMeshTasks : public Inherit<Command, DrawMeshTasks>
     {
     public:
         DrawMeshTasks();
 
-        DrawMeshTasks(uint32_t in_taskCount, uint32_t in_firstTask);
+        DrawMeshTasks(uint32_t in_groupCountX, uint32_t in_groupCountY, uint32_t in_groupCountZ);
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
         void record(CommandBuffer& commandBuffer) const override;
 
-        uint32_t taskCount = 0;
-        uint32_t firstTask = 0;
+        uint32_t groupCountX = 0;
+        uint32_t groupCountY = 0;
+        uint32_t groupCountZ = 0;
     };
     VSG_type_name(vsg::DrawMeshTasks);
 

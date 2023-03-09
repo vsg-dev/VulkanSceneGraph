@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2019 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -14,33 +14,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/Command.h>
 #include <vsg/state/BufferInfo.h>
-#include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
 {
-    /// Equivalent to VkDrawMeshTasksIndirectCommandKHR that adds read/write support
-    struct DrawMeshTasksIndirectCommand
+
+    /// DrawMeshTasksIndirectCount command encapsulates vkCmdDrawMeshTasksIndirectCountEXT call and associated parameters.
+    class VSG_DECLSPEC DrawMeshTasksIndirectCount : public Inherit<Command, DrawMeshTasksIndirectCount>
     {
-        uint32_t taskCount;
-        uint32_t firstTask;
+    public:
+        DrawMeshTasksIndirectCount();
 
-        void read(vsg::Input& input)
-        {
-            input.read("taskCount", taskCount);
-            input.read("firstTask", firstTask);
-        }
+        DrawMeshTasksIndirectCount(ref_ptr<Data> in_bufferData, ref_ptr<Data> in_countBufferData, uint32_t in_maxDrawCount, uint32_t in_stride);
 
-        void write(vsg::Output& output) const
-        {
-            output.write("taskCount", taskCount);
-            output.write("firstTask", firstTask);
-        }
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+        void record(CommandBuffer& commandBuffer) const override;
+
+        ref_ptr<BufferInfo> drawParameters;
+        ref_ptr<BufferInfo> drawCount;
+        uint32_t maxDrawCount = 0;
+        uint32_t stride = 0;
     };
-    VSG_type_name(vsg::DrawMeshTasksIndirectCommand);
-
-    template<>
-    constexpr bool has_read_write<DrawMeshTasksIndirectCommand>() { return true; }
-
-    VSG_array(DrawMeshTasksIndirectCommandArray, DrawMeshTasksIndirectCommand);
+    VSG_type_name(vsg::DrawMeshTasksIndirectCount);
 
 } // namespace vsg
