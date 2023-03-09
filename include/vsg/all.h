@@ -33,6 +33,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/core/compare.h>
+#include <vsg/core/contains.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
@@ -244,6 +245,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/spirv.h>
 #include <vsg/io/stream.h>
 #include <vsg/io/tile.h>
+#include <vsg/io/txt.h>
 #include <vsg/io/write.h>
 
 // Utility header files
@@ -281,8 +283,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/raytracing/TopLevelAccelerationStructure.h>
 #include <vsg/raytracing/TraceRays.h>
 
-// Mesh shading  header files
+// MESHSHADERS mesh  header files
 #include <vsg/meshshaders/DrawMeshTasks.h>
 #include <vsg/meshshaders/DrawMeshTasksIndirect.h>
-#include <vsg/meshshaders/DrawMeshTasksIndirectCommand.h>
 #include <vsg/meshshaders/DrawMeshTasksIndirectCount.h>
