@@ -54,7 +54,12 @@ ref_ptr<Object> glsl::createShader(const Path& found_filename, std::string& sour
         source = insertIncludes(source, prependPathToOptionsIfRequired(found_filename, options));
     }
 
-    auto sm = ShaderModule::create(source);
+    auto settings = ShaderCompileSettings::create();
+    if (options->shaderSourceDebugging)
+    {
+        settings->sourceDebugging = true;
+    }
+    auto sm = ShaderModule::create(source, settings);
 
     if (stageFlagBits != VK_SHADER_STAGE_ALL)
     {

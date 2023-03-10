@@ -36,6 +36,7 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(defaultVersion, rhs.defaultVersion))) return result;
     if ((result = compare_value(target, rhs.target))) return result;
     if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
+    if ((result = compare_value(sourceDebugging, rhs.sourceDebugging))) return result;
     return compare_container(defines, rhs.defines);
 }
 
@@ -47,6 +48,7 @@ void ShaderCompileSettings::read(Input& input)
     input.read("defaultVersion", defaultVersion);
     input.readValue<int>("target", target);
     input.read("forwardCompatible", forwardCompatible);
+    input.read("sourceDebugging", sourceDebugging);
 
     input.readValues("defines", defines);
 }
@@ -59,6 +61,7 @@ void ShaderCompileSettings::write(Output& output) const
     output.write("defaultVersion", defaultVersion);
     output.writeValue<int>("target", target);
     output.write("forwardCompatible", forwardCompatible);
+    output.write("sourceDebugging", sourceDebugging);
 
     output.writeValues("defines", defines);
 }

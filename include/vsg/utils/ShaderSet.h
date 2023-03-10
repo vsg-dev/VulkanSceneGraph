@@ -76,7 +76,7 @@ namespace vsg
     {
     public:
         ShaderSet();
-        explicit ShaderSet(const ShaderStages& in_stages);
+        explicit ShaderSet(const ShaderStages& in_stages, ref_ptr<ShaderCompileSettings> in_hints = {});
 
         /// base ShaderStages that other variants as based on.
         ShaderStages stages;
@@ -88,6 +88,7 @@ namespace vsg
         std::set<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
 
+        ref_ptr<ShaderCompileSettings> defaultShaderHints;
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
         std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DereferenceLess> variants;
 

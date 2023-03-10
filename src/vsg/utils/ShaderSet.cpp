@@ -82,13 +82,22 @@ int DefinesArrayState::compare(const DefinesArrayState& rhs) const
     return compare_pointer(arrayState, rhs.arrayState);
 }
 
-ShaderSet::ShaderSet()
+ShaderSet::ShaderSet() :
+    defaultShaderHints(ShaderCompileSettings::create())
 {
 }
 
-ShaderSet::ShaderSet(const ShaderStages& in_stages) :
+ShaderSet::ShaderSet(const ShaderStages& in_stages, ref_ptr<ShaderCompileSettings> in_hints) :
     stages(in_stages)
 {
+    if (in_hints)
+    {
+        defaultShaderHints = in_hints;
+    }
+    else
+    {
+        defaultShaderHints = ShaderCompileSettings::create();
+    }
 }
 
 ShaderSet::~ShaderSet()
@@ -227,6 +236,7 @@ void ShaderSet::read(Input& input)
     Object::read(input);
 
     input.readObjects("stages", stages);
+    input.readObject("defaultShaderHints", defaultShaderHints);
 
     auto num_attributeBindings = input.readValue<uint32_t>("attributeBindings");
     attributeBindings.resize(num_attributeBindings);
@@ -289,6 +299,7 @@ void ShaderSet::write(Output& output) const
     Object::write(output);
 
     output.writeObjects("stages", stages);
+    output.writeObject("defaultShaderHints", defaultShaderHints);
 
     output.writeValue<uint32_t>("attributeBindings", attributeBindings.size());
     for (auto& binding : attributeBindings)

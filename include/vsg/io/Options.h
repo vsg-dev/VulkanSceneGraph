@@ -89,6 +89,7 @@ namespace vsg
         ///     "text" will substitute for vsg::createTextShaderSet()
         std::map<std::string, ref_ptr<ShaderSet>> shaderSets;
 
+        bool shaderSourceDebugging = false;
     protected:
         virtual ~Options();
     };

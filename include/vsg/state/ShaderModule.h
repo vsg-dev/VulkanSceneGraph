@@ -50,6 +50,7 @@ namespace vsg
         SpirvTarget target = SPIRV_1_0;
         bool forwardCompatible = false;
         std::set<std::string> defines;
+        bool sourceDebugging = false;
 
         int compare(const Object& rhs_object) const override;
 

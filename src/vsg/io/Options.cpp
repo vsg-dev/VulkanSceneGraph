@@ -44,7 +44,8 @@ Options::Options(const Options& options) :
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
     sceneCoordinateConvention(options.sceneCoordinateConvention),
     formatCoordinateConventions(options.formatCoordinateConventions),
-    shaderSets(options.shaderSets)
+    shaderSets(options.shaderSets),
+    shaderSourceDebugging(options.shaderSourceDebugging)
 {
     getOrCreateAuxiliary();
     // copy any meta data.
@@ -147,6 +148,7 @@ bool Options::readOptions(CommandLine& arguments)
 
     if (arguments.read("--file-cache", fileCache)) read = true;
     if (arguments.read("--extension-hint", extensionHint)) read = true;
+    if (arguments.read("--shader-source-debugging", shaderSourceDebugging)) read = true;
 
     return read;
 }
