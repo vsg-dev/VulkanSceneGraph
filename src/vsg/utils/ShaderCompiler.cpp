@@ -273,6 +273,11 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             if (settings)
             {
                 spvOptions.generateDebugInfo = settings->generateDebugInfo;
+                if (spvOptions.generateDebugInfo)
+                {
+                    spvOptions.emitNonSemanticShaderDebugInfo = true;
+                    spvOptions.emitNonSemanticShaderDebugSource = true;
+                }
             }
 
             glslang::GlslangToSpv(*(program->getIntermediate((EShLanguage)eshl_stage)), vsg_shader->module->code, &logger, &spvOptions);
