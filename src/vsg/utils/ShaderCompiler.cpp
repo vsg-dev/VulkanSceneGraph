@@ -263,10 +263,18 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         auto vsg_shader = stageShaderMap[(EShLanguage)eshl_stage];
         if (vsg_shader && program->getIntermediate((EShLanguage)eshl_stage))
         {
+            auto settings = vsg_shader->module->hints ? vsg_shader->module->hints : defaults;
+
             ShaderModule::SPIRV spirv;
             std::string warningsErrors;
             spv::SpvBuildLogger logger;
+
             glslang::SpvOptions spvOptions;
+            if (settings)
+            {
+                spvOptions.generateDebugInfo = settings->generateDebugInfo;
+            }
+
             glslang::GlslangToSpv(*(program->getIntermediate((EShLanguage)eshl_stage)), vsg_shader->module->code, &logger, &spvOptions);
         }
     }
