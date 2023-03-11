@@ -66,7 +66,7 @@ void ShaderCompileSettings::write(Output& output) const
     output.writeValue<int>("target", target);
     output.write("forwardCompatible", forwardCompatible);
 
-    if (output.version_greater_equal(1, 0 ,4))
+    if (output.version_greater_equal(1, 0, 4))
     {
         output.write("generateDebugInfo", generateDebugInfo);
     }
