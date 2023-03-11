@@ -86,8 +86,9 @@ ShaderSet::ShaderSet()
 {
 }
 
-ShaderSet::ShaderSet(const ShaderStages& in_stages) :
-    stages(in_stages)
+ShaderSet::ShaderSet(const ShaderStages& in_stages, ref_ptr<ShaderCompileSettings> in_hints) :
+    stages(in_stages),
+    defaultShaderHints(in_hints)
 {
 }
 
@@ -228,6 +229,11 @@ void ShaderSet::read(Input& input)
 
     input.readObjects("stages", stages);
 
+    if (input.version_greater_equal(1, 0, 4))
+    {
+        input.readObject("defaultShaderHints", defaultShaderHints);
+    }
+
     auto num_attributeBindings = input.readValue<uint32_t>("attributeBindings");
     attributeBindings.resize(num_attributeBindings);
     for (auto& binding : attributeBindings)
@@ -289,6 +295,11 @@ void ShaderSet::write(Output& output) const
     Object::write(output);
 
     output.writeObjects("stages", stages);
+
+    if (output.version_greater_equal(1, 0, 4))
+    {
+        output.writeObject("defaultShaderHints", defaultShaderHints);
+    }
 
     output.writeValue<uint32_t>("attributeBindings", attributeBindings.size());
     for (auto& binding : attributeBindings)
