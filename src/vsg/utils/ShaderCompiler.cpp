@@ -212,6 +212,10 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         shader->setStrings(&str, 1);
 
         EShMessages messages = EShMsgDefault;
+        if (settings->generateDebugInfo )
+        {
+            messages = static_cast<EShMessages>(messages | EShMsgDebugInfo);
+        }
         bool parseResult = shader->parse(builtInResources, settings->defaultVersion, settings->forwardCompatible, messages);
 
         if (parseResult)
