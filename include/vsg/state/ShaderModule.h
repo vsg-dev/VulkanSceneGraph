@@ -49,6 +49,8 @@ namespace vsg
         int defaultVersion = 450;
         SpirvTarget target = SPIRV_1_0;
         bool forwardCompatible = false;
+        bool generateDebugInfo = false; // maps to SpvOptions::generateDebugInfo
+
         std::set<std::string> defines;
 
         int compare(const Object& rhs_object) const override;

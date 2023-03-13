@@ -497,6 +497,10 @@ typedef enum VkRayTracingShaderGroupTypeKHR
     VK_RAY_TRACING_SHADER_GROUP_TYPE_MAX_ENUM_KHR = 0x7FFFFFFF
 } VkRayTracingShaderGroupTypeKHR;
 
+#define VK_KHR_shader_non_semantic_info 1
+#define VK_KHR_SHADER_NON_SEMANTIC_INFO_SPEC_VERSION 1
+#define VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME "VK_KHR_shader_non_semantic_info"
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

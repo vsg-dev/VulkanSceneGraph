@@ -58,7 +58,7 @@ GraphicsPipelineConfigurator::GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in
     if (!multisampleState) multisampleState = vsg::MultisampleState::create();
     if (!depthStencilState) depthStencilState = vsg::DepthStencilState::create();
 
-    shaderHints = vsg::ShaderCompileSettings::create();
+    shaderHints = shaderSet->defaultShaderHints ? vsg::ShaderCompileSettings::create(*shaderSet->defaultShaderHints) : vsg::ShaderCompileSettings::create();
 }
 
 void GraphicsPipelineConfigurator::reset()
