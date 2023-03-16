@@ -26,6 +26,8 @@ The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provide detaile
 * [vsgFramework](https://github.com/vsg-dev/vsgFramework) template project that uses CMake FetchContent to pull in all the main libraries associated with VulkanSceneGraph and dependencies and builds them together.
 * [vsgSDL](https://github.com/ptrfun/vsgSDL) SDL integration with VulkanSceneGraph.
 * [vsgvr](https://github.com/geefr/vsgvr) OpenVR integration with VulkanSceneGraph.
+* [vsgCs](https://github.com/timoore/vsgCs) 3D Tiles and Cesium ion integration
+* [vsgEarth](https://github.com/timoore/vsgEarth) osgEarth integration
 
 ## Quick Guide to building the VSG
 
