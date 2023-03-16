@@ -4,11 +4,9 @@ VulkanSceneGraph (VSG), is a modern, cross platform, high performance scene grap
 
 This repository contains C++ headers and source and CMake build scripts to build the libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux (desktops variants through to Jetson & Raspberry Pi), Windows (VisualStudio, MinGW & Cygwin), Android, and macOS & iOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)).
 
-## Links Further Information
+## Links to further information
 
-The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provide detailed features of the project, tutorial and reference documentation, while this repository provides the source code and build support for creating the VulkanScenGraph library.
-
-Quick links to resources hosted on the website:
+The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provide detailed features of the project, tutorial and reference documentation, while this repository provides the source code and build support for creating the VulkanScenGraph library. Quick links to resources hosted on the website:
 * [Features](https://www.vulkanscenegraph.org/features) - tour of features you'll find in the VulkanSceneGraph and companion projects.
 * [Screenshots](https://www.vulkanscenegraph.org/screenshots) - screenshots from VulkanSceneGraph exmples and 3rd party library and applications
 * [Tutorial](https://www.vulkanscenegraph.org/tutorial) - mulit-part tutorial that takes you from introduction to scene graphs to multi-threading and optimization.
@@ -17,7 +15,7 @@ Quick links to resources hosted on the website:
 * [Services](https://www.vulkanscengraph.org/services) - List of companinies connected to the VulkanSceneGraph project that can provide professional services
 
 
-## Links Companion projects that offer additional features:
+## Links to companion projects that offer additional features
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) tests & examples.
 * [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph integration library that enables converting of OSG to VSG scene graph and use of OpenSceneGraph loaders.
