@@ -2,11 +2,9 @@
 
 VulkanSceneGraph (VSG), is a modern, cross platform, high performance scene graph library built upon [Vulkan](https://www.khronos.org/vulkan/) graphics/compute API. The software is written in [C++17](https://en.wikipedia.org/wiki/C%2B%2B17), and follows the [CppCoreGuidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) and [FOSS Best Practices](https://github.com/coreinfrastructure/best-practices-badge/blob/master/doc/criteria.md).  The source code is published under the [MIT License](LICENSE.md).
 
-The project aims to bring the performance of Vulkan to the wider developer community by providing a modern, high quality software library that is easy to use and focused on making the development of high performance graphics and compute applications a productive and fun experience.  Sharing the same lead author as the OpenSceneGraph, all the lessons about software quality, performance and the needs of application developers are applied to VulkanSceneGraph to provide a distillation of what a next gen scene graph needs to be.
-
 This repository contains C++ headers and source and CMake build scripts to build the libvsg library.  Additional support libraries and examples are provided in separate repositories, links to these are provided below.  The software currently builds under Linux (desktops variants through to Jetson & Raspberry Pi), Windows (VisualStudio, MinGW & Cygwin), Android, and macOS & iOS (using [MoltenVk](https://github.com/KhronosGroup/MoltenVK)).
 
-## Further Information & Documentation
+## Links Further Information
 
 The [VulkanSceneGraph](https://www.vulkansceengraph.org) website provide detailed features of the project, tutorial and reference documentation, while this repository provides the source code and build support for creating the VulkanScenGraph library.
 
@@ -19,7 +17,7 @@ Quick links to resources hosted on the website:
 * [Services](https://www.vulkanscengraph.org/services) - List of companinies connected to the VulkanSceneGraph project that can provide professional services
 
 
-## Companion projects that offer additional features:
+## Links Companion projects that offer additional features:
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) tests & examples.
 * [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph integration library that enables converting of OSG to VSG scene graph and use of OpenSceneGraph loaders.
