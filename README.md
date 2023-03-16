@@ -11,7 +11,7 @@ The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provide detaile
 Quick links to resources hosted on the website:
 * [Features](https://www.vulkanscenegraph.org/features) - tour of features you'll find in the VulkanSceneGraph and companion projects.
 * [Screenshots](https://www.vulkanscenegraph.org/screenshots) - screenshots from VulkanSceneGraph exmples and 3rd party library and applications
-* [Tutorial](https://www.vulkanscenegraph.org/tuorial) - mulit-part tutorial that takes you from introduction to scene graphs to multi-threading and optimization.
+* [Tutorial](https://www.vulkanscenegraph.org/tutorial) - mulit-part tutorial that takes you from introduction to scene graphs to multi-threading and optimization.
 * [Documentation](https://www.vulkanscengraph.org/documentation) - doxygen generated reference documentation and links to 3rd party learning materials
 * [Discussion](https://github.com/vsg-dev/VulkanSceneGraph/discussions) - Discussion forum hosted on github.
 * [Services](https://www.vulkanscengraph.org/services) - List of companinies connected to the VulkanSceneGraph project that can provide professional services
