@@ -182,7 +182,7 @@ namespace vsg
     template<typename T>
     constexpr t_quat<T> conjugate(const t_quat<T>& v)
     {
-        return t_quat<T>(-v[0], -v[1], -v[2], -v[3]);
+        return t_quat<T>(-v[0], -v[1], -v[2], v[3]);
     }
 
     template<typename T>
