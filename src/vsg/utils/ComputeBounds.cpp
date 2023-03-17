@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/TextGroup.h>
@@ -89,6 +90,14 @@ void ComputeBounds::apply(const vsg::Geometry& geometry)
     {
         command->accept(*this);
     }
+}
+
+void ComputeBounds::apply(const vsg::VertexDraw& vid)
+{
+    auto& arrayState = *arrayStateStack.back();
+    arrayState.apply(vid);
+
+    applyDraw(vid.firstVertex, vid.vertexCount, vid.firstInstance, vid.instanceCount);
 }
 
 void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)

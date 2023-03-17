@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Transform.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/utils/Intersector.h>
@@ -118,6 +119,18 @@ void Intersector::apply(const CullNode& cn)
     PushPopNode ppn(_nodePath, &cn);
 
     if (intersects(cn.bound)) cn.traverse(*this);
+}
+
+void Intersector::apply(const VertexDraw& vid)
+{
+    auto& arrayState = *arrayStateStack.back();
+    arrayState.apply(vid);
+    if (!arrayState.vertices) return;
+
+
+    PushPopNode ppn(_nodePath, &vid);
+
+    intersectDraw(vid.firstVertex, vid.vertexCount, vid.firstInstance, vid.instanceCount);
 }
 
 void Intersector::apply(const VertexIndexDraw& vid)
