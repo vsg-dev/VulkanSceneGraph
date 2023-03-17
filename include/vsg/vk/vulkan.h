@@ -118,69 +118,95 @@ typedef struct VkRenderPassCreateInfo2KHR
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Definitions not provided prior to 1.1.92
+//  Definitions not provided prior to 1.1.216
 //
-#if VK_HEADER_VERSION < 92
 
-#    define VK_NV_mesh_shader 1
-#    define VK_NV_MESH_SHADER_SPEC_VERSION 1
-#    define VK_NV_MESH_SHADER_EXTENSION_NAME "VK_NV_mesh_shader"
+#if VK_HEADER_VERSION < 216
 
-#    define VK_SHADER_STAGE_TASK_BIT_NV VkShaderStageFlagBits(0x00000040)
-#    define VK_SHADER_STAGE_MESH_BIT_NV VkShaderStageFlagBits(0x00000080)
+#    define VK_KHR_fragment_shader_barycentric 1
+#    define VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_SPEC_VERSION 1
+#    define VK_KHR_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME "VK_KHR_fragment_shader_barycentric"
 
-#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV VkStructureType(1000203000)
-#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV VkStructureType(1000202000)
-#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV VkStructureType(1000202001)
-#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV VkStructureType(1000203000)
+#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR VkStructureType(1000203000)
+#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_EXT VkStructureType(1000203000)
 
-#    define VK_NV_fragment_shader_barycentric 1
-#    define VK_NV_FRAGMENT_SHADER_BARYCENTRIC_SPEC_VERSION 1
-#    define VK_NV_FRAGMENT_SHADER_BARYCENTRIC_EXTENSION_NAME "VK_NV_fragment_shader_barycentric"
-
-typedef struct VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV
+typedef struct VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR
 {
     VkStructureType sType;
     void* pNext;
     VkBool32 fragmentShaderBarycentric;
-} VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV;
+} VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR;
+#endif
 
-typedef struct VkPhysicalDeviceMeshShaderFeaturesNV
-{
-    VkStructureType sType;
-    void* pNext;
-    VkBool32 taskShader;
-    VkBool32 meshShader;
-} VkPhysicalDeviceMeshShaderFeaturesNV;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Definitions not provided prior to 1.1.231
+//
 
-typedef struct VkPhysicalDeviceMeshShaderPropertiesNV
-{
-    VkStructureType sType;
-    void* pNext;
-    uint32_t maxDrawMeshTasksCount;
-    uint32_t maxTaskWorkGroupInvocations;
-    uint32_t maxTaskWorkGroupSize[3];
-    uint32_t maxTaskTotalMemorySize;
-    uint32_t maxTaskOutputCount;
-    uint32_t maxMeshWorkGroupInvocations;
-    uint32_t maxMeshWorkGroupSize[3];
-    uint32_t maxMeshTotalMemorySize;
-    uint32_t maxMeshOutputVertices;
-    uint32_t maxMeshOutputPrimitives;
-    uint32_t maxMeshMultiviewViewCount;
-    uint32_t meshOutputPerVertexGranularity;
-    uint32_t meshOutputPerPrimitiveGranularity;
-} VkPhysicalDeviceMeshShaderPropertiesNV;
+#if VK_HEADER_VERSION < 231
 
-typedef struct VkDrawMeshTasksIndirectCommandNV
-{
-    uint32_t taskCount;
-    uint32_t firstTask;
-} VkDrawMeshTasksIndirectCommandNV;
+#    define VK_EXT_mesh_shader 1
+#    define VK_EXT_MESH_SHADER_SPEC_VERSION 1
+#    define VK_EXT_MESH_SHADER_EXTENSION_NAME "VK_EXT_mesh_shader"
 
-typedef void(VKAPI_PTR* PFN_vkCmdDrawMeshTasksNV)(VkCommandBuffer commandBuffer, uint32_t taskCount, uint32_t firstTask);
-typedef void(VKAPI_PTR* PFN_vkCmdDrawMeshTasksIndirectNV)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
-typedef void(VKAPI_PTR* PFN_vkCmdDrawMeshTasksIndirectCountNV)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
+#    define VK_SHADER_STAGE_TASK_BIT_EXT VkShaderStageFlagBits(0x00000040)
+#    define VK_SHADER_STAGE_MESH_BIT_EXT VkShaderStageFlagBits(0x00000080)
+
+#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT VkStructureType(1000202000)
+#    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT VkStructureType(1000202001)
+
+typedef struct VkPhysicalDeviceMeshShaderFeaturesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           taskShader;
+    VkBool32           meshShader;
+    VkBool32           multiviewMeshShader;
+    VkBool32           primitiveFragmentShadingRateMeshShader;
+    VkBool32           meshShaderQueries;
+} VkPhysicalDeviceMeshShaderFeaturesEXT;
+
+typedef struct VkPhysicalDeviceMeshShaderPropertiesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           maxTaskWorkGroupTotalCount;
+    uint32_t           maxTaskWorkGroupCount[3];
+    uint32_t           maxTaskWorkGroupInvocations;
+    uint32_t           maxTaskWorkGroupSize[3];
+    uint32_t           maxTaskPayloadSize;
+    uint32_t           maxTaskSharedMemorySize;
+    uint32_t           maxTaskPayloadAndSharedMemorySize;
+    uint32_t           maxMeshWorkGroupTotalCount;
+    uint32_t           maxMeshWorkGroupCount[3];
+    uint32_t           maxMeshWorkGroupInvocations;
+    uint32_t           maxMeshWorkGroupSize[3];
+    uint32_t           maxMeshSharedMemorySize;
+    uint32_t           maxMeshPayloadAndSharedMemorySize;
+    uint32_t           maxMeshOutputMemorySize;
+    uint32_t           maxMeshPayloadAndOutputMemorySize;
+    uint32_t           maxMeshOutputComponents;
+    uint32_t           maxMeshOutputVertices;
+    uint32_t           maxMeshOutputPrimitives;
+    uint32_t           maxMeshOutputLayers;
+    uint32_t           maxMeshMultiviewViewCount;
+    uint32_t           meshOutputPerVertexGranularity;
+    uint32_t           meshOutputPerPrimitiveGranularity;
+    uint32_t           maxPreferredTaskWorkGroupInvocations;
+    uint32_t           maxPreferredMeshWorkGroupInvocations;
+    VkBool32           prefersLocalInvocationVertexOutput;
+    VkBool32           prefersLocalInvocationPrimitiveOutput;
+    VkBool32           prefersCompactVertexOutput;
+    VkBool32           prefersCompactPrimitiveOutput;
+} VkPhysicalDeviceMeshShaderPropertiesEXT;
+
+typedef struct VkDrawMeshTasksIndirectCommandEXT {
+    uint32_t    groupCountX;
+    uint32_t    groupCountY;
+    uint32_t    groupCountZ;
+} VkDrawMeshTasksIndirectCommandEXT;
+
+typedef void (VKAPI_PTR *PFN_vkCmdDrawMeshTasksEXT)(VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
+typedef void (VKAPI_PTR *PFN_vkCmdDrawMeshTasksIndirectEXT)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+typedef void (VKAPI_PTR *PFN_vkCmdDrawMeshTasksIndirectCountEXT)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -470,6 +496,10 @@ typedef enum VkRayTracingShaderGroupTypeKHR
     VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR = 2,
     VK_RAY_TRACING_SHADER_GROUP_TYPE_MAX_ENUM_KHR = 0x7FFFFFFF
 } VkRayTracingShaderGroupTypeKHR;
+
+#define VK_KHR_shader_non_semantic_info 1
+#define VK_KHR_SHADER_NON_SEMANTIC_INFO_SPEC_VERSION 1
+#define VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME "VK_KHR_shader_non_semantic_info"
 
 #endif
 

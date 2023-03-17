@@ -114,8 +114,8 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         case (VK_SHADER_STAGE_MISS_BIT_KHR): return "Miss Shader";
         case (VK_SHADER_STAGE_INTERSECTION_BIT_KHR): return "Intersection Shader";
         case (VK_SHADER_STAGE_CALLABLE_BIT_KHR): return "Callable Shader";
-        case (VK_SHADER_STAGE_TASK_BIT_NV): return "Task Shader";
-        case (VK_SHADER_STAGE_MESH_BIT_NV): return "Mesh Shader";
+        case (VK_SHADER_STAGE_TASK_BIT_EXT): return "Task Shader";
+        case (VK_SHADER_STAGE_MESH_BIT_EXT): return "Mesh Shader";
         default: return "Unknown Shader Type";
         }
         return "";
@@ -168,8 +168,14 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             envStage = EShLangCallable;
             minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
             break;
-        case (VK_SHADER_STAGE_TASK_BIT_NV): envStage = EShLangTaskNV; break;
-        case (VK_SHADER_STAGE_MESH_BIT_NV): envStage = EShLangMeshNV; break;
+        case (VK_SHADER_STAGE_TASK_BIT_EXT):
+            envStage = EShLangTask;
+            minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
+            break;
+        case (VK_SHADER_STAGE_MESH_BIT_EXT):
+            envStage = EShLangMesh;
+            minTargetLanguageVersion = glslang::EShTargetSpv_1_4;
+            break;
 
         default: break;
         }
@@ -206,6 +212,10 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         shader->setStrings(&str, 1);
 
         EShMessages messages = EShMsgDefault;
+        if (settings->generateDebugInfo )
+        {
+            messages = static_cast<EShMessages>(messages | EShMsgDebugInfo);
+        }
         bool parseResult = shader->parse(builtInResources, settings->defaultVersion, settings->forwardCompatible, messages);
 
         if (parseResult)
@@ -257,10 +267,23 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         auto vsg_shader = stageShaderMap[(EShLanguage)eshl_stage];
         if (vsg_shader && program->getIntermediate((EShLanguage)eshl_stage))
         {
+            auto settings = vsg_shader->module->hints ? vsg_shader->module->hints : defaults;
+
             ShaderModule::SPIRV spirv;
             std::string warningsErrors;
             spv::SpvBuildLogger logger;
+
             glslang::SpvOptions spvOptions;
+            if (settings)
+            {
+                spvOptions.generateDebugInfo = settings->generateDebugInfo;
+                if (spvOptions.generateDebugInfo)
+                {
+                    spvOptions.emitNonSemanticShaderDebugInfo = true;
+                    spvOptions.emitNonSemanticShaderDebugSource = true;
+                }
+            }
+
             glslang::GlslangToSpv(*(program->getIntermediate((EShLanguage)eshl_stage)), vsg_shader->module->code, &logger, &spvOptions);
         }
     }

@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/rtx/DrawMeshTasks.h>
+#include <vsg/meshshaders/DrawMeshTasks.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/Extensions.h>
@@ -22,27 +22,30 @@ DrawMeshTasks::DrawMeshTasks()
 {
 }
 
-DrawMeshTasks::DrawMeshTasks(uint32_t in_taskCount, uint32_t in_firstTask) :
-    taskCount(in_taskCount),
-    firstTask(in_firstTask)
+DrawMeshTasks::DrawMeshTasks(uint32_t in_groupCountX, uint32_t in_groupCountY, uint32_t in_groupCountZ) :
+    groupCountX(in_groupCountX),
+    groupCountY(in_groupCountY),
+    groupCountZ(in_groupCountZ)
 {
 }
 
 void DrawMeshTasks::read(Input& input)
 {
-    input.read("taskCount", taskCount);
-    input.read("firstTask", firstTask);
+    input.read("groupCountX", groupCountX);
+    input.read("groupCountY", groupCountY);
+    input.read("groupCountZ", groupCountZ);
 }
 
 void DrawMeshTasks::write(Output& output) const
 {
-    output.write("taskCount", taskCount);
-    output.write("firstTask", firstTask);
+    output.write("groupCountX", groupCountX);
+    output.write("groupCountY", groupCountY);
+    output.write("groupCountZ", groupCountZ);
 }
 
 void DrawMeshTasks::record(vsg::CommandBuffer& commandBuffer) const
 {
     Device* device = commandBuffer.getDevice();
     auto extensions = device->getExtensions();
-    extensions->vkCmdDrawMeshTasksNV(commandBuffer, taskCount, firstTask);
+    extensions->vkCmdDrawMeshTasksEXT(commandBuffer, groupCountX, groupCountY, groupCountZ);
 }
