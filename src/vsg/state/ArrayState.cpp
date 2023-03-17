@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/maths/sample.h>
 #include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/ArrayState.h>
 #include <vsg/state/BindDescriptorSet.h>
@@ -78,6 +79,11 @@ void ArrayState::apply(const InputAssemblyState& ias)
 void ArrayState::apply(const vsg::Geometry& geometry)
 {
     applyArrays(geometry.firstBinding, geometry.arrays);
+}
+
+void ArrayState::apply(const vsg::VertexDraw& vid)
+{
+    applyArrays(vid.firstBinding, vid.arrays);
 }
 
 void ArrayState::apply(const vsg::VertexIndexDraw& vid)
