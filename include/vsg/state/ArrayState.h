@@ -72,6 +72,7 @@ namespace vsg
         void apply(const InputAssemblyState& ias) override;
 
         void apply(const Geometry& geometry) override;
+        void apply(const VertexDraw& vid) override;
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
         void apply(const BufferInfo& bufferInfo) override;
