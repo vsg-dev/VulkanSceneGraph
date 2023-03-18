@@ -86,7 +86,8 @@ unusedStructMember:*include/vsg/utils/Builder.h
 unusedStructMember:*src/vsg/core/External.cpp
 
 // suppress warnings about unused variables
-unusedVariable:*/src/vsg/io/FileSystem.cpp
+unusedVariable:*src/vsg/io/FileSystem.cpp
+unusedVariable:*src/vsg/app/CompileManager.cpp
 
 // suppress inappropriate warnings about unassigned variables
 unassignedVariable:*src/vsg/commands/ExecuteCommands.cpp
@@ -97,6 +98,7 @@ unassignedVariable:*src/vsg/vk/ResourceRequirements.cpp
 unassignedVariable:*src/vsg/core/External.cpp
 unassignedVariable:*src/vsg/core/MemorySlots.cpp
 unassignedVariable:*src/vsg/vk/Context.cpp
+unassignedVariable:*src/vsg/app/CompileManager.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
 unreadVariable:*/src/vsg/state/DescriptorTexelBufferView.cpp
