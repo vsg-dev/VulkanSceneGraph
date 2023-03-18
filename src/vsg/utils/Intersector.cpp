@@ -127,7 +127,6 @@ void Intersector::apply(const VertexDraw& vid)
     arrayState.apply(vid);
     if (!arrayState.vertices) return;
 
-
     PushPopNode ppn(_nodePath, &vid);
 
     intersectDraw(vid.firstVertex, vid.vertexCount, vid.firstInstance, vid.instanceCount);
