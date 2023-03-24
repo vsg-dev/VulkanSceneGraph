@@ -35,16 +35,23 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         else
             sharedObjects = vsg::SharedObjects::create();
     }
-    if (!shaderSet)
+
+    ref_ptr<ShaderSet> activeShaderSet = shaderSet;
+    if (!activeShaderSet)
     {
         if (stateInfo.lighting)
-            shaderSet = createPhongShaderSet(options);
+        {
+            if (!_phongShaderSet) _phongShaderSet = createPhongShaderSet(options);
+            activeShaderSet = _phongShaderSet;
+        }
         else
-            shaderSet = createFlatShadedShaderSet(options);
-        //shaderSet = createPhysicsBasedRenderingShaderSet(options);
+        {
+            if (!_flatShadedShaderSet) _flatShadedShaderSet = createFlatShadedShaderSet(options);
+            activeShaderSet = _flatShadedShaderSet;
+        }
     }
 
-    auto graphicsPipelineConfig = vsg::GraphicsPipelineConfigurator::create(shaderSet);
+    auto graphicsPipelineConfig = vsg::GraphicsPipelineConfigurator::create(activeShaderSet);
 
     auto& defines = graphicsPipelineConfig->shaderHints->defines;
 
@@ -77,7 +84,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture(descriptors, "displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    if (auto& materialBinding = shaderSet->getUniformBinding("material"))
+    if (auto& materialBinding = activeShaderSet->getUniformBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
@@ -144,7 +151,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     stateGroup->add(bindDescriptorSet);
 
     // assign any custom ArrayState that may be required.
-    stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
+    stateGroup->prototypeArrayState = activeShaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
 
     auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 1);
     if (sharedObjects) sharedObjects->share(bindViewDescriptorSets);

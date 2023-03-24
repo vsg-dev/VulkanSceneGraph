@@ -6,7 +6,7 @@ This repository contains C++ headers and source and CMake build scripts to build
 
 ## Links to further information
 
-The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provides a detailed list of features, tutorials and reference documentation, while this repository provides the source code and build support for creating the VulkanScenGraph library. Quick links to resources hosted on the website:
+The [vulkanscenegraph.org website](https://www.vulkanscenegraph.org) provides a detailed list of features, tutorials and reference documentation, while this repository provides the source code and build support for creating the VulkanScenGraph library. Quick links to resources hosted on the website:
 * [Features](https://vsg-dev.github.io/vsg-dev.io/features) - tour of features you'll find in the VulkanSceneGraph and companion projects.
 * [Screenshots](https://vsg-dev.github.io/vsg-dev.io/screenshots) - screenshots from VulkanSceneGraph exmples and 3rd party library and applications
 * [Tutorials](https://vsg-dev.github.io/vsg-dev.io/tutorials) - mulit-part tutorial that takes you from introduction to scene graphs to multi-threading and optimization.
@@ -16,6 +16,8 @@ The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provides a deta
 
 
 ## Links to companion projects that offer additional features
+
+Hosted as part of the [vsg-dev](https://github.com/vsg-dev):
 * [vsgXchange](https://github.com/vsg-dev/vsgXchange) reading and writing of 3rd party image and 3d models and HTTP support.
 * [vsgExamples](https://github.com/vsg-dev/vsgExamples) tests & examples.
 * [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph integration library that enables converting of OSG to VSG scene graph and use of OpenSceneGraph loaders.
@@ -24,6 +26,8 @@ The [VulkanSceneGraph](https://www.vulkanscenegraph.org) website provides a deta
 * [vsgUnity](https://github.com/vsg-dev/vsgUnity) plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
 * [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
 * [vsgFramework](https://github.com/vsg-dev/vsgFramework) template project that uses CMake FetchContent to pull in all the main libraries associated with VulkanSceneGraph and dependencies and builds them together.
+
+Community projects:
 * [vsgSDL](https://github.com/ptrfun/vsgSDL) SDL integration with VulkanSceneGraph.
 * [vsgvr](https://github.com/geefr/vsgvr) OpenVR integration with VulkanSceneGraph.
 * [vsgCs](https://github.com/timoore/vsgCs) 3D Tiles and Cesium ion integration

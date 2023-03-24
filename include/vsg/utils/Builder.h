@@ -123,6 +123,9 @@ namespace vsg
         ref_ptr<Data> instanceColors(const GeometryInfo& info, uint32_t instanceCount);
         vec3 y_texcoord(const StateInfo& info) const;
 
+        ref_ptr<ShaderSet> _flatShadedShaderSet;
+        ref_ptr<ShaderSet> _phongShaderSet;
+
         using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;
         GeometryMap _boxes;
         GeometryMap _capsules;
