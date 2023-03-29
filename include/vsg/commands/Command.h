@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     class CommandBuffer;
-    
+
     /// Command base class from encapsualting vkCmd* calls and associated settings.
     class VSG_DECLSPEC Command : public Inherit<Compilable, Command>
     {
