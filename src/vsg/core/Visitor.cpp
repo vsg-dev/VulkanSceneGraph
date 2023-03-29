@@ -637,7 +637,7 @@ void Visitor::apply(BufferInfo& value)
 }
 void Visitor::apply(Command& value)
 {
-    apply(static_cast<Node&>(value));
+    apply(static_cast<Compilable&>(value));
 }
 void Visitor::apply(StateCommand& value)
 {
