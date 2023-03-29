@@ -517,6 +517,10 @@ void Visitor::apply(Node& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(Compilable& value)
+{
+    apply(static_cast<Node&>(value));
+}
 void Visitor::apply(Commands& value)
 {
     apply(static_cast<Node&>(value));

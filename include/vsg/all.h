@@ -58,6 +58,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Node header files
 #include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/nodes/Compilable.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
