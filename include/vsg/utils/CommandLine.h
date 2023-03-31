@@ -61,6 +61,11 @@ namespace vsg
                 v = _argv[i++];
                 return true;
             }
+            if constexpr (std::is_same_v<T, vsg::Path>)
+            {
+                v = _argv[i++];
+                return true;
+            }
             else
             {
                 std::size_t num_elements = type_num_elements(v);
