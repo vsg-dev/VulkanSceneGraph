@@ -27,6 +27,9 @@ namespace vsg
     class Inherit : public ParentClass
     {
     public:
+         using RefPtr = ref_ptr<Subclass>;
+
+    public:
         template<typename... Args>
         Inherit(Args&&... args) :
             ParentClass(args...) {}
