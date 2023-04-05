@@ -434,7 +434,7 @@ void RecordTraversal::apply(const View& view)
     {
         setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
-        if (view.camera->viewportState && _viewDependentState->viewportData)
+        if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
         {
             auto& viewportData = _viewDependentState->viewportData;
             auto& viewports = view.camera->viewportState->viewports;
@@ -453,13 +453,9 @@ void RecordTraversal::apply(const View& view)
                 }
             }
         }
+    }
 
-        view.traverse(*this);
-    }
-    else
-    {
-        view.traverse(*this);
-    }
+    view.traverse(*this);
 
     for (auto& bin : view.bins)
     {
