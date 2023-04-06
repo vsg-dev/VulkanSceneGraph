@@ -90,7 +90,7 @@ namespace vsg
         }
 
         template<typename... Args>
-        static ref_ptr<Array2D> create(Args... args)
+        static ref_ptr<Array2D> create(Args&&... args)
         {
             return ref_ptr<Array2D>(new Array2D(args...));
         }
