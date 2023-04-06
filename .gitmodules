@@ -1,3 +1,0 @@
-[submodule "src/glslang"]
-	path = src/glslang
-	url = https://github.com/vsg-dev/glslang.git
