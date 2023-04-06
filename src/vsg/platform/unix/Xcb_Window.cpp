@@ -393,7 +393,8 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_BIT_GRAVITY | XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK;
         uint32_t event_mask = XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
                               XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
-                              XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+                              XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_MOTION |
+                              XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
                               XCB_EVENT_MASK_FOCUS_CHANGE |
                               XCB_EVENT_MASK_PROPERTY_CHANGE;
         uint32_t value_list[] =
@@ -558,6 +559,21 @@ void Xcb_Window::releaseConnection()
     _connection = {};
 }
 
+namespace
+{
+    // For the moment we don't want the modifier keys in pointer events.
+    uint16_t maskButtons(uint16_t state)
+    {
+        constexpr const uint16_t buttonMask =
+            XCB_BUTTON_MASK_1 |
+            XCB_BUTTON_MASK_2 |
+            XCB_BUTTON_MASK_3 |
+            XCB_BUTTON_MASK_4 |
+            XCB_BUTTON_MASK_5;
+        return state & buttonMask;
+    }
+}
+
 bool Xcb_Window::pollEvents(UIEvents& events)
 {
     xcb_generic_event_t* event;
@@ -701,8 +717,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 }
                 else
                 {
-                    uint32_t pressedButtonMask = 1 << (7 + button_press->detail);
-                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtonMask;
+                    uint16_t pressedButtonMask = 1 << (7 + button_press->detail);
+                    uint16_t newButtonMask = maskButtons(button_press->state) | pressedButtonMask;
                     bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
                 }
             }
@@ -716,8 +732,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (button_release->same_screen && button_release->detail != 4 && button_release->detail != 5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-                uint32_t releasedButtonMask = 1 << (7 + button_release->detail);
-                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtonMask;
+                uint16_t releasedButtonMask = 1 << (7 + button_release->detail);
+                uint16_t newButtonMask = maskButtons(button_release->state) & ~releasedButtonMask;
                 bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
@@ -728,7 +744,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (motion_notify->same_screen)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
-                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(maskButtons(motion_notify->state))));
             }
 
             break;
