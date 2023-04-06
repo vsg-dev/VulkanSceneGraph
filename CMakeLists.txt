@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.0.4
+    VERSION 1.0.5
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 12)
-SET(VSG_RELEASE_CANDIDATE 0)
+SET(VSG_RELEASE_CANDIDATE 1)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
@@ -43,12 +43,14 @@ if (${VSG_SUPPORTS_ShaderCompiler})
     if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
         find_package(Git)
 
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repositiory")
+
+        execute_process(COMMAND ${GIT_EXECUTABLE} clone ${glslang_URL}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
                         RESULT_VARIABLE GIT_SUBMOD_RESULT)
 
         if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules, or set VSG_SUPPORTS_ShaderCompiler to 0.")
+            message(FATAL_ERROR "git clone " ${glslang_URL} " failed, please resolve issue or set VSG_SUPPORTS_ShaderCompiler to 0.")
         endif()
     endif()
 endif()
