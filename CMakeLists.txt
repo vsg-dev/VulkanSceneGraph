@@ -39,7 +39,7 @@ find_package(Threads REQUIRED)
 
 # Enable/disable shader compilation support that pulls in glslang
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
-if (${VSG_SUPPORTS_ShaderCompiler})
+if (VSG_SUPPORTS_ShaderCompiler)
     if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
         find_package(Git)
 
