@@ -55,8 +55,6 @@ if (${VSG_SUPPORTS_ShaderCompiler})
     endif()
 endif()
 
-set(VSG_SUPPORTS_Windowing "native" CACHE STRING "Select the type of Windowing support to build, options: none, native, xcb, win32, iOS, macOS, Android")
-
 if (ANDROID)
     find_library(AndroidLib android)
     if(CMAKE_SYSTEM_VERSION GREATER 24)
