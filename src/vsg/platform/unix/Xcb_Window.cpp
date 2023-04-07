@@ -558,6 +558,21 @@ void Xcb_Window::releaseConnection()
     _connection = {};
 }
 
+namespace
+{
+    // For the moment we don't want the modifier keys in pointer events.
+    uint16_t maskButtons(uint16_t state)
+    {
+        constexpr const uint16_t buttonMask =
+            XCB_BUTTON_MASK_1 |
+            XCB_BUTTON_MASK_2 |
+            XCB_BUTTON_MASK_3 |
+            XCB_BUTTON_MASK_4 |
+            XCB_BUTTON_MASK_5;
+        return state & buttonMask;
+    }
+}
+
 bool Xcb_Window::pollEvents(UIEvents& events)
 {
     xcb_generic_event_t* event;
@@ -701,8 +716,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 }
                 else
                 {
-                    uint32_t pressedButtonMask = 1 << (7 + button_press->detail);
-                    uint32_t newButtonMask = uint32_t(button_press->state) | pressedButtonMask;
+                    uint16_t pressedButtonMask = 1 << (7 + button_press->detail);
+                    uint16_t newButtonMask = maskButtons(button_press->state) | pressedButtonMask;
                     bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
                 }
             }
@@ -716,8 +731,8 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (button_release->same_screen && button_release->detail != 4 && button_release->detail != 5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-                uint32_t releasedButtonMask = 1 << (7 + button_release->detail);
-                uint32_t newButtonMask = uint32_t(button_release->state) & ~releasedButtonMask;
+                uint16_t releasedButtonMask = 1 << (7 + button_release->detail);
+                uint16_t newButtonMask = maskButtons(button_release->state) & ~releasedButtonMask;
                 bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
             }
 
@@ -728,7 +743,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (motion_notify->same_screen)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(motion_notify->time - _first_xcb_timestamp);
-                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(motion_notify->state)));
+                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, motion_notify->event_x, motion_notify->event_y, vsg::ButtonMask(maskButtons(motion_notify->state))));
             }
 
             break;
