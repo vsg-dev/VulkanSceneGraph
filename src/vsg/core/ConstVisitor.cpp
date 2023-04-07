@@ -517,6 +517,10 @@ void ConstVisitor::apply(const Node& value)
 {
     apply(static_cast<const Object&>(value));
 }
+void ConstVisitor::apply(const Compilable& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 void ConstVisitor::apply(const Commands& value)
 {
     apply(static_cast<const Node&>(value));
@@ -633,7 +637,7 @@ void ConstVisitor::apply(const BufferInfo& value)
 }
 void ConstVisitor::apply(const Command& value)
 {
-    apply(static_cast<const Node&>(value));
+    apply(static_cast<const Compilable&>(value));
 }
 void ConstVisitor::apply(const StateCommand& value)
 {

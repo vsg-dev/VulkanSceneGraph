@@ -12,20 +12,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/Compilable.h>
+#include <vsg/nodes/Node.h>
 
 namespace vsg
 {
-    class CommandBuffer;
+    class Context;
 
-    /// Command base class from encapsualting vkCmd* calls and associated settings.
-    class VSG_DECLSPEC Command : public Inherit<Compilable, Command>
+    /// Base class from encapsualting nodes that have Vulkan objects associated with them that will need compiled during the compile traversal
+    class VSG_DECLSPEC Compilable : public Inherit<Node, Compilable>
     {
     public:
-        Command() {}
+        Compilable() {}
 
-        virtual void record(CommandBuffer& commandBuffer) const = 0;
+        virtual void compile(Context& /*context*/) {};
     };
-    VSG_type_name(vsg::Command);
+    VSG_type_name(vsg::Compilable);
 
 } // namespace vsg
