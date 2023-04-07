@@ -33,6 +33,9 @@ extern "C"
     /// vsg::ShaderCompiler support enabled when 1, disabled when 0
     #define VSG_SUPPORTS_ShaderCompiler @VSG_SUPPORTS_ShaderCompiler@
 
+    /// Native Windowing support provided with vsg::Window::create(windowTraits) enabled when 1, disabled when 0
+    #define VSG_SUPPORTS_Windowing @VSG_SUPPORTS_Windowing@
+
     struct VsgVersion
     {
         unsigned int major;

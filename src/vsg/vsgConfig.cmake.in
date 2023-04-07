@@ -3,19 +3,6 @@ include(CMakeFindDependencyMacro)
 find_package(Vulkan @Vulkan_MIN_VERSION@ REQUIRED)
 find_dependency(Threads)
 
-if (ANDROID)
-    # TODO
-elseif (WIN32)
-    # just use native windowing
-elseif (APPLE)
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(QUARTZCORE_LIBRARY QuartzCore)
-else()
-    # use Xcb for native windowing
-    find_package(PkgConfig)
-    pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
-endif()
-
-@FIND_DEPENDENCY_GLSLANG@
+@FIND_DEPENDENCY_WINDOWING@
 include("${CMAKE_CURRENT_LIST_DIR}/vsgTargets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vsgMacros.cmake")
