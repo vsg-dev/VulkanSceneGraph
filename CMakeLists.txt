@@ -114,7 +114,7 @@ add_custom_target(build_all_h
 set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
 vsg_add_option_maintainer(
-    PREFIX VulkanSceneGraph
+    PREFIX v
     RCLEVEL ${VSG_RELEASE_CANDIDATE}
 )
 
