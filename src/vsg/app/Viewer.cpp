@@ -321,6 +321,13 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         {
             task->databasePager->compileManager = compileManager;
         }
+    }
+
+    // assign dynamic data to transfer trask
+    for (auto& task : recordAndSubmitTasks)
+    {
+        auto& deviceResource = deviceResourceMap[task->device];
+        auto& resourceRequirements = deviceResource.collectResources.requirements;
 
         if (task->earlyTransferTask)
         {

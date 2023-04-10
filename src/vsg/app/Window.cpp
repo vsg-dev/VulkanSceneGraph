@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Window.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/core/Exception.h>
+#include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -22,6 +23,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <chrono>
 
 using namespace vsg;
+
+#if VSG_SUPPORTS_Windowing==0
+ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits>)
+{
+    return {};
+}
+#endif
 
 Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),

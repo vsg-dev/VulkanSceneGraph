@@ -196,11 +196,11 @@ void CompileTraversal::apply(Object& object)
     object.traverse(*this);
 }
 
-void CompileTraversal::apply(Command& command)
+void CompileTraversal::apply(Compilable& node)
 {
     for (auto& context : contexts)
     {
-        command.compile(*context);
+        node.compile(*context);
     }
 }
 

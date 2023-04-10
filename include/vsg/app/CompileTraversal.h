@@ -69,7 +69,7 @@ namespace vsg
 
         // implement compile of relevant nodes in the scene graph
         void apply(Object& object) override;
-        void apply(Command& command) override;
+        void apply(Compilable& node) override;
         void apply(Commands& commands) override;
         void apply(StateGroup& stateGroup) override;
         void apply(Geometry& geometry) override;

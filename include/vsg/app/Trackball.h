@@ -52,6 +52,7 @@ namespace vsg
 
         std::pair<int32_t, int32_t> cameraRenderAreaCoordinates(const PointerEvent& pointerEvent) const;
         bool withinRenderArea(const PointerEvent& pointerEvent) const;
+        bool eventRelevant(const WindowEvent& event) const;
 
         void clampToGlobe();
 

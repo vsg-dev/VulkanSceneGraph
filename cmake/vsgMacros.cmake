@@ -180,16 +180,16 @@ macro(vsg_add_option_maintainer)
             #
             # Provide target for tagging a release
             #
-            set(VSG_BRANCH ${ARGS_PREFIX}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+            set(VSG_BRANCH ${ARGS_PREFIX}${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
             set(GITCOMMAND ${GIT_EXECUTABLE} -C ${CMAKE_CURRENT_SOURCE_DIR})
             set(ECHO ${CMAKE_COMMAND} -E echo)
             set(REMOTE origin)
 
             if(ARGS_RCLEVEL EQUAL 0)
-                set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION})
+                set(RELEASE_NAME ${ARGS_PREFIX}${PROJECT_VERSION})
             else()
-                set(RELEASE_NAME ${ARGS_PREFIX}-${PROJECT_VERSION}-rc${ARGS_RCLEVEL})
+                set(RELEASE_NAME ${ARGS_PREFIX}${PROJECT_VERSION}-rc${ARGS_RCLEVEL})
             endif()
 
             set(RELEASE_MESSAGE "Release ${RELEASE_NAME}")

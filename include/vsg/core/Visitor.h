@@ -56,6 +56,7 @@ namespace vsg
 
     // forward declare vulkan classes
     class BufferInfo;
+    class Compilable;
     class Command;
     class StateCommand;
     class StateSwitch;
@@ -272,6 +273,7 @@ namespace vsg
 
         // Nodes
         virtual void apply(Node&);
+        virtual void apply(Compilable&);
         virtual void apply(Commands&);
         virtual void apply(Group&);
         virtual void apply(QuadGroup&);

@@ -1,18 +1,18 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.0.4
+    VERSION 1.0.5
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 12)
-SET(VSG_RELEASE_CANDIDATE 0)
+SET(VSG_RELEASE_CANDIDATE 2)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
 set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
 
-# create the version header
+# create the version heder
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 
@@ -39,34 +39,43 @@ find_package(Threads REQUIRED)
 
 # Enable/disable shader compilation support that pulls in glslang
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
-if (${VSG_SUPPORTS_ShaderCompiler})
+if (VSG_SUPPORTS_ShaderCompiler)
     if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
         find_package(Git)
 
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repositiory")
+
+        execute_process(COMMAND ${GIT_EXECUTABLE} clone ${glslang_URL}
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
                         RESULT_VARIABLE GIT_SUBMOD_RESULT)
 
         if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules, or set VSG_SUPPORTS_ShaderCompiler to 0.")
+            message(FATAL_ERROR "git clone " ${glslang_URL} " failed, please resolve issue or set VSG_SUPPORTS_ShaderCompiler to 0.")
         endif()
     endif()
 endif()
 
-if (ANDROID)
-    find_library(AndroidLib android)
-    if(CMAKE_SYSTEM_VERSION GREATER 24)
-        find_library(AndroidNativeWindowLib nativewindow)
+set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )
+if (VSG_SUPPORTS_Windowing)
+    if (ANDROID)
+        set(FIND_DEPENDENCY_WINDOWING "")
+        find_library(AndroidLib android)
+        if(CMAKE_SYSTEM_VERSION GREATER 24)
+            find_library(AndroidNativeWindowLib nativewindow)
+        endif()
+    elseif (WIN32)
+        set(FIND_DEPENDENCY_WINDOWING "")
+        # just use native windowing
+    elseif (APPLE)
+        set(FIND_DEPENDENCY_WINDOWING "find_library(COCOA_LIBRARY Cocoa)\nfind_library(QUARTZCORE_LIBRARY QuartzCore)\n")
+        find_library(COCOA_LIBRARY Cocoa)
+        find_library(QUARTZCORE_LIBRARY QuartzCore)
+    else()
+        set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
+        # just use Xcb for native windowing
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
     endif()
-elseif (WIN32)
-    # just use native windowing
-elseif (APPLE)
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(QUARTZCORE_LIBRARY QuartzCore)
-else()
-    # just use Xcb for native windowing
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
 endif()
 
 # this line needs to be after the call to setup_build_vars()
@@ -105,7 +114,7 @@ add_custom_target(build_all_h
 set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
 vsg_add_option_maintainer(
-    PREFIX VulkanSceneGraph
+    PREFIX v
     RCLEVEL ${VSG_RELEASE_CANDIDATE}
 )
 
