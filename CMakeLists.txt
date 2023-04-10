@@ -41,16 +41,23 @@ find_package(Threads REQUIRED)
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
 if (VSG_SUPPORTS_ShaderCompiler)
     if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
-        find_package(Git)
 
-        set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repositiory")
+        if (Git_FOUND)
 
-        execute_process(COMMAND ${GIT_EXECUTABLE} clone ${glslang_URL}
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-                        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+            set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repositiory")
+            set(glslang_branch "VSG-1.0.x" CACHE STRING "branch/tag of the glslang git repositiory")
 
-        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "git clone " ${glslang_URL} " failed, please resolve issue or set VSG_SUPPORTS_ShaderCompiler to 0.")
+            execute_process(COMMAND ${GIT_EXECUTABLE} clone --depth 1 --branch ${glslang_branch} ${glslang_URL}
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+                            RESULT_VARIABLE GIT_SUBMOD_RESULT)
+
+            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
+                set(VSG_SUPPORTS_ShaderCompiler 0)
+            endif()
+        else()
+                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
+                set(VSG_SUPPORTS_ShaderCompiler 0)
         endif()
     endif()
 endif()
