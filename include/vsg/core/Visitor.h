@@ -158,8 +158,8 @@ namespace vsg
         virtual void apply(floatValue&);
         virtual void apply(doubleValue&);
         virtual void apply(vec2Value&);
-        virtual void apply(vec4Value&);
         virtual void apply(vec3Value&);
+        virtual void apply(vec4Value&);
         virtual void apply(dvec2Value&);
         virtual void apply(dvec3Value&);
         virtual void apply(dvec4Value&);
