@@ -24,7 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if VSG_SUPPORTS_Windowing==0
+#if VSG_SUPPORTS_Windowing == 0
 ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits>)
 {
     return {};

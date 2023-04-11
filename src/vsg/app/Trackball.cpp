@@ -180,7 +180,7 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 
 void Trackball::apply(MoveEvent& moveEvent)
 {
-     if (!eventRelevant(moveEvent)) return;
+    if (!eventRelevant(moveEvent)) return;
 
     _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent);
 
@@ -265,7 +265,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
 void Trackball::apply(ScrollWheelEvent& scrollWheel)
 {
-     if (scrollWheel.handled || !eventRelevant(scrollWheel) || !_lastPointerEventWithinRenderArea) return;
+    if (scrollWheel.handled || !eventRelevant(scrollWheel) || !_lastPointerEventWithinRenderArea) return;
 
     scrollWheel.handled = true;
 
