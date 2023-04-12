@@ -51,6 +51,26 @@ void Data::operator delete(void* ptr)
     vsg::deallocate(ptr);
 }
 
+int Data::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = properties.compare(rhs.properties))) return result;
+
+    // the shorter data is less
+    if (dataSize() < rhs.dataSize()) return -1;
+    if (dataSize() > rhs.dataSize()) return 1;
+
+    // if both empty then they must be equal
+    if (dataSize() == 0) return 0;
+
+    // use memcpy to compare the contents of the data
+    return std::memcmp(dataPointer(), rhs.dataPointer(), dataSize());
+}
+
 void Data::read(Input& input)
 {
     Object::read(input);

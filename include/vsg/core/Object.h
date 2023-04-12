@@ -74,19 +74,7 @@ namespace vsg
         const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
 
         /// compare two objects, return -1 if this object is less than rhs, return 0 if it's equal, return 1 if rhs is greater,
-        virtual int compare(const Object& rhs) const
-        {
-            if (this == &rhs) return 0;
-            auto this_id = std::type_index(typeid(*this));
-            auto rhs_id = std::type_index(typeid(rhs));
-            if (this_id < rhs_id) return -1;
-            if (this_id > rhs_id) return 1;
-
-            if (_auxiliary < rhs._auxiliary) return -1;
-            if (_auxiliary > rhs._auxiliary) return 1;
-
-            return 0;
-        }
+        virtual int compare(const Object& rhs) const;
 
         virtual void accept(Visitor& visitor);
         virtual void traverse(Visitor&) {}

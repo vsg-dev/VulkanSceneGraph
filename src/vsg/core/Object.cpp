@@ -84,6 +84,18 @@ void Object::_attemptDelete() const
     }
 }
 
+int Object::compare(const Object& rhs) const
+{
+    if (this == &rhs) return 0;
+    auto this_id = std::type_index(typeid(*this));
+    auto rhs_id = std::type_index(typeid(rhs));
+    if (this_id < rhs_id) return -1;
+    if (this_id > rhs_id) return 1;
+
+    if (_auxiliary == rhs._auxiliary) return 0;
+    return _auxiliary ? (rhs._auxiliary ? _auxiliary->compare(*rhs._auxiliary) : 1) : (rhs._auxiliary ? -1 : 0);
+}
+
 void Object::accept(Visitor& visitor)
 {
     visitor.apply(*this);
