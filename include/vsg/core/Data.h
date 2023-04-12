@@ -146,25 +146,7 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type || Object::is_compatible(type); }
 
-        int compare(const Object& rhs_object) const override
-        {
-            int result = Object::compare(rhs_object);
-            if (result != 0) return result;
-
-            auto& rhs = static_cast<decltype(*this)>(rhs_object);
-
-            if ((result = properties.compare(rhs.properties))) return result;
-
-            // the shorter data is less
-            if (dataSize() < rhs.dataSize()) return -1;
-            if (dataSize() > rhs.dataSize()) return 1;
-
-            // if both empty then they must be equal
-            if (dataSize() == 0) return 0;
-
-            // use memcpy to compare the contents of the data
-            return std::memcmp(dataPointer(), rhs.dataPointer(), dataSize());
-        }
+        int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

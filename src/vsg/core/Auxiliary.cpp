@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Auxiliary.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -73,4 +74,28 @@ void Auxiliary::resetConnectedObject()
     std::scoped_lock<std::mutex> guard(_mutex);
 
     _connectedObject = nullptr;
+}
+
+int Auxiliary::compare(const Auxiliary& rhs) const
+{
+    auto lhs_itr = userObjects.begin();
+    auto rhs_itr = rhs.userObjects.begin();
+    int result = 0;
+    while(lhs_itr != userObjects.end() && rhs_itr != rhs.userObjects.end())
+    {
+        if (lhs_itr->first < rhs_itr->first) return -1;
+        if (lhs_itr->first > rhs_itr->first) return 1;
+        if ((result = vsg::compare_pointer(lhs_itr->second, rhs_itr->second))) return result;
+    }
+
+    // only can get here if either lhs_itr == userObjects.end() || rhs_itr == rhs.userObjects.end()
+    if (lhs_itr == userObjects.end())
+    {
+        if (rhs_itr != rhs.userObjects.end()) return -1;
+        else return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }

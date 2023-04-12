@@ -37,6 +37,8 @@ namespace vsg
         void unref_nodelete() const;
         inline unsigned int referenceCount() const { return _referenceCount.load(); }
 
+        virtual int compare(const Auxiliary& rhs) const;
+
         void setObject(const std::string& key, ref_ptr<Object> object)
         {
             userObjects[key] = object;
