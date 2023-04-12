@@ -81,7 +81,7 @@ int Auxiliary::compare(const Auxiliary& rhs) const
     auto lhs_itr = userObjects.begin();
     auto rhs_itr = rhs.userObjects.begin();
     int result = 0;
-    while(lhs_itr != userObjects.end() && rhs_itr != rhs.userObjects.end())
+    while (lhs_itr != userObjects.end() && rhs_itr != rhs.userObjects.end())
     {
         if (lhs_itr->first < rhs_itr->first) return -1;
         if (lhs_itr->first > rhs_itr->first) return 1;
@@ -91,8 +91,10 @@ int Auxiliary::compare(const Auxiliary& rhs) const
     // only can get here if either lhs_itr == userObjects.end() || rhs_itr == rhs.userObjects.end()
     if (lhs_itr == userObjects.end())
     {
-        if (rhs_itr != rhs.userObjects.end()) return -1;
-        else return 0;
+        if (rhs_itr != rhs.userObjects.end())
+            return -1;
+        else
+            return 0;
     }
     else
     {

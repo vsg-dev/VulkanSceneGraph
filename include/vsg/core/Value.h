@@ -85,17 +85,36 @@ namespace vsg
                 output.write("Value", _value);
         }
 
-        std::size_t valueSize() const override { return sizeof(value_type); }
+        std::size_t valueSize() const override
+        {
+            if constexpr (std::is_same_v<T, std::string>)
+                return _value.size();
+            else
+                return sizeof(value_type);
+        }
         std::size_t valueCount() const override { return 1; }
 
         bool dataAvailable() const override { return true; }
-        std::size_t dataSize() const override { return sizeof(value_type); }
+        std::size_t dataSize() const override { return valueSize(); }
 
-        void* dataPointer() override { return &_value; }
-        const void* dataPointer() const override { return &_value; }
+        void* dataPointer() override
+        {
+            if constexpr (std::is_same_v<T, std::string>)
+                return _value.data();
+            else
+                return &_value;
+        }
 
-        void* dataPointer(size_t) override { return &_value; }
-        const void* dataPointer(size_t) const override { return &_value; }
+        const void* dataPointer() const override
+        {
+            if constexpr (std::is_same_v<T, std::string>)
+                return _value.data();
+            else
+                return &_value;
+        }
+
+        void* dataPointer(size_t) override { return dataPointer(); }
+        const void* dataPointer(size_t) const override { return dataPointer(); }
 
         void* dataRelease() override { return nullptr; }
 
@@ -167,6 +186,7 @@ namespace vsg
     }
 
     VSG_value(stringValue, std::string);
+
     VSG_value(boolValue, bool);
     VSG_value(intValue, int);
     VSG_value(uintValue, unsigned int);
