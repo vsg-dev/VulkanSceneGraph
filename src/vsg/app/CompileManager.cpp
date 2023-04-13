@@ -76,6 +76,7 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 #else
     numCompileTraversals = 1;
 #endif
+    immediateTraversal = CompileTraversal::create(*ct);
 }
 
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
@@ -102,6 +103,7 @@ void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& res
 
         compileTraversals->add(ct);
     }
+    immediateTraversal->add(device, resourceRequirements);
 }
 
 void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
@@ -113,6 +115,7 @@ void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const 
 
         compileTraversals->add(ct);
     }
+    immediateTraversal->add(window, viewport, resourceRequirements);
 }
 
 void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -124,6 +127,7 @@ void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequi
 
         compileTraversals->add(ct);
     }
+    immediateTraversal->add(window, view, resourceRequirements);
 }
 
 void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -135,6 +139,7 @@ void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const Res
 
         compileTraversals->add(ct);
     }
+    immediateTraversal->add(framebuffer, view, resourceRequirements);
 }
 
 void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
@@ -146,9 +151,27 @@ void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resou
 
         compileTraversals->add(ct);
     }
+    immediateTraversal->add(viewer, resourceRequirements);
 }
 
 CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
+{
+    auto compileTraversal = compileTraversals->take_when_available();
+    auto result = compileAux(object, contextSelection, compileTraversal);
+    if (compileTraversal)
+    {
+        compileTraversals->add(compileTraversal);
+    }
+    return result;
+}
+
+CompileResult CompileManager::compileImmediate(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
+{
+    return compileAux(object, contextSelection, immediateTraversal);
+}
+
+CompileResult CompileManager::compileAux(ref_ptr<Object> object, ContextSelectionFunction contextSelection,
+                                         ref_ptr<CompileTraversal> compileTraversal)
 {
     CollectResourceRequirements collectRequirements;
     object->accept(collectRequirements);
@@ -162,8 +185,6 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.views = requirements.views;
     result.earlyDynamicData = requirements.earlyDynamicData;
     result.lateDynamicData = requirements.lateDynamicData;
-
-    auto compileTraversal = compileTraversals->take_when_available();
 
     // if no CompileTraversals are available abort compile
     if (!compileTraversal) return result;
@@ -212,8 +233,6 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     {
         run_compile_traversal();
     }
-
-    compileTraversals->add(compileTraversal);
 
     result.result = VK_SUCCESS;
     return result;

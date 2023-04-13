@@ -62,12 +62,19 @@ namespace vsg
         /// compile object
         CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
 
+        //// compile object without waiting for a CompileTraversal to become available. This should
+        //// only be called from one thread (probably the main thread). It's most useful when the
+        //// compilation time will be short and objects will not have to be uploaded to the GPU.
+        CompileResult compileImmediate(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
     protected:
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
         size_t numCompileTraversals = 0;
         ref_ptr<CompileTraversals> compileTraversals;
+        ref_ptr<CompileTraversal> immediateTraversal;
 
         CompileTraversals::container_type takeCompileTraversals(size_t count);
+        CompileResult compileAux(ref_ptr<Object> object, ContextSelectionFunction contextSelection,
+                                 ref_ptr<CompileTraversal> compileTraversal);
     };
     VSG_type_name(vsg::CompileManager);
 
