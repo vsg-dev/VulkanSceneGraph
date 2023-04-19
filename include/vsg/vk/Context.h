@@ -135,8 +135,21 @@ namespace vsg
         void copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
 
         /// return true if there are commands that have been submitted
+        ///
+        /// record() needs to submit commands e.g., to upload textures into GPU memory, so the
+        /// scene graph compiled here cannot be recorded and rendered until those submissions are
+        /// complete. The sequence of the DatabasePager and Viewer operations mostly take care of
+        /// this: a sub scene graph isn't inserted into the main graph until compilation is
+        /// complete. We are not waiting (stalling) for completion, but the commands necessary to do
+        /// the rendering will have already been submitted before any commands from the main scene
+        /// graph. There does need to be synchronization between the compile commands and the main
+        /// rendering commands; that is normally provided by wait semaphores in the record
+        /// traversal.
+        ///
+        /// XXX If there are no semaphores there, then record() should signal one in its submission.
         bool record();
 
+        //// Returns immediately.
         void waitForCompletion();
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;

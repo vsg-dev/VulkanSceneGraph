@@ -275,17 +275,41 @@ void Context::copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
     copyBufferCmd->add(src, dest);
 }
 
+namespace
+{
+    // XXX What about BuildAccelerationStructureCommands? These were not being cleared, but that is
+    // probably a bug.
+    struct Cleanup
+    {
+        ref_ptr<CopyAndReleaseImage> copyImageCmd;
+        ref_ptr<CopyAndReleaseBuffer> copyBufferCmd;
+        ref_ptr<CommandBuffer> commandBuffer;
+
+        // destructive constructor
+        Cleanup(ref_ptr<CopyAndReleaseImage>& in_copyImage, ref_ptr<CopyAndReleaseBuffer>& in_copyBuffer,
+                ref_ptr<CommandBuffer>& in_commandBuffer)
+        {
+            copyImageCmd.swap(in_copyImage);
+            copyBufferCmd.swap(in_copyBuffer);
+            commandBuffer.swap(in_commandBuffer);
+        }
+
+        void operator()()
+        {
+            copyImageCmd = nullptr;
+            copyBufferCmd = nullptr;
+            commandBuffer = nullptr;
+        }
+    };
+}
+
 bool Context::record()
 {
     if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
 
     //auto before_compile = std::chrono::steady_clock::now();
 
-    if (!fence)
-    {
-        fence = vsg::Fence::create(device);
-    }
-    else
+    if (fence)
     {
         fence->reset();
     }
@@ -325,6 +349,10 @@ bool Context::record()
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = commandBuffer->data();
+    // A semaphore here synchronizes the submits in this batch, and all the ones before it, up to
+    // the wait stage. This semaphore is not being used now; the wait semaphores in the submit batch for
+    // the scene graph synchronize this batch instead. If there are no semaphores there
+    // (headless?), then this semaphore should be used.
     if (semaphore)
     {
         submitInfo.signalSemaphoreCount = 1;
@@ -337,38 +365,15 @@ bool Context::record()
         submitInfo.pSignalSemaphores = nullptr;
     }
 
-    graphicsQueue->submit(submitInfo, fence);
+    graphicsQueue->submit(submitInfo, Cleanup(copyImageCmd, copyBufferCmd, commandBuffer), fence);
+    commands.clear();
 
     return true;
 }
 
 void Context::waitForCompletion()
 {
-    if (!commandBuffer || !fence)
-    {
-        return;
-    }
-
-    if (commands.empty() && buildAccelerationStructureCommands.empty())
-    {
-        return;
-    }
-
-    // we must wait for the queue to empty before we can safely clean up the commandBuffer
-    uint64_t timeout = 1000000000;
-
-    VkResult result;
-    while ((result = fence->wait(timeout)) == VK_TIMEOUT)
-    {
-        info("Context::waitForCompletion() ", this, " fence->wait() timed out, trying again.");
-    }
-
-    if (result != VK_SUCCESS)
-    {
-        info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
-    }
-
-    commands.clear();
-    copyImageCmd = nullptr;
-    copyBufferCmd = nullptr;
+    // Nothing to wait for! But, if the caller really needs to wait for completion, then a fence
+    // should be passed in. Somehow.
+    return;
 }

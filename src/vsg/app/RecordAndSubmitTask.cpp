@@ -126,6 +126,7 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     if (recordedCommandBuffers.empty())
     {
         // nothing to do so return early
+        // XXX This is probably not the place to guarantee the frame rate.
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
         return VK_SUCCESS;
     }
