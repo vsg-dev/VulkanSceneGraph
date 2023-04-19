@@ -21,8 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <cstdlib>
 #    include <direct.h>
 #    include <io.h>
-//	 cctype is needed for tolower()
-#    include <cctype>
 #    include <windows.h>
 
 #    ifdef _MSC_VER
