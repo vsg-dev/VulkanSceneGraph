@@ -19,7 +19,8 @@ using namespace vsg;
 Queue::Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex) :
     _vkQueue(queue),
     _queueFamilyIndex(queueFamilyIndex),
-    _queueIndex(queueIndex)
+    _queueIndex(queueIndex),
+    _submissionNo(0)
 {
 }
 
@@ -30,12 +31,22 @@ Queue::~Queue()
 VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
+    if (fence)
+    {
+        fence->putActions(_submissionNo, _fenceActions);
+    }
+    _submissionNo++;
     return vkQueueSubmit(_vkQueue, static_cast<uint32_t>(submitInfos.size()), submitInfos.data(), fence ? fence->vk() : VK_NULL_HANDLE);
 }
 
 VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
+    if (fence)
+    {
+        fence->putActions(_submissionNo, _fenceActions);
+    }
+    _submissionNo++;
     return vkQueueSubmit(_vkQueue, 1, &submitInfo, fence ? fence->vk() : VK_NULL_HANDLE);
 }
 
@@ -49,4 +60,28 @@ VkResult Queue::waitIdle()
 {
     std::scoped_lock<std::mutex> guard(_mutex);
     return vkQueueWaitIdle(_vkQueue);
+}
+
+VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, std::function<void()> func, Fence* fence)
+{
+    std::scoped_lock<std::mutex> guard(_mutex);
+    _fenceActions.push_back({_submissionNo, std::move(func)});
+    if (fence)
+    {
+        fence->putActions(_submissionNo, _fenceActions);
+    }
+    _submissionNo++;
+    return vkQueueSubmit(_vkQueue, static_cast<uint32_t>(submitInfos.size()), submitInfos.data(), fence ? fence->vk() : VK_NULL_HANDLE);
+}
+
+VkResult Queue::submit(const VkSubmitInfo& submitInfo, std::function<void()>  func, Fence* fence)
+{
+    std::scoped_lock<std::mutex> guard(_mutex);
+    _fenceActions.push_back({ _submissionNo, std::move(func)});
+    if (fence)
+    {
+        fence->putActions(_submissionNo, _fenceActions);
+    }
+    _submissionNo++;
+    return vkQueueSubmit(_vkQueue, 1, &submitInfo, fence ? fence->vk() : VK_NULL_HANDLE);
 }

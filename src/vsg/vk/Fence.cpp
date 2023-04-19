@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Fence.h>
 
@@ -52,16 +53,48 @@ void Fence::resetFenceAndDependencies()
 
     _dependentSemaphores.clear();
     _dependentCommandBuffers.clear();
+    if (!_actions.empty())
+    {
+        vsg::warn("fence has actions on reset.");
+    }
+    _actions.clear();
 
     reset();
 }
 
-VkResult Fence::wait(uint64_t timeout) const
+VkResult Fence::wait(uint64_t timeout)
 {
-    return vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout);
+    VkResult result = vkWaitForFences(*_device, 1, &_vkFence, VK_TRUE, timeout);
+    if (result == VK_SUCCESS)
+    {
+        // I believe the Vulkan spec permits multiple threads to wait on the same fence. However, a
+        // fence cannot be waited on before it is submitted, so it would be hard to do in
+        // practice. If VSG ever does that, then these actions will need to be protected by a
+        // mutex.
+        for (auto& a : _actions)
+        {
+            if (a.first > submission)
+            {
+                vsg::fatal("Fence is performing action for a future submit!");
+            }
+            a.second();
+        }
+        _actions.clear();
+    }
+    return result;
 }
 
 VkResult Fence::reset() const
 {
+    if (!_actions.empty())
+    {
+        vsg::warn("Fence with actions was reset.");
+    }
     return vkResetFences(*_device, 1, &_vkFence);
+}
+
+void Fence::putActions(uint64_t in_submission, action_container_type& actions)
+{
+    submission = in_submission;
+    _actions.splice(_actions.end(), actions);
 }

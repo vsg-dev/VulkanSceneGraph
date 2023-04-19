@@ -15,7 +15,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/vk/vulkan.h>
 
+#include <functional>
 #include <mutex>
+#include <list>
 #include <vector>
 
 namespace vsg
@@ -23,6 +25,9 @@ namespace vsg
     // forward declare
     class Fence;
 
+    //// An action that will be performed once a Fence is waited on successfully.
+    using FenceAction = std::pair<uint64_t, std::function<void()>>;
+    
     /// Queue encapsulates a single vkQueue, used to submit vulkan commands for processing.
     class VSG_DECLSPEC Queue : public Inherit<Object, Queue>
     {
@@ -36,6 +41,14 @@ namespace vsg
         VkResult submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence = nullptr);
 
         VkResult submit(const VkSubmitInfo& submitInfo, Fence* fence = nullptr);
+
+        //// Queue submit with a functor that will be called when the commands in this submission
+        //// have completed. This happens when a fence passed in a submission -- either this or a
+        //// later one -- is waited upon. Vulkan guarantees that the commands will have finished at
+        //// that point.
+        VkResult submit(const std::vector<VkSubmitInfo>& submitInfos, std::function<void()> func,
+                        Fence* fence = nullptr);
+        VkResult submit(const VkSubmitInfo& submitInfo, std::function<void()> func, Fence* fence = nullptr);
 
         VkResult present(const VkPresentInfoKHR& info);
 
@@ -56,6 +69,8 @@ namespace vsg
         uint32_t _queueFamilyIndex;
         uint32_t _queueIndex;
         std::mutex _mutex;
+        std::list<FenceAction> _fenceActions;
+        uint64_t _submissionNo;
     };
     VSG_type_name(vsg::Queue);
 

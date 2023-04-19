@@ -27,13 +27,17 @@ namespace vsg
         operator VkFence() const { return _vkFence; }
         VkFence vk() const { return _vkFence; }
 
-        VkResult wait(uint64_t timeout) const;
+        VkResult wait(uint64_t timeout);
 
         VkResult reset() const;
 
         VkResult status() const { return vkGetFenceStatus(*_device, _vkFence); }
-
-        bool hasDependencies() const { return (_dependentSemaphores.size() + _dependentCommandBuffers.size()) > 0; }
+        bool hasDependencies() const
+        {
+            return !(_dependentSemaphores.empty()
+                     && _dependentCommandBuffers.empty()
+                     && _actions.empty());
+        }
 
         void resetFenceAndDependencies();
 
@@ -42,7 +46,10 @@ namespace vsg
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
-
+        using action_container_type = std::list<FenceAction>;
+        void putActions(uint64_t in_submission, action_container_type& actions);
+        uint64_t submission;
+        action_container_type& actions() { return _actions; }
     protected:
         virtual ~Fence();
 
@@ -51,6 +58,7 @@ namespace vsg
         CommandBuffers _dependentCommandBuffers;
 
         ref_ptr<Device> _device;
+        action_container_type _actions;
     };
     VSG_type_name(vsg::Fence);
 
