@@ -90,6 +90,9 @@ namespace vsg
         /// Button mask value used to enable zooming of the view, defaults to right mouse button
         ButtonMask zoomButtonMask = BUTTON_MASK_3;
 
+        /// Button mask value used used for touch events
+        ButtonMask touchMappedToButtonMask = BUTTON_MASK_1;
+
         /// Scale for control how rapidly the view zooms in/out. Positive value zooms in when mouse moved downwards
         double zoomScale = 1.0;
 
