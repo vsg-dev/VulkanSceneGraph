@@ -272,6 +272,7 @@ namespace vsg
 
     enum KeyModifier : uint16_t
     {
+        MODKEY_OFF = 0,
         MODKEY_Shift = 1,
         MODKEY_CapsLock = 2,
         MODKEY_Control = 4,
