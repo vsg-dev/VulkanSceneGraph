@@ -163,7 +163,22 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.earlyDynamicData = requirements.earlyDynamicData;
     result.lateDynamicData = requirements.lateDynamicData;
 
-    auto compileTraversal = compileTraversals->take_when_available();
+    struct LockCompileTraversal
+    {
+        CompileTraversals& compileTraversals;
+        ref_ptr<CompileTraversal> compileTraversal;
+        LockCompileTraversal(CompileTraversals& in_compileTraversals) : compileTraversals(in_compileTraversals)
+        {
+            compileTraversal = compileTraversals.take_when_available();
+        }
+        ~LockCompileTraversal()
+        {
+            if (compileTraversal)
+                compileTraversals.add(compileTraversal);
+        }
+    };
+    LockCompileTraversal lock(*compileTraversals);
+    auto& compileTraversal = lock.compileTraversal;
 
     // if no CompileTraversals are available abort compile
     if (!compileTraversal) return result;
@@ -212,8 +227,6 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     {
         run_compile_traversal();
     }
-
-    compileTraversals->add(compileTraversal);
 
     result.result = VK_SUCCESS;
     return result;
