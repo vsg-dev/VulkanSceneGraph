@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Exception.h>
-#include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/Descriptor.h>
@@ -57,12 +56,24 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         return {};
     }
 
-    DescriptorPoolSizes descriptorPoolSizes;
-    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+    auto bindingsCompatible = [](const vsg::DescriptorSetLayout& allocatedLayout, const vsg::DescriptorSetLayout& requiredLayout) -> bool {
+        for (const auto& binding : requiredLayout.bindings)
+        {
+            auto itr = allocatedLayout.bindings.begin();
+            for (; itr != allocatedLayout.bindings.end(); ++itr)
+            {
+                if (itr->binding == binding.binding && itr->descriptorType == binding.descriptorType && itr->descriptorCount >= binding.descriptorCount)
+                    break;
+            }
+            if (itr == allocatedLayout.bindings.end())
+                return false;
+        }
+        return true;
+    };
 
     for (auto itr = _recyclingList.begin(); itr != _recyclingList.end(); ++itr)
     {
-        if (vsg::compare_value_container(descriptorPoolSizes, (*itr)->_descriptorPoolSizes) == 0)
+        if (bindingsCompatible(*(*itr)->_descriptorSetLayout, *descriptorSetLayout))
         {
             auto dsi = *itr;
             dsi->_descriptorPool = this;
@@ -78,6 +89,9 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         //debug("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};
     }
+
+    DescriptorPoolSizes descriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
     size_t matches = 0;
     for (auto& [type, descriptorCount] : descriptorPoolSizes)
