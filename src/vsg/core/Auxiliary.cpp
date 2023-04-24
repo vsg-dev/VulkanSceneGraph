@@ -80,12 +80,11 @@ int Auxiliary::compare(const Auxiliary& rhs) const
 {
     auto lhs_itr = userObjects.begin();
     auto rhs_itr = rhs.userObjects.begin();
-    int result = 0;
     while (lhs_itr != userObjects.end() && rhs_itr != rhs.userObjects.end())
     {
         if (lhs_itr->first < rhs_itr->first) return -1;
         if (lhs_itr->first > rhs_itr->first) return 1;
-        if ((result = vsg::compare_pointer(lhs_itr->second, rhs_itr->second))) return result;
+        if (int result = vsg::compare_pointer(lhs_itr->second, rhs_itr->second); result != 0) return result;
         ++lhs_itr;
         ++rhs_itr;
     }
