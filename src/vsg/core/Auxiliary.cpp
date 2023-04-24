@@ -86,7 +86,8 @@ int Auxiliary::compare(const Auxiliary& rhs) const
         if (lhs_itr->first < rhs_itr->first) return -1;
         if (lhs_itr->first > rhs_itr->first) return 1;
         if ((result = vsg::compare_pointer(lhs_itr->second, rhs_itr->second))) return result;
-        ++lhs_itr; ++rhs_itr;
+        ++lhs_itr;
+        ++rhs_itr;
     }
 
     // only can get here if either lhs_itr == userObjects.end() || rhs_itr == rhs.userObjects.end()
