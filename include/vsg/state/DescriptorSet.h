@@ -80,7 +80,6 @@ namespace vsg
             ref_ptr<DescriptorPool> _descriptorPool;
             ref_ptr<DescriptorSetLayout> _descriptorSetLayout;
             Descriptors _descriptors;
-            DescriptorPoolSizes _descriptorPoolSizes;
         };
 
     protected:

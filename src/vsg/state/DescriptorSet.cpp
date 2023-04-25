@@ -99,9 +99,6 @@ DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, De
 {
     auto device = descriptorPool->getDevice();
 
-    _descriptorPoolSizes.clear();
-    descriptorSetLayout->getDescriptorPoolSizes(_descriptorPoolSizes);
-
     VkDescriptorSetLayout vkdescriptorSetLayout = descriptorSetLayout->vk(device->deviceID);
 
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
