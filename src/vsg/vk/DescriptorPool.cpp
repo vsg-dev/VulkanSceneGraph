@@ -57,14 +57,11 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         return {};
     }
 
-    DescriptorPoolSizes descriptorPoolSizes;
-    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
-
     for (auto itr = _recyclingList.begin(); itr != _recyclingList.end(); ++itr)
     {
-        if (vsg::compare_value_container(descriptorPoolSizes, (*itr)->_descriptorPoolSizes) == 0)
+        auto dsi = *itr;
+        if (dsi->_descriptorSetLayout.get() == descriptorSetLayout || compare_value_container(dsi->_descriptorSetLayout->bindings, descriptorSetLayout->bindings) == 0)
         {
-            auto dsi = *itr;
             dsi->_descriptorPool = this;
             _recyclingList.erase(itr);
             --_availableDescriptorSet;
@@ -78,6 +75,9 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         //debug("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};
     }
+
+    DescriptorPoolSizes descriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
     size_t matches = 0;
     for (auto& [type, descriptorCount] : descriptorPoolSizes)
