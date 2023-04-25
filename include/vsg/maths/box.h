@@ -52,6 +52,12 @@ namespace vsg
         T* data() { return min.data(); }
         const T* data() const { return min.data(); }
 
+        void reset()
+        {
+            min = vec_type(std::numeric_limits<value_type>::max(), std::numeric_limits<value_type>::max(), std::numeric_limits<value_type>::max());
+            max = vec_type(std::numeric_limits<value_type>::lowest(), std::numeric_limits<value_type>::lowest(), std::numeric_limits<value_type>::lowest());
+        }
+
         template<typename R>
         void add(const t_vec3<R>& v)
         {

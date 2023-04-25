@@ -110,6 +110,12 @@ namespace vsg
 
         T* data() { return value; }
         const T* data() const { return value; }
+
+        void reset()
+        {
+            center.set(0.0, 0.0, 0.0);
+            radius = -1.0;
+        }
     };
 
     using sphere = t_sphere<float>;   /// float sphere class
