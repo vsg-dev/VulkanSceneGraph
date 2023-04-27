@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/quat.h>
+#include <vsg/maths/sphere.h>
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
@@ -161,6 +162,23 @@ namespace vsg
         input >> mat(0, 1) >> mat(1, 1) >> mat(2, 1) >> mat(3, 1);
         input >> mat(0, 2) >> mat(1, 2) >> mat(2, 2) >> mat(3, 2);
         input >> mat(0, 3) >> mat(1, 3) >> mat(2, 3) >> mat(3, 3);
+        return input;
+    }
+
+
+    /// output stream support for vsg::t_box
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const vsg::t_sphere<T>& sp)
+    {
+        output << sp.vec;
+        return output;
+    }
+
+    /// input stream support for vsg::t_box
+    template<typename T>
+    std::istream& operator>>(std::istream& input, vsg::t_sphere<T>& sp)
+    {
+        input >> sp.vec;
         return input;
     }
 
