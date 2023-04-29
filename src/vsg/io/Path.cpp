@@ -113,11 +113,6 @@ Path& Path::append(const Path& right)
         return assign(right);
     }
 
-    if (right.empty())
-    {
-        return *this;
-    }
-
     auto lastChar = _string[_string.size() - 1];
     if (lastChar == preferred_separator)
     {
@@ -147,6 +142,132 @@ Path& Path::erase(size_t pos, size_t len)
 FileType Path::type() const
 {
     return vsg::fileType(*this);
+}
+
+Path Path::lexically_normal() const
+{
+    if (_string.empty()) return {};
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+    const value_type* dot_str = L".";
+    const value_type* doubledot_str = L"..";
+    const value_type colon = L':';
+#else
+    const value_type* dot_str = ".";
+    const value_type* doubledot_str = "..";
+    const value_type colon = ':';
+#endif
+
+    size_type start_pos = 0;
+    if ((start_pos+2) < _string.size())
+    {
+        if (_string[start_pos+1]==colon)
+        {
+            start_pos += 2;
+        }
+    }
+
+    auto c0 = _string[start_pos];
+    if (c0==posix_separator || c0==windows_separator)
+    {
+        start_pos += 1;
+    }
+
+    using string_view = std::basic_string_view<value_type>;
+    auto str = _string.data();
+
+    string_view prefix(str, start_pos);
+
+    std::list<string_view> path_segments;
+
+    auto pos = start_pos;
+    while(pos < _string.size())
+    {
+        auto prev_pos = pos;
+        pos = _string.find_first_of(separators, prev_pos);
+        if (pos != npos)
+        {
+            path_segments.emplace_back(str + prev_pos, pos - prev_pos);
+            ++pos;
+            if (pos == _string.size())
+            {
+                // last character was seperatator
+                path_segments.emplace_back();
+                break;
+            }
+        }
+        else
+        {
+            // last segment
+            path_segments.emplace_back(str + prev_pos, _string.size() - prev_pos);
+            break;
+        }
+    }
+
+    if (path_segments.size()<2) return *this;
+
+    auto itr = path_segments.begin();
+    auto prev_itr = itr++;
+
+    bool last_segment_was_double_dot = path_segments.back().compare(doubledot_str)==0;
+    while(itr != path_segments.end())
+    {
+        if (prev_itr->compare(dot_str) == 0)
+        {
+            // prune previous
+            path_segments.erase(prev_itr);
+            if (itr != path_segments.begin())
+            {
+                prev_itr = itr;
+                --prev_itr;
+            }
+            else if (itr != path_segments.end())
+            {
+                prev_itr = itr;
+                ++itr;
+            }
+        }
+        else if (itr->compare(doubledot_str) == 0)
+        {
+            if (prev_itr->compare(doubledot_str) == 0)
+            {
+                // NOP
+                prev_itr = itr;
+                ++itr;
+            }
+            else
+            {
+                // prune previous
+                path_segments.erase(prev_itr);
+                path_segments.erase(itr);
+
+                // reset to start
+                itr = prev_itr = path_segments.begin();
+                if (itr != path_segments.end()) ++itr;
+            }
+        }
+        else
+        {
+            // NOP
+            prev_itr = itr;
+            ++itr;
+        }
+    }
+
+    Path new_path;
+    if (!prefix.empty()) new_path = string_type(prefix);
+    for(auto& sv : path_segments)
+    {
+        new_path /= string_type(sv);
+    }
+
+    if (last_segment_was_double_dot && !path_segments.empty() && path_segments.back().compare(doubledot_str)!=0)
+    {
+        // if the last segment was a double dot and it's no longer a double dot then treat it as a directory so add seperator
+        new_path.concat(preferred_separator);
+    }
+
+    return new_path;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

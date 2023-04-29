@@ -188,6 +188,8 @@ namespace vsg
 
         FileType type() const;
 
+        Path lexically_normal() const;
+
     protected:
         string_type _string;
     };
