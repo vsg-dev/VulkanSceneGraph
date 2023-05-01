@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Exception.h>
 #include <vsg/app/CompileManager.h>
 #include <vsg/app/View.h>
 #include <vsg/app/Viewer.h>
+#include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
@@ -170,7 +170,6 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     if (!compileTraversal) return result;
 
     auto run_compile_traversal = [&]() -> void {
-
         try
         {
             for (auto& context : compileTraversal->contexts)
