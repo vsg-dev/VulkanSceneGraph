@@ -60,7 +60,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     for (auto itr = _recyclingList.begin(); itr != _recyclingList.end(); ++itr)
     {
         auto dsi = *itr;
-        if (dsi->_descriptorSetLayout == descriptorSetLayout || compare_value_container(dsi->_descriptorSetLayout->bindings, descriptorSetLayout->bindings) == 0)
+        if (dsi->_descriptorSetLayout.get() == descriptorSetLayout || compare_value_container(dsi->_descriptorSetLayout->bindings, descriptorSetLayout->bindings) == 0)
         {
             dsi->_descriptorPool = this;
             _recyclingList.erase(itr);
