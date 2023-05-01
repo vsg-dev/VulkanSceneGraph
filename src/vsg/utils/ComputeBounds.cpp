@@ -19,6 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/CullGroup.h>
+#include <vsg/nodes/LOD.h>
+#include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
@@ -77,6 +81,30 @@ void ComputeBounds::apply(const MatrixTransform& transform)
     transform.traverse(*this);
 
     matrixStack.pop_back();
+}
+
+void ComputeBounds::apply(const CullNode& cullNode)
+{
+    if (useNodeBounds && cullNode.bound.valid()) add(cullNode.bound);
+    else cullNode.traverse(*this);
+}
+
+void ComputeBounds::apply(const CullGroup& cullGroup)
+{
+    if (useNodeBounds && cullGroup.bound.valid()) add(cullGroup.bound);
+    else cullGroup.traverse(*this);
+}
+
+void ComputeBounds::apply(const LOD& lod)
+{
+    if (useNodeBounds && lod.bound.valid()) add(lod.bound);
+    else lod.traverse(*this);
+}
+
+void ComputeBounds::apply(const PagedLOD& plod)
+{
+    if (useNodeBounds && plod.bound.valid()) add(plod.bound);
+    else plod.traverse(*this);
 }
 
 void ComputeBounds::apply(const vsg::Geometry& geometry)
@@ -221,23 +249,46 @@ void ComputeBounds::apply(const TextGroup& textGroup)
 void ComputeBounds::apply(const TextTechnique& technique)
 {
     auto bb = technique.extents();
-    if (bb.valid())
+    if (bb.valid()) add(bb);
+}
+
+void ComputeBounds::add(const dbox& bb)
+{
+    if (matrixStack.empty())
     {
-        if (matrixStack.empty())
-        {
-            bounds.add(bb);
-        }
-        else
-        {
-            auto& matrix = matrixStack.back();
-            bounds.add(matrix * bb.min);
-            bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.min.z));
-            bounds.add(matrix * dvec3(bb.max.x, bb.max.y, bb.min.z));
-            bounds.add(matrix * dvec3(bb.min.x, bb.max.y, bb.min.z));
-            bounds.add(matrix * dvec3(bb.min.x, bb.min.y, bb.max.z));
-            bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.max.z));
-            bounds.add(matrix * bb.max);
-            bounds.add(matrix * dvec3(bb.min.x, bb.max.y, bb.max.z));
-        }
+        bounds.add(bb);
+    }
+    else
+    {
+        auto& matrix = matrixStack.back();
+        bounds.add(matrix * bb.min);
+        bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.min.z));
+        bounds.add(matrix * dvec3(bb.max.x, bb.max.y, bb.min.z));
+        bounds.add(matrix * dvec3(bb.min.x, bb.max.y, bb.min.z));
+        bounds.add(matrix * dvec3(bb.min.x, bb.min.y, bb.max.z));
+        bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.max.z));
+        bounds.add(matrix * bb.max);
+        bounds.add(matrix * dvec3(bb.min.x, bb.max.y, bb.max.z));
+    }
+}
+
+void ComputeBounds::add(const dsphere& bs)
+{
+    if (matrixStack.empty())
+    {
+        bounds.add(bs.center.x-bs.radius, bs.center.y-bs.radius, bs.center.y-bs.radius);
+        bounds.add(bs.center.x+bs.radius, bs.center.y+bs.radius, bs.center.y+bs.radius);
+    }
+    else
+    {
+        auto& matrix = matrixStack.back();
+        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y-bs.radius, bs.center.y-bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y-bs.radius, bs.center.y-bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y+bs.radius, bs.center.y-bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y+bs.radius, bs.center.y-bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y-bs.radius, bs.center.y+bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y-bs.radius, bs.center.y+bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y+bs.radius, bs.center.y+bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y+bs.radius, bs.center.y+bs.radius));
     }
 }
