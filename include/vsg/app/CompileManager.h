@@ -22,7 +22,8 @@ namespace vsg
     /// Used to help guide further operations done with the compiled subgraph.
     struct VSG_DECLSPEC CompileResult
     {
-        VkResult result = VK_INCOMPLETE;
+        int result = VK_INCOMPLETE;
+        std::string message;
         uint32_t maxSlot = 0;
         bool containsPagedLOD = false;
         ResourceRequirements::Views views;
