@@ -165,7 +165,6 @@ namespace vsg
         return input;
     }
 
-
     /// output stream support for vsg::t_box
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_sphere<T>& sp)

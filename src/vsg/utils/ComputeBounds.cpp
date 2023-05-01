@@ -17,11 +17,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/MatrixTransform.h>
-#include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/CullGroup.h>
+#include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
@@ -85,26 +85,34 @@ void ComputeBounds::apply(const MatrixTransform& transform)
 
 void ComputeBounds::apply(const CullNode& cullNode)
 {
-    if (useNodeBounds && cullNode.bound.valid()) add(cullNode.bound);
-    else cullNode.traverse(*this);
+    if (useNodeBounds && cullNode.bound.valid())
+        add(cullNode.bound);
+    else
+        cullNode.traverse(*this);
 }
 
 void ComputeBounds::apply(const CullGroup& cullGroup)
 {
-    if (useNodeBounds && cullGroup.bound.valid()) add(cullGroup.bound);
-    else cullGroup.traverse(*this);
+    if (useNodeBounds && cullGroup.bound.valid())
+        add(cullGroup.bound);
+    else
+        cullGroup.traverse(*this);
 }
 
 void ComputeBounds::apply(const LOD& lod)
 {
-    if (useNodeBounds && lod.bound.valid()) add(lod.bound);
-    else lod.traverse(*this);
+    if (useNodeBounds && lod.bound.valid())
+        add(lod.bound);
+    else
+        lod.traverse(*this);
 }
 
 void ComputeBounds::apply(const PagedLOD& plod)
 {
-    if (useNodeBounds && plod.bound.valid()) add(plod.bound);
-    else plod.traverse(*this);
+    if (useNodeBounds && plod.bound.valid())
+        add(plod.bound);
+    else
+        plod.traverse(*this);
 }
 
 void ComputeBounds::apply(const vsg::Geometry& geometry)
@@ -276,19 +284,19 @@ void ComputeBounds::add(const dsphere& bs)
 {
     if (matrixStack.empty())
     {
-        bounds.add(bs.center.x-bs.radius, bs.center.y-bs.radius, bs.center.y-bs.radius);
-        bounds.add(bs.center.x+bs.radius, bs.center.y+bs.radius, bs.center.y+bs.radius);
+        bounds.add(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.y - bs.radius);
+        bounds.add(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.y + bs.radius);
     }
     else
     {
         auto& matrix = matrixStack.back();
-        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y-bs.radius, bs.center.y-bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y-bs.radius, bs.center.y-bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y+bs.radius, bs.center.y-bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y+bs.radius, bs.center.y-bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y-bs.radius, bs.center.y+bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y-bs.radius, bs.center.y+bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x-bs.radius, bs.center.y+bs.radius, bs.center.y+bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x+bs.radius, bs.center.y+bs.radius, bs.center.y+bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.y - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.y - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.y - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.y - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.y + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.y + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.y + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.y + bs.radius));
     }
 }

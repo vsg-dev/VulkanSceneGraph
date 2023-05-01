@@ -159,16 +159,16 @@ Path Path::lexically_normal() const
 #endif
 
     size_type start_pos = 0;
-    if ((start_pos+2) < _string.size())
+    if ((start_pos + 2) < _string.size())
     {
-        if (_string[start_pos+1]==colon)
+        if (_string[start_pos + 1] == colon)
         {
             start_pos += 2;
         }
     }
 
     auto c0 = _string[start_pos];
-    if (c0==posix_separator || c0==windows_separator)
+    if (c0 == posix_separator || c0 == windows_separator)
     {
         start_pos += 1;
     }
@@ -181,7 +181,7 @@ Path Path::lexically_normal() const
     std::list<string_view> path_segments;
 
     auto pos = start_pos;
-    while(pos < _string.size())
+    while (pos < _string.size())
     {
         auto prev_pos = pos;
         pos = _string.find_first_of(separators, prev_pos);
@@ -204,13 +204,13 @@ Path Path::lexically_normal() const
         }
     }
 
-    if (path_segments.size()<2) return *this;
+    if (path_segments.size() < 2) return *this;
 
     auto itr = path_segments.begin();
     auto prev_itr = itr++;
 
-    bool last_segment_was_double_dot = path_segments.back().compare(doubledot_str)==0;
-    while(itr != path_segments.end())
+    bool last_segment_was_double_dot = path_segments.back().compare(doubledot_str) == 0;
+    while (itr != path_segments.end())
     {
         if (prev_itr->compare(dot_str) == 0)
         {
@@ -256,12 +256,12 @@ Path Path::lexically_normal() const
 
     Path new_path;
     if (!prefix.empty()) new_path = string_type(prefix);
-    for(auto& sv : path_segments)
+    for (auto& sv : path_segments)
     {
         new_path /= string_type(sv);
     }
 
-    if (last_segment_was_double_dot && !path_segments.empty() && path_segments.back().compare(doubledot_str)!=0)
+    if (last_segment_was_double_dot && !path_segments.empty() && path_segments.back().compare(doubledot_str) != 0)
     {
         // if the last segment was a double dot and it's no longer a double dot then treat it as a directory so add seperator
         new_path.concat(preferred_separator);
