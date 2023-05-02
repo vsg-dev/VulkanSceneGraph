@@ -284,19 +284,19 @@ void ComputeBounds::add(const dsphere& bs)
 {
     if (matrixStack.empty())
     {
-        bounds.add(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.y - bs.radius);
-        bounds.add(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.y + bs.radius);
+        bounds.add(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.z - bs.radius);
+        bounds.add(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.z + bs.radius);
     }
     else
     {
         auto& matrix = matrixStack.back();
-        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.y - bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.y - bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.y - bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.y - bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.y + bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.y + bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.y + bs.radius));
-        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.y + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.z - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.z - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.z - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.z - bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.z + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.z + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.z + bs.radius));
+        bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y + bs.radius, bs.center.z + bs.radius));
     }
 }
