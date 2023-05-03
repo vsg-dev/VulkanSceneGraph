@@ -231,7 +231,7 @@ void Window::_initDevice()
     auto [graphicsFamily, presentFamily] = _physicalDevice->getQueueFamily(_traits->queueFlags, _surface);
     if (graphicsFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no suitable Vulkan Device available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
-    vsg::QueueSettings queueSettings{vsg::QueueSetting{graphicsFamily, {1.0}}, vsg::QueueSetting{presentFamily, {1.0}}};
+    vsg::QueueSettings queueSettings{vsg::QueueSetting{graphicsFamily, _traits->queuePiorities}, vsg::QueueSetting{presentFamily, {1.0}}};
     _device = vsg::Device::create(_physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
 
     _initFormats();

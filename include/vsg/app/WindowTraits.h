@@ -66,6 +66,7 @@ namespace vsg
         VkImageUsageFlags depthImageUsage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+        std::vector<float> queuePiorities{1.0, 0.0};
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         bool debugLayer = false;

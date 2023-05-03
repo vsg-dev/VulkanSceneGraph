@@ -60,10 +60,10 @@ CompileTraversal::~CompileTraversal()
 
 void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
 {
-    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-    context->graphicsQueue = device->getQueue(queueFamily);
+    context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
     contexts.push_back(context);
 }
 
@@ -71,11 +71,11 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
 {
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
-    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->renderPass = renderPass;
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-    context->graphicsQueue = device->getQueue(queueFamily);
+    context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
 
     if (viewport)
         context->defaultPipelineStates.emplace_back(viewport);
@@ -91,11 +91,11 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 {
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
-    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+    auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-    context->graphicsQueue = device->getQueue(queueFamily);
+    context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
@@ -121,7 +121,7 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     auto context = Context::create(device, resourceRequirements);
     context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-    context->graphicsQueue = device->getQueue(queueFamily);
+    context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
