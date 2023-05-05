@@ -137,6 +137,42 @@ void Trackball::apply(KeyPressEvent& keyPress)
 
         keyPress.handled = true;
     }
+    else
+    {
+        vsg::dvec2 delta(0.0, 0.0);
+        if (keyPress.keyBase == KEY_Left) delta.x = -1.0;
+        else if (keyPress.keyBase == KEY_Right) delta.x = 1.0;
+        else if (keyPress.keyBase == KEY_Up) delta.y = 1.0;
+        else if (keyPress.keyBase == KEY_Down) delta.y = -1.0;
+
+        if (delta.x != 0.0 || delta.y != 0.0)
+        {
+            double scale = 0.05;
+            if ((keyPress.keyModifier & MODKEY_Shift) != 0) scale *= 0.2;
+
+            if ((keyPress.keyModifier & MODKEY_Alt) != 0)
+            {
+                dvec3 lookVector = _lookAt->center - _lookAt->eye;
+                dmat4 matrix = vsg::translate(lookVector * (scale * delta.y * 0.1));
+
+                info("need to implement left/right and move forward/right = ", matrix);
+
+                _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
+                _lookAt->center = matrix * _lookAt->center;
+                _lookAt->eye = matrix * _lookAt->eye;
+
+                clampToGlobe();
+            }
+            else if ((keyPress.keyModifier & MODKEY_Control) != 0)
+            {
+                info("need to implement rotate");
+            }
+            else
+            {
+                pan( dvec2(-delta.x, delta.y) * scale);
+            }
+        }
+    }
 }
 
 void Trackball::apply(ButtonPressEvent& buttonPress)
