@@ -62,7 +62,7 @@ void Switch::addChild(bool enabled, ref_ptr<Node> child)
 
 void Switch::setAllChildren(bool enabled)
 {
-    uint32_t mask = boolToMask(enabled);
+    Mask mask = boolToMask(enabled);
     for (auto& child : children) child.mask = mask;
 }
 
