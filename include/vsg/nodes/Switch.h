@@ -68,6 +68,6 @@ namespace vsg
     };
     VSG_type_name(vsg::Switch);
 
-    inline uint32_t boolToMask(bool enabled) { return enabled ? uint32_t(0xffffff) : uint32_t(0x0); }
+    inline Mask boolToMask(bool enabled) { return enabled ? MASK_ALL : MASK_OFF; }
 
 } // namespace vsg
