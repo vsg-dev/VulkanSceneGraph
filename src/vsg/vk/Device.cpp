@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/Version.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/Extensions.h>
 
@@ -144,9 +144,9 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     }
 
     // allocated the requested queues
-    for(auto queueInfo : queueCreateInfos)
+    for (auto queueInfo : queueCreateInfos)
     {
-        for(uint32_t queueIndex=0; queueIndex<queueInfo.queueCount; ++queueIndex)
+        for (uint32_t queueIndex = 0; queueIndex < queueInfo.queueCount; ++queueIndex)
         {
             VkQueue vk_queue;
             vkGetDeviceQueue(_device, queueInfo.queueFamilyIndex, queueIndex, &vk_queue);
