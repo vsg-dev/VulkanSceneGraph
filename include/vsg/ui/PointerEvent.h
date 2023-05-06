@@ -21,6 +21,7 @@ namespace vsg
 
     enum ButtonMask : uint16_t
     {
+        BUTTON_MASK_OFF = 0,
         BUTTON_MASK_1 = 256,
         BUTTON_MASK_2 = 512,
         BUTTON_MASK_3 = 1024,

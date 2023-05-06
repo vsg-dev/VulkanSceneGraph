@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/CompileManager.h>
 #include <vsg/app/View.h>
 #include <vsg/app/Viewer.h>
+#include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
@@ -169,29 +170,47 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     if (!compileTraversal) return result;
 
     auto run_compile_traversal = [&]() -> void {
-        for (auto& context : compileTraversal->contexts)
+        try
         {
-            ref_ptr<View> view = context->view;
-            if (view && !binStack.empty())
+            for (auto& context : compileTraversal->contexts)
             {
-                if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                ref_ptr<View> view = context->view;
+                if (view && !binStack.empty())
                 {
-                    result.views[view] = binStack.top();
+                    if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                    {
+                        result.views[view] = binStack.top();
+                    }
                 }
+
+                context->reserve(requirements);
             }
 
-            context->reserve(requirements);
+            object->accept(*compileTraversal);
+
+            //debug("Finished compile traversal ", object);
+
+            compileTraversal->record(); // records and submits to queue
+            compileTraversal->waitForCompletion();
         }
-
-        object->accept(*compileTraversal);
-
-        //debug("Finished compile traversal ", object);
-
-        compileTraversal->record(); // records and submits to queue
-        compileTraversal->waitForCompletion();
+        catch (const vsg::Exception& ve)
+        {
+            vsg::debug("CompileManager::compile() exception caught : ", ve.message);
+            result.message = ve.message;
+            result.result = ve.result;
+        }
+        catch (...)
+        {
+            vsg::debug("CompileManager::compile() exception caught");
+            result.message = "Exception occured during compilation.";
+            result.result = VK_ERROR_UNKNOWN;
+        }
 
         debug("Finished waiting for compile ", object);
     };
+
+    // assume success, overite this on failures.
+    result.result = VK_SUCCESS;
 
     if (contextSelection)
     {
@@ -215,6 +234,5 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     compileTraversals->add(compileTraversal);
 
-    result.result = VK_SUCCESS;
     return result;
 }

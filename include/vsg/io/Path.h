@@ -188,12 +188,12 @@ namespace vsg
 
         FileType type() const;
 
+        Path lexically_normal() const;
+
     protected:
         string_type _string;
     };
     VSG_type_name(vsg::Path);
-
-    using Paths = std::vector<Path>;
 
     /// directly join two paths without a path separator
     inline Path operator+(const Path& lhs, const Path& rhs)
@@ -208,5 +208,27 @@ namespace vsg
         Path path(lhs);
         return path /= rhs;
     }
+
+    using Paths = std::vector<Path>;
+    using PathObjects = std::map<Path, ref_ptr<Object>>;
+
+    /// return path stripped of the filename or final path component.
+    extern VSG_DECLSPEC Path filePath(const Path& path);
+
+    /// return file extension include the . prefix, i.e. vsg::fileExtension("file.vsgt") returns .vsgt
+    extern VSG_DECLSPEC Path fileExtension(const Path& path);
+
+    /// return lower case file extension include the . prefix, i.e. vsg::fileExtension("file.VSGT") returns .vsgt
+    /// By default prunes extras such as REST strings at the end of the extensions, uses ? as the deliminator for REST additions i.e. ".jpeg?g=42" becomes ".jpeg"
+    extern VSG_DECLSPEC Path lowerCaseFileExtension(const Path& path, bool pruneExtras = true);
+
+    /// return the filename stripped of any paths and extensions, i.e vsg::simpleFilname("path/file.vsgb") returns file
+    extern VSG_DECLSPEC Path simpleFilename(const Path& path);
+
+    /// return true if the path equals ., .. or has a trailing \.. \.., /.. or /....
+    extern VSG_DECLSPEC bool trailingRelativePath(const Path& path);
+
+    /// return the path minus the extension, i.e. vsg::removeExtension("path/file.png") return path/file
+    extern VSG_DECLSPEC Path removeExtension(const Path& path);
 
 } // namespace vsg

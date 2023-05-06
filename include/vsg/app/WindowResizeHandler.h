@@ -21,8 +21,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// WindowResizeHandler event handler that tracks window size changes and
-    /// rescales Camera projection matrices and viewports to fit with the new window dimensions.
+    /// Utility class for updating a scene graph when a View's camera ViewportState has been updated so that associated GraphicsPipelines in the
+    /// scene graph can be recompiled and correctly reflect the new ViewportState.
+    class VSG_DECLSPEC UpdateGraphicsPipelines : public vsg::Inherit<vsg::Visitor, UpdateGraphicsPipelines>
+    {
+    public:
+        vsg::ref_ptr<vsg::Context> context;
+        std::set<std::pair<const vsg::Object*, uint32_t>> visited;
+
+        bool visit(const Object* object, uint32_t index);
+
+        void apply(vsg::Object& object) override;
+        void apply(vsg::BindGraphicsPipeline& bindPipeline) override;
+        void apply(vsg::StateGroup& sg) override;
+        void apply(vsg::View& view) override;
+    };
+    VSG_type_name(vsg::UpdateGraphicsPipelines);
+
+    /// WindowResizeHandler resize calls for updating viewport/scissor and attachments to fit with new window dimensions.
     class VSG_DECLSPEC WindowResizeHandler : public Inherit<Visitor, WindowResizeHandler>
     {
     public:

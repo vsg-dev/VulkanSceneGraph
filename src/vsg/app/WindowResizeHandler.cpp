@@ -20,6 +20,58 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+bool UpdateGraphicsPipelines::visit(const Object* object, uint32_t index)
+{
+    decltype(visited)::value_type objectIndex(object, index);
+    if (visited.count(objectIndex) != 0) return false;
+    visited.insert(objectIndex);
+    return true;
+}
+
+void UpdateGraphicsPipelines::apply(vsg::Object& object)
+{
+    object.traverse(*this);
+}
+
+void UpdateGraphicsPipelines::apply(vsg::BindGraphicsPipeline& bindPipeline)
+{
+    if (!visit(&bindPipeline, context->viewID)) return;
+
+    auto pipeline = bindPipeline.pipeline;
+    if (pipeline)
+    {
+        pipeline->release(context->viewID);
+        pipeline->compile(*context);
+    }
+}
+
+void UpdateGraphicsPipelines::apply(vsg::StateGroup& sg)
+{
+    if (!visit(&sg, context->viewID)) return;
+
+    for (auto& command : sg.stateCommands)
+    {
+        command->accept(*this);
+    }
+    sg.traverse(*this);
+}
+
+void UpdateGraphicsPipelines::apply(vsg::View& view)
+{
+    if (!visit(&view, view.viewID)) return;
+
+    context->viewID = view.viewID;
+    context->defaultPipelineStates.emplace_back(view.camera->viewportState);
+
+    view.traverse(*this);
+
+    context->defaultPipelineStates.pop_back();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// WindowResizeHandler
+//
 WindowResizeHandler::WindowResizeHandler()
 {
 }

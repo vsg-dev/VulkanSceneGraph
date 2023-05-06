@@ -38,6 +38,10 @@ namespace vsg
         explicit CompileTraversal(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(const Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
+        /// specification of the queue to uses
+        VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
+        uint32_t queueFamilyIndex = 1;
+
         /// list of Context that Vulkan objects should be compiled for.
         std::list<ref_ptr<Context>> contexts;
 

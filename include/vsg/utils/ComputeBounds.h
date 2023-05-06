@@ -24,7 +24,12 @@ namespace vsg
     public:
         ComputeBounds(ref_ptr<ArrayState> intialArrayState = {});
 
+        /// Result of compute bounds traversal
         dbox bounds;
+
+        /// Use the bounding volumes of Cull/LOD nodes etc to compute the bounds rather than traverse their subgraphs.
+        /// Using the bounding volumes is faster but may result in less tight bounds around the geometry in the scene.
+        bool useNodeBounds = true;
 
         using ArrayStateStack = std::vector<ref_ptr<ArrayState>>;
         ArrayStateStack arrayStateStack;
@@ -39,6 +44,10 @@ namespace vsg
         void apply(const StateGroup& stategroup) override;
         void apply(const Transform& transform) override;
         void apply(const MatrixTransform& transform) override;
+        void apply(const CullNode& cullNode) override;
+        void apply(const CullGroup& cullGroup) override;
+        void apply(const LOD& lod) override;
+        void apply(const PagedLOD& plod) override;
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;
         void apply(const VertexIndexDraw& vid) override;
@@ -57,6 +66,9 @@ namespace vsg
 
         virtual void applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount);
         virtual void applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount);
+
+        void add(const dbox& bb);
+        void add(const dsphere& bs);
     };
     VSG_type_name(vsg::ComputeBounds);
 

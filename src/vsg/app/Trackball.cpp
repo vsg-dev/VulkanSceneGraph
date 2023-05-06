@@ -146,11 +146,11 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     _hasFocus = withinRenderArea(buttonPress);
     _lastPointerEventWithinRenderArea = _hasFocus;
 
-    if (buttonPress.mask & BUTTON_MASK_1)
+    if (buttonPress.mask & rotateButtonMask)
         _updateMode = ROTATE;
-    else if (buttonPress.mask & BUTTON_MASK_2)
+    else if (buttonPress.mask & panButtonMask)
         _updateMode = PAN;
-    else if (buttonPress.mask & BUTTON_MASK_3)
+    else if (buttonPress.mask & zoomButtonMask)
         _updateMode = ZOOM;
     else
         _updateMode = INACTIVE;
@@ -288,7 +288,7 @@ void Trackball::apply(TouchDownEvent& touchDown)
                 touchDown.time,
                 touchDown.x,
                 touchDown.y,
-                vsg::ButtonMask::BUTTON_MASK_1,
+                touchMappedToButtonMask,
                 touchDown.id);
             apply(*evt.get());
         }
@@ -321,7 +321,7 @@ void Trackball::apply(TouchUpEvent& touchUp)
             touchUp.time,
             touchUp.x,
             touchUp.y,
-            vsg::ButtonMask::BUTTON_MASK_1,
+            touchMappedToButtonMask,
             touchUp.id);
         apply(*evt.get());
     }
@@ -342,7 +342,7 @@ void Trackball::apply(TouchMoveEvent& touchMove)
             touchMove.time,
             touchMove.x,
             touchMove.y,
-            vsg::ButtonMask::BUTTON_MASK_1);
+            touchMappedToButtonMask);
         apply(*evt.get());
         break;
     }

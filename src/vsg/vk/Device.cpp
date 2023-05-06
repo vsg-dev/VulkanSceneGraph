@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/Version.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/Extensions.h>
@@ -62,6 +63,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         throw Exception{"Number of vsg:Device allocated exceeds number supported ", VSG_MAX_DEVICES};
     }
 
+    const auto& queueFamilyProperties = physicalDevice->getQueueFamilyProperties();
+
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
     float queuePriority = 1.0f;
@@ -87,6 +90,13 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         {
             queueCreateInfo.queueCount = static_cast<uint32_t>(queueSetting.queuePiorities.size());
             queueCreateInfo.pQueuePriorities = queueSetting.queuePiorities.data();
+
+            uint32_t supportedQueueCount = queueFamilyProperties[queueSetting.queueFamilyIndex].queueCount;
+            if (queueCreateInfo.queueCount > supportedQueueCount)
+            {
+                queueCreateInfo.queueCount = supportedQueueCount;
+                debug("Device::Device() creation failed to create request queueCount.");
+            }
         }
         else
         {
@@ -133,6 +143,19 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
     }
 
+    // allocated the requested queues
+    for (auto queueInfo : queueCreateInfos)
+    {
+        for (uint32_t queueIndex = 0; queueIndex < queueInfo.queueCount; ++queueIndex)
+        {
+            VkQueue vk_queue;
+            vkGetDeviceQueue(_device, queueInfo.queueFamilyIndex, queueIndex, &vk_queue);
+
+            ref_ptr<Queue> queue(new Queue(vk_queue, queueInfo.queueFamilyIndex, queueIndex));
+            _queues.emplace_back(queue);
+        }
+    }
+
     _extensions = Extensions::create(this);
 }
 
@@ -158,11 +181,14 @@ ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
         if (queue->queueFamilyIndex() == queueFamilyIndex && queue->queueIndex() == queueIndex) return queue;
     }
 
-    VkQueue vk_queue;
-    vkGetDeviceQueue(_device, queueFamilyIndex, queueIndex, &vk_queue);
+    debug("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failled back to next closest.");
 
-    ref_ptr<Queue> queue(new Queue(vk_queue, queueFamilyIndex, queueIndex));
-    _queues.emplace_back(queue);
+    for (auto& queue : _queues)
+    {
+        if (queue->queueFamilyIndex() == queueFamilyIndex) return queue;
+    }
 
-    return queue;
+    warn("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failled to find any suitable Queue.");
+
+    return {};
 }

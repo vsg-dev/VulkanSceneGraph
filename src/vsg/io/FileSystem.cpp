@@ -21,8 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <cstdlib>
 #    include <direct.h>
 #    include <io.h>
-//	 cctype is needed for tolower()
-#    include <cctype>
 #    include <windows.h>
 
 #    ifdef _MSC_VER
@@ -142,102 +140,6 @@ bool vsg::fileExists(const Path& path)
 #else
     return access(path.c_str(), F_OK) == 0;
 #endif
-}
-
-Path vsg::filePath(const Path& path)
-{
-    if (trailingRelativePath(path)) return path;
-
-    auto slash = path.find_last_of(Path::separators);
-    if (slash != vsg::Path::npos)
-    {
-        return path.substr(0, slash);
-    }
-    else
-    {
-        return {};
-    }
-}
-
-Path vsg::fileExtension(const Path& path)
-{
-    auto dot = path.find_last_of('.');
-    if (dot == Path::npos || (dot + 1) == path.size()) return {};
-
-    auto slash = path.find_last_of(Path::separators);
-    if (slash != Path::npos && dot < slash) return {};
-
-    return path.substr(dot);
-}
-
-Path vsg::lowerCaseFileExtension(const Path& path, bool pruneExtras)
-{
-    Path ext = fileExtension(path);
-
-    if (pruneExtras)
-    {
-        auto question_mark = ext.find_first_of('?');
-        if (question_mark != ext.npos) ext.erase(question_mark, Path::npos);
-    }
-
-    for (auto& c : ext) c = std::tolower(c);
-    return ext;
-}
-
-Path vsg::simpleFilename(const Path& path)
-{
-    if (trailingRelativePath(path)) return {};
-
-    auto dot = path.find_last_of('.');
-    auto slash = path.find_last_of(Path::separators);
-    if (slash != Path::npos)
-    {
-        if ((dot == Path::npos) || (dot < slash))
-            return path.substr(slash + 1);
-        else
-            return path.substr(slash + 1, dot - slash - 1);
-    }
-    else
-    {
-        if (dot == Path::npos)
-            return path;
-        else
-            return path.substr(0, dot);
-    }
-}
-
-bool vsg::trailingRelativePath(const Path& path)
-{
-    if (path == ".") return true;
-    if (path == "..") return true;
-    if (path.size() >= 2)
-    {
-        if (path.compare(path.size() - 2, 2, "/.") == 0) return true;
-        if (path.compare(path.size() - 2, 2, "\\.") == 0) return true;
-
-        if (path.size() >= 3)
-        {
-            if (path.compare(path.size() - 3, 3, "/..") == 0) return true;
-            if (path.compare(path.size() - 3, 3, "\\..") == 0) return true;
-        }
-    }
-    return false;
-}
-
-Path vsg::removeExtension(const Path& path)
-{
-    if (trailingRelativePath(path)) return path;
-
-    auto dot = path.find_last_of('.');
-    if (dot == Path::npos) return path;
-
-    auto slash = path.find_last_of(Path::separators);
-    if (slash != Path::npos && dot < slash)
-        return path;
-    else if (dot > 1)
-        return path.substr(0, dot);
-    else
-        return {};
 }
 
 Path vsg::findFile(const Path& filename, const Paths& paths)

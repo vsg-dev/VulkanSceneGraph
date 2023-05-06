@@ -50,7 +50,7 @@ void PagedLOD::read(Input& input)
         auto path = filePath(input.filename);
         if (path)
         {
-            filename = path / filename;
+            filename = (path / filename).lexically_normal();
         }
     }
 

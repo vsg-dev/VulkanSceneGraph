@@ -37,6 +37,8 @@ namespace vsg
         void apply(const LOD& lod) override;
         void apply(const PagedLOD& plod) override;
         void apply(const CullNode& cn) override;
+        void apply(const CullGroup& cn) override;
+        void apply(const DepthSorted& cn) override;
 
         void apply(const VertexDraw& vid) override;
         void apply(const VertexIndexDraw& vid) override;
