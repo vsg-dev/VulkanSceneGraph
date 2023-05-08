@@ -198,8 +198,9 @@ namespace vsg
                          lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + lhs[3] * rhs[3][3]);
     }
 
-    /* Left multiplication of a plane and a matrix. This can be used directly to transform a plane
-       from a coordinate system's local coordinates to world coordinates. */
+    /* Left multiplication of a plane and a matrix. If the matrix is the inverse of the
+       local-to-world transform i.e., the world-to-local transform, then this can be used directly
+       to transform a plane from a coordinate system's local coordinates to world coordinates. */
     template<typename T, typename R>
     t_plane<T> operator*(const t_plane<T>& lhs, const t_mat4<R>& rhs)
     {
