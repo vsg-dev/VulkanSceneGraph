@@ -221,7 +221,7 @@ Path Path::lexically_normal() const
                 prev_itr = itr;
                 --prev_itr;
             }
-            else if (itr != path_segments.end())
+            else
             {
                 prev_itr = itr;
                 ++itr;
