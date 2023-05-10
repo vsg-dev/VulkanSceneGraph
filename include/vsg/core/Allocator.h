@@ -140,7 +140,7 @@ namespace vsg
 
         allocator_affinity_nodes() = default;
         template<class U>
-        constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
+        explicit constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
 
         value_type* allocate(std::size_t n)
         {
