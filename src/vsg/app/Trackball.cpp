@@ -153,9 +153,10 @@ void Trackball::apply(KeyPressEvent& keyPress)
             if ((keyPress.keyModifier & MODKEY_Alt) != 0)
             {
                 dvec3 lookVector = _lookAt->center - _lookAt->eye;
-                dmat4 matrix = vsg::translate(lookVector * (scale * delta.y * 0.1));
-
-                info("need to implement left/right and move forward/right = ", matrix);
+                dmat4 matrix = vsg::translate(lookVector * (scale * delta.y * 0.1)) *
+                               vsg::translate(_lookAt->eye) *
+                               vsg::rotate(-delta.x * scale, _lookAt->up) *
+                               vsg::translate(-_lookAt->eye);
 
                 _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
                 _lookAt->center = matrix * _lookAt->center;
