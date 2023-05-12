@@ -134,6 +134,7 @@ returnTempReference:*/include/vsg/core/Inherit.h
 // suppress inappropriate warning of variableScope
 variableScope:*/include/vsg/utils/SharedObjects.h
 variableScope:*/src/vsg/utils/SharedObjects.cpp
+variableScope:*/src/vsg/app/CompileManager.cpp
 
 // suppress really stupid warning of pointerLessThanZero
 pointerLessThanZero:*/src/vsg/app/Viewer.cpp
