@@ -125,9 +125,35 @@ dvec3 Trackball::tbc(PointerEvent& event)
     }
 }
 
+#include <iostream>
+
 void Trackball::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.handled || !eventRelevant(keyPress) || !_lastPointerEventWithinRenderArea) return;
+
+    auto keyState_itr = keyState.find(keyPress.keyBase);
+    if (keyState_itr != keyState.end())
+    {
+        auto& keyHistory = keyState_itr->second;
+        if (keyHistory.timeOfKeyRelease == keyPress.time)
+        {
+            keyHistory.timeOfKeyRelease = keyHistory.timeOfKeyPress;
+            std::cout<<"key repeated "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+        }
+        else
+        {
+            keyHistory.timeOfKeyPress = keyPress.time;
+            keyHistory.timeOfKeyRelease = keyPress.time;
+            std::cout<<"key reusing first press "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+        }
+    }
+    else
+    {
+        auto& keyHistory = keyState[keyPress.keyBase];
+        keyHistory.timeOfKeyPress = keyPress.time;
+        keyHistory.timeOfKeyRelease = keyPress.time;
+        std::cout<<"key first press "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+    }
 
     if (auto itr = keyViewpointMap.find(keyPress.keyBase); itr != keyViewpointMap.end())
     {
@@ -173,6 +199,19 @@ void Trackball::apply(KeyPressEvent& keyPress)
                 pan( dvec2(-delta.x, delta.y) * scale);
             }
         }
+    }
+}
+
+void Trackball::apply(KeyReleaseEvent& keyRelease)
+{
+   if (keyRelease.handled || !eventRelevant(keyRelease) || !_lastPointerEventWithinRenderArea) return;
+
+    auto keyState_itr = keyState.find(keyRelease.keyBase);
+    if (keyState_itr != keyState.end())
+    {
+        auto& keyHistory = keyState_itr->second;
+        keyHistory.timeOfKeyRelease = keyRelease.time;
+        std::cout<<"key provisionally released "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyRelease.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
     }
 }
 
@@ -412,6 +451,22 @@ void Trackball::apply(TouchMoveEvent& touchMove)
 
 void Trackball::apply(FrameEvent& frame)
 {
+    // check if movement keys are pressed.
+    for(auto itr = keyState.begin(); itr != keyState.end();)
+    {
+        auto& keyHistory = itr->second;
+        if (keyHistory.timeOfKeyRelease != keyHistory.timeOfKeyPress)
+        {
+            std::cout<<"Trackball::apply(FrameEvent&) key = "<<itr->first<<" released "<<std::endl;
+            itr = keyState.erase(itr);
+        }
+        else
+        {
+            std::cout<<"Trackball::apply(FrameEvent&) key = "<<itr->first<<" held down "<<std::endl;
+            ++itr;
+        }
+    }
+
     if (_endLookAt)
     {
         double timeSinceOfAnimation = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _startTime).count();

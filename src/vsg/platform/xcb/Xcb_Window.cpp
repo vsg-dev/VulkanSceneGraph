@@ -611,11 +611,11 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             break;
         }
         case (XCB_FOCUS_IN): {
-            //debug("xcb_focus_in_event_t");
+            info("xcb_focus_in_event_t");
             break;
         }
         case (XCB_FOCUS_OUT): {
-            //debug("xcb_focus_out_event_t");
+            info("xcb_focus_out_event_t");
             break;
         }
         case (XCB_ENTER_NOTIFY): {

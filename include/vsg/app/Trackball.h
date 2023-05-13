@@ -37,6 +37,7 @@ namespace vsg
         dvec3 tbc(PointerEvent& event);
 
         void apply(KeyPressEvent& keyPress) override;
+        void apply(KeyReleaseEvent& keyRelease) override;
         void apply(ButtonPressEvent& buttonPress) override;
         void apply(ButtonReleaseEvent& buttonRelease) override;
         void apply(MoveEvent& moveEvent) override;
@@ -98,6 +99,14 @@ namespace vsg
 
         /// Toggle on/off whether the view should continue moving when the mouse buttons are released while the mouse is in motion.
         bool supportsThrow = true;
+
+        struct KeyHistory
+        {
+            vsg::time_point timeOfKeyPress = {};
+            vsg::time_point timeOfKeyRelease = {};
+        };
+
+        std::map<KeySymbol, KeyHistory> keyState;
 
     protected:
         ref_ptr<Camera> _camera;
