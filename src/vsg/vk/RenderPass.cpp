@@ -400,7 +400,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
         AttachmentDescription depthResolveAttachment = {};
         depthResolveAttachment.format = depthFormat;
         depthResolveAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthResolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthResolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         depthResolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         depthResolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         depthResolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
