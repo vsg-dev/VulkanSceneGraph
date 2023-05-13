@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Extensions.h>
 
 #include <cstring>
+#include <string>
+#include <algorithm>
 #include <set>
 
 using namespace vsg;
@@ -110,14 +112,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 
 #if defined(__APPLE__)
     // MacOS requires "VK_KHR_portability_subset" to be a requested extension if the PhysicalDevice supported it.
-    auto extensionProperties = _physicalDevice->enumerateDeviceExtensionProperties();
-    for (auto& extensionProperty : extensionProperties)
-    {
-        if (std::strncmp(extensionProperty.extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME, VK_MAX_EXTENSION_NAME_SIZE) == 0)
-        {
-            deviceExtensions.push_back(extensionProperty.extensionName);
-        }
-    }
+    if (_physicalDevice->supportsDeviceExtension(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
+        deviceExtensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 #endif
 
     VkDeviceCreateInfo createInfo = {};
@@ -191,4 +187,9 @@ ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
     warn("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failled to find any suitable Queue.");
 
     return {};
+}
+
+bool Device::supportsApiVersion(uint32_t version) const
+{
+    return getInstance()->apiVersion >= version && _physicalDevice->getProperties().apiVersion >= version;
 }

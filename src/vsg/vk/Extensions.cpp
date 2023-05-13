@@ -47,7 +47,10 @@ Extensions::Extensions(Device* device)
     device->getProcAddr(vkResetQueryPool, "vkResetQueryPool", "vkResetQueryPoolEXT");
 
     // VK_KHR_create_renderpass2
-    device->getProcAddr(vkCreateRenderPass2, "vkCreateRenderPass2", "vkCreateRenderPass2KHR");
+    if (device->supportsApiVersion(VK_API_VERSION_1_2))
+        device->getProcAddr(vkCreateRenderPass2, "vkCreateRenderPass2");
+    else if (device->getPhysicalDevice()->supportsDeviceExtension(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
+        device->getProcAddr(vkCreateRenderPass2, "vkCreateRenderPass2KHR");
 
     // VK_KHR_ray_tracing
     device->getProcAddr(vkCreateAccelerationStructureKHR, "vkCreateAccelerationStructureKHR");
