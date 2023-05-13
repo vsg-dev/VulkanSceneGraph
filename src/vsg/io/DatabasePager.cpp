@@ -251,7 +251,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr)
         }
 
         auto& activeList = pagedLODContainer->activeList;
-        uint32_t switchedCount = 0;
         for (uint32_t index = activeList.head; index != 0;)
         {
             auto& element = elements[index];
@@ -260,7 +259,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr)
             if (!element.plod->highResActive(frameCount))
             {
                 // debug("   active to inactive ", index);
-                ++switchedCount;
                 pagedLODContainer->inactive(element.plod.get());
             }
         }
