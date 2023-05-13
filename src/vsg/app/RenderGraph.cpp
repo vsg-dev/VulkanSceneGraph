@@ -54,7 +54,11 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
 
 RenderPass* RenderGraph::getRenderPass()
 {
-    if (framebuffer)
+    if (renderPass)
+    {
+        return renderPass;
+    }
+    else if (framebuffer)
     {
         return framebuffer->getRenderPass();
     }
@@ -67,10 +71,10 @@ RenderPass* RenderGraph::getRenderPass()
 
 void RenderGraph::setClearValues(VkClearColorValue clearColor, VkClearDepthStencilValue clearDepthStencil)
 {
-    auto renderPass = getRenderPass();
-    if (!renderPass) return;
+    auto activeRenderPass = getRenderPass();
+    if (!activeRenderPass) return;
 
-    auto& attachments = renderPass->attachments;
+    auto& attachments = activeRenderPass->attachments;
     clearValues.resize(attachments.size());
     for (size_t i = 0; i < attachments.size(); ++i)
     {
@@ -124,6 +128,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         renderPassInfo.renderPass = *(window->getRenderPass());
         renderPassInfo.framebuffer = *(window->framebuffer(imageIndex));
     }
+    if (renderPass)
+        renderPassInfo.renderPass = *(renderPass);
 
     renderPassInfo.renderArea = renderArea;
 
@@ -149,25 +155,25 @@ void RenderGraph::resized()
     if (!windowResizeHandler) return;
     if (!window && !framebuffer) return;
 
-    auto renderPass = getRenderPass();
-    if (!renderPass) return;
+    auto activeRenderPass = getRenderPass();
+    if (!activeRenderPass) return;
 
-    auto device = renderPass->device;
+    auto device = activeRenderPass->device;
 
     if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(device);
 
     auto extent = getExtent();
 
     windowResizeHandler->context->commandPool = nullptr;
-    windowResizeHandler->context->renderPass = renderPass;
+    windowResizeHandler->context->renderPass = activeRenderPass;
     windowResizeHandler->renderArea = renderArea;
     windowResizeHandler->previous_extent = previous_extent;
     windowResizeHandler->new_extent = extent;
     windowResizeHandler->visited.clear();
 
-    if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
+    if (activeRenderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
     {
-        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
+        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(activeRenderPass->maxSamples));
     }
 
     // make sure the device is idle before we recreate any Vulkan objects
