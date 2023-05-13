@@ -247,7 +247,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
             if (samples != VK_SAMPLE_COUNT_1_BIT)
             {
-                mergeGraphicsPipelineStates(context->overridePipelineStates, MultisampleState::create(commandGraph.window->framebufferSamples()));
+                mergeGraphicsPipelineStates(context->overridePipelineStates, MultisampleState::create(static_cast<VkSampleCountFlagBits>(samples)));
             }
 
             commandGraph.traverse(*this);
