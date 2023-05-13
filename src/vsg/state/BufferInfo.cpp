@@ -163,9 +163,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     auto deviceID = context.deviceID;
 
     ref_ptr<BufferInfo> deviceBufferInfo;
-    size_t numBuffersAssigned = 0;
     size_t numBuffersRequired = 0;
-    size_t numNoData = 0;
     bool containsMultipleParents = false;
     for (auto& bufferInfo : bufferInfoList)
     {
@@ -175,14 +173,6 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
             {
                 ++numBuffersRequired;
             }
-            else
-            {
-                ++numBuffersAssigned;
-            }
-        }
-        else
-        {
-            ++numNoData;
         }
 
         if (bufferInfo->parent)
