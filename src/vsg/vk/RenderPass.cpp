@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/vk/Extensions.h>
 #include <vsg/vk/RenderPass.h>
 
@@ -39,13 +40,11 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
     maxSamples(computeMaxSamples(in_attachments))
 {
     auto scratchMemory = ScratchMemory::create(1024);
-
-    // vkCreateRenderPass2 is only supported in Vulkan 1.2 and later.
-    bool useRenderPass2 = device->getInstance()->apiVersion >= VK_API_VERSION_1_2;
+    // vkCreateRenderPass2 is supported with the VK_KHR_create_renderpass2 device extension, or in Vulkan core 1.2 and later
     auto extensions = device->getExtensions();
-    if (useRenderPass2 && extensions->vkCreateRenderPass2)
+    if (extensions->vkCreateRenderPass2)
     {
-        // Vulkan 1.2 vkCreateRenderPass2 code path
+        // vkCreateRenderPass2 code path
         auto copyAttachmentDescriptions = [&scratchMemory](const Attachments& attachmentDescriptions) -> VkAttachmentDescription2* {
             if (attachmentDescriptions.empty()) return nullptr;
 
@@ -211,6 +210,8 @@ RenderPass::RenderPass(Device* in_device, const Attachments& in_attachments, con
             for (size_t i = 0; i < subpassDescriptions.size(); ++i)
             {
                 auto& src = subpassDescriptions[i];
+                if (!src.depthStencilResolveAttachments.empty())
+                    vsg::warn("vsg::RenderPass::create(...): Subpass includes depthStencilResolveAttachments but vkCreateRenderPass2 is not enabled. Set WindowTraits::vulkanVersion to at least VK_API_VERSION_1_2 or add VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME to WindowTraits::deviceExtensionNames.");
                 auto& dst = vk_subpassDescription[i];
                 dst.flags = src.flags;
                 dst.pipelineBindPoint = src.pipelineBindPoint;
@@ -400,7 +401,7 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
         AttachmentDescription depthResolveAttachment = {};
         depthResolveAttachment.format = depthFormat;
         depthResolveAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthResolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthResolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         depthResolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         depthResolveAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         depthResolveAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;

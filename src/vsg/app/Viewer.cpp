@@ -465,17 +465,13 @@ void Viewer::setupThreading()
 
     stopThreading();
 
-    // check how valid tasks and command graphs there are.
+    // check how many valid tasks there are.
     uint32_t numValidTasks = 0;
-    size_t numCommandGraphs = 0;
-    size_t numEarlyTransferTasks = 0;
     for (auto& task : recordAndSubmitTasks)
     {
         if (!task->commandGraphs.empty())
         {
             ++numValidTasks;
-            numCommandGraphs += task->commandGraphs.size();
-            if (task->earlyTransferTask) ++numEarlyTransferTasks;
         }
     }
 
