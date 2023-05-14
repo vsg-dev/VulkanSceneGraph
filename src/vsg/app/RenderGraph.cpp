@@ -117,7 +117,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     if (framebuffer)
     {
-        renderPassInfo.renderPass = *(framebuffer->getRenderPass());
+        renderPassInfo.renderPass = renderPass ? *(renderPass) : *(framebuffer->getRenderPass());
         renderPassInfo.framebuffer = *(framebuffer);
     }
     else
@@ -125,11 +125,9 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
         size_t imageIndex = window->imageIndex();
         if (imageIndex >= window->numFrames()) return;
 
-        renderPassInfo.renderPass = *(window->getRenderPass());
+        renderPassInfo.renderPass = renderPass ? *(renderPass) : *(window->getRenderPass());
         renderPassInfo.framebuffer = *(window->framebuffer(imageIndex));
     }
-    if (renderPass)
-        renderPassInfo.renderPass = *(renderPass);
 
     renderPassInfo.renderArea = renderArea;
 
