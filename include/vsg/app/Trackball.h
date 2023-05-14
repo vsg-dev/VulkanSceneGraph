@@ -102,7 +102,8 @@ namespace vsg
 
         struct KeyHistory
         {
-            vsg::time_point timeOfKeyPress = {};
+            vsg::time_point timeOfFirstKeyPress = {};
+            vsg::time_point timeOfLastKeyPress = {};
             vsg::time_point timeOfKeyRelease = {};
         };
 

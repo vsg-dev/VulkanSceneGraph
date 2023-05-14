@@ -137,22 +137,25 @@ void Trackball::apply(KeyPressEvent& keyPress)
         auto& keyHistory = keyState_itr->second;
         if (keyHistory.timeOfKeyRelease == keyPress.time)
         {
-            keyHistory.timeOfKeyRelease = keyHistory.timeOfKeyPress;
-            std::cout<<"key repeated "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+            keyHistory.timeOfKeyRelease = keyHistory.timeOfFirstKeyPress;
+            keyHistory.timeOfLastKeyPress = keyPress.time;
+            //std::cout<<"key repeated "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfFirstKeyPress).count()<<"ms"<<std::endl;
         }
         else
         {
-            keyHistory.timeOfKeyPress = keyPress.time;
+            keyHistory.timeOfFirstKeyPress = keyPress.time;
+            keyHistory.timeOfLastKeyPress = keyPress.time;
             keyHistory.timeOfKeyRelease = keyPress.time;
-            std::cout<<"key reusing first press "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+            //std::cout<<"key reusing first press "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfFirstKeyPress).count()<<"ms"<<std::endl;
         }
     }
     else
     {
         auto& keyHistory = keyState[keyPress.keyBase];
-        keyHistory.timeOfKeyPress = keyPress.time;
+        keyHistory.timeOfFirstKeyPress = keyPress.time;
+        keyHistory.timeOfLastKeyPress = keyPress.time;
         keyHistory.timeOfKeyRelease = keyPress.time;
-        std::cout<<"key first press "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+        //std::cout<<"key first press "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyPress.time - keyHistory.timeOfFirstKeyPress).count()<<"ms"<<std::endl;
     }
 
     if (auto itr = keyViewpointMap.find(keyPress.keyBase); itr != keyViewpointMap.end())
@@ -163,6 +166,8 @@ void Trackball::apply(KeyPressEvent& keyPress)
 
         keyPress.handled = true;
     }
+
+#if 0
     else
     {
         vsg::dvec2 delta(0.0, 0.0);
@@ -200,6 +205,7 @@ void Trackball::apply(KeyPressEvent& keyPress)
             }
         }
     }
+#endif
 }
 
 void Trackball::apply(KeyReleaseEvent& keyRelease)
@@ -211,7 +217,7 @@ void Trackball::apply(KeyReleaseEvent& keyRelease)
     {
         auto& keyHistory = keyState_itr->second;
         keyHistory.timeOfKeyRelease = keyRelease.time;
-        std::cout<<"key provisionally released "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyRelease.time - keyHistory.timeOfKeyPress).count()<<"ms"<<std::endl;
+        // std::cout<<"key provisionally released "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyRelease.time - keyHistory.timeOfFirstKeyPress).count()<<"ms"<<std::endl;
     }
 }
 
@@ -451,18 +457,72 @@ void Trackball::apply(TouchMoveEvent& touchMove)
 
 void Trackball::apply(FrameEvent& frame)
 {
+    // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
+
     // check if movement keys are pressed.
     for(auto itr = keyState.begin(); itr != keyState.end();)
     {
         auto& keyHistory = itr->second;
-        if (keyHistory.timeOfKeyRelease != keyHistory.timeOfKeyPress)
+        bool assumeKeyReleased = false;
+        if (keyHistory.timeOfKeyRelease != keyHistory.timeOfFirstKeyPress)
         {
-            std::cout<<"Trackball::apply(FrameEvent&) key = "<<itr->first<<" released "<<std::endl;
+            assumeKeyReleased = true;
+        }
+        else
+        {
+            double timeSinceLastRepeat = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - keyHistory.timeOfLastKeyPress).count();
+            if (timeSinceLastRepeat > 1.0)
+            {
+                //std::cout<<"    Trackball::apply(FrameEvent&) key = "<<itr->first<<" time out!!!!! timeSinceLastRepeat = "<<timeSinceLastRepeat<<std::endl;
+                // assumeKeyReleased = true;
+            }
+        }
+
+        if (assumeKeyReleased)
+        {
+            //std::cout<<"    Trackball::apply(FrameEvent&) key = "<<itr->first<<" released "<<std::endl;
             itr = keyState.erase(itr);
         }
         else
         {
-            std::cout<<"Trackball::apply(FrameEvent&) key = "<<itr->first<<" held down "<<std::endl;
+            double timeSinceFirstPress = std::chrono::duration<double, std::chrono::milliseconds::period>(frame.time - keyHistory.timeOfFirstKeyPress).count();
+            // std::cout<<"    Trackball::apply(FrameEvent&) key = "<<itr->first<<" held down "<<timeSinceFirstPress<<std::endl;
+
+            auto key = itr->first;
+
+            vsg::dvec2 delta(0.0, 0.0);
+            if (key == KEY_Left) delta.x = -1.0;
+            else if (key == KEY_Right) delta.x = 1.0;
+            else if (key == KEY_Up) delta.y = 1.0;
+            else if (key == KEY_Down) delta.y = -1.0;
+
+            double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
+            if (delta.x != 0.0 || delta.y != 0.0)
+            {
+                pan( dvec2(-delta.x, delta.y) * scale);
+            }
+
+            delta.set(0.0, 0.0);
+            if (key == 'w') delta.y = 1.0;
+            else if (key == 's') delta.y = -1.0;
+            else if (key == 'a') delta.x = -1.0;
+            else if (key == 'd') delta.x = 1.0;
+
+            if (delta.x != 0.0 || delta.y != 0.0)
+            {
+                dvec3 lookVector = _lookAt->center - _lookAt->eye;
+                dmat4 matrix = vsg::translate(lookVector * (scale * delta.y * 0.2)) *
+                            vsg::translate(_lookAt->eye) *
+                            vsg::rotate(-delta.x * scale * 0.25, _lookAt->up) *
+                            vsg::translate(-_lookAt->eye);
+
+                _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
+                _lookAt->center = matrix * _lookAt->center;
+                _lookAt->eye = matrix * _lookAt->eye;
+
+                clampToGlobe();
+            }
+
             ++itr;
         }
     }
