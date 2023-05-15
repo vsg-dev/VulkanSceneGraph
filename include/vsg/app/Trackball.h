@@ -24,6 +24,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Keyboard tracks keyboard events to maintain the key pressed state and how long the key has been hel for
+    class VSG_DECLSPEC Keyboard : public Inherit<Visitor, Keyboard>
+    {
+    public:
+
+        void apply(KeyPressEvent& keyPress) override;
+        void apply(KeyReleaseEvent& keyRelease) override;
+
+        struct KeyHistory
+        {
+            vsg::time_point timeOfFirstKeyPress = {};
+            vsg::time_point timeOfLastKeyPress = {};
+            vsg::time_point timeOfKeyRelease = {};
+        };
+
+        std::map<KeySymbol, KeyHistory> keyState;
+
+        /// return true if key is currently pressed
+        bool pressed(KeySymbol key);
+
+        /// return the length of time key has been pressed, return -1.0 for key is not currently pressed
+        double time_pressed(KeySymbol key);
+    };
+
     /// Trackball is an event handler that provides mouse and touch controlled 3d trackball camera view manipulation.
     class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
     {
@@ -100,15 +124,6 @@ namespace vsg
         /// Toggle on/off whether the view should continue moving when the mouse buttons are released while the mouse is in motion.
         bool supportsThrow = true;
 
-        struct KeyHistory
-        {
-            vsg::time_point timeOfFirstKeyPress = {};
-            vsg::time_point timeOfLastKeyPress = {};
-            vsg::time_point timeOfKeyRelease = {};
-        };
-
-        std::map<KeySymbol, KeyHistory> keyState;
-
     protected:
         ref_ptr<Camera> _camera;
         ref_ptr<LookAt> _lookAt;
@@ -140,6 +155,8 @@ namespace vsg
         ref_ptr<LookAt> _startLookAt;
         ref_ptr<LookAt> _endLookAt;
         std::map<uint32_t, ref_ptr<TouchEvent>> _previousTouches;
+
+        ref_ptr<Keyboard> _keyboard;
 
         double _animationDuration = 0.0;
     };
