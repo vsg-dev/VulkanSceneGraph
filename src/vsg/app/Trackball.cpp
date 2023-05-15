@@ -473,7 +473,7 @@ void Trackball::apply(FrameEvent& frame)
     // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
     if (_hasKeyboardFocus && _keyboard)
     {
-        vsg::dvec2 delta(0.0, 0.0);
+        vsg::dvec3 delta(0.0, 0.0, 0.0);
         if (_keyboard->pressed(KEY_Left)) delta.x = -1.0;
         if (_keyboard->pressed(KEY_Right)) delta.x = 1.0;
         if (_keyboard->pressed(KEY_Up)) delta.y = 1.0;
@@ -486,18 +486,22 @@ void Trackball::apply(FrameEvent& frame)
             _thrown = false;
         }
 
-        delta.set(0.0, 0.0);
+        delta.set(0.0, 0.0, 0.0);
         if (_keyboard->pressed(KEY_w)) delta.y = 1.0;
         if (_keyboard->pressed(KEY_s)) delta.y = -1.0;
         if (_keyboard->pressed(KEY_a)) delta.x = -1.0;
         if (_keyboard->pressed(KEY_d)) delta.x = 1.0;
+        if (_keyboard->pressed(KEY_o)) delta.z = 1.0;
+        if (_keyboard->pressed(KEY_i)) delta.z = -1.0;
 
-        if (delta.x != 0.0 || delta.y != 0.0)
+        if (delta.x != 0.0 || delta.y != 0.0 || delta.z != 0.0)
         {
             dvec3 lookVector = _lookAt->center - _lookAt->eye;
-            dmat4 matrix = vsg::translate(lookVector * (scale * delta.y * 0.2)) *
+            dvec3 sideVector = vsg::normalize(vsg::cross(_lookAt->up, lookVector));
+            dmat4 matrix = vsg::translate(lookVector * (scale * delta.z * 0.2)) *
                         vsg::translate(_lookAt->eye) *
                         vsg::rotate(-delta.x * scale * 0.5, _lookAt->up) *
+                        vsg::rotate(-delta.y * scale * 0.5, sideVector) *
                         vsg::translate(-_lookAt->eye);
 
             _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
