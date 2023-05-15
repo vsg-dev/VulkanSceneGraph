@@ -27,6 +27,7 @@ void Keyboard::apply(KeyPressEvent& keyPress)
     if (keyState_itr != keyState.end())
     {
         auto& keyHistory = keyState_itr->second;
+        keyHistory.handled = keyPress.handled;
         if (keyHistory.timeOfKeyRelease == keyPress.time)
         {
             keyHistory.timeOfKeyRelease = keyHistory.timeOfFirstKeyPress;
@@ -44,6 +45,7 @@ void Keyboard::apply(KeyPressEvent& keyPress)
     else
     {
         auto& keyHistory = keyState[keyPress.keyBase];
+        keyHistory.handled = keyPress.handled;
         keyHistory.timeOfFirstKeyPress = keyPress.time;
         keyHistory.timeOfLastKeyPress = keyPress.time;
         keyHistory.timeOfKeyRelease = keyPress.time;
@@ -59,12 +61,13 @@ void Keyboard::apply(KeyReleaseEvent& keyRelease)
     if (keyState_itr != keyState.end())
     {
         auto& keyHistory = keyState_itr->second;
+        keyHistory.handled = keyRelease.handled;
         keyHistory.timeOfKeyRelease = keyRelease.time;
         //std::cout<<"key provisionally released "<<std::chrono::duration<double, std::chrono::milliseconds::period>(keyRelease.time - keyHistory.timeOfFirstKeyPress).count()<<"ms"<<std::endl;
     }
 }
 
-bool Keyboard::pressed(KeySymbol key)
+bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys)
 {
     auto itr = keyState.find(key);
     if (itr == keyState.end()) return false;
@@ -76,10 +79,12 @@ bool Keyboard::pressed(KeySymbol key)
         return false;
     }
 
+    if (ignore_handled_keys && keyHistory.handled) return false;
+
     return true;
 }
 
-double Keyboard::time_pressed(KeySymbol key)
+double Keyboard::time_pressed(KeySymbol key, bool ignore_handled_keys)
 {
     auto itr = keyState.find(key);
     if (itr == keyState.end()) return -1.0;
@@ -90,6 +95,8 @@ double Keyboard::time_pressed(KeySymbol key)
         keyState.erase(itr);
         return -1.0;
     }
+
+    if (ignore_handled_keys && keyHistory.handled) return -1.0;
 
     return std::chrono::duration<double, std::chrono::seconds::period>(clock::now() - keyHistory.timeOfFirstKeyPress).count();
 }
@@ -206,7 +213,7 @@ void Trackball::apply(KeyPressEvent& keyPress)
 {
     if (_keyboard) keyPress.accept(*_keyboard);
 
-    if (keyPress.handled || !eventRelevant(keyPress) || !_lastPointerEventWithinRenderArea) return;
+    if (!_hasKeyboardFocus || keyPress.handled || !eventRelevant(keyPress)) return;
 
     if (auto itr = keyViewpointMap.find(keyPress.keyBase); itr != keyViewpointMap.end())
     {
@@ -225,10 +232,14 @@ void Trackball::apply(KeyReleaseEvent& keyRelease)
 
 void Trackball::apply(ButtonPressEvent& buttonPress)
 {
-    if (buttonPress.handled || !eventRelevant(buttonPress)) return;
+    if (buttonPress.handled || !eventRelevant(buttonPress))
+    {
+        _hasKeyboardFocus = false;
+        return;
+    }
 
-    _hasFocus = withinRenderArea(buttonPress);
-    _lastPointerEventWithinRenderArea = _hasFocus;
+    _hasPointerFocus = _hasKeyboardFocus = withinRenderArea(buttonPress);
+    _lastPointerEventWithinRenderArea = _hasPointerFocus;
 
     if (buttonPress.mask & rotateButtonMask)
         _updateMode = ROTATE;
@@ -239,7 +250,7 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     else
         _updateMode = INACTIVE;
 
-    if (_hasFocus) buttonPress.handled = true;
+    if (_hasPointerFocus) buttonPress.handled = true;
 
     _zoomPreviousRatio = 0.0;
     _pan.set(0.0, 0.0);
@@ -257,7 +268,7 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
     if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease);
-    _hasFocus = false;
+    _hasPointerFocus = false;
 
     _previousPointerEvent = &buttonRelease;
 }
@@ -268,7 +279,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
     _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent);
 
-    if (moveEvent.handled || !_hasFocus) return;
+    if (moveEvent.handled || !_hasPointerFocus) return;
 
     dvec2 new_ndc = ndc(moveEvent);
     dvec3 new_tbc = tbc(moveEvent);
@@ -460,7 +471,7 @@ void Trackball::apply(TouchMoveEvent& touchMove)
 void Trackball::apply(FrameEvent& frame)
 {
     // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
-    if (_keyboard)
+    if (_hasKeyboardFocus && _keyboard)
     {
         vsg::dvec2 delta(0.0, 0.0);
         if (_keyboard->pressed(KEY_Left)) delta.x = -1.0;
@@ -472,6 +483,7 @@ void Trackball::apply(FrameEvent& frame)
         if (delta.x != 0.0 || delta.y != 0.0)
         {
             pan( dvec2(-delta.x, delta.y) * scale);
+            _thrown = false;
         }
 
         delta.set(0.0, 0.0);
@@ -485,7 +497,7 @@ void Trackball::apply(FrameEvent& frame)
             dvec3 lookVector = _lookAt->center - _lookAt->eye;
             dmat4 matrix = vsg::translate(lookVector * (scale * delta.y * 0.2)) *
                         vsg::translate(_lookAt->eye) *
-                        vsg::rotate(-delta.x * scale * 0.25, _lookAt->up) *
+                        vsg::rotate(-delta.x * scale * 0.5, _lookAt->up) *
                         vsg::translate(-_lookAt->eye);
 
             _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
@@ -493,8 +505,8 @@ void Trackball::apply(FrameEvent& frame)
             _lookAt->eye = matrix * _lookAt->eye;
 
             clampToGlobe();
+            _thrown = false;
         }
-
     }
 
     if (_endLookAt)

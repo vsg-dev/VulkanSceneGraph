@@ -37,15 +37,16 @@ namespace vsg
             vsg::time_point timeOfFirstKeyPress = {};
             vsg::time_point timeOfLastKeyPress = {};
             vsg::time_point timeOfKeyRelease = {};
+            bool handled = false;
         };
 
         std::map<KeySymbol, KeyHistory> keyState;
 
         /// return true if key is currently pressed
-        bool pressed(KeySymbol key);
+        bool pressed(KeySymbol key, bool ignore_handled_keys = true);
 
         /// return the length of time key has been pressed, return -1.0 for key is not currently pressed
-        double time_pressed(KeySymbol key);
+        double time_pressed(KeySymbol key, bool ignore_handled_keys = true);
     };
 
     /// Trackball is an event handler that provides mouse and touch controlled 3d trackball camera view manipulation.
@@ -129,7 +130,8 @@ namespace vsg
         ref_ptr<LookAt> _lookAt;
         ref_ptr<EllipsoidModel> _ellipsoidModel;
 
-        bool _hasFocus = false;
+        bool _hasKeyboardFocus = false;
+        bool _hasPointerFocus = false;
         bool _lastPointerEventWithinRenderArea = false;
 
         enum UpdateMode
