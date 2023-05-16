@@ -631,6 +631,12 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
 
         break;
     }
+    case WM_SETFOCUS :
+        info("win32_focus_in_event");
+        break;
+    case WM_KILLFOCUS :
+        info("win32_focus_out_event");
+        break;
     default:
         break;
     }
