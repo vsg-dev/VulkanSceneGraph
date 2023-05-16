@@ -402,10 +402,10 @@ void Trackball::apply(FrameEvent& frame)
     if (_hasKeyboardFocus && _keyboard)
     {
         vsg::dvec3 delta(0.0, 0.0, 0.0);
-        if (_keyboard->pressed(KEY_Left)) delta.x = -1.0;
-        if (_keyboard->pressed(KEY_Right)) delta.x = 1.0;
-        if (_keyboard->pressed(KEY_Up)) delta.y = 1.0;
-        if (_keyboard->pressed(KEY_Down)) delta.y = -1.0;
+        if (_keyboard->pressed(moveLeftKey)) delta.x = -1.0;
+        if (_keyboard->pressed(moveRightKey)) delta.x = 1.0;
+        if (_keyboard->pressed(moveUpKey)) delta.y = 1.0;
+        if (_keyboard->pressed(moveDownKey)) delta.y = -1.0;
 
         double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
         if (delta.x != 0.0 || delta.y != 0.0)
@@ -415,12 +415,12 @@ void Trackball::apply(FrameEvent& frame)
         }
 
         delta.set(0.0, 0.0, 0.0);
-        if (_keyboard->pressed(KEY_w)) delta.y = 1.0;
-        if (_keyboard->pressed(KEY_s)) delta.y = -1.0;
-        if (_keyboard->pressed(KEY_a)) delta.x = -1.0;
-        if (_keyboard->pressed(KEY_d)) delta.x = 1.0;
-        if (_keyboard->pressed(KEY_o)) delta.z = 1.0;
-        if (_keyboard->pressed(KEY_i)) delta.z = -1.0;
+        if (_keyboard->pressed(pitchUpKey)) delta.y = 1.0;
+        if (_keyboard->pressed(pitchDownKey)) delta.y = -1.0;
+        if (_keyboard->pressed(turnLeftKey)) delta.x = -1.0;
+        if (_keyboard->pressed(turnRightKey)) delta.x = 1.0;
+        if (_keyboard->pressed(moveForwardKey)) delta.z = 1.0;
+        if (_keyboard->pressed(moveBackwardKey)) delta.z = -1.0;
 
         if (delta.x != 0.0 || delta.y != 0.0 || delta.z != 0.0)
         {

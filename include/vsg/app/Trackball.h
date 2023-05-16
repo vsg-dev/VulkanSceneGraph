@@ -83,6 +83,36 @@ namespace vsg
         /// container that maps key symbol bindings with the Viewpoint that should move the LookAt to when pressed.
         std::map<KeySymbol, Viewpoint> keyViewpointMap;
 
+        /// Key that turns the view left around the eye points
+        KeySymbol turnLeftKey = KEY_a;
+
+        /// Key that turns the view right around the eye points
+        KeySymbol turnRightKey = KEY_d;
+
+        /// Key that pitches up the view around the eye point
+        KeySymbol pitchUpKey = KEY_w;
+
+        /// Key that pitches down the view around the eye point
+        KeySymbol pitchDownKey = KEY_s;
+
+        /// Key that moves the view forward
+        KeySymbol moveForwardKey = KEY_o;
+
+        /// Key that moves the view backwards
+        KeySymbol moveBackwardKey = KEY_i;
+
+        /// Key that moves the view left
+        KeySymbol moveLeftKey = KEY_Left;
+
+        /// Key that moves the view right
+        KeySymbol moveRightKey = KEY_Right;
+
+        /// Key that moves the view upward
+        KeySymbol moveUpKey = KEY_Up;
+
+        /// Key that moves the view downard
+        KeySymbol moveDownKey = KEY_Down;
+
         /// Button mask value used to enable panning of the view, defaults to left mouse button
         ButtonMask rotateButtonMask = BUTTON_MASK_1;
 
