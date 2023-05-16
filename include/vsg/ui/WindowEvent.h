@@ -93,4 +93,26 @@ namespace vsg
     };
     VSG_type_name(vsg::CloseWindowEvent);
 
+    /// FocusInEvent represents a window aquiring focus event.
+    class FocusInEvent : public Inherit<WindowEvent, FocusInEvent>
+    {
+    public:
+        FocusInEvent() {}
+
+        FocusInEvent(Window* in_window, time_point in_time) :
+            Inherit(in_window, in_time) {}
+    };
+    VSG_type_name(vsg::FocusInEvent);
+
+    /// FocusOutEvent represents a window loosing focus event.
+    class FocusOutEvent : public Inherit<WindowEvent, FocusOutEvent>
+    {
+    public:
+        FocusOutEvent() {}
+
+        FocusOutEvent(Window* in_window, time_point in_time) :
+            Inherit(in_window, in_time) {}
+    };
+    VSG_type_name(vsg::FocusOutEvent);
+
 } // namespace vsg

@@ -837,6 +837,14 @@ void Visitor::apply(CloseWindowEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
 }
+void Visitor::apply(FocusInEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
+void Visitor::apply(FocusOutEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
 void Visitor::apply(KeyEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
