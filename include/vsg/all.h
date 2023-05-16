@@ -163,6 +163,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/CollectEvents.h>
 #include <vsg/ui/FrameStamp.h>
 #include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/Keyboard.h>
 #include <vsg/ui/PlayEvents.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/PrintEvents.h>

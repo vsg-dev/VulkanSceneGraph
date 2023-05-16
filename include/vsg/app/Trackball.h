@@ -15,41 +15,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Camera.h>
 #include <vsg/app/EllipsoidModel.h>
 #include <vsg/maths/transform.h>
-#include <vsg/ui/ApplicationEvent.h>
-#include <vsg/ui/KeyEvent.h>
+#include <vsg/ui/Keyboard.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/ui/TouchEvent.h>
 
 namespace vsg
 {
-
-    /// Keyboard tracks keyboard events to maintain the key pressed state and how long the key has been hel for
-    class VSG_DECLSPEC Keyboard : public Inherit<Visitor, Keyboard>
-    {
-    public:
-
-        void apply(KeyPressEvent& keyPress) override;
-        void apply(KeyReleaseEvent& keyRelease) override;
-        void apply(FocusInEvent& focusIn) override;
-        void apply(FocusOutEvent& focusOut) override;
-
-        struct KeyHistory
-        {
-            vsg::time_point timeOfFirstKeyPress = {};
-            vsg::time_point timeOfLastKeyPress = {};
-            vsg::time_point timeOfKeyRelease = {};
-            bool handled = false;
-        };
-
-        std::map<KeySymbol, KeyHistory> keyState;
-
-        /// return true if key is currently pressed
-        bool pressed(KeySymbol key, bool ignore_handled_keys = true);
-
-        /// return the length of time key has been pressed, return -1.0 for key is not currently pressed
-        double time_pressed(KeySymbol key, bool ignore_handled_keys = true);
-    };
 
     /// Trackball is an event handler that provides mouse and touch controlled 3d trackball camera view manipulation.
     class VSG_DECLSPEC Trackball : public Inherit<Visitor, Trackball>
