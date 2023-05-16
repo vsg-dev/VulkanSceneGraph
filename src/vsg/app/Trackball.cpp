@@ -410,7 +410,7 @@ void Trackball::apply(FrameEvent& frame)
         double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
         if (delta.x != 0.0 || delta.y != 0.0)
         {
-            pan( dvec2(-delta.x, delta.y) * scale);
+            pan(dvec2(-delta.x, delta.y) * scale);
             _thrown = false;
         }
 
@@ -427,10 +427,10 @@ void Trackball::apply(FrameEvent& frame)
             dvec3 lookVector = _lookAt->center - _lookAt->eye;
             dvec3 sideVector = vsg::normalize(vsg::cross(_lookAt->up, lookVector));
             dmat4 matrix = vsg::translate(lookVector * (scale * delta.z * 0.2)) *
-                        vsg::translate(_lookAt->eye) *
-                        vsg::rotate(-delta.x * scale * 0.5, _lookAt->up) *
-                        vsg::rotate(-delta.y * scale * 0.5, sideVector) *
-                        vsg::translate(-_lookAt->eye);
+                           vsg::translate(_lookAt->eye) *
+                           vsg::rotate(-delta.x * scale * 0.5, _lookAt->up) *
+                           vsg::rotate(-delta.y * scale * 0.5, sideVector) *
+                           vsg::translate(-_lookAt->eye);
 
             _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
             _lookAt->center = matrix * _lookAt->center;

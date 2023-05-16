@@ -22,7 +22,6 @@ namespace vsg
     class VSG_DECLSPEC Keyboard : public Inherit<Visitor, Keyboard>
     {
     public:
-
         void apply(KeyPressEvent& keyPress) override;
         void apply(KeyReleaseEvent& keyRelease) override;
         void apply(FocusInEvent& focusIn) override;
