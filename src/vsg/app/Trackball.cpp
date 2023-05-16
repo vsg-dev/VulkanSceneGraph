@@ -67,6 +67,16 @@ void Keyboard::apply(KeyReleaseEvent& keyRelease)
     }
 }
 
+void Keyboard::apply(FocusInEvent&)
+{
+}
+
+void Keyboard::apply(FocusOutEvent& focusOut)
+{
+    focusOut.handled = true;
+    keyState.clear();
+}
+
 bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys)
 {
     auto itr = keyState.find(key);
@@ -228,6 +238,16 @@ void Trackball::apply(KeyPressEvent& keyPress)
 void Trackball::apply(KeyReleaseEvent& keyRelease)
 {
     if (_keyboard) keyRelease.accept(*_keyboard);
+}
+
+void Trackball::apply(FocusInEvent& focusIn)
+{
+    if (_keyboard) focusIn.accept(*_keyboard);
+}
+
+void Trackball::apply(FocusOutEvent& focusOut)
+{
+    if (_keyboard) focusOut.accept(*_keyboard);
 }
 
 void Trackball::apply(ButtonPressEvent& buttonPress)

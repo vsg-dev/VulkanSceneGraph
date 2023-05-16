@@ -31,6 +31,8 @@ namespace vsg
 
         void apply(KeyPressEvent& keyPress) override;
         void apply(KeyReleaseEvent& keyRelease) override;
+        void apply(FocusInEvent& focusIn) override;
+        void apply(FocusOutEvent& focusOut) override;
 
         struct KeyHistory
         {
@@ -63,6 +65,8 @@ namespace vsg
 
         void apply(KeyPressEvent& keyPress) override;
         void apply(KeyReleaseEvent& keyRelease) override;
+        void apply(FocusInEvent& focusIn) override;
+        void apply(FocusOutEvent& focusOut) override;
         void apply(ButtonPressEvent& buttonPress) override;
         void apply(ButtonReleaseEvent& buttonRelease) override;
         void apply(MoveEvent& moveEvent) override;
