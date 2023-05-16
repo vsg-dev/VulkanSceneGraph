@@ -632,10 +632,12 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_SETFOCUS :
-        info("win32_focus_in_event");
+        vsg::clock::time_point event_time = vsg::clock::now();
+        bufferedEvents.emplace_back(vsg::FocusInEvent::create(this, event_time));
         break;
     case WM_KILLFOCUS :
-        info("win32_focus_out_event");
+        vsg::clock::time_point event_time = vsg::clock::now();
+        bufferedEvents.emplace_back(vsg::FocusOutEvent::create(this, event_time));
         break;
     default:
         break;
