@@ -401,35 +401,35 @@ void Trackball::apply(FrameEvent& frame)
     // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
     if (_hasKeyboardFocus && _keyboard)
     {
-        vsg::dvec3 delta(0.0, 0.0, 0.0);
-        if (_keyboard->pressed(moveLeftKey)) delta.x = -1.0;
-        if (_keyboard->pressed(moveRightKey)) delta.x = 1.0;
-        if (_keyboard->pressed(moveUpKey)) delta.y = 1.0;
-        if (_keyboard->pressed(moveDownKey)) delta.y = -1.0;
+        bool update = false;
+        vsg::dvec3 move(0.0, 0.0, 0.0);
+        if (_keyboard->pressed(moveLeftKey)) { move.x = -1.0; update = true; }
+        if (_keyboard->pressed(moveRightKey)) { move.x = 1.0; update = true; }
+        if (_keyboard->pressed(moveUpKey)) { move.y = 1.0; update = true; }
+        if (_keyboard->pressed(moveDownKey)) { move.y = -1.0; update = true; }
+        if (_keyboard->pressed(moveForwardKey)) { move.z = 1.0; update = true; }
+        if (_keyboard->pressed(moveBackwardKey)) { move.z = -1.0; update = true; }
 
-        double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
-        if (delta.x != 0.0 || delta.y != 0.0)
+        vsg::dvec2 rot(0.0, 0.0);
+        if (_keyboard->pressed(pitchUpKey)) { rot.y = 1.0; update = true; }
+        if (_keyboard->pressed(pitchDownKey)) { rot.y = -1.0; update = true; }
+        if (_keyboard->pressed(turnLeftKey)) { rot.x = -1.0; update = true; }
+        if (_keyboard->pressed(turnRightKey)) { rot.x = 1.0; update = true; }
+
+        if (update)
         {
-            pan(dvec2(-delta.x, delta.y) * scale);
-            _thrown = false;
-        }
+            double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
+            double scaleTranslation = scale * 0.2 * length(_lookAt->center - _lookAt->eye) ;
+            double scaleRotation = scale * 0.5;
 
-        delta.set(0.0, 0.0, 0.0);
-        if (_keyboard->pressed(pitchUpKey)) delta.y = 1.0;
-        if (_keyboard->pressed(pitchDownKey)) delta.y = -1.0;
-        if (_keyboard->pressed(turnLeftKey)) delta.x = -1.0;
-        if (_keyboard->pressed(turnRightKey)) delta.x = 1.0;
-        if (_keyboard->pressed(moveForwardKey)) delta.z = 1.0;
-        if (_keyboard->pressed(moveBackwardKey)) delta.z = -1.0;
+            dvec3 upVector = _lookAt->up;
+            dvec3 lookVector = vsg::normalize(_lookAt->center - _lookAt->eye);
+            dvec3 sideVector = vsg::normalize(vsg::cross(lookVector, upVector));
 
-        if (delta.x != 0.0 || delta.y != 0.0 || delta.z != 0.0)
-        {
-            dvec3 lookVector = _lookAt->center - _lookAt->eye;
-            dvec3 sideVector = vsg::normalize(vsg::cross(_lookAt->up, lookVector));
-            dmat4 matrix = vsg::translate(lookVector * (scale * delta.z * 0.2)) *
-                           vsg::translate(_lookAt->eye) *
-                           vsg::rotate(-delta.x * scale * 0.5, _lookAt->up) *
-                           vsg::rotate(-delta.y * scale * 0.5, sideVector) *
+            dvec3 delta = sideVector * (scaleTranslation * move.x) + upVector * (scaleTranslation * move.y) + lookVector * (scaleTranslation * move.z);
+            dmat4 matrix = vsg::translate(_lookAt->eye + delta) *
+                           vsg::rotate(-rot.x * scaleRotation, upVector) *
+                           vsg::rotate(-rot.y * scaleRotation, sideVector) *
                            vsg::translate(-_lookAt->eye);
 
             _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
