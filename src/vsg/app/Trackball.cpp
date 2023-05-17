@@ -428,11 +428,13 @@ void Trackball::apply(FrameEvent& frame)
         if ((speed = times2speed(_keyboard->times(moveForwardKey))) != 0.0) move.z += speed;
         if ((speed = times2speed(_keyboard->times(moveBackwardKey))) != 0.0) move.z += -speed;
 
-        vsg::dvec2 rot(0.0, 0.0);
-        if ((speed = times2speed(_keyboard->times(pitchUpKey))) != 0.0) rot.y += -speed;
-        if ((speed = times2speed(_keyboard->times(pitchDownKey))) != 0.0) rot.y += speed;
-        if ((speed = times2speed(_keyboard->times(turnLeftKey))) != 0.0) rot.x += -speed;
-        if ((speed = times2speed(_keyboard->times(turnRightKey))) != 0.0) rot.x += speed;
+        vsg::dvec3 rot(0.0, 0.0, 0.0);
+        if ((speed = times2speed(_keyboard->times(turnLeftKey))) != 0.0) rot.x += speed;
+        if ((speed = times2speed(_keyboard->times(turnRightKey))) != 0.0) rot.x -= speed;
+        if ((speed = times2speed(_keyboard->times(pitchUpKey))) != 0.0) rot.y += speed;
+        if ((speed = times2speed(_keyboard->times(pitchDownKey))) != 0.0) rot.y -= speed;
+        if ((speed = times2speed(_keyboard->times(rollLeftKey))) != 0.0) rot.z -= speed;
+        if ((speed = times2speed(_keyboard->times(rollRightKey))) != 0.0) rot.z += speed;
 
         if (rot || move)
         {
@@ -446,8 +448,9 @@ void Trackball::apply(FrameEvent& frame)
 
             dvec3 delta = sideVector * (scaleTranslation * move.x) + upVector * (scaleTranslation * move.y) + lookVector * (scaleTranslation * move.z);
             dmat4 matrix = vsg::translate(_lookAt->eye + delta) *
-                           vsg::rotate(-rot.x * scaleRotation, upVector) *
-                           vsg::rotate(-rot.y * scaleRotation, sideVector) *
+                           vsg::rotate(rot.x * scaleRotation, upVector) *
+                           vsg::rotate(rot.y * scaleRotation, sideVector) *
+                           vsg::rotate(rot.z * scaleRotation, lookVector) *
                            vsg::translate(-_lookAt->eye);
 
             _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);

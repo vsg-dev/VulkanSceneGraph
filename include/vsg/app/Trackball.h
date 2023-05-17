@@ -95,6 +95,12 @@ namespace vsg
         /// Key that pitches down the view around the eye point
         KeySymbol pitchDownKey = KEY_s;
 
+        /// Key that rools the view anti-clockwise/left
+        KeySymbol rollLeftKey = KEY_q;
+
+        /// Key that rolls the view clockwise/right
+        KeySymbol rollRightKey = KEY_e;
+
         /// Key that moves the view forward
         KeySymbol moveForwardKey = KEY_o;
 
