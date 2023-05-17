@@ -401,62 +401,40 @@ void Trackball::apply(FrameEvent& frame)
     // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
     if (_hasKeyboardFocus && _keyboard)
     {
-        bool update = false;
+        auto times2speed = [](std::pair<double, double> duration) -> double
+        {
+            if (duration.first<=0.0) return 0.0;
+            double speed = duration.first >= 1.0 ? 1.0 : duration.first;
+
+            if (duration.second > 0.0)
+            {
+                // key has been released so slow down
+                speed -= duration.second;
+                return speed > 0.0 ? speed : 0.0 ;
+            }
+            else
+            {
+                // key still pressed so return speed based on duration of press
+                return speed;
+            }
+        };
+
+        double speed = 0.0;
         vsg::dvec3 move(0.0, 0.0, 0.0);
-        if (_keyboard->pressed(moveLeftKey))
-        {
-            move.x = -1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(moveRightKey))
-        {
-            move.x = 1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(moveUpKey))
-        {
-            move.y = 1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(moveDownKey))
-        {
-            move.y = -1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(moveForwardKey))
-        {
-            move.z = 1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(moveBackwardKey))
-        {
-            move.z = -1.0;
-            update = true;
-        }
+        if ((speed = times2speed(_keyboard->times(moveLeftKey))) != 0.0) move.x += -speed;
+        if ((speed = times2speed(_keyboard->times(moveRightKey))) != 0.0) move.x += speed;
+        if ((speed = times2speed(_keyboard->times(moveUpKey))) != 0.0) move.y += speed;
+        if ((speed = times2speed(_keyboard->times(moveDownKey))) != 0.0) move.y += -speed;
+        if ((speed = times2speed(_keyboard->times(moveForwardKey))) != 0.0) move.z += speed;
+        if ((speed = times2speed(_keyboard->times(moveBackwardKey))) != 0.0) move.z += -speed;
 
         vsg::dvec2 rot(0.0, 0.0);
-        if (_keyboard->pressed(pitchUpKey))
-        {
-            rot.y = 1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(pitchDownKey))
-        {
-            rot.y = -1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(turnLeftKey))
-        {
-            rot.x = -1.0;
-            update = true;
-        }
-        if (_keyboard->pressed(turnRightKey))
-        {
-            rot.x = 1.0;
-            update = true;
-        }
+        if ((speed = times2speed(_keyboard->times(pitchUpKey))) != 0.0) rot.y += -speed;
+        if ((speed = times2speed(_keyboard->times(pitchDownKey))) != 0.0) rot.y += speed;
+        if ((speed = times2speed(_keyboard->times(turnLeftKey))) != 0.0) rot.x += -speed;
+        if ((speed = times2speed(_keyboard->times(turnRightKey))) != 0.0) rot.x += speed;
 
-        if (update)
+        if (rot || move)
         {
             double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
             double scaleTranslation = scale * 0.2 * length(_lookAt->center - _lookAt->eye);
