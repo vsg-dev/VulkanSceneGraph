@@ -403,23 +403,63 @@ void Trackball::apply(FrameEvent& frame)
     {
         bool update = false;
         vsg::dvec3 move(0.0, 0.0, 0.0);
-        if (_keyboard->pressed(moveLeftKey)) { move.x = -1.0; update = true; }
-        if (_keyboard->pressed(moveRightKey)) { move.x = 1.0; update = true; }
-        if (_keyboard->pressed(moveUpKey)) { move.y = 1.0; update = true; }
-        if (_keyboard->pressed(moveDownKey)) { move.y = -1.0; update = true; }
-        if (_keyboard->pressed(moveForwardKey)) { move.z = 1.0; update = true; }
-        if (_keyboard->pressed(moveBackwardKey)) { move.z = -1.0; update = true; }
+        if (_keyboard->pressed(moveLeftKey))
+        {
+            move.x = -1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(moveRightKey))
+        {
+            move.x = 1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(moveUpKey))
+        {
+            move.y = 1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(moveDownKey))
+        {
+            move.y = -1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(moveForwardKey))
+        {
+            move.z = 1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(moveBackwardKey))
+        {
+            move.z = -1.0;
+            update = true;
+        }
 
         vsg::dvec2 rot(0.0, 0.0);
-        if (_keyboard->pressed(pitchUpKey)) { rot.y = 1.0; update = true; }
-        if (_keyboard->pressed(pitchDownKey)) { rot.y = -1.0; update = true; }
-        if (_keyboard->pressed(turnLeftKey)) { rot.x = -1.0; update = true; }
-        if (_keyboard->pressed(turnRightKey)) { rot.x = 1.0; update = true; }
+        if (_keyboard->pressed(pitchUpKey))
+        {
+            rot.y = 1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(pitchDownKey))
+        {
+            rot.y = -1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(turnLeftKey))
+        {
+            rot.x = -1.0;
+            update = true;
+        }
+        if (_keyboard->pressed(turnRightKey))
+        {
+            rot.x = 1.0;
+            update = true;
+        }
 
         if (update)
         {
             double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
-            double scaleTranslation = scale * 0.2 * length(_lookAt->center - _lookAt->eye) ;
+            double scaleTranslation = scale * 0.2 * length(_lookAt->center - _lookAt->eye);
             double scaleRotation = scale * 0.5;
 
             dvec3 upVector = _lookAt->up;
