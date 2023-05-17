@@ -30,7 +30,7 @@ namespace vsg
         BindIndexBuffer() {}
 
         explicit BindIndexBuffer(ref_ptr<Data> in_indices);
-        BindIndexBuffer(VkIndexType indexType, ref_ptr<BufferInfo> in_indices);
+        BindIndexBuffer(VkIndexType in_indexType, ref_ptr<BufferInfo> in_indices);
 
         VkIndexType indexType = VK_INDEX_TYPE_UINT16;
         ref_ptr<BufferInfo> indices;
