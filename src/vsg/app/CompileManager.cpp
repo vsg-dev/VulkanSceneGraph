@@ -202,7 +202,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
         catch (...)
         {
             vsg::debug("CompileManager::compile() exception caught");
-            result.message = "Exception occured during compilation.";
+            result.message = "Exception occurred during compilation.";
             result.result = VK_ERROR_UNKNOWN;
         }
 

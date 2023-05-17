@@ -263,7 +263,7 @@ Path Path::lexically_normal() const
 
     if (last_segment_was_double_dot && !path_segments.empty() && path_segments.back().compare(doubledot_str) != 0)
     {
-        // if the last segment was a double dot and it's no longer a double dot then treat it as a directory so add seperator
+        // if the last segment was a double dot and it's no longer a double dot then treat it as a directory so add separator
         new_path.concat(preferred_separator);
     }
 

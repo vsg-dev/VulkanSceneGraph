@@ -91,7 +91,7 @@ bool Trackball::withinRenderArea(const PointerEvent& pointerEvent) const
 
 bool Trackball::eventRelevant(const WindowEvent& event) const
 {
-    // if no windows have been assocated with Trackball with a Trackball::addWindow() then assume event is relevant and should be handled
+    // if no windows have been associated with Trackball with a Trackball::addWindow() then assume event is relevant and should be handled
     if (windowOffsets.empty()) return true;
 
     return (windowOffsets.count(event.window) > 0);

@@ -44,8 +44,8 @@ if (VSG_SUPPORTS_ShaderCompiler)
 
         if (Git_FOUND)
 
-            set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repositiory")
-            set(glslang_branch "VSG-1.0.x" CACHE STRING "branch/tag of the glslang git repositiory")
+            set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repository")
+            set(glslang_branch "VSG-1.0.x" CACHE STRING "branch/tag of the glslang git repository")
 
             execute_process(COMMAND ${GIT_EXECUTABLE} clone --depth 1 --branch ${glslang_branch} ${glslang_URL}
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src

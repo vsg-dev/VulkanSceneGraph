@@ -175,14 +175,14 @@ ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
         if (queue->queueFamilyIndex() == queueFamilyIndex && queue->queueIndex() == queueIndex) return queue;
     }
 
-    debug("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failled back to next closest.");
+    debug("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failed back to next closest.");
 
     for (auto& queue : _queues)
     {
         if (queue->queueFamilyIndex() == queueFamilyIndex) return queue;
     }
 
-    warn("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failled to find any suitable Queue.");
+    warn("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failed to find any suitable Queue.");
 
     return {};
 }
