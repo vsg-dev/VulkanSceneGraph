@@ -41,7 +41,7 @@ namespace vsg
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
 
-        /// RenderPass to use passed to the vkCmdBeginRenderPass, either obtained from which of the framebuffer or window are active
+        /// RenderPass to use passed to the vkCmdBeginRenderPass, if renderPass is set it takes precedence, if not then either obtained from which of the framebuffer or window are active
         RenderPass* getRenderPass();
 
         /// Get the Exten2D of the attached Framebuffer or Window.
@@ -49,6 +49,9 @@ namespace vsg
 
         /// ReandingArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually maps the ViewportState's scissor
         VkRect2D renderArea;
+
+        /// RenderPass to use passed to the vkCmdBeginRenderPass in place of the framebuffer's or window's renderPass. renderPass must be compatible with the render pass used to create the window or framebuffer.
+        ref_ptr<RenderPass> renderPass;
 
         /// Buffer clearing settings for vkRrenderPassInfo.clearValueCount & vkRenderPassInfo.pClearValues passed to the vkCmdBeginRenderPass
         using ClearValues = std::vector<VkClearValue>;

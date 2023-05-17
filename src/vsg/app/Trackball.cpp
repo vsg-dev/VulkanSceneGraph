@@ -15,13 +15,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 
 #include <algorithm>
+#include <iostream>
 
 using namespace vsg;
 
 Trackball::Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel) :
     _camera(camera),
     _lookAt(camera->viewMatrix.cast<LookAt>()),
-    _ellipsoidModel(ellipsoidModel)
+    _ellipsoidModel(ellipsoidModel),
+    _keyboard(Keyboard::create())
 {
     if (!_lookAt)
     {
@@ -89,7 +91,7 @@ bool Trackball::withinRenderArea(const PointerEvent& pointerEvent) const
 
 bool Trackball::eventRelevant(const WindowEvent& event) const
 {
-    // if no windows have been assocated with Trackball with a Trackball::addWindow() then assume event is relevant and should be handled
+    // if no windows have been associated with Trackball with a Trackball::addWindow() then assume event is relevant and should be handled
     if (windowOffsets.empty()) return true;
 
     return (windowOffsets.count(event.window) > 0);
@@ -127,7 +129,9 @@ dvec3 Trackball::tbc(PointerEvent& event)
 
 void Trackball::apply(KeyPressEvent& keyPress)
 {
-    if (keyPress.handled || !eventRelevant(keyPress) || !_lastPointerEventWithinRenderArea) return;
+    if (_keyboard) keyPress.accept(*_keyboard);
+
+    if (!_hasKeyboardFocus || keyPress.handled || !eventRelevant(keyPress)) return;
 
     if (auto itr = keyViewpointMap.find(keyPress.keyBase); itr != keyViewpointMap.end())
     {
@@ -139,12 +143,31 @@ void Trackball::apply(KeyPressEvent& keyPress)
     }
 }
 
+void Trackball::apply(KeyReleaseEvent& keyRelease)
+{
+    if (_keyboard) keyRelease.accept(*_keyboard);
+}
+
+void Trackball::apply(FocusInEvent& focusIn)
+{
+    if (_keyboard) focusIn.accept(*_keyboard);
+}
+
+void Trackball::apply(FocusOutEvent& focusOut)
+{
+    if (_keyboard) focusOut.accept(*_keyboard);
+}
+
 void Trackball::apply(ButtonPressEvent& buttonPress)
 {
-    if (buttonPress.handled || !eventRelevant(buttonPress)) return;
+    if (buttonPress.handled || !eventRelevant(buttonPress))
+    {
+        _hasKeyboardFocus = false;
+        return;
+    }
 
-    _hasFocus = withinRenderArea(buttonPress);
-    _lastPointerEventWithinRenderArea = _hasFocus;
+    _hasPointerFocus = _hasKeyboardFocus = withinRenderArea(buttonPress);
+    _lastPointerEventWithinRenderArea = _hasPointerFocus;
 
     if (buttonPress.mask & rotateButtonMask)
         _updateMode = ROTATE;
@@ -155,7 +178,7 @@ void Trackball::apply(ButtonPressEvent& buttonPress)
     else
         _updateMode = INACTIVE;
 
-    if (_hasFocus) buttonPress.handled = true;
+    if (_hasPointerFocus) buttonPress.handled = true;
 
     _zoomPreviousRatio = 0.0;
     _pan.set(0.0, 0.0);
@@ -173,7 +196,7 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
     if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease);
-    _hasFocus = false;
+    _hasPointerFocus = false;
 
     _previousPointerEvent = &buttonRelease;
 }
@@ -184,7 +207,7 @@ void Trackball::apply(MoveEvent& moveEvent)
 
     _lastPointerEventWithinRenderArea = withinRenderArea(moveEvent);
 
-    if (moveEvent.handled || !_hasFocus) return;
+    if (moveEvent.handled || !_hasPointerFocus) return;
 
     dvec2 new_ndc = ndc(moveEvent);
     dvec3 new_tbc = tbc(moveEvent);
@@ -375,6 +398,69 @@ void Trackball::apply(TouchMoveEvent& touchMove)
 
 void Trackball::apply(FrameEvent& frame)
 {
+    // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
+    if (_hasKeyboardFocus && _keyboard)
+    {
+        auto times2speed = [](std::pair<double, double> duration) -> double {
+            if (duration.first <= 0.0) return 0.0;
+            double speed = duration.first >= 1.0 ? 1.0 : duration.first;
+
+            if (duration.second > 0.0)
+            {
+                // key has been released so slow down
+                speed -= duration.second;
+                return speed > 0.0 ? speed : 0.0;
+            }
+            else
+            {
+                // key still pressed so return speed based on duration of press
+                return speed;
+            }
+        };
+
+        double speed = 0.0;
+        vsg::dvec3 move(0.0, 0.0, 0.0);
+        if ((speed = times2speed(_keyboard->times(moveLeftKey))) != 0.0) move.x += -speed;
+        if ((speed = times2speed(_keyboard->times(moveRightKey))) != 0.0) move.x += speed;
+        if ((speed = times2speed(_keyboard->times(moveUpKey))) != 0.0) move.y += speed;
+        if ((speed = times2speed(_keyboard->times(moveDownKey))) != 0.0) move.y += -speed;
+        if ((speed = times2speed(_keyboard->times(moveForwardKey))) != 0.0) move.z += speed;
+        if ((speed = times2speed(_keyboard->times(moveBackwardKey))) != 0.0) move.z += -speed;
+
+        vsg::dvec3 rot(0.0, 0.0, 0.0);
+        if ((speed = times2speed(_keyboard->times(turnLeftKey))) != 0.0) rot.x += speed;
+        if ((speed = times2speed(_keyboard->times(turnRightKey))) != 0.0) rot.x -= speed;
+        if ((speed = times2speed(_keyboard->times(pitchUpKey))) != 0.0) rot.y += speed;
+        if ((speed = times2speed(_keyboard->times(pitchDownKey))) != 0.0) rot.y -= speed;
+        if ((speed = times2speed(_keyboard->times(rollLeftKey))) != 0.0) rot.z -= speed;
+        if ((speed = times2speed(_keyboard->times(rollRightKey))) != 0.0) rot.z += speed;
+
+        if (rot || move)
+        {
+            double scale = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _previousTime).count();
+            double scaleTranslation = scale * 0.2 * length(_lookAt->center - _lookAt->eye);
+            double scaleRotation = scale * 0.5;
+
+            dvec3 upVector = _lookAt->up;
+            dvec3 lookVector = vsg::normalize(_lookAt->center - _lookAt->eye);
+            dvec3 sideVector = vsg::normalize(vsg::cross(lookVector, upVector));
+
+            dvec3 delta = sideVector * (scaleTranslation * move.x) + upVector * (scaleTranslation * move.y) + lookVector * (scaleTranslation * move.z);
+            dmat4 matrix = vsg::translate(_lookAt->eye + delta) *
+                           vsg::rotate(rot.x * scaleRotation, upVector) *
+                           vsg::rotate(rot.y * scaleRotation, sideVector) *
+                           vsg::rotate(rot.z * scaleRotation, lookVector) *
+                           vsg::translate(-_lookAt->eye);
+
+            _lookAt->up = normalize(matrix * (_lookAt->eye + _lookAt->up) - matrix * _lookAt->eye);
+            _lookAt->center = matrix * _lookAt->center;
+            _lookAt->eye = matrix * _lookAt->eye;
+
+            clampToGlobe();
+            _thrown = false;
+        }
+    }
+
     if (_endLookAt)
     {
         double timeSinceOfAnimation = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - _startTime).count();

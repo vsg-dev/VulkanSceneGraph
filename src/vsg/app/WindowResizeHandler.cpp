@@ -20,6 +20,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+UpdateGraphicsPipelines::UpdateGraphicsPipelines()
+{
+    overrideMask = MASK_ALL;
+}
+
 bool UpdateGraphicsPipelines::visit(const Object* object, uint32_t index)
 {
     decltype(visited)::value_type objectIndex(object, index);
@@ -74,6 +79,7 @@ void UpdateGraphicsPipelines::apply(vsg::View& view)
 //
 WindowResizeHandler::WindowResizeHandler()
 {
+    overrideMask = MASK_ALL;
 }
 
 void WindowResizeHandler::scale_rect(VkRect2D& rect)

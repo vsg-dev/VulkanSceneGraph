@@ -102,6 +102,8 @@ namespace vsg
 
         bool valid() const { return n.x != 0.0 && n.y != 0.0 && n.z != 0.0; }
 
+        explicit operator bool() const noexcept { return valid(); }
+
         T* data() { return value; }
         const T* data() const { return value; }
     };

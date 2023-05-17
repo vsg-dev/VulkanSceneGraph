@@ -58,6 +58,8 @@ namespace vsg
         const Extensions* getExtensions() const { return _extensions.get(); }
 
         /// get the address of specified function using vkGetDeviceProcAddr
+        /// for core commands beyond the apiVersion specified in vsg::Instance creation, vkGetDeviceProcAddr may return a non-nullptr function pointer, though the function pointer must not be called.
+        /// for extension commands, vkGetDeviceProcAddr will always return nullptr if the extension is not enabled in vsg::Device creation.
         template<typename T>
         bool getProcAddr(T& procAddress, const char* pName, const char* pNameFallback = nullptr) const
         {
@@ -67,6 +69,9 @@ namespace vsg
             if (pNameFallback) procAddress = reinterpret_cast<T>(vkGetDeviceProcAddr(_device, pNameFallback));
             return (procAddress);
         }
+
+        /// device-level core functionality can be used if both VkInstance and VkPhysicalDevice support the Vulkan version that provides it.
+        bool supportsApiVersion(uint32_t version) const;
 
     protected:
         virtual ~Device();

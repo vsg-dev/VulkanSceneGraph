@@ -21,7 +21,7 @@ namespace vsg
 {
 
     /// Input stream that enables reading from a read only block of memory
-    /// Like std::string_view the memory referenced by the mem_stream has been kept in memory for the duration of the mem_stream existance.
+    /// Like std::string_view the memory referenced by the mem_stream has been kept in memory for the duration of the mem_stream existence.
     class VSG_DECLSPEC mem_stream : public std::istream
     {
     public:

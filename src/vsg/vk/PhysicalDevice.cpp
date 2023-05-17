@@ -103,3 +103,14 @@ std::vector<VkExtensionProperties> PhysicalDevice::enumerateDeviceExtensionPrope
     vkEnumerateDeviceExtensionProperties(_device, pLayerName, &propertyCount, extensionProperties.data());
     return extensionProperties;
 }
+
+bool PhysicalDevice::supportsDeviceExtension(const char* extensionName)
+{
+    auto extensionProperties = enumerateDeviceExtensionProperties();
+    for (auto& extensionProperty : extensionProperties)
+    {
+        if (std::strncmp(extensionProperty.extensionName, extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0)
+            return true;
+    }
+    return false;
+}

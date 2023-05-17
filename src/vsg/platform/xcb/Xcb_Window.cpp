@@ -611,11 +611,13 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             break;
         }
         case (XCB_FOCUS_IN): {
-            //debug("xcb_focus_in_event_t");
+            vsg::clock::time_point event_time = vsg::clock::now();
+            bufferedEvents.emplace_back(vsg::FocusInEvent::create(this, event_time));
             break;
         }
         case (XCB_FOCUS_OUT): {
-            //debug("xcb_focus_out_event_t");
+            vsg::clock::time_point event_time = vsg::clock::now();
+            bufferedEvents.emplace_back(vsg::FocusOutEvent::create(this, event_time));
             break;
         }
         case (XCB_ENTER_NOTIFY): {

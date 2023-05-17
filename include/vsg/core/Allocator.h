@@ -93,13 +93,15 @@ namespace vsg
             Allocator* parent = nullptr;
             std::string name;
             size_t blockSize = 0;
-            std::list<std::unique_ptr<MemoryBlock>> memoryBlocks;
+            std::map<void*, std::unique_ptr<MemoryBlock>> memoryBlocks;
+            MemoryBlock* latestMemoryBlock = nullptr;
 
             MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize);
             virtual ~MemoryBlocks();
 
             void* allocate(std::size_t size);
             bool deallocate(void* ptr, std::size_t size);
+
             size_t deleteEmptyMemoryBlocks();
             size_t totalAvailableSize() const;
             size_t totalReservedSize() const;
@@ -113,6 +115,9 @@ namespace vsg
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
 
         mutable std::mutex mutex;
+
+        double allocationTime = 0.0;
+        double deallocationTime = 0.0;
 
     protected:
         // if you are assigning a custom allocator you must retain the old allocator to manage the memory it allocated and needs to delete
@@ -135,7 +140,7 @@ namespace vsg
 
         allocator_affinity_nodes() = default;
         template<class U>
-        constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
+        explicit constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
 
         value_type* allocate(std::size_t n)
         {

@@ -109,6 +109,8 @@ namespace vsg
     class ExposeWindowEvent;
     class ConfigureWindowEvent;
     class CloseWindowEvent;
+    class FocusInEvent;
+    class FocusOutEvent;
     class KeyEvent;
     class KeyPressEvent;
     class KeyReleaseEvent;
@@ -356,6 +358,8 @@ namespace vsg
         virtual void apply(const ExposeWindowEvent&);
         virtual void apply(const ConfigureWindowEvent&);
         virtual void apply(const CloseWindowEvent&);
+        virtual void apply(const FocusInEvent&);
+        virtual void apply(const FocusOutEvent&);
         virtual void apply(const KeyEvent&);
         virtual void apply(const KeyPressEvent&);
         virtual void apply(const KeyReleaseEvent&);

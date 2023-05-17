@@ -60,7 +60,7 @@ namespace vsgWin32
 
 KeyboardMap::KeyboardMap()
 {
-    // Note that Windows virutal key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
+    // Note that Windows virtual key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
     // will modify this map.
     // clang-format off
     _vk2vsg =
@@ -629,6 +629,16 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
             bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
         }
 
+        break;
+    }
+    case WM_SETFOCUS: {
+        vsg::clock::time_point event_time = vsg::clock::now();
+        bufferedEvents.emplace_back(vsg::FocusInEvent::create(this, event_time));
+        break;
+    }
+    case WM_KILLFOCUS: {
+        vsg::clock::time_point event_time = vsg::clock::now();
+        bufferedEvents.emplace_back(vsg::FocusOutEvent::create(this, event_time));
         break;
     }
     default:

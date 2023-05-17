@@ -80,7 +80,7 @@ void Allocator::report(std::ostream& out) const
         if (memoryBlocks)
         {
             out << memoryBlocks->name << " " << memoryBlocks->memoryBlocks.size() << " blocks";
-            for (const auto& memoryBlock : memoryBlocks->memoryBlocks)
+            for (const auto& [ptr, memoryBlock] : memoryBlocks->memoryBlocks)
             {
                 const auto& memorySlots = memoryBlock->memorySlots;
                 out << " [used = " << memorySlots.totalReservedSize() << ", avail = " << memorySlots.maximumAvailableSpace() << "]";
@@ -272,7 +272,7 @@ void Allocator::setMemoryTracking(int mt)
     {
         if (amb)
         {
-            for (auto& mb : amb->memoryBlocks)
+            for (auto& [ptr, mb] : amb->memoryBlocks)
             {
                 mb->memorySlots.memoryTracking = mt;
             }
@@ -371,20 +371,31 @@ Allocator::MemoryBlocks::~MemoryBlocks()
 
 void* Allocator::MemoryBlocks::allocate(std::size_t size)
 {
+    if (latestMemoryBlock)
+    {
+        auto ptr = latestMemoryBlock->allocate(size);
+        if (ptr) return ptr;
+    }
+
     // search existing blocks from last to first for space for the required memory allocation.
     for (auto itr = memoryBlocks.rbegin(); itr != memoryBlocks.rend(); ++itr)
     {
-        auto& block = *itr;
-        auto ptr = block->allocate(size);
-        if (ptr) return ptr;
+        auto& block = itr->second;
+        if (block.get() != latestMemoryBlock)
+        {
+            auto ptr = block->allocate(size);
+            if (ptr) return ptr;
+        }
     }
 
     size_t new_blockSize = std::max(size, blockSize);
 
     std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType));
+    latestMemoryBlock = block.get();
+
     auto ptr = block->allocate(size);
 
-    memoryBlocks.push_back(std::move(block));
+    memoryBlocks[block->memory] = std::move(block);
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -396,8 +407,26 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
 bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
 {
-    for (auto& block : memoryBlocks)
+    if (memoryBlocks.empty()) return false;
+
+    auto itr = memoryBlocks.upper_bound(ptr);
+    if (itr != memoryBlocks.end())
     {
+        if (itr != memoryBlocks.begin())
+        {
+            --itr;
+            auto& block = itr->second;
+            if (block->deallocate(ptr, size)) return true;
+        }
+        else
+        {
+            auto& block = itr->second;
+            if (block->deallocate(ptr, size)) return true;
+        }
+    }
+    else
+    {
+        auto& block = memoryBlocks.rbegin()->second;
         if (block->deallocate(ptr, size)) return true;
     }
 
@@ -419,13 +448,14 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
     auto itr = memoryBlocks.begin();
     while (itr != memoryBlocks.end())
     {
-        auto& block = *itr;
+        auto& block = itr->second;
         if (block->memorySlots.empty())
         {
             if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
             {
                 info("    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = ", name, ",  removing MemoryBlock", block.get());
             }
+            if (block.get() == latestMemoryBlock) latestMemoryBlock = nullptr;
             memoryDeleted += block->memorySlots.totalMemorySize();
             itr = memoryBlocks.erase(itr);
         }
@@ -440,7 +470,7 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
 size_t Allocator::MemoryBlocks::totalAvailableSize() const
 {
     size_t size = 0;
-    for (auto& block : memoryBlocks)
+    for (auto& [ptr, block] : memoryBlocks)
     {
         size += block->memorySlots.totalAvailableSize();
     }
@@ -450,7 +480,7 @@ size_t Allocator::MemoryBlocks::totalAvailableSize() const
 size_t Allocator::MemoryBlocks::totalReservedSize() const
 {
     size_t size = 0;
-    for (auto& block : memoryBlocks)
+    for (auto& [ptr, block] : memoryBlocks)
     {
         size += block->memorySlots.totalReservedSize();
     }
@@ -460,7 +490,7 @@ size_t Allocator::MemoryBlocks::totalReservedSize() const
 size_t Allocator::MemoryBlocks::totalMemorySize() const
 {
     size_t size = 0;
-    for (auto& block : memoryBlocks)
+    for (auto& [ptr, block] : memoryBlocks)
     {
         size += block->memorySlots.totalMemorySize();
     }

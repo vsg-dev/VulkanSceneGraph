@@ -130,6 +130,8 @@ namespace vsg
             }
             return *this;
         }
+
+        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0; }
     };
 
     using vec2 = t_vec2<float>;           // float 2D vector
