@@ -140,6 +140,8 @@ namespace vsg
             }
             return *this;
         }
+
+        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0; }
     };
 
     using vec3 = t_vec3<float>;           // float 3D vector

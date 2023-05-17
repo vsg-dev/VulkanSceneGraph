@@ -141,6 +141,8 @@ namespace vsg
             z = axis.z * sinhalfangle * inversenorm;
             w = coshalfangle;
         }
+
+        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };
 
     using quat = t_quat<float>;   /// float quaternion

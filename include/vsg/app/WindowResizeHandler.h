@@ -26,7 +26,6 @@ namespace vsg
     class VSG_DECLSPEC UpdateGraphicsPipelines : public vsg::Inherit<vsg::Visitor, UpdateGraphicsPipelines>
     {
     public:
-
         UpdateGraphicsPipelines();
 
         vsg::ref_ptr<vsg::Context> context;

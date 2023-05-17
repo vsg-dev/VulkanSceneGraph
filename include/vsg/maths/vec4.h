@@ -154,6 +154,8 @@ namespace vsg
             }
             return *this;
         }
+
+        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };
 
     using vec4 = t_vec4<float>;           // float 4D vector

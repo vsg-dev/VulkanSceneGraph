@@ -192,6 +192,7 @@ set(SOURCES
     ui/ShiftEventTime.cpp
     ui/PlayEvents.cpp
     ui/PrintEvents.cpp
+    ui/Keyboard.cpp
 
     vk/CommandBuffer.cpp
     vk/CommandPool.cpp

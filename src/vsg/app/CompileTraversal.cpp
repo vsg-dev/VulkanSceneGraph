@@ -310,7 +310,7 @@ void CompileTraversal::apply(View& view)
     {
         // if context is associated with a view make sure we only apply it if it matches with view, oherwsie we skip this context
         auto context_view = context->view.ref_ptr();
-        if (context_view && context_view.get()!=&view) continue;
+        if (context_view && context_view.get() != &view) continue;
 
         context->viewID = view.viewID;
         context->viewDependentState = view.viewDependentState.get();
