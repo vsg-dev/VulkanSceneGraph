@@ -74,7 +74,7 @@ void Keyboard::apply(FocusOutEvent& focusOut)
     keyState.clear();
 }
 
-bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys)
+bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys) const
 {
     auto itr = keyState.find(key);
     if (itr == keyState.end()) return false;
@@ -90,7 +90,7 @@ bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys)
     return true;
 }
 
-std::pair<double, double> Keyboard::times(KeySymbol key, bool ignore_handled_keys)
+std::pair<double, double> Keyboard::times(KeySymbol key, bool ignore_handled_keys) const
 {
     auto itr = keyState.find(key);
     if (itr == keyState.end()) return {-1.0, -1.0};
