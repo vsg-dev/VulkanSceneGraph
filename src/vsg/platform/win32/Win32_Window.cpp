@@ -60,7 +60,7 @@ namespace vsgWin32
 
 KeyboardMap::KeyboardMap()
 {
-    // Note that Windows virutal key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
+    // Note that Windows virtual key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
     // will modify this map.
     // clang-format off
     _vk2vsg =
