@@ -90,7 +90,6 @@ bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys)
     return true;
 }
 
-
 std::pair<double, double> Keyboard::times(KeySymbol key, bool ignore_handled_keys)
 {
     auto itr = keyState.find(key);

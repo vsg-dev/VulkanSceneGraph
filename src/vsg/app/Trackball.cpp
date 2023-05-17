@@ -401,16 +401,15 @@ void Trackball::apply(FrameEvent& frame)
     // std::cout<<"Trackball::apply(FrameEvent&) frameCount = "<<frame.frameStamp->frameCount<<std::endl;
     if (_hasKeyboardFocus && _keyboard)
     {
-        auto times2speed = [](std::pair<double, double> duration) -> double
-        {
-            if (duration.first<=0.0) return 0.0;
+        auto times2speed = [](std::pair<double, double> duration) -> double {
+            if (duration.first <= 0.0) return 0.0;
             double speed = duration.first >= 1.0 ? 1.0 : duration.first;
 
             if (duration.second > 0.0)
             {
                 // key has been released so slow down
                 speed -= duration.second;
-                return speed > 0.0 ? speed : 0.0 ;
+                return speed > 0.0 ? speed : 0.0;
             }
             else
             {
