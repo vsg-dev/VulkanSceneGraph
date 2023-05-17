@@ -93,8 +93,8 @@ namespace vsg
             Allocator* parent = nullptr;
             std::string name;
             size_t blockSize = 0;
-            std::map<void*, std::unique_ptr<MemoryBlock>> memoryBlocks;
-            MemoryBlock* latestMemoryBlock = nullptr;
+            std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
+            std::shared_ptr<MemoryBlock> latestMemoryBlock;
 
             MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize);
             virtual ~MemoryBlocks();
