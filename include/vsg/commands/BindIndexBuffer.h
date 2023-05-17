@@ -48,7 +48,6 @@ namespace vsg
 
     protected:
         virtual ~BindIndexBuffer();
-
     };
     VSG_type_name(vsg::BindIndexBuffer);
 
