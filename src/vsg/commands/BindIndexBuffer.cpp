@@ -42,6 +42,12 @@ BindIndexBuffer::BindIndexBuffer(ref_ptr<Data> in_indices)
     assignIndices(in_indices);
 }
 
+BindIndexBuffer::BindIndexBuffer(VkIndexType in_indexType, ref_ptr<BufferInfo> in_indices) :
+    indexType(in_indexType),
+    indices(in_indices)
+{
+}
+
 BindIndexBuffer::~BindIndexBuffer()
 {
 }
