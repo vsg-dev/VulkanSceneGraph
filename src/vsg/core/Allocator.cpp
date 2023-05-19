@@ -80,9 +80,9 @@ void Allocator::report(std::ostream& out) const
         if (memoryBlocks)
         {
             out << memoryBlocks->name << " " << memoryBlocks->memoryBlocks.size() << " blocks";
-            for (const auto& [ptr, memoryBlock] : memoryBlocks->memoryBlocks)
+            for (const auto& value : memoryBlocks->memoryBlocks)
             {
-                const auto& memorySlots = memoryBlock->memorySlots;
+                const auto& memorySlots = value.second->memorySlots;
                 out << " [used = " << memorySlots.totalReservedSize() << ", avail = " << memorySlots.maximumAvailableSpace() << "]";
             }
             out << std::endl;
@@ -272,9 +272,9 @@ void Allocator::setMemoryTracking(int mt)
     {
         if (amb)
         {
-            for (auto& [ptr, mb] : amb->memoryBlocks)
+            for (auto& value : amb->memoryBlocks)
             {
-                mb->memorySlots.memoryTracking = mt;
+                value.second->memorySlots.memoryTracking = mt;
             }
         }
     }
@@ -381,7 +381,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
     for (auto itr = memoryBlocks.rbegin(); itr != memoryBlocks.rend(); ++itr)
     {
         auto& block = itr->second;
-        if (block.get() != latestMemoryBlock)
+        if (block != latestMemoryBlock)
         {
             auto ptr = block->allocate(size);
             if (ptr) return ptr;
@@ -390,8 +390,8 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     size_t new_blockSize = std::max(size, blockSize);
 
-    std::unique_ptr<MemoryBlock> block(new MemoryBlock(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType));
-    latestMemoryBlock = block.get();
+    auto block = std::make_shared<MemoryBlock>(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType);
+    latestMemoryBlock = block;
 
     auto ptr = block->allocate(size);
 
@@ -455,7 +455,7 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
             {
                 info("    MemoryBlocks:deleteEmptyMemoryBlocks() MemoryBlocks.name = ", name, ",  removing MemoryBlock", block.get());
             }
-            if (block.get() == latestMemoryBlock) latestMemoryBlock = nullptr;
+            if (block == latestMemoryBlock) latestMemoryBlock = nullptr;
             memoryDeleted += block->memorySlots.totalMemorySize();
             itr = memoryBlocks.erase(itr);
         }
@@ -470,9 +470,9 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
 size_t Allocator::MemoryBlocks::totalAvailableSize() const
 {
     size_t size = 0;
-    for (auto& [ptr, block] : memoryBlocks)
+    for (auto& value : memoryBlocks)
     {
-        size += block->memorySlots.totalAvailableSize();
+        size += value.second->memorySlots.totalAvailableSize();
     }
     return size;
 }
@@ -480,9 +480,9 @@ size_t Allocator::MemoryBlocks::totalAvailableSize() const
 size_t Allocator::MemoryBlocks::totalReservedSize() const
 {
     size_t size = 0;
-    for (auto& [ptr, block] : memoryBlocks)
+    for (auto& value : memoryBlocks)
     {
-        size += block->memorySlots.totalReservedSize();
+        size += value.second->memorySlots.totalReservedSize();
     }
     return size;
 }
@@ -490,9 +490,9 @@ size_t Allocator::MemoryBlocks::totalReservedSize() const
 size_t Allocator::MemoryBlocks::totalMemorySize() const
 {
     size_t size = 0;
-    for (auto& [ptr, block] : memoryBlocks)
+    for (auto& value : memoryBlocks)
     {
-        size += block->memorySlots.totalMemorySize();
+        size += value.second->memorySlots.totalMemorySize();
     }
     return size;
 }

@@ -79,7 +79,7 @@ bool Keyboard::pressed(KeySymbol key, bool ignore_handled_keys) const
     auto itr = keyState.find(key);
     if (itr == keyState.end()) return false;
 
-    auto& keyHistory = itr->second;
+    const auto& keyHistory = itr->second;
     if (keyHistory.timeOfKeyRelease != keyHistory.timeOfFirstKeyPress)
     {
         return false;
@@ -97,7 +97,7 @@ std::pair<double, double> Keyboard::times(KeySymbol key, bool ignore_handled_key
 
     auto currentTime = clock::now();
 
-    auto& keyHistory = itr->second;
+    const auto& keyHistory = itr->second;
     if (keyHistory.timeOfKeyRelease != keyHistory.timeOfFirstKeyPress)
     {
         return {std::chrono::duration<double, std::chrono::seconds::period>(currentTime - keyHistory.timeOfFirstKeyPress).count(),
