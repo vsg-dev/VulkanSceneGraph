@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/type_name.h>
 
 #include <vsg/maths/box.h>
+#include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/quat.h>
@@ -97,6 +98,8 @@ namespace vsg
         void write(size_t num, const uivec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const quat* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dquat* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const mat3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const dmat3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const mat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dmat4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const sphere* value) { write(num * value->size(), value->data()); }
