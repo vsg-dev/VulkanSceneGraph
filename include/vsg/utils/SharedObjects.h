@@ -138,24 +138,12 @@ namespace vsg
     {
     public:
         Path filename;
-        ref_ptr<const Options> options;
+        ref_ptr<Options> options;
         ref_ptr<Object> object;
 
-        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {}) :
-            filename(in_filename),
-            options(in_options),
-            object(in_object) {}
+        LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {});
 
-        int compare(const Object& rhs_object) const override
-        {
-            int result = Object::compare(rhs_object);
-            if (result != 0) return result;
-
-            auto& rhs = static_cast<decltype(*this)>(rhs_object);
-
-            if ((result = filename.compare(rhs.filename))) return result;
-            return compare_pointer(options, rhs.options);
-        }
+        int compare(const Object& rhs_object) const override;
     };
     VSG_type_name(vsg::LoadedObject);
 
