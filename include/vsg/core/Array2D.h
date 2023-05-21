@@ -52,8 +52,7 @@ namespace vsg
             if (_width != 0 && _height != 0)
             {
                 _data = _allocate(_width * _height);
-                auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                std::memcpy(_data, rhs.dataPointer(), dataSize());
             }
             dirty();
         }
@@ -93,6 +92,11 @@ namespace vsg
         static ref_ptr<Array2D> create(Args&&... args)
         {
             return ref_ptr<Array2D>(new Array2D(args...));
+        }
+
+        ref_ptr<Data> clone() const override
+        {
+            return ref_ptr<Array2D>(new Array2D(*this));
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Array2D); }
@@ -196,8 +200,7 @@ namespace vsg
             if (_width != 0 && _height != 0)
             {
                 _data = _allocate(_width * _height);
-                auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                std::memcpy(_data, rhs.dataPointer(), dataSize());
             }
 
             dirty();

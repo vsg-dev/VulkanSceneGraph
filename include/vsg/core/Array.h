@@ -50,8 +50,7 @@ namespace vsg
             if (_size != 0)
             {
                 _data = _allocate(_size);
-                auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                std::memcpy(_data, rhs.dataPointer(), dataSize());
             }
             dirty();
         }
@@ -121,6 +120,11 @@ namespace vsg
         static ref_ptr<Array> create(ref_ptr<Data> data, uint32_t offset, uint32_t stride, std::initializer_list<value_type> l)
         {
             return ref_ptr<Array>(new Array(data, offset, stride, l));
+        }
+
+        ref_ptr<Data> clone() const override
+        {
+            return ref_ptr<Array>(new Array(*this));
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
@@ -219,8 +223,7 @@ namespace vsg
             if (_size != 0)
             {
                 _data = _allocate(_size);
-                auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                std::memcpy(_data, rhs.dataPointer(), dataSize());
             }
 
             dirty();
