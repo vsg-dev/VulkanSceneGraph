@@ -186,6 +186,15 @@ LoadedObject::LoadedObject(const Path& in_filename, ref_ptr<const Options> in_op
     if (options) options->sharedObjects = {};
 }
 
+void LoadedObject::traverse(Visitor& visitor)
+{
+    if (object) object->accept(visitor);
+}
+void LoadedObject::traverse(ConstVisitor& visitor) const
+{
+    if (object) object->accept(visitor);
+}
+
 int LoadedObject::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
