@@ -112,20 +112,20 @@ namespace vsgWin32
         VirtualKeyToKeySymbolMap _vk2vsg;
     };
 
-    vsg::ButtonMask getButtonMask(WPARAM wParam)
+    inline vsg::ButtonMask getButtonMask(WPARAM wParam)
     {
         auto mask = (wParam & MK_LBUTTON ? vsg::ButtonMask::BUTTON_MASK_1 : 0) | (wParam & MK_MBUTTON ? vsg::ButtonMask::BUTTON_MASK_2 : 0) | (wParam & MK_RBUTTON ? vsg::ButtonMask::BUTTON_MASK_3 : 0) |
                     (wParam & MK_XBUTTON1 ? vsg::ButtonMask::BUTTON_MASK_4 : 0) | (wParam & MK_XBUTTON2 ? vsg::ButtonMask::BUTTON_MASK_5 : 0);
         return static_cast<vsg::ButtonMask>(mask);
     }
 
-    uint32_t getButtonDownEventDetail(UINT buttonMsg)
+    inline uint32_t getButtonDownEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3
                                                                                                                 : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
     }
 
-    uint32_t getButtonUpEventDetail(UINT buttonMsg)
+    inline uint32_t getButtonUpEventDetail(UINT buttonMsg)
     {
         return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3
                                                                                                           : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
