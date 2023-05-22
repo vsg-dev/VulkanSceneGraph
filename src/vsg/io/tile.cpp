@@ -167,7 +167,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                     plod->children[0] = vsg::PagedLOD::Child{0.25, {}};       // external child visible when it's bound occupies more than 1/4 of the height of the window
                     plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node}; // visible always
                     plod->filename = vsg::make_string(x, " ", y, " 0.tile");
-                    plod->options = options;
+                    plod->options = Options::create_if(options, *options);
 
                     group->addChild(plod);
                 }
@@ -256,7 +256,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
                         plod->children[0] = vsg::PagedLOD::Child{settings->lodTransitionScreenHeightRatio, {}}; // external child visible when it's bound occupies more than 1/4 of the height of the window
                         plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node};                               // visible always
                         plod->filename = vsg::make_string(tileID.local_x, " ", tileID.local_y, " ", local_lod, ".tile");
-                        plod->options = options;
+                        plod->options = Options::create_if(options, *options);
 
                         vsg::debug("plod->filename ", plod->filename);
 

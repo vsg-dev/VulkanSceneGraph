@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 #include <vsg/nodes/PagedLOD.h>
 
 using namespace vsg;
@@ -57,7 +58,7 @@ void PagedLOD::read(Input& input)
     input.read("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
     input.read("child.node", children[1].node);
 
-    options = input.options;
+    options = Options::create_if(input.options, *input.options);
 }
 
 void PagedLOD::write(Output& output) const

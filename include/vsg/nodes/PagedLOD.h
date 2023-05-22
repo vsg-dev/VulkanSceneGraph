@@ -79,7 +79,7 @@ namespace vsg
         virtual ~PagedLOD();
 
     public:
-        ref_ptr<const Options> options;
+        ref_ptr<Options> options;
 
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};
