@@ -54,6 +54,7 @@ Options::Options(const Options& options) :
 Options::~Options()
 {
 }
+
 int Options::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
