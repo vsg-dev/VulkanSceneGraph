@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Keyboard tracks keyboard events to maintain the key pressed state and how long the key has been hel for
+    /// Keyboard tracks keyboard events to enable the querying of the key pressed state and how long the key has been held for.
     class VSG_DECLSPEC Keyboard : public Inherit<Visitor, Keyboard>
     {
     public:
