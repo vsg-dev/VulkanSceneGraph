@@ -91,9 +91,18 @@ namespace vsg
 
         LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {});
 
-        void traverse(Visitor& visitor) override { if (object) object->accept(visitor); }
-        void traverse(ConstVisitor& visitor) const override { if (object) object->accept(visitor); }
-        void traverse(RecordTraversal& visitor) const override { if (object) object->accept(visitor); }
+        void traverse(Visitor& visitor) override
+        {
+            if (object) object->accept(visitor);
+        }
+        void traverse(ConstVisitor& visitor) const override
+        {
+            if (object) object->accept(visitor);
+        }
+        void traverse(RecordTraversal& visitor) const override
+        {
+            if (object) object->accept(visitor);
+        }
 
         int compare(const Object& rhs_object) const override;
     };
