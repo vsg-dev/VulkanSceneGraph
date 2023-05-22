@@ -43,6 +43,8 @@ namespace vsg
 
         Options& operator=(const Options& rhs) = delete;
 
+        int compare(const Object& rhs) const override;
+
         /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
 
