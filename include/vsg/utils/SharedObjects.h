@@ -24,6 +24,30 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Helper class for deciding whether sharing is permitted for this type - required to avoid circular references
+    /// If an object that is put forward to be shared via the SharedObjects container then it can't contain any references to vsg::Options & associated SharedOjbjects
+    /// otherwise a circular reference can be created that prevents all the objects in the circular reference chain from being deleted. Such objects must
+    /// be prevent from inclusion in the SharedObejcts. An example of class not suitable is vsg::PagedLOD as it has an options member. If your subclasses are
+    /// like PagedLOD and might create a circular reference when using with SharedOjbects then you should subclass from SuitableForSharing and add support
+    /// for your class and when instances are found set the suitableForSharing flag to false, and then assign this to the SharedOjbects container so that
+    /// it can make sure it's not treated as suitable for inclusions.
+    class VSG_DECLSPEC SuitableForSharing : public Inherit<ConstVisitor, SuitableForSharing>
+    {
+    public:
+        bool suitableForSharing = true;
+
+        void apply(const Object& object) override;
+        void apply(const PagedLOD& plod) override;
+
+        bool suitable(const Object* object)
+        {
+            suitableForSharing = true;
+            if (object) object->accept(*this);
+            return suitableForSharing;
+        }
+    };
+    VSG_type_name(vsg::SuitableForSharing);
+
     /// class for facilitating the share of instances of objects that have the same properties.
     class VSG_DECLSPEC SharedObjects : public Inherit<Object, SharedObjects>
     {
@@ -62,6 +86,8 @@ namespace vsg
         {
             std::scoped_lock<std::recursive_mutex> lock(_mutex);
 
+            if (suitableForSharing && !suitableForSharing->suitable(object.get())) return;
+
             auto id = std::type_index(typeid(T));
             auto& shared_objects = _sharedObjects[id];
             if (auto itr = shared_objects.find(object); itr != shared_objects.end())
@@ -76,19 +102,29 @@ namespace vsg
         template<class T, typename Func>
         void share(ref_ptr<T>& object, Func init)
         {
-            std::scoped_lock<std::recursive_mutex> lock(_mutex);
-
-            auto id = std::type_index(typeid(T));
-            auto& shared_objects = _sharedObjects[id];
-            if (auto itr = shared_objects.find(object); itr != shared_objects.end())
             {
-                object = ref_ptr<T>(static_cast<T*>(itr->get()));
-                return;
+                std::scoped_lock<std::recursive_mutex> lock(_mutex);
+
+                auto id = std::type_index(typeid(T));
+                auto& shared_objects = _sharedObjects[id];
+                if (auto itr = shared_objects.find(object); itr != shared_objects.end())
+                {
+                    object = ref_ptr<T>(static_cast<T*>(itr->get()));
+                    return;
+                }
             }
 
             init(object);
 
-            shared_objects.insert(object);
+            {
+                std::scoped_lock<std::recursive_mutex> lock(_mutex);
+                auto id = std::type_index(typeid(T));
+                auto& shared_objects = _sharedObjects[id];
+                if (suitableForSharing && suitableForSharing->suitable(object.get()))
+                {
+                    shared_objects.insert(object);
+                }
+            }
         }
 
         template<class C>
@@ -99,6 +135,9 @@ namespace vsg
                 share(object);
             }
         }
+
+        /// visitor that checks a loaded object, and it's children whether it is suitable for sharing in SharedObjects
+        ref_ptr<SuitableForSharing> suitableForSharing;
 
         /// set of lower case file extensions for file types that should not be included in this SharedObjects
         std::set<Path> excludedExtensions;
@@ -134,7 +173,7 @@ namespace vsg
     VSG_type_name(vsg::SharedObjects);
 
     /// Helper class for support sharing of objects loaded from files.
-    class LoadedObject : public Inherit<Object, LoadedObject>
+    class VSG_DECLSPEC LoadedObject : public Inherit<Object, LoadedObject>
     {
     public:
         Path filename;
@@ -143,8 +182,13 @@ namespace vsg
 
         LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {});
 
+        void traverse(Visitor& visitor) override { if (object) object->accept(visitor); }
+        void traverse(ConstVisitor& visitor) const override { if (object) object->accept(visitor); }
+        void traverse(RecordTraversal& visitor) const override { if (object) object->accept(visitor); }
+
         int compare(const Object& rhs_object) const override;
     };
     VSG_type_name(vsg::LoadedObject);
+
 
 } // namespace vsg

@@ -7,6 +7,7 @@ using namespace vsg;
 
 SharedObjects::SharedObjects()
 {
+    suitableForSharing = SuitableForSharing::create();
 }
 
 SharedObjects::~SharedObjects()
@@ -173,6 +174,10 @@ void SharedObjects::report(std::ostream& out)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// LoadedObject
+//
 LoadedObject::LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object) :
     filename(in_filename),
     options(Options::create_if(in_options, *in_options)),
@@ -190,4 +195,18 @@ int LoadedObject::compare(const Object& rhs_object) const
 
     if ((result = filename.compare(rhs.filename))) return result;
     return compare_pointer(options, rhs.options);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// SuitableForSharing
+//
+void SuitableForSharing::apply(const Object& object)
+{
+    if (suitableForSharing) object.traverse(*this);
+}
+
+void SuitableForSharing::apply(const PagedLOD&)
+{
+    suitableForSharing = false;
 }
