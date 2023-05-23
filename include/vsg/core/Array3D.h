@@ -103,6 +103,11 @@ namespace vsg
             return ref_ptr<Array3D>(new Array3D(args...));
         }
 
+        ref_ptr<Data> clone() const override
+        {
+            return ref_ptr<Array3D>(new Array3D(*this));
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Array3D); }
         const char* className() const noexcept override { return type_name<Array3D>(); }
         const std::type_info& type_info() const noexcept override { return typeid(*this); }
