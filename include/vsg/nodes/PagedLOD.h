@@ -70,16 +70,16 @@ namespace vsg
         using Children = std::array<Child, 2>;
         Children children;
 
-        bool highResActive(uint64_t frameCount) const
+        bool highResActive(uint64_t frameCount, uint64_t inactiveAge = 3) const
         {
-            return (frameCount - frameHighResLastUsed.load()) <= 1;
+            return (frameCount - frameHighResLastUsed.load()) <= inactiveAge;
         }
 
     protected:
         virtual ~PagedLOD();
 
     public:
-        ref_ptr<const Options> options;
+        ref_ptr<Options> options;
 
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};

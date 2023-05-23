@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 
 #include <vsg/maths/box.h>
+#include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/quat.h>
@@ -97,6 +98,8 @@ namespace vsg
         void read(size_t num, uivec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, quat* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dquat* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, mat3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, dmat3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, mat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dmat4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, sphere* value) { read(num * value->size(), value->data()); }

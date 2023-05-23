@@ -226,9 +226,6 @@ void CollectResourceRequirements::apply(const View& view)
 
     if (view.viewDependentState)
     {
-        uint32_t numBufferedDescriptorSets = 3;
-        requirements.externalNumDescriptorSets += numBufferedDescriptorSets;
-        requirements.descriptorTypeMap[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER] += numBufferedDescriptorSets;
         if (requirements.maxSlot < 2) requirements.maxSlot = 2;
 
         view.viewDependentState->accept(*this);

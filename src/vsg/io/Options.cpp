@@ -55,6 +55,24 @@ Options::~Options()
 {
 }
 
+int Options::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer_container(readerWriters, rhs.readerWriters))) return result;
+    if ((result = compare_value(checkFilenameHint, rhs.checkFilenameHint))) return result;
+    if ((result = compare_value_container(paths, rhs.paths))) return result;
+    if ((result = compare_value(fileCache, rhs.fileCache))) return result;
+    if ((result = compare_value(extensionHint, rhs.extensionHint))) return result;
+    if ((result = compare_value(mapRGBtoRGBAHint, rhs.mapRGBtoRGBAHint))) return result;
+    if ((result = compare_value(sceneCoordinateConvention, rhs.sceneCoordinateConvention))) return result;
+    if ((result = compare_value(formatCoordinateConventions, rhs.formatCoordinateConventions))) return result;
+    return compare_value(shaderSets, rhs.shaderSets);
+}
+
 void Options::read(Input& input)
 {
     Object::read(input);

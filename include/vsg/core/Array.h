@@ -123,6 +123,11 @@ namespace vsg
             return ref_ptr<Array>(new Array(data, offset, stride, l));
         }
 
+        ref_ptr<Data> clone() const override
+        {
+            return ref_ptr<Array>(new Array(*this));
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Array); }
         const char* className() const noexcept override { return type_name<Array>(); }
         const std::type_info& type_info() const noexcept override { return typeid(*this); }
