@@ -36,10 +36,16 @@ namespace vsg
     };
 
     /** 64 bit block of compressed texel data.*/
-    using block64 = uint8_t[8];
+    struct block64
+    {
+        uint8_t value[8];
+    };
 
     /** 128 bit block of compressed texel data.*/
-    using block128 = uint8_t[16];
+    struct block128
+    {
+        uint8_t value[16];
+    };
 
     enum Origin : uint8_t
     {
