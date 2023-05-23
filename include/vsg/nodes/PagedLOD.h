@@ -70,9 +70,9 @@ namespace vsg
         using Children = std::array<Child, 2>;
         Children children;
 
-        bool highResActive(uint64_t frameCount) const
+        bool highResActive(uint64_t frameCount, uint64_t inactiveAge = 3) const
         {
-            return (frameCount - frameHighResLastUsed.load()) <= 1;
+            return (frameCount - frameHighResLastUsed.load()) <= inactiveAge;
         }
 
     protected:
