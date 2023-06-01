@@ -108,6 +108,8 @@ namespace vsg
 
         bool valid() const { return radius >= 0.0; }
 
+        explicit operator bool() const noexcept { return valid(); }
+
         T* data() { return value; }
         const T* data() const { return value; }
 

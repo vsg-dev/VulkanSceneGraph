@@ -49,6 +49,8 @@ namespace vsg
 
         bool valid() const { return min.x <= max.x; }
 
+        explicit operator bool() const noexcept { return valid(); }
+
         T* data() { return min.data(); }
         const T* data() const { return min.data(); }
 
