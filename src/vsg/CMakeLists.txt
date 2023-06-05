@@ -243,8 +243,9 @@ set(LIBRARIES PUBLIC
 if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
   check_cxx_source_compiles("
     #include <atomic>
-    std::atomic<int> a;
-    int main() { return a; }"
+    std::atomic_uint32_t a32;
+    std::atomic_uint64_t a64;
+    int main() { return a32; }"
     HAVE_CXX_ATOMIC_WITHOUT_LIB
   )
   if(NOT HAVE_CXX_ATOMIC_WITHOUT_LIB)
