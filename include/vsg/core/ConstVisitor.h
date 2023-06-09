@@ -154,6 +154,7 @@ namespace vsg
 
         // Values
         virtual void apply(const stringValue&);
+        virtual void apply(const wstringValue&);
         virtual void apply(const boolValue&);
         virtual void apply(const intValue&);
         virtual void apply(const uintValue&);

@@ -66,6 +66,7 @@ namespace vsg
         size_t count = 0;
 
         void apply(const stringValue& text) override;
+        void apply(const wstringValue& text) override;
         void apply(const ubyteArray& text) override;
         void apply(const ushortArray& text) override;
         void apply(const uintArray& text) override;
