@@ -89,8 +89,14 @@ namespace vsg
         // read in an individual string
         void _read(std::string& value);
 
+        // read in an individual string
+        void _read(std::wstring& value);
+
         /// read one or more strings
         void read(size_t num, std::string* value) override;
+
+        /// read one or more strings
+        void read(size_t num, std::wstring* value) override;
 
         /// read one or more strings
         void read(size_t num, Path* value) override;

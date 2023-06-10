@@ -22,7 +22,36 @@ BinaryOutput::BinaryOutput(std::ostream& output, ref_ptr<const Options> in_optio
 {
 }
 
+void BinaryOutput::_write(const std::string& str)
+{
+    uint32_t size = static_cast<uint32_t>(str.size());
+    _output.write(reinterpret_cast<const char*>(&size), sizeof(uint32_t));
+    _output.write(str.data(), size);
+}
+
+void BinaryOutput::_write(const std::wstring& str)
+{
+    std::string string_value;
+    convert_utf(str, string_value);
+    _write(string_value);
+}
+
 void BinaryOutput::write(size_t num, const std::string* value)
+{
+    if (num == 1)
+    {
+        _write(*value);
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _write(*value);
+        }
+    }
+}
+
+void BinaryOutput::write(size_t num, const std::wstring* value)
 {
     if (num == 1)
     {

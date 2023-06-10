@@ -51,14 +51,11 @@ namespace vsg
         void write(size_t num, const float* value) override { _write(num, value); }
         void write(size_t num, const double* value) override { _write(num, value); }
 
-        void _write(const std::string& str)
-        {
-            uint32_t size = static_cast<uint32_t>(str.size());
-            _output.write(reinterpret_cast<const char*>(&size), sizeof(uint32_t));
-            _output.write(str.c_str(), size);
-        }
+        void _write(const std::string& str);
+        void _write(const std::wstring& str);
 
         void write(size_t num, const std::string* value) override;
+        void write(size_t num, const std::wstring* value) override;
         void write(size_t num, const Path* value) override;
 
         /// write object

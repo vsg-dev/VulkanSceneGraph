@@ -93,6 +93,16 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
                 assignValue(*(itr++), font.glyphIndexForCharcode(uint8_t(c)), updated);
             }
         }
+        void apply(const wstringValue& text) override
+        {
+            allocate(static_cast<uint32_t>(text.value().size()));
+
+            auto itr = textArray->begin();
+            for (auto& c : text.value())
+            {
+                assignValue(*(itr++), font.glyphIndexForCharcode(uint16_t(c)), updated);
+            }
+        }
         void apply(const ubyteArray& text) override
         {
             allocate(static_cast<uint32_t>(text.valueCount()));
