@@ -117,7 +117,16 @@ namespace vsg
     extern VSG_DECLSPEC AttachmentDescription defaultColorAttachment(VkFormat imageFormat);
     extern VSG_DECLSPEC AttachmentDescription defaultDepthAttachment(VkFormat depthFormat);
 
+    /// create RenderPass with color and depth buffers
     extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, bool requiresDepthRead = false);
+
+    /// create RenderPass with multisampled color and depth buffers
     extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkFormat depthFormat, VkSampleCountFlagBits samples, bool requiresDepthRead = false);
+
+    /// create RenderPass with color buffers
+    extern VSG_DECLSPEC ref_ptr<RenderPass> createRenderPass(Device* device, VkFormat imageFormat);
+
+    /// create RenderPass with multisampled color buffer
+    extern VSG_DECLSPEC ref_ptr<RenderPass> createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkSampleCountFlagBits samples);
 
 } // namespace vsg
