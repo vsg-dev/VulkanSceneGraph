@@ -464,12 +464,8 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     return RenderPass::create(device, attachments, subpasses, dependencies);
 }
 
-#include <iostream>
-
 ref_ptr<RenderPass> vsg::createRenderPass(Device* device, VkFormat imageFormat)
 {
-    std::cout<<"vsg::createRenderPass(Device* device, VkFormat imageFormat)"<<std::endl;
-
     auto colorAttachment = defaultColorAttachment(imageFormat);
 
     RenderPass::Attachments attachments{colorAttachment};
@@ -505,8 +501,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     {
         return createRenderPass(device, imageFormat);
     }
-
-    std::cout<<"vsg::createMultisampledRenderPass(Device* device, VkFormat imageFormat, VkSampleCountFlagBits samples)"<<std::endl;
 
     // First attachment is multisampled target.
     AttachmentDescription colorAttachment = {};
