@@ -54,7 +54,6 @@ void BinaryInput::read(size_t num, std::string* value)
     }
 }
 
-
 void BinaryInput::read(size_t num, std::wstring* value)
 {
     if (num == 1)

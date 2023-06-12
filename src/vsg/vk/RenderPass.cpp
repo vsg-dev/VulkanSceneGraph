@@ -534,7 +534,6 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
     resolveAttachmentRef.attachment = 1;
     resolveAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-
     SubpassDescription subpass;
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachments.emplace_back(colorAttachmentRef);
@@ -564,4 +563,3 @@ ref_ptr<RenderPass> vsg::createMultisampledRenderPass(Device* device, VkFormat i
 
     return RenderPass::create(device, attachments, subpasses, dependencies);
 }
-
