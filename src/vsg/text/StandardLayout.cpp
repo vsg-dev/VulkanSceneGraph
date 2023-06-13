@@ -40,6 +40,13 @@ namespace
                 character(uint8_t(c));
             }
         }
+        void apply(const wstringValue& text) override
+        {
+            for (auto& c : text.value())
+            {
+                character(uint16_t(c));
+            }
+        }
         void apply(const ubyteArray& text) override
         {
             for (auto& c : text)
@@ -268,6 +275,14 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             for (auto& c : text.value())
             {
                 character(uint8_t(c));
+            }
+        }
+        void apply(const wstringValue& text) override
+        {
+            reserve(text.value().size());
+            for (auto& c : text.value())
+            {
+                character(uint16_t(c));
             }
         }
         void apply(const ubyteArray& text) override

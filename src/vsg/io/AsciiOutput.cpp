@@ -47,6 +47,30 @@ void AsciiOutput::write(size_t num, const std::string* value)
     }
 }
 
+void AsciiOutput::_write(const std::wstring& str)
+{
+    std::string string_value;
+    convert_utf(str, string_value);
+    _write(string_value);
+}
+
+void AsciiOutput::write(size_t num, const std::wstring* value)
+{
+    if (num == 1)
+    {
+        _output << ' ';
+        _write(*value);
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _output << ' ';
+            _write(*value);
+        }
+    }
+}
+
 void AsciiOutput::write(size_t num, const Path* value)
 {
     if (num == 1)

@@ -45,6 +45,10 @@ void Visitor::apply(stringValue& value)
 {
     apply(static_cast<Data&>(value));
 }
+void Visitor::apply(wstringValue& value)
+{
+    apply(static_cast<Data&>(value));
+}
 void Visitor::apply(boolValue& value)
 {
     apply(static_cast<Data&>(value));

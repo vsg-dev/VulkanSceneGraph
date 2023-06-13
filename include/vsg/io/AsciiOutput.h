@@ -141,7 +141,10 @@ namespace vsg
             _output << '"';
         }
 
+        void _write(const std::wstring& str);
+
         void write(size_t num, const std::string* value) override;
+        void write(size_t num, const std::wstring* value) override;
         void write(size_t num, const Path* value) override;
 
         /// write object

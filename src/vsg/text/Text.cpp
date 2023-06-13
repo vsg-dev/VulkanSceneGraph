@@ -90,6 +90,11 @@ void CountGlyphs::apply(const stringValue& text)
     count += text.value().size();
 }
 
+void CountGlyphs::apply(const wstringValue& text)
+{
+    count += text.value().size();
+}
+
 void CountGlyphs::apply(const ubyteArray& text)
 {
     count += text.size();
