@@ -243,9 +243,16 @@ if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
 
   check_cxx_source_compiles("
     #include <atomic>
-    std::atomic_uint32_t a32;
-    std::atomic_uint64_t a64;
-    int main() { return a64; }"
+    int main()
+    {
+        std::atomic_uint64_t a64(1);
+        auto orig_value = a64.load();
+
+        uint64_t new_value = 1;
+        auto r = a64.compare_exchange_weak(orig_value, new_value);
+
+        return 0;
+    }"
     HAVE_CXX_ATOMIC_WITHOUT_LIB
   )
   if(NOT HAVE_CXX_ATOMIC_WITHOUT_LIB)
