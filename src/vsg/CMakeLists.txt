@@ -1,5 +1,3 @@
-include(CheckCXXSourceCompiles)
-
 # collect all the headers in the source directory
 file(GLOB HEADERS ${VSG_SOURCE_DIR}/include/vsg/*.h ${VSG_SOURCE_DIR}/include/vsg/*/*.h)
 
@@ -241,11 +239,13 @@ set(LIBRARIES PUBLIC
 
 # Check for std::atomic
 if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
+  include(CheckCXXSourceCompiles)
+
   check_cxx_source_compiles("
     #include <atomic>
     std::atomic_uint32_t a32;
     std::atomic_uint64_t a64;
-    int main() { return a32; }"
+    int main() { return a64; }"
     HAVE_CXX_ATOMIC_WITHOUT_LIB
   )
   if(NOT HAVE_CXX_ATOMIC_WITHOUT_LIB)
