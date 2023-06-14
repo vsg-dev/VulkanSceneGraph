@@ -69,9 +69,6 @@ namespace vsg
         using Children = std::array<Child, 2>;
         Children children;
 
-        // priority value assigned by record traversal as a guide to how important the external child is for loading.
-        mutable std::atomic<double> priority{0.0};
-
         bool highResActive(uint64_t frameCount, uint64_t inactiveAge = 3) const
         {
             return (frameCount - frameHighResLastUsed.load()) <= inactiveAge;
@@ -82,6 +79,9 @@ namespace vsg
 
     public:
         ref_ptr<Options> options;
+
+        // priority value assigned by record traversal as a guide to how important the external child is for loading.
+        mutable std::atomic<double> priority{0.0};
 
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};
