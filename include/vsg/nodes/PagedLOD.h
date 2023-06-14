@@ -50,6 +50,8 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -62,13 +64,13 @@ namespace vsg
         // external file to load when child 0 is null.
         Path filename;
 
-        // priority value assigned by record traversal as a guide to how important the external child is for loading.
-        mutable std::atomic<double> priority{0.0};
-
         dsphere bound;
 
         using Children = std::array<Child, 2>;
         Children children;
+
+        // priority value assigned by record traversal as a guide to how important the external child is for loading.
+        mutable std::atomic<double> priority{0.0};
 
         bool highResActive(uint64_t frameCount, uint64_t inactiveAge = 3) const
         {

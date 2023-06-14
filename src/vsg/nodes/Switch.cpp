@@ -33,7 +33,7 @@ int Switch::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    // compre the children vector
+    // compare the children vector
     if (children.size() < rhs.children.size()) return -1;
     if (children.size() > rhs.children.size()) return 1;
     if (children.empty()) return 0;
