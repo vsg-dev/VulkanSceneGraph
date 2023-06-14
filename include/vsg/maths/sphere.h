@@ -125,6 +125,27 @@ namespace vsg
 
     VSG_type_name(vsg::sphere);
     VSG_type_name(vsg::dsphere);
+
+    template<typename T>
+    constexpr bool operator==(const t_sphere<T>& lhs, const t_sphere<T>& rhs)
+    {
+        return (lhs.center == rhs.center) && (lhs.radius == rhs.radius);
+    }
+
+    template<typename T>
+    constexpr bool operator!=(const t_sphere<T>& lhs, const t_sphere<T>& rhs)
+    {
+        return (lhs.center != rhs.center) || (lhs.radius != rhs.radius);
+    }
+
+    template<typename T>
+    constexpr bool operator<(const t_sphere<T>& lhs, const t_sphere<T>& rhs)
+    {
+        if (lhs.center < rhs.center) return true;
+        if (rhs.center < lhs.center) return false;
+        return lhs.radius < rhs.radius;
+    }
+
 } // namespace vsg
 
 #if defined(__clang__)
