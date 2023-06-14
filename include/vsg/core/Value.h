@@ -191,6 +191,7 @@ namespace vsg
     }
 
     VSG_value(stringValue, std::string);
+    VSG_value(wstringValue, std::wstring);
 
     VSG_value(boolValue, bool);
     VSG_value(intValue, int);

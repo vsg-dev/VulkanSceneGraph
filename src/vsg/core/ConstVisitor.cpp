@@ -45,6 +45,10 @@ void ConstVisitor::apply(const stringValue& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const wstringValue& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const boolValue& value)
 {
     apply(static_cast<const Data&>(value));

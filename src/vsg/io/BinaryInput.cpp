@@ -32,7 +32,29 @@ void BinaryInput::_read(std::string& value)
     _input.read(value.data(), size);
 }
 
+void BinaryInput::_read(std::wstring& value)
+{
+    std::string string_value;
+    _read(string_value);
+    convert_utf(string_value, value);
+}
+
 void BinaryInput::read(size_t num, std::string* value)
+{
+    if (num == 1)
+    {
+        _read(*value);
+    }
+    else
+    {
+        for (; num > 0; --num, ++value)
+        {
+            _read(*value);
+        }
+    }
+}
+
+void BinaryInput::read(size_t num, std::wstring* value)
 {
     if (num == 1)
     {

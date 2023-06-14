@@ -25,7 +25,7 @@ void Keyboard::apply(KeyPressEvent& keyPress)
     {
         auto& keyHistory = keyState_itr->second;
         keyHistory.handled = keyPress.handled;
-        if (keyHistory.timeOfKeyRelease == keyPress.time)
+        if (keyHistory.timeOfKeyRelease == keyPress.time || keyHistory.timeOfKeyRelease <= keyHistory.timeOfLastKeyPress)
         {
             keyHistory.timeOfKeyRelease = keyHistory.timeOfFirstKeyPress;
             keyHistory.timeOfLastKeyPress = keyPress.time;

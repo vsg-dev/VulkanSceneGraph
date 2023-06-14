@@ -36,6 +36,26 @@ PagedLOD::~PagedLOD()
     //    vsg::debug("s_numPagedLODS = ", s_numPagedLODS);
 }
 
+int PagedLOD::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(bound, rhs.bound)) != 0) return result;
+
+    // compre the children vector
+    auto rhs_itr = rhs.children.begin();
+    for (auto lhs_itr = children.begin(); lhs_itr != children.end(); ++lhs_itr, ++rhs_itr)
+    {
+        if ((result = compare_value(lhs_itr->minimumScreenHeightRatio, rhs_itr->minimumScreenHeightRatio)) != 0) return result;
+        if ((result = compare_pointer(lhs_itr->node, rhs_itr->node)) != 0) return result;
+    }
+
+    return compare_value(filename, rhs.filename);
+}
+
 void PagedLOD::read(Input& input)
 {
     Node::read(input);

@@ -23,6 +23,7 @@ Hosted as part of the [vsg-dev](https://github.com/vsg-dev):
 * [osg2vsg](https://github.com/vsg-dev/osg2vsg) OpenSceneGraph integration library that enables converting of OSG to VSG scene graph and use of OpenSceneGraph loaders.
 * [vsgImGui](https://github.com/vsg-dev/vsgImGui) ImGui integration enabling UI in graphics window.
 * [vsgQt](https://github.com/vsg-dev/vsgQt) Qt integration with VulkanSceneGraph.
+* [vsgPoints](https://github.com/vsg-dev/vsgPoints) 3d point cloud loading and rendering for VulkanSceneGraph with database paging support and scalability up to billions of ponts.
 * [vsgUnity](https://github.com/vsg-dev/vsgUnity) plugin for Unity that provides export to native VulkanSceneGraph binary/ascii format.
 * [MyFirstVsgApplication](https://github.com/vsg-dev/MyFirstVsgApplication) simple standalone VSG application that can be used as a template for your own applications.
 * [vsgFramework](https://github.com/vsg-dev/vsgFramework) template project that uses CMake FetchContent to pull in all the main libraries associated with VulkanSceneGraph and dependencies and builds them together.

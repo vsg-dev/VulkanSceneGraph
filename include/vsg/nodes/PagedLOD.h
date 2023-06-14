@@ -50,6 +50,8 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -61,9 +63,6 @@ namespace vsg
 
         // external file to load when child 0 is null.
         Path filename;
-
-        // priority value assigned by record traversal as a guide to how important the external child is for loading.
-        mutable std::atomic<double> priority{0.0};
 
         dsphere bound;
 
@@ -80,6 +79,9 @@ namespace vsg
 
     public:
         ref_ptr<Options> options;
+
+        // priority value assigned by record traversal as a guide to how important the external child is for loading.
+        mutable std::atomic<double> priority{0.0};
 
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};

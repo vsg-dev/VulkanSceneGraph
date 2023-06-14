@@ -49,6 +49,8 @@ namespace vsg
 
         bool valid() const { return min.x <= max.x; }
 
+        explicit operator bool() const noexcept { return valid(); }
+
         T* data() { return min.data(); }
         const T* data() const { return min.data(); }
 
@@ -91,4 +93,25 @@ namespace vsg
 
     VSG_type_name(vsg::box);
     VSG_type_name(vsg::dbox);
+
+    template<typename T>
+    constexpr bool operator==(const t_box<T>& lhs, const t_box<T>& rhs)
+    {
+        return (lhs.min == rhs.min) && (lhs.max == rhs.max);
+    }
+
+    template<typename T>
+    constexpr bool operator!=(const t_box<T>& lhs, const t_box<T>& rhs)
+    {
+        return (lhs.min != rhs.min) || (lhs.max != rhs.max);
+    }
+
+    template<typename T>
+    constexpr bool operator<(const t_box<T>& lhs, const t_box<T>& rhs)
+    {
+        if (lhs.min < rhs.min) return true;
+        if (rhs.min < lhs.min) return false;
+        return lhs.max < rhs.max;
+    }
+
 } // namespace vsg
