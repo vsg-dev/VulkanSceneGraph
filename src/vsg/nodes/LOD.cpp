@@ -25,6 +25,29 @@ LOD::~LOD()
 {
 }
 
+int LOD::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_value(bound, rhs.bound)) != 0) return result;
+
+    // compare the children vector
+    if (children.size() < rhs.children.size()) return -1;
+    if (children.size() > rhs.children.size()) return 1;
+    if (children.empty()) return 0;
+
+    auto rhs_itr = rhs.children.begin();
+    for (auto lhs_itr = children.begin(); lhs_itr != children.end(); ++lhs_itr, ++rhs_itr)
+    {
+        if ((result = compare_value(lhs_itr->minimumScreenHeightRatio, rhs_itr->minimumScreenHeightRatio)) != 0) return result;
+        if ((result = compare_pointer(lhs_itr->node, rhs_itr->node)) != 0) return result;
+    }
+    return 0;
+}
+
 void LOD::read(Input& input)
 {
     Node::read(input);

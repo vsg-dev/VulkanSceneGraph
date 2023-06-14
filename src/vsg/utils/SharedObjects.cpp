@@ -5,9 +5,9 @@
 
 using namespace vsg;
 
-SharedObjects::SharedObjects()
+SharedObjects::SharedObjects() :
+    suitableForSharing(SuitableForSharing::create())
 {
-    suitableForSharing = SuitableForSharing::create();
 }
 
 SharedObjects::~SharedObjects()

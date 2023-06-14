@@ -115,6 +115,30 @@ namespace vsg
     VSG_type_name(vsg::dplane);
 
     template<typename T>
+    constexpr bool operator==(const t_plane<T>& lhs, const t_plane<T>& rhs)
+    {
+        return lhs[0] == rhs[0] && lhs[1] == rhs[1] && lhs[2] == rhs[2] && lhs[3] == rhs[3];
+    }
+
+    template<typename T>
+    constexpr bool operator!=(const t_plane<T>& lhs, const t_plane<T>& rhs)
+    {
+        return lhs[0] != rhs[0] || lhs[1] != rhs[1] || lhs[2] != rhs[2] || lhs[3] != rhs[3];
+    }
+
+    template<typename T>
+    constexpr bool operator<(const t_plane<T>& lhs, const t_plane<T>& rhs)
+    {
+        if (lhs[0] < rhs[0]) return true;
+        if (lhs[0] > rhs[0]) return false;
+        if (lhs[1] < rhs[1]) return true;
+        if (lhs[1] > rhs[1]) return false;
+        if (lhs[2] < rhs[2]) return true;
+        if (lhs[2] > rhs[2]) return false;
+        return lhs[3] < rhs[3];
+    }
+
+    template<typename T>
     constexpr T distance(const t_plane<T>& pl, const t_vec3<T>& v)
     {
         return dot(pl.n, v) + pl.p;
