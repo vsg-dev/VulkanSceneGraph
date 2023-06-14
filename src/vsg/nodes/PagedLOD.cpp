@@ -43,7 +43,7 @@ int PagedLOD::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    if ((result = compare_value(bound, rhs.bound) != 0)) return result;
+    if ((result = compare_value(bound, rhs.bound)) != 0) return result;
 
     // compre the children vector
     auto rhs_itr = rhs.children.begin();

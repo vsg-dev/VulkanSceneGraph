@@ -32,7 +32,7 @@ int LOD::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    if ((result = compare_value(bound, rhs.bound) != 0)) return result;
+    if ((result = compare_value(bound, rhs.bound)) != 0) return result;
 
     // compare the children vector
     if (children.size() < rhs.children.size()) return -1;
