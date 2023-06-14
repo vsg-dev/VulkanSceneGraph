@@ -26,6 +26,15 @@ QuadGroup::~QuadGroup()
 {
 }
 
+int QuadGroup::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_pointer_container(children, rhs.children);
+}
+
 void QuadGroup::read(Input& input)
 {
     Node::read(input);
