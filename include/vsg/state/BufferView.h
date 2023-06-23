@@ -27,7 +27,7 @@ namespace vsg
         BufferView();
         BufferView(ref_ptr<Buffer> buffer, VkFormat format, VkDeviceSize offset, VkDeviceSize range);
 
-        /// Vulkan VkImage handle
+        /// Vulkan VkBufferView handle
         VkBufferView vk(uint32_t deviceID) const { return _vulkanData[deviceID].bufferView; }
 
         // VkBufferViewCreateInfo settings
