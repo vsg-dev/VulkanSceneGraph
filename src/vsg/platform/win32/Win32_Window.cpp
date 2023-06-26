@@ -490,6 +490,11 @@ bool Win32_Window::visible() const
     return _window != 0 && _windowMapped;
 }
 
+void Win32_Window::releaseWindow()
+{
+    _window = {};
+}
+
 bool Win32_Window::pollEvents(vsg::UIEvents& events)
 {
     vsg::clock::time_point event_time = vsg::clock::now();
