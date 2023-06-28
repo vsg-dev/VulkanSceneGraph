@@ -133,16 +133,16 @@ namespace vsg
 - (void) handleFrameSizeChange
 {
     vsg::clock::time_point event_time = vsg::clock::now();
-    
+
     const NSRect contentRect = [window-> view() frame];
 
     auto devicePixelScale = _traits->hdpi ? [window->window() backingScaleFactor] : 1.0f;
 
     uint32_t width = contentRect.size.width * devicePixelScale;
     uint32_t height = contentRect.size.height * devicePixelScale;
-    
+
     //vsg:debug("handleFrameSizeChange: ", width, ", ", height);
-    
+
     window->queueEvent(vsg::ConfigureWindowEvent::create(window, event_time, contentRect.origin.x, contentRect.origin.y, width, height));
 }
 
@@ -754,7 +754,7 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     [_window setOpaque:YES];
     [_window setBackgroundColor:[NSColor whiteColor]];
 
-    
+
     // create view
     _view = [[vsg_MacOS_NSView alloc] initWithVsgWindow:this];
     // [_view setWantsBestResolutionOpenGLSurface:_traits->hdpi];
@@ -780,10 +780,9 @@ MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
     uint32_t finalwidth = traits->width * devicePixelScale;
     uint32_t finalheight = traits->height * devicePixelScale;
 
-    if (traits->shareWindow)
+    if (traits->device)
     {
-        // share the _instance, _physicalDevice and _device;
-        share(*traits->shareWindow);
+        share(traits->device);
     }
 
     _extent2D.width = finalwidth;

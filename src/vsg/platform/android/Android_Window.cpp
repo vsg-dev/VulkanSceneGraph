@@ -343,12 +343,9 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
     uint32_t finalWidth = traits->width;
     uint32_t finalHeight = traits->height;
 
-    vsg::ref_ptr<Android_Window> window;
-
-    if (traits->shareWindow)
+    if (traits->device)
     {
-        // share the _instance, _physicalDevice and _device;
-        window->share(*traits->shareWindow);
+        share(traits->device);
     }
 
     _extent2D.width = finalWidth;
