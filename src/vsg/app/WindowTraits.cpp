@@ -49,7 +49,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     deviceExtensionNames(traits.deviceExtensionNames),
     deviceTypePreferences(traits.deviceTypePreferences),
     deviceFeatures(traits.deviceFeatures),
-    samples(traits.samples)/*,
+    samples(traits.samples) /*,
     nativeWindow(traits.nativeWindow),
     systemConnection(traits.systemConnection)*/
 {

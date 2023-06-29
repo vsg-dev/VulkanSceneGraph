@@ -82,9 +82,9 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
     // create a a new list of ComnandGraphs not associated with removed window
     CommandGraphs commandGraphs;
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
-        for(auto& cg : task->commandGraphs)
+        for (auto& cg : task->commandGraphs)
         {
             if (cg->window != window) commandGraphs.push_back(cg);
         }
@@ -507,9 +507,9 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 {
     // collect the existing CommandGraphs
     CommandGraphs combinedCommandGraphs;
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
-        for(auto& cg : task->commandGraphs)
+        for (auto& cg : task->commandGraphs)
         {
             combinedCommandGraphs.push_back(cg);
         }
