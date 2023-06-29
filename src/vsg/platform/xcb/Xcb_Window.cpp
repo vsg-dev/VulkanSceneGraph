@@ -483,10 +483,9 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         _first_xcb_time_point = vsg::clock::now();
     }
 
-    if (traits->shareWindow)
+    if (traits->device)
     {
-        // share the _instance, _physicalDevice and _device;
-        share(*traits->shareWindow);
+        share(traits->device);
     }
 
     xcb_flush(_connection);

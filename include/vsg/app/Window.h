@@ -143,7 +143,7 @@ namespace vsg
         void _initSwapchain();
 
         virtual void clear();
-        void share(Window& window);
+        void share(ref_ptr<Device> device);
         void buildSwapchain();
 
         ref_ptr<WindowTraits> _traits;

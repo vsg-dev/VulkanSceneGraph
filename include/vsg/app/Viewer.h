@@ -38,6 +38,9 @@ namespace vsg
         /// add Window to Viewer
         virtual void addWindow(ref_ptr<Window> window);
 
+        /// remove Window from Viewer
+        virtual void removeWindow(ref_ptr<Window> window);
+
         Windows& windows() { return _windows; }
         const Windows& windows() const { return _windows; }
 
@@ -108,8 +111,12 @@ namespace vsg
         using Presentations = std::vector<ref_ptr<Presentation>>;
         Presentations presentations;
 
-        /// create a RecordAndSubmitTask configured to manage specified commandGraphs and assign it to the viewer.
+        /// Create a RecordAndSubmitTasks and Presentation objects configured to manage specified commandGraphs and assign it to the viewer.
+        /// Replace any prexisting setup.
         virtual void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
+
+        /// Add command graphs creating RecordAndSubmitTask/Presentation objects where appropriate.
+        void addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
         ref_ptr<ActivityStatus> status;
         std::list<std::thread> threads;

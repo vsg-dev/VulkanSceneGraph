@@ -57,15 +57,12 @@ void Window::clear()
     _physicalDevice.reset();
 }
 
-void Window::share(Window& window)
+void Window::share(ref_ptr<Device> device)
 {
-    _instance = window.getOrCreateInstance();
-    _physicalDevice = window.getOrCreatePhysicalDevice();
-    _device = window.getOrCreateDevice();
-    _renderPass = window.getOrCreateRenderPass();
-
+    setDevice(device);
     _initSurface();
     _initFormats();
+    _initRenderPass();
 }
 
 VkSurfaceFormatKHR Window::surfaceFormat()
@@ -119,7 +116,7 @@ void Window::setDevice(ref_ptr<Device> device)
     if (_device)
     {
         _physicalDevice = _device->getPhysicalDevice();
-        _initFormats();
+        _instance = _device->getInstance();
     }
 }
 
