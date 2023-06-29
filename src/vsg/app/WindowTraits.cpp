@@ -44,6 +44,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     imageAvailableSemaphoreWaitFlag(traits.imageAvailableSemaphoreWaitFlag),
     debugLayer(traits.debugLayer),
     apiDumpLayer(traits.apiDumpLayer),
+    device(traits.device),
     instanceExtensionNames(traits.instanceExtensionNames),
     requestedLayers(traits.requestedLayers),
     deviceExtensionNames(traits.deviceExtensionNames),
