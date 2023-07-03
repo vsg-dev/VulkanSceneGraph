@@ -62,7 +62,7 @@ namespace vsg
             return ref_ptr<Value>(new Value(*this));
         }
 
-        std::size_t sizeofObject() const noexcept override { return sizeof(Value); }
+        size_t sizeofObject() const noexcept override { return sizeof(Value); }
         const char* className() const noexcept override { return type_name<Value>(); }
         const std::type_info& type_info() const noexcept override { return typeid(*this); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Value) == type || Data::is_compatible(type); }
@@ -90,17 +90,17 @@ namespace vsg
                 output.write("Value", _value);
         }
 
-        std::size_t valueSize() const override
+        size_t valueSize() const override
         {
             if constexpr (std::is_same_v<T, std::string>)
                 return _value.size();
             else
                 return sizeof(value_type);
         }
-        std::size_t valueCount() const override { return 1; }
+        size_t valueCount() const override { return 1; }
 
         bool dataAvailable() const override { return true; }
-        std::size_t dataSize() const override { return valueSize(); }
+        size_t dataSize() const override { return valueSize(); }
 
         void* dataPointer() override
         {
@@ -123,11 +123,11 @@ namespace vsg
 
         void* dataRelease() override { return nullptr; }
 
-        std::uint32_t dimensions() const override { return 0; }
+        uint32_t dimensions() const override { return 0; }
 
-        std::uint32_t width() const override { return 1; }
-        std::uint32_t height() const override { return 1; }
-        std::uint32_t depth() const override { return 1; }
+        uint32_t width() const override { return 1; }
+        uint32_t height() const override { return 1; }
+        uint32_t depth() const override { return 1; }
 
         Value& operator=(const Value& rhs)
         {

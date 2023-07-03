@@ -146,10 +146,10 @@ namespace vsg
         }
 
         /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_AFFINTY_DATA
-        static void* operator new(std::size_t count);
+        static void* operator new(size_t count);
         static void operator delete(void* ptr);
 
-        std::size_t sizeofObject() const noexcept override { return sizeof(Data); }
+        size_t sizeofObject() const noexcept override { return sizeof(Data); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Data) == type || Object::is_compatible(type); }
 
         int compare(const Object& rhs_object) const override;
@@ -164,11 +164,11 @@ namespace vsg
 
         virtual ref_ptr<Data> clone() const = 0;
 
-        virtual std::size_t valueSize() const = 0;
-        virtual std::size_t valueCount() const = 0;
+        virtual size_t valueSize() const = 0;
+        virtual size_t valueCount() const = 0;
 
         virtual bool dataAvailable() const = 0;
-        virtual std::size_t dataSize() const = 0;
+        virtual size_t dataSize() const = 0;
 
         virtual void* dataPointer() = 0;
         virtual const void* dataPointer() const = 0;
@@ -178,19 +178,19 @@ namespace vsg
 
         virtual void* dataRelease() = 0;
 
-        virtual std::uint32_t dimensions() const = 0;
+        virtual uint32_t dimensions() const = 0;
 
-        virtual std::uint32_t width() const = 0;
-        virtual std::uint32_t height() const = 0;
-        virtual std::uint32_t depth() const = 0;
+        virtual uint32_t width() const = 0;
+        virtual uint32_t height() const = 0;
+        virtual uint32_t depth() const = 0;
 
         bool contiguous() const { return valueSize() == properties.stride; }
 
         uint32_t stride() const { return properties.stride ? properties.stride : static_cast<uint32_t>(valueSize()); }
 
-        using MipmapOffsets = std::vector<std::size_t>;
+        using MipmapOffsets = std::vector<size_t>;
         MipmapOffsets computeMipmapOffsets() const;
-        static std::size_t computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t maxNumMipmaps);
+        static size_t computeValueCountIncludingMipmaps(size_t w, size_t h, size_t d, uint32_t maxNumMipmaps);
 
         /// increment the ModifiedCount to signify the data has been modified
         void dirty() { ++_modifiedCount; }

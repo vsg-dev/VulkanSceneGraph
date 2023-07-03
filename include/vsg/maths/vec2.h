@@ -136,12 +136,12 @@ namespace vsg
 
     using vec2 = t_vec2<float>;           // float 2D vector
     using dvec2 = t_vec2<double>;         // double 2D vector
-    using bvec2 = t_vec2<std::int8_t>;    // signed 8 bit integer 2D vector
-    using svec2 = t_vec2<std::int16_t>;   //  signed 16 bit integer 2D vector
-    using ivec2 = t_vec2<std::int32_t>;   //  signed 32 bit integer 2D vector
-    using ubvec2 = t_vec2<std::uint8_t>;  //  unsigned 8 bit integer 2D vector
-    using usvec2 = t_vec2<std::uint16_t>; //  unsigned 16 bit integer 2D vector
-    using uivec2 = t_vec2<std::uint32_t>; //  unsigned 32 bit integer 2D vector
+    using bvec2 = t_vec2<int8_t>;    // signed 8 bit integer 2D vector
+    using svec2 = t_vec2<int16_t>;   //  signed 16 bit integer 2D vector
+    using ivec2 = t_vec2<int32_t>;   //  signed 32 bit integer 2D vector
+    using ubvec2 = t_vec2<uint8_t>;  //  unsigned 8 bit integer 2D vector
+    using usvec2 = t_vec2<uint16_t>; //  unsigned 16 bit integer 2D vector
+    using uivec2 = t_vec2<uint32_t>; //  unsigned 32 bit integer 2D vector
 
     VSG_type_name(vsg::vec2);
     VSG_type_name(vsg::dvec2);
