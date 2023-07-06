@@ -352,6 +352,60 @@ void ShaderSet::write(Output& output) const
     }
 }
 
+vsg::ref_ptr<vsg::PipelineLayout> vsg::makePipelineLayout(vsg::ref_ptr<ShaderSet> shaderSet,
+                                                     const std::set<std::string>& defines, int max_set)
+{
+    const auto& uniformBindings = shaderSet->uniformBindings;
+    uint32_t umax_set;
+    if (max_set >= 0)
+    {
+        umax_set = static_cast<uint32_t>(max_set);
+    }
+    else
+    {
+        auto maxItr = std::max_element(uniformBindings.begin(), uniformBindings.end(),
+                                       [](const auto& val1, const auto& val2)
+                                       {
+                                           return val1.set < val2.set;
+                                       });
+        umax_set = maxItr->set;
+    }
+    std::map<uint32_t, DescriptorSetLayoutBindings> sets;
+    for (auto& binding : uniformBindings)
+    {
+        if (umax_set >= binding.set)
+        {
+            if (binding.define.empty() || defines.find(binding.define) != defines.end())
+            {
+                sets[binding.set].push_back(VkDescriptorSetLayoutBinding{binding.binding, binding.descriptorType,
+                                                                         binding.descriptorCount, binding.stageFlags,
+                                                                         nullptr});
+            }
+        }
+    }
+    DescriptorSetLayouts descriptorSetLayouts;
+    for (uint32_t set = 0; set <= umax_set; ++set)
+    {
+        auto dslbItr = sets.find(set);
+        if (dslbItr != sets.end())
+        {
+            descriptorSetLayouts.push_back(vsg::DescriptorSetLayout::create(dslbItr->second));
+        }
+        else
+        {
+            descriptorSetLayouts.push_back(vsg::DescriptorSetLayout::create());
+        }
+    }
+    PushConstantRanges pushConstantRanges;
+    for (auto& pcb : shaderSet->pushConstantRanges)
+    {
+        if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
+    }
+
+    auto pipelineLayout = vsg::PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
+    return pipelineLayout;
+}
+    
 ref_ptr<ShaderSet> vsg::createFlatShadedShaderSet(ref_ptr<const Options> options)
 {
     if (options)

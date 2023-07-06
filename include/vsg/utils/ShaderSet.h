@@ -135,6 +135,18 @@ namespace vsg
     };
     VSG_type_name(vsg::ShaderSet);
 
+    /**
+     * @brief Create a pipeline layout for some sets of a shader set.
+     *
+     * @param shaderSet the shader set
+     * @param defines Set of defines for assembling the bindings in the sets
+     * @param sets Number of sets to use, starting from 0. Defaults to all sets.
+     * @return the vsg::PipelineLayout object.
+     */
+    extern VSG_DECLSPEC ref_ptr<PipelineLayout> makePipelineLayout(ref_ptr<ShaderSet> shaderSet,
+                                                                   const std::set<std::string>& defines = {},
+                                                                   int sets = -1);
+
     /// create a ShaderSet for unlit, flat shaded rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createFlatShadedShaderSet(ref_ptr<const Options> options = {});
 
