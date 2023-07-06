@@ -73,6 +73,15 @@ namespace vsg
 
         void init();
 
+        std::set<std::string>& defines()
+        {
+            return shaderHints->defines;
+        }
+        const std::set<std::string>& defines() const
+        {
+            return shaderHints->defines;
+        }
+
         // setup by init()
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<PipelineLayout> layout;

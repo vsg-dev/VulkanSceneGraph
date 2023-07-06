@@ -192,21 +192,33 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
 
 void GraphicsPipelineConfigurator::init()
 {
-    if (!descriptorSetLayout)
-    {
-        descriptorSetLayout = vsg::DescriptorSetLayout::create(descriptorBindings);
-    }
-
     vsg::PushConstantRanges pushConstantRanges;
     for (auto& pcb : shaderSet->pushConstantRanges)
     {
         if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
     }
 
-    vsg::DescriptorSetLayouts desriptorSetLayouts{descriptorSetLayout};
-    if (additionalDescriptorSetLayout) desriptorSetLayouts.push_back(additionalDescriptorSetLayout);
-
-    layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
+    if (descriptorSetLayout)
+    {
+        // User has set descriptor set layout, so go with that
+       DescriptorSetLayouts descriptorSetLayouts{descriptorSetLayout};
+       if (additionalDescriptorSetLayout) descriptorSetLayouts.push_back(additionalDescriptorSetLayout);
+       layout = vsg::PipelineLayout::create(descriptorSetLayouts, pushConstantRanges);
+    }
+    else
+    {
+        layout = makePipelineLayout(shaderSet, defines());
+        // Populate descriptorSetLayout and additionalDescriptorSetLayout for code that is expecting
+        // it, though that should be deprecated.
+        if (!layout->setLayouts.empty())
+        {
+            descriptorSetLayout = layout->setLayouts[0];
+            if (layout->setLayouts.size() >= 2)
+            {
+                additionalDescriptorSetLayout = layout->setLayouts[1];
+            }
+        }
+    }
 
     GraphicsPipelineStates pipelineStates;
     if (colorBlendState) pipelineStates.push_back(colorBlendState);
