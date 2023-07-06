@@ -28,6 +28,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewportState.h>
 #include <vsg/utils/ShaderSet.h>
 
+#include <optional>
+
 namespace vsg
 {
 
@@ -83,14 +85,22 @@ namespace vsg
     class VSG_DECLSPEC DescriptorConfigurator : public vsg::Inherit<Object, DescriptorConfigurator>
     {
     public:
-        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
-
+        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {})
+            : shaderSet(in_shaderSet)
+        {
+        }
+        DescriptorConfigurator(uint32_t in_setNumber, vsg::ref_ptr<vsg::ShaderSet> in_shaderSet = {})
+            : shaderSet(in_shaderSet), setNumber(in_setNumber)
+        {
+        }
         ref_ptr<ShaderSet> shaderSet;
         bool blending = false;
         bool two_sided = false;
 
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
+        bool assignTexture(const std::string& name, const vsg::ImageInfoList& imageInfoList, uint32_t arrayElement = 0);
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
+        bool assignUniform(const std::string& name, const vsg::BufferInfoList& bufferInfoList, uint32_t arrayElement = 0);
 
         // assign Descriptors to a DescriptorSet
         void init();
@@ -102,6 +112,7 @@ namespace vsg
 
         // filled in by init()
         ref_ptr<DescriptorSet> descriptorSet;
+        std::optional<uint32_t> setNumber;
     };
     VSG_type_name(vsg::DescriptorConfigurator);
 

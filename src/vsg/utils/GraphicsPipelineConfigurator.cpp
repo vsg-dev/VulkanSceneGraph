@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 
@@ -226,15 +227,21 @@ void GraphicsPipelineConfigurator::init()
 //
 // DescriptorConfigurator
 //
-DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) :
-    shaderSet(in_shaderSet)
-{
-}
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler)
 {
     if (auto& textureBinding = shaderSet->getUniformBinding(name))
     {
+        if (!setNumber)
+        {
+            setNumber = textureBinding.set;
+        }
+        else if (textureBinding.set != *setNumber)
+        {
+            vsg::warn("Attempted binding texture ", name, " with set number ", textureBinding.set, " in set ",
+                  setNumber.value());
+            return false;
+        }
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
@@ -253,11 +260,78 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
 {
     if (auto& uniformBinding = shaderSet->getUniformBinding(name))
     {
+        if (!setNumber)
+        {
+            setNumber = uniformBinding.set;
+        }
+        else if (uniformBinding.set != *setNumber)
+        {
+            vsg::warn("Attempted binding uniform ", name, " with set number ", uniformBinding.set, " in set ",
+                      setNumber.value());
+            return false;
+        }
         // set up bindings
         if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
         descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
 
         auto uniform = DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding);
+        descriptors.push_back(uniform);
+
+        return true;
+    }
+    return false;
+}
+
+bool DescriptorConfigurator::assignTexture(const std::string& name, const vsg::ImageInfoList& imageInfoList,
+                                              uint32_t arrayElement)
+{
+    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    {
+        if (!setNumber)
+        {
+            setNumber = textureBinding.set;
+        }
+        else if (textureBinding.set != *setNumber)
+        {
+            vsg::warn("Attempted binding texture ", name, " with set number ", textureBinding.set, " in set ",
+                  setNumber.value());
+            return false;
+        }
+        // set up bindings
+        if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType,
+                                                                  textureBinding.descriptorCount, textureBinding.stageFlags,
+                                                                  nullptr});
+
+        // create texture image and associated DescriptorSets and binding
+        auto texture = vsg::DescriptorImage::create(imageInfoList, textureBinding.binding, arrayElement,
+                                                    textureBinding.descriptorType);
+        descriptors.push_back(texture);
+        return true;
+    }
+    return false;
+}
+
+bool DescriptorConfigurator::assignUniform(const std::string& name, const vsg::BufferInfoList& bufferInfoList,
+                                              uint32_t arrayElement)
+{
+    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    {
+        if (!setNumber)
+        {
+            setNumber = uniformBinding.set;
+        }
+        else if (uniformBinding.set != *setNumber)
+        {
+            vsg::warn("Attempted binding uniform ", name, " with set number ", uniformBinding.set, " in set ",
+                      setNumber.value());
+            return false;
+        }
+        // set up bindings
+        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
+
+        auto uniform = vsg::DescriptorBuffer::create(bufferInfoList, uniformBinding.binding, arrayElement);
         descriptors.push_back(uniform);
 
         return true;
