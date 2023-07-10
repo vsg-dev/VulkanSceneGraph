@@ -107,6 +107,8 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 
+        virtual void traverse(RecordTraversal& rt, const View& view);
+
         // containers filled in by RecordTraversal
         std::vector<std::pair<dmat4, const AmbientLight*>> ambientLights;
         std::vector<std::pair<dmat4, const DirectionalLight*>> directionalLights;
@@ -120,6 +122,11 @@ namespace vsg
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
+
+        // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
+        // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
+        // ref_ptr<ImageView> shadowImageView;
+        // ref_ptr<DescriptorImage> shadowTextures;
 
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;

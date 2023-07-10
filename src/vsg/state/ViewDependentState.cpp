@@ -151,6 +151,29 @@ void ViewDependentState::clear()
     spotLights.clear();
 }
 
+void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
+{
+    info("ViewDependentState::traverse(", &rt, ", ", &view, ")");
+    for (auto& [mv, light] : directionalLights)
+    {
+        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+        info("   directional light : direction = ", eye_direction);
+    }
+
+    for (auto& [mv, light] : pointLights)
+    {
+        auto eye_position = mv * light->position;
+        info("   positional light : position = ", eye_position);
+    }
+
+    for (auto& [mv, light] : spotLights)
+    {
+        auto eye_position = mv * light->position;
+        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+        info("   spot light : position = ", eye_position, ", direction = ", eye_direction);
+    }
+}
+
 void ViewDependentState::pack()
 {
     //debug("ViewDependentState::pack() ambient ", ambientLights.size(), ", diffuse ", directionalLights.size(), ", point ", pointLights.size(), ", spot ", spotLights.size());
