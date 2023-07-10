@@ -144,8 +144,8 @@ namespace vsg
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0; }
     };
 
-    using vec3 = t_vec3<float>;           // float 3D vector
-    using dvec3 = t_vec3<double>;         // double 3D vector
+    using vec3 = t_vec3<float>;      // float 3D vector
+    using dvec3 = t_vec3<double>;    // double 3D vector
     using bvec3 = t_vec3<int8_t>;    // signed 8 bit integer 3D vector
     using svec3 = t_vec3<int16_t>;   //  signed 16 bit integer 3D vector
     using ivec3 = t_vec3<int32_t>;   //  signed 32 bit integer 3D vector
