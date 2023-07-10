@@ -158,8 +158,8 @@ namespace vsg
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };
 
-    using vec4 = t_vec4<float>;           // float 4D vector
-    using dvec4 = t_vec4<double>;         // double 4D vector
+    using vec4 = t_vec4<float>;      // float 4D vector
+    using dvec4 = t_vec4<double>;    // double 4D vector
     using bvec4 = t_vec4<int8_t>;    // signed 8 bit integer 4D vector
     using svec4 = t_vec4<int16_t>;   //  signed 16 bit integer 4D vector
     using ivec4 = t_vec4<int32_t>;   //  signed 32 bit integer 4D vector
