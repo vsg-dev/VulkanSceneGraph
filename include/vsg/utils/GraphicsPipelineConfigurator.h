@@ -92,16 +92,10 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
 
-        // assign Descriptors to a DescriptorSet
-        void init();
+        bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
-        // filled in by assignTexture(..) and assignUniform(..)
-        Descriptors descriptors;
         std::set<std::string> defines;
-        DescriptorSetLayoutBindings descriptorBindings;
-
-        // filled in by init()
-        ref_ptr<DescriptorSet> descriptorSet;
+        std::vector<ref_ptr<DescriptorSet>> descriptorSets;
     };
     VSG_type_name(vsg::DescriptorConfigurator);
 

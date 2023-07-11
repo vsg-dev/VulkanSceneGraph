@@ -237,14 +237,11 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
     {
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
-        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, nullptr});
-
         if (!sampler) sampler = Sampler::create();
 
         // create texture image and associated DescriptorSets and binding
-        auto texture = DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, 0, textureBinding.descriptorType);
-        descriptors.push_back(texture);
-        return true;
+        return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
+                                DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, 0, textureBinding.descriptorType));
     }
     return false;
 }
@@ -255,21 +252,29 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
     {
         // set up bindings
         if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
-        descriptorBindings.push_back(VkDescriptorSetLayoutBinding{uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags, nullptr});
 
-        auto uniform = DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding);
-        descriptors.push_back(uniform);
-
-        return true;
+        // create uniform and associated DescriptorSets and binding
+        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
+                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding));
     }
     return false;
 }
 
-void DescriptorConfigurator::init()
+bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor)
 {
-    if (!descriptorBindings.empty())
+    if (set >= descriptorSets.size()) descriptorSets.resize(set+1);
+
+    auto& ds = descriptorSets[set];
+    if (!ds)
     {
-        auto descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-        descriptorSet = DescriptorSet::create(descriptorSetLayout, descriptors);
+        ds = vsg::DescriptorSet::create();
+        ds->setLayout = DescriptorSetLayout::create();
     }
+
+    ds->descriptors.push_back(descriptor);
+
+    auto& descriptorBindings = ds->setLayout->bindings;
+    descriptorBindings.push_back(VkDescriptorSetLayoutBinding{binding, descriptorType, descriptorCount, stageFlags, nullptr});
+
+    return true;
 }
