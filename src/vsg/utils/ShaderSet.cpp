@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/TessellationState.h>
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/material.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
 
 #include "shaders/flat_ShaderSet.cpp"
@@ -82,6 +83,76 @@ int DefinesArrayState::compare(const DefinesArrayState& rhs) const
     return compare_pointer(arrayState, rhs.arrayState);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CustomDescriptorSetBinding
+//
+CustomDescriptorSetBinding::CustomDescriptorSetBinding(uint32_t in_set) :
+    set(in_set)
+{
+}
+
+int CustomDescriptorSetBinding::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(set, rhs.set);
+}
+
+void CustomDescriptorSetBinding::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("set", set);
+}
+
+void CustomDescriptorSetBinding::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("set", set);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ViewDependentStateBinding
+//
+ViewDependentStateBinding::ViewDependentStateBinding(uint32_t in_set) :
+    Inherit(in_set)
+{
+}
+
+int ViewDependentStateBinding::compare(const Object& rhs) const
+{
+    return CustomDescriptorSetBinding::compare(rhs);
+}
+
+void ViewDependentStateBinding::read(Input& input)
+{
+    CustomDescriptorSetBinding::read(input);
+}
+
+void ViewDependentStateBinding::write(Output& output) const
+{
+    CustomDescriptorSetBinding::write(output);
+}
+
+ref_ptr<DescriptorSetLayout> ViewDependentStateBinding::createDescriptorSetLayout()
+{
+    return ViewDescriptorSetLayout::create();
+}
+
+ref_ptr<StateCommand> ViewDependentStateBinding::createStateCommand(ref_ptr<PipelineLayout> layout)
+{
+    return BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, set);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ShaderSet
+//
 ShaderSet::ShaderSet()
 {
 }
@@ -288,6 +359,19 @@ void ShaderSet::read(Input& input)
         auto hints = input.readObject<ShaderCompileSettings>("hints");
         input.readObjects("stages", variants[hints]);
     }
+
+    if (input.version_greater_equal(1, 0, 8))
+    {
+        auto num_custom = input.readValue<uint32_t>("customDescriptorSetBindings");
+        customDescriptorSetBindings.clear();
+        for (uint32_t i = 0; i < num_custom; ++i)
+        {
+            if (auto custom = input.readObject<CustomDescriptorSetBinding>("customDescriptorSetBinding"))
+            {
+                customDescriptorSetBindings.push_back(custom);
+            }
+        }
+    }
 }
 
 void ShaderSet::write(Output& output) const
@@ -349,6 +433,15 @@ void ShaderSet::write(Output& output) const
     {
         output.writeObject("hints", hints);
         output.writeObjects("stages", variant_stages);
+    }
+
+    if (output.version_greater_equal(1, 0, 8))
+    {
+        output.writeValue<uint32_t>("customDescriptorSetBindings", customDescriptorSetBindings.size());
+        for (auto& custom : customDescriptorSetBindings)
+        {
+            output.writeObject("customDescriptorSetBinding", custom);
+        }
     }
 }
 

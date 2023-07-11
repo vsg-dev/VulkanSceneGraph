@@ -71,6 +71,38 @@ namespace vsg
     };
     VSG_type_name(vsg::DefinesArrayState);
 
+    /// Base class for specifying custom DescriptorSetLayout and StateCommand
+    struct VSG_DECLSPEC CustomDescriptorSetBinding : public Inherit<Object, CustomDescriptorSetBinding>
+    {
+        CustomDescriptorSetBinding(uint32_t in_set = 0);
+
+        uint32_t set = 0;
+
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() = 0;
+        virtual ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) = 0;
+    };
+    VSG_type_name(vsg::CustomDescriptorSetBinding);
+
+    ///
+    struct VSG_DECLSPEC ViewDependentStateBinding : public Inherit<CustomDescriptorSetBinding, ViewDependentStateBinding>
+    {
+        ViewDependentStateBinding(uint32_t in_set = 0);
+
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() override;
+        ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) override;
+    };
+    VSG_type_name(vsg::ViewDependentStateBinding);
+
     /// ShaderSet provides collection of shader related settings to provide a form of shader introspection.
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
     {
@@ -87,6 +119,7 @@ namespace vsg
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
         std::set<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
+        std::vector<ref_ptr<CustomDescriptorSetBinding>> customDescriptorSetBindings;
 
         ref_ptr<ShaderCompileSettings> defaultShaderHints;
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
