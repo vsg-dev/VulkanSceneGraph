@@ -69,7 +69,7 @@ void DescriptorConfigurator::report()
                         break;
                     }
                 }
-                info("   need to assign ", uniform.name, " set_matched = ", set_matched, ", data = ", uniform.data);
+                if (!set_matched) info("   need to assign ", uniform.name, ", data = ", uniform.data);
             }
         }
     }
@@ -178,6 +178,60 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
     descriptorBindings.push_back(VkDescriptorSetLayoutBinding{binding, descriptorType, descriptorCount, stageFlags, nullptr});
 
     return true;
+}
+
+bool DescriptorConfigurator::assignDefaults()
+{
+    bool assignedDefault = false;
+    if (shaderSet)
+    {
+        for (auto& uniformBinding : shaderSet->uniformBindings)
+        {
+            if (uniformBinding.define.empty() && assigned.count(uniformBinding.name) == 0)
+            {
+                bool set_matched = false;
+                for (auto& cds : shaderSet->customDescriptorSetBindings)
+                {
+                    if (cds->set == uniformBinding.set)
+                    {
+                        set_matched = true;
+                        break;
+                    }
+                }
+                if (!set_matched)
+                {
+                    bool isTexture = false;
+                    switch(uniformBinding.descriptorType)
+                    {
+                        case(VK_DESCRIPTOR_TYPE_SAMPLER):
+                        case(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER):
+                        case(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE):
+                        case(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE):
+                            isTexture = true;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (isTexture)
+                    {
+                        assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
+                                         DescriptorImage::create(Sampler::create(), uniformBinding.data, uniformBinding.binding, 0, uniformBinding.descriptorType));
+                    }
+                    else
+                    {
+                        assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
+                                         DescriptorBuffer::create(uniformBinding.data, uniformBinding.binding));
+                    }
+
+                    assigned.insert(uniformBinding.name);
+                    assignedDefault = true;
+                }
+            }
+        }
+    }
+
+    return assignedDefault;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,6 +412,8 @@ void GraphicsPipelineConfigurator::init()
 
     if (descriptorConfigurator)
     {
+        descriptorConfigurator->assignDefaults();
+
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
         for (auto& ds : descriptorConfigurator->descriptorSets)
         {

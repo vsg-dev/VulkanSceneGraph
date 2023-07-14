@@ -54,6 +54,9 @@ namespace vsg
 
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
+        /// call after all the textures/uniforms have been explictly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
+        bool assignDefaults();
+
         std::set<std::string> assigned;
         std::set<std::string> defines;
         std::vector<ref_ptr<DescriptorSet>> descriptorSets;
