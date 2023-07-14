@@ -120,7 +120,8 @@ void CustomDescriptorSetBinding::write(Output& output) const
 // ViewDependentStateBinding
 //
 ViewDependentStateBinding::ViewDependentStateBinding(uint32_t in_set) :
-    Inherit(in_set)
+    Inherit(in_set),
+    viewDescriptorSetLayout(ViewDescriptorSetLayout::create())
 {
 }
 
@@ -141,7 +142,7 @@ void ViewDependentStateBinding::write(Output& output) const
 
 ref_ptr<DescriptorSetLayout> ViewDependentStateBinding::createDescriptorSetLayout()
 {
-    return ViewDescriptorSetLayout::create();
+    return viewDescriptorSetLayout;
 }
 
 ref_ptr<StateCommand> ViewDependentStateBinding::createStateCommand(ref_ptr<PipelineLayout> layout)

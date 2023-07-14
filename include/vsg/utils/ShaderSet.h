@@ -88,7 +88,7 @@ namespace vsg
     };
     VSG_type_name(vsg::CustomDescriptorSetBinding);
 
-    ///
+    /// Custom state binding class for providing the DescriptorSetLayout and StateCommaand required to pass view depedent data, lights/shaders etc., to shaders
     struct VSG_DECLSPEC ViewDependentStateBinding : public Inherit<CustomDescriptorSetBinding, ViewDependentStateBinding>
     {
         ViewDependentStateBinding(uint32_t in_set = 0);
@@ -97,6 +97,8 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+        ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
 
         ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() override;
         ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) override;

@@ -74,11 +74,13 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             if (textArray && requiredSize < static_cast<uint32_t>(textArray->valueCount()))
             {
                 allocatedSize = static_cast<uint32_t>(textArray->valueCount());
+                textArray->dirty();
                 return;
             }
 
             allocatedSize = std::max(requiredSize, minimumSize);
             textArray = uintArray::create(allocatedSize, 0u);
+            textArray->properties.dataVariance = DYNAMIC_DATA;
 
             updated = true;
         }
@@ -142,11 +144,12 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
     uint32_t num_quads = convert.size;
 
-    // TODO need to reallocate DescriptorBuffer if textArray changes size?
-    if (!textDescriptor) textDescriptor = DescriptorBuffer::create(textArray, 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-
     // set up the layout data in a form digestible by the GPU.
-    if (!layoutValue) layoutValue = TextLayoutValue::create();
+    if (!layoutValue)
+    {
+        layoutValue = TextLayoutValue::create();
+        layoutValue->properties.dataVariance = DYNAMIC_DATA;
+    }
 
     bool billboard = false;
     auto& layoutStruct = layoutValue->value();
@@ -161,14 +164,14 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
         billboard = standardLayout->billboard;
         assignValue(layoutStruct.billboardAutoScaleDistance, standardLayout->billboardAutoScaleDistance, textLayoutUpdated);
+
+        layoutValue->dirty();
     }
 
     // assign alignment offset
     auto alignment = layout->alignment(text->text, *(text->font));
     assignValue(layoutStruct.horizontalAlignment, alignment.x, textLayoutUpdated);
     assignValue(layoutStruct.verticalAlignment, alignment.y, textLayoutUpdated);
-
-    if (!layoutDescriptor) layoutDescriptor = DescriptorBuffer::create(layoutValue, 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
     if (!vertices)
     {
@@ -242,11 +245,11 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
         auto glyphMetricsProxy = vec4Array2D::create(text->font->glyphMetrics, 0, stride, numVec4PerGlyph, numGlyphs, Data::Properties{VK_FORMAT_R32G32B32A32_SFLOAT});
 
-        Descriptors descriptors;
-        config->assignTexture(descriptors, "textureAtlas", text->font->atlas, sampler);
-        config->assignTexture(descriptors, "glyphMetrics", glyphMetricsProxy, glyphMetricSampler);
+        config->assignTexture("textureAtlas", text->font->atlas, sampler);
+        config->assignTexture("glyphMetrics", glyphMetricsProxy, glyphMetricSampler);
 
-        if (sharedObjects) sharedObjects->share(descriptors);
+        config->assignUniform("textLayout", layoutValue);
+        config->assignUniform("text", textArray);
 
         // disable face culling so text can be seen from both sides
         config->rasterizationState->cullMode = VK_CULL_MODE_NONE;
@@ -271,34 +274,14 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
         config->colorBlendState->attachments = {colorBlendAttachment};
 
-        // set up descriptor set for text uniforms and layout
-        DescriptorSetLayoutBindings textArrayDescriptorBindings{
-            {0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr}, // Layout uniform
-            {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr}  // Text uniform
-        };
-
-        auto textArrayDescriptorSetLayout = DescriptorSetLayout::create(textArrayDescriptorBindings);
-        if (sharedObjects) sharedObjects->share(textArrayDescriptorSetLayout);
-
-        config->additionalDescriptorSetLayout = textArrayDescriptorSetLayout;
-
         if (sharedObjects)
             sharedObjects->share(config, [](auto gpc) { gpc->init(); });
         else
             config->init();
 
-        stateGroup->add(config->bindGraphicsPipeline);
+        config->descriptorConfigurator->report();
 
-        auto descriptorSetLayout = config->descriptorSetLayout;
-        if (sharedObjects) sharedObjects->share(descriptorSetLayout);
-        auto descriptorSet = vsg::DescriptorSet::create(descriptorSetLayout, descriptors);
-        auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 0, descriptorSet);
-        if (sharedObjects) sharedObjects->share(bindDescriptorSet);
-        stateGroup->add(bindDescriptorSet);
-
-        auto textDescriptorSet = DescriptorSet::create(textArrayDescriptorSetLayout, Descriptors{layoutDescriptor, textDescriptor});
-        bindTextDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 1, textDescriptorSet);
-        stateGroup->add(bindTextDescriptorSet);
+        config->copyTo(stateGroup, sharedObjects);
 
         bindVertexBuffers = BindVertexBuffers::create(0, arrays);
 
@@ -310,14 +293,6 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
     }
     else
     {
-        if (textArrayUpdated)
-        {
-            textDescriptor->copyDataListToBuffers();
-        }
-        if (textLayoutUpdated)
-        {
-            layoutDescriptor->copyDataListToBuffers();
-        }
     }
 }
 void GpuLayoutTechnique::setup(TextGroup* textGroup, uint32_t minimumAllocation, ref_ptr<const Options> options)
