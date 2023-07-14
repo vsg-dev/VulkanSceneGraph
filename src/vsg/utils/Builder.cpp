@@ -160,7 +160,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     // assign any custom ArrayState that may be required.
     stateGroup->prototypeArrayState = activeShaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
 
-    for(auto& cds : activeShaderSet->customDescriptorSetBindings)
+    for (auto& cds : activeShaderSet->customDescriptorSetBindings)
     {
         if (auto sc = cds->createStateCommand(graphicsPipelineConfig->layout))
         {

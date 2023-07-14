@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
@@ -36,7 +36,6 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
     void apply(vsg::ViewportState& ias) override { config->viewportState = ViewportState::create(ias); }
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // DescriptorConfigurator
@@ -52,17 +51,17 @@ void DescriptorConfigurator::report()
 
     if (shaderSet)
     {
-        for(auto& uniform : shaderSet->uniformBindings)
+        for (auto& uniform : shaderSet->uniformBindings)
         {
             info("    uniform name = ", uniform.name, ", define = ", uniform.define, ", set = ", uniform.set, ", binding = ", uniform.binding, ", data = ", uniform.data);
         }
 
-        for(auto& uniform : shaderSet->uniformBindings)
+        for (auto& uniform : shaderSet->uniformBindings)
         {
-            if (uniform.define.empty() && assigned.count(uniform.name)==0)
+            if (uniform.define.empty() && assigned.count(uniform.name) == 0)
             {
                 bool set_matched = false;
-                for(auto& cds : shaderSet->customDescriptorSetBindings)
+                for (auto& cds : shaderSet->customDescriptorSetBindings)
                 {
                     if (cds->set == uniform.set)
                     {
@@ -75,15 +74,15 @@ void DescriptorConfigurator::report()
         }
     }
 
-    for(auto& value : assigned)
+    for (auto& value : assigned)
     {
         info("    assigned ", value);
     }
-    for(auto& value : defines)
+    for (auto& value : defines)
     {
         info("    defines ", value);
     }
-    for(auto& ds : descriptorSets)
+    for (auto& ds : descriptorSets)
     {
         info("    descriptorSet = ", ds);
     }
@@ -164,7 +163,7 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
 
 bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor)
 {
-    if (set >= descriptorSets.size()) descriptorSets.resize(set+1);
+    if (set >= descriptorSets.size()) descriptorSets.resize(set + 1);
 
     auto& ds = descriptorSets[set];
     if (!ds)
@@ -196,13 +195,12 @@ void ArrayConfigurator::report()
 
     if (shaderSet)
     {
-        for(auto& attrib : shaderSet->attributeBindings)
+        for (auto& attrib : shaderSet->attributeBindings)
         {
             info("    attrib name = ", attrib.name, ", define = ", attrib.define, ", location = ", attrib.location);
         }
     }
 }
-
 
 bool ArrayConfigurator::assignArray(const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
@@ -361,13 +359,13 @@ void GraphicsPipelineConfigurator::init()
     if (descriptorConfigurator)
     {
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
-        for(auto& ds : descriptorConfigurator->descriptorSets)
+        for (auto& ds : descriptorConfigurator->descriptorSets)
         {
             desriptorSetLayouts.push_back(ds->setLayout);
         }
     }
 
-    for(auto& cds : shaderSet->customDescriptorSetBindings)
+    for (auto& cds : shaderSet->customDescriptorSetBindings)
     {
         desriptorSetLayouts.push_back(cds->createDescriptorSetLayout());
     }
@@ -398,7 +396,7 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
 
     if (descriptorConfigurator)
     {
-        for(size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
+        for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
         {
             if (auto ds = descriptorConfigurator->descriptorSets[set])
             {
@@ -418,7 +416,7 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
         }
     }
 
-    for(auto& cds : shaderSet->customDescriptorSetBindings)
+    for (auto& cds : shaderSet->customDescriptorSetBindings)
     {
         if (auto sc = cds->createStateCommand(layout))
         {

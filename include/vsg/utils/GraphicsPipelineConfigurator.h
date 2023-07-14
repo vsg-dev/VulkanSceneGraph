@@ -83,7 +83,6 @@ namespace vsg
     };
     VSG_type_name(vsg::ArrayConfigurator);
 
-
     /// GraphicsPipelineConfigurator utility provides a means of setting up state and geometry using ShaderSet as a guide for required layouts/bindings.
     class VSG_DECLSPEC GraphicsPipelineConfigurator : public vsg::Inherit<Object, GraphicsPipelineConfigurator>
     {
@@ -133,7 +132,6 @@ namespace vsg
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
     };
     VSG_type_name(vsg::GraphicsPipelineConfigurator);
-
 
     /// provide for backwards compatibility
     using GraphicsPipelineConfig = GraphicsPipelineConfigurator;
