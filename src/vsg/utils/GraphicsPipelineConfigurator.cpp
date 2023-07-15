@@ -112,7 +112,7 @@ bool DescriptorConfigurator::enableTexture(const std::string& name)
     return false;
 }
 
-bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler)
+bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler, uint32_t dstArrayElement)
 {
     if (auto& textureBinding = shaderSet->getUniformBinding(name))
     {
@@ -124,7 +124,23 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
 
         // create texture image and associated DescriptorSets and binding
         return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
-                                DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, 0, textureBinding.descriptorType));
+                                DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, dstArrayElement, textureBinding.descriptorType));
+    }
+    return false;
+}
+
+bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement)
+{
+    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    {
+        assigned.insert(name);
+
+        // set up bindings
+        if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
+
+        // create texture image and associated DescriptorSets and binding
+        return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
+                                DescriptorImage::create(imageInfoList, textureBinding.binding, dstArrayElement, textureBinding.descriptorType));
     }
     return false;
 }
@@ -145,7 +161,7 @@ bool DescriptorConfigurator::enableUniform(const std::string& name)
     return false;
 }
 
-bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data)
+bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
     if (auto& uniformBinding = shaderSet->getUniformBinding(name))
     {
@@ -156,7 +172,23 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
 
         // create uniform and associated DescriptorSets and binding
         return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding));
+                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding, dstArrayElement));
+    }
+    return false;
+}
+
+bool DescriptorConfigurator::assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
+{
+    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    {
+        assigned.insert(name);
+
+        // set up bindings
+        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+
+        // create uniform and associated DescriptorSets and binding
+        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
+                                DescriptorBuffer::create(bufferInfoList, uniformBinding.binding, dstArrayElement));
     }
     return false;
 }

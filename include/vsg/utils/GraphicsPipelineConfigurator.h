@@ -49,8 +49,11 @@ namespace vsg
         bool enableTexture(const std::string& name);
         bool enableUniform(const std::string& name);
 
-        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
+        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
+        bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
+
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
+        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
 
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
