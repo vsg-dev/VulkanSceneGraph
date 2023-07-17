@@ -18,11 +18,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/InputAssemblyState.h>
 #include <vsg/state/MultisampleState.h>
+#include <vsg/state/PipelineLayout.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/state/TessellationState.h>
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewDependentState.h>
-#include <vsg/state/PipelineLayout.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/ShaderSet.h>
 
@@ -486,19 +486,19 @@ std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
     uint32_t minimum = std::numeric_limits<uint32_t>::max();
     uint32_t maximum = std::numeric_limits<uint32_t>::min();
 
-    for(auto& binding : uniformBindings)
+    for (auto& binding : uniformBindings)
     {
         if (binding.set < minimum) minimum = binding.set;
         if (binding.set > maximum) maximum = binding.set;
     }
 
-    return {minimum, maximum+1};
+    return {minimum, maximum + 1};
 }
 
 ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
 {
     DescriptorSetLayoutBindings bindings;
-    for(auto& binding : uniformBindings)
+    for (auto& binding : uniformBindings)
     {
         if (binding.set == set)
         {

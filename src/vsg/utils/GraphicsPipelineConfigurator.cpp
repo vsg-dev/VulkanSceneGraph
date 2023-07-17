@@ -233,16 +233,16 @@ bool DescriptorConfigurator::assignDefaults()
                 if (!set_matched)
                 {
                     bool isTexture = false;
-                    switch(uniformBinding.descriptorType)
+                    switch (uniformBinding.descriptorType)
                     {
-                        case(VK_DESCRIPTOR_TYPE_SAMPLER):
-                        case(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER):
-                        case(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE):
-                        case(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE):
-                            isTexture = true;
-                            break;
-                        default:
-                            break;
+                    case (VK_DESCRIPTOR_TYPE_SAMPLER):
+                    case (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER):
+                    case (VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE):
+                    case (VK_DESCRIPTOR_TYPE_STORAGE_IMAGE):
+                        isTexture = true;
+                        break;
+                    default:
+                        break;
                     }
 
                     if (isTexture)
