@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/TessellationState.h>
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/state/PipelineLayout.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/ShaderSet.h>
 
@@ -476,4 +477,55 @@ ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Optio
     }
 
     return pbr_ShaderSet();
+}
+
+std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
+{
+    if (uniformBindings.empty()) return {0, 0};
+
+    uint32_t minimum = std::numeric_limits<uint32_t>::max();
+    uint32_t maximum = std::numeric_limits<uint32_t>::min();
+
+    for(auto& binding : uniformBindings)
+    {
+        if (binding.set < minimum) minimum = binding.set;
+        if (binding.set > maximum) maximum = binding.set;
+    }
+
+    return {minimum, maximum+1};
+}
+
+ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
+{
+    DescriptorSetLayoutBindings bindings;
+    for(auto& binding : uniformBindings)
+    {
+        if (binding.set == set)
+        {
+            if (binding.define.empty() || defines.count(binding.define) > 0)
+            {
+                bindings.push_back(VkDescriptorSetLayoutBinding{binding.binding, binding.descriptorType, binding.descriptorCount, binding.stageFlags, nullptr});
+            }
+        }
+    }
+    if (bindings.empty()) return {};
+
+    return DescriptorSetLayout::create(bindings);
+}
+
+ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const
+{
+    DescriptorSetLayouts descriptorSetLayouts;
+    for (uint32_t set = range.first; set < range.second; ++set)
+    {
+        auto dsl = createDescriptorSetLayout(defines, set);
+    }
+
+    PushConstantRanges activePushConstantRanges;
+    for (auto& pcb : pushConstantRanges)
+    {
+        if (pcb.define.empty() || defines.count(pcb.define) > 0) activePushConstantRanges.push_back(pcb.range);
+    }
+
+    return vsg::PipelineLayout::create(descriptorSetLayouts, activePushConstantRanges);
 }
