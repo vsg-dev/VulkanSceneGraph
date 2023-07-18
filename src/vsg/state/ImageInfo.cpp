@@ -94,16 +94,29 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
 uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
 {
     uint32_t mipLevels = sampler != nullptr ? static_cast<uint32_t>(ceil(sampler->maxLod)) : 1;
-    if (mipLevels == 0)
-    {
-        mipLevels = 1;
-    }
 
     // clamp the mipLevels so that its no larger than what the data dimensions support
     uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
-    while ((1u << (mipLevels - 1)) > maxDimension)
+    if (mipLevels == VK_LOD_CLAMP_NONE)
     {
-        --mipLevels;
+        mipLevels = 1;
+
+        while ((1u << (mipLevels - 1)) < maxDimension)
+        {
+            ++mipLevels;
+        }
+    }
+    else
+    {
+        if (mipLevels == 0)
+        {
+            mipLevels = 1;
+        }
+
+        while ((1u << (mipLevels - 1)) > maxDimension)
+        {
+            --mipLevels;
+        }
     }
 
     //mipLevels = 1;  // disable mipmapping
