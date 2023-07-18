@@ -508,7 +508,6 @@ ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set
             }
         }
     }
-    if (bindings.empty()) return {};
 
     return DescriptorSetLayout::create(bindings);
 }
