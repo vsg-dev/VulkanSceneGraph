@@ -492,29 +492,24 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
                                  0, nullptr,
                                  1, &barrier);
 
-            std::vector<VkImageBlit> blits(arrayLayers);
-
-            for (auto face = 0u; face < arrayLayers; ++face)
-            {
-                auto& blit = blits[face];
-                blit.srcOffsets[0] = {0, 0, 0};
-                blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
-                blit.srcSubresource.aspectMask = aspectMask;
-                blit.srcSubresource.mipLevel = i - 1;
-                blit.srcSubresource.baseArrayLayer = face;
-                blit.srcSubresource.layerCount = arrayLayers;
-                blit.dstOffsets[0] = {0, 0, 0};
-                blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
-                blit.dstSubresource.aspectMask = aspectMask;
-                blit.dstSubresource.mipLevel = i;
-                blit.dstSubresource.baseArrayLayer = face;
-                blit.dstSubresource.layerCount = arrayLayers;
-            }
+            VkImageBlit blit;
+            blit.srcOffsets[0] = {0, 0, 0};
+            blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
+            blit.srcSubresource.aspectMask = aspectMask;
+            blit.srcSubresource.mipLevel = i - 1;
+            blit.srcSubresource.baseArrayLayer = 0;
+            blit.srcSubresource.layerCount = arrayLayers;
+            blit.dstOffsets[0] = {0, 0, 0};
+            blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
+            blit.dstSubresource.aspectMask = aspectMask;
+            blit.dstSubresource.mipLevel = i;
+            blit.dstSubresource.baseArrayLayer = 0;
+            blit.dstSubresource.layerCount = arrayLayers;
 
             vkCmdBlitImage(vk_commandBuffer,
                            vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                           static_cast<uint32_t>(blits.size()), blits.data(),
+                           1, &blit,
                            VK_FILTER_LINEAR);
 
             barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
