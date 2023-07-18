@@ -157,20 +157,20 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
     for (auto& [mv, light] : directionalLights)
     {
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
-        info("   directional light : direction = ", eye_direction);
+        info("   directional light : direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
     }
 
     for (auto& [mv, light] : pointLights)
     {
         auto eye_position = mv * light->position;
-        info("   positional light : position = ", eye_position);
+        info("   positional light : position = ", eye_position, ", light->shadowMaps = ", light->shadowMaps);
     }
 
     for (auto& [mv, light] : spotLights)
     {
         auto eye_position = mv * light->position;
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
-        info("   spot light : position = ", eye_position, ", direction = ", eye_direction);
+        info("   spot light : position = ", eye_position, ", direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
     }
 }
 
