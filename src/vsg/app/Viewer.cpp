@@ -419,7 +419,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     _windows.clear();
     for (auto& commandGraph : in_commandGraphs)
     {
-        if (auto itr = std::find(_windows.begin(), _windows.end(), commandGraph->window); itr == _windows.end())
+        if (commandGraph->window && std::find(_windows.begin(), _windows.end(), commandGraph->window) == _windows.end())
         {
             _windows.push_back(commandGraph->window);
         }
