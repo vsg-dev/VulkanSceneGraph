@@ -129,7 +129,7 @@ namespace vsg
         // initialize state objects
         virtual void init();
 
-        // copy settings to StateGroup
+        // copy state objects to StateGroup
         virtual void copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
 
         // setup by init()
