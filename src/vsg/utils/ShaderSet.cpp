@@ -515,9 +515,16 @@ ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set
 ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const
 {
     DescriptorSetLayouts descriptorSetLayouts;
-    for (uint32_t set = range.first; set < range.second; ++set)
+
+    uint32_t set = 0;
+    for (; set < range.first; ++set)
     {
-        auto dsl = createDescriptorSetLayout(defines, set);
+        descriptorSetLayouts.push_back(DescriptorSetLayout::create());
+    }
+
+    for (; set < range.second; ++set)
+    {
+        descriptorSetLayouts.push_back(createDescriptorSetLayout(defines, set));
     }
 
     PushConstantRanges activePushConstantRanges;
