@@ -45,49 +45,6 @@ DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) 
 {
 }
 
-void DescriptorConfigurator::report()
-{
-    info("DescriptorConfigurator::report(", shaderSet, ") ", this);
-
-    if (shaderSet)
-    {
-        for (auto& uniform : shaderSet->uniformBindings)
-        {
-            info("    uniform name = ", uniform.name, ", define = ", uniform.define, ", set = ", uniform.set, ", binding = ", uniform.binding, ", data = ", uniform.data);
-        }
-
-        for (auto& uniform : shaderSet->uniformBindings)
-        {
-            if (uniform.define.empty() && assigned.count(uniform.name) == 0)
-            {
-                bool set_matched = false;
-                for (auto& cds : shaderSet->customDescriptorSetBindings)
-                {
-                    if (cds->set == uniform.set)
-                    {
-                        set_matched = true;
-                        break;
-                    }
-                }
-                if (!set_matched) info("   need to assign ", uniform.name, ", data = ", uniform.data);
-            }
-        }
-    }
-
-    for (auto& value : assigned)
-    {
-        info("    assigned ", value);
-    }
-    for (auto& value : defines)
-    {
-        info("    defines ", value);
-    }
-    for (auto& ds : descriptorSets)
-    {
-        info("    descriptorSet = ", ds);
-    }
-}
-
 void DescriptorConfigurator::reset()
 {
     assigned.clear();
@@ -273,19 +230,6 @@ bool DescriptorConfigurator::assignDefaults()
 ArrayConfigurator::ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
 {
-}
-
-void ArrayConfigurator::report()
-{
-    info("DescriptorConfigurator::report(", shaderSet, ") ", this);
-
-    if (shaderSet)
-    {
-        for (auto& attrib : shaderSet->attributeBindings)
-        {
-            info("    attrib name = ", attrib.name, ", define = ", attrib.define, ", location = ", attrib.location);
-        }
-    }
 }
 
 bool ArrayConfigurator::assignArray(const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)

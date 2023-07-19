@@ -279,8 +279,6 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         else
             config->init();
 
-        config->descriptorConfigurator->report();
-
         config->copyTo(stateGroup, sharedObjects);
 
         bindVertexBuffers = BindVertexBuffers::create(0, arrays);

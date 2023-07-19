@@ -38,8 +38,6 @@ namespace vsg
     public:
         DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
-        void report();
-
         void reset();
 
         ref_ptr<ShaderSet> shaderSet;
@@ -71,8 +69,6 @@ namespace vsg
     {
     public:
         ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
-
-        void report();
 
         ref_ptr<ShaderSet> shaderSet;
 
