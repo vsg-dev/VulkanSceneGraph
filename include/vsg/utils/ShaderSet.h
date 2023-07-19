@@ -167,6 +167,10 @@ namespace vsg
         inline ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
 
         /// create pipeline layout for specified range {minimum_set, maxiumum_set+1> of descriptor sets that are enabled by specified defines or required by default.
+        ///
+        /// Note: the underlying Vulkan call vkCreatePipelineLayout assumes that the array of
+        /// descriptor sets starts with set 0. Therefore the minimum_set argument should be 0 unless
+        /// you really know what you're doing.
         virtual ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const;
 
         int compare(const Object& rhs) const override;
