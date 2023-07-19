@@ -152,17 +152,21 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, const Buffer
 
 bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor)
 {
-    if (set >= descriptorSets.size()) descriptorSets.resize(set + 1);
-
-    auto& ds = descriptorSets[set];
-    if (!ds)
+    if (auto currentSize = descriptorSets.size(); set >= currentSize)
     {
-        ds = vsg::DescriptorSet::create();
-        ds->setLayout = DescriptorSetLayout::create();
+        descriptorSets.resize(set + 1);
+        for (auto i = currentSize; i <= set; i++)
+        {
+            if (!descriptorSets[i])
+            {
+                descriptorSets[i] = vsg::DescriptorSet::create();
+                descriptorSets[i]->setLayout = DescriptorSetLayout::create();
+            }
+        }
     }
 
+    auto& ds = descriptorSets[set];
     ds->descriptors.push_back(descriptor);
-
     auto& descriptorBindings = ds->setLayout->bindings;
     descriptorBindings.push_back(VkDescriptorSetLayoutBinding{binding, descriptorType, descriptorCount, stageFlags, nullptr});
 
