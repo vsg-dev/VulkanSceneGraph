@@ -56,9 +56,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     auto& defines = graphicsPipelineConfig->shaderHints->defines;
 
     // set up graphics pipeline
-    // vsg::Descriptors descriptors;
-
-    // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings;
     if (stateInfo.image)
     {
@@ -90,17 +87,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         if (!mat) mat = vsg::PhongMaterialValue::create();
         graphicsPipelineConfig->assignUniform("material", mat);
     }
-
-#if 0
-    // set up ViewDependentState
-    ref_ptr<ViewDescriptorSetLayout> vdsl;
-    if (sharedObjects)
-        vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
-    else
-        vdsl = ViewDescriptorSetLayout::create();
-
-    graphicsPipelineConfig->additionalDescriptorSetLayout = vdsl;
-#endif
 
     graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);
     graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12);
@@ -140,38 +126,9 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     else
         graphicsPipelineConfig->init();
 
-#if 1
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto stateGroup = vsg::StateGroup::create();
     graphicsPipelineConfig->copyTo(stateGroup, sharedObjects);
-#else
-    auto descriptorSet = vsg::DescriptorSet::create(graphicsPipelineConfig->descriptorSetLayout, descriptors);
-    if (sharedObjects) sharedObjects->share(descriptorSet);
-
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 0, descriptorSet);
-    if (sharedObjects) sharedObjects->share(bindDescriptorSet);
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
-    auto stateGroup = vsg::StateGroup::create();
-
-    stateGroup->add(graphicsPipelineConfig->bindGraphicsPipeline);
-    stateGroup->add(bindDescriptorSet);
-
-    // assign any custom ArrayState that may be required.
-    stateGroup->prototypeArrayState = activeShaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
-
-    for (auto& cds : activeShaderSet->customDescriptorSetBindings)
-    {
-        if (auto sc = cds->createStateCommand(graphicsPipelineConfig->layout))
-        {
-            if (sharedObjects) sharedObjects->share(sc);
-            stateGroup->add(sc);
-        }
-    }
-#endif
-
-    //if (sharedObjects) vsg::debug_stream([&](auto& fout) { sharedObjects->report(fout); });
-
     return stateGroup;
 }
 
