@@ -157,16 +157,14 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
         descriptorSets.resize(set + 1);
         for (auto i = currentSize; i <= set; i++)
         {
-            if (!descriptorSets[i])
-            {
-                descriptorSets[i] = vsg::DescriptorSet::create();
-                descriptorSets[i]->setLayout = DescriptorSetLayout::create();
-            }
+            descriptorSets[i] = vsg::DescriptorSet::create();
+            descriptorSets[i]->setLayout = DescriptorSetLayout::create();
         }
     }
 
     auto& ds = descriptorSets[set];
     ds->descriptors.push_back(descriptor);
+
     auto& descriptorBindings = ds->setLayout->bindings;
     descriptorBindings.push_back(VkDescriptorSetLayoutBinding{binding, descriptorType, descriptorCount, stageFlags, nullptr});
 
