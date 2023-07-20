@@ -71,6 +71,40 @@ namespace vsg
     };
     VSG_type_name(vsg::DefinesArrayState);
 
+    /// Base class for specifying custom DescriptorSetLayout and StateCommand
+    struct VSG_DECLSPEC CustomDescriptorSetBinding : public Inherit<Object, CustomDescriptorSetBinding>
+    {
+        CustomDescriptorSetBinding(uint32_t in_set = 0);
+
+        uint32_t set = 0;
+
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() = 0;
+        virtual ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) = 0;
+    };
+    VSG_type_name(vsg::CustomDescriptorSetBinding);
+
+    /// Custom state binding class for providing the DescriptorSetLayout and StateCommaand required to pass view depedent data, lights/shaders etc., to shaders
+    struct VSG_DECLSPEC ViewDependentStateBinding : public Inherit<CustomDescriptorSetBinding, ViewDependentStateBinding>
+    {
+        ViewDependentStateBinding(uint32_t in_set = 0);
+
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
+
+        ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() override;
+        ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) override;
+    };
+    VSG_type_name(vsg::ViewDependentStateBinding);
+
     /// ShaderSet provides collection of shader related settings to provide a form of shader introspection.
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
     {
@@ -87,6 +121,7 @@ namespace vsg
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
         std::set<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
+        std::vector<ref_ptr<CustomDescriptorSetBinding>> customDescriptorSetBindings;
 
         ref_ptr<ShaderCompileSettings> defaultShaderHints;
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
@@ -121,6 +156,22 @@ namespace vsg
 
         /// get the ShaderStages variant that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
+
+        /// return the <mininum_set, maxiumum_set+1> range of set numbers encompassed UniformBindings
+        std::pair<uint32_t, uint32_t> descriptorSetRange() const;
+
+        /// create the descritor set layout.
+        virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const;
+
+        /// create the pipeline layout for all descriptor sets enabled by specified defines or required by default.
+        inline ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
+
+        /// create pipeline layout for specified range {minimum_set, maxiumum_set+1> of descriptor sets that are enabled by specified defines or required by default.
+        ///
+        /// Note: the underlying Vulkan call vkCreatePipelineLayout assumes that the array of
+        /// descriptor sets starts with set 0. Therefore the minimum_set argument should be 0 unless
+        /// you really know what you're doing.
+        virtual ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const;
 
         int compare(const Object& rhs) const override;
 

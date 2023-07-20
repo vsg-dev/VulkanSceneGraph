@@ -61,9 +61,6 @@ namespace vsg
 
         ref_ptr<uintArray> textArray;
         ref_ptr<TextLayoutValue> layoutValue;
-        ref_ptr<DescriptorBuffer> textDescriptor;
-        ref_ptr<DescriptorBuffer> layoutDescriptor;
-        ref_ptr<BindDescriptorSet> bindTextDescriptorSet;
         ref_ptr<BindVertexBuffers> bindVertexBuffers;
     };
     VSG_type_name(vsg::GpuLayoutTechnique);
