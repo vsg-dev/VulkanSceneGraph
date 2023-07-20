@@ -27,9 +27,63 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewportState.h>
 #include <vsg/utils/ShaderSet.h>
+#include <vsg/utils/SharedObjects.h>
 
 namespace vsg
 {
+
+    /// DescriptorConfigurator utility provides a means of setting up descriptors using ShaderSet as a guide for required layouts/bindings.
+    class VSG_DECLSPEC DescriptorConfigurator : public vsg::Inherit<Object, DescriptorConfigurator>
+    {
+    public:
+        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+
+        void reset();
+
+        ref_ptr<ShaderSet> shaderSet;
+        bool blending = false;
+        bool two_sided = false;
+
+        bool enableTexture(const std::string& name);
+        bool enableUniform(const std::string& name);
+
+        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
+        bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
+
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
+        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
+
+        bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
+
+        /// call after all the textures/uniforms have been explictly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
+        bool assignDefaults();
+
+        std::set<std::string> assigned;
+        std::set<std::string> defines;
+        std::vector<ref_ptr<DescriptorSet>> descriptorSets;
+    };
+    VSG_type_name(vsg::DescriptorConfigurator);
+
+    /// ArrayConfigurator utility provides a means of setting up arrays using ShaderSet as a guide for required bindings.
+    class VSG_DECLSPEC ArrayConfigurator : public vsg::Inherit<Object, ArrayConfigurator>
+    {
+    public:
+        ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+
+        ref_ptr<ShaderSet> shaderSet;
+
+        bool assignArray(const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
+
+        uint32_t baseAttributeBinding = 0;
+        std::set<std::string> assigned;
+        std::set<std::string> defines;
+        /// VkPipelineVertexInputStateCreateInfo settings
+        VertexInputState::Bindings vertexBindingDescriptions;
+        VertexInputState::Attributes vertexAttributeDescriptions;
+
+        DataList arrays;
+    };
+    VSG_type_name(vsg::ArrayConfigurator);
 
     /// GraphicsPipelineConfigurator utility provides a means of setting up state and geometry using ShaderSet as a guide for required layouts/bindings.
     class VSG_DECLSPEC GraphicsPipelineConfigurator : public vsg::Inherit<Object, GraphicsPipelineConfigurator>
@@ -51,7 +105,6 @@ namespace vsg
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;
         ref_ptr<ShaderSet> shaderSet;
-        ref_ptr<DescriptorSetLayout> additionalDescriptorSetLayout;
 
         void reset();
 
@@ -60,50 +113,27 @@ namespace vsg
         bool enableUniform(const std::string& name);
 
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
-        bool assignTexture(Descriptors& descriptors, const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
-        bool assignUniform(Descriptors& descriptors, const std::string& name, ref_ptr<Data> data = {});
+        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
 
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;
-        vsg::DescriptorSetLayoutBindings descriptorBindings;
+        ref_ptr<DescriptorConfigurator> descriptorConfigurator;
 
         int compare(const Object& rhs) const override;
 
-        void init();
+        // initialize state objects
+        virtual void init();
+
+        // copy state objects to StateGroup
+        virtual void copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
 
         // setup by init()
-        ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<PipelineLayout> layout;
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
     };
     VSG_type_name(vsg::GraphicsPipelineConfigurator);
-
-    /// DescriptorConfigurator utility provides a means of setting up descriptors using ShaderSet as a guide for required layouts/bindings.
-    class VSG_DECLSPEC DescriptorConfigurator : public vsg::Inherit<Object, DescriptorConfigurator>
-    {
-    public:
-        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
-
-        ref_ptr<ShaderSet> shaderSet;
-        bool blending = false;
-        bool two_sided = false;
-
-        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
-
-        // assign Descriptors to a DescriptorSet
-        void init();
-
-        // filled in by assignTexture(..) and assignUniform(..)
-        Descriptors descriptors;
-        std::set<std::string> defines;
-        DescriptorSetLayoutBindings descriptorBindings;
-
-        // filled in by init()
-        ref_ptr<DescriptorSet> descriptorSet;
-    };
-    VSG_type_name(vsg::DescriptorConfigurator);
 
     /// provide for backwards compatibility
     using GraphicsPipelineConfig = GraphicsPipelineConfigurator;

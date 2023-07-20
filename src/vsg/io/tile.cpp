@@ -334,12 +334,6 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     _graphicsPipelineConfig->enableArray("vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, 8, VK_FORMAT_R32G32_SFLOAT);
     _graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16, VK_FORMAT_R32G32B32A32_SFLOAT);
 
-    if (settings->lighting)
-    {
-        auto vdsl = ViewDescriptorSetLayout::create();
-        _graphicsPipelineConfig->additionalDescriptorSetLayout = vdsl;
-    }
-
     if (auto& materialBinding = _shaderSet->getUniformBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
@@ -358,13 +352,8 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
 vsg::ref_ptr<vsg::StateGroup> tile::createRoot() const
 {
     auto root = vsg::StateGroup::create();
-    root->add(_graphicsPipelineConfig->bindGraphicsPipeline);
 
-    if (settings->lighting)
-    {
-        auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 1);
-        root->add(bindViewDescriptorSets);
-    }
+    _graphicsPipelineConfig->copyTo(root, {});
 
     return root;
 }

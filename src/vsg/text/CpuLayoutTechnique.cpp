@@ -268,9 +268,7 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
 
         if (sharedObjects) sharedObjects->share(sampler);
 
-        Descriptors descriptors;
-        config->assignTexture(descriptors, "textureAtlas", font->atlas, sampler);
-        if (sharedObjects) sharedObjects->share(descriptors);
+        config->assignTexture("textureAtlas", font->atlas, sampler);
 
         // disable face culling so text can be seen from both sides
         config->rasterizationState->cullMode = VK_CULL_MODE_NONE;
@@ -297,16 +295,7 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
         else
             config->init();
 
-        stategroup->add(config->bindGraphicsPipeline);
-
-        auto descriptorSetLayout = vsg::DescriptorSetLayout::create(config->descriptorBindings);
-        if (sharedObjects) sharedObjects->share(descriptorSetLayout);
-        auto descriptorSet = vsg::DescriptorSet::create(descriptorSetLayout, descriptors);
-
-        auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, config->layout, 0, descriptorSet);
-        if (sharedObjects) sharedObjects->share(bindDescriptorSet);
-
-        stategroup->add(bindDescriptorSet);
+        config->copyTo(stategroup, sharedObjects);
 
         bindVertexBuffers = BindVertexBuffers::create(0, arrays);
         bindIndexBuffer = BindIndexBuffer::create(indices);

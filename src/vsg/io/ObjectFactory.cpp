@@ -293,6 +293,7 @@ ObjectFactory::ObjectFactory()
     // utils
     add<vsg::AnimationPath>();
     add<vsg::ShaderSet>();
+    add<vsg::ViewDependentStateBinding>();
     add<vsg::PositionAndDisplacementMapArrayState>();
     add<vsg::DisplacementMapArrayState>();
     add<vsg::PositionArrayState>();
