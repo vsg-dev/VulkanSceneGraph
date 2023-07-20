@@ -158,14 +158,14 @@ namespace vsg
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };
 
-    using vec4 = t_vec4<float>;           // float 4D vector
-    using dvec4 = t_vec4<double>;         // double 4D vector
-    using bvec4 = t_vec4<std::int8_t>;    // signed 8 bit integer 4D vector
-    using svec4 = t_vec4<std::int16_t>;   //  signed 16 bit integer 4D vector
-    using ivec4 = t_vec4<std::int32_t>;   //  signed 32 bit integer 4D vector
-    using ubvec4 = t_vec4<std::uint8_t>;  //  unsigned 8 bit integer 4D vector
-    using usvec4 = t_vec4<std::uint16_t>; //  unsigned 16 bit integer 4D vector
-    using uivec4 = t_vec4<std::uint32_t>; //  unsigned 32 bit integer 4D vector
+    using vec4 = t_vec4<float>;      // float 4D vector
+    using dvec4 = t_vec4<double>;    // double 4D vector
+    using bvec4 = t_vec4<int8_t>;    // signed 8 bit integer 4D vector
+    using svec4 = t_vec4<int16_t>;   //  signed 16 bit integer 4D vector
+    using ivec4 = t_vec4<int32_t>;   //  signed 32 bit integer 4D vector
+    using ubvec4 = t_vec4<uint8_t>;  //  unsigned 8 bit integer 4D vector
+    using usvec4 = t_vec4<uint16_t>; //  unsigned 16 bit integer 4D vector
+    using uivec4 = t_vec4<uint32_t>; //  unsigned 32 bit integer 4D vector
 
     VSG_type_name(vsg::vec4);
     VSG_type_name(vsg::dvec4);

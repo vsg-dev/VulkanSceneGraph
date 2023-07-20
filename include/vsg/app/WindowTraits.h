@@ -73,6 +73,9 @@ namespace vsg
         bool synchronizationLayer = false;
         bool apiDumpLayer = false;
 
+        // Device to use, if not assigned use the device preferences below
+        ref_ptr<vsg::Device> device;
+
         // device preferences
         vsg::Names instanceExtensionNames;
         vsg::Names requestedLayers;
@@ -85,8 +88,6 @@ namespace vsg
         // be configured with the maximum requested value that is
         // supported by the device.
         VkSampleCountFlags samples = VK_SAMPLE_COUNT_1_BIT;
-
-        Window* shareWindow = nullptr;
 
         std::any nativeWindow;
         std::any systemConnection;

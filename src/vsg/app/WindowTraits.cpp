@@ -44,13 +44,13 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     imageAvailableSemaphoreWaitFlag(traits.imageAvailableSemaphoreWaitFlag),
     debugLayer(traits.debugLayer),
     apiDumpLayer(traits.apiDumpLayer),
+    device(traits.device),
     instanceExtensionNames(traits.instanceExtensionNames),
     requestedLayers(traits.requestedLayers),
     deviceExtensionNames(traits.deviceExtensionNames),
     deviceTypePreferences(traits.deviceTypePreferences),
     deviceFeatures(traits.deviceFeatures),
-    samples(traits.samples),
-    shareWindow(traits.shareWindow) /*,
+    samples(traits.samples) /*,
     nativeWindow(traits.nativeWindow),
     systemConnection(traits.systemConnection)*/
 {

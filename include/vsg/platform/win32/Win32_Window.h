@@ -146,6 +146,8 @@ namespace vsgWin32
 
         bool visible() const override;
 
+        void releaseWindow() override;
+
         bool pollEvents(vsg::UIEvents& events) override;
 
         void resize() override;

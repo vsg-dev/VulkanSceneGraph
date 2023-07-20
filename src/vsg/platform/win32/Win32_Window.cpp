@@ -441,10 +441,9 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
 
-    if (traits->shareWindow)
+    if (traits->device)
     {
-        // share the _instance, _physicalDevice and _device;
-        share(*traits->shareWindow);
+        share(traits->device);
     }
 
     _extent2D.width = finalWidth;
@@ -488,6 +487,11 @@ void Win32_Window::_initSurface()
 bool Win32_Window::visible() const
 {
     return _window != 0 && _windowMapped;
+}
+
+void Win32_Window::releaseWindow()
+{
+    _window = {};
 }
 
 bool Win32_Window::pollEvents(vsg::UIEvents& events)

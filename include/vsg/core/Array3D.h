@@ -108,7 +108,7 @@ namespace vsg
             return ref_ptr<Array3D>(new Array3D(*this));
         }
 
-        std::size_t sizeofObject() const noexcept override { return sizeof(Array3D); }
+        size_t sizeofObject() const noexcept override { return sizeof(Array3D); }
         const char* className() const noexcept override { return type_name<Array3D>(); }
         const std::type_info& type_info() const noexcept override { return typeid(*this); }
         bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Array3D) == type || Data::is_compatible(type); }
@@ -119,7 +119,7 @@ namespace vsg
 
         void read(Input& input) override
         {
-            std::size_t original_size = size();
+            size_t original_size = size();
 
             Data::read(input);
 
@@ -136,7 +136,7 @@ namespace vsg
 
             if (input.matchPropertyName("data"))
             {
-                std::size_t new_size = computeValueCountIncludingMipmaps(w, h, d, properties.maxNumMipmaps);
+                size_t new_size = computeValueCountIncludingMipmaps(w, h, d, properties.maxNumMipmaps);
 
                 if (_data) // if data already may be able to reuse it
                 {
@@ -184,7 +184,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        std::size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<std::size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, properties.maxNumMipmaps); }
+        size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, properties.maxNumMipmaps); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }
@@ -282,17 +282,17 @@ namespace vsg
             }
         }
 
-        std::size_t valueSize() const override { return sizeof(value_type); }
-        std::size_t valueCount() const override { return size(); }
+        size_t valueSize() const override { return sizeof(value_type); }
+        size_t valueCount() const override { return size(); }
 
         bool dataAvailable() const override { return available(); }
-        std::size_t dataSize() const override { return size() * properties.stride; }
+        size_t dataSize() const override { return size() * properties.stride; }
 
         void* dataPointer() override { return _data; }
         const void* dataPointer() const override { return _data; }
 
-        void* dataPointer(std::size_t i) override { return data(i); }
-        const void* dataPointer(std::size_t i) const override { return data(i); }
+        void* dataPointer(size_t i) override { return data(i); }
+        const void* dataPointer(size_t i) const override { return data(i); }
 
         uint32_t dimensions() const override { return 3; }
 
@@ -303,16 +303,16 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(std::size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * properties.stride); }
-        inline const value_type* data(std::size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * properties.stride); }
+        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * properties.stride); }
+        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * properties.stride); }
 
-        std::size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<std::size_t>(k * _width * _height + j * _width + i); }
+        size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<size_t>(k * _width * _height + j * _width + i); }
 
-        value_type& operator[](std::size_t i) { return *data(i); }
-        const value_type& operator[](std::size_t i) const { return *data(i); }
+        value_type& operator[](size_t i) { return *data(i); }
+        const value_type& operator[](size_t i) const { return *data(i); }
 
-        value_type& at(std::size_t i) { return *data(i); }
-        const value_type& at(std::size_t i) const { return *data(i); }
+        value_type& at(size_t i) { return *data(i); }
+        const value_type& at(size_t i) const { return *data(i); }
 
         value_type& operator()(uint32_t i, uint32_t j, uint32_t k) { return *data(index(i, j, k)); }
         const value_type& operator()(uint32_t i, uint32_t j, uint32_t k) const { return *data(index(i, j, k)); }
@@ -320,7 +320,7 @@ namespace vsg
         value_type& at(uint32_t i, uint32_t j, uint32_t k) { return *data(index(i, j, k)); }
         const value_type& at(uint32_t i, uint32_t j, uint32_t k) const { return *data(index(i, j, k)); }
 
-        void set(std::size_t i, const value_type& v) { *data(i) = v; }
+        void set(size_t i, const value_type& v) { *data(i) = v; }
         void set(uint32_t i, uint32_t j, uint32_t k, const value_type& v) { *data(index(i, j, k)) = v; }
 
         Data* storage() { return _storage; }

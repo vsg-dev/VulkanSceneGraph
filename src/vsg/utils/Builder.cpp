@@ -56,9 +56,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     auto& defines = graphicsPipelineConfig->shaderHints->defines;
 
     // set up graphics pipeline
-    vsg::Descriptors descriptors;
-
-    // set up graphics pipeline
     DescriptorSetLayoutBindings descriptorBindings;
     if (stateInfo.image)
     {
@@ -68,7 +65,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
         if (sharedObjects) sharedObjects->share(sampler);
 
-        graphicsPipelineConfig->assignTexture(descriptors, "diffuseMap", stateInfo.image, sampler);
+        graphicsPipelineConfig->assignTexture("diffuseMap", stateInfo.image, sampler);
 
         if (stateInfo.greyscale) defines.insert("VSG_GREYSACLE_DIFFUSE_MAP");
     }
@@ -81,25 +78,15 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
         if (sharedObjects) sharedObjects->share(sampler);
 
-        graphicsPipelineConfig->assignTexture(descriptors, "displacementMap", stateInfo.displacementMap, sampler);
+        graphicsPipelineConfig->assignTexture("displacementMap", stateInfo.displacementMap, sampler);
     }
 
     if (auto& materialBinding = activeShaderSet->getUniformBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
-        graphicsPipelineConfig->assignUniform(descriptors, "material", mat);
+        graphicsPipelineConfig->assignUniform("material", mat);
     }
-
-    if (sharedObjects) sharedObjects->share(descriptors);
-
-    // set up ViewDependentState
-    ref_ptr<ViewDescriptorSetLayout> vdsl;
-    if (sharedObjects)
-        vdsl = sharedObjects->shared_default<ViewDescriptorSetLayout>();
-    else
-        vdsl = ViewDescriptorSetLayout::create();
-    graphicsPipelineConfig->additionalDescriptorSetLayout = vdsl;
 
     graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);
     graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12);
@@ -139,26 +126,9 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     else
         graphicsPipelineConfig->init();
 
-    auto descriptorSet = vsg::DescriptorSet::create(graphicsPipelineConfig->descriptorSetLayout, descriptors);
-    if (sharedObjects) sharedObjects->share(descriptorSet);
-
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 0, descriptorSet);
-    if (sharedObjects) sharedObjects->share(bindDescriptorSet);
-
     // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
     auto stateGroup = vsg::StateGroup::create();
-    stateGroup->add(graphicsPipelineConfig->bindGraphicsPipeline);
-    stateGroup->add(bindDescriptorSet);
-
-    // assign any custom ArrayState that may be required.
-    stateGroup->prototypeArrayState = activeShaderSet->getSuitableArrayState(graphicsPipelineConfig->shaderHints->defines);
-
-    auto bindViewDescriptorSets = BindViewDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipelineConfig->layout, 1);
-    if (sharedObjects) sharedObjects->share(bindViewDescriptorSets);
-    stateGroup->add(bindViewDescriptorSets);
-
-    //if (sharedObjects) vsg::debug_stream([&](auto& fout) { sharedObjects->report(fout); });
-
+    graphicsPipelineConfig->copyTo(stateGroup, sharedObjects);
     return stateGroup;
 }
 

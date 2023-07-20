@@ -66,7 +66,32 @@ void Viewer::deviceWaitIdle() const
 
 void Viewer::addWindow(ref_ptr<Window> window)
 {
+    // make sure the addition is unique
+    auto itr = std::find(_windows.begin(), _windows.end(), window);
+    if (itr != _windows.end()) return;
+
     _windows.push_back(window);
+}
+
+void Viewer::removeWindow(ref_ptr<Window> window)
+{
+    auto itr = std::find(_windows.begin(), _windows.end(), window);
+    if (itr == _windows.end()) return;
+
+    _windows.erase(itr);
+
+    // create a a new list of ComnandGraphs not associated with removed window
+    CommandGraphs commandGraphs;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        for (auto& cg : task->commandGraphs)
+        {
+            if (cg->window != window) commandGraphs.push_back(cg);
+        }
+    }
+
+    // assign the remaining commandGraphs
+    assignRecordAndSubmitTaskAndPresentation(commandGraphs);
 }
 
 void Viewer::close()
@@ -367,6 +392,13 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)
 {
+    // now remove any commandGraphs associated with window
+    bool needToStartThreading = _threading;
+    if (_threading) stopThreading();
+
+    presentations.clear();
+    recordAndSubmitTasks.clear();
+
     struct DeviceQueueFamily
     {
         Device* device = nullptr;
@@ -382,6 +414,16 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             return presentFamily < rhs.presentFamily;
         }
     };
+
+    // assign windows used in the commandGraphs to the window to be tracked
+    _windows.clear();
+    for (auto& commandGraph : in_commandGraphs)
+    {
+        if (commandGraph->window && std::find(_windows.begin(), _windows.end(), commandGraph->window) == _windows.end())
+        {
+            _windows.push_back(commandGraph->window);
+        }
+    }
 
     // place the input CommandGraphs into separate groups associated with each device and queue family combination
     std::map<DeviceQueueFamily, CommandGraphs> deviceCommandGraphsMap;
@@ -457,6 +499,27 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->lateTransferTask->transferQueue = device->getQueue(transferQueueFamily);
         }
     }
+
+    if (needToStartThreading) setupThreading();
+}
+
+void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
+{
+    // collect the existing CommandGraphs
+    CommandGraphs combinedCommandGraphs;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        for (auto& cg : task->commandGraphs)
+        {
+            combinedCommandGraphs.push_back(cg);
+        }
+    }
+
+    // add the new CommandGraphs
+    combinedCommandGraphs.insert(combinedCommandGraphs.end(), commandGraphs.begin(), commandGraphs.end());
+
+    // assign the combined CommanGraphs
+    assignRecordAndSubmitTaskAndPresentation(combinedCommandGraphs);
 }
 
 void Viewer::setupThreading()

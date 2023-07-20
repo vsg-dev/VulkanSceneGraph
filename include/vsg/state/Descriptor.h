@@ -19,8 +19,6 @@ namespace vsg
     // forward declare
     class Context;
 
-    using DescriptorBufferInfos = std::vector<VkDescriptorBufferInfo>;
-
     /// Descriptor base class for descriptor DescriptorBuffer/DescriptorImage/DescriptorTexelBufferView classes.
     /// Descriptors are assigned BindDescriptorState state commands.
     /// Provides VkWriteDescriptorSet settings that are required for all types of descriptors.
