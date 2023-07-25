@@ -245,16 +245,11 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
 
-    uint32_t deviceID = device->deviceID;
     auto& imageStagingBuffer = frame.staging;
     auto& buffer_data = frame.buffer_data;
     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
 
     auto& data = imageInfo.imageView->image->data;
-    auto& textureImage = imageInfo.imageView->image;
-    auto aspectMask = imageInfo.imageView->subresourceRange.aspectMask;
-    VkImageLayout targetImageLayout = imageInfo.imageLayout;
-
     auto properties = data->properties;
     auto width = data->width();
     auto height = data->height();
