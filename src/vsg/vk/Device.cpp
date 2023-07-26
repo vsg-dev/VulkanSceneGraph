@@ -145,7 +145,18 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
             VkQueue vk_queue;
             vkGetDeviceQueue(_device, queueInfo.queueFamilyIndex, queueIndex, &vk_queue);
 
-            ref_ptr<Queue> queue(new Queue(vk_queue, queueInfo.queueFamilyIndex, queueIndex));
+            VkQueueFlags queueFlags = 0;
+
+            if (queueInfo.queueFamilyIndex < queueFamilyProperties.size())
+            {
+                queueFlags = queueFamilyProperties[queueInfo.queueFamilyIndex].queueFlags;
+            }
+            else
+            {
+                warn("vsg::Device::Device(..) constructor unable to match queue family flags to PhysicalDevice queueFamilyProperties.");
+            }
+
+            ref_ptr<Queue> queue(new Queue(vk_queue, queueFlags, queueInfo.queueFamilyIndex, queueIndex));
             _queues.emplace_back(queue);
         }
     }
@@ -175,14 +186,10 @@ ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
         if (queue->queueFamilyIndex() == queueFamilyIndex && queue->queueIndex() == queueIndex) return queue;
     }
 
-    debug("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failed back to next closest.");
-
     for (auto& queue : _queues)
     {
         if (queue->queueFamilyIndex() == queueFamilyIndex) return queue;
     }
-
-    warn("Device::getQueue(", queueFamilyIndex, ", ", queueIndex, ") failed to find any suitable Queue.");
 
     return {};
 }
