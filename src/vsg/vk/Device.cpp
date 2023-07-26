@@ -147,13 +147,13 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 
             VkQueueFlags queueFlags = 0;
 
-            if (queueInfo.queueFamilyIndex <  queueFamilyProperties.size())
+            if (queueInfo.queueFamilyIndex < queueFamilyProperties.size())
             {
                 queueFlags = queueFamilyProperties[queueInfo.queueFamilyIndex].queueFlags;
             }
             else
             {
-                 warn("vsg::Device::Device(..) constructor unable to match queue family flags to PhysicalDevice queueFamilyProperties.");
+                warn("vsg::Device::Device(..) constructor unable to match queue family flags to PhysicalDevice queueFamilyProperties.");
             }
 
             ref_ptr<Queue> queue(new Queue(vk_queue, queueFlags, queueInfo.queueFamilyIndex, queueIndex));

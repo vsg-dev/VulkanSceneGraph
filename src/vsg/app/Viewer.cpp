@@ -466,7 +466,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         ref_ptr<Queue> transferQueue = mainQueue;
 
         VkQueueFlags transferQueueFlags = VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT; // use VK_QUEUE_GRAPHICS_BIT to ensure we can blit images
-        for(auto& queue : device->getQueues())
+        for (auto& queue : device->getQueues())
         {
             if ((queue->queueFlags() & transferQueueFlags) == transferQueueFlags)
             {
