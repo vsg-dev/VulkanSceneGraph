@@ -454,7 +454,29 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         uint32_t numBuffers = 3;
 
         auto device = deviceQueueFamily.device;
-        uint32_t transferQueueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_TRANSFER_BIT);
+
+        // get main queue used for RecordAndSubmitTask
+        ref_ptr<Queue> mainQueue = device->getQueue(deviceQueueFamily.queueFamily);
+
+        // get presentat queue if required/supported
+        ref_ptr<Queue> presentQueue;
+        if (deviceQueueFamily.presentFamily >= 0) presentQueue = device->getQueue(deviceQueueFamily.presentFamily);
+
+        // get an appropriate transfer queue
+        ref_ptr<Queue> transferQueue = mainQueue;
+
+        VkQueueFlags transferQueueFlags = VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT; // use VK_QUEUE_GRAPHICS_BIT to ensure we can blit images
+        for (auto& queue : device->getQueues())
+        {
+            if ((queue->queueFlags() & transferQueueFlags) == transferQueueFlags)
+            {
+                if (queue != mainQueue)
+                {
+                    transferQueue = queue;
+                    break;
+                }
+            }
+        }
 
         if (deviceQueueFamily.presentFamily >= 0)
         {
@@ -474,11 +496,11 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->windows = windows;
-            recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
+            recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
-            recordAndSubmitTask->earlyTransferTask->transferQueue = device->getQueue(transferQueueFamily);
-            recordAndSubmitTask->lateTransferTask->transferQueue = device->getQueue(transferQueueFamily);
+            recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
+            recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
@@ -492,11 +514,11 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
-            recordAndSubmitTask->queue = device->getQueue(deviceQueueFamily.queueFamily);
+            recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
-            recordAndSubmitTask->earlyTransferTask->transferQueue = device->getQueue(transferQueueFamily);
-            recordAndSubmitTask->lateTransferTask->transferQueue = device->getQueue(transferQueueFamily);
+            recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
+            recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
         }
     }
 
