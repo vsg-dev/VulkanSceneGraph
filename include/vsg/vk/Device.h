@@ -53,6 +53,8 @@ namespace vsg
         AllocationCallbacks* getAllocationCallbacks() { return _allocator.get(); }
         const AllocationCallbacks* getAllocationCallbacks() const { return _allocator.get(); }
 
+        const Queues& getQueues() const { return _queues; }
+
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
         const Extensions* getExtensions() const { return _extensions.get(); }
@@ -83,7 +85,7 @@ namespace vsg
         ref_ptr<AllocationCallbacks> _allocator;
         ref_ptr<Extensions> _extensions;
 
-        std::list<ref_ptr<Queue>> _queues;
+        Queues _queues;
     };
     VSG_type_name(vsg::Device);
 
