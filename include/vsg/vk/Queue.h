@@ -30,6 +30,7 @@ namespace vsg
         operator VkQueue() const { return _vkQueue; }
         VkQueue vk() const { return _vkQueue; }
 
+        VkQueueFlags queueFlags() const { return _queueFlags; }
         uint32_t queueFamilyIndex() const { return _queueFamilyIndex; }
         uint32_t queueIndex() const { return _queueIndex; }
 
@@ -42,7 +43,7 @@ namespace vsg
         VkResult waitIdle();
 
     protected:
-        Queue(VkQueue queue, uint32_t queueFamilyIndex, uint32_t queueIndex);
+        Queue(VkQueue queue, VkQueueFlags queueFlags, uint32_t queueFamilyIndex, uint32_t queueIndex);
         virtual ~Queue();
 
         Queue() = delete;
@@ -53,10 +54,13 @@ namespace vsg
         friend class Device;
 
         VkQueue _vkQueue;
+        VkQueueFlags _queueFlags;
         uint32_t _queueFamilyIndex;
         uint32_t _queueIndex;
         std::mutex _mutex;
     };
     VSG_type_name(vsg::Queue);
+
+    using Queues = std::vector<ref_ptr<Queue>>;
 
 } // namespace vsg
