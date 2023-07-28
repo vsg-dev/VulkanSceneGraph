@@ -110,13 +110,24 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxViewports) :
-    lightData(vec4Array::create(maxNumberLights)), // spot light requires 3 vec4's per light
-    viewportData(vec4Array::create(maxViewports))
+ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxViewports)
 {
+    init(maxNumberLights, maxViewports);
+}
+
+ViewDependentState::~ViewDependentState()
+{
+}
+
+void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
+{
+    info("ViewDependentState::init(", maxNumberLights, ", ", maxViewports, ") ", this);
+
+    lightData = vec4Array::create(maxNumberLights);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
 
+    viewportData = vec4Array::create(maxViewports);
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
 
@@ -130,13 +141,10 @@ ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxVie
     descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor});
 }
 
-ViewDependentState::~ViewDependentState()
-{
-}
-
 void ViewDependentState::compile(Context& context)
 {
-    //info("ViewDependentState::compile()");
+    info("ViewDependentState::compile()", this);
+
     descriptorSet->compile(context);
 }
 

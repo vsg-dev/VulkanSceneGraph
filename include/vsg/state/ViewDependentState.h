@@ -115,6 +115,7 @@ namespace vsg
         std::vector<std::pair<dmat4, const PointLight*>> pointLights;
         std::vector<std::pair<dmat4, const SpotLight*>> spotLights;
 
+        virtual void init(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1);
         virtual void compile(Context& context);
         virtual void clear();
         virtual void pack();

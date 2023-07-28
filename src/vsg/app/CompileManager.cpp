@@ -155,7 +155,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     object->accept(collectRequirements);
 
     auto& requirements = collectRequirements.requirements;
-    auto& binStack = requirements.binStack;
+    auto& viewDetailsStack = requirements.viewDetailsStack;
 
     CompileResult result;
     result.maxSlot = requirements.maxSlot;
@@ -175,11 +175,11 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
             for (auto& context : compileTraversal->contexts)
             {
                 ref_ptr<View> view = context->view;
-                if (view && !binStack.empty())
+                if (view && !viewDetailsStack.empty())
                 {
                     if (auto itr = result.views.find(view.get()); itr == result.views.end())
                     {
-                        result.views[view] = binStack.top();
+                        result.views[view] = viewDetailsStack.top();
                     }
                 }
 
