@@ -34,6 +34,8 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
 {
+    vsg::info("ResourceRequirements::ResourceRequirements(" , hints, " ) ", this);
+
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     if (hints) apply(*hints);
 }
@@ -66,6 +68,10 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
             descriptorTypeMap[type] += count;
         }
     }
+
+    numLightsRange = resourceHints.numLightsRange;
+    numShadowMapsRange = resourceHints.numShadowMapsRange;
+    shadowMapSize = resourceHints.shadowMapSize;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -224,7 +230,7 @@ void CollectResourceRequirements::apply(const View& view)
         requirements.viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     }
 
-    vsg::info("CollectResourceRequirements::apply(const View& view) before traverse ");
+    vsg::info("CollectResourceRequirements::apply(const View& view) before traverse, this = ", this);
 
     view.traverse(*this);
 

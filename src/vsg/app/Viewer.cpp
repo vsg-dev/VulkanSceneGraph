@@ -260,9 +260,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     for (auto& task : recordAndSubmitTasks)
     {
         auto& collectResources = deviceResourceMap[task->device].collectResources;
+        if (hints) hints->accept(collectResources);
+
         for (auto& commandGraph : task->commandGraphs)
         {
-
             commandGraph->accept(collectResources);
         }
 
@@ -276,7 +277,9 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         auto& collectResources = deviceResources.collectResources;
         auto& resourceRequirements = collectResources.requirements;
 
-        if (hints) hints->accept(collectResources);
+        vsg::info("resourceRequirements.numLightsRange = ", resourceRequirements.numLightsRange);
+        vsg::info("resourceRequirements.numShadowMapsRange = ", resourceRequirements.numShadowMapsRange);
+        vsg::info("resourceRequirements.shadowMapSize = ", resourceRequirements.shadowMapSize);
 
         views.insert(resourceRequirements.views.begin(), resourceRequirements.views.end());
 
