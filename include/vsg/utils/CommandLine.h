@@ -102,16 +102,19 @@ namespace vsg
             {
                 // removed section is at end of argv so just reset argc to i
                 *_argc = i;
-                return;
             }
-
-            // shift all the remaining entries down to fill the removed space
-            for (; source < *_argc; ++i, ++source)
+            else
             {
-                _argv[i] = _argv[source];
-            }
+                // shift all the remaining entries down to fill the removed space
+                for (; source < *_argc; ++i, ++source)
+                {
+                    _argv[i] = _argv[source];
+                }
 
-            *_argc -= num;
+                *_argc -= num;
+            }
+            // Preserve C invariant that argv ends with a null pointer
+            _argv[*_argc] = nullptr;
         }
 
         template<typename... Args>
