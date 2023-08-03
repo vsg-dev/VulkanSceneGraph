@@ -194,6 +194,8 @@ void ViewDependentState::pack()
                           static_cast<float>(pointLights.size()),
                           static_cast<float>(spotLights.size()));
 
+    // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
+
     for (auto& entry : ambientLights)
     {
         auto light = entry.second;
@@ -205,6 +207,7 @@ void ViewDependentState::pack()
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
+        (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : pointLights)
@@ -212,6 +215,7 @@ void ViewDependentState::pack()
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
+        (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : spotLights)
@@ -223,6 +227,7 @@ void ViewDependentState::pack()
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
+        (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 #if 0
     for(auto itr = lightData->begin(); itr != light_itr; ++itr)
