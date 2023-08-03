@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -131,14 +132,31 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
 
+    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
+
+    auto shadwoMapSampler = vsg::Sampler::create();
+    shadwoMapSampler->minFilter = VK_FILTER_NEAREST;
+    shadwoMapSampler->magFilter = VK_FILTER_NEAREST;
+    shadwoMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadwoMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadwoMapSampler->anisotropyEnable = VK_FALSE;
+    shadwoMapSampler->maxAnisotropy = 1;
+    shadwoMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+
+    // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
+    // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
+    shadowMapData = floatArray3D::create(2048, 2048, 8, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
+    shadowMaps = DescriptorImage::create(shadwoMapSampler, shadowMapData);
+
+
     DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
-        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
+        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
+        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
     };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor});
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMaps});
 }
 
 void ViewDependentState::compile(Context& context)

@@ -124,13 +124,11 @@ namespace vsg
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
 
-        // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
-        // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
-        // ref_ptr<ImageView> shadowImageView;
-        // ref_ptr<DescriptorImage> shadowTextures;
-
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
+
+        ref_ptr<floatArray3D> shadowMapData;
+        ref_ptr<DescriptorImage> shadowMaps;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorBuffer> descriptor;
