@@ -18,7 +18,7 @@ using namespace vsg;
 
 void Keyboard::apply(KeyPressEvent& keyPress)
 {
-    //std::cout<<"Keyboard::apply(KeyReleaseEvent& keyRelease)"<<std::endl;
+    //std::cout<<"Keyboard::apply(KeyPressEvent& keyPress)"<<std::endl;
 
     auto keyState_itr = keyState.find(keyPress.keyBase);
     if (keyState_itr != keyState.end())

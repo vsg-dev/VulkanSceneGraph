@@ -24,8 +24,8 @@ namespace vsg
     // forward declare
     class CommandBuffer;
 
-    /// StateGroup is a Group node that manages a list of StateCommands that are use during the RecordTraversal for applying state to subgraph
-    /// When the RecordTraversal encounters a The StateGroup the StateGroup::stateCommands are pushed to the appropriate vsg::State stacks
+    /// StateGroup is a Group node that manages a list of StateCommands that are used during the RecordTraversal for applying state to subgraphs
+    /// When the RecordTraversal encounters the StateGroup its StateGroup::stateCommands are pushed to the appropriate vsg::State stacks
     /// and when a Command is encountered during the RecordTraversal the current head of these State stacks are applied.  After traversing
     /// the StateGroup's subgraph the StateGroup::stateCommands are popped from the vsg::State stacks.
     class VSG_DECLSPEC StateGroup : public Inherit<Group, StateGroup>

@@ -74,7 +74,7 @@ namespace vsg
         /// multiview support requires Vulkan 1.2 or later.
         uint32_t viewMask = 0;
 
-        /// maps to VkSubpassDescriptionDepthStencilResolve, requires Vulkan 1.2 or later.
+        /// maps to VkSubpassDescriptionDepthStencilResolve, requires Vulkan 1.2 or later or an extension.
         VkResolveModeFlagBits depthResolveMode = VK_RESOLVE_MODE_NONE;
         VkResolveModeFlagBits stencilResolveMode = VK_RESOLVE_MODE_NONE;
         std::vector<AttachmentReference> depthStencilResolveAttachments;
@@ -102,8 +102,8 @@ namespace vsg
         const Dependencies dependencies;
         const CorrelatedViewMasks correlatedViewMasks;
 
-        /// Maximum VkAttachmentDescription.samples value of the assigned attachments.
-        /// Used for be deciding if multisampling is required and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
+        /// Maximum VkAttachmentDescription::samples value of the assigned attachments.
+        /// Used for deciding if multisampling is required and the value to use when setting up the GraphicsPipeline's vsg::MultisampleState
         const VkSampleCountFlagBits maxSamples;
 
     protected:

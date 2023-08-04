@@ -55,7 +55,7 @@ namespace vsg
         }
     }
 
-    /// convenience template function for submitting Vulkan commands to a queue and wait for completion.
+    /// convenience template function for submitting Vulkan commands to a queue and waiting for completion.
     template<typename F>
     void submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
     {

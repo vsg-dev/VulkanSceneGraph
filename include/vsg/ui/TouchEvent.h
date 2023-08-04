@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// TouchEvent is a base class touch events.
+    /// TouchEvent is a base class for touch events.
     class VSG_DECLSPEC TouchEvent : public Inherit<WindowEvent, TouchEvent>
     {
     public:

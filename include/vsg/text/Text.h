@@ -21,10 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /** Text node provides high quality text rendering using signed distance field glyph texture atlas.
-      * Text does not provide view frustum culling or level of detail, but you can add this if require
-      * it by decorating the Text with a CullNode/LOD and after TextGroup::setup() is called to initialize
-      * the rendering component you can use the TextGroup->technique->extents() value to help set the
+    /** Text node provides high quality text rendering using a signed distance field glyph texture atlas.
+      * Text does not provide view frustum culling or level of detail, but you can add this if required
+      * by decorating the Text with a CullNode/LOD and after TextGroup::setup() is called to initialize
+      * the rendering component, you can use the TextGroup->technique->extents() value to help set the
       * CullNode/LOD.bounds value.*/
     class VSG_DECLSPEC Text : public Inherit<Node, Text>
     {
@@ -57,7 +57,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Text);
 
-    /// create a ShaderSet used for both CpuALayutTechnique and GpuALayutTechnique or return the Options::shaderSet["text"] entry if available.
+    /// create a ShaderSet used for both CpuLayoutTechnique and GpuLayoutTechnique or return the Options::shaderSet["text"] entry if available.
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createTextShaderSet(ref_ptr<const Options> options = {});
 
     /// convenience class for counting the number of text glyphs

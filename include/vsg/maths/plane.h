@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-// we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
+// we can't implement the anonymous union/structs combination without causing warnings, so disable them for just this header
 #if defined(__GNUC__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wpedantic"
@@ -151,7 +151,7 @@ namespace vsg
         return dot(pl.n, normal_type(v)) + pl.p;
     }
 
-    /** return true if bounding sphere is wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */
+    /** return true if bounding sphere wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */
     template<class PlaneItr, typename T>
     constexpr bool intersect(PlaneItr first, PlaneItr last, const t_sphere<T>& s)
     {

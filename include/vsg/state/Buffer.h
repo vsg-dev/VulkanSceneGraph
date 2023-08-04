@@ -21,7 +21,7 @@ namespace vsg
     class Context;
 
     /// Buffer encapsulates VkBuffer and VkBufferCreateInfo settings used to set it up.
-    /// Buffer is used map blocks of DeviceMemory for use with BufferInfo associated DescriptorBuffer/BufferView/Vertex/Index arrays.
+    /// Buffer maps blocks of DeviceMemory for use with BufferInfo typically associated with DescriptorBuffer/BufferView/Vertex/Index arrays.
     class VSG_DECLSPEC Buffer : public Inherit<Object, Buffer>
     {
     public:

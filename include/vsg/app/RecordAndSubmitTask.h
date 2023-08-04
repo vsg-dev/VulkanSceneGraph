@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// RecordAndSubmitTask manages the recording of it's list of CommanGraph to CommandBuffer which are then submitted to associated vulkan Queue.
+    /// RecordAndSubmitTask manages the recording of its list of CommandGraph to CommandBuffer which are then submitted to the associated vulkan Queue.
     class VSG_DECLSPEC RecordAndSubmitTask : public Inherit<Object, RecordAndSubmitTask>
     {
     public:
@@ -48,7 +48,7 @@ namespace vsg
         /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is previous frame etc.
         size_t index(size_t relativeFrameIndex = 0) const;
 
-        /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
+        /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
         Fence* fence(size_t relativeFrameIndex = 0);
 
         ref_ptr<Queue> queue;
@@ -64,7 +64,7 @@ namespace vsg
 
     using RecordAndSubmitTasks = std::vector<ref_ptr<RecordAndSubmitTask>>;
 
-    /// update RecordAndSubmitTask data structures to match the needs of newly compile subgraph
+    /// update RecordAndSubmitTask data structures to match the needs of newly compiled subgraphs
     extern VSG_DECLSPEC void updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult);
 
 } // namespace vsg

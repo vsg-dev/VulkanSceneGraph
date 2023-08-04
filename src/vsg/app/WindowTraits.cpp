@@ -87,7 +87,7 @@ void WindowTraits::defaults()
     vkEnumerateInstanceVersion(&vulkanVersion);
 #endif
 
-    // vsg::DeviceFeatures use instance extension
+    // vsg::DeviceFeatures uses the instance extension
     instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
     // provide anisotropic filtering as standard.

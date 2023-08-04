@@ -434,7 +434,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         SetFocus(_window);
     }
 
-    // get client rect to find final width height of the view
+    // get client rect to find final width and height of the view
     RECT clientRect;
     ::GetClientRect(_window, &clientRect);
 

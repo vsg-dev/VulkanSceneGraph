@@ -22,9 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// QuadGroup is a specialist group node that manages a 4 children, designed to keep minimize the CPU overhead of traversing quad trees.
-    /// The number of children is fixed and all children are assumed to set before traversal of the scene graph, failure to set up correctly
-    /// will lead to memory faults, this is deliberate choice as any checks for pointer validity will incur CPU overhead.
+    /// QuadGroup is a specialized group node that manages 4 children, designed to minimize the CPU overhead of traversing quad trees.
+    /// The number of children is fixed and all children are assumed to be set before traversal of the scene graph, failure to set up correctly
+    /// will lead to memory faults, this is a deliberate choice as any checks for pointer validity will incur CPU overhead.
     class VSG_DECLSPEC QuadGroup : public Inherit<Node, QuadGroup>
     {
     public:

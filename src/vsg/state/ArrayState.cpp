@@ -460,8 +460,6 @@ void BillboardArrayState::apply(const VertexInputState& vas)
     getAttributeDetails(vas, position_attribute_location, positionAttribute);
 }
 
-#include <vsg/io/Logger.h>
-
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
 {
     struct GetValue : public ConstVisitor

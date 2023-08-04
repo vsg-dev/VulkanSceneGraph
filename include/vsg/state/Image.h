@@ -20,11 +20,11 @@ namespace vsg
     // forward declare
     class Context;
 
-    /// Image class encapsulates VkImage and VkImageCreateInfo settings used to it up.
+    /// Image class encapsulates VkImage and VkImageCreateInfo settings used to set it up.
     class VSG_DECLSPEC Image : public Inherit<Object, Image>
     {
     public:
-        /// create a vsg::Image with optional CreateInfo, delay VkUmage creation to compile
+        /// create a vsg::Image, optional Data is used to initialize createInfo, delay VkImage creation to compile
         Image(ref_ptr<Data> in_data = {});
 
         /// create a vsg::Image wrapper for specified VkImage

@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// TransferTask manages a collection of dynamically updated vsg::Data associated with GPU memory associated vsg::BufferInfo and vsg::ImageInfo.
+    /// TransferTask manages a collection of dynamically updated vsg::Data associated with GPU memory of vsg::BufferInfo and vsg::ImageInfo.
     /// During the viewer.compile(..) traversal the collection of dynamic data that has dataVariance of DYNAMIC_DATA* is assigned to the appropriate TransferTask
     /// and then each new frame that collection of data is checked to see if the modification count has changed, if it has that data is copied to the associated BufferInfo/ImageInfo.
     /// vsg::Data that are orphaned so the TransferTask has the only remaining reference to them are automatically removed.
@@ -30,7 +30,7 @@ namespace vsg
     public:
         explicit TransferTask(Device* in_device, uint32_t numBuffers = 3);
 
-        /// transfer any vsg::Data entries, that have been updated, to have the associated GPU memory.
+        /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
         virtual VkResult transferDynamicData();
 
         virtual bool containsDataToTransfer() const;
@@ -45,7 +45,7 @@ namespace vsg
         /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is previous frame etc.
         size_t index(size_t relativeFrameIndex = 0) const;
 
-        /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
+        /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
         Fence* fence(size_t relativeFrameIndex = 0);
 
         void assign(const ResourceRequirements::DynamicData& dynamicData);

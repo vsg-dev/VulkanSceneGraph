@@ -23,7 +23,7 @@ namespace vsg
 {
 
     /// MemoryBufferPools manages a pool of vsg::DeviceMemory and vsg::Buffer that use them.
-    /// Methods are providing for getting Buffer from the pool, sharing memory to make better use of device memory.
+    /// Methods are provided for getting Buffer from the pool, sharing memory to make better use of device memory.
     class VSG_DECLSPEC MemoryBufferPools : public Inherit<Object, MemoryBufferPools>
     {
     public:

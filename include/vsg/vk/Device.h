@@ -32,7 +32,7 @@ namespace vsg
 
     using QueueSettings = std::vector<QueueSetting>;
 
-    /// Device encapsulate vkDeivce, a logical handle to the PhysicalDevice with capabilities specified during construction.
+    /// Device encapsulates VkDevice, a logical handle to the PhysicalDevice with capabilities specified during construction.
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:

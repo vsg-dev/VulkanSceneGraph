@@ -62,7 +62,7 @@ size_t TransferTask::index(size_t relativeFrameIndex) const
     return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size();
 }
 
-/// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) return the previous frame's Fence etc.
+/// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
 Fence* TransferTask::fence(size_t relativeFrameIndex)
 {
     size_t i = index(relativeFrameIndex);

@@ -164,7 +164,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
 
                     auto plod = vsg::PagedLOD::create();
                     plod->bound = bound;
-                    plod->children[0] = vsg::PagedLOD::Child{0.25, {}};       // external child visible when it's bound occupies more than 1/4 of the height of the window
+                    plod->children[0] = vsg::PagedLOD::Child{0.25, {}};       // external child visible when its bound occupies more than 1/4 of the height of the window
                     plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node}; // visible always
                     plod->filename = vsg::make_string(x, " ", y, " 0.tile");
                     plod->options = Options::create_if(options, *options);
@@ -192,7 +192,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
     group->accept(collectResourceRequirements);
     group->setObject("ResourceHints", collectResourceRequirements.createResourceHints(tileMultiplier));
 
-    // assign the EllipsoidModel so that the overall geometry of the database can be used as guide for clipping and navigation.
+    // assign the EllipsoidModel so that the overall geometry of the database can be used as a guide for clipping and navigation.
     group->setObject("EllipsoidModel", settings->ellipsoidModel);
 
     return group;
@@ -253,7 +253,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
                     {
                         auto plod = vsg::PagedLOD::create();
                         plod->bound = bound;
-                        plod->children[0] = vsg::PagedLOD::Child{settings->lodTransitionScreenHeightRatio, {}}; // external child visible when it's bound occupies more than 1/4 of the height of the window
+                        plod->children[0] = vsg::PagedLOD::Child{settings->lodTransitionScreenHeightRatio, {}}; // external child visible when its bound occupies more than 1/4 of the height of the window
                         plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node};                               // visible always
                         plod->filename = vsg::make_string(tileID.local_x, " ", tileID.local_y, " ", local_lod, ".tile");
                         plod->options = Options::create_if(options, *options);
@@ -507,7 +507,7 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
          {1.0f, 1.0f, 1.0f},
          {1.0f, 1.0f, 1.0f}}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-    uint8_t origin = textureData->properties.origin; // in Vulkan the origin is by default top left.
+    uint8_t origin = textureData->properties.origin; // in Vulkan the origin is top left by default.
     float left = 0.0f;
     float right = 1.0f;
     float top = (origin == vsg::TOP_LEFT) ? 0.0f : 1.0f;

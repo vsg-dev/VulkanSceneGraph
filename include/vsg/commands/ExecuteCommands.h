@@ -18,19 +18,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Encapsulation of vkCmdExecuteCommands with thread safe integration with secondary CommandGraph that provide the secondary CommandBuffer
+    /// Encapsulation of vkCmdExecuteCommands with thread safe integration with SecondaryCommandGraph that provides the secondary CommandBuffer
     class VSG_DECLSPEC ExecuteCommands : public Inherit<Command, ExecuteCommands>
     {
     public:
         ExecuteCommands();
 
-        /// connect a SecodaryCommmandGraph that will provide the CommandBuffer each frame
+        /// connect a SecondaryCommmandGraph that will provide the CommandBuffer each frame
         void connect(ref_ptr<SecondaryCommandGraph> commandGraph);
 
         /// clean the internal cache of CommandBuffer and reset the Latch used to signal when all the connected CommandGraph have completed the recording of their CommandBuffer
         void reset();
 
-        /// called by secondary CommandGraph to pass on the completed CommandBuffer that the CommandGraph recorded.
+        /// called by SecondaryCommandGraph to pass on the completed CommandBuffer that was recorded.
         void completed(const SecondaryCommandGraph& commandGraph, ref_ptr<CommandBuffer> commandBuffer);
 
         /// call vkCmdExecuteCommands with all the CommandBuffer that have been recorded with this ExecuteCommands

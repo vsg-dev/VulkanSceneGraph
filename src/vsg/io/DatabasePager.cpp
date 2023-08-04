@@ -56,14 +56,14 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
     std::chrono::duration waitDuration = std::chrono::milliseconds(100);
     std::unique_lock lock(_mutex);
 
-    // wait to the conditional variable signals that an operation has been added
+    // wait until the conditional variable signals that an operation has been added
     while (_queue.empty() && _status->active())
     {
         // debug("   Waiting on condition variable B size = ", _queue.size());
         _cv.wait_for(lock, waitDuration);
     }
 
-    // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+    // if the threads we are associated with should no longer be running go for a quick exit and return nothing.
     if (_queue.empty() || _status->cancel())
     {
         // debug("DatabaseQueue::take_when_available() C empty");
@@ -207,7 +207,7 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
     {
         if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
         {
-            // debug("DatabasePager::request(", plod.get(), ") adding to requeQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
+            // debug("DatabasePager::request(", plod.get(), ") adding to requestQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
             _requestQueue->add(plod);
         }
         else

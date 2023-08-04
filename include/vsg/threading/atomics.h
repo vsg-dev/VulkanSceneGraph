@@ -41,7 +41,7 @@ namespace vsg
         while (!reference.compare_exchange_weak(original_value, original_value * t)) {}
     };
 
-    /// Convenience template function that modifies an atomic if it's value matches the from value, and sets it to, otherwise trues fales without modifying the atomic.
+    /// Convenience template function that modifies an atomic if its value matches the from value, setting it to the to value, otherwise returns false without modifying the atomic.
     template<typename T>
     bool compare_exchange(std::atomic<T>& reference, T from, T to)
     {

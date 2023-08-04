@@ -108,7 +108,7 @@ Sampler::Implementation::Implementation(Device* device, const VkSamplerCreateInf
 {
     if (VkResult result = vkCreateSampler(*device, &createSamplerInfo, _device->getAllocationCallbacks(), &_sampler); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create vkSampler.", result};
+        throw Exception{"Error: Failed to create VkSampler.", result};
     }
 }
 

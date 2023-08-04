@@ -81,7 +81,7 @@ namespace vsg
 
             if (_ptr) _ptr->ref();
 
-            // unref the original pointer after ref in case the old pointer object a parent of the new pointers object
+            // unref the original pointer after ref in case the old pointer object is a parent of the new pointer's object
             if (temp_ptr) temp_ptr->unref();
 
             return *this;
@@ -97,7 +97,7 @@ namespace vsg
 
             if (_ptr) _ptr->ref();
 
-            // unref the original pointer after ref in case the old pointer object a parent of the new pointers object
+            // unref the original pointer after ref in case the old pointer object is a parent of the new pointer's object
             if (temp_ptr) temp_ptr->unref();
 
             return *this;
@@ -114,7 +114,7 @@ namespace vsg
 
             if (_ptr) _ptr->ref();
 
-            // unref the original pointer after ref in case the old pointer object a parent of the new pointers object
+            // unref the original pointer after ref in case the old pointer object is a parent of the new pointer's object
             if (temp_ptr) temp_ptr->unref();
 
             return *this;
@@ -157,7 +157,7 @@ namespace vsg
 
         explicit operator bool() const noexcept { return valid(); }
 
-        // potentially dangerous automatic type conversion, could cause dangling pointer if ref_ptr<> assigned to C pointer, if ref_ptr<> destruction cause an object delete.
+        // potentially dangerous automatic type conversion, could cause dangling pointer if ref_ptr<> assigned to C pointer and ref_ptr<> destruction causes an object delete.
         operator T*() const noexcept { return _ptr; }
 
         void operator[](int) const = delete;

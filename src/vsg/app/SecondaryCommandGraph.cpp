@@ -104,7 +104,7 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
 
-    // need to set up the command
+    // need to set up the command buffer
     // if we are nested within a CommandBuffer already then use VkCommandBufferInheritanceInfo
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

@@ -167,7 +167,7 @@ Path vsg::findFile(const Path& filename, const Options* options)
             // if appropriate use the filename directly if it exists.
             if (options->checkFilenameHint == Options::CHECK_ORIGINAL_FILENAME_EXISTS_FIRST && fileExists(filename)) return filename;
 
-            // search for the file if the in the specific paths.
+            // search for the file in the options specific paths.
             if (auto path = findFile(filename, options->paths)) return path;
 
             // if appropriate use the filename directly if it exists.
@@ -197,7 +197,7 @@ bool vsg::makeDirectory(const Path& path)
 
         if (directory_to_create.size() == 2 && directory_to_create[1] == ':')
         {
-            // ignore a C: style drive prefixes
+            // ignore C: style drive prefixes
             continue;
         }
 
@@ -209,7 +209,7 @@ bool vsg::makeDirectory(const Path& path)
         {
             if (errno != EEXIST)
             {
-                // quietly ignore a mkdir on a file that already exists as this can happen safely during a filling in a filecache.
+                // quietly ignore a mkdir on a file that already exists as this can happen safely during filling in a filecache.
                 debug("mkdir(", directory_to_create, ") failed. errno = ", errno);
             }
             return false;

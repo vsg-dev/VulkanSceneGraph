@@ -37,13 +37,13 @@ namespace vsg
     /// return names of layers that are supported from the desired list.
     extern VSG_DECLSPEC Names validateInstancelayerNames(const Names& names);
 
-    /// Instance encapsulate the vkInstance.
+    /// Instance encapsulates the VkInstance.
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
         Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion = VK_API_VERSION_1_0, AllocationCallbacks* allocator = nullptr);
 
-        /// Vulkan apiVersion used when creating the VkInstaance
+        /// Vulkan apiVersion used when creating the VkInstance
         const uint32_t apiVersion = VK_API_VERSION_1_0;
 
         operator VkInstance() const { return _instance; }

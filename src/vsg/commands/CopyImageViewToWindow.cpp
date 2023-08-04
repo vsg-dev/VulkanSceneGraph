@@ -35,7 +35,7 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
         imageView->image,
         VkImageSubresourceRange{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 
-    auto ibm_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
+    auto imb_transitionStorageImageToReadSrc = vsg::ImageMemoryBarrier::create(
         0, VK_ACCESS_TRANSFER_READ_BIT,
         VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
@@ -46,7 +46,7 @@ void CopyImageViewToWindow::record(CommandBuffer& commandBuffer) const
         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
         0,
         imb_transitionSwapChainToWriteDest,
-        ibm_transitionStorageImageToReadSrc);
+        imb_transitionStorageImageToReadSrc);
 
     pb_transitionStorageImageToReadSrc->record(commandBuffer);
 

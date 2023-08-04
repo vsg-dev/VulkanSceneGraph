@@ -129,7 +129,7 @@ namespace vsg
             {
                 size_t new_size = computeValueCountIncludingMipmaps(w, h, 1, properties.maxNumMipmaps);
 
-                if (_data) // if data already may be able to reuse it
+                if (_data) // if data exists already may be able to reuse it
                 {
                     if (original_size != new_size) // if existing data is a different size delete old, and create new
                     {
@@ -247,7 +247,7 @@ namespace vsg
             dirty();
         }
 
-        // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will no result in the data being deleted.
+        // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will not result in the data being deleted.
         // when the data is stored in a separate vsg::Data object then return nullptr and do not attempt to release data.
         void* dataRelease() override
         {

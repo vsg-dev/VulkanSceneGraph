@@ -116,7 +116,7 @@ namespace vsg
         /// Key that moves the view upward
         KeySymbol moveUpKey = KEY_Up;
 
-        /// Key that moves the view downard
+        /// Key that moves the view downward
         KeySymbol moveDownKey = KEY_Down;
 
         /// Button mask value used to enable panning of the view, defaults to left mouse button
@@ -131,7 +131,7 @@ namespace vsg
         /// Button mask value used used for touch events
         ButtonMask touchMappedToButtonMask = BUTTON_MASK_1;
 
-        /// Scale for control how rapidly the view zooms in/out. Positive value zooms in when mouse moved downwards
+        /// Scale for controlling how rapidly the view zooms in/out. Positive value zooms in when mouse moves downwards
         double zoomScale = 1.0;
 
         /// Toggle on/off whether the view should continue moving when the mouse buttons are released while the mouse is in motion.

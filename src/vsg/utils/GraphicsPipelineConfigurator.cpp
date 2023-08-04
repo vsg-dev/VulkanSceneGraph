@@ -423,7 +423,7 @@ void GraphicsPipelineConfigurator::init()
 
 void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
 {
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     if (sharedObjects) sharedObjects->share(bindGraphicsPipeline);
 
     stateGroup->add(bindGraphicsPipeline);

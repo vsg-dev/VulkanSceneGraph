@@ -54,7 +54,7 @@ namespace vsg
 
     VSG_type_name(vsg::RecordTraversal);
 
-    /// RecordTraversal traverses a scene graph doing view frustum culling and invoking state/commands to record them to Vulkan command buffer
+    /// RecordTraversal traverses a scene graph doing view frustum culling and invoking state/commands to record them to a Vulkan command buffer
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
@@ -75,13 +75,13 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 
-        /// get the current State object used to track state and projection/modelview matrices for current subgraph being traversed
+        /// get the current State object used to track state and projection/modelview matrices for the current subgraph being traversed
         State* getState() { return _state; }
 
-        /// get the current CommandBuffer for current subgraph being traversed
+        /// get the current CommandBuffer for the current subgraph being traversed
         CommandBuffer* getCommandBuffer();
 
-        /// get the current DeviceID for current subgraph being traversed
+        /// get the current DeviceID for the current subgraph being traversed
         uint32_t deviceID() const;
 
         void setFrameStamp(FrameStamp* fs);

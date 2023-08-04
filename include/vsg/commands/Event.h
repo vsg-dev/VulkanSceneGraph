@@ -61,7 +61,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SetEvent);
 
-    /// Command class encapsulating vkCmdReetEvent
+    /// Command class encapsulating vkCmdResetEvent
     class VSG_DECLSPEC ResetEvent : public Inherit<Command, ResetEvent>
     {
     public:
