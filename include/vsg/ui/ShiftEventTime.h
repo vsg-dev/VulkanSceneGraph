@@ -20,7 +20,7 @@ namespace vsg
 {
 
     /// ShiftEventTime is a visitor for modifying the UIEvent::time values by a specified delta.
-    /// Use by PlayEvents to replace recorded events with a different time point.
+    /// Used by PlayEvents to replace recorded events with a different time point.
     class VSG_DECLSPEC ShiftEventTime : public vsg::Inherit<vsg::Visitor, ShiftEventTime>
     {
     public:

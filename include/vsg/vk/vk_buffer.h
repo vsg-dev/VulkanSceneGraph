@@ -22,7 +22,7 @@ namespace vsg
 
 #if VSG_MAX_DEVICES <= 1
 
-    /// vk_buffer that manages a single logical device support.
+    /// vk_buffer that manages a single logical device supported.
     template<class T>
     struct vk_buffer
     {

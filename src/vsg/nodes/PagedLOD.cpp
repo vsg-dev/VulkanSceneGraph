@@ -45,7 +45,7 @@ int PagedLOD::compare(const Object& rhs_object) const
 
     if ((result = compare_value(bound, rhs.bound)) != 0) return result;
 
-    // compre the children vector
+    // compare the children vector
     auto rhs_itr = rhs.children.begin();
     for (auto lhs_itr = children.begin(); lhs_itr != children.end(); ++lhs_itr, ++rhs_itr)
     {

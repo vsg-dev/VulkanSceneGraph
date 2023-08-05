@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// ViewMatrix is a base class for specifying the Camera view matrix and it's inverse.
+    /// ViewMatrix is a base class for specifying the Camera view matrix and its inverse.
     class VSG_DECLSPEC ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:
@@ -31,7 +31,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewMatrix);
 
-    /// LookAt is a ViewMatrix that implements gluLookAt model for specify the view matrix.
+    /// LookAt is a ViewMatrix that implements the gluLookAt model for specifying the view matrix.
     class VSG_DECLSPEC LookAt : public Inherit<ViewMatrix, LookAt>
     {
     public:
@@ -93,7 +93,7 @@ namespace vsg
     };
     VSG_type_name(vsg::LookAt);
 
-    /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and pre-multiplies it's transform matrix to give a relative view matrix.
+    /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and pre-multiplies its transform matrix to give a relative view matrix.
     class RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
     {
     public:
@@ -116,7 +116,7 @@ namespace vsg
 
     /// TrackingViewMatrix is a ViewMatrix that tracks an object in the scene graph.
     /// The view matrix is computed by accumulating the transform matrix encountered
-    /// along a objectPath and then pre-multiplying this by specified matrix.
+    /// along an objectPath and then pre-multiplying this by the specified matrix.
     class VSG_DECLSPEC TrackingViewMatrix : public Inherit<ViewMatrix, TrackingViewMatrix>
     {
     public:

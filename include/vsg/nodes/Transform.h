@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Transform node is a pure virtual base class for positioning/scaling/rotation subgraphs.
+    /// Transform node is a pure virtual base class for positioning/scaling/rotating subgraphs.
     class VSG_DECLSPEC Transform : public Inherit<Group, Transform>
     {
     public:
@@ -33,7 +33,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        /// Return the transform matrix, multiplying local transform matrix against the matrix passed into the transform(,,) method.
+        /// Return the transform matrix, multiplying local transform matrix against the matrix passed into the transform(..) method.
         /// Typically one pre multiplies local transform against the matrix passed in, which during a RecordTraversal will be the previous modelview matrix inherited from above.
         virtual dmat4 transform(const dmat4& mv) const = 0;
 

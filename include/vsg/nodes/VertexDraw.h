@@ -20,7 +20,7 @@ namespace vsg
 {
 
     /** VertexDraw provides a lightweight way of binding vertex arrays and then issuing a vkCmdDrawIndexed command.
-      * Higher performance equivalent to use of individual vsg::BindVertexBuffers and vsg::DrawIndex commands.*/
+      * Higher performance equivalent to use of individual vsg::BindVertexBuffers and vsg::Draw commands.*/
     class VSG_DECLSPEC VertexDraw : public Inherit<Command, VertexDraw>
     {
     public:

@@ -204,7 +204,7 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
     }
     else
     {
-        throw Exception{"Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result};
+        throw Exception{"Error: vsg::RayTracingPipeline failed to create VkPipeline.", result};
     }
 }
 

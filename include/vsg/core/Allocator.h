@@ -47,16 +47,16 @@ namespace vsg
         /// Allocator singleton
         static std::unique_ptr<Allocator>& instance();
 
-        /// allocate from the pool of memory blocks, or allocate from a new memory bock
+        /// allocate from the pool of memory blocks, or allocate from a new memory block
         virtual void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
 
-        /// deallocate returning data to pool.
+        /// deallocate, returning data to pool.
         virtual bool deallocate(void* ptr, std::size_t size);
 
         /// delete any MemoryBlock that are empty
         virtual size_t deleteEmptyMemoryBlocks();
 
-        /// return the total available size amount allocated MemoryBlocks
+        /// return the total available size of allocated MemoryBlocks
         virtual size_t totalAvailableSize() const;
 
         /// return the total reserved size of allocated MemoryBlocks
@@ -65,7 +65,7 @@ namespace vsg
         /// return the total memory size of allocated MemoryBlocks
         virtual size_t totalMemorySize() const;
 
-        /// report stats about block of memory allocated.
+        /// report stats about blocks of memory allocated.
         virtual void report(std::ostream& out) const;
 
         AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;          // use MemoryBlocks by default

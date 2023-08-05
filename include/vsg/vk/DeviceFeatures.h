@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// DeviceFeatures is a container class for setting up Vulkan features structures to be passed in vsg::Device creation.
-    /// Automatically deletes associated created feature structures on destructions.
+    /// DeviceFeatures is a container class for setting up Vulkan feature structures to be passed in vsg::Device creation.
+    /// Automatically deletes associated created feature structures on destruction.
     class VSG_DECLSPEC DeviceFeatures : public Inherit<Object, DeviceFeatures>
     {
     public:

@@ -19,7 +19,7 @@ namespace vsg
     using Viewports = std::vector<VkViewport>;
     using Scissors = std::vector<VkRect2D>;
 
-    /// ViewportState encapsulates to VkPipelineViewportStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// ViewportState encapsulates VkPipelineViewportStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC ViewportState : public Inherit<GraphicsPipelineState, ViewportState>
     {
     public:

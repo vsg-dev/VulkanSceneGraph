@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// MultisampleState encapsulates to VkPipelineMultisampleStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// MultisampleState encapsulates VkPipelineMultisampleStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>
     {
     public:

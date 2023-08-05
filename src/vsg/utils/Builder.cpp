@@ -126,7 +126,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     else
         graphicsPipelineConfig->init();
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto stateGroup = vsg::StateGroup::create();
     graphicsPipelineConfig->copyTo(stateGroup, sharedObjects);
     return stateGroup;
@@ -195,7 +195,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
@@ -336,7 +336,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
@@ -565,7 +565,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
@@ -775,7 +775,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
@@ -1022,7 +1022,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
@@ -1205,7 +1205,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
@@ -1314,7 +1314,7 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;

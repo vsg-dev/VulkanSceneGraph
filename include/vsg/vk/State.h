@@ -71,7 +71,7 @@ namespace vsg
         }
     };
 
-    /// MatrixStack used internally by vsg::State to manage stack of project or modelview matrices
+    /// MatrixStack used internally by vsg::State to manage stack of projection or modelview matrices
     class MatrixStack
     {
     public:
@@ -223,7 +223,7 @@ namespace vsg
         }
     };
 
-    /// vsg::State used by vsg::RecordTraversal to manage state stacks, projection, modelview matrix and frustum stacks.
+    /// vsg::State is used by vsg::RecordTraversal to manage state stacks, projection and modelview matrices and frustum stacks.
     class State : public Inherit<Object, State>
     {
     public:

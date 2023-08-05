@@ -21,9 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// RenderGraph encapsulates the vkCmdRenderPass/vkCmdEndRenderPass functionality.
-    /// Members variables of the RenderGraph map to the settings of the VkRenderPassBeginInfo.
-    /// During the RecordTraversal children of RenderGraph are visited within vkCmdRenderPass/vkCmdEndRenderPass pair.
+    /// RenderGraph encapsulates the vkCmdBeginRenderPass/vkCmdEndRenderPass functionality.
+    /// Member variables of the RenderGraph map to the settings of the VkRenderPassBeginInfo.
+    /// During the RecordTraversal children of RenderGraph are visited within the vkCmdBeginRenderPass/vkCmdEndRenderPass pair.
     class VSG_DECLSPEC RenderGraph : public Inherit<Group, RenderGraph>
     {
     public:
@@ -44,31 +44,31 @@ namespace vsg
         /// RenderPass to use passed to the vkCmdBeginRenderPass, if renderPass is set it takes precedence, if not then either obtained from which of the framebuffer or window are active
         RenderPass* getRenderPass();
 
-        /// Get the Exten2D of the attached Framebuffer or Window.
+        /// Get the Extent2D of the attached Framebuffer or Window.
         VkExtent2D getExtent() const;
 
-        /// ReandingArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually maps the ViewportState's scissor
+        /// RenderArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually matches the ViewportState's scissor
         VkRect2D renderArea;
 
         /// RenderPass to use passed to the vkCmdBeginRenderPass in place of the framebuffer's or window's renderPass. renderPass must be compatible with the render pass used to create the window or framebuffer.
         ref_ptr<RenderPass> renderPass;
 
-        /// Buffer clearing settings for vkRrenderPassInfo.clearValueCount & vkRenderPassInfo.pClearValues passed to the vkCmdBeginRenderPass
+        /// Buffer clearing settings for VkRenderPassBeginInfo.clearValueCount & VkRenderPassBeginInfo.pClearValues passed to the vkCmdBeginRenderPass
         using ClearValues = std::vector<VkClearValue>;
         ClearValues clearValues; // initialize window colour and depth/stencil
 
-        /// initialize cleaValues with the cleaColor or cleaDpethStencil based on the attachments set up in the associated RenderPass.
+        /// initialize clearValues with the clearColor and/or clearDepthStencil based on the attachments set up in the associated RenderPass.
         /// call after a framebuffer or window has been assigned to the RenderGraph.
         void setClearValues(VkClearColorValue clearColor = {{0.2f, 0.2f, 0.4f, 1.0f}}, VkClearDepthStencilValue clearDepthStencil = {0.0f, 0});
 
-        /// Subpass contents stetting passed to vkCmdBeginRenderPass
+        /// Subpass contents setting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
         /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
-        /// By default is null so no resize handling is done.
+        /// By default resize handling is done.
         ref_ptr<WindowResizeHandler> windowResizeHandler;
 
-        /// invoke the WindowResizeHandler, called automatically when window dimension change is detected.
+        /// invoke the WindowResizeHandler, called automatically when a window dimension change is detected.
         void resized();
 
         /// window extent at previous frame, used to track window resizes

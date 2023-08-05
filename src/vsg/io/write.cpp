@@ -23,7 +23,7 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
     bool fileWritten = false;
     if (options)
     {
-        // don't write the file if it's already contained in the ObjectCache
+        // don't write the file if it's already contained in the SharedObjects
         if (options->sharedObjects && options->sharedObjects->contains(filename, options)) return true;
 
         if (!options->readerWriters.empty())

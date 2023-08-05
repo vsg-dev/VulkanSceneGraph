@@ -283,27 +283,27 @@ namespace vsg
         Logger::instance()->warn_stream(print);
     }
 
-    /// write warn message to the current vsg::Logger::instance().
+    /// write error message to the current vsg::Logger::instance().
     template<typename... Args>
     void error(Args&&... args)
     {
         Logger::instance()->error(args...);
     }
 
-    /// thread safe access to stream for writing warn output.
+    /// thread safe access to stream for writing error output.
     inline void error_stream(Logger::PrintToStreamFunction print)
     {
         Logger::instance()->error_stream(print);
     }
 
-    /// write warn message to the current vsg::Logger::instance().
+    /// write fatal message to the current vsg::Logger::instance().
     template<typename... Args>
     void fatal(Args&&... args)
     {
         Logger::instance()->fatal(args...);
     }
 
-    /// thread safe access to stream for writing warn output.
+    /// thread safe access to stream for writing fatal output.
     inline void fatal_stream(Logger::PrintToStreamFunction print)
     {
         Logger::instance()->fatal_stream(print);
@@ -316,13 +316,13 @@ namespace vsg
         Logger::instance()->log(msg_level, args...);
     }
 
-    /// thread safe access to stream for writing warn output for specified Logger level.
+    /// thread safe access to stream for writing output for specified Logger level.
     inline void log_stream(Logger::Level msg_level, Logger::PrintToStreamFunction print)
     {
         Logger::instance()->log_stream(msg_level, print);
     }
 
-    /// default Logger that sends debug and info messages to std:cout, and warn and error messages to std::cert
+    /// default Logger that sends debug and info messages to std:cout, and warn and error messages to std::cerr
     class VSG_DECLSPEC StdLogger : public Inherit<Logger, StdLogger>
     {
     public:
