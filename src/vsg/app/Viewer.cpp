@@ -396,6 +396,17 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     bool needToStartThreading = _threading;
     if (_threading) stopThreading();
 
+    // if a DatabasePager is already assigned re-assign
+    ref_ptr<DatabasePager> databasePager;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        if (task->databasePager)
+        {
+            databasePager = task->databasePager;
+            break;
+        }
+    }
+
     presentations.clear();
     recordAndSubmitTasks.clear();
 
@@ -494,6 +505,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->windows = windows;
             recordAndSubmitTask->queue = mainQueue;
@@ -514,6 +526,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
