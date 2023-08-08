@@ -49,7 +49,7 @@ namespace vsg
 
         GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0);
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
+        VkPipeline vk(uint32_t viewID) const { return _implementation[viewID]->_pipeline; }
 
         /// VkGraphicsPipelineCreateInfo settings
         ShaderStages stages;
