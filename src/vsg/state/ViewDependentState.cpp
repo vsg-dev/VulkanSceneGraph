@@ -146,7 +146,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
     // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
     // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
     shadowMapData = floatArray3D::create(2048, 2048, 8, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
-    shadowMaps = DescriptorImage::create(shadwoMapSampler, shadowMapData);
+    shadowMaps = DescriptorImage::create(shadwoMapSampler, shadowMapData, 2);
 
 
     DescriptorSetLayoutBindings descriptorBindings{
