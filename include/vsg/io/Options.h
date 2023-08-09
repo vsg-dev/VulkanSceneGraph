@@ -61,8 +61,8 @@ namespace vsg
         /// Hint to use when searching for Paths with vsg::findFile(filename, options);
         enum FindFileHint
         {
-            CHECK_ORIGINAL_FILENAME_EXISTS_FIRST, /// check the filename exists with it's original path before trying to find it in Options::paths.
-            CHECK_ORIGINAL_FILENAME_EXISTS_LAST,  /// check the filename exists with it's original path after failing to find it in Options::paths.
+            CHECK_ORIGINAL_FILENAME_EXISTS_FIRST, /// check the filename exists with its original path before trying to find it in Options::paths.
+            CHECK_ORIGINAL_FILENAME_EXISTS_LAST,  /// check the filename exists with its original path after failing to find it in Options::paths.
             ONLY_CHECK_PATHS                      /// only check the filename exists in the Options::paths
         };
         FindFileHint checkFilenameHint = CHECK_ORIGINAL_FILENAME_EXISTS_FIRST;
@@ -83,7 +83,7 @@ namespace vsg
         /// Coordinate convention to assume for specified lower case file formats extensions
         std::map<Path, CoordinateConvention> formatCoordinateConventions;
 
-        /// User defined ShaderSet map, loaders should check the available ShaderSet used the name of the type ShaderSet.
+        /// User defined ShaderSet map, loaders should check the available ShaderSet using the name of the type of ShaderSet.
         /// Standard names are :
         ///     "pbr" will substitute for vsg::createPhysicsBasedRenderingShaderSet()
         ///     "phong" will substitute for vsg::createPhongShaderSet()

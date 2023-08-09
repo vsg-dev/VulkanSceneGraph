@@ -26,7 +26,7 @@ namespace vsg
         vec4 outlineColors[4];
         float outlineWidths[4];
         vec3 normal;
-        vec4 centerAndAutoScaleDistance; // only used by when billboarding
+        vec4 centerAndAutoScaleDistance; // only used when billboarding
     };
 
     using TextQuads = std::vector<TextQuad>;

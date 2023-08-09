@@ -40,8 +40,8 @@ namespace vsg
         /// return true if key is currently pressed
         bool pressed(KeySymbol key, bool ignore_handled_keys = true) const;
 
-        /// return a pair of times, the first is the time, in seconds, since the key was first pressed and the second is the time, in secnds, since it was released.
-        /// if the key hasn't been pressed then then first value will be < 0.0, if the key is still pressed then the second value will be 0.0.
+        /// return a pair of times, the first is the time, in seconds, since the key was first pressed and the second is the time, in seconds, since it was released.
+        /// if the key hasn't been pressed then then the first value will be < 0.0, if the key is still pressed then the second value will be 0.0.
         std::pair<double, double> times(KeySymbol key, bool ignore_handled_keys = true) const;
     };
     VSG_type_name(vsg::Keyboard);

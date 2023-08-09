@@ -38,7 +38,7 @@ bool PlayEvents::dispatchFrameEvents(vsg::UIEvents& viewer_events)
     });
 
     // clear the list of frameEvents that we will want to pass to the viewer
-    // to be filled in be the PlayUIEvents::apply(..) methods.
+    // to be filled in by the PlayUIEvents::apply(..) methods.
     frameEnd = false;
     frameEvents.clear();
 

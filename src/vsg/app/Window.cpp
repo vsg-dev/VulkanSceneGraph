@@ -262,7 +262,7 @@ void Window::buildSwapchain()
 {
     if (_swapchain)
     {
-        // make sure all operations on the device have stopped before we go deleting associated resources
+        // make sure all operations on the device have stopped before we go on deleting associated resources
         vkDeviceWaitIdle(*_device);
 
         // clean up previous swap chain before we begin creating a new one.
@@ -276,7 +276,7 @@ void Window::buildSwapchain()
         _multisampleImageView.reset();
     }
 
-    // is width and height even required here as the surface appear to control it.
+    // is width and height even required here as the surface appears to control it?
     _swapchain = Swapchain::create(_physicalDevice, _device, _surface, _extent2D.width, _extent2D.height, _traits->swapchainPreferences, _swapchain);
 
     // pass back the extents used by the swap chain.
@@ -430,7 +430,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
     if (!_availableSemaphore) _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
 
-    // check the dimensions of the swapchain and window extents are consistent, if nit return a VK_ERROR_OUT_OF_DATE_KHR;
+    // check the dimensions of the swapchain and window extents are consistent, if not return a VK_ERROR_OUT_OF_DATE_KHR
     if (_swapchain->getExtent() != _extent2D) return VK_ERROR_OUT_OF_DATE_KHR;
 
     uint32_t imageIndex;
@@ -438,7 +438,7 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 
     if (result == VK_SUCCESS)
     {
-        // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set it's entry to the one to use of the next frame by swapping ref_ptr<>'s
+        // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set its entry to the one to use for the next frame by swapping ref_ptr<>'s
         _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices

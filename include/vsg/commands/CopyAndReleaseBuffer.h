@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Deprecated - use vsg::Data dataVariance and Data.dirty() to signal vsg::TransferData to transfer data.
+    /// Deprecated - use vsg::Data dataVariance and Data::dirty() to signal vsg::TransferTask to transfer data.
     class VSG_DECLSPEC CopyAndReleaseBuffer : public Inherit<Command, CopyAndReleaseBuffer>
     {
     public:
@@ -28,7 +28,7 @@ namespace vsg
 
         void add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
 
-        /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, BufferInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
+        /// MemoryBufferPools used for allocation of staging buffer used by the copy(ref_ptr<Data>, BufferInfo) method.  Users should assign MemoryBufferPools with appropriate settings.
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
 
         void copy(ref_ptr<Data> data, ref_ptr<BufferInfo> dest);

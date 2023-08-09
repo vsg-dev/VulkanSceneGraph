@@ -256,14 +256,14 @@ bool LineSegmentIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertex
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
-        TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
-        if (!triIntsector.vertices) return false;
+        TriangleIntersector<double> triIntersector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
+        if (!triIntersector.vertices) return false;
 
         uint32_t endVertex = int((firstVertex + vertexCount) / 3.0f) * 3;
 
         for (uint32_t i = firstVertex; i < endVertex; i += 3)
         {
-            triIntsector.intersect(i, i + 1, i + 2);
+            triIntersector.intersect(i, i + 1, i + 2);
         }
     }
 
@@ -281,10 +281,10 @@ bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t 
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
-        TriangleIntersector<double> triIntsector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
-        if (!triIntsector.vertices) continue;
+        TriangleIntersector<double> triIntersector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
+        if (!triIntersector.vertices) continue;
 
-        triIntsector.instanceIndex = instanceIndex;
+        triIntersector.instanceIndex = instanceIndex;
 
         uint32_t endIndex = int((firstIndex + indexCount) / 3.0f) * 3;
 
@@ -292,14 +292,14 @@ bool LineSegmentIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t 
         {
             for (uint32_t i = firstIndex; i < endIndex; i += 3)
             {
-                triIntsector.intersect(ushort_indices->at(i), ushort_indices->at(i + 1), ushort_indices->at(i + 2));
+                triIntersector.intersect(ushort_indices->at(i), ushort_indices->at(i + 1), ushort_indices->at(i + 2));
             }
         }
         else if (uint_indices)
         {
             for (uint32_t i = firstIndex; i < endIndex; i += 3)
             {
-                triIntsector.intersect(uint_indices->at(i), uint_indices->at(i + 1), uint_indices->at(i + 2));
+                triIntersector.intersect(uint_indices->at(i), uint_indices->at(i + 1), uint_indices->at(i + 2));
             }
         }
     }

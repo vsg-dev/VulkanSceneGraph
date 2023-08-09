@@ -50,7 +50,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PointerEvent);
 
-    /// ButtonPressEvent represent a button press event.
+    /// ButtonPressEvent represents a button press event.
     class VSG_DECLSPEC ButtonPressEvent : public Inherit<PointerEvent, ButtonPressEvent>
     {
     public:
@@ -67,7 +67,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ButtonPressEvent);
 
-    /// ButtonReleaseEvent represent a button release event.
+    /// ButtonReleaseEvent represents a button release event.
     class VSG_DECLSPEC ButtonReleaseEvent : public Inherit<PointerEvent, ButtonReleaseEvent>
     {
     public:
@@ -84,7 +84,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ButtonReleaseEvent);
 
-    /// MoveEvent represent a button move event.
+    /// MoveEvent represents a pointer move event.
     class MoveEvent : public Inherit<PointerEvent, MoveEvent>
     {
     public:

@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Bin node is used internally by RecoredTraversal/View to collect and then sort command nodes assigned the bin,
+    /// Bin node is used internally by RecordTraversal/View to collect and then sort command nodes assigned to the bin,
     /// then recorded to the command buffer in the sorted order.
     class VSG_DECLSPEC Bin : public Inherit<Node, Bin>
     {

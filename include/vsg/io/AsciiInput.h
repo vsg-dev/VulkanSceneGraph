@@ -98,7 +98,7 @@ namespace vsg
         /// read one or more strings
         void read(size_t num, std::wstring* value) override;
 
-        /// read one or more strings
+        /// read one or more paths
         void read(size_t num, Path* value) override;
 
         /// read object

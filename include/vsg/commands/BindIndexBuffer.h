@@ -23,7 +23,7 @@ namespace vsg
     /** Compute the VkIndexType from Data source's value size.*/
     extern VSG_DECLSPEC VkIndexType computeIndexType(const Data* indices);
 
-    /// BindIndexBuffer command encapsulates vkBindIndexBuffer call and associated settings.
+    /// BindIndexBuffer command encapsulates vkCmdBindIndexBuffer call and associated settings.
     class VSG_DECLSPEC BindIndexBuffer : public Inherit<Command, BindIndexBuffer>
     {
     public:

@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Mask for hint what checks/reporting to do when using MemorySlots within Allocator/Buffer/DeviceMemory.
+    /// Hint for what checks/reporting to do when using MemorySlots within Allocator/Buffer/DeviceMemory.
     enum MemoryTracking
     {
         MEMORY_TRACKING_NO_CHECKS = 0,
@@ -31,7 +31,7 @@ namespace vsg
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
     };
 
-    /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage allocation of within a block of CPU or GPU memory.*/
+    /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage suballocation within a block of CPU or GPU memory.*/
     class VSG_DECLSPEC MemorySlots
     {
     public:

@@ -426,7 +426,7 @@ macro(vsg_check_min_vulkan_header_version _min_version)
           file(STRINGS  ${VULKAN_CORE_H} VulkanHeaderVersionLine2 REGEX "^#define VK_HEADER_VERSION_COMPLETE ")
           string(REGEX MATCHALL "[0-9]+" VulkanHeaderVersion2 "${VulkanHeaderVersionLine2}")
           list(LENGTH VulkanHeaderVersion2 _len)
-          #  versions >= 1.2.175 adds an additional numbers in front of e.g. '0, 1, 2' instead of '1, 2'
+          #  versions >= 1.2.175 add an additional number in front e.g. '0, 1, 2' instead of '1, 2'
           if(_len EQUAL 3)
               list(REMOVE_AT VulkanHeaderVersion2 0)
           endif()

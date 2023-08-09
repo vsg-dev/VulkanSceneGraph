@@ -213,7 +213,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 auto previousRequestCount = plod.requestCount.fetch_add(1);
                 if (previousRequestCount == 0)
                 {
-                    // we are first request so tell the databasePager about it
+                    // we are the first request so tell the databasePager about it
                     _databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
                 }
                 else

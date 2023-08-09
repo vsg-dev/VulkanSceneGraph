@@ -24,7 +24,7 @@ namespace vsg
     class Objects;
     class External;
 
-    // forward declare nodes classes
+    // forward declare node classes
     class Node;
     class Commands;
     class Group;
@@ -48,7 +48,7 @@ namespace vsg
     class PointLight;
     class SpotLight;
 
-    // forward declare vulkan classes
+    // forward declare text classes
     class Text;
     class TextGroup;
     class TextTechnique;

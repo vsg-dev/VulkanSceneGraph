@@ -21,7 +21,7 @@ namespace vsg
 {
 
     /// ViewDescriptorSetLayout is a proxy class that uses the ViewDependentState's descriptorSetLayout as the DescriptorSetLayout to use.
-    /// Used in pipelines that wish to utilize in the light and other view dependent data provided by the View::ViewDependentState.
+    /// Used in pipelines that wish to utilize lights and other view dependent data provided by the View::viewDependentState.
     /// Use in combination with the BindViewDescriptorSet.
     class VSG_DECLSPEC ViewDescriptorSetLayout : public Inherit<DescriptorSetLayout, ViewDescriptorSetLayout>
     {
@@ -42,8 +42,8 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewDescriptorSetLayout);
 
-    /// BindViewDescriptorSets is proxy class that binds the View::ViewDependentState's descriptorSet
-    /// Used for pass light and other view dependent state to the GPU.
+    /// BindViewDescriptorSets is a proxy class that binds the View::viewDependentState's descriptorSet
+    /// Used for passing lights and other view dependent state to the GPU.
     /// Use in conjunction with a pipeline configured with vsg::ViewDescriptorSetLayout.
     class VSG_DECLSPEC BindViewDescriptorSets : public Inherit<StateCommand, BindViewDescriptorSets>
     {
@@ -88,12 +88,12 @@ namespace vsg
     VSG_type_name(vsg::BindViewDescriptorSets);
 
     /// ViewDependentState to manage lighting, clip planes and texture projection
-    /// By default assigned to the vsg::View, for standard usage you can don't need to create or modify the ViewDependentState
-    /// If you wish to override the standard lighting support provided by ViewDependentState you and subclass
+    /// By default assigned to the vsg::View, for standard usage you don't need to create or modify the ViewDependentState
+    /// If you wish to override the standard lighting support provided by ViewDependentState you can subclass it.
     ///
     /// To leverage the state that the ViewDependentState provides you need to set up the graphics pipelines with the vsg::ViewDescriptorSetLayout,
     /// and add a vsg::BindViewDescriptorSet to a StateGroup.  You don't need to explicitly add these if you have created your scene graph using
-    /// vsg::Builder created or used loaders like vsgXchange::Assimp.
+    /// vsg::Builder or used loaders like vsgXchange::Assimp.
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:

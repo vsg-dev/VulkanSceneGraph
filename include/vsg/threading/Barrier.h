@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Barrier provides a means for synchronization multiple threads that all release together once specified number of threads joined the Barrier.
+    /// Barrier provides a means for synchronizing multiple threads that all release together once specified number of threads joined the Barrier.
     class Barrier : public Inherit<Object, Barrier>
     {
     public:
@@ -31,7 +31,7 @@ namespace vsg
         Barrier(const Barrier&) = delete;
         Barrier& operator=(const Barrier&) = delete;
 
-        /// increment the arrived count and release the barrier if count matches number of threads to arrive otherwise waiting for the arrived count to match the number if threads to arrive
+        /// increment the arrived count and release the barrier if count matches number of threads to arrive otherwise wait for the arrived count to match the number of threads to arrive
         void arrive_and_wait()
         {
             std::unique_lock lock(_mutex);

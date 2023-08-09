@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-// thread safe container for managing the deviceID for each vsg;:View
+// thread safe container for managing the deviceID for each vsg::View
 static std::mutex s_ViewCountMutex;
 static std::vector<bool> s_ActiveViews;
 

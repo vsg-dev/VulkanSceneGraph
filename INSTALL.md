@@ -19,7 +19,7 @@
 ## Prerequisites
 
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
-* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositories or using VulkanSDK.
+* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositories or VulkanSDK.
 * [CMake](https://www.cmake.org) 3.7 or later.
 
 ---
@@ -148,7 +148,7 @@ Most of these are standard options which you can look up in CMake and make docum
 
 ## Using the VSG within your own projects
 
-The project is currently a prototype that is undergoing continuous development so it isn't recommend to use as base for long term software development. At this point it's available for developers who want to test the bleeding edge and provide feedback on it's fitness for purpose. Following instructions assume your project uses CMake, which at this early stage in the project is the recommended route when using the VSG.
+The project is currently a prototype that is undergoing continuous development so it isn't recommended to use as a base for long term software development. At this point it's available for developers who want to test the bleeding edge and provide feedback on its fitness for purpose. The following instructions assume your project uses CMake, which at this early stage in the project is the recommended route when using the VSG.
 
 To assist with setting up software to work with the VSG when you install the library a CMake package configuration file will be installed in the lib/cmake/vsg directory. Within your CMake CMakeLists.txt script to find the VSG related dependencies you'll need to add:
 
@@ -174,9 +174,9 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 
 ### Using VSG provided cmake macros within your own projects
 
-The build system provides macros that create specific cmake targets to use in their project. Examples include: Setup of common cmake variables, Formatting source code, performing static code analysis, creating API documentation, cleaning up source directories, and removing installed files. Documentation of the available macros (the public ones starting with ```vsg_```) are at https://github.com/vsg-dev/VulkanSceneGraph/blob/master/cmake/vsgMacros.cmake.
+The build system provides macros that create specific cmake targets to use in your project. Examples include: Setup of common cmake variables, formatting source code, performing static code analysis, creating API documentation, cleaning up source directories, and removing installed files. Documentation of the available macros (the public ones starting with ```vsg_```) are at https://github.com/vsg-dev/VulkanSceneGraph/blob/master/cmake/vsgMacros.cmake.
 
-For example, a bare minimum CMakeLists.txt file adding the mentioned cmake target would be:
+For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targets would be:
 
 	cmake_minimum_required(VERSION 3.7)
 	find_package(vsg REQUIRED)
@@ -227,7 +227,7 @@ Hints for the structure of the template file can be found at https://cmake.org/c
 
 ## Detailed instructions for setting up your environment and building for Microsoft Windows
 
-While not the only route to installing Vulkan libs an headers on Windows the most common approach is to use the Vulkan SDK. LunarG provides a convenient installer for the Vulkan SDK and runtime on Windows.
+While not the only route to installing Vulkan libs and headers on Windows the most common approach is to use the Vulkan SDK. LunarG provides a convenient installer for the Vulkan SDK and runtime on Windows.
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#windows)
 
@@ -247,7 +247,7 @@ So now we have the Vulkan SDK installed and findable by CMake so we can go ahead
 
 After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
 
-It's recommended at this point that you add the VSG install path to you CMAKE_PREFIX_PATH, this will allow other CMake projects, like the vsgExamples project to find your VSG installation. CMAKE_PREFIX_PATH can be set as an environment variable on you system.
+It's recommended at this point that you add the VSG install path to your CMAKE_PREFIX_PATH, this will allow other CMake projects, like the vsgExamples project to find your VSG installation. CMAKE_PREFIX_PATH can be set as an environment variable on your system.
 
     CMAKE_PREFIX_PATH = C:\Program Files\VSG
 
@@ -255,7 +255,7 @@ It's recommended at this point that you add the VSG install path to you CMAKE_PR
 
 ## Detailed instructions for setting up your environment and building for Android
 
-This guide is to build VSG for Android, these steps have been completed on macOS but should be almost identical on Linux and similar on Windows. Inorder to build VSG for Android you'll need the following installed on your machine.
+This guide describes building the VSG for Android. These steps have been completed on macOS but should be almost identical on Linux and similar on Windows. In order to build VSG for Android you'll need the following installed on your machine.
 
 	Android NDK 18
 	CMake 3.13
@@ -264,9 +264,9 @@ The easiest way to get the Android NDK installed is via Android Studio. Follow t
 
 [Android Studio](https://developer.android.com/studio/)
 
-If you got to the 'SDK Manager' ensure you have at least Android API level 24 installed, then go to the 'SDK Tools' tab and check the 'NDK' option. Once done click apply and Android Studio should download and install these components for you.
+Go to the 'SDK Manager' and ensure you have at least Android API level 24 installed, then go to the 'SDK Tools' tab and check the 'NDK' option. Once done click apply and Android Studio should download and install these components for you.
 
-If you already have Android Studio and or the NDK installed. Still go to the 'SDK Manager' and see if you need to update your NDK to version 18.
+If you already have Android Studio and or the NDK installed, still go to the 'SDK Manager' and see if you need to update your NDK to version 18.
 
 Take note of the 'Android SDK Location' as you'll need it when running CMake to generate our Android make files.
 
@@ -299,9 +299,9 @@ macOS does not natively support Vulkan. However the excellent MoltenVK library h
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#mac)
 
-Download the sdk and unpack it. There's no form of installer but you're able to place the root sdk folder anywhere on your machine. The sdk contains detailed instuctions on how to setup MoltenVK to work on your machine as well has how to redistribute your application contained in the /Documentation/getting_started_macos.md file.
+Download the sdk and unpack it. There's no form of installer but you're able to place the root sdk folder anywhere on your machine. The sdk contains detailed instuctions on how to setup MoltenVK to work on your machine as well as how to redistribute your application contained in the /Documentation/getting_started_macos.md file.
 
-As with other platforms we need the VULKAN_SDK variable which should point to your downloaded sdk folder. Specifically the macOS subfolder of the sdk. This is needed so CMake can find the sdk. Unique to macOS we also need to set environment variables pointing a few files within the sdk. Again the getting started document in the sdk has detailed information relating to these. A quick cheat sheet is provided here, if you use a .bash_profile file in your user folder you can add the following.
+As with other platforms we need the VULKAN_SDK variable which should point to your downloaded sdk folder. Specifically the macOS subfolder of the sdk. This is needed so CMake can find the sdk. Unique to macOS we also need to set environment variables pointing to a few files within the sdk. Again the getting started document in the sdk has detailed information relating to these. A quick cheat sheet is provided here, if you use a .bash_profile file in your user folder you can add the following.
 
 	export VULKAN_SDK="/path/to/your/vulkansdk/macOS"
 	export VK_LAYER_PATH="$VULKAN_SDK/etc/vulkan/explicit_layer.d"
@@ -309,9 +309,9 @@ As with other platforms we need the VULKAN_SDK variable which should point to yo
 	export PATH="$VULKAN_SDK:$VULKAN_SDK/bin:$PATH"
 	export DYLD_LIBRARY_PATH="$VULKAN_SDK/lib:$DYLD_LIBRARY_PATH"
 
-At this point MoltenVK application should be able to run on your machine, as a quick test it's worth running vulkaninfo executable contained within vulkansdk/macOS/bin. If this runs and doesn't produce any errors it's a good indication the sdk is setup correctly.
+At this point MoltenVK applications should be able to run on your machine, as a quick test it's worth running vulkaninfo executable contained within vulkansdk/macOS/bin. If this runs and doesn't produce any errors it's a good indication the sdk is setup correctly.
 
-So now we're ready to build VSG. With the SDK installed this is very similar to other platforms. You can simple run the following commands to clone the source and use CMake to generate and Xcode project.
+So now we're ready to build VSG. With the SDK installed this is very similar to other platforms. You can simply run the following commands to clone the source and use CMake to generate an Xcode project.
 
 	git clone https://github.com/vsg-dev/VulkanSceneGraph.git
 	cd VulkanSceneGraph
@@ -319,12 +319,12 @@ So now we're ready to build VSG. With the SDK installed this is very similar to 
 	
 Once CMake has finished you can open the generated Xcode project and build the 'install' target. This will build VSG and install the headers and generated library onto your machine.
 
-Again, as with other platforms it's useful to now set your CMAKE_PREFIX_PATH to point to the VSG library we have just installed. If you've installed to the default location you can add the following to you .bash_profile file.
+Again, as with other platforms it's useful to now set your CMAKE_PREFIX_PATH to point to the VSG library we have just installed. If you've installed to the default location you can add the following to your .bash_profile file.
 
 	export CMAKE_PREFIX_PATH="/usr/local/lib/cmake/vsg"
-	
-That's it, we've installed the MoltenVK sdk, built VSG and prepared are machine so other CMake projects can find and use the VSG library.
+
+That's it, we've installed the MoltenVK sdk, built VSG and prepared our machine so other CMake projects can find and use the VSG library.
 
 **Important Note!**
 
-Xcode typically ignores the system environment variables, so when running a VSG application from within Xcode you may run into issues. One solution is to add the environment variables to to the run scheme. This can be done by going to 'Product>Scheme>Edit Scheme>Arguments. Then added the above mentioned environment variables.
+Xcode typically ignores the system environment variables, so when running a VSG application from within Xcode you may run into issues. One solution is to add the environment variables to the run scheme. This can be done by going to 'Product>Scheme>Edit Scheme>Arguments. Then add the above mentioned environment variables.

@@ -103,7 +103,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
         return std::malloc(size);
     }
 
-    // create an MemoryBlocks entry if one doesn't already exist
+    // create a MemoryBlocks entry if one doesn't already exist
     if (allocatorAffinity > allocatorMemoryBlocks.size())
     {
         if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)

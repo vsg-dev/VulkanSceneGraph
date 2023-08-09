@@ -633,7 +633,7 @@ void ConstVisitor::apply(const TextLayout& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Vulkan Object
+// Vulkan Objects
 //
 void ConstVisitor::apply(const BufferInfo& value)
 {

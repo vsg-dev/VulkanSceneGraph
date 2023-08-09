@@ -53,7 +53,7 @@ void PrintEvents::apply(UIEvent& event)
 
 void PrintEvents::apply(FrameEvent& event)
 {
-    print(event) << " : franeCount = " << event.frameStamp->frameCount << std::endl;
+    print(event) << " : frameCount = " << event.frameStamp->frameCount << std::endl;
 }
 
 void PrintEvents::apply(ExposeWindowEvent& event)

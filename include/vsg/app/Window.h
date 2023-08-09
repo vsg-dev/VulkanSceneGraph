@@ -25,8 +25,8 @@ namespace vsg
 {
 
     /// Window base class provides a cross platform window
-    /// The Android_Window, iOS_Window, MacOS_Window, Xcb_Window and Win32_Window classes from Window provide
-    /// the platform specific implementations of Window that are create by Window::create(traits).
+    /// The Android_Window, iOS_Window, MacOS_Window, Xcb_Window and Win32_Window classes derived from Window provide
+    /// the platform specific implementations of Window that are created by Window::create(traits).
     class VSG_DECLSPEC Window : public Inherit<Object, Window>
     {
     public:
@@ -43,7 +43,7 @@ namespace vsg
         virtual bool visible() const { return valid(); }
 
         /// Release the window as it's owned by a 3rd party windowing object.
-        /// Resets the window handle and invalidating the window, preventing Window deletion or closing from deleting the window resource.
+        /// Resets the window handle and invalidates the window, preventing Window deletion or closing from deleting the window resource.
         virtual void releaseWindow() {}
 
         /// Release the connection as it's owned by a 3rd party windowing object.
@@ -53,7 +53,7 @@ namespace vsg
         /// events buffered since the last pollEvents.
         UIEvents bufferedEvents;
 
-        /// get the list of events since the last poolEvents() call by splicing bufferEvents with polled windowing events.
+        /// get the list of events since the last pollEvents() call by splicing bufferEvents with polled windowing events.
         virtual bool pollEvents(UIEvents& events);
 
         virtual void resize() {}
@@ -112,7 +112,7 @@ namespace vsg
         /// call vkAquireNextImageKHR to find the next imageIndex of the swapchain images/framebuffers
         VkResult acquireNextImage(uint64_t timeout = std::numeric_limits<uint64_t>::max());
 
-        /// get the image index for specified relative frame index, a 0 value is the current frame being rendered, 1 is the previous frame, 2 is the previous frame that.
+        /// get the image index for specified relative frame index, a 0 value is the current frame being rendered, 1 is the previous frame, 2 is the frame before that.
         size_t imageIndex(size_t relativeFrameIndex = 0) const { return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size(); }
 
         bool debugLayersEnabled() const { return _traits->debugLayer; }

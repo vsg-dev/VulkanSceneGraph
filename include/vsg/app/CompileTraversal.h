@@ -28,7 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// CompileTraversal traverses a scene graph invoke all the StateCommand/Command::compile(..) methods to create all Vulkan objects, allocated GPU memory and transfer data to GPU.
+    /// CompileTraversal traverses a scene graph and invokes all the StateCommand/Command::compile(..) methods to create all Vulkan objects, allocate GPU memory and transfer data to GPU.
     class VSG_DECLSPEC CompileTraversal : public Inherit<Visitor, CompileTraversal>
     {
     public:
@@ -38,7 +38,7 @@ namespace vsg
         explicit CompileTraversal(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(const Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
-        /// specification of the queue to uses
+        /// specification of the queue to use
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
         uint32_t queueFamilyIndex = 1;
 
@@ -63,7 +63,7 @@ namespace vsg
         virtual bool record();
         virtual void waitForCompletion();
 
-        /// convenience method that compiles a object/subgraph
+        /// convenience method that compiles an object/subgraph
         template<typename T>
         void compile(T object, bool wait = true)
         {

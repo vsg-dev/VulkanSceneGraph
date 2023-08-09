@@ -20,7 +20,7 @@ namespace vsg
     class Context;
 
     /// Descriptor base class for descriptor DescriptorBuffer/DescriptorImage/DescriptorTexelBufferView classes.
-    /// Descriptors are assigned BindDescriptorState state commands.
+    /// Descriptors are assigned to BindDescriptorSet state commands.
     /// Provides VkWriteDescriptorSet settings that are required for all types of descriptors.
     class VSG_DECLSPEC Descriptor : public Inherit<Object, Descriptor>
     {

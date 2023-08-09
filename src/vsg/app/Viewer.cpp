@@ -80,7 +80,7 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
     _windows.erase(itr);
 
-    // create a a new list of ComnandGraphs not associated with removed window
+    // create a new list of CommandGraphs not associated with removed window
     CommandGraphs commandGraphs;
     for (auto& task : recordAndSubmitTasks)
     {
@@ -115,7 +115,7 @@ bool Viewer::active() const
 
     if (!viewerIsActive)
     {
-        // don't exit mainloop while the any devices are still active
+        // don't exit mainloop while any devices are still active
         deviceWaitIdle();
         return false;
     }
@@ -254,7 +254,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         vsg::ref_ptr<vsg::CompileTraversal> compile;
     };
 
-    // find which devices are available and the resources required for then,
+    // find which devices are available and the resources required for them
     using DeviceResourceMap = std::map<ref_ptr<vsg::Device>, DeviceResources>;
     DeviceResourceMap deviceResourceMap;
     for (auto& task : recordAndSubmitTasks)
@@ -351,7 +351,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         }
     }
 
-    // assign dynamic data to transfer trask
+    // assign dynamic data to transfer tasks
     for (auto& task : recordAndSubmitTasks)
     {
         auto& deviceResource = deviceResourceMap[task->device];
@@ -398,6 +398,17 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
     // now remove any commandGraphs associated with window
     bool needToStartThreading = _threading;
     if (_threading) stopThreading();
+
+    // if a DatabasePager is already assigned re-assign
+    ref_ptr<DatabasePager> databasePager;
+    for (auto& task : recordAndSubmitTasks)
+    {
+        if (task->databasePager)
+        {
+            databasePager = task->databasePager;
+            break;
+        }
+    }
 
     presentations.clear();
     recordAndSubmitTasks.clear();
@@ -497,6 +508,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->windows = windows;
             recordAndSubmitTask->queue = mainQueue;
@@ -513,10 +525,11 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
         else
         {
-            // with don't have a presentFamily so this set of commandGraphs aren't associated with a window
+            // we don't have a presentFamily so this set of commandGraphs aren't associated with a window
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
+            recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
@@ -543,7 +556,7 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
     // add the new CommandGraphs
     combinedCommandGraphs.insert(combinedCommandGraphs.end(), commandGraphs.begin(), commandGraphs.end());
 
-    // assign the combined CommanGraphs
+    // assign the combined CommandGraphs
     assignRecordAndSubmitTaskAndPresentation(combinedCommandGraphs);
 }
 
@@ -643,7 +656,7 @@ void Viewer::setupThreading()
 
                     data->recordCompletedBarrier->arrive_and_wait();
 
-                    // primary thread finishes the task, submitting all the command buffers recorded by the primary and all secondary threads to it's queue
+                    // primary thread finishes the task, submitting all the command buffers recorded by the primary and all secondary threads to its queue
                     CommandBuffers localRecordedCommandBuffers;
                     for (const auto& commandBuffers : data->orderedRecordedCommandBuffers)
                         localRecordedCommandBuffers.insert(localRecordedCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
@@ -749,9 +762,9 @@ void Viewer::recordAndSubmit()
 #if 1
     if (_threading)
 #else
-    // follows is a workaround for an odd "Possible data race during write of size 1" warning that valgrind tool=helgrind reports
-    // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This could well be a driver bug or a false position.
-    // if you want to quiet this warning then change the #if above to #if 0 as render the first three frames single threaded avoids the warning.
+    // The following is a workaround for an odd "Possible data race during write of size 1" warning that valgrind tool=helgrind reports
+    // on the first call to vkBeginCommandBuffer despite them being done on independent command buffers.  This could well be a driver bug or a false positive.
+    // If you want to quieten this warning then change the #if above to #if 0 as rendering the first three frames single threaded avoids the warning.
     if (_threading && _frameStamp->frameCount > 2)
 #endif
     {

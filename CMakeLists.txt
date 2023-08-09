@@ -114,7 +114,7 @@ vsg_add_target_docs(
         ${VSG_SOURCE_DIR}/include/vsg
 )
 
-# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
+# build_all_h build target to automatically generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -DVSG_SOURCE_DIR=${VSG_SOURCE_DIR} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
 )

@@ -203,7 +203,7 @@ dmat4 vsg::inverse(const dmat4& m)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// compute determinate of a matrix
+// compute determinant of a matrix
 //
 template<class T>
 T t_determinant(const t_mat4<T>& m)
@@ -317,14 +317,14 @@ t_sphere<T> t_computeFrustumBound(const t_mat4<T>& m)
     // TODO : depth range should probably be 0 to 1 for Vulkan, rather than -1 to 1 for OpenGL.
     //
 
-    // compute the a2 the radius squared of the near plane relative to the near planes mid point
+    // compute a2, the radius squared of the near plane relative to the near planes mid point
     vec_type near_center = inv_m * vec_type(0.0, 0.0, -1.0);
     value_type a2 = length2(inv_m * vec_type(-1.0, -1.0, -1.0) - near_center);
     update_radius2(a2, near_center, inv_m * vec_type(1.0, -1.0, -1.0));
     update_radius2(a2, near_center, inv_m * vec_type(1.0, 1.0, -1.0));
     update_radius2(a2, near_center, inv_m * vec_type(-1.0, 1.0, -1.0));
 
-    // compute the b2 the radius squared of the far plane relative to the far planes mid point
+    // compute b2, the radius squared of the far plane relative to the far planes mid point
     vec_type far_center = inv_m * vec_type(0.0, 0.0, 1.0);
     value_type b2 = length2(inv_m * vec_type(-1.0, -1.0, 1.0) - far_center);
     update_radius2(b2, far_center, inv_m * vec_type(1.0, -1.0, 1.0));
@@ -381,7 +381,7 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
                        0.0, 0.0, 1.0, 0.0,
                        0.0, 0.0, 0.0, 1.0);
         }
-        else // destination most be Z_UP
+        else // destination must be Z_UP
         {
             matrix.set(0.0, 0.0, 1.0, 0.0,
                        0.0, 1.0, 0.0, 0.0,
@@ -398,7 +398,7 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
                        0.0, 0.0, 1.0, 0.0,
                        0.0, 0.0, 0.0, 1.0);
         }
-        else // destination most be Z_UP
+        else // destination must be Z_UP
         {
             matrix.set(1.0, 0.0, 0.0, 0.0,
                        0.0, 0.0, 1.0, 0.0,
@@ -415,7 +415,7 @@ bool vsg::transform(CoordinateConvention source, CoordinateConvention destinatio
                        1.0, 0.0, 0.0, 0.0,
                        0.0, 0.0, 0.0, 1.0);
         }
-        else // destination most be Y_UP
+        else // destination must be Y_UP
         {
             matrix.set(1.0, 0.0, 0.0, 0.0,
                        0.0, 0.0, -1.0, 0.0,

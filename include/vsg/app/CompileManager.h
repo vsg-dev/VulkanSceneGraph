@@ -37,7 +37,7 @@ namespace vsg
         bool requiresViewerUpdate() const;
     };
 
-    /// ComppileManager is a helper class that compiles subgraphs for the window/framebuffer associated with the CompileManager.
+    /// CompileManager is a helper class that compiles subgraphs for the windows/framebuffers associated with the CompileManager.
     class VSG_DECLSPEC CompileManager : public Inherit<Object, CompileManager>
     {
     public:

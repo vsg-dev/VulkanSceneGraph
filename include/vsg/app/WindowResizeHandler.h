@@ -40,7 +40,7 @@ namespace vsg
     };
     VSG_type_name(vsg::UpdateGraphicsPipelines);
 
-    /// WindowResizeHandler resize calls for updating viewport/scissor and attachments to fit with new window dimensions.
+    /// WindowResizeHandler class for updating viewport/scissor and attachments to fit with new window dimensions.
     class VSG_DECLSPEC WindowResizeHandler : public Inherit<Visitor, WindowResizeHandler>
     {
     public:
@@ -61,7 +61,7 @@ namespace vsg
 
         void scale_rect(VkRect2D& rect);
 
-        /// return true if the object visited
+        /// return true if the object was visited
         bool visit(const Object* object, uint32_t index = 0);
 
         void apply(BindGraphicsPipeline& bindPipeline) override;

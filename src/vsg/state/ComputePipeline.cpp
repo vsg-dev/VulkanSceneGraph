@@ -110,7 +110,7 @@ ComputePipeline::Implementation::Implementation(Context& context, Device* device
 
     if (VkResult result = vkCreateComputePipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline); result != VK_SUCCESS)
     {
-        throw Exception{"Error: vsg::Pipeline::createCompute(...) failed to create VkPipeline.", result};
+        throw Exception{"Error: vsg::ComputePipeline failed to create VkPipeline.", result};
     }
 }
 

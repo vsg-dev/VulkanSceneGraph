@@ -20,8 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Camera class provides the and projection and view matrices, and viewport settings that control the what a View looks at in a scene.
-    /// Typically assign to a vsg::View, but can also be placed in the scene graph for cases where applications want to track an in scene camera.
+    /// Camera class provides the projection and view matrices, and viewport settings that control what a View looks at in a scene.
+    /// Typically assigned to a vsg::View, but can also be placed in the scene graph for cases where applications want to track an in scene camera
     /// or to specify defined views within the scene, such as places of interest.
     class VSG_DECLSPEC Camera : public Inherit<Node, Camera>
     {
@@ -43,7 +43,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Camera);
 
-    /// FindCameras is visitor that traversals a scene graph to collect the Cameras found within it.
+    /// FindCameras is a visitor that traverses a scene graph to collect the Cameras found within it.
     class VSG_DECLSPEC FindCameras : public Inherit<Visitor, FindCameras>
     {
     public:
