@@ -775,6 +775,14 @@ void Visitor::apply(ClearAttachments& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(ClearColorImage& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(ClearDepthStencilImage& value)
+{
+    apply(static_cast<Command&>(value));
+}
 void Visitor::apply(QueryPool& value)
 {
     apply(static_cast<Object&>(value));
