@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/vk/Context.h>
+#include <vsg/io/write.h>
 
 using namespace vsg;
 
@@ -157,6 +158,21 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
     descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMaps});
+
+    for(uint32_t k = 0; k < shadowMapData->depth(); ++k)
+    {
+        for(uint32_t j = 0; j < shadowMapData->height(); ++j)
+        {
+            float* data = shadowMapData->data(shadowMapData->index(0, j, k));
+            for(uint32_t i = 0; i < shadowMapData->width(); ++i)
+            {
+                *(data++) = sin(vsg::PI * static_cast<double>(i)/static_cast<double>(shadowMapData->width()-1));
+            }
+        }
+    }
+
+    //vsg::write(shadowMapData, "test.vsgt");
+
 }
 
 void ViewDependentState::compile(Context& context)
@@ -225,7 +241,7 @@ void ViewDependentState::pack()
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
-        (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f); // shadow map setting
+        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : pointLights)
@@ -233,7 +249,7 @@ void ViewDependentState::pack()
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
-        (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f); // shadow map setting
+        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : spotLights)
@@ -245,7 +261,7 @@ void ViewDependentState::pack()
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
-        (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f); // shadow map setting
+        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 #if 0
     for(auto itr = lightData->begin(); itr != light_itr; ++itr)
