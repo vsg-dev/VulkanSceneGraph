@@ -189,13 +189,19 @@ bool Viewer::acquireNextFrame()
         while ((result = window->acquireNextImage()) != VK_SUCCESS)
         {
             if (result == VK_ERROR_SURFACE_LOST_KHR ||
-                result == VK_ERROR_DEVICE_LOST ||
                 result == VK_ERROR_OUT_OF_DATE_KHR ||
                 result == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT ||
                 result == VK_SUBOPTIMAL_KHR)
             {
                 // force a rebuild of the Swapchain by calling Window::resize();
                 window->resize();
+            }
+            else if (result == VK_ERROR_DEVICE_LOST)
+            {
+                // a lost device can only be recovered by opening a new VkDevice, and success is not guaranteed.
+                // not currently implemented, so exit main loop.
+                warn("window->acquireNextImage() VkResult = VK_ERROR_DEVICE_LOST. Device loss can indicate invalid Vulkan API usage or driver/hardware issues.");
+                break
             }
             else
             {
