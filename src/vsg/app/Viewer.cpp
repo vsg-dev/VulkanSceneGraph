@@ -201,7 +201,7 @@ bool Viewer::acquireNextFrame()
                 // a lost device can only be recovered by opening a new VkDevice, and success is not guaranteed.
                 // not currently implemented, so exit main loop.
                 warn("window->acquireNextImage() VkResult = VK_ERROR_DEVICE_LOST. Device loss can indicate invalid Vulkan API usage or driver/hardware issues.");
-                break
+                break;
             }
             else
             {
