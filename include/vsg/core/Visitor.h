@@ -91,6 +91,8 @@ namespace vsg
     class DynamicState;
     class ResourceHints;
     class ClearAttachments;
+    class ClearColorImage;
+    class ClearDepthStencilImage;
     class QueryPool;
     class ResetQueryPool;
     class BeginQuery;
@@ -341,6 +343,8 @@ namespace vsg
         virtual void apply(Draw&);
         virtual void apply(DrawIndexed&);
         virtual void apply(ClearAttachments&);
+        virtual void apply(ClearColorImage&);
+        virtual void apply(ClearDepthStencilImage&);
         virtual void apply(QueryPool&);
         virtual void apply(ResetQueryPool&);
         virtual void apply(BeginQuery&);
