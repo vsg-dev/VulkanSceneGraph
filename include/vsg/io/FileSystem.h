@@ -27,11 +27,11 @@ namespace vsg
     /// get the specified environmental variable.
     extern VSG_DECLSPEC std::string getEnv(const char* env_var);
 
-    /// parse the specified environmental variable using platorm specific delimiter, returning list of Paths
+    /// parse the specified environmental variable using platform specific delimiter, returning list of Paths
     /// delimiter used is ; under Windows, and : on all other platforms.
     extern VSG_DECLSPEC Paths getEnvPaths(const char* env_var);
 
-    /// parsing multiple environmental variables, parsing them to return a list of Paths.
+    /// parse multiple environmental variables, merging them and return a list of Paths.
     template<typename... Args>
     Paths getEnvPaths(const char* env_var, Args... args)
     {
@@ -44,14 +44,14 @@ namespace vsg
     /// return file type, see include/vsg/io/Path.h for FileType enum,
     extern VSG_DECLSPEC FileType fileType(const Path& path);
 
-    /// return true if a specified file/path exist on system.
+    /// return true if a specified file/path exists on system.
     extern VSG_DECLSPEC bool fileExists(const Path& path);
 
     /// return the full filename path if specified filename can be found in the list of paths.
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Paths& paths);
 
     /// return the full filename path if specified filename can be found in the options->paths list.
-    /// If options is null and the filename can be found using it's existing path that filename is return, otherwise empty Path{} is returned.
+    /// If options is null and the filename can be found using its existing path that filename is returned, otherwise empty Path{} is returned.
     extern VSG_DECLSPEC Path findFile(const Path& filename, const Options* options);
 
     /// make a directory, return true if path already exists or full path has been created successfully, return false on failure.
@@ -63,7 +63,7 @@ namespace vsg
     /// returns the path/filename of the currently executed program.
     extern VSG_DECLSPEC Path executableFilePath();
 
-    /// Open a file using a the C style fopen() adapted with work with the vsg::Path.
+    /// Open a file using the C style fopen() adapted to work with the vsg::Path.
     extern VSG_DECLSPEC FILE* fopen(const Path& path, const char* mode);
 
 } // namespace vsg

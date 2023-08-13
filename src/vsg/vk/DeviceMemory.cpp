@@ -43,7 +43,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     }
     if (i >= memProperties.memoryTypeCount)
     {
-        throw Exception{"Error: vsg::DeviceMemory::create(...) failed to create DeviceMemory, not usage memory type found.", VK_ERROR_FORMAT_NOT_SUPPORTED};
+        throw Exception{"Error: vsg::DeviceMemory::create(...) failed to create DeviceMemory, no usable memory type found.", VK_ERROR_FORMAT_NOT_SUPPORTED};
     }
     uint32_t memoryTypeIndex = i;
 

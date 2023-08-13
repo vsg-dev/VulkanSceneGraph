@@ -16,10 +16,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// Class from adapting 3rd party Windowing implementations to a form usable as a vsg::Window
-    /// Note, the VulkanSceneGraph provides it's own cross platform Windowing support, WindowAdapter
+    /// Class for adapting 3rd party Windowing implementations to a form usable as a vsg::Window
+    /// Note, the VulkanSceneGraph provides its own cross platform Windowing support, WindowAdapter
     /// is only required when 3rd party windowing is used.
-    /// The vsgQt project provides an example of WindowAdapter used to adapt Qt window with Vulkan
+    /// The vsgQt project provides an example of a WindowAdapter used to adapt Qt windows with Vulkan
     /// support for use with VSG applications.
     class VSG_DECLSPEC WindowAdapter : public Inherit<Window, WindowAdapter>
     {

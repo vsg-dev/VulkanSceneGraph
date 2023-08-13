@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// RecordEvents is a event recording class that can be assigned to a viewer as an event handler.
+    /// RecordEvents is an event recording class that can be assigned to a viewer as an event handler.
     /// Can be used in conjunction with vsg::PlayEvents to replay recorded events.
     /// See vsginput example to see how it's used.
     class VSG_DECLSPEC RecordEvents : public vsg::Inherit<vsg::Visitor, RecordEvents>

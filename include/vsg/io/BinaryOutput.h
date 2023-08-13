@@ -27,10 +27,10 @@ namespace vsg
     public:
         explicit BinaryOutput(std::ostream& output, ref_ptr<const Options> in_options = {});
 
-        /// write property name an non op for binary
+        /// write property name is a non op for binary
         void writePropertyName(const char*) override {}
 
-        /// write end of line a non op for binary
+        /// write end of line is a non op for binary
         void writeEndOfLine() override {}
 
         template<typename T>

@@ -88,7 +88,7 @@ namespace vsg
     };
     VSG_type_name(vsg::CustomDescriptorSetBinding);
 
-    /// Custom state binding class for providing the DescriptorSetLayout and StateCommaand required to pass view depedent data, lights/shaders etc., to shaders
+    /// Custom state binding class for providing the DescriptorSetLayout and StateCommand required to pass view dependent data, lights/shadows etc., to shaders
     struct VSG_DECLSPEC ViewDependentStateBinding : public Inherit<CustomDescriptorSetBinding, ViewDependentStateBinding>
     {
         ViewDependentStateBinding(uint32_t in_set = 0);
@@ -105,14 +105,14 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewDependentStateBinding);
 
-    /// ShaderSet provides collection of shader related settings to provide a form of shader introspection.
+    /// ShaderSet provides a collection of shader related settings to provide a form of shader introspection.
     class VSG_DECLSPEC ShaderSet : public Inherit<Object, ShaderSet>
     {
     public:
         ShaderSet();
         explicit ShaderSet(const ShaderStages& in_stages, ref_ptr<ShaderCompileSettings> in_hints = {});
 
-        /// base ShaderStages that other variants as based on.
+        /// base ShaderStages that other variants are based on.
         ShaderStages stages;
 
         std::vector<AttributeBinding> attributeBindings;
@@ -127,7 +127,7 @@ namespace vsg
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
         std::map<ref_ptr<ShaderCompileSettings>, ShaderStages, DereferenceLess> variants;
 
-        /// mutex used be getShaderStages(..) so ensure the variants map can be used from multiple threads.
+        /// mutex used by getShaderStages(..) to ensure the variants map can be used from multiple threads.
         std::mutex mutex;
 
         /// add an attribute binding, Not thread safe, should only be called when initially setting up the ShaderSet
@@ -136,7 +136,7 @@ namespace vsg
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
 
-        /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
+        /// add a push constant range. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
 
         /// get the AttributeBinding associated with name
@@ -157,16 +157,16 @@ namespace vsg
         /// get the ShaderStages variant that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
 
-        /// return the <mininum_set, maxiumum_set+1> range of set numbers encompassed UniformBindings
+        /// return the <minimum_set, maximum_set+1> range of set numbers encompassing UniformBindings
         std::pair<uint32_t, uint32_t> descriptorSetRange() const;
 
-        /// create the descritor set layout.
+        /// create the descriptor set layout.
         virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const;
 
         /// create the pipeline layout for all descriptor sets enabled by specified defines or required by default.
         inline ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
 
-        /// create pipeline layout for specified range {minimum_set, maxiumum_set+1> of descriptor sets that are enabled by specified defines or required by default.
+        /// create pipeline layout for specified range <minimum_set, maximum_set+1> of descriptor sets that are enabled by specified defines or required by default.
         ///
         /// Note: the underlying Vulkan call vkCreatePipelineLayout assumes that the array of
         /// descriptor sets starts with set 0. Therefore the minimum_set argument should be 0 unless

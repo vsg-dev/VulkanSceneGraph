@@ -1,9 +1,9 @@
 ## Roadmap
 
-Follows are are initially plans for future releases and then going back into time to previously completed milestones.
+Follows are initial plans for future releases and then going back into time to previously completed milestones.
 
 ### Stable Release Support and Functionality build-out Phase, 2023 onwards (underway)
-**Goal: Maintain the VulkanSceneGraph-1.0.x release series and work towards the next stable release VulkanSceneGraph-1.2 - expanding the VulkanScenGraph and companion projects feature sets to address a wider range of uses**
+**Goal: Maintain the VulkanSceneGraph-1.0.x release series and work towards the next stable release VulkanSceneGraph-1.2 - expanding the VulkanSceneGraph and companion projects feature sets to address a wider range of uses**
 
 Discussion of new features:[New Feature Development RoadMap for future VulkanSceneGraph-1.2 release and beyond](https://github.com/vsg-dev/VulkanSceneGraph/discussions/600)
 
@@ -19,7 +19,7 @@ Discussion of new features:[New Feature Development RoadMap for future VulkanSce
 
 #### Future development tasks:
 
-* Support for shadows and environment maps in the Phong and PBR ShaderSets, and helpers functions/classes for creating scene graphs that render shadow maps.
+* Support for shadows and environment maps in the Phong and PBR ShaderSets, and helper functions/classes for creating scene graphs that render shadow maps.
 * Character animation/skinning in standard.vert shaders used by Phong and ShaderSets?
 * Rewrite RayTracing classes to modernize them and bring them more inline with other core VSG classes.
 * Acceleration structures for CPU based geometry operations i.e. KdTree or similar to speed up intersection testing etc.
@@ -50,7 +50,7 @@ Using the prototyping work as a guide implement the final scene graph library wi
 * Support for RTX Mesh shaders and ray tracing.
 * Scene graph level multi-bin support with bin sorting.
 * Support for Khronos ray tracing.
-* Memory allocator with support with grouping associated types
+* Memory allocator with support for grouping associated types
 * Positional state support to enable easier support of lighting, shadows, texture projection.
 * Matrix decomposition
 * Port to iOS

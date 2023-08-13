@@ -68,7 +68,7 @@ namespace vsg
             return data && data->differentModifiedCount(copiedModifiedCounts[deviceID]);
         }
 
-        /// return true if the ImageInfo's data has been modified and should be copied to the buffer, and sync the moificationCounts
+        /// return true if the ImageInfo's data has been modified and should be copied to the buffer, and sync the modification counts
         bool syncModifiedCounts(uint32_t deviceID)
         {
             if (!imageView || !imageView->image) return false;
@@ -85,7 +85,7 @@ namespace vsg
 
     using ImageInfoList = std::vector<ref_ptr<ImageInfo>>;
 
-    /// format traits hints that can be used when initialize image data
+    /// format traits hints that can be used when initializing image data
     struct FormatTraits
     {
         int size = 0;
@@ -108,7 +108,7 @@ namespace vsg
         }
     };
 
-    /// return the traits suitable for specified VkFDormat.
+    /// return the traits suitable for specified VkFormat.
     extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
 
     /// return the number of mip map levels specified by Data/Sampler.

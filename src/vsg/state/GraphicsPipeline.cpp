@@ -190,7 +190,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
 
     if (result != VK_SUCCESS)
     {
-        throw Exception{"Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result};
+        throw Exception{"Error: vsg::GraphicsPipeline failed to create VkPipeline.", result};
     }
 }
 

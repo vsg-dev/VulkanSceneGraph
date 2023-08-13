@@ -16,8 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// StateSwitch is a StateCommand that provides support, during the RecordTraveral, for applying StateCommand children based on pass a mask.
-    /// Can be used for enable state for specific View's were the StateSwitch child masks are matched the View mask.
+    /// StateSwitch is a StateCommand that provides support, during the RecordTraveral, for applying StateCommand children based on passing a mask.
+    /// Can be used to enable state for specific Views where the StateSwitch child masks are matched with the View mask.
     class VSG_DECLSPEC StateSwitch : public Inherit<StateCommand, StateSwitch>
     {
     public:

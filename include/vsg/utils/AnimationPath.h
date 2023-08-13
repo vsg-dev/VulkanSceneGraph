@@ -59,7 +59,7 @@ namespace vsg
     VSG_type_name(vsg::AnimationPath);
 
     /// AnimationPathHandler event handler animates Camera or MatrixTransform along an AnimationPath.
-    /// To automatically update attach the AnimationPathHandler to the viewer using Viewer::addEventHandler().
+    /// To automatically update, attach the AnimationPathHandler to the viewer using Viewer::addEventHandler().
     class VSG_DECLSPEC AnimationPathHandler : public Inherit<Visitor, AnimationPathHandler>
     {
     public:

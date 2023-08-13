@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Deprecated - use vsg::Data dataVariance and Data.dirty() to signal vsg::TransferData to transfer data.
+    /// Deprecated - use vsg::Data dataVariance and Data::dirty() to signal vsg::TransferTask to transfer data.
     class VSG_DECLSPEC CopyAndReleaseImage : public Inherit<Command, CopyAndReleaseImage>
     {
     public:
@@ -49,7 +49,7 @@ namespace vsg
         void add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest);
         void add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels);
 
-        /// MemoryBufferPools used for allocation staging buffer used by the copy(ref_ptr<Data>, ImageInfo) method.  Users should assign a MemoryBufferPools with appropriate settings.
+        /// MemoryBufferPools used for allocation of staging buffer used by the copy(ref_ptr<Data>, ImageInfo) method.  Users should assign MemoryBufferPools with appropriate settings.
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
 
         /// copy data into a staging buffer and then use copy command to transfer this to the GPU image specified by ImageInfo

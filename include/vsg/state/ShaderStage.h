@@ -19,7 +19,7 @@ namespace vsg
     // forward declare
     class Context;
 
-    /// ShaderStage encapsulates to VkPipelineShaderStageCreateInfo settings passed when setting up GraphicsPipeline
+    /// ShaderStage encapsulates VkPipelineShaderStageCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC ShaderStage : public Inherit<Object, ShaderStage>
     {
     public:

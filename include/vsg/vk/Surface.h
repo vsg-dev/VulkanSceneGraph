@@ -29,7 +29,7 @@ namespace vsg
         Instance* getInstance() { return _instance; }
         const Instance* getInstance() const { return _instance; }
 
-        /// Release the VkSurfaceKHR so it's no longer managed this vsg::Surface object, caller/3rd party libs are subsequently responsible for deletion of the VkSurfaceKHR.
+        /// Release the VkSurfaceKHR so it's no longer managed by this vsg::Surface object, caller/3rd party libs are subsequently responsible for deletion of the VkSurfaceKHR.
         /// This method should only be called when adapting the VulkanSceneGraph to work with 3rd party Vulkan creation,
         /// in normal usage this method should not be called as the VkSurfaceKHR will be cleaned up safely and automatically in the destructor when the vsg::Surface is deleted.
         void release()

@@ -192,7 +192,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
     ref_ptr<StateGroup> stateGroup = scenegraph.cast<StateGroup>();
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     if (!stateGroup)
     {
         stateGroup = StateGroup::create();

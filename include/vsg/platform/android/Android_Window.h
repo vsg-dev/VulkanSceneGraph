@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsgAndroid
 {
 
-    /// KeyboardMap maps Andriod keyboard events to vsg::KeySymbol
+    /// KeyboardMap maps Android keyboard events to vsg::KeySymbol
     class KeyboardMap : public vsg::Object
     {
     public:

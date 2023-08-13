@@ -22,8 +22,8 @@ namespace vsg
 {
 
     /// ArrayState base class provides a mechanism for CPU mapping of array data that is processed in novel ways on the GPU.
-    /// Assigned to StategGroup that are associated GraphicsPipline that use vertex shaders with novel vertex processing,
-    /// and used during traversal such as ComputeTraversal and IntersectionTraversal.
+    /// Assigned to StateGroup with an associated GraphicsPipeline that uses vertex shaders with novel vertex processing,
+    /// and used during traversals such as ComputeBounds and Intersector.
     class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {
     public:
@@ -89,9 +89,9 @@ namespace vsg
     };
     VSG_type_name(vsg::ArrayState);
 
-    /// NullArrayState provides a mechanism for geometry in a subgraph to be ignored by traversals that use ArrayState such as ComputeBounds/Intersection/LineSegmentIntersector
+    /// NullArrayState provides a mechanism for geometry in a subgraph to be ignored by traversals that use ArrayState such as ComputeBounds/Intersector/LineSegmentIntersector
     /// this is useful for subgraphs that have custom shaders that move the final rendered geometry to a different place that would be naively interpreted by a straight forward vec3Array vertex array in local coordinates.
-    /// To disable the handling of geometry in a subgraph simple assign a NullArrayState to the StateGroup::prototypeArrayState, i.e.
+    /// To disable the handling of geometry in a subgraph simply assign a NullArrayState to the StateGroup::prototypeArrayState, i.e.
     ///     stateGroup->prototypeArrayState = vsg::NullArrayState::create();
     class VSG_DECLSPEC NullArrayState : public Inherit<ArrayState, NullArrayState>
     {
@@ -109,7 +109,7 @@ namespace vsg
     };
     VSG_type_name(vsg::NullArrayState);
 
-    /// PositionArrayState is ArrayState subclass for mapping vertex array data for instanced geometries.
+    /// PositionArrayState is an ArrayState subclass for mapping vertex array data for instanced geometries.
     class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
     {
     public:
@@ -130,7 +130,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PositionArrayState);
 
-    /// DisplacementMapArrayState is ArrayState subclass for mapping vertex array data for displacement mapped geometries.
+    /// DisplacementMapArrayState is an ArrayState subclass for mapping vertex array data for displacement mapped geometries.
     class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
     {
     public:
@@ -164,7 +164,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DisplacementMapArrayState);
 
-    /// PositionAndDisplacementMapArrayState is ArrayState subclass for mapping vertex array data for instanced, displacement mapped geometries.
+    /// PositionAndDisplacementMapArrayState is an ArrayState subclass for mapping vertex array data for instanced, displacement mapped geometries.
     class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<DisplacementMapArrayState, PositionAndDisplacementMapArrayState>
     {
     public:
@@ -183,7 +183,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
 
-    /// BillboardArrayState is ArrayState subclass for mapping vertex array data for billboard instanced geometries.
+    /// BillboardArrayState is an ArrayState subclass for mapping vertex array data for billboard instanced geometries.
     class VSG_DECLSPEC BillboardArrayState : public Inherit<ArrayState, BillboardArrayState>
     {
     public:

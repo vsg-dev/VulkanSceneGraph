@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2021 Robert Osfield
+Copyright(c) 2019 Thomas Hogarth
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -13,23 +13,39 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/Command.h>
+#include <vsg/state/Image.h>
 
 namespace vsg
 {
 
-    /// SetDepthBias command encapsulates vkCmdSetDepthBias functionality, associated with dynamic updating of a GraphicsPipeline's RasterizationState::depthBias* values.
-    class VSG_DECLSPEC SetDepthBias : public Inherit<Command, SetDepthBias>
+    /// ClearColorImage command encapsulates vkCmdClearColorImage functionality and associated settings.
+    class VSG_DECLSPEC ClearColorImage : public Inherit<Command, ClearColorImage>
     {
     public:
-        SetDepthBias();
-        SetDepthBias(float in_depthBiasConstantFactor, float in_depthBiasClamp, float in_depthBiasSlopeFactor);
+        using Ranges = std::vector<VkImageSubresourceRange>;
 
-        float depthBiasConstantFactor = 1.0f;
-        float depthBiasClamp = 0.0f;
-        float depthBiasSlopeFactor = 1.0f;
+        vsg::ref_ptr<vsg::Image> image;
+        VkImageLayout imageLayout; // imageLayout must be VK_IMAGE_LAYOUT_GENERAL or VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+        VkClearColorValue color;
+        Ranges ranges;
 
         void record(CommandBuffer& commandBuffer) const override;
     };
-    VSG_type_name(vsg::SetDepthBias);
+    VSG_type_name(vsg::ClearColorImage);
+
+    /// ClearDepthStencilImage command encapsulates vkCmdClearDepthStencilImage functionality and associated settings.
+    class VSG_DECLSPEC ClearDepthStencilImage : public Inherit<Command, ClearDepthStencilImage>
+    {
+    public:
+        using Ranges = std::vector<VkImageSubresourceRange>;
+
+        vsg::ref_ptr<vsg::Image> image;
+        VkImageLayout imageLayout; // imageLayout must be VK_IMAGE_LAYOUT_GENERAL or VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+        VkClearDepthStencilValue depthStencil;
+        Ranges ranges;
+
+        void record(CommandBuffer& commandBuffer) const override;
+    };
+    VSG_type_name(vsg::ClearDepthStencilImage);
 
 } // namespace vsg

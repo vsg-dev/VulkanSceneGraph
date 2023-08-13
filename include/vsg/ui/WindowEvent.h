@@ -59,7 +59,7 @@ namespace vsg
     };
     VSG_type_name(vsg::ExposeWindowEvent);
 
-    /// ExposeWindowEvent represents a window configure event - such as changes to the size of the window.
+    /// ConfigureWindowEvent represents a window configure event - such as changes to the size of the window.
     class VSG_DECLSPEC ConfigureWindowEvent : public Inherit<WindowEvent, ConfigureWindowEvent>
     {
     public:

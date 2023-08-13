@@ -21,9 +21,9 @@ namespace vsg
 {
 
     /// External provides a means to loading objects from external files, such as shaders, textures or models
-    /// To use set up the External object with all the pairs of [filename, object] that should be managed externally
-    /// then assign the External object, as use value, to root node of the scene graph that you wish to use external objects with
-    /// so that when serializing the External object is initialized and external objects are loaded before they are
+    /// To use, set up the External object with all the pairs of [filename, object] that should be managed externally,
+    /// then assign the External object, as a value, to the root node of the scene graph that you wish to use external objects with
+    /// so that when serializing, the External object is initialized and external objects are loaded before they are
     /// needed by the rest of the subgraph i.e.
     ///     auto external = vsg::External::create("mytexture.png", texture);
     ///     scene->setObject("external", external); // scene uses the texture object somewhere within it.
@@ -50,7 +50,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        /// custom readwriter/writer options
+        /// custom reader/writer options
         ref_ptr<Options> options;
 
         /// list of path/object pairs

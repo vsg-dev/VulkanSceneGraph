@@ -320,7 +320,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         // close connection
         if (openConnection) xcb_disconnect(_connection);
 
-        throw Exception{"Failed to created Window, unable able to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        throw Exception{"Failed to create Window, unable to establish xcb connection.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
     }
 
     // get the screen
@@ -490,7 +490,7 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
 
     xcb_flush(_connection);
 
-    // sleep to give the window manage time to do any repositing and resizing
+    // sleep to give the window manager time to do any repositioning and resizing
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // get the dimensions of the final window.
@@ -630,7 +630,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case (XCB_CONFIGURE_NOTIFY): {
             auto configure = reinterpret_cast<const xcb_configure_notify_event_t*>(event);
 
-            // Xcb configure events x,y values can be behave differently on different window managers so use getWindowGeometry(..) to avoid inconsistencies
+            // Xcb configure events x,y values can behave differently on different window managers so use getWindowGeometry(..) to avoid inconsistencies
             int32_t x = configure->x;
             int32_t y = configure->y;
             uint32_t width = configure->width;
@@ -706,7 +706,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
             if (button_press->same_screen)
             {
-                // X11/Xvb treat scroll wheel up/down as button 4 and 5 so handle these as such
+                // X11/Xcb treat scroll wheel up/down as button 4 and 5 so handle these as such
                 if (button_press->detail == 4)
                 {
                     bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, 1.0f, 0.0f)));

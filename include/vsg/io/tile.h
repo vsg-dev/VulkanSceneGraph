@@ -21,7 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// tile reader that is used by th vsg::TileDatabase node to implement the reading of external tiles
+    /// tile reader that is used by the vsg::TileDatabase node to implement the reading of external tiles
     class VSG_DECLSPEC tile : public Inherit<ReaderWriter, tile>
     {
     public:

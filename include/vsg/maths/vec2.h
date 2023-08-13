@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-// we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
+// we can't implement the anonymous union/structs combination without causing warnings, so disable them for just this header
 #if defined(__GNUC__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wpedantic"
@@ -31,7 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// t_vec2 template class that a represents a 2D vector
+    /// t_vec2 template class that represents a 2D vector
     template<typename T>
     struct t_vec2
     {
@@ -241,7 +241,7 @@ namespace vsg
         return lhs[0] * rhs[0] + lhs[1] * rhs[1];
     }
 
-    /// cross product of a vec2 can be thought of cross product of vec3's with the z value of 0.0/vec3's in the xy plane.
+    /// cross product of a vec2 can be thought of as cross product of vec3's with the z value of 0.0/vec3's in the xy plane.
     /// The returned value is the length of the resulting vec3 cross product, and can be treated as the signed area of the parallelogram, negative if rhs is clockwise from lhs when looking down on xy plane.
     template<typename T>
     constexpr T cross(const t_vec2<T>& lhs, const t_vec2<T>& rhs)

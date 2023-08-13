@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// DepthStencilState encapsulates to VkPipelineDepthStencilStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// DepthStencilState encapsulates VkPipelineDepthStencilStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC DepthStencilState : public Inherit<GraphicsPipelineState, DepthStencilState>
     {
     public:

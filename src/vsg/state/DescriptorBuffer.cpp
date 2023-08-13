@@ -161,7 +161,7 @@ void DescriptorBuffer::compile(Context& context)
                     }
                     else
                     {
-                        warn("DescriptorBuffer::compile(..) unable to allocate bufferInfo with within associated Buffer.");
+                        warn("DescriptorBuffer::compile(..) unable to allocate bufferInfo within associated Buffer.");
                     }
                 }
             }

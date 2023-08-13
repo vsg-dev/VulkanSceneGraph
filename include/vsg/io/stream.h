@@ -165,7 +165,7 @@ namespace vsg
         return input;
     }
 
-    /// output stream support for vsg::t_box
+    /// output stream support for vsg::t_sphere
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const vsg::t_sphere<T>& sp)
     {
@@ -173,7 +173,7 @@ namespace vsg
         return output;
     }
 
-    /// input stream support for vsg::t_box
+    /// input stream support for vsg::t_sphere
     template<typename T>
     std::istream& operator>>(std::istream& input, vsg::t_sphere<T>& sp)
     {

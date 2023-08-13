@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// PrintEvents prints ui event settings to stream, using for tracking/debugging event handling in applications.
+    /// PrintEvents prints ui event settings to stream, used for tracking/debugging event handling in applications.
     class VSG_DECLSPEC PrintEvents : public Inherit<Visitor, PrintEvents>
     {
     public:

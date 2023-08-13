@@ -104,7 +104,7 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
         if (availablePresentMode == preferredPresentMode) return availablePresentMode;
     }
 
-    // requested presetnMode not available so fallback for checking of VK_PRESENT_MODE_MAILBOX_KHR available
+    // requested presentMode not available so fallback to checking if VK_PRESENT_MODE_MAILBOX_KHR available
     for (auto availablePresentMode : details.presentModes)
     {
         if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) return availablePresentMode;
@@ -132,7 +132,7 @@ VkPresentModeKHR vsg::selectSwapPresentMode(const SwapChainSupportDetails& detai
 //
 namespace vsg
 {
-    // helper class that disabled the automatic clear up of the swap chain image as the swap chain itself manages it's lifetime
+    // helper class that disables the automatic clean up of the swap chain image as the swap chain itself manages its lifetime
     class SwapchainImage : public Inherit<Image, SwapchainImage>
     {
     public:
@@ -171,7 +171,7 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
     uint32_t imageCount = std::max(preferences.imageCount, details.capabilities.minImageCount);                        // Vulkan spec requires minImageCount to be 1 or greater
     if (details.capabilities.maxImageCount > 0) imageCount = std::min(imageCount, details.capabilities.maxImageCount); // Vulkan spec specifies 0 as being unlimited number of images
 
-    // apply the selected settings back to preferences to calling code can determine the active settings.
+    // apply the selected settings back to preferences so calling code can determine the active settings.
     preferences.imageCount = imageCount;
     preferences.presentMode = presentMode;
     preferences.surfaceFormat = surfaceFormat;

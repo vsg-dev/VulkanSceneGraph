@@ -633,7 +633,7 @@ void ConstVisitor::apply(const TextLayout& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Vulkan Object
+// Vulkan Objects
 //
 void ConstVisitor::apply(const BufferInfo& value)
 {
@@ -772,6 +772,14 @@ void ConstVisitor::apply(const DrawIndexed& value)
     apply(static_cast<const Command&>(value));
 }
 void ConstVisitor::apply(const ClearAttachments& value)
+{
+    apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const ClearColorImage& value)
+{
+    apply(static_cast<const Command&>(value));
+}
+void ConstVisitor::apply(const ClearDepthStencilImage& value)
 {
     apply(static_cast<const Command&>(value));
 }

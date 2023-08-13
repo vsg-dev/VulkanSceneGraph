@@ -85,7 +85,7 @@ namespace vsg
     VSG_type_name(vsg::BindDescriptorSets);
 
     /// BindDescriptorSet state command encapsulates vkCmdBindDescriptorSets call and associated settings for a single DescriptorSet.
-    /// Functionality the same as assigning a single DescriptorSet to a BindDescriptorSets but has slightly lower memory footprint and CPU overhead.
+    /// Functionally the same as assigning a single DescriptorSet to a BindDescriptorSets but has slightly lower memory footprint and CPU overhead.
     class VSG_DECLSPEC BindDescriptorSet : public Inherit<StateCommand, BindDescriptorSet>
     {
     public:

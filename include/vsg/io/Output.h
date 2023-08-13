@@ -187,7 +187,7 @@ namespace vsg
             write(object);
         }
 
-        /// write a value casting it specified type i.e. output.write<uint32_t>("Value", value);
+        /// write a value casting it to specified type i.e. output.write<uint32_t>("Value", value);
         template<typename W, typename T>
         void writeValue(const char* propertyName, T value)
         {

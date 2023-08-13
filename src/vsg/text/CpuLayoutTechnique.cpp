@@ -231,7 +231,7 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
     else
         drawIndexed->indexCount = static_cast<uint32_t>(quads.size() * 6);
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     if (!stategroup)
     {
         stategroup = StateGroup::create();

@@ -98,7 +98,7 @@ void SharedObjects::prune()
     }
     _defaults.clear();
 
-    // prune SharedObjects that don't have an external references (referenceCount != 1)
+    // prune SharedObjects that don't have external references (referenceCount == 1)
     bool prunedObjects = false;
     do
     {

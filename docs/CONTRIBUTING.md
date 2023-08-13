@@ -1,7 +1,7 @@
 # How to contribute
 Developers can help contribute to the VSG through testing, reporting issues, bug fixing, feature development and creation of tutorials and documentation.
 
-## Report an bug
+## Report a bug
 
 Please use the Issue tracker on github. We provide two templates, a bug report template and a feature request template to help guide what type of information is useful to us.
 
@@ -15,7 +15,7 @@ If you wish to make a feature request, this can be done via our github Issue tra
 
 ## Feature development
 
-If you have refinement of existing features or added new feature please a make pull requests.
+If you have refined existing features or added new features please a make pull request.
 
 ## In source documentation
 
@@ -23,4 +23,4 @@ In source documentation can be provided in the form of markdown (.MD) files to b
 
 ## 3rd Party tutorials, documentation, libraries and program
 
-If you have written documentation, tutorials, libraries or programs and wish to inform developers about then please considering adding details about them to the docs/3rdParty files and generate a pull request.
+If you have written documentation, tutorials, libraries or programs and wish to inform developers then please consider adding details about them to the docs/3rdParty files and generating a pull request.
