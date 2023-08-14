@@ -19,7 +19,7 @@ namespace vsg
 
     /// MatrixTransform is a transform node that provides a 4x4 matrix that is used to position subgraphs.
     /// During the RecordTraversal the matrix is multiplied by the modelview matrix and pushed to the State::modelviewMatrixStack stack.
-    /// When the subgraph has been traversed the multiplied matrix is popped from the State::modelviewMatrixStack.
+    /// When the subgraph has been traversed the multiplied matrix is popped from the State::modelviewMatrixStack stack.
     class VSG_DECLSPEC MatrixTransform : public Inherit<Transform, MatrixTransform>
     {
     public:

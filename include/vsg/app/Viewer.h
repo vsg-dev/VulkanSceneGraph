@@ -90,7 +90,7 @@ namespace vsg
 
         /// convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
-        /// lf still active, poll for pending events and place them in the Events list and advance to the next frame, generate updated FrameStamp to signify the advancement to a new frame and return true.
+        /// if still active, poll for pending events and place them in the Events list and advance to the next frame, generate updated FrameStamp to signify the advancement to a new frame and return true.
         virtual bool advanceToNextFrame();
 
         /// pass the Events into any registered EventHandlers
