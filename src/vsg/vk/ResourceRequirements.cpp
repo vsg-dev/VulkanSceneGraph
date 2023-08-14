@@ -34,7 +34,9 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
 {
-    binStack.push(ResourceRequirements::BinDetails{});
+    vsg::info("ResourceRequirements::ResourceRequirements(" , hints, " ) ", this);
+
+    viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     if (hints) apply(*hints);
 }
 
@@ -66,6 +68,10 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
             descriptorTypeMap[type] += count;
         }
     }
+
+    numLightsRange = resourceHints.numLightsRange;
+    numShadowMapsRange = resourceHints.numShadowMapsRange;
+    shadowMapSize = resourceHints.shadowMapSize;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -206,46 +212,71 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
     }
 }
 
+void CollectResourceRequirements::apply(const Light& light)
+{
+    vsg::info("CollectResourceRequirements::apply(", light.className(),")");
+    requirements.viewDetailsStack.top().lights.insert(&light);
+}
+
 void CollectResourceRequirements::apply(const View& view)
 {
+
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
-        requirements.binStack.push(itr->second);
+        requirements.viewDetailsStack.push(itr->second);
     }
     else
     {
-        requirements.binStack.push(ResourceRequirements::BinDetails{});
+        requirements.viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     }
+
+    vsg::info("CollectResourceRequirements::apply(const View& view) before traverse, this = ", this);
 
     view.traverse(*this);
 
+    vsg::info("CollectResourceRequirements::apply(const View& view) after traverse ");
+
+    auto& viewDetails = requirements.viewDetailsStack.top();
+
     for (auto& bin : view.bins)
     {
-        requirements.binStack.top().bins.insert(bin);
+        viewDetails.bins.insert(bin);
     }
 
     if (view.viewDependentState)
     {
         if (requirements.maxSlot < 2) requirements.maxSlot = 2;
 
+        vsg::info("CollectResourceRequirements::apply(const View& view) about to collect stats from ", view.viewDependentState);
+
         view.viewDependentState->accept(*this);
+
+        vsg::info("CollectResourceRequirements::apply(const View& view) after collecting stats from ", view.viewDependentState);
+
+        uint32_t numShadowMaps = 0;
+        for(auto& light : viewDetails.lights)
+        {
+            numShadowMaps += light->shadowMaps;
+        }
+
+        vsg::info("    viewDetails.lights.size() ", viewDetails.lights.size(), ", numShadowMaps = ", numShadowMaps);
     }
 
-    requirements.views[&view] = requirements.binStack.top();
+    requirements.views[&view] = viewDetails;
 
-    requirements.binStack.pop();
+    requirements.viewDetailsStack.pop();
 }
 
 void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
 {
-    requirements.binStack.top().indices.insert(depthSorted.binNumber);
+    requirements.viewDetailsStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);
 }
 
 void CollectResourceRequirements::apply(const Bin& bin)
 {
-    requirements.binStack.top().bins.insert(&bin);
+    requirements.viewDetailsStack.top().bins.insert(&bin);
 }
 
 void CollectResourceRequirements::apply(const Geometry& geometry)

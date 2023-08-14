@@ -24,8 +24,8 @@ namespace vsg
 
     /** Level of Detail Node,
      *  Children should be ordered with the highest resolution child first, through to lowest resolution LOD child last.
-     *  The Child struct stores the visibleHeightRatio and child that it's associated with.
-     *  During culling the visibleHeightRatio is used as a minimum ratio of screen height that a bounding sphere needs to occupy in order for the associated child to be traversed.
+     *  The Child struct stores the minimumScreenHeightRatio and child that it's associated with.
+     *  During culling the minimumScreenHeightRatio is used as a minimum ratio of screen height that a bounding sphere needs to occupy in order for the associated child to be traversed.
      *  Once one child passes this test no more children are checked, so that no more than one child will ever be traversed in a record traversal.
      *  If no child passes the visible height test then none of the LOD's children will be visible.
      *  During the record traversals the Bound sphere is also checked against the view frustum so that LOD's also enable view frustum culling for subgraphs so there is no need for a separate CullNode/CullGroup to decorate it. */

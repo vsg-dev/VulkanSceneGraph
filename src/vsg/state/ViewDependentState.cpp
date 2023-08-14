@@ -14,7 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/state/DescriptorImage.h>
 #include <vsg/vk/Context.h>
+#include <vsg/io/write.h>
 
 using namespace vsg;
 
@@ -110,33 +112,73 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxViewports) :
-    lightData(vec4Array::create(maxNumberLights)), // spot light requires 3 vec4's per light
-    viewportData(vec4Array::create(maxViewports))
+ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxViewports)
 {
-    lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
-    lightDataBufferInfo = BufferInfo::create(lightData.get());
-
-    viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
-    viewportDataBufferInfo = BufferInfo::create(viewportData.get());
-
-    DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
-        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
-    };
-
-    descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor});
+    init(maxNumberLights, maxViewports);
 }
 
 ViewDependentState::~ViewDependentState()
 {
 }
 
+void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
+{
+    info("ViewDependentState::init(", maxNumberLights, ", ", maxViewports, ") ", this);
+
+    lightData = vec4Array::create(maxNumberLights);
+    lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
+    lightDataBufferInfo = BufferInfo::create(lightData.get());
+
+    viewportData = vec4Array::create(maxViewports);
+    viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
+    viewportDataBufferInfo = BufferInfo::create(viewportData.get());
+
+    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
+
+    auto shadwoMapSampler = vsg::Sampler::create();
+    shadwoMapSampler->minFilter = VK_FILTER_NEAREST;
+    shadwoMapSampler->magFilter = VK_FILTER_NEAREST;
+    shadwoMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadwoMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadwoMapSampler->anisotropyEnable = VK_FALSE;
+    shadwoMapSampler->maxAnisotropy = 1;
+    shadwoMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+
+    // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
+    // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
+    shadowMapData = floatArray3D::create(2048, 2048, 8, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
+    shadowMaps = DescriptorImage::create(shadwoMapSampler, shadowMapData, 2);
+
+
+    DescriptorSetLayoutBindings descriptorBindings{
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
+        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
+        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+    };
+
+    descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMaps});
+
+    for(uint32_t k = 0; k < shadowMapData->depth(); ++k)
+    {
+        for(uint32_t j = 0; j < shadowMapData->height(); ++j)
+        {
+            float* data = shadowMapData->data(shadowMapData->index(0, j, k));
+            for(uint32_t i = 0; i < shadowMapData->width(); ++i)
+            {
+                *(data++) = sin(vsg::PI * static_cast<double>(i)/static_cast<double>(shadowMapData->width()-1));
+            }
+        }
+    }
+
+    //vsg::write(shadowMapData, "test.vsgt");
+
+}
+
 void ViewDependentState::compile(Context& context)
 {
-    //info("ViewDependentState::compile()");
+    info("ViewDependentState::compile()", this);
+
     descriptorSet->compile(context);
 }
 
@@ -186,6 +228,8 @@ void ViewDependentState::pack()
                           static_cast<float>(pointLights.size()),
                           static_cast<float>(spotLights.size()));
 
+    // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
+
     for (auto& entry : ambientLights)
     {
         auto light = entry.second;
@@ -197,6 +241,7 @@ void ViewDependentState::pack()
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
+        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : pointLights)
@@ -204,6 +249,7 @@ void ViewDependentState::pack()
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
+        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : spotLights)
@@ -215,6 +261,7 @@ void ViewDependentState::pack()
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
+        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 #if 0
     for(auto itr = lightData->begin(); itr != light_itr; ++itr)

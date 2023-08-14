@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Light.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/DescriptorImage.h>
 
 namespace vsg
 {
@@ -115,6 +116,7 @@ namespace vsg
         std::vector<std::pair<dmat4, const PointLight*>> pointLights;
         std::vector<std::pair<dmat4, const SpotLight*>> spotLights;
 
+        virtual void init(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1);
         virtual void compile(Context& context);
         virtual void clear();
         virtual void pack();
@@ -123,13 +125,11 @@ namespace vsg
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
 
-        // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
-        // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
-        // ref_ptr<ImageView> shadowImageView;
-        // ref_ptr<DescriptorImage> shadowTextures;
-
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
+
+        ref_ptr<floatArray3D> shadowMapData;
+        ref_ptr<DescriptorImage> shadowMaps;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorBuffer> descriptor;
