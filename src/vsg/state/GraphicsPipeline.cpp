@@ -76,7 +76,6 @@ int GraphicsPipeline::compare(const Object& rhs_object) const
     if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
     if ((result = compare_pointer(layout, rhs.layout))) return result;
-    if ((result = compare_pointer(renderPass, rhs.renderPass))) return result;
     return compare_value(subpass, rhs.subpass);
 }
 
