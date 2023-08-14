@@ -312,13 +312,17 @@ void CompileTraversal::apply(View& view)
         auto context_view = context->view.ref_ptr();
         if (context_view && context_view.get() != &view) continue;
 
+        // save previous states
+        auto previous_viewID = context->viewID;
+        auto previous_mask = context->mask;
+        auto previous_overridePipelineStates = context->overridePipelineStates;
+        auto previous_defaultPipelineStates = context->defaultPipelineStates;
+
         context->viewID = view.viewID;
+        context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
         if (view.viewDependentState) view.viewDependentState->compile(*context);
 
-        // save previous pipeline states
-        auto previousOverridePipelineStates = context->overridePipelineStates;
-        auto previousDefaultPipelineStates = context->defaultPipelineStates;
 
         // assign view specific pipeline states
         if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->defaultPipelineStates, view.camera->viewportState);
@@ -326,9 +330,11 @@ void CompileTraversal::apply(View& view)
 
         view.traverse(*this);
 
-        // restore previous pipeline states
-        context->defaultPipelineStates = previousDefaultPipelineStates;
-        context->overridePipelineStates = previousOverridePipelineStates;
+        // restore previous states
+        context->viewID = previous_viewID;
+        context->mask = previous_mask;
+        context->defaultPipelineStates = previous_defaultPipelineStates;
+        context->overridePipelineStates = previous_overridePipelineStates;
     }
 }
 

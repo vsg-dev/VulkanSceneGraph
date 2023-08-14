@@ -77,6 +77,7 @@ namespace vsg
 
         observer_ptr<View> view;
         uint32_t viewID = 0;
+        Mask mask = MASK_ALL;
         ViewDependentState* viewDependentState = nullptr;
 
         /// get existing ShaderCompiler or create a new one when GLSLang is supported

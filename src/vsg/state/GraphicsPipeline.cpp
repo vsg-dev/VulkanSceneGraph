@@ -196,20 +196,28 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.pNext = nullptr;
 
     auto shaderStageCreateInfo = context.scratchMemory->allocate<VkPipelineShaderStageCreateInfo>(shaderStages.size());
-    for (size_t i = 0; i < shaderStages.size(); ++i)
+    uint32_t i = 0;
+    for(auto& shaderStage : shaderStages)
     {
-        const ShaderStage* shaderStage = shaderStages[i];
-        shaderStageCreateInfo[i].flags = 0;
-        shaderStageCreateInfo[i].pNext = nullptr;
-        shaderStage->apply(context, shaderStageCreateInfo[i]);
+        // check if ShaderStage is appropriate to assign to stageInfo
+        if ((context.mask & shaderStage->mask) != 0)
+        {
+            shaderStageCreateInfo[i].flags = 0;
+            shaderStageCreateInfo[i].pNext = nullptr;
+            shaderStage->apply(context, shaderStageCreateInfo[i]);
+            ++i;
+        }
     }
 
-    pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineInfo.stageCount = i;
     pipelineInfo.pStages = shaderStageCreateInfo;
 
     for (auto pipelineState : pipelineStates)
     {
-        pipelineState->apply(context, pipelineInfo);
+        if ((context.mask & pipelineState->mask) != 0)
+        {
+            pipelineState->apply(context, pipelineInfo);
+        }
     }
 
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline);
