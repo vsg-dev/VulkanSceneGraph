@@ -55,7 +55,6 @@ namespace vsg
         ShaderStages stages;
         GraphicsPipelineStates pipelineStates;
         ref_ptr<PipelineLayout> layout;
-        ref_ptr<RenderPass> renderPass;
         uint32_t subpass;
 
         int compare(const Object& rhs_object) const override;
