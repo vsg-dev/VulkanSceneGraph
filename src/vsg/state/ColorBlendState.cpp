@@ -52,7 +52,7 @@ ColorBlendState::~ColorBlendState()
 
 int ColorBlendState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -64,7 +64,7 @@ int ColorBlendState::compare(const Object& rhs_object) const
 
 void ColorBlendState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     input.readValue<uint32_t>("logicOp", logicOp);
     input.readValue<uint32_t>("logicOpEnable", logicOpEnable);
@@ -91,7 +91,7 @@ void ColorBlendState::read(Input& input)
 
 void ColorBlendState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("logicOp", logicOp);
     output.writeValue<uint32_t>("logicOpEnable", logicOpEnable);

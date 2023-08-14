@@ -29,6 +29,7 @@ namespace vsg
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         VkBool32 primitiveRestartEnable = VK_FALSE;
 
+        int compare(const Object& rhs) const override;
         void read(Input& input) override;
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;

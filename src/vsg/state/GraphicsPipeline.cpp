@@ -24,6 +24,35 @@ using namespace vsg;
 //
 // GraphicsPipelineState
 //
+int GraphicsPipelineState::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(mask, rhs.mask);
+}
+
+void GraphicsPipelineState::read(Input& input)
+{
+    Object::read(input);
+
+    if (input.version_greater_equal(1, 0, 9))
+    {
+        input.read("mask", mask);
+    }
+}
+
+void GraphicsPipelineState::write(Output& output) const
+{
+    Object::write(output);
+
+    if (output.version_greater_equal(1, 0, 9))
+    {
+        output.write("mask", mask);
+    }
+}
+
 void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
 {
     // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState

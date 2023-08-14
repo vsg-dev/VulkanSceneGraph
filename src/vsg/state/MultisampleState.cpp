@@ -39,7 +39,7 @@ MultisampleState::~MultisampleState()
 
 int MultisampleState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -54,7 +54,7 @@ int MultisampleState::compare(const Object& rhs_object) const
 
 void MultisampleState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     input.readValue<uint32_t>("rasterizationSamples", rasterizationSamples);
     input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
@@ -76,7 +76,7 @@ void MultisampleState::read(Input& input)
 
 void MultisampleState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("rasterizationSamples", rasterizationSamples);
     output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);

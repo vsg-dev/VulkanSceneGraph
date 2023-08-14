@@ -44,7 +44,7 @@ ViewportState::~ViewportState()
 
 int ViewportState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -73,7 +73,7 @@ void ViewportState::set(int32_t x, int32_t y, uint32_t width, uint32_t height)
 
 void ViewportState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     viewports.resize(input.readValue<uint32_t>("viewports"));
     for (auto& viewport : viewports)
@@ -98,7 +98,7 @@ void ViewportState::read(Input& input)
 
 void ViewportState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("viewports", viewports.size());
     for (auto& viewport : viewports)

@@ -31,6 +31,9 @@ namespace vsg
 
         using SpecializationConstants = std::map<uint32_t, vsg::ref_ptr<vsg::Data>>;
 
+        /// apply ShaderStage when (mask & view.mask) is non zero
+        Mask mask = MASK_ALL;
+
         /// Vulkan VkPipelineShaderStageCreateInfo settings
         VkPipelineShaderStageCreateFlags flags = 0;
         VkShaderStageFlagBits stage = {};
