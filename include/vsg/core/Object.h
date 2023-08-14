@@ -102,7 +102,7 @@ namespace vsg
         template<typename T>
         void setValue(const std::string& key, const T& value);
 
-        /// specialization of setValue to handle passing c strings
+        /// specialization of setValue to handle passing C strings
         void setValue(const std::string& key, const char* value) { setValue(key, value ? std::string(value) : std::string()); }
 
         /// get specified value type, return false if value associated with key is not assigned or is not the correct type
@@ -136,7 +136,7 @@ namespace vsg
         template<class T>
         ref_ptr<T> getRefObject(const std::string& key) { return getRefObject(key).cast<T>(); }
 
-        /// get ref_ptr<const T>  of specified type associated with key, return nullptr if no object associated with key has been assigned
+        /// get ref_ptr<const T> of specified type associated with key, return nullptr if no object associated with key has been assigned
         template<class T>
         const ref_ptr<const T> getRefObject(const std::string& key) const { return getRefObject(key).cast<const T>(); }
 
