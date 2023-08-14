@@ -292,17 +292,18 @@ FILE* vsg::fopen(const Path& path, const char* mode)
 // Microsoft API for reading directories
 Paths vsg::getDirectoryContents(const Path& directoryName)
 {
-    LPDWORD strLength = 0;
-    PWSTR linkName = nullptr;
+    WIN32_FIND_DATAW ffd;
 
-    auto handle = FindFirstFileNameW(directoryName.c_str(), 0, strLength, linkName);
+    auto searchFolder = directoryName / "*";
+    auto handle = FindFirstFileW(searchFolder.c_str(), &ffd);
     if (handle == INVALID_HANDLE_VALUE) return {};
 
     Paths paths;
     do
     {
-        paths.push_back(linkName);
-    } while (FindNextFileNameW(handle, strLength, linkName));
+        paths.push_back(ffd.cFileName);
+    }
+    while (FindNextFileW(handle, &ffd) != 0);
 
     FindClose(handle);
 
