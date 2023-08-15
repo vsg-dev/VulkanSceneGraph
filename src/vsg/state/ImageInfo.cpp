@@ -159,7 +159,6 @@ void ImageInfo::computeNumMipMapLevels()
         }
 
         image->mipLevels = mipLevels;
-        imageView->subresourceRange.levelCount = mipLevels;
 
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
