@@ -65,9 +65,9 @@ void MultisampleState::read(Input& input)
     else
         sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask"));
 
-    for (auto& mask : sampleMasks)
+    for (auto& value : sampleMasks)
     {
-        input.readValue<uint32_t>("value", mask);
+        input.readValue<uint32_t>("value", value);
     }
 
     input.readValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
@@ -87,9 +87,9 @@ void MultisampleState::write(Output& output) const
     else
         output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size());
 
-    for (auto& mask : sampleMasks)
+    for (auto& value : sampleMasks)
     {
-        output.writeValue<uint32_t>("value", mask);
+        output.writeValue<uint32_t>("value", value);
     }
 
     output.writeValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
