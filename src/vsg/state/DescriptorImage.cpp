@@ -104,7 +104,7 @@ void DescriptorImage::compile(Context& context)
 
     for (auto& imageInfo : imageInfoList)
     {
-        imageInfo->computeNumMipMapLevels();
+        imageInfo->computeNumMipMapLevels(context.device);
 
         if (imageInfo->sampler) imageInfo->sampler->compile(context);
         if (imageInfo->imageView)
@@ -115,7 +115,7 @@ void DescriptorImage::compile(Context& context)
             if (imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
                 auto& image = *imageView.image;
-                context.copy(image.data, imageInfo, image.mipLevels);
+                context.copy(image.data, imageInfo, image.getMipLevels(context.device));
             }
         }
     }

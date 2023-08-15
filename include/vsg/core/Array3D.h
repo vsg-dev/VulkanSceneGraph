@@ -136,6 +136,7 @@ namespace vsg
 
             if (input.matchPropertyName("data"))
             {
+                // TODO: need to adapt dimensions for array imageViewType
                 size_t new_size = computeValueCountIncludingMipmaps(w, h, d, properties.maxNumMipmaps);
 
                 if (_data) // if data exists already may be able to reuse it
@@ -184,6 +185,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
+        // TODO: need to adapt dimensions for array imageViewType
         size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, properties.maxNumMipmaps); }
 
         bool available() const { return _data != nullptr; }

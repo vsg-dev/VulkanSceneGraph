@@ -51,6 +51,7 @@ namespace vsg
         {
             if (_width != 0 && _height != 0)
             {
+                // note, doesn't allocate space for mipmaps
                 _data = _allocate(_width * _height);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
@@ -60,6 +61,7 @@ namespace vsg
 
         Array2D(uint32_t width, uint32_t height, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
+            // note, doesn't allocate space for mipmaps
             _data(_allocate(width * height)),
             _width(width),
             _height(height) { dirty(); }
@@ -72,6 +74,7 @@ namespace vsg
 
         Array2D(uint32_t width, uint32_t height, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
+            // note, doesn't allocate space for mipmaps
             _data(_allocate(width * height)),
             _width(width),
             _height(height)

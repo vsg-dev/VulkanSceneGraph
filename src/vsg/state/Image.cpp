@@ -93,7 +93,10 @@ Image::Image(ref_ptr<Data> in_data) :
         }
 
         format = properties.format;
-        mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
+        if (mipmapOffsets.empty())
+            mipLevels = 1;
+        else
+            mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
         extent = VkExtent3D{width, height, depth};
 
         // remap RGB to RGBA
@@ -187,11 +190,16 @@ void Image::compile(Device* device)
     info.imageType = imageType;
     info.format = format;
     info.extent = extent;
-    info.mipLevels = mipLevels;
+    if (vd.generateMipLevels > 0)
+        info.mipLevels = vd.generateMipLevels;
+    else
+        info.mipLevels = mipLevels;
     info.arrayLayers = arrayLayers;
     info.samples = samples;
     info.tiling = tiling;
     info.usage = usage;
+    if (vd.generateMipLevels > 0)
+        info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     info.sharingMode = sharingMode;
     info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
     info.pQueueFamilyIndices = queueFamilyIndices.data();
@@ -227,4 +235,30 @@ void Image::compile(Context& context)
     vd.requiresDataCopy = data.valid();
 
     bind(deviceMemory, offset);
+}
+
+bool Image::requestGenerateMipLevels(Device* device, uint32_t requestedMipLevels)
+{
+    VkFormatProperties props;
+    vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), format, &props);
+    const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0 && (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT) > 0;
+    if (isBlitPossible)
+    {
+        _vulkanData[device->deviceID].generateMipLevels = requestedMipLevels;
+        return true;
+    }
+    else
+    {
+        _vulkanData[device->deviceID].generateMipLevels = 0;
+        return false;
+    }
+}
+
+uint32_t Image::getMipLevels(Device* device)
+{
+    const auto& vd = _vulkanData[device->deviceID];
+    if (vd.generateMipLevels > 0)
+        return vd.generateMipLevels;
+    else
+        return mipLevels;
 }

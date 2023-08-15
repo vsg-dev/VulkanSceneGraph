@@ -64,7 +64,7 @@ ImageView::ImageView(ref_ptr<Image> in_image) :
         subresourceRange.baseMipLevel = 0;
         subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         subresourceRange.baseArrayLayer = 0;
-        subresourceRange.layerCount = image->arrayLayers;
+        subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     }
 }
 
@@ -88,7 +88,7 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
         subresourceRange.baseMipLevel = 0;
         subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         subresourceRange.baseArrayLayer = 0;
-        subresourceRange.layerCount = image->arrayLayers;
+        subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     }
 }
 
@@ -244,18 +244,6 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
 
     auto vk_textureImage = textureImage->vk(device->deviceID);
-
-    if (generateMipmaps)
-    {
-        VkFormatProperties props;
-        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), properties.format, &props);
-        const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
-
-        if (!isBlitPossible)
-        {
-            generateMipmaps = false;
-        }
-    }
 
     // transfer the data.
     VkImageMemoryBarrier preCopyBarrier = {};

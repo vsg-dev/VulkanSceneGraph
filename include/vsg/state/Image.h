@@ -33,13 +33,15 @@ namespace vsg
         /// Vulkan VkImage handle
         VkImage vk(uint32_t deviceID) const { return _vulkanData[deviceID].image; }
 
-        /// VkImageCreateInfo settings
+        /// optional Data that was used to initialize createInfo
         ref_ptr<Data> data;
+
+        /// VkImageCreateInfo settings
         VkImageCreateFlags flags = 0;
         VkImageType imageType = VK_IMAGE_TYPE_2D;
         VkFormat format = VK_FORMAT_UNDEFINED;
         VkExtent3D extent = {0, 0, 0};
-        uint32_t mipLevels = 0;
+        uint32_t mipLevels = 0; // Note, if generated mipmaps are requested and supported by the Device then the mipLevels are calculated for that Device and Image::mipLevels is ignored.
         uint32_t arrayLayers = 0;
         VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
         VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -70,6 +72,9 @@ namespace vsg
         virtual void compile(Device* device);
         virtual void compile(Context& context);
 
+        bool requestGenerateMipLevels(Device* device, uint32_t mipLevels);
+        uint32_t getMipLevels(Device* device);
+
     protected:
         virtual ~Image();
 
@@ -82,6 +87,7 @@ namespace vsg
             ref_ptr<Device> device;
             bool requiresDataCopy = false;
             ModifiedCount copiedModifiedCount;
+            uint32_t generateMipLevels = 0;
 
             void release();
         };

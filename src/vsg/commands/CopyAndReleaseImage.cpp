@@ -50,7 +50,7 @@ void CopyAndReleaseImage::add(const CopyData& cd)
 
 void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest)
 {
-    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src->data, dest->sampler)));
+    add(CopyData(src, dest, dest->imageView->image->mipLevels));
 }
 
 void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
@@ -60,7 +60,7 @@ void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, 
 
 void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
-    copy(data, dest, vsg::computeNumMipMapLevels(data, dest->sampler));
+    copy(data, dest, dest->imageView->image->mipLevels);
 }
 
 void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
