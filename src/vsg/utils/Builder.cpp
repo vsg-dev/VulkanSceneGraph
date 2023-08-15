@@ -67,7 +67,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
         graphicsPipelineConfig->assignTexture("diffuseMap", stateInfo.image, sampler);
 
-        if (stateInfo.greyscale) defines.insert("VSG_GREYSACLE_DIFFUSE_MAP");
+        if (stateInfo.greyscale) defines.insert("VSG_GREYSCALE_DIFFUSE_MAP");
     }
 
     if (stateInfo.displacementMap)
