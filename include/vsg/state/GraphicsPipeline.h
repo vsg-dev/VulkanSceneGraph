@@ -29,6 +29,7 @@ namespace vsg
     {
     public:
         GraphicsPipelineState() {}
+        GraphicsPipelineState(const GraphicsPipelineState& gp) : Inherit(), mask(gp.mask) {}
 
         /// apply GraphicsPipelineState when (mask & view.mask) is non zero
         Mask mask = MASK_ALL;
