@@ -216,18 +216,9 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.stageCount = i;
     pipelineInfo.pStages = shaderStageCreateInfo;
 
-    info("GraphicsPipeline::Implementation::Implementation() context.viewID = ", context.viewID, ", context.mask = ", context.mask, ", pipelineStates.size() = ", pipelineStates.size());
     for (auto pipelineState : pipelineStates)
     {
-        if ((context.mask & pipelineState->mask) != 0)
-        {
-            info("    enabled ", pipelineState, ", mask = ", pipelineState->mask);
-            pipelineState->apply(context, pipelineInfo);
-        }
-        else
-        {
-            info("    not enabled ", pipelineState, ", mask = ", pipelineState->mask);
-        }
+        pipelineState->apply(context, pipelineInfo);
     }
 
     VkResult result = vkCreateGraphicsPipelines(*device, VK_NULL_HANDLE, 1, &pipelineInfo, _device->getAllocationCallbacks(), &_pipeline);
