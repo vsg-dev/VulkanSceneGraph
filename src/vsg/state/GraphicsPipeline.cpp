@@ -53,8 +53,10 @@ void GraphicsPipelineState::write(Output& output) const
     }
 }
 
-void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
+void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
 {
+    if ((mask & src_PipelineState->mask) == 0) return;
+
     // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState
     for (auto& original_pipelineState : dest_PipelineStates)
     {
@@ -67,11 +69,11 @@ void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineState
     dest_PipelineStates.push_back(src_PipelineState);
 }
 
-void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
+void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
 {
     for (auto& src_PipelineState : src_PipelineStates)
     {
-        mergeGraphicsPipelineStates(dest_PipelineStates, src_PipelineState);
+        mergeGraphicsPipelineStates(mask, dest_PipelineStates, src_PipelineState);
     }
 }
 
@@ -172,9 +174,11 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        GraphicsPipelineStates combined_pipelineStates = context.defaultPipelineStates;
-        mergeGraphicsPipelineStates(combined_pipelineStates, pipelineStates);
-        mergeGraphicsPipelineStates(combined_pipelineStates, context.overridePipelineStates);
+        GraphicsPipelineStates combined_pipelineStates;
+        combined_pipelineStates.reserve(context.defaultPipelineStates.size() + pipelineStates.size() + context.overridePipelineStates.size());
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.defaultPipelineStates);
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, pipelineStates);
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.overridePipelineStates);
 
         _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
     }
@@ -212,11 +216,17 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.stageCount = i;
     pipelineInfo.pStages = shaderStageCreateInfo;
 
+    info("GraphicsPipeline::Implementation::Implementation() context.viewID = ", context.viewID, ", context.mask = ", context.mask, ", pipelineStates.size() = ", pipelineStates.size());
     for (auto pipelineState : pipelineStates)
     {
         if ((context.mask & pipelineState->mask) != 0)
         {
+            info("    enabled ", pipelineState, ", mask = ", pipelineState->mask);
             pipelineState->apply(context, pipelineInfo);
+        }
+        else
+        {
+            info("    not enabled ", pipelineState, ", mask = ", pipelineState->mask);
         }
     }
 
