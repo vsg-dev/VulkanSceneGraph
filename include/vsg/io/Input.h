@@ -110,7 +110,7 @@ namespace vsg
         void read(size_t num, plane* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dplane* value) { read(num * value->size(), value->data()); }
 
-        /// treat non standard type as raw data,
+        /// treat non standard type as raw data
         template<typename T>
         void read(size_t num, T* value)
         {
