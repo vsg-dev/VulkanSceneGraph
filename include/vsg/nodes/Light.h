@@ -76,7 +76,7 @@ namespace vsg
     };
     VSG_type_name(vsg::PointLight);
 
-    /// SpotLight represents a local point light source which intensity varies as a spot light.
+    /// SpotLight represents a local point light source whose intensity varies as a spot light.
     class VSG_DECLSPEC SpotLight : public Inherit<Light, SpotLight>
     {
     public:
