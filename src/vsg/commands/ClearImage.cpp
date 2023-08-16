@@ -19,15 +19,15 @@ using namespace vsg;
 void ClearColorImage::record(CommandBuffer& commandBuffer) const
 {
     vkCmdClearColorImage(commandBuffer,
-            image->vk(commandBuffer.deviceID),
-            imageLayout, &color,
-            static_cast<uint32_t>(ranges.size()), ranges.data());
+                         image->vk(commandBuffer.deviceID),
+                         imageLayout, &color,
+                         static_cast<uint32_t>(ranges.size()), ranges.data());
 }
 
 void ClearDepthStencilImage::record(CommandBuffer& commandBuffer) const
 {
     vkCmdClearDepthStencilImage(commandBuffer,
-            image->vk(commandBuffer.deviceID),
-            imageLayout, &depthStencil,
-            static_cast<uint32_t>(ranges.size()), ranges.data());
+                                image->vk(commandBuffer.deviceID),
+                                imageLayout, &depthStencil,
+                                static_cast<uint32_t>(ranges.size()), ranges.data());
 }

@@ -88,9 +88,9 @@ namespace vsg
         /// compile manager provides thread safe support for compiling subgraphs
         ref_ptr<CompileManager> compileManager;
 
-        /// convenience method for advancing to the next frame.
+        /// Convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
-        /// lf still active, poll for pending events and place them in the Events list and advance to the next frame, generate updated FrameStamp to signify the advancement to a new frame and return true.
+        /// If still active, poll for pending events and place them in the Events list and advance to the next frame, generate updated FrameStamp to signify the advancement to a new frame and return true.
         virtual bool advanceToNextFrame();
 
         /// pass the Events into any registered EventHandlers

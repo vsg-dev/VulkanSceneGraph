@@ -29,6 +29,15 @@ namespace vsg
     {
     public:
         GraphicsPipelineState() {}
+        GraphicsPipelineState(const GraphicsPipelineState& gp) :
+            Inherit(), mask(gp.mask) {}
+
+        /// apply GraphicsPipelineState when (mask & view.mask) is non zero
+        Mask mask = MASK_ALL;
+
+        int compare(const Object& rhs) const override;
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         virtual void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
@@ -38,8 +47,8 @@ namespace vsg
     VSG_type_name(vsg::GraphicsPipelineState);
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
-    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState);
-    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates);
+    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState);
+    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates);
 
     /// GraphicsPipeline encapsulates graphics VkPipeline and the VkGraphicsPipelineCreateInfo settings used to set it up.
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>

@@ -33,7 +33,7 @@ DynamicState::~DynamicState()
 
 int DynamicState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -42,7 +42,7 @@ int DynamicState::compare(const Object& rhs_object) const
 
 void DynamicState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     dynamicStates.resize(input.readValue<uint32_t>("NumDynamicStates"));
     for (auto& dynamicState : dynamicStates)
@@ -53,7 +53,7 @@ void DynamicState::read(Input& input)
 
 void DynamicState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("NumDynamicStates", dynamicStates.size());
     for (auto& dynamicState : dynamicStates)

@@ -62,7 +62,7 @@ ImageView::ImageView(ref_ptr<Image> in_image) :
         format = image->format;
         subresourceRange.aspectMask = computeAspectFlagsForFormat(image->format);
         subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = image->mipLevels;
+        subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         subresourceRange.baseArrayLayer = 0;
         subresourceRange.layerCount = image->arrayLayers;
     }
@@ -86,7 +86,7 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
         format = image->format;
         subresourceRange.aspectMask = aspectFlags;
         subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = image->mipLevels;
+        subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         subresourceRange.baseArrayLayer = 0;
         subresourceRange.layerCount = image->arrayLayers;
     }

@@ -243,11 +243,11 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
             auto previousDefaultPipelineStates = context->defaultPipelineStates;
             auto previousOverridePipelineStates = context->overridePipelineStates;
 
-            mergeGraphicsPipelineStates(context->defaultPipelineStates, ViewportState::create(renderArea));
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderArea));
 
             if (samples != VK_SAMPLE_COUNT_1_BIT)
             {
-                mergeGraphicsPipelineStates(context->overridePipelineStates, MultisampleState::create(samples));
+                mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(samples));
             }
 
             commandGraph.traverse(*this);
@@ -284,16 +284,16 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
         if (renderGraph.window)
         {
-            mergeGraphicsPipelineStates(context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
         }
         else if (renderGraph.framebuffer)
         {
-            mergeGraphicsPipelineStates(context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
         }
 
         if (context->renderPass && context->renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
         {
-            mergeGraphicsPipelineStates(context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
+            mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
         }
 
         renderGraph.traverse(*this);
@@ -312,23 +312,28 @@ void CompileTraversal::apply(View& view)
         auto context_view = context->view.ref_ptr();
         if (context_view && context_view.get() != &view) continue;
 
+        // save previous states
+        auto previous_viewID = context->viewID;
+        auto previous_mask = context->mask;
+        auto previous_overridePipelineStates = context->overridePipelineStates;
+        auto previous_defaultPipelineStates = context->defaultPipelineStates;
+
         context->viewID = view.viewID;
+        context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
         if (view.viewDependentState) view.viewDependentState->compile(*context);
 
-        // save previous pipeline states
-        auto previousOverridePipelineStates = context->overridePipelineStates;
-        auto previousDefaultPipelineStates = context->defaultPipelineStates;
-
         // assign view specific pipeline states
-        if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->defaultPipelineStates, view.camera->viewportState);
-        mergeGraphicsPipelineStates(context->overridePipelineStates, view.overridePipelineStates);
+        if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
+        mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, view.overridePipelineStates);
 
         view.traverse(*this);
 
-        // restore previous pipeline states
-        context->defaultPipelineStates = previousDefaultPipelineStates;
-        context->overridePipelineStates = previousOverridePipelineStates;
+        // restore previous states
+        context->viewID = previous_viewID;
+        context->mask = previous_mask;
+        context->defaultPipelineStates = previous_defaultPipelineStates;
+        context->overridePipelineStates = previous_overridePipelineStates;
     }
 }
 

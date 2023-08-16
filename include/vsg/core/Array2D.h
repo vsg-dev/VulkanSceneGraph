@@ -247,8 +247,8 @@ namespace vsg
             dirty();
         }
 
-        // release the data so that ownership can be passed on, the local data pointer and size is set to 0 and destruction of Array will not result in the data being deleted.
-        // when the data is stored in a separate vsg::Data object then return nullptr and do not attempt to release data.
+        // release the data so that ownership can be passed on, the local data pointer and size is set to 0 so that destruction of Array will not result in the data being deleted.
+        // if the data is stored in a separate vsg::Data object then return nullptr and do not attempt to release data.
         void* dataRelease() override
         {
             if (!_storage)

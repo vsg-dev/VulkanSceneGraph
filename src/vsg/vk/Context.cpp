@@ -106,6 +106,7 @@ Context::Context(const Context& context) :
     device(context.device),
     view(context.view),
     viewID(context.viewID),
+    mask(context.mask),
     viewDependentState(context.viewDependentState),
     minimum_maxSets(context.minimum_maxSets),
     minimum_descriptorPoolSizes(context.minimum_descriptorPoolSizes),

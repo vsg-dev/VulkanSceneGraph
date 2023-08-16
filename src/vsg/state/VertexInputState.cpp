@@ -40,7 +40,7 @@ VertexInputState::~VertexInputState()
 
 int VertexInputState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -51,7 +51,7 @@ int VertexInputState::compare(const Object& rhs_object) const
 
 void VertexInputState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     vertexBindingDescriptions.resize(input.readValue<uint32_t>("NumBindings"));
     for (auto& binding : vertexBindingDescriptions)
@@ -73,7 +73,7 @@ void VertexInputState::read(Input& input)
 
 void VertexInputState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("NumBindings", vertexBindingDescriptions.size());
     for (auto& binding : vertexBindingDescriptions)

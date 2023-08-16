@@ -100,7 +100,7 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
         uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
         if (sampler->maxLod == VK_LOD_CLAMP_NONE)
         {
-            while ((1u << (mipLevels - 1)) < maxDimension)
+            while ((1u << mipLevels) <= maxDimension)
             {
                 ++mipLevels;
             }
@@ -159,7 +159,6 @@ void ImageInfo::computeNumMipMapLevels()
         }
 
         image->mipLevels = mipLevels;
-        imageView->subresourceRange.levelCount = mipLevels;
 
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
