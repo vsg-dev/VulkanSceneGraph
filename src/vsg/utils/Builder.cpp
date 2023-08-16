@@ -114,16 +114,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         void apply(Object& object) { object.traverse(*this); }
         void apply(RasterizationState& rs) { if (si.two_sided) rs.cullMode = VK_CULL_MODE_NONE; }
         void apply(InputAssemblyState& ias) { if (si.wireframe) ias.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; }
-        void apply(ColorBlendState& cbs)
-        {
-            if (si.blending)
-            {
-                for(auto& attachment : cbs.attachments)
-                {
-                    attachment.blendEnable = si.blending;
-                }
-            }
-        }
+        void apply(ColorBlendState& cbs) { cbs.configureAttachments(si.blending); }
     } sps(stateInfo);
 
     graphicsPipelineConfig->accept(sps);

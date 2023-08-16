@@ -33,6 +33,9 @@ namespace vsg
         ColorBlendAttachments attachments;
         float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
+        /// configure the attachments, if blendEnable is true then set up standard src_alpha, dest_one_minus_alpha blending otherwise disable blending.
+        virtual void configureAttachments(bool blendEnable);
+
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

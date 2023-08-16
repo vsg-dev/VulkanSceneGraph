@@ -50,6 +50,34 @@ ColorBlendState::~ColorBlendState()
 {
 }
 
+
+void ColorBlendState::configureAttachments(bool blendEnable)
+{
+    for(auto& attachment : attachments)
+    {
+        if (blendEnable)
+        {
+            attachment.blendEnable = VK_TRUE;
+            attachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            attachment.colorBlendOp = VK_BLEND_OP_ADD;
+            attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        }
+        else
+        {
+            attachment.blendEnable = VK_FALSE;
+            attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+            attachment.colorBlendOp = VK_BLEND_OP_ADD;
+            attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+            attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        }
+    }
+}
+
 int ColorBlendState::compare(const Object& rhs_object) const
 {
     int result = GraphicsPipelineState::compare(rhs_object);
