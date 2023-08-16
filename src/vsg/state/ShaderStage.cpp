@@ -118,6 +118,11 @@ void ShaderStage::read(Input& input)
 {
     Object::read(input);
 
+    if (input.version_greater_equal(1, 0, 9))
+    {
+        input.read("mask", mask);
+    }
+
     input.readValue<int32_t>("stage", stage);
     input.read("entryPointName", entryPointName);
     input.readObject("module", module);
@@ -134,6 +139,11 @@ void ShaderStage::read(Input& input)
 void ShaderStage::write(Output& output) const
 {
     Object::write(output);
+
+    if (output.version_greater_equal(1, 0, 9))
+    {
+        output.write("mask", mask);
+    }
 
     output.writeValue<int32_t>("stage", stage);
     output.write("entryPointName", entryPointName);

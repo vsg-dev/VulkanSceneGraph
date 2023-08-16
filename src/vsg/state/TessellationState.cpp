@@ -34,7 +34,7 @@ TessellationState::~TessellationState()
 
 int TessellationState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -43,14 +43,14 @@ int TessellationState::compare(const Object& rhs_object) const
 
 void TessellationState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     input.read("patchControlPoints", patchControlPoints);
 }
 
 void TessellationState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.write("patchControlPoints", patchControlPoints);
 }
