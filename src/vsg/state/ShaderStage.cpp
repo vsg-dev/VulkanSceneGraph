@@ -155,7 +155,6 @@ void ShaderStage::write(Output& output) const
         output.writeValue<uint32_t>("id", id);
         output.writeObject("data", data);
     }
-
 }
 
 void ShaderStage::apply(Context& context, VkPipelineShaderStageCreateInfo& stageInfo) const

@@ -50,10 +50,9 @@ ColorBlendState::~ColorBlendState()
 {
 }
 
-
 void ColorBlendState::configureAttachments(bool blendEnable)
 {
-    for(auto& attachment : attachments)
+    for (auto& attachment : attachments)
     {
         if (blendEnable)
         {

@@ -129,7 +129,6 @@ namespace vsg
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
 
     protected:
-
         void _assignShaderSetSettings();
     };
     VSG_type_name(vsg::GraphicsPipelineConfigurator);

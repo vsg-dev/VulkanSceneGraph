@@ -201,7 +201,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
 
     auto shaderStageCreateInfo = context.scratchMemory->allocate<VkPipelineShaderStageCreateInfo>(shaderStages.size());
     uint32_t i = 0;
-    for(auto& shaderStage : shaderStages)
+    for (auto& shaderStage : shaderStages)
     {
         // check if ShaderStage is appropriate to assign to stageInfo
         if ((context.mask & shaderStage->mask) != 0)
