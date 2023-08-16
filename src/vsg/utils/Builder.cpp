@@ -106,18 +106,31 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->enableArray("vsg_position", VK_VERTEX_INPUT_RATE_INSTANCE, 12);
     }
 
+    struct SetPipelineStates : public Visitor
+    {
+        const StateInfo& si;
+        SetPipelineStates(const StateInfo& in) : si(in) {}
+
+        void apply(Object& object) { object.traverse(*this); }
+        void apply(RasterizationState& rs) { if (si.two_sided) rs.cullMode = VK_CULL_MODE_NONE; }
+        void apply(InputAssemblyState& ias) { if (si.wireframe) ias.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; }
+        void apply(ColorBlendState& cbs)
+        {
+            if (si.blending)
+            {
+                for(auto& attachment : cbs.attachments)
+                {
+                    attachment.blendEnable = si.blending;
+                }
+            }
+        }
+    } sps(stateInfo);
+
+    graphicsPipelineConfig->accept(sps);
+
     if (stateInfo.two_sided)
     {
-        graphicsPipelineConfig->rasterizationState->cullMode = VK_CULL_MODE_NONE;
         defines.insert("VSG_TWO_SIDED_LIGHTING");
-    }
-
-    graphicsPipelineConfig->colorBlendState->attachments = ColorBlendState::ColorBlendAttachments{
-        {stateInfo.blending, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD, VK_BLEND_FACTOR_SRC_ALPHA, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_SUBTRACT, VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT}};
-
-    if (stateInfo.wireframe)
-    {
-        graphicsPipelineConfig->inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
     }
 
     // if required initialize GraphicsPipeline/Layout etc.

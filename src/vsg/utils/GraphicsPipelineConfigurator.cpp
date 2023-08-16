@@ -25,15 +25,26 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
     explicit AssignGraphicsPipelineStates(vsg::GraphicsPipelineConfigurator* in_config) :
         config(in_config) {}
 
-    void apply(vsg::ColorBlendState& cbs) override { config->colorBlendState = ColorBlendState::create(cbs); }
-    void apply(vsg::DepthStencilState& mss) override { config->depthStencilState = DepthStencilState::create(mss); }
-    void apply(vsg::DynamicState& mss) override { config->dynamicState = DynamicState::create(mss); }
-    void apply(vsg::InputAssemblyState& ias) override { config->inputAssemblyState = InputAssemblyState::create(ias); }
-    void apply(vsg::MultisampleState& mss) override { config->multisampleState = MultisampleState::create(mss); }
-    void apply(vsg::RasterizationState& rs) override { config->rasterizationState = RasterizationState::create(rs); }
-    void apply(vsg::TessellationState& rs) override { config->tessellationState = TessellationState::create(rs); }
-    void apply(vsg::VertexInputState& ias) override { config->vertexInputState = VertexInputState::create(ias); }
-    void apply(vsg::ViewportState& ias) override { config->viewportState = ViewportState::create(ias); }
+    ref_ptr<ColorBlendState> colorBlendState;
+    ref_ptr<DepthStencilState> depthStencilState;
+    ref_ptr<DynamicState> dynamicState;
+    ref_ptr<InputAssemblyState> inputAssemblyState;
+    ref_ptr<MultisampleState> multisampleState;
+    ref_ptr<RasterizationState> rasterizationState;
+    ref_ptr<TessellationState> tessellationState;
+    ref_ptr<VertexInputState> vertexInputState;
+    ref_ptr<ViewportState> viewportState;
+
+    void apply(vsg::Object& object) override { object.traverse(*this); }
+    void apply(vsg::ColorBlendState& cbs) override { colorBlendState = ColorBlendState::create(cbs); config->pipelineStates.push_back(colorBlendState); }
+    void apply(vsg::DepthStencilState& mss) override { depthStencilState = DepthStencilState::create(mss); config->pipelineStates.push_back(depthStencilState); }
+    void apply(vsg::DynamicState& mss) override { dynamicState = DynamicState::create(mss); config->pipelineStates.push_back(dynamicState); }
+    void apply(vsg::InputAssemblyState& ias) override { inputAssemblyState = InputAssemblyState::create(ias); config->pipelineStates.push_back(inputAssemblyState); }
+    void apply(vsg::MultisampleState& mss) override { multisampleState = MultisampleState::create(mss); config->pipelineStates.push_back(multisampleState); }
+    void apply(vsg::RasterizationState& rs) override { rasterizationState = RasterizationState::create(rs); config->pipelineStates.push_back(rasterizationState); }
+    void apply(vsg::TessellationState& rs) override { tessellationState = TessellationState::create(rs); config->pipelineStates.push_back(tessellationState); }
+    void apply(vsg::VertexInputState& ias) override { vertexInputState = VertexInputState::create(ias); config->pipelineStates.push_back(vertexInputState); }
+    void apply(vsg::ViewportState& ias) override { viewportState = ViewportState::create(ias); config->pipelineStates.push_back(viewportState); }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,48 +274,86 @@ bool ArrayConfigurator::assignArray(const std::string& name, VkVertexInputRate v
 GraphicsPipelineConfigurator::GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
 {
+    _assignShaderSetSettings();
+}
+
+void GraphicsPipelineConfigurator::_assignShaderSetSettings()
+{
     // apply defaults
-    auto& graphicsPipelineStates = shaderSet->defaultGraphicsPipelineStates;
-    if (!graphicsPipelineStates.empty())
+    AssignGraphicsPipelineStates agps(this);
+    for(auto& pipelineState : shaderSet->defaultGraphicsPipelineStates)
     {
-        AssignGraphicsPipelineStates agps(this);
-        for (auto& gps : graphicsPipelineStates)
-        {
-            gps->accept(agps);
-        }
+        pipelineState->accept(agps);
     }
 
-    if (!vertexInputState) vertexInputState = VertexInputState::create();
-    if (!inputAssemblyState) inputAssemblyState = vsg::InputAssemblyState::create();
-    if (!rasterizationState) rasterizationState = vsg::RasterizationState::create();
-    if (!colorBlendState) colorBlendState = vsg::ColorBlendState::create();
-    if (!multisampleState) multisampleState = vsg::MultisampleState::create();
-    if (!depthStencilState) depthStencilState = vsg::DepthStencilState::create();
+    if (!agps.vertexInputState) pipelineStates.push_back(VertexInputState::create());
+    if (!agps.inputAssemblyState) pipelineStates.push_back(vsg::InputAssemblyState::create());
+    if (!agps.rasterizationState) pipelineStates.push_back(vsg::RasterizationState::create());
+    if (!agps.colorBlendState) pipelineStates.push_back(vsg::ColorBlendState::create());
+    if (!agps.multisampleState) pipelineStates.push_back(vsg::MultisampleState::create());
+    if (!agps.depthStencilState) pipelineStates.push_back(vsg::DepthStencilState::create());
 
     shaderHints = shaderSet->defaultShaderHints ? vsg::ShaderCompileSettings::create(*shaderSet->defaultShaderHints) : vsg::ShaderCompileSettings::create();
 }
 
+void GraphicsPipelineConfigurator::traverse(Visitor& visitor)
+{
+    for(auto& ps : pipelineStates) ps->accept(visitor);
+    if (shaderSet) shaderSet->accept(visitor);
+    if (shaderHints) shaderHints->accept(visitor);
+    if (descriptorConfigurator) descriptorConfigurator->accept(visitor);
+}
+
+void GraphicsPipelineConfigurator::traverse(ConstVisitor& visitor) const
+{
+    for(auto& ps : pipelineStates) ps->accept(visitor);
+    if (shaderSet) shaderSet->accept(visitor);
+    if (shaderHints) shaderHints->accept(visitor);
+    if (descriptorConfigurator) descriptorConfigurator->accept(visitor);
+}
+
 void GraphicsPipelineConfigurator::reset()
 {
-    vertexInputState->vertexAttributeDescriptions.clear();
-    vertexInputState->vertexBindingDescriptions.clear();
+    pipelineStates.clear();
     shaderHints->defines.clear();
+    if (descriptorConfigurator) descriptorConfigurator->reset();
 
-    descriptorConfigurator = {};
-
-    // if (descriptorConfigurator) descriptorConfigurator->reset();
+    _assignShaderSetSettings();
 }
+
+struct SetPipelineStates : public Visitor
+{
+    uint32_t base = 0;
+    const AttributeBinding& binding;
+    VkVertexInputRate vir;
+    uint32_t stride;
+    VkFormat format;
+
+    SetPipelineStates(uint32_t in_base, const AttributeBinding& in_binding, VkVertexInputRate in_vir, uint32_t in_stride, VkFormat in_format) :
+        base(in_base),
+        binding(in_binding),
+        vir(in_vir),
+        stride(in_stride),
+        format(in_format) {}
+
+    void apply(Object& object) override { object.traverse(*this); }
+    void apply(VertexInputState& vis) override
+    {
+        uint32_t bindingIndex = base + static_cast<uint32_t>(vis.vertexAttributeDescriptions.size());
+        vis.vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{binding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : binding.format, 0});
+        vis.vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, stride, vir});
+    }
+};
 
 bool GraphicsPipelineConfigurator::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format)
 {
     auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
     {
-        // set up bindings
-        uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(vertexInputState->vertexAttributeDescriptions.size());
         if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
-        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
-        vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, stride, vertexInputRate});
+
+        SetPipelineStates setVertexAttributeState(baseAttributeBinding, attributeBinding, vertexInputRate, stride, format) ;
+        accept(setVertexAttributeState);
         return true;
     }
     return false;
@@ -329,11 +378,8 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
     {
         VkFormat format = array ? array->properties.format : VK_FORMAT_UNDEFINED;
 
-        // set up bindings
-        uint32_t bindingIndex = baseAttributeBinding + static_cast<uint32_t>(arrays.size());
-        if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
-        vertexInputState->vertexAttributeDescriptions.push_back(VkVertexInputAttributeDescription{attributeBinding.location, bindingIndex, (format != VK_FORMAT_UNDEFINED) ? format : attributeBinding.format, 0});
-        vertexInputState->vertexBindingDescriptions.push_back(VkVertexInputBindingDescription{bindingIndex, array->properties.stride, vertexInputRate});
+        SetPipelineStates setVertexAttributeState(baseAttributeBinding, attributeBinding, vertexInputRate, array->properties.stride, format) ;
+        accept(setVertexAttributeState);
 
         arrays.push_back(array);
         return true;
@@ -360,15 +406,7 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
-    if ((result = compare_pointer(colorBlendState, rhs.colorBlendState))) return result;
-    if ((result = compare_pointer(depthStencilState, rhs.depthStencilState))) return result;
-    if ((result = compare_pointer(dynamicState, rhs.dynamicState))) return result;
-    if ((result = compare_pointer(inputAssemblyState, rhs.inputAssemblyState))) return result;
-    if ((result = compare_pointer(multisampleState, rhs.multisampleState))) return result;
-    if ((result = compare_pointer(rasterizationState, rhs.rasterizationState))) return result;
-    if ((result = compare_pointer(tessellationState, rhs.tessellationState))) return result;
-    if ((result = compare_pointer(vertexInputState, rhs.vertexInputState))) return result;
-    if ((result = compare_pointer(viewportState, rhs.viewportState))) return result;
+    if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
 
     if ((result = compare_value(subpass, rhs.subpass))) return result;
     if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
@@ -405,18 +443,6 @@ void GraphicsPipelineConfigurator::init()
     }
 
     layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
-
-    GraphicsPipelineStates pipelineStates;
-    if (colorBlendState) pipelineStates.push_back(colorBlendState);
-    if (depthStencilState) pipelineStates.push_back(depthStencilState);
-    if (dynamicState) pipelineStates.push_back(dynamicState);
-    if (inputAssemblyState) pipelineStates.push_back(inputAssemblyState);
-    if (multisampleState) pipelineStates.push_back(multisampleState);
-    if (rasterizationState) pipelineStates.push_back(rasterizationState);
-    if (tessellationState) pipelineStates.push_back(tessellationState);
-    if (vertexInputState) pipelineStates.push_back(vertexInputState);
-    if (viewportState) pipelineStates.push_back(viewportState);
-
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }
