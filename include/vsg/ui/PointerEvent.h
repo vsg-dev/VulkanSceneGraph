@@ -22,11 +22,11 @@ namespace vsg
     enum ButtonMask : uint16_t
     {
         BUTTON_MASK_OFF = 0,
-        BUTTON_MASK_1 = 256,
-        BUTTON_MASK_2 = 512,
-        BUTTON_MASK_3 = 1024,
-        BUTTON_MASK_4 = 2048, /// mouse wheel up
-        BUTTON_MASK_5 = 4096  /// mouse wheel down
+        BUTTON_MASK_1   = 0x0100, /// left mouse button
+        BUTTON_MASK_2   = 0x0200, /// middle mouse button
+        BUTTON_MASK_3   = 0x0400, /// right mouse button 
+        BUTTON_MASK_4   = 0x0800, /// X1 mouse button
+        BUTTON_MASK_5   = 0x1000  /// X2 mouse button
     };
 
     /// PointerEvent is a base class for mouse pointer events
@@ -77,7 +77,7 @@ namespace vsg
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
             button(in_button) {}
 
-        uint32_t button;
+        uint32_t button = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;
