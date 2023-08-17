@@ -44,6 +44,8 @@ void assignValue(T& dest, const T& src, bool& updated)
 
 void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
+    if (!text)
+        return;
     auto layout = text->layout;
     if (!layout) return;
 
