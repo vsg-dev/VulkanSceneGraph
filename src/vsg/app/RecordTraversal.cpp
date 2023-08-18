@@ -483,10 +483,7 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
 {
     if (recordedCommandBuffers)
     {
-        info("RecordTraversal::apply(const CommandGraph& commandGraph) NESTED ", &commandGraph);
-
         auto cg = const_cast<CommandGraph*>(&commandGraph);
-
         cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
         cg->traverse(*this);
     }
