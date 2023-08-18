@@ -123,7 +123,7 @@ ViewDependentState::~ViewDependentState()
 
 void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
 {
-    info("ViewDependentState::init(", maxNumberLights, ", ", maxViewports, ") ", this);
+    // info("ViewDependentState::init(", maxNumberLights, ", ", maxViewports, ") ", this);
 
     lightData = vec4Array::create(maxNumberLights);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
@@ -195,6 +195,7 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 {
+#if 0
     info("ViewDependentState::traverse(", &rt, ", ", &view, ")");
     for (auto& [mv, light] : directionalLights)
     {
@@ -214,6 +215,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         info("   spot light : position = ", eye_position, ", direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
     }
+#endif
 }
 
 void ViewDependentState::pack()
