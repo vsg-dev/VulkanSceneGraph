@@ -17,6 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CommandBuffer
+//
 CommandBuffer::CommandBuffer(CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level) :
     deviceID(commandPool->getDevice()->deviceID),
     scratchMemory(ScratchMemory::create(4096)),
@@ -43,4 +47,47 @@ void CommandBuffer::reset()
     _currentPushConstantStageFlags = 0;
 
     _commandPool->reset();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CommandBufferMap
+//
+CommandBufferMap::~CommandBufferMap()
+{
+}
+
+void CommandBufferMap::clear()
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _commandBuffers.clear();
+}
+
+void CommandBufferMap::add(int submitOder, ref_ptr<vsg::CommandBuffer> commandBuffer)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _commandBuffers[submitOder].push_back(commandBuffer);
+}
+
+bool CommandBufferMap::empty() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _commandBuffers.empty();
+}
+
+CommandBuffers CommandBufferMap::buffers() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    if (_commandBuffers.empty()) return {};
+    if (_commandBuffers.size()==1) return _commandBuffers.begin()->second;
+
+    CommandBuffers buffers;
+    for(auto itr = _commandBuffers.begin(); itr != _commandBuffers.end(); ++itr)
+    {
+        auto& cbs = itr->second;
+        buffers.insert(buffers.end(), cbs.begin(), cbs.end());
+    }
+
+    return buffers;
 }

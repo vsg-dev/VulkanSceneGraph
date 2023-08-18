@@ -56,7 +56,7 @@ void SecondaryCommandGraph::_disconnect(ExecuteCommands* ec)
     if (itr != _executeCommands.end()) _executeCommands.erase(itr);
 }
 
-void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
+void SecondaryCommandGraph::record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
     {
@@ -73,6 +73,7 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
         recordTraversal->getState()->stateStacks.resize(maxSlot + 1);
     }
 
+    recordTraversal->recordedCommandBuffers = recordedCommandBuffers;
     recordTraversal->setFrameStamp(frameStamp);
     recordTraversal->setDatabasePager(databasePager);
     recordTraversal->clearBins();
@@ -140,7 +141,7 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
         recordTraversal->setProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
     }
 
-    accept(*recordTraversal);
+    traverse(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
 
@@ -150,7 +151,7 @@ void SecondaryCommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_p
         ec->completed(*this, commandBuffer);
     }
 
-    recordedCommandBuffers.push_back(commandBuffer);
+    recordedCommandBuffers->add(submitOrder, commandBuffer);
 }
 
 ref_ptr<SecondaryCommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, uint32_t subpass, bool assignHeadlight)

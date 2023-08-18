@@ -39,12 +39,13 @@ namespace vsg
         int queueFamily = -1;
         int presentFamily = -1;
         uint32_t maxSlot = 2;
+        int submitOrder = 0;
 
         ref_ptr<RecordTraversal> recordTraversal;
 
         virtual VkCommandBufferLevel level() const;
         virtual void reset();
-        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+        virtual void record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
     protected:
         virtual ~CommandGraph();

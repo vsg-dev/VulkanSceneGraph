@@ -51,6 +51,8 @@ namespace vsg
     class DirectionalLight;
     class PointLight;
     class SpotLight;
+    class CommandGraph;
+    class CommandBufferMap;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -74,6 +76,9 @@ namespace vsg
 
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
+
+        /// Container for CommandBuffers that have been recorded in currrent frame
+        ref_ptr<CommandBufferMap> recordedCommandBuffers;
 
         /// get the current State object used to track state and projection/modelview matrices for the current subgraph being traversed
         State* getState() { return _state; }
@@ -120,6 +125,7 @@ namespace vsg
 
         // Viewer level nodes
         void apply(const View& view);
+        void apply(const CommandGraph& commandGraph);
 
         // clear the bins to record a new frame.
         void clearBins();
@@ -127,11 +133,11 @@ namespace vsg
     protected:
         virtual ~RecordTraversal();
 
-        FrameStamp* _frameStamp = nullptr;
+        ref_ptr<FrameStamp> _frameStamp;
         State* _state = nullptr;
 
         // used to handle loading of PagedLOD external children.
-        DatabasePager* _databasePager = nullptr;
+        ref_ptr<DatabasePager> _databasePager;
         CulledPagedLODs* _culledPagedLODs = nullptr;
 
         int32_t _minimumBinNumber = 0;

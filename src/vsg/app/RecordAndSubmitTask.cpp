@@ -77,7 +77,8 @@ Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
-    CommandBuffers recordedCommandBuffers;
+    auto recordedCommandBuffers = CommandBufferMap::create();
+
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
     if (earlyTransferTask)
@@ -106,7 +107,7 @@ VkResult RecordAndSubmitTask::start()
     return VK_SUCCESS;
 }
 
-VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
+VkResult RecordAndSubmitTask::record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
 {
     for (auto& commandGraph : commandGraphs)
     {
@@ -116,14 +117,14 @@ VkResult RecordAndSubmitTask::record(CommandBuffers& recordedCommandBuffers, ref
     return VK_SUCCESS;
 }
 
-VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
+VkResult RecordAndSubmitTask::finish(ref_ptr<CommandBufferMap> recordedCommandBuffers)
 {
     if (lateTransferTask)
     {
         if (VkResult result = lateTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
     }
 
-    if (recordedCommandBuffers.empty())
+    if (recordedCommandBuffers->empty())
     {
         // nothing to do so return early
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
@@ -139,7 +140,8 @@ VkResult RecordAndSubmitTask::finish(CommandBuffers& recordedCommandBuffers)
     auto current_fence = fence();
 
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
-    for (auto& commandBuffer : recordedCommandBuffers)
+    auto buffers = recordedCommandBuffers->buffers();
+    for (auto& commandBuffer : buffers)
     {
         if (commandBuffer->level() == VK_COMMAND_BUFFER_LEVEL_PRIMARY) vk_commandBuffers.push_back(*commandBuffer);
 

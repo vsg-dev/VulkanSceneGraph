@@ -31,8 +31,8 @@ namespace vsg
         virtual VkResult submit(ref_ptr<FrameStamp> frameStamp = {});
 
         virtual VkResult start();
-        virtual VkResult record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp);
-        virtual VkResult finish(CommandBuffers& recordedCommandBuffers);
+        virtual VkResult record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp);
+        virtual VkResult finish(ref_ptr<CommandBufferMap> recordedCommandBuffers);
 
         ref_ptr<Device> device;
         Windows windows;

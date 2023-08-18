@@ -82,4 +82,19 @@ namespace vsg
 
     using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;
 
+    /// Thread safe container class
+    class CommandBufferMap : public Inherit<Object, CommandBufferMap>
+    {
+    public:
+        void clear();
+        void add(int order, ref_ptr<CommandBuffer> commandGraph);
+        bool empty() const;
+        CommandBuffers buffers() const;
+
+    protected:
+        virtual ~CommandBufferMap();
+        mutable std::mutex _mutex;
+        std::map<int, CommandBuffers> _commandBuffers;
+    };
+
 } // namespace vsg
