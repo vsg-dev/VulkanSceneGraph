@@ -42,7 +42,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
     auto& layout = text->layout;
     auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(options);
 
-    textExtents = layout->extents(text->text, *(text->font));
+    textExtents = layout->extents(text->text, *font);
 
     auto num_quads = vsg::visit<CountGlyphs>(text->text).count;
 
