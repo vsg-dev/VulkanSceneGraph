@@ -56,7 +56,7 @@ void SecondaryCommandGraph::_disconnect(ExecuteCommands* ec)
     if (itr != _executeCommands.end()) _executeCommands.erase(itr);
 }
 
-void SecondaryCommandGraph::record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
+void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
     {

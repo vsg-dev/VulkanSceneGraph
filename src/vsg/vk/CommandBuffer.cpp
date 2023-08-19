@@ -51,42 +51,60 @@ void CommandBuffer::reset()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// CommandBufferMap
+// RecordedCommandBuffers
 //
-CommandBufferMap::~CommandBufferMap()
+RecordedCommandBuffers::~RecordedCommandBuffers()
 {
 }
 
-void CommandBufferMap::clear()
+void RecordedCommandBuffers::clear()
 {
     std::scoped_lock<std::mutex> lock(_mutex);
+    _orderedCommandBuffers.clear();
     _commandBuffers.clear();
 }
 
-void CommandBufferMap::add(int submitOder, ref_ptr<vsg::CommandBuffer> commandBuffer)
+ref_ptr<RecordedCommandBuffers> RecordedCommandBuffers::getOrCreateRecordedCommandBuffers(int submitOrder)
 {
-    std::scoped_lock<std::mutex> lock(_mutex);
-    _commandBuffers[submitOder].push_back(commandBuffer);
+    auto& scb = _orderedCommandBuffers[submitOrder];
+    if (!scb) scb = RecordedCommandBuffers::create();
+    return scb;
 }
 
-bool CommandBufferMap::empty() const
+void RecordedCommandBuffers::add(int submitOrder, ref_ptr<vsg::CommandBuffer> commandBuffer)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    if (submitOrder == 0) _commandBuffers.push_back(commandBuffer);
+    else getOrCreateRecordedCommandBuffers(submitOrder)->_commandBuffers.push_back(commandBuffer);
+}
+
+bool RecordedCommandBuffers::empty() const
 {
     std::scoped_lock<std::mutex> lock(_mutex);
     return _commandBuffers.empty();
 }
 
-CommandBuffers CommandBufferMap::buffers() const
+CommandBuffers RecordedCommandBuffers::buffers() const
 {
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    if (_commandBuffers.empty()) return {};
-    if (_commandBuffers.size()==1) return _commandBuffers.begin()->second;
+    if (_orderedCommandBuffers.empty()) return _commandBuffers;
+
+    auto mid_itr = _orderedCommandBuffers.lower_bound(0);
 
     CommandBuffers buffers;
-    for(auto itr = _commandBuffers.begin(); itr != _commandBuffers.end(); ++itr)
+    for(auto itr = _orderedCommandBuffers.begin(); itr != mid_itr; ++itr)
     {
-        auto& cbs = itr->second;
-        buffers.insert(buffers.end(), cbs.begin(), cbs.end());
+        auto nested_buffers = itr->second->buffers();
+        buffers.insert(buffers.end(), nested_buffers.begin(), nested_buffers.end());
+    }
+
+    buffers.insert(buffers.end(), _commandBuffers.begin(), _commandBuffers.end());
+
+    for(auto itr = mid_itr; itr != _orderedCommandBuffers.end(); ++itr)
+    {
+        auto nested_buffers = itr->second->buffers();
+        buffers.insert(buffers.end(), nested_buffers.begin(), nested_buffers.end());
     }
 
     return buffers;

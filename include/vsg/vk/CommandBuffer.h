@@ -83,18 +83,25 @@ namespace vsg
     using CommandBuffers = std::vector<ref_ptr<CommandBuffer>>;
 
     /// Thread safe container class
-    class CommandBufferMap : public Inherit<Object, CommandBufferMap>
+    class RecordedCommandBuffers : public Inherit<Object, RecordedCommandBuffers>
     {
     public:
+
+        ref_ptr<RecordedCommandBuffers> getOrCreateRecordedCommandBuffers(int submitOrder);
+
         void clear();
         void add(int order, ref_ptr<CommandBuffer> commandGraph);
         bool empty() const;
+
         CommandBuffers buffers() const;
 
     protected:
-        virtual ~CommandBufferMap();
+        virtual ~RecordedCommandBuffers();
         mutable std::mutex _mutex;
-        std::map<int, CommandBuffers> _commandBuffers;
+        std::map<int, ref_ptr<RecordedCommandBuffers>> _orderedCommandBuffers;
+        CommandBuffers _commandBuffers;
     };
+    VSG_type_name(vsg::RecordedCommandBuffers);
+
 
 } // namespace vsg

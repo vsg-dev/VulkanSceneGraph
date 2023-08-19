@@ -50,7 +50,7 @@ void CommandGraph::reset()
 {
 }
 
-void CommandGraph::record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
+void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
     {

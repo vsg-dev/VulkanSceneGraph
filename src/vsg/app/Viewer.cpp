@@ -620,7 +620,7 @@ void Viewer::setupThreading()
                     frameBlock(in_frameBlock),
                     submissionCompletedBarrier(in_submissionCompleted)
                 {
-                    recordedCommandBuffers = CommandBufferMap::create();
+                    recordedCommandBuffers = RecordedCommandBuffers::create();
                     recordStartBarrier = Barrier::create(numThreads);
                     recordCompletedBarrier = Barrier::create(numThreads);
                 }
@@ -631,7 +631,7 @@ void Viewer::setupThreading()
                 ref_ptr<Barrier> submissionCompletedBarrier;
 
                 // shared between threads associated with each task
-                ref_ptr<CommandBufferMap> recordedCommandBuffers;
+                ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
                 ref_ptr<Barrier> recordStartBarrier;
                 ref_ptr<Barrier> recordCompletedBarrier;
             };

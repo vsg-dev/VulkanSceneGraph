@@ -52,7 +52,7 @@ namespace vsg
     class PointLight;
     class SpotLight;
     class CommandGraph;
-    class CommandBufferMap;
+    class RecordedCommandBuffers;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -78,7 +78,7 @@ namespace vsg
         Mask overrideMask = MASK_OFF;
 
         /// Container for CommandBuffers that have been recorded in currrent frame
-        ref_ptr<CommandBufferMap> recordedCommandBuffers;
+        ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
 
         /// get the current State object used to track state and projection/modelview matrices for the current subgraph being traversed
         State* getState() { return _state; }

@@ -485,7 +485,6 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     {
         auto cg = const_cast<CommandGraph*>(&commandGraph);
         cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
-        cg->traverse(*this);
     }
     else
     {

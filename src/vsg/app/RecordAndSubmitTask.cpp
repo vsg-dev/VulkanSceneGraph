@@ -77,7 +77,7 @@ Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
-    auto recordedCommandBuffers = CommandBufferMap::create();
+    auto recordedCommandBuffers = RecordedCommandBuffers::create();
 
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
@@ -107,7 +107,7 @@ VkResult RecordAndSubmitTask::start()
     return VK_SUCCESS;
 }
 
-VkResult RecordAndSubmitTask::record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
+VkResult RecordAndSubmitTask::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
 {
     for (auto& commandGraph : commandGraphs)
     {
@@ -117,7 +117,7 @@ VkResult RecordAndSubmitTask::record(ref_ptr<CommandBufferMap> recordedCommandBu
     return VK_SUCCESS;
 }
 
-VkResult RecordAndSubmitTask::finish(ref_ptr<CommandBufferMap> recordedCommandBuffers)
+VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers)
 {
     if (lateTransferTask)
     {

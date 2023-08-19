@@ -45,7 +45,7 @@ namespace vsg
 
         virtual VkCommandBufferLevel level() const;
         virtual void reset();
-        virtual void record(ref_ptr<CommandBufferMap> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+        virtual void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
     protected:
         virtual ~CommandGraph();
