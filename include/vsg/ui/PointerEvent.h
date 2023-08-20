@@ -43,7 +43,7 @@ namespace vsg
 
         int32_t x = 0;
         int32_t y = 0;
-        ButtonMask mask = {};
+        ButtonMask mask = BUTTON_MASK_OFF;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -77,7 +77,7 @@ namespace vsg
             Inherit(in_window, in_time, in_x, in_y, in_buttonMask),
             button(in_button) {}
 
-        uint32_t button;
+        uint32_t button = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;
