@@ -702,10 +702,10 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         case (XCB_BUTTON_PRESS): {
             auto button_press = reinterpret_cast<const xcb_button_press_event_t*>(event);
 
-            vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time - _first_xcb_timestamp);
-
             if (button_press->same_screen)
             {
+                vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_press->time - _first_xcb_timestamp);
+
                 // X11/Xcb treat scroll wheel up/down as button 4 and 5 so handle these as such
                 if (button_press->detail == 4)
                 {
@@ -717,9 +717,15 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 }
                 else
                 {
-                    uint16_t pressedButtonMask = 1 << (7 + button_press->detail);
+                    uint16_t button = button_press->detail;
+
+                    // remap 8, 9 tp 4 and 5 to be consistent with Windows treatment of the XButtons
+                    if (button==8) button = 4;
+                    if (button==9) button = 5;
+
+                    uint16_t pressedButtonMask = BUTTON_MASK_1 << (button-1);
                     uint16_t newButtonMask = maskButtons(button_press->state) | pressedButtonMask;
-                    bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button_press->detail));
+                    bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, button_press->event_x, button_press->event_y, vsg::ButtonMask(newButtonMask), button));
                 }
             }
 
@@ -732,9 +738,16 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             if (button_release->same_screen && button_release->detail != 4 && button_release->detail != 5)
             {
                 vsg::clock::time_point event_time = _first_xcb_time_point + std::chrono::milliseconds(button_release->time - _first_xcb_timestamp);
-                uint16_t releasedButtonMask = 1 << (7 + button_release->detail);
+
+                uint16_t button = button_release->detail;
+
+                // remap 8, 9 tp 4 and 5 to be consistent with Windows treatment of the XButtons
+                if (button==8) button = 4;
+                if (button==9) button = 5;
+
+                uint16_t releasedButtonMask = BUTTON_MASK_1 << (button-1);
                 uint16_t newButtonMask = maskButtons(button_release->state) & ~releasedButtonMask;
-                bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button_release->detail));
+                bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, button_release->event_x, button_release->event_y, vsg::ButtonMask(newButtonMask), button));
             }
 
             break;
