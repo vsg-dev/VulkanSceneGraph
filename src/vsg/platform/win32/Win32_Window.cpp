@@ -566,24 +566,27 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
+    case WM_XBUTTONDOWN:
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
-    case WM_RBUTTONDBLCLK: {
+    case WM_RBUTTONDBLCLK:
+    case WM_XBUTTONDBLCLK: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
-        bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg)));
+        bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg, HIWORD(wParam))));
 
         //::SetCapture(_window);
     }
     break;
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
-    case WM_RBUTTONUP: {
+    case WM_RBUTTONUP:
+    case WM_XBUTTONUP: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
-        bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg)));
+        bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg, HIWORD(wParam))));
 
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
         break;
