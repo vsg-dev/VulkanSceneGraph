@@ -719,7 +719,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 {
                     uint16_t button = button_press->detail;
 
-                    // remap 8, 9 tp 4 and 5 to be consistent with Windows treatment of the XButtons
+                    // remap 8, 9 to 4 and 5 to be consistent with Windows treatment of the XButtons
                     if (button==8) button = 4;
                     if (button==9) button = 5;
 
@@ -741,7 +741,7 @@ bool Xcb_Window::pollEvents(UIEvents& events)
 
                 uint16_t button = button_release->detail;
 
-                // remap 8, 9 tp 4 and 5 to be consistent with Windows treatment of the XButtons
+                // remap 8, 9 to 4 and 5 to be consistent with Windows treatment of the XButtons
                 if (button==8) button = 4;
                 if (button==9) button = 5;
 
