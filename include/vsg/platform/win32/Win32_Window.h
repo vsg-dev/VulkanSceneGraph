@@ -131,7 +131,8 @@ namespace vsgWin32
                 return 4;
             else if (wParamHi == XBUTTON2)
                 return 5;
-            else return 0;
+            else
+                return 0;
         default:
             return 0;
         }
@@ -145,11 +146,12 @@ namespace vsgWin32
         case WM_MBUTTONUP: return 2;
         case WM_RBUTTONUP: return 3;
         case WM_XBUTTONUP:
-             if (wParamHi == XBUTTON1)
+            if (wParamHi == XBUTTON1)
                 return 4;
             else if (wParamHi == XBUTTON2)
                 return 5;
-            else return 0;
+            else
+                return 0;
         default:
             return 0;
         }
