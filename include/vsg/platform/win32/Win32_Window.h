@@ -119,16 +119,40 @@ namespace vsgWin32
         return static_cast<vsg::ButtonMask>(mask);
     }
 
-    inline uint32_t getButtonDownEventDetail(UINT buttonMsg)
+    inline uint32_t getButtonDownEventDetail(UINT buttonMsg, WORD wParamHi)
     {
-        return buttonMsg == WM_LBUTTONDOWN ? 1 : (buttonMsg == WM_MBUTTONDOWN ? 2 : buttonMsg == WM_RBUTTONDOWN ? 3
-                                                                                                                : (buttonMsg == WM_XBUTTONDOWN ? 4 : 0)); // need to determine x1, x2
+        switch (buttonMsg)
+        {
+        case WM_LBUTTONDOWN: return 1;
+        case WM_MBUTTONDOWN: return 2;
+        case WM_RBUTTONDOWN: return 3;
+        case WM_XBUTTONDOWN:
+            if (wParamHi == XBUTTON1)
+                return 4;
+            else if (wParamHi == XBUTTON2)
+                return 5;
+            else return 0;
+        default:
+            return 0;
+        }
     }
 
-    inline uint32_t getButtonUpEventDetail(UINT buttonMsg)
+    inline uint32_t getButtonUpEventDetail(UINT buttonMsg, WORD wParamHi)
     {
-        return buttonMsg == WM_LBUTTONUP ? 1 : (buttonMsg == WM_MBUTTONUP ? 2 : buttonMsg == WM_RBUTTONUP ? 3
-                                                                                                          : (buttonMsg == WM_XBUTTONUP ? 4 : 0));
+        switch (buttonMsg)
+        {
+        case WM_LBUTTONUP: return 1;
+        case WM_MBUTTONUP: return 2;
+        case WM_RBUTTONUP: return 3;
+        case WM_XBUTTONUP:
+             if (wParamHi == XBUTTON1)
+                return 4;
+            else if (wParamHi == XBUTTON2)
+                return 5;
+            else return 0;
+        default:
+            return 0;
+        }
     }
 
     /// Win32_Window implements Win32 specific window creation, event handling and vulkan Surface setup.
