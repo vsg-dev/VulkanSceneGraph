@@ -81,7 +81,7 @@ void RecordedCommandBuffers::add(int submitOrder, ref_ptr<vsg::CommandBuffer> co
 bool RecordedCommandBuffers::empty() const
 {
     std::scoped_lock<std::mutex> lock(_mutex);
-    return _commandBuffers.empty();
+    return _commandBuffers.empty() && _orderedCommandBuffers.empty();
 }
 
 CommandBuffers RecordedCommandBuffers::buffers() const
