@@ -243,9 +243,16 @@ So now we have the Vulkan SDK installed and findable by CMake so we can go ahead
     mkdir build & cd build
     cmake .. -G "Visual Studio 15 2017 Win64"
     cmake .. -G "Visual Studio 16 2019" -A x64
-    cmake .. -G "Visual Studio 19 2022" -A x64
+    cmake .. -G "Visual Studio 17 2022" -A x64
 
-After running CMake open the generated VSG.sln file and build the All target. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
+After running CMake open the generated VSG.sln file and build the All target. Different build configs can be selected from the dropdown at the top of the window. Once built you can run the install target. If you are using the default CMake install path (in Program Files folder), ensure you have started Visual Studio as administrator otherwise the install will fail.
+
+Alternatively, you can build from the command line with
+
+    cmake --build .
+    cmake --install .
+
+As above, you must be running from an elevated shell to install to Program Files, but unlike via the VS GUI, can append `--prefix Path\To\Another\Directory` to the install command to specify another directory. Different build configs can be specified by appending the `config` argument (e.g. `--config RelWithDebInfo`) to the above commands and rerunning them.
 
 It's recommended at this point that you add the VSG install path to your CMAKE_PREFIX_PATH, this will allow other CMake projects, like the vsgExamples project to find your VSG installation. CMAKE_PREFIX_PATH can be set as an environment variable on your system.
 
