@@ -50,7 +50,7 @@ void CommandGraph::reset()
 {
 }
 
-void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
+void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
     {
@@ -67,6 +67,7 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         recordTraversal->getState()->stateStacks.resize(maxSlot + 1);
     }
 
+    recordTraversal->recordedCommandBuffers = recordedCommandBuffers;
     recordTraversal->setFrameStamp(frameStamp);
     recordTraversal->setDatabasePager(databasePager);
     recordTraversal->clearBins();
@@ -112,11 +113,11 @@ void CommandGraph::record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameS
         recordTraversal->setProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
     }
 
-    accept(*recordTraversal);
+    traverse(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    recordedCommandBuffers.push_back(commandBuffer);
+    recordedCommandBuffers->add(submitOrder, commandBuffer);
 }
 
 ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents, bool assignHeadlight)
