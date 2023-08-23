@@ -136,7 +136,7 @@ bool DescriptorPool::getAvailability(uint32_t& maxSets, DescriptorPoolSizes& des
                 break;
             }
         }
-        if (itr != descriptorPoolSizes.end())
+        if (itr == descriptorPoolSizes.end())
         {
             descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
         }
