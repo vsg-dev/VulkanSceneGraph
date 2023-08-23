@@ -127,18 +127,24 @@ bool DescriptorPool::getAvailability(uint32_t& maxSets, DescriptorPoolSizes& des
 
     for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
     {
-        auto itr = descriptorPoolSizes.begin();
-        for (; itr != descriptorPoolSizes.end(); ++itr)
+        if (availableCount > 0)
         {
-            if (itr->type == availableType)
+            // increment any entries that are already in the descriptorPoolSizes vector
+            auto itr = descriptorPoolSizes.begin();
+            for (; itr != descriptorPoolSizes.end(); ++itr)
             {
-                itr->descriptorCount += availableCount;
-                break;
+                if (itr->type == availableType)
+                {
+                    itr->descriptorCount += availableCount;
+                    break;
+                }
             }
-        }
-        if (itr == descriptorPoolSizes.end())
-        {
-            descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+
+            // if none matched add a new entry
+            if (itr == descriptorPoolSizes.end())
+            {
+                descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+            }
         }
     }
 
