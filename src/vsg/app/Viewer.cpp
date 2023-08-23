@@ -618,14 +618,14 @@ void Viewer::setupThreading()
             // we have multiple CommandGraphs in a single Task so set up a thread per CommandGraph
             struct SharedData : public Inherit<Object, SharedData>
             {
-                SharedData(ref_ptr<RecordAndSubmitTask> in_task, ref_ptr<FrameBlock> in_frameBlock, ref_ptr<Barrier> in_submissionCompleted, uint32_t numThreads, size_t numCommandGraphs) :
+                SharedData(ref_ptr<RecordAndSubmitTask> in_task, ref_ptr<FrameBlock> in_frameBlock, ref_ptr<Barrier> in_submissionCompleted, uint32_t numThreads) :
                     task(in_task),
                     frameBlock(in_frameBlock),
                     submissionCompletedBarrier(in_submissionCompleted)
                 {
+                    recordedCommandBuffers = RecordedCommandBuffers::create();
                     recordStartBarrier = Barrier::create(numThreads);
                     recordCompletedBarrier = Barrier::create(numThreads);
-                    orderedRecordedCommandBuffers.resize(numCommandGraphs);
                 }
 
                 // shared between all threads
@@ -634,8 +634,7 @@ void Viewer::setupThreading()
                 ref_ptr<Barrier> submissionCompletedBarrier;
 
                 // shared between threads associated with each task
-                std::vector<CommandBuffers> orderedRecordedCommandBuffers;
-
+                ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
                 ref_ptr<Barrier> recordStartBarrier;
                 ref_ptr<Barrier> recordCompletedBarrier;
             };
@@ -643,7 +642,7 @@ void Viewer::setupThreading()
             uint32_t numThreads = static_cast<uint32_t>(task->commandGraphs.size());
             if (task->earlyTransferTask) ++numThreads;
 
-            ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, numThreads, task->commandGraphs.size());
+            ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, numThreads);
 
             auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
                 auto frameStamp = data->frameBlock->initial_value;
@@ -658,23 +657,20 @@ void Viewer::setupThreading()
 
                     //vsg::info("run_primary");
 
-                    commandGraph->record(data->orderedRecordedCommandBuffers.front(), frameStamp, data->task->databasePager);
+                    commandGraph->record(data->recordedCommandBuffers, frameStamp, data->task->databasePager);
 
                     data->recordCompletedBarrier->arrive_and_wait();
 
                     // primary thread finishes the task, submitting all the command buffers recorded by the primary and all secondary threads to its queue
-                    CommandBuffers localRecordedCommandBuffers;
-                    for (const auto& commandBuffers : data->orderedRecordedCommandBuffers)
-                        localRecordedCommandBuffers.insert(localRecordedCommandBuffers.end(), commandBuffers.begin(), commandBuffers.end());
-                    data->task->finish(localRecordedCommandBuffers);
-                    for (auto& commandBuffers : data->orderedRecordedCommandBuffers)
-                        commandBuffers.clear();
+                    data->task->finish(data->recordedCommandBuffers);
+
+                    data->recordedCommandBuffers->clear();
 
                     data->submissionCompletedBarrier->arrive_and_wait();
                 }
             };
 
-            auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph, uint32_t commandGraphIndex) {
+            auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
                 auto frameStamp = data->frameBlock->initial_value;
 
                 // wait for this frame to be signaled
@@ -682,7 +678,7 @@ void Viewer::setupThreading()
                 {
                     data->recordStartBarrier->arrive_and_wait();
 
-                    commandGraph->record(data->orderedRecordedCommandBuffers[commandGraphIndex], frameStamp, data->task->databasePager);
+                    commandGraph->record(data->recordedCommandBuffers, frameStamp, data->task->databasePager);
 
                     data->recordCompletedBarrier->arrive_and_wait();
                 }
@@ -709,7 +705,7 @@ void Viewer::setupThreading()
                 if (i == 0)
                     threads.emplace_back(run_primary, sharedData, task->commandGraphs[i]);
                 else
-                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i], i);
+                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i]);
             }
 
             if (task->earlyTransferTask)

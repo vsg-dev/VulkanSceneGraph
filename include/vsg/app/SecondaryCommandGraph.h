@@ -34,7 +34,7 @@ namespace vsg
 
         VkCommandBufferLevel level() const override;
         void reset() override;
-        void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {}) override;
+        void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {}) override;
 
     protected:
         virtual ~SecondaryCommandGraph();

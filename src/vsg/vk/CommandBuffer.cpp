@@ -17,6 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CommandBuffer
+//
 CommandBuffer::CommandBuffer(CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level) :
     deviceID(commandPool->getDevice()->deviceID),
     scratchMemory(ScratchMemory::create(4096)),
@@ -43,4 +47,65 @@ void CommandBuffer::reset()
     _currentPushConstantStageFlags = 0;
 
     _commandPool->reset();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// RecordedCommandBuffers
+//
+RecordedCommandBuffers::~RecordedCommandBuffers()
+{
+}
+
+void RecordedCommandBuffers::clear()
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    _orderedCommandBuffers.clear();
+    _commandBuffers.clear();
+}
+
+ref_ptr<RecordedCommandBuffers> RecordedCommandBuffers::getOrCreateRecordedCommandBuffers(int submitOrder)
+{
+    auto& scb = _orderedCommandBuffers[submitOrder];
+    if (!scb) scb = RecordedCommandBuffers::create();
+    return scb;
+}
+
+void RecordedCommandBuffers::add(int submitOrder, ref_ptr<vsg::CommandBuffer> commandBuffer)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    if (submitOrder == 0) _commandBuffers.push_back(commandBuffer);
+    else getOrCreateRecordedCommandBuffers(submitOrder)->_commandBuffers.push_back(commandBuffer);
+}
+
+bool RecordedCommandBuffers::empty() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _commandBuffers.empty() && _orderedCommandBuffers.empty();
+}
+
+CommandBuffers RecordedCommandBuffers::buffers() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    if (_orderedCommandBuffers.empty()) return _commandBuffers;
+
+    auto mid_itr = _orderedCommandBuffers.lower_bound(0);
+
+    CommandBuffers buffers;
+    for(auto itr = _orderedCommandBuffers.begin(); itr != mid_itr; ++itr)
+    {
+        auto nested_buffers = itr->second->buffers();
+        buffers.insert(buffers.end(), nested_buffers.begin(), nested_buffers.end());
+    }
+
+    buffers.insert(buffers.end(), _commandBuffers.begin(), _commandBuffers.end());
+
+    for(auto itr = mid_itr; itr != _orderedCommandBuffers.end(); ++itr)
+    {
+        auto nested_buffers = itr->second->buffers();
+        buffers.insert(buffers.end(), nested_buffers.begin(), nested_buffers.end());
+    }
+
+    return buffers;
 }
