@@ -111,7 +111,8 @@ void AnimationPath::write(Output& output) const
 AnimationPathHandler::AnimationPathHandler(ref_ptr<Object> in_object, ref_ptr<AnimationPath> in_path, clock::time_point in_start_point) :
     object(in_object),
     path(in_path),
-    start_point(in_start_point)
+    startPoint(in_start_point),
+    statsStartPoint(in_start_point)
 {
 }
 
@@ -133,33 +134,34 @@ void AnimationPathHandler::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.keyBase == resetKey)
     {
+        // reset main animation time back to start
+        startPoint = keyPress.time;
+        time = 0.0;
+
+        // reset stats time back to start
+        statsStartPoint = startPoint;
         frameCount = 0;
     }
 }
 
 void AnimationPathHandler::apply(FrameEvent& frame)
 {
-    if (frameCount == 0)
-    {
-        start_point = frame.frameStamp->time;
-    }
-
-    time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - start_point).count();
-    if (time > path->period())
-    {
-        if (printFrameStatsToConsole)
-        {
-            double average_framerate = double(frameCount) / time;
-            vsg::info("Period complete numFrames=", frameCount, ", average frame rate = ", average_framerate);
-        }
-
-        // reset time back to start
-        start_point = frame.frameStamp->time;
-        time = 0.0;
-        frameCount = 0;
-    }
-
+    // update the main animation time and apply it to the attached object (Camera or Transform)
+    time = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - startPoint).count();
     if (object) object->accept(*this);
 
-    ++frameCount;
+    if (printFrameStatsToConsole)
+    {
+        double statsTime = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - statsStartPoint).count();
+        ++frameCount;
+        if (statsTime > path->period())
+        {
+            double averageFramerate = static_cast<double>(frameCount) / statsTime;
+            vsg::info("Animation path complete: duration = ", statsTime, ", frame count = ", frameCount, ", average frame rate = ", averageFramerate);
+
+            // reset stats time back to start
+            statsStartPoint = frame.time;
+            frameCount = 0;
+        }
+    }
 }
