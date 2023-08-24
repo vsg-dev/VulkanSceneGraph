@@ -127,6 +127,7 @@ duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
 
 // suppress unhelpful "can be declared with const"
 constParameter:*/src/vsg/state/QueryPool.cpp
+constParameter:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate warning of returnTempReference
 returnTempReference:*/include/vsg/core/Inherit.h

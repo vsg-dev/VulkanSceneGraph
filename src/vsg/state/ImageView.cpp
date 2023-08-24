@@ -200,7 +200,7 @@ ref_ptr<ImageView> vsg::createImageView(Device* device, ref_ptr<Image> image, Vk
     return imageView;
 }
 
-void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, Data::MipmapOffsets mipmapOffsets, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
+void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, const Data::MipmapOffsets& mipmapOffsets, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
 {
     ref_ptr<Image> textureImage(imageView->image);
     auto aspectMask = imageView->subresourceRange.aspectMask;
