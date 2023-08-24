@@ -91,16 +91,11 @@ namespace vsg
     public:
         GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
+        void traverse(Visitor& visitor) override;
+        void traverse(ConstVisitor& visitor) const override;
+
         // inputs to setup of GraphicsPipeline, the default sets are taken from any provided by ShaderSet::defaultGraphicsPipelineStates
-        ref_ptr<ColorBlendState> colorBlendState;
-        ref_ptr<DepthStencilState> depthStencilState;
-        ref_ptr<DynamicState> dynamicState;
-        ref_ptr<InputAssemblyState> inputAssemblyState;
-        ref_ptr<MultisampleState> multisampleState; // typically leave unset as compile traversal with provide MultisampleState
-        ref_ptr<RasterizationState> rasterizationState;
-        ref_ptr<TessellationState> tessellationState;
-        ref_ptr<VertexInputState> vertexInputState; // set by assignArray(..) methods.
-        ref_ptr<ViewportState> viewportState;       // typically leave unset as compile traversal with provide ViewportState
+        GraphicsPipelineStates pipelineStates;
 
         uint32_t subpass = 0;
         uint32_t baseAttributeBinding = 0;
@@ -132,10 +127,13 @@ namespace vsg
         ref_ptr<PipelineLayout> layout;
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
+
+    protected:
+        void _assignShaderSetSettings();
     };
     VSG_type_name(vsg::GraphicsPipelineConfigurator);
 
-    /// provide for backwards compatibility
+    /// provided for backwards compatibility
     using GraphicsPipelineConfig = GraphicsPipelineConfigurator;
     using DescriptorConfig = DescriptorConfigurator;
 

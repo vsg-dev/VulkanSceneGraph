@@ -96,11 +96,11 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     uint32_t mipLevels = 1;
     if (sampler)
     {
-        // clamp the mipLevels so that its no larger than what the data dimensions support
+        // clamp the mipLevels so that it's no larger than what the data dimensions support
         uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
         if (sampler->maxLod == VK_LOD_CLAMP_NONE)
         {
-            while ((1u << (mipLevels - 1)) < maxDimension)
+            while ((1u << mipLevels) <= maxDimension)
             {
                 ++mipLevels;
             }
@@ -145,9 +145,9 @@ void ImageInfo::computeNumMipMapLevels()
         auto mipLevels = vsg::computeNumMipMapLevels(data, sampler);
 
         const auto& mipmapOffsets = image->data->computeMipmapOffsets();
-        bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
 
-        if (generatMipmaps)
+        if (generateMipmaps)
         {
             // check that the data isn't compressed.
             const auto& properties = data->properties;
@@ -159,8 +159,7 @@ void ImageInfo::computeNumMipMapLevels()
         }
 
         image->mipLevels = mipLevels;
-        imageView->subresourceRange.levelCount = mipLevels;
 
-        if (generatMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 }

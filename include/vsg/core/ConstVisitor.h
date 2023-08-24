@@ -24,7 +24,7 @@ namespace vsg
     class Objects;
     class External;
 
-    // forward declare nodes classes
+    // forward declare node classes
     class Node;
     class Commands;
     class Group;
@@ -48,7 +48,7 @@ namespace vsg
     class PointLight;
     class SpotLight;
 
-    // forward declare vulkan classes
+    // forward declare text classes
     class Text;
     class TextGroup;
     class TextTechnique;
@@ -91,6 +91,8 @@ namespace vsg
     class DynamicState;
     class ResourceHints;
     class ClearAttachments;
+    class ClearColorImage;
+    class ClearDepthStencilImage;
     class QueryPool;
     class ResetQueryPool;
     class BeginQuery;
@@ -341,6 +343,8 @@ namespace vsg
         virtual void apply(const Draw&);
         virtual void apply(const DrawIndexed&);
         virtual void apply(const ClearAttachments&);
+        virtual void apply(const ClearColorImage&);
+        virtual void apply(const ClearDepthStencilImage&);
         virtual void apply(const QueryPool&);
         virtual void apply(const ResetQueryPool&);
         virtual void apply(const BeginQuery&);

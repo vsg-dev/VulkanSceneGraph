@@ -19,7 +19,7 @@ namespace vsg
     // forward declare
     class Context;
 
-    /// ShaderStage encapsulates to VkPipelineShaderStageCreateInfo settings passed when setting up GraphicsPipeline
+    /// ShaderStage encapsulates VkPipelineShaderStageCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC ShaderStage : public Inherit<Object, ShaderStage>
     {
     public:
@@ -30,6 +30,9 @@ namespace vsg
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, const ShaderModule::SPIRV& spirv);
 
         using SpecializationConstants = std::map<uint32_t, vsg::ref_ptr<vsg::Data>>;
+
+        /// apply ShaderStage when (mask & view.mask) is non zero
+        Mask mask = MASK_ALL;
 
         /// Vulkan VkPipelineShaderStageCreateInfo settings
         VkPipelineShaderStageCreateFlags flags = 0;

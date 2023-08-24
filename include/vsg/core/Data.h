@@ -55,7 +55,7 @@ namespace vsg
 
     enum DataVariance : uint8_t
     {
-        STATIC_DATA = 0,                       /** treat data as if doesn't not change .*/
+        STATIC_DATA = 0,                       /** treat data as if it doesn't change .*/
         STATIC_DATA_UNREF_AFTER_TRANSFER = 1,  /** unref this vsg::Data after the data has been transferred to the GPU memory .*/
         DYNAMIC_DATA = 2,                      /** data is updated prior to the record traversal and will need transferring to GPU memory.*/
         DYNAMIC_DATA_TRANSFER_AFTER_RECORD = 3 /** data is updated during the record traversal and will need transferring to GPU memory.*/
@@ -104,7 +104,7 @@ namespace vsg
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
     };
 
-    /// Data base class for abstracting data such a values, vertices, images etc.
+    /// Data base class for abstracting data such as values, vertices, images etc.
     /// Main subclasses are vsg::Value, vsg::Array, vsg::Array2D and vsg::Array3D.
     class VSG_DECLSPEC Data : public Object
     {
@@ -127,7 +127,7 @@ namespace vsg
             uint8_t blockDepth = 1;
             uint8_t origin = TOP_LEFT;               /// Hint for setting up texture coordinates, bit 0 x/width axis, bit 1 y/height axis, bit 2 z/depth axis. Vulkan origin for images is top left, which is denoted as 0 here.
             int8_t imageViewType = -1;               /// -1 signifies undefined VkImageViewType, if value >=0 then value should be treated as valid VkImageViewType.
-            DataVariance dataVariance = STATIC_DATA; /// hint as how the data values may change during the lifetime of the vsg::Data.
+            DataVariance dataVariance = STATIC_DATA; /// hint as to how the data values may change during the lifetime of the vsg::Data.
             AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;
 
             int compare(const Properties& rhs) const;
@@ -207,7 +207,7 @@ namespace vsg
                 return false;
         }
 
-        /// return true if Data's ModifiedCount is different than the specified ModifiedCount
+        /// return true if Data's ModifiedCount is different from the specified ModifiedCount
         bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
 
     protected:
@@ -223,11 +223,11 @@ namespace vsg
         /// deprecated: use data->properties = properties instead.
         void setLayout(Layout layout)
         {
-            VkFormat previous_format = properties.format; // temporary hack to keep applications that call setFormat(..) before setProperties(..) working
+            VkFormat previous_format = properties.format; // temporary hack to keep applications that call setFormat(..) before setLayout(..) working
             uint32_t previous_stride = properties.stride;
             properties = layout;
             if (properties.format == 0 && previous_format != 0) properties.format = previous_format; // temporary hack to keep existing applications working
-            if (properties.stride == 0 && previous_stride != 0) properties.stride = previous_stride; // make sure the layout as a valid stride.
+            if (properties.stride == 0 && previous_stride != 0) properties.stride = previous_stride; // make sure the layout has a valid stride.
         }
         /// deprecated: use data->properties
         Layout& getLayout() { return properties; }

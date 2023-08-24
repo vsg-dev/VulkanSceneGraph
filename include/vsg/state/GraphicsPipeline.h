@@ -29,6 +29,15 @@ namespace vsg
     {
     public:
         GraphicsPipelineState() {}
+        GraphicsPipelineState(const GraphicsPipelineState& gp) :
+            Inherit(), mask(gp.mask) {}
+
+        /// apply GraphicsPipelineState when (mask & view.mask) is non zero
+        Mask mask = MASK_ALL;
+
+        int compare(const Object& rhs) const override;
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         virtual void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
@@ -38,8 +47,8 @@ namespace vsg
     VSG_type_name(vsg::GraphicsPipelineState);
 
     using GraphicsPipelineStates = std::vector<ref_ptr<GraphicsPipelineState>>;
-    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState);
-    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates);
+    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState);
+    extern VSG_DECLSPEC void mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates);
 
     /// GraphicsPipeline encapsulates graphics VkPipeline and the VkGraphicsPipelineCreateInfo settings used to set it up.
     class VSG_DECLSPEC GraphicsPipeline : public Inherit<Object, GraphicsPipeline>
@@ -49,13 +58,12 @@ namespace vsg
 
         GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0);
 
-        VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
+        VkPipeline vk(uint32_t viewID) const { return _implementation[viewID]->_pipeline; }
 
         /// VkGraphicsPipelineCreateInfo settings
         ShaderStages stages;
         GraphicsPipelineStates pipelineStates;
         ref_ptr<PipelineLayout> layout;
-        ref_ptr<RenderPass> renderPass;
         uint32_t subpass;
 
         int compare(const Object& rhs_object) const override;

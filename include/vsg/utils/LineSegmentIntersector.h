@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// IndexRatio is a pair of index and ratio used specify the baricentric coords of primitives that have been intersected.
+    /// IndexRatio is a pair of index and ratio used to specify the baricentric coords of primitives that have been intersected.
     struct IndexRatio
     {
         uint32_t index;
@@ -27,7 +27,7 @@ namespace vsg
 
     using IndexRatios = std::vector<IndexRatio>;
 
-    /// LineSegmentIntersector is a Intersector subclass that provides support for computing intersections between a line segment and geometry in the scene graph.
+    /// LineSegmentIntersector is an Intersector subclass that provides support for computing intersections between a line segment and geometry in the scene graph.
     class VSG_DECLSPEC LineSegmentIntersector : public Inherit<Intersector, LineSegmentIntersector>
     {
     public:
@@ -62,7 +62,7 @@ namespace vsg
         void pushTransform(const Transform& transform) override;
         void popTransform() override;
 
-        /// check for intersection intersects with sphere
+        /// check for intersection with sphere
         bool intersects(const dsphere& bs) override;
 
         bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount) override;

@@ -34,7 +34,7 @@ Object::Object(const Object& rhs) :
 {
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
     {
-        // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
+        // the rhs's auxiliary is uniquely attached to it, so we need to create our own and copy its ObjectMap across
         auto& userObjects = getOrCreateAuxiliary()->userObjects;
         userObjects = rhs._auxiliary->userObjects;
     }
@@ -48,7 +48,7 @@ Object& Object::operator=(const Object& rhs)
 
     if (rhs._auxiliary)
     {
-        // the rhs's rhs._auxiliary is uniquely attached to it, so we need to create our own and copy it's ObjectMap across
+        // the rhs's auxiliary is uniquely attached to it, so we need to create our own and copy its ObjectMap across
         auto& userObjects = getOrCreateAuxiliary()->userObjects;
         userObjects = rhs._auxiliary->userObjects;
     }
@@ -129,7 +129,7 @@ void Object::write(Output& output) const
 {
     if (_auxiliary)
     {
-        // we have a unique auxiliary, need to write out it's ObjectMap entries
+        // we have a unique auxiliary, need to write out its ObjectMap entries
         auto& userObjects = _auxiliary->userObjects;
         output.writeValue<uint32_t>("userObjects", userObjects.size());
         for (auto& entry : userObjects)

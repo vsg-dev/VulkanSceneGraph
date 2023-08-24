@@ -42,7 +42,7 @@ void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
     auto& layout = text->layout;
     auto shaderSet = text->shaderSet ? text->shaderSet : createTextShaderSet(options);
 
-    textExtents = layout->extents(text->text, *(text->font));
+    textExtents = layout->extents(text->text, *font);
 
     auto num_quads = vsg::visit<CountGlyphs>(text->text).count;
 
@@ -231,7 +231,7 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
     else
         drawIndexed->indexCount = static_cast<uint32_t>(quads.size() * 6);
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     if (!stategroup)
     {
         stategroup = StateGroup::create();
@@ -269,26 +269,6 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
         if (sharedObjects) sharedObjects->share(sampler);
 
         config->assignTexture("textureAtlas", font->atlas, sampler);
-
-        // disable face culling so text can be seen from both sides
-        config->rasterizationState->cullMode = VK_CULL_MODE_NONE;
-
-        // set alpha blending
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-        colorBlendAttachment.blendEnable = VK_TRUE;
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                              VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT |
-                                              VK_COLOR_COMPONENT_A_BIT;
-
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-
-        config->colorBlendState->attachments = {colorBlendAttachment};
 
         if (sharedObjects)
             sharedObjects->share(config, [](auto gpc) { gpc->init(); });

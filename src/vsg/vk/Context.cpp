@@ -106,6 +106,7 @@ Context::Context(const Context& context) :
     device(context.device),
     view(context.view),
     viewID(context.viewID),
+    mask(context.mask),
     viewDependentState(context.viewDependentState),
     minimum_maxSets(context.minimum_maxSets),
     minimum_descriptorPoolSizes(context.minimum_descriptorPoolSizes),
@@ -166,9 +167,10 @@ void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes
         auto itr = descriptorPoolSizes.begin();
         for (; itr != descriptorPoolSizes.end(); ++itr)
         {
-            if (itr->type == minimum_type && minimum_descriptorCount > itr->descriptorCount)
+            if (itr->type == minimum_type)
             {
-                itr->descriptorCount = minimum_descriptorCount;
+                if (minimum_descriptorCount > itr->descriptorCount)
+                    itr->descriptorCount = minimum_descriptorCount;
                 break;
             }
         }

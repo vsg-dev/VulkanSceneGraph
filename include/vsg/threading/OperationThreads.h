@@ -21,7 +21,7 @@ namespace vsg
 
     /// OperationThreads provides a collection of std::threads that share a single OperationQueue.
     /// Each thread polls the queue for vsg::Operation to process, when one is available it's removed
-    /// from the queue and it's Operation::run() method.
+    /// from the queue and its Operation::run() method is called.
     class VSG_DECLSPEC OperationThreads : public Inherit<Object, OperationThreads>
     {
     public:

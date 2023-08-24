@@ -72,7 +72,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     {
         if (queueSetting.queueFamilyIndex < 0) continue;
 
-        // check to see if the queueFamilyIndex has already been referenced or us unique
+        // check to see if the queueFamilyIndex has already been referenced or is unique
         bool unique = true;
         for (auto& existingInfo : queueCreateInfos)
         {
@@ -95,7 +95,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
             if (queueCreateInfo.queueCount > supportedQueueCount)
             {
                 queueCreateInfo.queueCount = supportedQueueCount;
-                debug("Device::Device() creation failed to create request queueCount.");
+                debug("Device::Device() creation failed to create requested queueCount.");
             }
         }
         else
@@ -137,7 +137,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         throw Exception{"Error: vsg::Device::create(...) failed to create logical device.", result};
     }
 
-    // allocated the requested queues
+    // allocate the requested queues
     for (auto queueInfo : queueCreateInfos)
     {
         for (uint32_t queueIndex = 0; queueIndex < queueInfo.queueCount; ++queueIndex)

@@ -79,34 +79,26 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     DescriptorPoolSizes descriptorPoolSizes;
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
 
-    size_t matches = 0;
+    auto newDescriptorPoolSizes = _availableDescriptorPoolSizes;
     for (auto& [type, descriptorCount] : descriptorPoolSizes)
     {
-        for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+        size_t foundDescriptorCount = 0;
+        for (auto& [availableType, availableCount] : newDescriptorPoolSizes)
         {
             if (availableType == type)
             {
-                if (availableCount >= descriptorCount) ++matches;
+                uint32_t descriptorsToConsume = descriptorCount - foundDescriptorCount;
+                if (descriptorsToConsume > availableCount)
+                    descriptorsToConsume = availableCount;
+                foundDescriptorCount += descriptorsToConsume;
+                availableCount -= descriptorsToConsume;
             }
         }
+        if (foundDescriptorCount < descriptorCount)
+            return {};
     }
 
-    if (matches < descriptorPoolSizes.size())
-    {
-        return {};
-    }
-
-    for (auto& [type, descriptorCount] : descriptorPoolSizes)
-    {
-        for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
-        {
-            if (availableType == type)
-            {
-                availableCount -= descriptorCount;
-            }
-        }
-    }
-
+    _availableDescriptorPoolSizes.swap(newDescriptorPoolSizes);
     --_availableDescriptorSet;
 
     auto dsi = DescriptorSet::Implementation::create(this, descriptorSetLayout);
@@ -135,18 +127,24 @@ bool DescriptorPool::getAvailability(uint32_t& maxSets, DescriptorPoolSizes& des
 
     for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
     {
-        auto itr = descriptorPoolSizes.begin();
-        for (; itr != descriptorPoolSizes.end(); ++itr)
+        if (availableCount > 0)
         {
-            if (itr->type == availableType)
+            // increment any entries that are already in the descriptorPoolSizes vector
+            auto itr = descriptorPoolSizes.begin();
+            for (; itr != descriptorPoolSizes.end(); ++itr)
             {
-                itr->descriptorCount += availableCount;
-                break;
+                if (itr->type == availableType)
+                {
+                    itr->descriptorCount += availableCount;
+                    break;
+                }
             }
-        }
-        if (itr != descriptorPoolSizes.end())
-        {
-            descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+
+            // if none matched add a new entry
+            if (itr == descriptorPoolSizes.end())
+            {
+                descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+            }
         }
     }
 

@@ -52,6 +52,7 @@ set(SOURCES
     commands/CopyAndReleaseBuffer.cpp
     commands/CopyAndReleaseImage.cpp
     commands/ClearAttachments.cpp
+    commands/ClearImage.cpp
     commands/PipelineBarrier.cpp
     commands/Event.cpp
     commands/NextSubPass.cpp
@@ -322,7 +323,7 @@ if(MSVC)
 
     SET_OUTPUT_DIR_PROPERTY(vsg "")
 
-    option(ENABLE_MP_FLAG "Turning on this option will add the multi-processor flag in MSVC for VSG and it's included projects" ON)
+    option(ENABLE_MP_FLAG "Turning on this option will add the multi-processor flag in MSVC for VSG and its included projects" ON)
 
     if(ENABLE_MP_FLAG)
         target_compile_options(vsg PRIVATE "/MP")

@@ -142,7 +142,7 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
-    // traverse the command buffer to place the commands into the command buffer.
+    // traverse the subgraph to place commands into the command buffer.
     traverse(recordTraversal);
 
     vkCmdEndRenderPass(vk_commandBuffer);

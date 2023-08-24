@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// RasterizationState encapsulates to VkPipelineRasterizationStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// RasterizationState encapsulates VkPipelineRasterizationStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC RasterizationState : public Inherit<GraphicsPipelineState, RasterizationState>
     {
     public:

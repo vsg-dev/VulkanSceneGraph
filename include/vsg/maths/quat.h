@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-// we can't implement the anonymous union/structs combination without causing warnings, so disabled them for just this header
+// we can't implement the anonymous union/structs combination without causing warnings, so disable them for just this header
 
 #include <vsg/maths/mat4.h>
 
@@ -29,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// t_quat template class that a represents quaternion
+    /// t_quat template class that represents a quaternion
     template<typename T>
     struct t_quat
     {
@@ -292,7 +292,7 @@ namespace vsg
         }
         else
         {
-            // quaternion's are very close so just linearly interpolate
+            // quaternions are very close so just linearly interpolate
             return (from * (one - r)) + (to * r);
         }
     }

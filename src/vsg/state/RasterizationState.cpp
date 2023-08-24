@@ -42,7 +42,7 @@ RasterizationState::~RasterizationState()
 
 int RasterizationState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -51,7 +51,7 @@ int RasterizationState::compare(const Object& rhs_object) const
 
 void RasterizationState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     input.readValue<uint32_t>("depthClampEnable", depthClampEnable);
     input.readValue<uint32_t>("rasterizerDiscardEnable", rasterizerDiscardEnable);
@@ -67,7 +67,7 @@ void RasterizationState::read(Input& input)
 
 void RasterizationState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("depthClampEnable", depthClampEnable);
     output.writeValue<uint32_t>("rasterizerDiscardEnable", rasterizerDiscardEnable);

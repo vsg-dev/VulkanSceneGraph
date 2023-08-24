@@ -70,7 +70,7 @@ void LoadPagedLOD::apply(CullNode& node)
 
 void LoadPagedLOD::apply(Transform& transform)
 {
-    debug("apply(Transform& transform) Need to do transform modelview matrix");
+    debug("apply(Transform& transform) Need to transform modelview matrix");
 
     modelviewMatrixStack.emplace(transform.transform(modelviewMatrixStack.top()));
 

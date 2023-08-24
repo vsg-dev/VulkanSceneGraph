@@ -118,10 +118,10 @@ namespace vsg
 
         explicit operator bool() const noexcept { return valid(); }
 
-        /// convert observer_ptr into a ref_ptr so that Object that pointed to can be safely accessed.
+        /// convert observer_ptr into a ref_ptr so that Object pointed to can be safely accessed.
         vsg::ref_ptr<T> ref_ptr() const { return vsg::ref_ptr<T>(*this); }
 
-        /// convert observer_ptr into a ref_ptr so that Object that pointed to can be safely accessed.
+        /// convert observer_ptr into a ref_ptr so that Object pointed to can be safely accessed.
         template<class R>
         operator vsg::ref_ptr<R>() const
         {

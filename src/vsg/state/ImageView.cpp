@@ -62,7 +62,7 @@ ImageView::ImageView(ref_ptr<Image> in_image) :
         format = image->format;
         subresourceRange.aspectMask = computeAspectFlagsForFormat(image->format);
         subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = image->mipLevels;
+        subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         subresourceRange.baseArrayLayer = 0;
         subresourceRange.layerCount = image->arrayLayers;
     }
@@ -86,7 +86,7 @@ ImageView::ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags) :
         format = image->format;
         subresourceRange.aspectMask = aspectFlags;
         subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = image->mipLevels;
+        subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         subresourceRange.baseArrayLayer = 0;
         subresourceRange.layerCount = image->arrayLayers;
     }
@@ -136,7 +136,7 @@ void ImageView::compile(Device* device)
 
     if (VkResult result = vkCreateImageView(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create vkImageView.", result};
+        throw Exception{"Error: Failed to create VkImageView.", result};
     }
 }
 
@@ -165,7 +165,7 @@ void ImageView::compile(Context& context)
 
     if (VkResult result = vkCreateImageView(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.imageView); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create vkImageView.", result};
+        throw Exception{"Error: Failed to create VkImageView.", result};
     }
 }
 
@@ -241,11 +241,11 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     const auto valueSize = properties.stride; // data->valueSize();
 
     bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
-    bool generatMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+    bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
 
     auto vk_textureImage = textureImage->vk(device->deviceID);
 
-    if (generatMipmaps)
+    if (generateMipmaps)
     {
         VkFormatProperties props;
         vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), properties.format, &props);
@@ -253,7 +253,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
         if (!isBlitPossible)
         {
-            generatMipmaps = false;
+            generateMipmaps = false;
         }
     }
 
@@ -341,7 +341,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->vk(device->deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            static_cast<uint32_t>(regions.size()), regions.data());
 
-    if (generatMipmaps)
+    if (generateMipmaps)
     {
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

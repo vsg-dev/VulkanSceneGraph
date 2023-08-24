@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// MultisampleState encapsulates to VkPipelineMultisampleStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// MultisampleState encapsulates VkPipelineMultisampleStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC MultisampleState : public Inherit<GraphicsPipelineState, MultisampleState>
     {
     public:
@@ -33,7 +33,6 @@ namespace vsg
         VkBool32 alphaToOneEnable = VK_FALSE;
 
         int compare(const Object& rhs) const override;
-
         void read(Input& input) override;
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;

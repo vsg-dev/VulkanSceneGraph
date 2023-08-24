@@ -128,7 +128,7 @@ DescriptorSet::Implementation::~Implementation()
 
 void DescriptorSet::Implementation::assign(Context& context, const Descriptors& in_descriptors)
 {
-    // should we doing anything about previous _descriptor that may have been assigned?
+    // should we do anything about previous _descriptors that may have been assigned?
     _descriptors = in_descriptors;
 
     if (_descriptors.empty()) return;

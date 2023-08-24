@@ -107,7 +107,7 @@ bool Buffer::compile(Device* device)
 
     if (VkResult result = vkCreateBuffer(*device, &bufferInfo, device->getAllocationCallbacks(), &vd.buffer); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to create vkBuffer.", result};
+        throw Exception{"Error: Failed to create VkBuffer.", result};
     }
 
     return true;

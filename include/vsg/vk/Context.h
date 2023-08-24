@@ -37,7 +37,7 @@ namespace vsg
     class View;
     class ViewDependentState;
 
-    /// Helper command for settings up RayTracing structures.
+    /// Helper command for setting up RayTracing structures.
     class VSG_DECLSPEC BuildAccelerationStructureCommand : public Inherit<Command, BuildAccelerationStructureCommand>
     {
     public:
@@ -77,9 +77,10 @@ namespace vsg
 
         observer_ptr<View> view;
         uint32_t viewID = 0;
+        Mask mask = MASK_ALL;
         ViewDependentState* viewDependentState = nullptr;
 
-        /// get existing ShaderCompile or create a new one when GLSLang is supported
+        /// get existing ShaderCompiler or create a new one when GLSLang is supported
         ShaderCompiler* getOrCreateShaderCompiler();
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();

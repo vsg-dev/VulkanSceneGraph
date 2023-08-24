@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// VertexInputState encapsulates to VkPipelineVertexInputStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// VertexInputState encapsulates VkPipelineVertexInputStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC VertexInputState : public Inherit<GraphicsPipelineState, VertexInputState>
     {
     public:

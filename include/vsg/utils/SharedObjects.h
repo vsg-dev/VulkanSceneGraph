@@ -27,7 +27,7 @@ namespace vsg
     // forward declare
     class SuitableForSharing;
 
-    /// class for facilitating the share of instances of objects that have the same properties.
+    /// class for facilitating the sharing of instances of objects that have the same properties.
     class VSG_DECLSPEC SharedObjects : public Inherit<Object, SharedObjects>
     {
     public:
@@ -45,19 +45,19 @@ namespace vsg
         template<class C>
         void share(C& container);
 
-        /// visitor that checks a loaded object, and it's children whether it is suitable for sharing in SharedObjects
+        /// visitor that checks a loaded object and its children for suitability for sharing in SharedObjects
         ref_ptr<SuitableForSharing> suitableForSharing;
 
         /// set of lower case file extensions for file types that should not be included in this SharedObjects
         std::set<Path> excludedExtensions;
 
-        /// return true if the filename is of a type suitable for inclusion this SharedObjects
+        /// return true if the filename is of a type suitable for inclusion in this SharedObjects
         virtual bool suitable(const Path& filename) const;
 
         /// check for an entry associated with filename.
         virtual bool contains(const Path& filename, ref_ptr<const Options> options = {}) const;
 
-        /// add entry that matches filename and option.
+        /// add entry that matches filename and options.
         virtual void add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options = {});
 
         /// remove entry associated with filename.
@@ -66,7 +66,7 @@ namespace vsg
         /// clear all the internal structures leaving no Objects cached.
         void clear();
 
-        // clear all the singly referenced objects
+        // clear all the singularly referenced objects
         void prune();
 
         /// write out stats of objects held, types of objects and their reference counts
@@ -81,7 +81,7 @@ namespace vsg
     };
     VSG_type_name(vsg::SharedObjects);
 
-    /// Helper class for support sharing of objects loaded from files.
+    /// Helper class for sharing of objects loaded from files.
     class VSG_DECLSPEC LoadedObject : public Inherit<Object, LoadedObject>
     {
     public:
@@ -99,11 +99,11 @@ namespace vsg
     VSG_type_name(vsg::LoadedObject);
 
     /// Helper class for deciding whether sharing is permitted for this type - required to avoid circular references
-    /// If an object that is put forward to be shared via the SharedObjects container then it can't contain any references to vsg::Options & associated SharedOjbjects
+    /// If an object is put forward to be shared via the SharedObjects container then it can't contain any references to vsg::Options & associated SharedObjects
     /// otherwise a circular reference can be created that prevents all the objects in the circular reference chain from being deleted. Such objects must
-    /// be prevent from inclusion in the SharedObejcts. An example of class not suitable is vsg::PagedLOD as it has an options member. If your subclasses are
-    /// like PagedLOD and might create a circular reference when using with SharedOjbects then you should subclass from SuitableForSharing and add support
-    /// for your class and when instances are found set the suitableForSharing flag to false, and then assign this to the SharedOjbects container so that
+    /// be prevented from inclusion in the SharedObejcts. An example of a class not suitable is vsg::PagedLOD as it has an options member. If your subclasses are
+    /// like PagedLOD and might create a circular reference when using with SharedObjects then you should subclass from SuitableForSharing and add support
+    /// for your class and when instances are found set the suitableForSharing flag to false, and then assign this to the SharedObjects container so that
     /// it can make sure it's not treated as suitable for inclusions.
     class VSG_DECLSPEC SuitableForSharing : public Inherit<ConstVisitor, SuitableForSharing>
     {

@@ -102,14 +102,14 @@ namespace vsg
 
             std::unique_lock lock(_mutex);
 
-            // wait to the conditional variable signals that an operation has been added
+            // wait until the conditional variable signals that an operation has been added
             while (_queue.empty() && _status->active())
             {
                 // debug("Waiting on condition variable");
                 _cv.wait_for(lock, waitDuration);
             }
 
-            // if the threads we are associated with should no longer running go for a quick exit and return nothing.
+            // if the threads we are associated with should no longer be running go for a quick exit and return nothing.
             if (_status->cancel())
             {
                 return {};

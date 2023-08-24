@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// ColorBlendState encapsulates to VkPipelineColorBlendStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// ColorBlendState encapsulates VkPipelineColorBlendStateCreateInfo settings passed when setting up GraphicsPipeline
     class VSG_DECLSPEC ColorBlendState : public Inherit<GraphicsPipelineState, ColorBlendState>
     {
     public:
@@ -32,6 +32,9 @@ namespace vsg
         VkLogicOp logicOp = VK_LOGIC_OP_COPY;
         ColorBlendAttachments attachments;
         float blendConstants[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+        /// configure the assingned attachments, if blendEnable is true then set up standard src_alpha, dest_one_minus_alpha blending otherwise disable blending.
+        virtual void configureAttachments(bool blendEnable);
 
         int compare(const Object& rhs) const override;
 

@@ -39,7 +39,7 @@ MultisampleState::~MultisampleState()
 
 int MultisampleState::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
@@ -54,7 +54,7 @@ int MultisampleState::compare(const Object& rhs_object) const
 
 void MultisampleState::read(Input& input)
 {
-    Object::read(input);
+    GraphicsPipelineState::read(input);
 
     input.readValue<uint32_t>("rasterizationSamples", rasterizationSamples);
     input.readValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
@@ -65,9 +65,9 @@ void MultisampleState::read(Input& input)
     else
         sampleMasks.resize(input.readValue<uint32_t>("NumSampleMask"));
 
-    for (auto& mask : sampleMasks)
+    for (auto& value : sampleMasks)
     {
-        input.readValue<uint32_t>("value", mask);
+        input.readValue<uint32_t>("value", value);
     }
 
     input.readValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);
@@ -76,7 +76,7 @@ void MultisampleState::read(Input& input)
 
 void MultisampleState::write(Output& output) const
 {
-    Object::write(output);
+    GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("rasterizationSamples", rasterizationSamples);
     output.writeValue<uint32_t>("sampleShadingEnable", sampleShadingEnable);
@@ -87,9 +87,9 @@ void MultisampleState::write(Output& output) const
     else
         output.writeValue<uint32_t>("NumSampleMask", sampleMasks.size());
 
-    for (auto& mask : sampleMasks)
+    for (auto& value : sampleMasks)
     {
-        output.writeValue<uint32_t>("value", mask);
+        output.writeValue<uint32_t>("value", value);
     }
 
     output.writeValue<uint32_t>("alphaToCoverageEnable", alphaToCoverageEnable);

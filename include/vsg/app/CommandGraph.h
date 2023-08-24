@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// CommandGraph is a group node that sits at the top of the scene graph and manages the recording of it's subgraph to Vulkan command buffers.
+    /// CommandGraph is a group node that sits at the top of the scene graph and manages the recording of its subgraph to Vulkan command buffers.
     class VSG_DECLSPEC CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
@@ -39,12 +39,13 @@ namespace vsg
         int queueFamily = -1;
         int presentFamily = -1;
         uint32_t maxSlot = 2;
+        int submitOrder = 0;
 
         ref_ptr<RecordTraversal> recordTraversal;
 
         virtual VkCommandBufferLevel level() const;
         virtual void reset();
-        virtual void record(CommandBuffers& recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+        virtual void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
     protected:
         virtual ~CommandGraph();

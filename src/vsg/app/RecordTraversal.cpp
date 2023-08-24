@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/RecordTraversal.h>
+#include <vsg/app/CommandGraph.h>
 #include <vsg/app/View.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
@@ -213,7 +214,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 auto previousRequestCount = plod.requestCount.fetch_add(1);
                 if (previousRequestCount == 0)
                 {
-                    // we are first request so tell the databasePager about it
+                    // we are the first request so tell the databasePager about it
                     _databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
                 }
                 else
@@ -476,4 +477,18 @@ void RecordTraversal::apply(const View& view)
     cached_bins.swap(_bins);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
     _viewDependentState = cached_viewDependentState;
+}
+
+void RecordTraversal::apply(const CommandGraph& commandGraph)
+{
+    if (recordedCommandBuffers)
+    {
+        auto cg = const_cast<CommandGraph*>(&commandGraph);
+        cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
+    }
+    else
+    {
+        commandGraph.traverse(*this);
+    }
+
 }

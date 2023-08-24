@@ -24,8 +24,39 @@ using namespace vsg;
 //
 // GraphicsPipelineState
 //
-void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
+int GraphicsPipelineState::compare(const Object& rhs_object) const
 {
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(mask, rhs.mask);
+}
+
+void GraphicsPipelineState::read(Input& input)
+{
+    Object::read(input);
+
+    if (input.version_greater_equal(1, 0, 9))
+    {
+        input.read("mask", mask);
+    }
+}
+
+void GraphicsPipelineState::write(Output& output) const
+{
+    Object::write(output);
+
+    if (output.version_greater_equal(1, 0, 9))
+    {
+        output.write("mask", mask);
+    }
+}
+
+void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
+{
+    if ((mask & src_PipelineState->mask) == 0) return;
+
     // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState
     for (auto& original_pipelineState : dest_PipelineStates)
     {
@@ -38,11 +69,11 @@ void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineState
     dest_PipelineStates.push_back(src_PipelineState);
 }
 
-void vsg::mergeGraphicsPipelineStates(GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
+void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
 {
     for (auto& src_PipelineState : src_PipelineStates)
     {
-        mergeGraphicsPipelineStates(dest_PipelineStates, src_PipelineState);
+        mergeGraphicsPipelineStates(mask, dest_PipelineStates, src_PipelineState);
     }
 }
 
@@ -76,7 +107,6 @@ int GraphicsPipeline::compare(const Object& rhs_object) const
     if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
     if ((result = compare_pointer(layout, rhs.layout))) return result;
-    if ((result = compare_pointer(renderPass, rhs.renderPass))) return result;
     return compare_value(subpass, rhs.subpass);
 }
 
@@ -144,9 +174,11 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        GraphicsPipelineStates combined_pipelineStates = context.defaultPipelineStates;
-        mergeGraphicsPipelineStates(combined_pipelineStates, pipelineStates);
-        mergeGraphicsPipelineStates(combined_pipelineStates, context.overridePipelineStates);
+        GraphicsPipelineStates combined_pipelineStates;
+        combined_pipelineStates.reserve(context.defaultPipelineStates.size() + pipelineStates.size() + context.overridePipelineStates.size());
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.defaultPipelineStates);
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, pipelineStates);
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.overridePipelineStates);
 
         _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
     }
@@ -168,15 +200,20 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     pipelineInfo.pNext = nullptr;
 
     auto shaderStageCreateInfo = context.scratchMemory->allocate<VkPipelineShaderStageCreateInfo>(shaderStages.size());
-    for (size_t i = 0; i < shaderStages.size(); ++i)
+    uint32_t i = 0;
+    for (auto& shaderStage : shaderStages)
     {
-        const ShaderStage* shaderStage = shaderStages[i];
-        shaderStageCreateInfo[i].flags = 0;
-        shaderStageCreateInfo[i].pNext = nullptr;
-        shaderStage->apply(context, shaderStageCreateInfo[i]);
+        // check if ShaderStage is appropriate to assign to stageInfo
+        if ((context.mask & shaderStage->mask) != 0)
+        {
+            shaderStageCreateInfo[i].flags = 0;
+            shaderStageCreateInfo[i].pNext = nullptr;
+            shaderStage->apply(context, shaderStageCreateInfo[i]);
+            ++i;
+        }
     }
 
-    pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineInfo.stageCount = i;
     pipelineInfo.pStages = shaderStageCreateInfo;
 
     for (auto pipelineState : pipelineStates)
@@ -190,7 +227,7 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
 
     if (result != VK_SUCCESS)
     {
-        throw Exception{"Error: vsg::Pipeline::createGraphics(...) failed to create VkPipeline.", result};
+        throw Exception{"Error: vsg::GraphicsPipeline failed to create VkPipeline.", result};
     }
 }
 

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.0.8
+    VERSION 1.0.9
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 14)
-SET(VSG_RELEASE_CANDIDATE 0)
+SET(VSG_RELEASE_CANDIDATE 1)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
@@ -114,11 +114,22 @@ vsg_add_target_docs(
         ${VSG_SOURCE_DIR}/include/vsg
 )
 
-# automatically buil_all_h build target to generate the include/vsg/all.h from the headers in the include/vsg/* directories
+# build_all_h build target to automatically generate the include/vsg/all.h from the headers in the include/vsg/* directories
 add_custom_target(build_all_h
     COMMAND ${CMAKE_COMMAND} -DVSG_SOURCE_DIR=${VSG_SOURCE_DIR} -P ${VSG_SOURCE_DIR}/cmake/build_all_h.cmake
+    COMMENT "update all.h to include all the include/vsg/*/*.h"
 )
 set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
+
+# build_ShaderSets target automatically rebuilds the various built-in ShaderSets.
+add_custom_target(build_ShaderSets
+    COMMAND find ~/Data/glTF-Sample-Models/2.0 -name "*.glb" -o -name "*.gltf" | xargs vsgshaderset --pbr -o src/vsg/utils/shaders/pbr_ShaderSet.cpp --binary
+    COMMAND vsgshaderset --phong -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/phong_ShaderSet.cpp --binary
+    COMMAND vsgshaderset --flat -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/flat_ShaderSet.cpp --binary
+    COMMAND vsgshaderset --text -v "CPU_LAYOUT" -v "CPU_LAYOUT BILLBOARD" -v "GPU_LAYOUT" -v "GPU_LAYOUT BILLBOARD" -o src/vsg/text/shaders/text_ShaderSet.cpp  --binary
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "update built-in ShaderSets"
+)
 
 vsg_add_option_maintainer(
     PREFIX v

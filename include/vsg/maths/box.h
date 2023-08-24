@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// t_box template class that represent a axis aligned bounding box
+    /// t_box template class that represents an axis aligned bounding box
     template<typename T>
     struct t_box
     {

@@ -38,7 +38,7 @@ namespace vsg
     // forward declare
     class Options;
 
-    /// Base class that provides a means of read a range of data types to an input stream.
+    /// Base class that provides a means of reading a range of data types from an input stream.
     /// Used by vsg::Object::read(Input&) implementations across the VSG to provide native serialization from binary/ascii files
     class VSG_DECLSPEC Input
     {
@@ -110,7 +110,7 @@ namespace vsg
         void read(size_t num, plane* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dplane* value) { read(num * value->size(), value->data()); }
 
-        /// treat non standard type as raw data,
+        /// treat non standard type as raw data
         template<typename T>
         void read(size_t num, T* value)
         {
@@ -226,7 +226,7 @@ namespace vsg
             return v;
         }
 
-        /// read a value as a type, then cast it another type
+        /// read a value as a type, then cast it to another type
         template<typename W, typename T>
         void readValue(const char* propertyName, T& value)
         {

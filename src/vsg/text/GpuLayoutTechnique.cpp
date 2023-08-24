@@ -44,8 +44,9 @@ void assignValue(T& dest, const T& src, bool& updated)
 
 void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<const Options> options)
 {
-    auto layout = text->layout;
-    if (!layout) return;
+    if (!text || !(text->text) || !text->font || !text->layout) return;
+
+    auto& layout = text->layout;
 
     textExtents = layout->extents(text->text, *(text->font));
 
@@ -192,7 +193,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
     ref_ptr<StateGroup> stateGroup = scenegraph.cast<StateGroup>();
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsProgram, and binding of Descriptors to decorate the whole graph
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
     if (!stateGroup)
     {
         stateGroup = StateGroup::create();
@@ -251,28 +252,13 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         config->assignUniform("textLayout", layoutValue);
         config->assignUniform("text", textArray);
 
-        // disable face culling so text can be seen from both sides
-        config->rasterizationState->cullMode = VK_CULL_MODE_NONE;
-
-        // set topology of primitive
-        config->inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-
-        // set alpha blending
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-        colorBlendAttachment.blendEnable = VK_TRUE;
-        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                              VK_COLOR_COMPONENT_G_BIT |
-                                              VK_COLOR_COMPONENT_B_BIT |
-                                              VK_COLOR_COMPONENT_A_BIT;
-
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-
-        config->colorBlendState->attachments = {colorBlendAttachment};
+        // Set the InputAssemblyState.topology
+        struct SetPipelineStates : public Visitor
+        {
+            void apply(Object& object) { object.traverse(*this); }
+            void apply(InputAssemblyState& ias) { ias.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP; }
+        };
+        vsg::visit<SetPipelineStates>(config);
 
         if (sharedObjects)
             sharedObjects->share(config, [](auto gpc) { gpc->init(); });

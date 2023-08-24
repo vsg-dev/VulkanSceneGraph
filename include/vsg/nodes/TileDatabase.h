@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// TileDatabaseSettings provides the settings used by vsg::TileDatabase & vsg::tile ReaderWriter to guide paging in image, DEM tiles from disk/http/.
+    /// TileDatabaseSettings provides the settings used by vsg::TileDatabase and vsg::tile ReaderWriter to guide paging in image, DEM tiles from disk/http/.
     class VSG_DECLSPEC TileDatabaseSettings : public Inherit<Object, TileDatabaseSettings>
     {
     public:
@@ -80,7 +80,7 @@ namespace vsg
     };
     VSG_type_name(vsg::TileDatabase);
 
-    /// convenience function for getting the part of string that enclosed between a start_match and end_match string
+    /// convenience function for getting the part of a string enclosed between a start_match and end_match string
     extern VSG_DECLSPEC std::string_view find_field(const std::string& source, const std::string_view& start_match, const std::string_view& end_match);
 
     /// convenience function for replacing all instances of a match string with the replacement string.

@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Geometry node is class that provides vertex arrays, optional index array and a list of draw commands
+    /// Geometry node is a class that provides vertex arrays, optional index array and a list of draw commands
     /// that are recorded to command buffer during RecordTraversal. Provides a lower CPU overhead
     /// compared to the equivalent functionality of adding individual commands:
     ///     auto group = vsg::Commands::create();
