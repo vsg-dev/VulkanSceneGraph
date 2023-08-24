@@ -255,8 +255,8 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         // Set the InputAssemblyState.topology
         struct SetPipelineStates : public Visitor
         {
-            void apply(Object& object) { object.traverse(*this); }
-            void apply(InputAssemblyState& ias) { ias.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP; }
+            void apply(Object& object) override { object.traverse(*this); }
+            void apply(InputAssemblyState& ias) override { ias.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP; }
         };
         vsg::visit<SetPipelineStates>(config);
 
