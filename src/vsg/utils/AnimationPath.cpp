@@ -111,7 +111,7 @@ void AnimationPath::write(Output& output) const
 AnimationPathHandler::AnimationPathHandler(ref_ptr<Object> in_object, ref_ptr<AnimationPath> in_path, clock::time_point in_start_point) :
     object(in_object),
     path(in_path),
-    start_point(in_start_point)
+    animationStartPoint(in_start_point), periodStartPoint(in_start_point)
 {
 }
 
@@ -120,13 +120,13 @@ void AnimationPathHandler::apply(Camera& camera)
     auto lookAt = camera.viewMatrix.cast<LookAt>();
     if (lookAt)
     {
-        lookAt->set(path->computeMatrix(time));
+        lookAt->set(path->computeMatrix(totalTime));
     }
 }
 
 void AnimationPathHandler::apply(MatrixTransform& transform)
 {
-    transform.matrix = path->computeMatrix(time);
+    transform.matrix = path->computeMatrix(totalTime);
 }
 
 void AnimationPathHandler::apply(KeyPressEvent& keyPress)
@@ -141,21 +141,20 @@ void AnimationPathHandler::apply(FrameEvent& frame)
 {
     if (frameCount == 0)
     {
-        start_point = frame.frameStamp->time;
+        animationStartPoint = periodStartPoint = frame.frameStamp->time;
     }
 
-    time = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - start_point).count();
-    if (time > path->period())
+    totalTime = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - animationStartPoint).count();
+    auto periodTime = std::chrono::duration<double, std::chrono::seconds::period>(frame.frameStamp->time - periodStartPoint).count();
+    if (periodTime > path->period())
     {
         if (printFrameStatsToConsole)
         {
-            double average_framerate = double(frameCount) / time;
-            vsg::info("Period complete numFrames=", frameCount, ", average frame rate = ", average_framerate);
+            double average_framerate = double(frameCount) / periodTime;
+            vsg::info("Period (duration ", periodTime, "s) complete, frame count = ", frameCount, ", average frame rate = ", average_framerate);
         }
 
-        // reset time back to start
-        start_point = frame.frameStamp->time;
-        time = 0.0;
+        periodStartPoint = frame.frameStamp->time;
         frameCount = 0;
     }
 

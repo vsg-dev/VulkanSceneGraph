@@ -68,9 +68,10 @@ namespace vsg
         ref_ptr<Object> object;
         ref_ptr<AnimationPath> path;
         KeySymbol resetKey = KEY_Space;
-        clock::time_point start_point;
+        clock::time_point animationStartPoint;
+        clock::time_point periodStartPoint;
         unsigned int frameCount = 0;
-        double time = 0.0;
+        double totalTime = 0.0;
         bool printFrameStatsToConsole = false;
 
         void apply(Camera& camera) override;
