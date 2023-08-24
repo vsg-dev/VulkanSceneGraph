@@ -82,7 +82,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     auto newDescriptorPoolSizes = _availableDescriptorPoolSizes;
     for (auto& [type, descriptorCount] : descriptorPoolSizes)
     {
-        size_t foundDescriptorCount = 0;
+        uint32_t foundDescriptorCount = 0;
         for (auto& [availableType, availableCount] : newDescriptorPoolSizes)
         {
             if (availableType == type)
