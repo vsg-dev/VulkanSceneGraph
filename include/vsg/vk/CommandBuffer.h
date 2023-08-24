@@ -86,7 +86,6 @@ namespace vsg
     class RecordedCommandBuffers : public Inherit<Object, RecordedCommandBuffers>
     {
     public:
-
         ref_ptr<RecordedCommandBuffers> getOrCreateRecordedCommandBuffers(int submitOrder);
 
         void clear();
@@ -102,6 +101,5 @@ namespace vsg
         CommandBuffers _commandBuffers;
     };
     VSG_type_name(vsg::RecordedCommandBuffers);
-
 
 } // namespace vsg

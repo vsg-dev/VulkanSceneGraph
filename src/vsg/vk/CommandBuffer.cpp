@@ -74,8 +74,10 @@ ref_ptr<RecordedCommandBuffers> RecordedCommandBuffers::getOrCreateRecordedComma
 void RecordedCommandBuffers::add(int submitOrder, ref_ptr<vsg::CommandBuffer> commandBuffer)
 {
     std::scoped_lock<std::mutex> lock(_mutex);
-    if (submitOrder == 0) _commandBuffers.push_back(commandBuffer);
-    else getOrCreateRecordedCommandBuffers(submitOrder)->_commandBuffers.push_back(commandBuffer);
+    if (submitOrder == 0)
+        _commandBuffers.push_back(commandBuffer);
+    else
+        getOrCreateRecordedCommandBuffers(submitOrder)->_commandBuffers.push_back(commandBuffer);
 }
 
 bool RecordedCommandBuffers::empty() const
@@ -93,7 +95,7 @@ CommandBuffers RecordedCommandBuffers::buffers() const
     auto mid_itr = _orderedCommandBuffers.lower_bound(0);
 
     CommandBuffers buffers;
-    for(auto itr = _orderedCommandBuffers.begin(); itr != mid_itr; ++itr)
+    for (auto itr = _orderedCommandBuffers.begin(); itr != mid_itr; ++itr)
     {
         auto nested_buffers = itr->second->buffers();
         buffers.insert(buffers.end(), nested_buffers.begin(), nested_buffers.end());
@@ -101,7 +103,7 @@ CommandBuffers RecordedCommandBuffers::buffers() const
 
     buffers.insert(buffers.end(), _commandBuffers.begin(), _commandBuffers.end());
 
-    for(auto itr = mid_itr; itr != _orderedCommandBuffers.end(); ++itr)
+    for (auto itr = mid_itr; itr != _orderedCommandBuffers.end(); ++itr)
     {
         auto nested_buffers = itr->second->buffers();
         buffers.insert(buffers.end(), nested_buffers.begin(), nested_buffers.end());

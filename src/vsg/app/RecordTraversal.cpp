@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/app/RecordTraversal.h>
 #include <vsg/app/CommandGraph.h>
+#include <vsg/app/RecordTraversal.h>
 #include <vsg/app/View.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
@@ -491,5 +491,4 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     {
         commandGraph.traverse(*this);
     }
-
 }
