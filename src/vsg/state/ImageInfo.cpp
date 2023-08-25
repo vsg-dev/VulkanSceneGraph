@@ -153,8 +153,8 @@ void ImageInfo::computeNumMipMapLevels()
             const auto& properties = data->properties;
             if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
             {
-                sampler->maxLod = 0.0f;
                 mipLevels = 1;
+                generateMipmaps = false;
             }
         }
 
