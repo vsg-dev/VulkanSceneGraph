@@ -186,7 +186,7 @@ void DescriptorBuffer::compile(Context& context)
                     }
                     else
                     {
-                        throw Exception{"Error: DescriptorBuffer::compile(..) unable to allocate buffer."};
+                        throw Exception{"Error: DescriptorBuffer::compile(..) failed to allocate buffer from deviceMemoryBufferPools.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
                     }
                 }
             }
