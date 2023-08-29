@@ -107,7 +107,7 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
         }
 
         void* buffer_data;
-        VkResult result = dm->map(offset, range, 0, &buffer_data);
+        VkResult result = dm->map(buffer->getMemoryOffset(deviceID) + offset, range, 0, &buffer_data);
         if (result != 0)
         {
             warn("BufferInfo::copyDataToBuffer() cannot copy data. vkMapMemory(..) failed with result = ", result);
