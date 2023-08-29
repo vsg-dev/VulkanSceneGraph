@@ -219,7 +219,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         }
     }
 
-    // assign database pager if required
+    // increase maxSlot if required
     for (auto& task : tasks)
     {
         for (auto& commandGraph : task->commandGraphs)

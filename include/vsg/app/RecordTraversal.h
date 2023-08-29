@@ -77,7 +77,7 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 
-        /// Container for CommandBuffers that have been recorded in currrent frame
+        /// Container for CommandBuffers that have been recorded in current frame
         ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
 
         /// get the current State object used to track state and projection/modelview matrices for the current subgraph being traversed
