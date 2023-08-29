@@ -241,10 +241,17 @@ void Context::reserve(const ResourceRequirements& requirements)
             required_descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, adjustedDescriptorCount});
     }
 
-    if (required_maxSets > 0)
+    if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
     {
         getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
-        descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
+        if (required_maxSets > 0 && !required_descriptorPoolSizes.empty())
+        {
+            descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
+        }
+        else
+        {
+            warn("Context::reserve(const ResourceRequirements& requirements) invalid combination of required_maxSets (", required_maxSets, ") & required_descriptorPoolSizes (", required_descriptorPoolSizes.size(), ") unable to allocate DescriptorPool.");
+        }
     }
 }
 
