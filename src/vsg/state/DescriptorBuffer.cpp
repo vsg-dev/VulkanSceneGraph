@@ -178,9 +178,8 @@ void DescriptorBuffer::compile(Context& context)
                 if (bufferInfo->buffer->getDeviceMemory(deviceID) == nullptr)
                 {
                     auto memRequirements = bufferInfo->buffer->getMemoryRequirements(deviceID);
-                    auto [deviceMemory, offset]
-                        = context.deviceMemoryBufferPools->reserveMemory(memRequirements,
-                                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                    VkMemoryPropertyFlags flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+                    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements,flags);
                     if (deviceMemory)
                     {
                         bufferInfo->buffer->bind(deviceMemory, offset);
