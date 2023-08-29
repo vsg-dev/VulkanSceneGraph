@@ -215,32 +215,43 @@ void Context::reserve(const ResourceRequirements& requirements)
     }
 
     auto required_maxSets = maxSets;
-    auto required_descriptorPoolSizes = descriptorPoolSizes;
-
     if (available_maxSets < required_maxSets)
         required_maxSets -= available_maxSets;
     else
         required_maxSets = 0;
 
-    for (auto& [type, descriptorCount] : required_descriptorPoolSizes)
+    DescriptorPoolSizes required_descriptorPoolSizes;
+    for (const auto& [type, descriptorCount] : descriptorPoolSizes)
     {
+        uint32_t adjustedDescriptorCount = descriptorCount;
         for (auto itr = available_descriptorPoolSizes.begin(); itr != available_descriptorPoolSizes.end(); ++itr)
         {
             if (itr->type == type)
             {
-                if (itr->descriptorCount < descriptorCount)
-                    descriptorCount -= itr->descriptorCount;
+                if (itr->descriptorCount < adjustedDescriptorCount)
+                    adjustedDescriptorCount -= itr->descriptorCount;
                 else
-                    descriptorCount = 0;
-                break;
+                {
+                    adjustedDescriptorCount = 0;
+                    break;
+                }
             }
         }
+        if (adjustedDescriptorCount > 0)
+            required_descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, adjustedDescriptorCount});
     }
 
-    if (required_maxSets > 0)
+    if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
     {
         getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
-        descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
+        if (required_maxSets > 0 && !required_descriptorPoolSizes.empty())
+        {
+            descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
+        }
+        else
+        {
+            warn("Context::reserve(const ResourceRequirements& requirements) invalid combination of required_maxSets (", required_maxSets, ") & required_descriptorPoolSizes (", required_descriptorPoolSizes.size(), ") unable to allocate DescriptorPool.");
+        }
     }
 }
 

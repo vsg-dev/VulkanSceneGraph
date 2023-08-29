@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Base class for Vulkan commands associated with state, such as binding graphics pipelines and descriptors sets (textures and uniforms).
+    /// Base class for Vulkan commands associated with state, such as binding graphics pipelines and descriptor sets (textures and uniforms).
     /// StateCommands can be attached directly as nodes in the scene graph, or more typically assigned to StateGroup nodes to enable push/popping of state.
     class VSG_DECLSPEC StateCommand : public Inherit<Command, StateCommand>
     {

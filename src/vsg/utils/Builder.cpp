@@ -109,7 +109,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     struct SetPipelineStates : public Visitor
     {
         const StateInfo& si;
-        SetPipelineStates(const StateInfo& in) :
+        explicit SetPipelineStates(const StateInfo& in) :
             si(in) {}
 
         void apply(Object& object) override
