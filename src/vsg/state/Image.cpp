@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/state/Image.h>
 #include <vsg/vk/Context.h>
 
@@ -103,9 +104,10 @@ Image::Image(ref_ptr<Data> in_data) :
             format = static_cast<VkFormat>(format + 7);
         else if (format >= VK_FORMAT_R32G32B32_UINT && format <= VK_FORMAT_R32G32B32_SFLOAT)
             format = static_cast<VkFormat>(format + 3);
+
+        usage = (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
     }
 
-    usage = (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 }
 
 Image::Image(VkImage image, Device* device)
