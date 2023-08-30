@@ -106,7 +106,6 @@ Image::Image(ref_ptr<Data> in_data) :
 
         usage = (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
     }
-
 }
 
 Image::Image(VkImage image, Device* device)
