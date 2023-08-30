@@ -127,7 +127,6 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
 
     std::size_t lastPosition = 0;
     offsets.push_back(lastPosition);
-
     while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
     {
         lastPosition += (w * h * d);
