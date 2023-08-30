@@ -104,6 +104,8 @@ Image::Image(ref_ptr<Data> in_data) :
         else if (format >= VK_FORMAT_R32G32B32_UINT && format <= VK_FORMAT_R32G32B32_SFLOAT)
             format = static_cast<VkFormat>(format + 3);
     }
+
+    usage = (VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 }
 
 Image::Image(VkImage image, Device* device)

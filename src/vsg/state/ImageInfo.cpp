@@ -120,6 +120,14 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     return mipLevels;
 }
 
+ImageInfo::ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<ImageView> in_imageView, VkImageLayout in_imageLayout) :
+    sampler(in_sampler),
+    imageView(in_imageView),
+    imageLayout(in_imageLayout)
+{
+    computeNumMipMapLevels();
+}
+
 ImageInfo::~ImageInfo()
 {
 }
