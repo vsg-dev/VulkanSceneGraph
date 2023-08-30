@@ -115,10 +115,11 @@ void Data::write(Output& output) const
 
 Data::MipmapOffsets Data::computeMipmapOffsets() const
 {
+    if (properties.maxNumMipmaps <= 1) return {};
+
     uint32_t numMipmaps = properties.maxNumMipmaps;
 
     MipmapOffsets offsets;
-    if (numMipmaps == 0) return offsets;
 
     std::size_t w = width();
     std::size_t h = height();
