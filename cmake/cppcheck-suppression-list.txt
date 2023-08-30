@@ -46,6 +46,7 @@ useStlAlgorithm:*/src/vsg/state/ArrayState.cpp
 useStlAlgorithm:*/src/vsg/app/CompileTraversal.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
+useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
 useStlAlgorithm:*/include/vsg/utils/CommandLine.h
 
 // suppress the warning about valid C++17 if (init; condition) usage
@@ -127,6 +128,7 @@ duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
 
 // suppress unhelpful "can be declared with const"
 constParameter:*/src/vsg/state/QueryPool.cpp
+constParameter:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate warning of returnTempReference
 returnTempReference:*/include/vsg/core/Inherit.h

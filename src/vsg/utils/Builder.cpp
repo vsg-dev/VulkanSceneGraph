@@ -109,19 +109,28 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     struct SetPipelineStates : public Visitor
     {
         const StateInfo& si;
-        SetPipelineStates(const StateInfo& in) :
+        explicit SetPipelineStates(const StateInfo& in) :
             si(in) {}
 
-        void apply(Object& object) { object.traverse(*this); }
-        void apply(RasterizationState& rs)
+        void apply(Object& object) override
+        {
+            object.traverse(*this);
+        }
+
+        void apply(RasterizationState& rs) override
         {
             if (si.two_sided) rs.cullMode = VK_CULL_MODE_NONE;
         }
-        void apply(InputAssemblyState& ias)
+
+        void apply(InputAssemblyState& ias)override
         {
             if (si.wireframe) ias.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
         }
-        void apply(ColorBlendState& cbs) { cbs.configureAttachments(si.blending); }
+
+        void apply(ColorBlendState& cbs) override
+        {
+            cbs.configureAttachments(si.blending);
+        }
     } sps(stateInfo);
 
     graphicsPipelineConfig->accept(sps);

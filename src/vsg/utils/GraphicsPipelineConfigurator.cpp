@@ -409,7 +409,7 @@ bool GraphicsPipelineConfigurator::enableUniform(const std::string& name)
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
-    auto& attributeBinding = shaderSet->getAttributeBinding(name);
+    const auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
     {
         VkFormat format = array ? array->properties.format : VK_FORMAT_UNDEFINED;

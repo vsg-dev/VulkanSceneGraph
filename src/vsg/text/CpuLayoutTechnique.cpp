@@ -253,6 +253,11 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
             config->assignArray(arrays, "inCenterAndAutoScaleDistance", singleCenterAutoScaleDistance ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX, centerAndAutoScaleDistances);
         }
 
+        if (billboard)
+        {
+            config->shaderHints->defines.insert("BILLBOARD");
+        }
+
         // set up sampler for atlas.
         auto sampler = Sampler::create();
         sampler->magFilter = VK_FILTER_LINEAR;
