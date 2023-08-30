@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/compare.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/ImageInfo.h>
 
@@ -120,6 +121,13 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     return mipLevels;
 }
 
+ImageInfo::ImageInfo(ref_ptr<Sampler> in_sampler, ref_ptr<ImageView> in_imageView, VkImageLayout in_imageLayout) :
+    sampler(in_sampler),
+    imageView(in_imageView),
+    imageLayout(in_imageLayout)
+{
+}
+
 ImageInfo::~ImageInfo()
 {
 }
@@ -153,7 +161,11 @@ void ImageInfo::computeNumMipMapLevels()
             const auto& properties = data->properties;
             if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
             {
-                sampler->maxLod = 0.0f;
+                if (sampler->maxLod != 0.0f && sampler->maxLod != VK_LOD_CLAMP_NONE)
+                {
+                    warn("ImageInfo::computeNumMipMapLevels() cannot enable generated mipmaps for vsg::Image, but Sampler::maxLod is not zero or VK_LOD_CLAMP_NONE, sampler->maxLod = ", sampler->maxLod);
+                }
+
                 mipLevels = 1;
             }
         }

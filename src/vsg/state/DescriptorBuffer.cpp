@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/compare.h>
 #include <vsg/core/Exception.h>
+#include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/state/DescriptorBuffer.h>
@@ -179,7 +179,7 @@ void DescriptorBuffer::compile(Context& context)
                 {
                     auto memRequirements = bufferInfo->buffer->getMemoryRequirements(deviceID);
                     VkMemoryPropertyFlags flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-                    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements,flags);
+                    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, flags);
                     if (deviceMemory)
                     {
                         bufferInfo->buffer->bind(deviceMemory, offset);
