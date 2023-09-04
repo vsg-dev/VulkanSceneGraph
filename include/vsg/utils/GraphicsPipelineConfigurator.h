@@ -45,18 +45,25 @@ namespace vsg
         bool two_sided = false;
 
         bool enableTexture(const std::string& name);
-        bool enableUniform(const std::string& name);
+        bool enableBuffer(const std::string& name);
 
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
-        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
+        bool assignBuffer(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
+        bool assignBuffer(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
 
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
-        /// call after all the textures/uniforms have been explictly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
+        /// call after all the textures and buffers have been explictly assigned to add in texture/buffer descriptors that are enabled by default (define == "").
         bool assignDefaults();
+
+        /// deprecated. use enableBuffer() instead
+        bool enableUniform(const std::string& name);
+        /// deprecated. use assignBuffer() instead
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
+        /// deprecated. use assignBuffer() instead
+        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
 
         std::set<std::string> assigned;
         std::set<std::string> defines;
@@ -105,11 +112,11 @@ namespace vsg
 
         bool enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format = VK_FORMAT_UNDEFINED);
         bool enableTexture(const std::string& name);
-        bool enableUniform(const std::string& name);
+        bool enableBuffer(const std::string& name);
 
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
+        bool assignBuffer(const std::string& name, ref_ptr<Data> data = {});
 
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;
@@ -127,6 +134,11 @@ namespace vsg
         ref_ptr<PipelineLayout> layout;
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
+
+        /// deprecated. use enableUniform() instead
+        bool enableUniform(const std::string& name);
+        /// deprecated. use assignBuffer() instead
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
 
     protected:
         void _assignShaderSetSettings();

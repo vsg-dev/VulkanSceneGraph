@@ -81,11 +81,11 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture("displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    if (auto& materialBinding = activeShaderSet->getUniformBinding("material"))
+    if (auto& materialBinding = activeShaderSet->getBufferBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
-        graphicsPipelineConfig->assignUniform("material", mat);
+        graphicsPipelineConfig->assignBuffer("material", mat);
     }
 
     graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);

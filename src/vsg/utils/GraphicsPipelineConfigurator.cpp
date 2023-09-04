@@ -101,7 +101,7 @@ void DescriptorConfigurator::reset()
 
 bool DescriptorConfigurator::enableTexture(const std::string& name)
 {
-    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    if (auto& textureBinding = shaderSet->getBufferBinding(name))
     {
         assigned.insert(name);
 
@@ -118,7 +118,7 @@ bool DescriptorConfigurator::enableTexture(const std::string& name)
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler, uint32_t dstArrayElement)
 {
-    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    if (auto& textureBinding = shaderSet->getBufferBinding(name))
     {
         assigned.insert(name);
 
@@ -135,7 +135,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement)
 {
-    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    if (auto& textureBinding = shaderSet->getBufferBinding(name))
     {
         assigned.insert(name);
 
@@ -149,52 +149,77 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
     return false;
 }
 
+bool DescriptorConfigurator::enableBuffer(const std::string& name)
+{
+    if (auto& bufferBinding = shaderSet->getBufferBinding(name))
+    {
+        assigned.insert(name);
+
+        // set up bindings
+        if (!bufferBinding.define.empty()) defines.insert(bufferBinding.define);
+
+        // create uniform or storage buffer, associated DescriptorSets and binding
+        const uint32_t dstArrayElement{0};
+        return assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
+                                DescriptorBuffer::create(bufferBinding.data, bufferBinding.binding, dstArrayElement, bufferBinding.descriptorType));
+    }
+    return false;
+}
+
+/// deprecated. use DescriptorConfigurator::enableBuffer() instead
 bool DescriptorConfigurator::enableUniform(const std::string& name)
 {
-    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    warn("DescriptorConfigurator::enableUniform() has been deprecated."
+         " Use DescriptorConfigurator::enableBuffer() instead.");
+    return enableBuffer(name);
+}
+
+bool DescriptorConfigurator::assignBuffer(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
+{
+    if (auto& bufferBinding = shaderSet->getBufferBinding(name))
     {
         assigned.insert(name);
 
         // set up bindings
-        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+        if (!bufferBinding.define.empty()) defines.insert(bufferBinding.define);
 
-        // create uniform and associated DescriptorSets and binding
-        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(uniformBinding.data, uniformBinding.binding));
+        // create uniform or storage buffer, associated DescriptorSets and binding
+        return assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
+                                DescriptorBuffer::create(data ? data : bufferBinding.data, bufferBinding.binding, dstArrayElement, bufferBinding.descriptorType));
     }
     return false;
 }
 
+/// deprecated. use DescriptorConfigurator::assignBuffer() instead.
 bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
-    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    warn("DescriptorConfigurator::assignUniform() has been deprecated."
+         " Use DescriptorConfigurator::assignBuffer() instead.");
+    return assignBuffer(name, data, dstArrayElement);
+}
+
+bool DescriptorConfigurator::assignBuffer(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
+{
+    if (auto& bufferBinding = shaderSet->getBufferBinding(name))
     {
         assigned.insert(name);
 
         // set up bindings
-        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+        if (!bufferBinding.define.empty()) defines.insert(bufferBinding.define);
 
-        // create uniform and associated DescriptorSets and binding
-        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding, dstArrayElement, uniformBinding.descriptorType));
+        // create uniform or storage buffer, associated DescriptorSets and binding
+        return assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
+                                DescriptorBuffer::create(bufferInfoList, bufferBinding.binding, dstArrayElement, bufferBinding.descriptorType));
     }
     return false;
 }
 
+/// deprecated. use DescriptorConfigurator::assignBuffer() instead.
 bool DescriptorConfigurator::assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
-    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
-    {
-        assigned.insert(name);
-
-        // set up bindings
-        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
-
-        // create uniform and associated DescriptorSets and binding
-        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(bufferInfoList, uniformBinding.binding, dstArrayElement, uniformBinding.descriptorType));
-    }
-    return false;
+    warn("DescriptorConfigurator::assignUniform() has been deprecated."
+         " Use DescriptorConfigurator::assignBuffer() instead.");
+    return assignBuffer(name, bufferInfoList, dstArrayElement);
 }
 
 bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor)
@@ -223,14 +248,14 @@ bool DescriptorConfigurator::assignDefaults()
     bool assignedDefault = false;
     if (shaderSet)
     {
-        for (auto& uniformBinding : shaderSet->uniformBindings)
+        for (auto& bufferBinding : shaderSet->bufferBindings)
         {
-            if (uniformBinding.define.empty() && assigned.count(uniformBinding.name) == 0)
+            if (bufferBinding.define.empty() && assigned.count(bufferBinding.name) == 0)
             {
                 bool set_matched = false;
                 for (auto& cds : shaderSet->customDescriptorSetBindings)
                 {
-                    if (cds->set == uniformBinding.set)
+                    if (cds->set == bufferBinding.set)
                     {
                         set_matched = true;
                         break;
@@ -239,7 +264,7 @@ bool DescriptorConfigurator::assignDefaults()
                 if (!set_matched)
                 {
                     bool isTexture = false;
-                    switch (uniformBinding.descriptorType)
+                    switch (bufferBinding.descriptorType)
                     {
                     case (VK_DESCRIPTOR_TYPE_SAMPLER):
                     case (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER):
@@ -253,16 +278,16 @@ bool DescriptorConfigurator::assignDefaults()
 
                     if (isTexture)
                     {
-                        assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                         DescriptorImage::create(Sampler::create(), uniformBinding.data, uniformBinding.binding, 0, uniformBinding.descriptorType));
+                        assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
+                                         DescriptorImage::create(Sampler::create(), bufferBinding.data, bufferBinding.binding, 0, bufferBinding.descriptorType));
                     }
                     else
                     {
-                        assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                         DescriptorBuffer::create(uniformBinding.data, uniformBinding.binding));
+                        assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
+                                         DescriptorBuffer::create(bufferBinding.data, bufferBinding.binding, 0, bufferBinding.descriptorType));
                     }
 
-                    assigned.insert(uniformBinding.name);
+                    assigned.insert(bufferBinding.name);
                     assignedDefault = true;
                 }
             }
@@ -401,10 +426,18 @@ bool GraphicsPipelineConfigurator::enableTexture(const std::string& name)
     return descriptorConfigurator->enableTexture(name);
 }
 
-bool GraphicsPipelineConfigurator::enableUniform(const std::string& name)
+bool GraphicsPipelineConfigurator::enableBuffer(const std::string& name)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->enableUniform(name);
+    return descriptorConfigurator->enableBuffer(name);
+}
+
+/// deprecated. use GraphicsPipelineConfigurator::enableBuffer() instead
+bool GraphicsPipelineConfigurator::enableUniform(const std::string& name)
+{
+    warn("GraphicsPipelineConfigurator::enableUniform() has been deprecated."
+         " use GraphicsPipelineConfigurator::enableBuffer() instead.");
+    return enableBuffer(name);
 }
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
@@ -429,10 +462,18 @@ bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, ref_pt
     return descriptorConfigurator->assignTexture(name, textureData, sampler);
 }
 
-bool GraphicsPipelineConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data)
+bool GraphicsPipelineConfigurator::assignBuffer(const std::string& name, ref_ptr<Data> data)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->assignUniform(name, data);
+    return descriptorConfigurator->assignBuffer(name, data);
+}
+
+/// deprecated. use GraphicsPipelineConfigurator::assignBuffer() instead
+bool GraphicsPipelineConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data)
+{
+    warn("GraphicsPipelineConfigurator::enableUniform() has been deprecated."
+         " use GraphicsPipelineConfigurator::enableBuffer() instead.");
+    return assignBuffer(name, data);
 }
 
 int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const

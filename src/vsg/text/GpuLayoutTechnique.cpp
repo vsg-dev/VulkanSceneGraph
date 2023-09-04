@@ -249,8 +249,8 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         config->assignTexture("textureAtlas", text->font->atlas, sampler);
         config->assignTexture("glyphMetrics", glyphMetricsProxy, glyphMetricSampler);
 
-        config->assignUniform("textLayout", layoutValue);
-        config->assignUniform("text", textArray);
+        config->assignBuffer("textLayout", layoutValue);
+        config->assignBuffer("text", textArray);
 
         // Set the InputAssemblyState.topology
         struct SetPipelineStates : public Visitor
