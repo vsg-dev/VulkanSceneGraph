@@ -143,9 +143,14 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
 
 std::size_t Data::computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t numMipmaps)
 {
-    if (numMipmaps <= 1) return w * h * d;
+    return computeValueCountIncludingMipmaps(w, h, d, numMipmaps, 1);
+}
 
-    std::size_t lastPosition = (w * h * d);
+std::size_t Data::computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t numMipmaps, uint32_t arrayLayers)
+{
+    if (numMipmaps <= 1) return w * h * d * arrayLayers;
+
+    std::size_t lastPosition = (w * h * d * arrayLayers);
     while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
     {
         --numMipmaps;
@@ -154,7 +159,7 @@ std::size_t Data::computeValueCountIncludingMipmaps(std::size_t w, std::size_t h
         if (h > 1) h /= 2;
         if (d > 1) d /= 2;
 
-        lastPosition += (w * h * d);
+        lastPosition += (w * h * d * arrayLayers);
     }
 
     return lastPosition;

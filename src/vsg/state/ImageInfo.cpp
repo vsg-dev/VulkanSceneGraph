@@ -94,25 +94,18 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
 
 uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
 {
+    return computeNumMipMapLevels(data->width(), data->height(), data->depth(), sampler);
+}
+
+uint32_t vsg::computeNumMipMapLevels(uint32_t w, uint32_t h, uint32_t d, const Sampler* sampler)
+{
     uint32_t mipLevels = 1;
     if (sampler)
     {
-        // clamp the mipLevels so that it's no larger than what the data dimensions support
-        uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
-        if (sampler->maxLod == VK_LOD_CLAMP_NONE)
+        mipLevels = vsg::computeNumMipMapLevels(w, h, d);
+        if (sampler->maxLod != VK_LOD_CLAMP_NONE)
         {
-            while ((1u << mipLevels) <= maxDimension)
-            {
-                ++mipLevels;
-            }
-        }
-        else if (static_cast<uint32_t>(sampler->maxLod) > 1)
-        {
-            mipLevels = static_cast<uint32_t>(sampler->maxLod);
-            while ((1u << (mipLevels - 1)) > maxDimension)
-            {
-                --mipLevels;
-            }
+            mipLevels = std::max(1u, std::min(static_cast<uint32_t>(sampler->maxLod), mipLevels));
         }
     }
 
@@ -150,10 +143,17 @@ void ImageInfo::computeNumMipMapLevels()
     {
         auto image = imageView->image;
         auto data = image->data;
-        auto mipLevels = vsg::computeNumMipMapLevels(data, sampler);
+        uint32_t mipLevels = vsg::computeNumMipMapLevels(image->extent.width / data->properties.blockWidth, image->extent.height / data->properties.blockHeight, image->extent.depth / data->properties.blockDepth, sampler);
 
-        const auto& mipmapOffsets = image->data->computeMipmapOffsets();
-        bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        bool generateMipmaps = false;
+        if (data->properties.maxNumMipmaps <= 1 && mipLevels > 1)
+        {
+            generateMipmaps = true;
+        }
+        else
+        {
+            mipLevels = vsg::computeNumMipMapLevels(data->properties, image);
+        }
 
         if (generateMipmaps)
         {
@@ -167,6 +167,7 @@ void ImageInfo::computeNumMipMapLevels()
                 }
 
                 mipLevels = 1;
+                generateMipmaps = false;
             }
         }
 
@@ -174,4 +175,43 @@ void ImageInfo::computeNumMipMapLevels()
 
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
+}
+
+uint32_t vsg::computeNumMipMapLevels(uint32_t w, uint32_t h, uint32_t d)
+{
+    // clamp the mipLevels so that it's no larger than what the data dimensions support
+    uint32_t maxDimension = std::max({w, h, d});
+    uint32_t mipLevels = 1;
+    while ((1u << mipLevels) <= maxDimension)
+    {
+        ++mipLevels;
+    }
+    return mipLevels;
+}
+
+uint32_t vsg::computeNumMipMapLevels(const vsg::Data::Properties& properties, const Image* image)
+{
+    // get the dimensions, usually equivalent to Data::width/height/depth() except for layered images
+    uint32_t w = image->extent.width / properties.blockWidth;
+    uint32_t h = image->extent.height / properties.blockHeight;
+    uint32_t d = image->extent.depth / properties.blockDepth;
+    // clamp the mipLevels so that it's no larger than what the data dimensions support
+    uint32_t mipLevels = vsg::computeNumMipMapLevels(w, h, d);
+
+    // clamp the mipLevels so that it's no larger than specified by vsg::Data
+    mipLevels = std::min(std::max(1u, static_cast<uint32_t>(properties.maxNumMipmaps)), mipLevels);
+
+    // clamp the mipLevels so that it's no larger than the mipLevels vsg::Image was compiled with
+    if (image->mipLevels > 0)
+        mipLevels = std::min(image->mipLevels, mipLevels);
+    return mipLevels;
+}
+
+size_t vsg::computeValueCount(const vsg::Data::Properties& properties, const vsg::Image* image)
+{
+    uint32_t w = image->extent.width / properties.blockWidth;
+    uint32_t h = image->extent.height / properties.blockHeight;
+    uint32_t d = image->extent.depth / properties.blockDepth;
+    uint32_t mipLevels = vsg::computeNumMipMapLevels(properties, image);
+    return Data::computeValueCountIncludingMipmaps(w, h, d, mipLevels, image->arrayLayers);
 }

@@ -202,7 +202,8 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 
         VkFormat targetFormat = imageInfo->imageView->format;
         auto targetTraits = getFormatTraits(targetFormat);
-        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+        auto valueCount = vsg::computeValueCount(data->properties, imageInfo->imageView->image);
+        VkDeviceSize imageTotalSize = targetTraits.size * valueCount;
 
         VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
@@ -254,21 +255,22 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     auto width = data->width();
     auto height = data->height();
     auto depth = data->depth();
-    auto mipmapOffsets = data->computeMipmapOffsets();
-    uint32_t mipLevels = vsg::computeNumMipMapLevels(data, imageInfo.sampler);
 
     auto source_offset = offset;
 
-    log(level, "ImageInfo needs copying ", data, ", mipLevels = ", mipLevels);
+    log(level, "ImageInfo needs copying ", data, ", image->mipLevels = ", imageInfo.imageView->image->mipLevels);
 
     // copy data.
     VkFormat sourceFormat = data->properties.format;
     VkFormat targetFormat = imageInfo.imageView->format;
+    //auto dataSize = data->dataSize();
+    auto valueCount = vsg::computeValueCount(data->properties, imageInfo.imageView->image);
+    auto dataSize = valueCount * data->properties.stride;
     if (sourceFormat == targetFormat)
     {
         log(level, "    sourceFormat and targetFormat compatible.");
-        std::memcpy(ptr, data->dataPointer(), data->dataSize());
-        offset += data->dataSize();
+        std::memcpy(ptr, data->dataPointer(), dataSize);
+        offset += dataSize;
     }
     else
     {
@@ -277,17 +279,17 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
         if (sourceTraits.size == targetTraits.size)
         {
             log(level, "    sourceTraits.size and targetTraits.size compatible.");
-            std::memcpy(ptr, data->dataPointer(), data->dataSize());
-            offset += data->dataSize();
+            std::memcpy(ptr, data->dataPointer(), dataSize);
+            offset += dataSize;
         }
         else
         {
-            VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+            VkDeviceSize imageTotalSize = targetTraits.size * valueCount;
 
             properties.format = targetFormat;
             properties.stride = targetTraits.size;
 
-            log(level, "    sourceTraits.size and targetTraits.size not compatible. dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
+            log(level, "    sourceTraits.size and targetTraits.size not compatible. dataSize = ", dataSize, ", imageTotalSize = ", imageTotalSize);
 
             // set up a vec4 worth of default values for the type
             const uint8_t* default_ptr = targetTraits.defaultValue;
@@ -302,7 +304,6 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
 
             value_type* dest_ptr = reinterpret_cast<value_type*>(ptr);
 
-            size_t valueCount = data->valueCount();
             for (size_t i = 0; i < valueCount; ++i)
             {
                 uint32_t s = 0;
@@ -321,7 +322,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     }
 
     // transfer data.
-    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
+    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
 VkResult TransferTask::transferDynamicData()

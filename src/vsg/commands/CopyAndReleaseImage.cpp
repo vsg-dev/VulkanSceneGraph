@@ -38,7 +38,6 @@ CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageIn
         width = source->data->width();
         height = source->data->height();
         depth = source->data->depth();
-        mipmapOffsets = source->data->computeMipmapOffsets();
     }
 }
 
@@ -50,7 +49,8 @@ void CopyAndReleaseImage::add(const CopyData& cd)
 
 void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest)
 {
-    add(CopyData(src, dest, vsg::computeNumMipMapLevels(src->data, dest->sampler)));
+    uint32_t dataMipLevels = computeNumMipMapLevels(src->data->properties, dest->imageView->image);
+    add(CopyData(src, dest, dataMipLevels));
 }
 
 void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
@@ -60,7 +60,8 @@ void CopyAndReleaseImage::add(ref_ptr<BufferInfo> src, ref_ptr<ImageInfo> dest, 
 
 void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
-    copy(data, dest, vsg::computeNumMipMapLevels(data, dest->sampler));
+    uint32_t dataMipLevels = computeNumMipMapLevels(data->properties, dest->imageView->image);
+    copy(data, dest, dataMipLevels);
 }
 
 void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
@@ -90,7 +91,9 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint
     {
         VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+        //VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+        size_t valueCount = vsg::computeValueCount(data->properties, dest->imageView->image);
+        VkDeviceSize imageTotalSize = targetTraits.size * valueCount;
         VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(targetTraits.size));
 
         auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(imageTotalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, memoryPropertyFlags);
@@ -121,7 +124,6 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint
         imageStagingMemory->map(imageStagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, imageTotalSize, 0, &buffer_data);
         value_type* dest_ptr = reinterpret_cast<value_type*>(buffer_data);
 
-        size_t valueCount = data->valueCount();
         for (size_t i = 0; i < valueCount; ++i)
         {
             uint32_t s = 0;
@@ -145,7 +147,8 @@ void CopyAndReleaseImage::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint
 
 void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
-    VkDeviceSize imageTotalSize = data->dataSize();
+    size_t valueCount = vsg::computeValueCount(data->properties, dest->imageView->image);
+    VkDeviceSize imageTotalSize = data->properties.stride * valueCount;
     VkDeviceSize alignment = std::max(VkDeviceSize(4), VkDeviceSize(data->valueSize()));
 
     VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -166,7 +169,7 @@ void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ref_ptr<ImageInfo> d
 
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
-    transferImageData(destination->imageView, destination->imageLayout, layout, width, height, depth, mipLevels, mipmapOffsets, source->buffer, source->offset, commandBuffer.vk(), commandBuffer.getDevice());
+    transferImageData(destination->imageView, destination->imageLayout, layout, width, height, depth, source->buffer, source->offset, commandBuffer.vk(), commandBuffer.getDevice());
 }
 
 void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const

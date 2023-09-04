@@ -68,6 +68,6 @@ namespace vsg
     extern VSG_DECLSPEC ref_ptr<ImageView> createImageView(Device* device, ref_ptr<Image> image, VkImageAspectFlags aspectFlags);
 
     /// convenience function that uploads staging buffer data to device including mipmaps.
-    extern VSG_DECLSPEC void transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, const Data::MipmapOffsets& mipmapOffsets, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer vk_commandBuffer, vsg::Device* device);
+    extern VSG_DECLSPEC void transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, const Data::Properties& properties, uint32_t width, uint32_t height, uint32_t depth, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer vk_commandBuffer, vsg::Device* device);
 
 } // namespace vsg

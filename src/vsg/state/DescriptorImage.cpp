@@ -118,7 +118,7 @@ void DescriptorImage::compile(Context& context)
             if (imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
                 auto& image = *imageView.image;
-                context.copy(image.data, imageInfo, image.mipLevels);
+                context.copy(image.data, imageInfo);
             }
         }
     }

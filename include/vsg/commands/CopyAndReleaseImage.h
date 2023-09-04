@@ -40,7 +40,6 @@ namespace vsg
             uint32_t width = 0;
             uint32_t height = 0;
             uint32_t depth = 0;
-            Data::MipmapOffsets mipmapOffsets;
 
             void record(CommandBuffer& commandBuffer) const;
         };

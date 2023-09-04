@@ -189,8 +189,11 @@ namespace vsg
         uint32_t stride() const { return properties.stride ? properties.stride : static_cast<uint32_t>(valueSize()); }
 
         using MipmapOffsets = std::vector<size_t>;
-        MipmapOffsets computeMipmapOffsets() const;
-        static size_t computeValueCountIncludingMipmaps(size_t w, size_t h, size_t d, uint32_t maxNumMipmaps);
+        // Note, computeMipmapOffsets will naively interpret the data dimensions as the image dimensions
+        // and return incorrect values for layered images.
+        MipmapOffsets computeMipmapOffsets() const; // deprecated
+        static size_t computeValueCountIncludingMipmaps(size_t w, size_t h, size_t d, uint32_t maxNumMipmaps); // deprecated
+        static size_t computeValueCountIncludingMipmaps(size_t w, size_t h, size_t d, uint32_t maxNumMipmaps, uint32_t arrayLayers);
 
         /// increment the ModifiedCount to signify the data has been modified
         void dirty() { ++_modifiedCount; }
