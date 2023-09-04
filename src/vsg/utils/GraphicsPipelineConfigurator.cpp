@@ -176,7 +176,7 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
 
         // create uniform and associated DescriptorSets and binding
         return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding, dstArrayElement));
+                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding, dstArrayElement, uniformBinding.descriptorType));
     }
     return false;
 }
@@ -192,7 +192,7 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, const Buffer
 
         // create uniform and associated DescriptorSets and binding
         return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(bufferInfoList, uniformBinding.binding, dstArrayElement));
+                                DescriptorBuffer::create(bufferInfoList, uniformBinding.binding, dstArrayElement, uniformBinding.descriptorType));
     }
     return false;
 }
