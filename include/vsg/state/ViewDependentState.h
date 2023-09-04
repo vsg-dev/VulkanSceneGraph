@@ -12,7 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/CommandGraph.h>
 #include <vsg/nodes/Light.h>
+#include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
@@ -134,6 +136,13 @@ namespace vsg
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorBuffer> descriptor;
         ref_ptr<DescriptorSet> descriptorSet;
+
+        // Shadow backend.
+        ref_ptr<CommandGraph> preRenderCommandGraph;
+        ref_ptr<Switch> preRenderSwitch;
+
+        ref_ptr<CommandGraph> debugCommandGraph;
+        ref_ptr<Switch> debugSwitch;
 
     protected:
         ~ViewDependentState();
