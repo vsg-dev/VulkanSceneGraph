@@ -26,6 +26,9 @@ namespace vsg
     public:
         View();
 
+        View(const View& view);
+
+        // share the viewID, mask and camera's ViewportState
         explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
 
         template<class N, class V>
