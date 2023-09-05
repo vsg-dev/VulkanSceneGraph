@@ -178,15 +178,18 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        /// deprecated. use descriptorBindings
+        /// deprecated: use descriptorBindings
         std::vector<DescriptorBinding>& uniformBindings = descriptorBindings;
 
+        /// deprecated: use addDescriptorBinding()
         [[deprecated("use addDescriptorBinding()")]]
         void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
 
+        /// deprecated: use getDescriptorBinding()
         [[deprecated("use getDescriptorBinding()")]]
         DescriptorBinding& getUniformBinding(const std::string& name);
 
+        /// deprecated: use getDescriptorBinding()
         [[deprecated("use getDescriptorBinding()")]]
         const DescriptorBinding& getUniformBinding(const std::string& name) const;
 
@@ -207,7 +210,7 @@ namespace vsg
     /// create a ShaderSet for Physics Based Rendering
     extern VSG_DECLSPEC ref_ptr<ShaderSet> createPhysicsBasedRenderingShaderSet(ref_ptr<const Options> options = {});
 
-    /// deprecated. use vsg::DescriptorBinding
+    /// deprecated: use vsg::DescriptorBinding
     using UniformBinding = DescriptorBinding;
 
 } // namespace vsg

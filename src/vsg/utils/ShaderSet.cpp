@@ -180,7 +180,7 @@ void ShaderSet::addDescriptorBinding(std::string name, std::string define, uint3
     descriptorBindings.push_back(DescriptorBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, data});
 }
 
-/// deprecated. use ShaderSet::addDescriptorBinding() instead
+/// deprecated: use ShaderSet::addDescriptorBinding() instead
 void ShaderSet::addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data)
 {
     warn("ShaderSet::addUniformBinding() has been deprecated."
@@ -211,7 +211,7 @@ DescriptorBinding& ShaderSet::getDescriptorBinding(const std::string& name)
     return _nullDescriptorBinding;
 }
 
-/// deprecated. use ShaderSet::getDescriptorBinding() instead
+/// deprecated: use ShaderSet::getDescriptorBinding() instead
 DescriptorBinding& ShaderSet::getUniformBinding(const std::string& name)
 {
     warn("ShaderSet::getUniformBinding() has been deprecated."
@@ -237,7 +237,7 @@ const DescriptorBinding& ShaderSet::getDescriptorBinding(const std::string& name
     return _nullDescriptorBinding;
 }
 
-/// deprecated. use ShaderSet::getDescriptorBinding() instead.
+/// deprecated: use ShaderSet::getDescriptorBinding() instead.
 const DescriptorBinding& ShaderSet::getUniformBinding(const std::string& name) const
 {
     warn("ShaderSet::getUniformBinding() has been deprecated."

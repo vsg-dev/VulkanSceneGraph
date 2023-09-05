@@ -149,7 +149,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
     return false;
 }
 
-bool DescriptorConfigurator::enableBuffer(const std::string& name)
+bool DescriptorConfigurator::enableDescriptorBuffer(const std::string& name)
 {
     if (auto& bufferBinding = shaderSet->getDescriptorBinding(name))
     {
@@ -166,15 +166,15 @@ bool DescriptorConfigurator::enableBuffer(const std::string& name)
     return false;
 }
 
-/// deprecated. use DescriptorConfigurator::enableBuffer() instead
+/// deprecated: use DescriptorConfigurator::enableDescriptorBuffer() instead
 bool DescriptorConfigurator::enableUniform(const std::string& name)
 {
     warn("DescriptorConfigurator::enableUniform() has been deprecated."
-         " Use DescriptorConfigurator::enableBuffer() instead.");
-    return enableBuffer(name);
+         " Use DescriptorConfigurator::enableDescriptorBuffer() instead.");
+    return enableDescriptorBuffer(name);
 }
 
-bool DescriptorConfigurator::assignBuffer(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
+bool DescriptorConfigurator::assignDescriptorBuffer(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
     if (auto& bufferBinding = shaderSet->getDescriptorBinding(name))
     {
@@ -190,15 +190,15 @@ bool DescriptorConfigurator::assignBuffer(const std::string& name, ref_ptr<Data>
     return false;
 }
 
-/// deprecated. use DescriptorConfigurator::assignBuffer() instead.
+/// deprecated: use DescriptorConfigurator::assignDescriptorBuffer() instead.
 bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
     warn("DescriptorConfigurator::assignUniform() has been deprecated."
-         " Use DescriptorConfigurator::assignBuffer() instead.");
-    return assignBuffer(name, data, dstArrayElement);
+         " Use DescriptorConfigurator::assignDescriptorBuffer() instead.");
+    return assignDescriptorBuffer(name, data, dstArrayElement);
 }
 
-bool DescriptorConfigurator::assignBuffer(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
+bool DescriptorConfigurator::assignDescriptorBuffer(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
     if (auto& bufferBinding = shaderSet->getDescriptorBinding(name))
     {
@@ -214,12 +214,12 @@ bool DescriptorConfigurator::assignBuffer(const std::string& name, const BufferI
     return false;
 }
 
-/// deprecated. use DescriptorConfigurator::assignBuffer() instead.
+/// deprecated: use DescriptorConfigurator::assignDescriptorBuffer() instead.
 bool DescriptorConfigurator::assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
     warn("DescriptorConfigurator::assignUniform() has been deprecated."
-         " Use DescriptorConfigurator::assignBuffer() instead.");
-    return assignBuffer(name, bufferInfoList, dstArrayElement);
+         " Use DescriptorConfigurator::assignDescriptorBuffer() instead.");
+    return assignDescriptorBuffer(name, bufferInfoList, dstArrayElement);
 }
 
 bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor)
@@ -426,18 +426,18 @@ bool GraphicsPipelineConfigurator::enableTexture(const std::string& name)
     return descriptorConfigurator->enableTexture(name);
 }
 
-bool GraphicsPipelineConfigurator::enableBuffer(const std::string& name)
+bool GraphicsPipelineConfigurator::enableDescriptorBuffer(const std::string& name)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->enableBuffer(name);
+    return descriptorConfigurator->enableDescriptorBuffer(name);
 }
 
-/// deprecated. use GraphicsPipelineConfigurator::enableBuffer() instead
+/// deprecated: use GraphicsPipelineConfigurator::enableDescriptorBuffer() instead
 bool GraphicsPipelineConfigurator::enableUniform(const std::string& name)
 {
     warn("GraphicsPipelineConfigurator::enableUniform() has been deprecated."
-         " use GraphicsPipelineConfigurator::enableBuffer() instead.");
-    return enableBuffer(name);
+         " use GraphicsPipelineConfigurator::enableDescriptorBuffer() instead.");
+    return enableDescriptorBuffer(name);
 }
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
@@ -462,18 +462,18 @@ bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, ref_pt
     return descriptorConfigurator->assignTexture(name, textureData, sampler);
 }
 
-bool GraphicsPipelineConfigurator::assignBuffer(const std::string& name, ref_ptr<Data> data)
+bool GraphicsPipelineConfigurator::assignDescriptorBuffer(const std::string& name, ref_ptr<Data> data)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->assignBuffer(name, data);
+    return descriptorConfigurator->assignDescriptorBuffer(name, data);
 }
 
-/// deprecated. use GraphicsPipelineConfigurator::assignBuffer() instead
+/// deprecated: use GraphicsPipelineConfigurator::assignDescriptorBuffer() instead
 bool GraphicsPipelineConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data)
 {
     warn("GraphicsPipelineConfigurator::assignUniform() has been deprecated."
-         " use GraphicsPipelineConfigurator::assignBuffer() instead.");
-    return assignBuffer(name, data);
+         " use GraphicsPipelineConfigurator::assignDescriptorBuffer() instead.");
+    return assignDescriptorBuffer(name, data);
 }
 
 int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
