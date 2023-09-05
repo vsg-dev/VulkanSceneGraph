@@ -32,7 +32,7 @@ AnimationPath::Location AnimationPath::computeLocation(double time) const
     if (locations.empty()) return {};
 
     // check for single entry in locations map
-    if (locations.begin() == locations.rbegin().base()) return locations.begin()->second;
+    if (locations.size() == 1) return locations.begin()->second;
 
     if (mode == REPEAT)
     {
