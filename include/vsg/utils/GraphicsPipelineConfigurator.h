@@ -58,11 +58,13 @@ namespace vsg
         /// call after all the textures and buffers have been explictly assigned to add in texture/buffer descriptors that are enabled by default (define == "").
         bool assignDefaults();
 
-        /// deprecated. use enableBuffer() instead
+        [[deprecated("use enableBuffer()")]]
         bool enableUniform(const std::string& name);
-        /// deprecated. use assignBuffer() instead
+
+        [[deprecated("use assignBuffer()")]]
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
-        /// deprecated. use assignBuffer() instead
+
+        [[deprecated("use assignBuffer()")]]
         bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
 
         std::set<std::string> assigned;
@@ -135,9 +137,10 @@ namespace vsg
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
 
-        /// deprecated. use enableUniform() instead
+        [[deprecated("use enableBuffer()")]]
         bool enableUniform(const std::string& name);
-        /// deprecated. use assignBuffer() instead
+
+        [[deprecated("use assignBuffer()")]]
         bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
 
     protected:

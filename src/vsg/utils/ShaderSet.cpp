@@ -48,7 +48,7 @@ int AttributeBinding::compare(const AttributeBinding& rhs) const
     return compare_pointer(data, rhs.data);
 }
 
-int BufferBinding::compare(const BufferBinding& rhs) const
+int DescriptorBinding::compare(const DescriptorBinding& rhs) const
 {
     if (name < rhs.name) return -1;
     if (name > rhs.name) return 1;
@@ -175,17 +175,17 @@ void ShaderSet::addAttributeBinding(std::string name, std::string define, uint32
     attributeBindings.push_back(AttributeBinding{name, define, location, format, data});
 }
 
-void ShaderSet::addBufferBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data)
+void ShaderSet::addDescriptorBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data)
 {
-    bufferBindings.push_back(BufferBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, data});
+    descriptorBindings.push_back(DescriptorBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, data});
 }
 
-/// deprecated. use ShaderSet::addBufferBinding() instead
+/// deprecated. use ShaderSet::addDescriptorBinding() instead
 void ShaderSet::addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data)
 {
     warn("ShaderSet::addUniformBinding() has been deprecated."
-         " use ShaderSet::addBufferBinding() instead.");
-    return addBufferBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data);
+         " use ShaderSet::addDescriptorBinding() instead.");
+    return addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data);
 }
 
 void ShaderSet::addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size)
@@ -202,21 +202,21 @@ const AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name) 
     return _nullAttributeBinding;
 }
 
-BufferBinding& ShaderSet::getBufferBinding(const std::string& name)
+DescriptorBinding& ShaderSet::getDescriptorBinding(const std::string& name)
 {
-    for (auto& binding : bufferBindings)
+    for (auto& binding : descriptorBindings)
     {
         if (binding.name == name) return binding;
     }
-    return _nullBufferBinding;
+    return _nullDescriptorBinding;
 }
 
-/// deprecated. use ShaderSet::getBufferBinding() instead
-BufferBinding& ShaderSet::getUniformBinding(const std::string& name)
+/// deprecated. use ShaderSet::getDescriptorBinding() instead
+DescriptorBinding& ShaderSet::getUniformBinding(const std::string& name)
 {
     warn("ShaderSet::getUniformBinding() has been deprecated."
-         " use ShaderSet::getBufferBinding() instead.");
-    return getBufferBinding(name);
+         " use ShaderSet::getDescriptorBinding() instead.");
+    return getDescriptorBinding(name);
 }
 
 AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name)
@@ -228,21 +228,21 @@ AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name)
     return _nullAttributeBinding;
 }
 
-const BufferBinding& ShaderSet::getBufferBinding(const std::string& name) const
+const DescriptorBinding& ShaderSet::getDescriptorBinding(const std::string& name) const
 {
-    for (auto& binding : bufferBindings)
+    for (auto& binding : descriptorBindings)
     {
         if (binding.name == name) return binding;
     }
-    return _nullBufferBinding;
+    return _nullDescriptorBinding;
 }
 
-/// deprecated. use ShaderSet::getBufferBinding() instead.
-const BufferBinding& ShaderSet::getUniformBinding(const std::string& name) const
+/// deprecated. use ShaderSet::getDescriptorBinding() instead.
+const DescriptorBinding& ShaderSet::getUniformBinding(const std::string& name) const
 {
     warn("ShaderSet::getUniformBinding() has been deprecated."
-         " use ShaderSet::getBufferBinding() instead.");
-    return getBufferBinding(name);
+         " use ShaderSet::getDescriptorBinding() instead.");
+    return getDescriptorBinding(name);
 }
 
 ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>& defines) const
@@ -314,7 +314,7 @@ int ShaderSet::compare(const Object& rhs_object) const
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_container(attributeBindings, rhs.attributeBindings))) return result;
-    if ((result = compare_container(bufferBindings, rhs.bufferBindings))) return result;
+    if ((result = compare_container(descriptorBindings, rhs.descriptorBindings))) return result;
     if ((result = compare_container(pushConstantRanges, rhs.pushConstantRanges))) return result;
     if ((result = compare_container(definesArrayStates, rhs.definesArrayStates))) return result;
     if ((result = compare_container(optionalDefines, rhs.optionalDefines))) return result;
@@ -343,9 +343,14 @@ void ShaderSet::read(Input& input)
         input.readObject("data", binding.data);
     }
 
-    auto num_bufferBindings = input.readValue<uint32_t>("bufferBindings");
-    bufferBindings.resize(num_bufferBindings);
-    for (auto& binding : bufferBindings)
+    std::string descriptorBindingsName{"descriptorBindings"};
+    if (input.version_less(1, 0, 10))
+    {
+        descriptorBindingsName = "uniformBindings";
+    }
+    auto num_descriptorBindings = input.readValue<uint32_t>(descriptorBindingsName.c_str());
+    descriptorBindings.resize(num_descriptorBindings);
+    for (auto& binding : descriptorBindings)
     {
         input.read("name", binding.name);
         input.read("define", binding.define);
@@ -422,8 +427,13 @@ void ShaderSet::write(Output& output) const
         output.writeObject("data", binding.data);
     }
 
-    output.writeValue<uint32_t>("bufferBindings", bufferBindings.size());
-    for (auto& binding : bufferBindings)
+    std::string descriptorBindingsName{"descriptorBindings"};
+    if (output.version_less(1, 0, 10))
+    {
+        descriptorBindingsName = "uniformBindings";
+    }
+    output.writeValue<uint32_t>(descriptorBindingsName.c_str(), descriptorBindings.size());
+    for (auto& binding : descriptorBindings)
     {
         output.write("name", binding.name);
         output.write("define", binding.define);
@@ -506,12 +516,12 @@ ref_ptr<ShaderSet> vsg::createPhysicsBasedRenderingShaderSet(ref_ptr<const Optio
 
 std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
 {
-    if (bufferBindings.empty()) return {0, 0};
+    if (descriptorBindings.empty()) return {0, 0};
 
     uint32_t minimum = std::numeric_limits<uint32_t>::max();
     uint32_t maximum = std::numeric_limits<uint32_t>::min();
 
-    for (auto& binding : bufferBindings)
+    for (auto& binding : descriptorBindings)
     {
         if (binding.set < minimum) minimum = binding.set;
         if (binding.set > maximum) maximum = binding.set;
@@ -523,7 +533,7 @@ std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
 ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
 {
     DescriptorSetLayoutBindings bindings;
-    for (auto& binding : bufferBindings)
+    for (auto& binding : descriptorBindings)
     {
         if (binding.set == set)
         {

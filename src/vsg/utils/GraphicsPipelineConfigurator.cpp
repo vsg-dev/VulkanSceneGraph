@@ -101,7 +101,7 @@ void DescriptorConfigurator::reset()
 
 bool DescriptorConfigurator::enableTexture(const std::string& name)
 {
-    if (auto& textureBinding = shaderSet->getBufferBinding(name))
+    if (auto& textureBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -118,7 +118,7 @@ bool DescriptorConfigurator::enableTexture(const std::string& name)
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler, uint32_t dstArrayElement)
 {
-    if (auto& textureBinding = shaderSet->getBufferBinding(name))
+    if (auto& textureBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -135,7 +135,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement)
 {
-    if (auto& textureBinding = shaderSet->getBufferBinding(name))
+    if (auto& textureBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -151,7 +151,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
 
 bool DescriptorConfigurator::enableBuffer(const std::string& name)
 {
-    if (auto& bufferBinding = shaderSet->getBufferBinding(name))
+    if (auto& bufferBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -176,7 +176,7 @@ bool DescriptorConfigurator::enableUniform(const std::string& name)
 
 bool DescriptorConfigurator::assignBuffer(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
-    if (auto& bufferBinding = shaderSet->getBufferBinding(name))
+    if (auto& bufferBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -200,7 +200,7 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
 
 bool DescriptorConfigurator::assignBuffer(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
-    if (auto& bufferBinding = shaderSet->getBufferBinding(name))
+    if (auto& bufferBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -248,14 +248,14 @@ bool DescriptorConfigurator::assignDefaults()
     bool assignedDefault = false;
     if (shaderSet)
     {
-        for (auto& bufferBinding : shaderSet->bufferBindings)
+        for (auto& descriptorBinding : shaderSet->descriptorBindings)
         {
-            if (bufferBinding.define.empty() && assigned.count(bufferBinding.name) == 0)
+            if (descriptorBinding.define.empty() && assigned.count(descriptorBinding.name) == 0)
             {
                 bool set_matched = false;
                 for (auto& cds : shaderSet->customDescriptorSetBindings)
                 {
-                    if (cds->set == bufferBinding.set)
+                    if (cds->set == descriptorBinding.set)
                     {
                         set_matched = true;
                         break;
@@ -264,7 +264,7 @@ bool DescriptorConfigurator::assignDefaults()
                 if (!set_matched)
                 {
                     bool isTexture = false;
-                    switch (bufferBinding.descriptorType)
+                    switch (descriptorBinding.descriptorType)
                     {
                     case (VK_DESCRIPTOR_TYPE_SAMPLER):
                     case (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER):
@@ -278,16 +278,16 @@ bool DescriptorConfigurator::assignDefaults()
 
                     if (isTexture)
                     {
-                        assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
-                                         DescriptorImage::create(Sampler::create(), bufferBinding.data, bufferBinding.binding, 0, bufferBinding.descriptorType));
+                        assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                         DescriptorImage::create(Sampler::create(), descriptorBinding.data, descriptorBinding.binding, 0, descriptorBinding.descriptorType));
                     }
                     else
                     {
-                        assignDescriptor(bufferBinding.set, bufferBinding.binding, bufferBinding.descriptorType, bufferBinding.descriptorCount, bufferBinding.stageFlags,
-                                         DescriptorBuffer::create(bufferBinding.data, bufferBinding.binding, 0, bufferBinding.descriptorType));
+                        assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                         DescriptorBuffer::create(descriptorBinding.data, descriptorBinding.binding, 0, descriptorBinding.descriptorType));
                     }
 
-                    assigned.insert(bufferBinding.name);
+                    assigned.insert(descriptorBinding.name);
                     assignedDefault = true;
                 }
             }
@@ -471,8 +471,8 @@ bool GraphicsPipelineConfigurator::assignBuffer(const std::string& name, ref_ptr
 /// deprecated. use GraphicsPipelineConfigurator::assignBuffer() instead
 bool GraphicsPipelineConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data)
 {
-    warn("GraphicsPipelineConfigurator::enableUniform() has been deprecated."
-         " use GraphicsPipelineConfigurator::enableBuffer() instead.");
+    warn("GraphicsPipelineConfigurator::assignUniform() has been deprecated."
+         " use GraphicsPipelineConfigurator::assignBuffer() instead.");
     return assignBuffer(name, data);
 }
 

@@ -81,7 +81,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture("displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    if (auto& materialBinding = activeShaderSet->getBufferBinding("material"))
+    if (auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
