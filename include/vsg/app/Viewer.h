@@ -68,7 +68,7 @@ namespace vsg
         /// add event handler
         void addEventHandler(ref_ptr<Visitor> eventHandler) { _eventHandlers.emplace_back(eventHandler); }
 
-        void addEventHandlers(EventHandlers&& eventHandlers) { _eventHandlers.splice(_eventHandlers.end(), eventHandlers); }
+        void addEventHandlers(const EventHandlers& eventHandlers) { _eventHandlers.insert(_eventHandlers.end(), eventHandlers.begin(), eventHandlers.end()); }
 
         /// get the list of EventHandlers
         EventHandlers& getEventHandlers() { return _eventHandlers; }
