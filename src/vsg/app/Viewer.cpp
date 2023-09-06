@@ -435,22 +435,30 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
     };
 
-    // assign windows used in the commandGraphs to the window to be tracked
-    _windows.clear();
-    for (auto& commandGraph : in_commandGraphs)
+
+    // find all the windows
+    struct FindWindows : public Visitor
     {
-        if (commandGraph->window && std::find(_windows.begin(), _windows.end(), commandGraph->window) == _windows.end())
+        std::set<ref_ptr<Window>> windows;
+
+        void apply(Object& object) override { object.traverse(*this); }
+        void apply(CommandGraph& cg) override
         {
-            _windows.push_back(commandGraph->window);
+            if (cg.window) windows.insert(cg.window);
+            cg.traverse(*this);
         }
-    }
+    } findWindows;
 
     // place the input CommandGraphs into separate groups associated with each device and queue family combination
     std::map<DeviceQueueFamily, CommandGraphs> deviceCommandGraphsMap;
     for (auto& commandGraph : in_commandGraphs)
     {
+        commandGraph->accept(findWindows);
         deviceCommandGraphsMap[DeviceQueueFamily{commandGraph->device.get(), commandGraph->queueFamily, commandGraph->presentFamily}].emplace_back(commandGraph);
     }
+
+    // assign the windows found in the CommandGraphs so that the Viewer can track them.
+    _windows.assign(findWindows.windows.begin(), findWindows.windows.end());
 
     // create the required RecordAndSubmitTask and any Presentation objects that are required for each set of CommandGraphs
     for (auto& [deviceQueueFamily, commandGraphs] : deviceCommandGraphsMap)
@@ -500,14 +508,14 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
         if (deviceQueueFamily.presentFamily >= 0)
         {
-            // collate all the unique Windows associated with these commandGraphs
-            std::set<Window*> uniqueWindows;
-            for (auto& commanGraph : commandGraphs)
+            // collate all the unique Windows associated with this device's commandGraphs
+            findWindows.windows.clear();
+            for (auto& commandGraph : commandGraphs)
             {
-                uniqueWindows.insert(commanGraph->window);
+                commandGraph->accept(findWindows);
             }
 
-            Windows windows(uniqueWindows.begin(), uniqueWindows.end());
+            Windows windows(findWindows.windows.begin(), findWindows.windows.end());
 
             auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 

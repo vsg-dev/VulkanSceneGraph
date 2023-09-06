@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.0.9
+    VERSION 1.0.10
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 14)
-SET(VSG_RELEASE_CANDIDATE 0)
+SET(VSG_RELEASE_CANDIDATE 1)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")

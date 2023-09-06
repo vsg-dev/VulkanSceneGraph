@@ -58,7 +58,11 @@ namespace vsg
 
         GraphicsPipeline(PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0);
 
+        /// return the Vukan Pipeline for specified viewID.
         VkPipeline vk(uint32_t viewID) const { return _implementation[viewID]->_pipeline; }
+
+        /// variant of vk(viewID) method that is slower but adds validation of the viewID parameter
+        VkPipeline validated_vk(uint32_t viewID) const { return (viewID < _implementation.size()) ? (_implementation[viewID] ? _implementation[viewID]->_pipeline : 0) : 0; }
 
         /// VkGraphicsPipelineCreateInfo settings
         ShaderStages stages;
