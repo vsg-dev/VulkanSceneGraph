@@ -26,7 +26,7 @@ namespace vsg
     public:
         View();
 
-        // share the viewID, mask and camera's ViewportState
+        // share the specified view's children, viewID, mask and camera ViewportState
         View(const View& view);
 
         explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {});
@@ -48,6 +48,9 @@ namespace vsg
         void accept(Visitor& visitor) override { t_accept(*this, visitor); }
         void accept(ConstVisitor& visitor) const override { t_accept(*this, visitor); }
         void accept(RecordTraversal& visitor) const override { t_accept(*this, visitor); }
+
+        /// share the specified view's viewID, mask, camera ViewportState, with this View
+        void share(const View& view);
 
         /// camera controls the viewport state and projection and view matrices
         ref_ptr<Camera> camera;

@@ -76,7 +76,7 @@ View::View(const View& view):
     viewID(sharedViewID(view.viewID)),
     mask(view.mask)
 {
-    if (view.camera)
+    if (view.camera && view.camera->viewportState)
     {
         camera = vsg::Camera::create();
         camera->viewportState = view.camera->viewportState;
@@ -94,4 +94,20 @@ View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph) :
 View::~View()
 {
     releaseViewID(viewID);
+}
+
+void View::share(const View& view)
+{
+    if (viewID != view.viewID)
+    {
+        releaseViewID(viewID);
+        const_cast<uint32_t&>(viewID) = sharedViewID(view.viewID);
+    }
+
+    mask = view.mask;
+    if (view.camera && view.camera->viewportState)
+    {
+        if (!camera) camera = vsg::Camera::create();
+        camera->viewportState = view.camera->viewportState;
+    }
 }
