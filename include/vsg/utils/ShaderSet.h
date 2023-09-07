@@ -35,7 +35,7 @@ namespace vsg
     };
     VSG_type_name(vsg::AttributeBinding);
 
-    struct VSG_DECLSPEC UniformBinding
+    struct VSG_DECLSPEC DescriptorBinding
     {
         std::string name;
         std::string define;
@@ -46,11 +46,11 @@ namespace vsg
         VkShaderStageFlags stageFlags = 0;
         ref_ptr<Data> data;
 
-        int compare(const UniformBinding& rhs) const;
+        int compare(const DescriptorBinding& rhs) const;
 
         explicit operator bool() const noexcept { return !name.empty(); }
     };
-    VSG_type_name(vsg::UniformBinding);
+    VSG_type_name(vsg::DescriptorBinding);
 
     struct VSG_DECLSPEC PushConstantRange
     {
@@ -116,7 +116,7 @@ namespace vsg
         ShaderStages stages;
 
         std::vector<AttributeBinding> attributeBindings;
-        std::vector<UniformBinding> uniformBindings;
+        std::vector<DescriptorBinding> descriptorBindings;
         std::vector<PushConstantRange> pushConstantRanges;
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
         std::set<std::string> optionalDefines;
@@ -134,7 +134,11 @@ namespace vsg
         void addAttributeBinding(std::string name, std::string define, uint32_t location, VkFormat format, ref_ptr<Data> data);
 
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
-        void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
+        void addDescriptorBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
+
+        [[deprecated("use addDescriptorBinding(..)")]]
+        void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
+
 
         /// add a push constant range. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
@@ -142,14 +146,20 @@ namespace vsg
         /// get the AttributeBinding associated with name
         AttributeBinding& getAttributeBinding(const std::string& name);
 
-        /// get the UniformBinding associated with name
-        UniformBinding& getUniformBinding(const std::string& name);
-
         /// get the const AttributeBinding associated with name
         const AttributeBinding& getAttributeBinding(const std::string& name) const;
 
-        /// get the const UniformBinding associated with name
-        const UniformBinding& getUniformBinding(const std::string& name) const;
+        /// get the DescriptorBinding associated with name
+        DescriptorBinding& getDescriptorBinding(const std::string& name);
+
+        /// get the const DescriptorBinding associated with name
+        const DescriptorBinding& getDescriptorBinding(const std::string& name) const;
+
+        [[deprecated("use getDescriptorBinding(..)")]]
+        DescriptorBinding& getUniformBinding(const std::string& name) { return getDescriptorBinding(name); }
+
+        [[deprecated("use getDescriptorBinding(..)")]]
+        const DescriptorBinding& getUnifomrBinding(const std::string& name) const { return getDescriptorBinding(name); }
 
         /// get the first ArrayState that has matches with defines in the specified list of defines.
         ref_ptr<ArrayState> getSuitableArrayState(const std::set<std::string>& defines) const;
@@ -157,7 +167,7 @@ namespace vsg
         /// get the ShaderStages variant that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
 
-        /// return the <minimum_set, maximum_set+1> range of set numbers encompassing UniformBindings
+        /// return the <minimum_set, maximum_set+1> range of set numbers encompassing DescriptorBindings
         std::pair<uint32_t, uint32_t> descriptorSetRange() const;
 
         /// create the descriptor set layout.
@@ -182,7 +192,7 @@ namespace vsg
         virtual ~ShaderSet();
 
         AttributeBinding _nullAttributeBinding;
-        UniformBinding _nullUniformBinding;
+        DescriptorBinding _nullDescriptorBinding;
     };
     VSG_type_name(vsg::ShaderSet);
 
