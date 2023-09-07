@@ -85,7 +85,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
-        graphicsPipelineConfig->assignUniform("material", mat);
+        graphicsPipelineConfig->assignDescriptor("material", mat);
     }
 
     graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12);

@@ -327,7 +327,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
         _graphicsPipelineConfig->enableTexture("displacementMap");
     }
 #endif
-    _graphicsPipelineConfig->enableUniform("material");
+    _graphicsPipelineConfig->enableDescriptor("material");
 
     _graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);
     _graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);

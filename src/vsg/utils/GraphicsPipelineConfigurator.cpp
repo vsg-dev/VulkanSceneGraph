@@ -149,7 +149,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
     return false;
 }
 
-bool DescriptorConfigurator::enableUniform(const std::string& name)
+bool DescriptorConfigurator::enableDescriptor(const std::string& name)
 {
     if (auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
@@ -165,7 +165,7 @@ bool DescriptorConfigurator::enableUniform(const std::string& name)
     return false;
 }
 
-bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
+bool DescriptorConfigurator::assignDescriptor(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
     if (auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
@@ -181,7 +181,7 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
     return false;
 }
 
-bool DescriptorConfigurator::assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
+bool DescriptorConfigurator::assignDescriptor(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
     if (auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
@@ -401,10 +401,10 @@ bool GraphicsPipelineConfigurator::enableTexture(const std::string& name)
     return descriptorConfigurator->enableTexture(name);
 }
 
-bool GraphicsPipelineConfigurator::enableUniform(const std::string& name)
+bool GraphicsPipelineConfigurator::enableDescriptor(const std::string& name)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->enableUniform(name);
+    return descriptorConfigurator->enableDescriptor(name);
 }
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
@@ -429,10 +429,10 @@ bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, ref_pt
     return descriptorConfigurator->assignTexture(name, textureData, sampler);
 }
 
-bool GraphicsPipelineConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data)
+bool GraphicsPipelineConfigurator::assignDescriptor(const std::string& name, ref_ptr<Data> data)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->assignUniform(name, data);
+    return descriptorConfigurator->assignDescriptor(name, data);
 }
 
 int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const

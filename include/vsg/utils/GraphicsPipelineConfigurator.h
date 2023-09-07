@@ -45,13 +45,22 @@ namespace vsg
         bool two_sided = false;
 
         bool enableTexture(const std::string& name);
-        bool enableUniform(const std::string& name);
-
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
-        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
+        bool enableDescriptor(const std::string& name);
+        bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
+        bool assignDescriptor(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
+
+        [[deprecated("use enableDescriptor(..)")]]
+        bool enableUniform(const std::string& name) { return enableDescriptor(name); }
+
+        [[deprecated("use assignDescriptor(..)")]]
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0) { return assignDescriptor(name, data, dstArrayElement); }
+
+        [[deprecated("use assignDescriptor(..)")]]
+        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0) { return assignDescriptor(name, bufferInfoList, dstArrayElement); }
+
 
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
@@ -104,12 +113,18 @@ namespace vsg
         void reset();
 
         bool enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format = VK_FORMAT_UNDEFINED);
+        bool enableDescriptor(const std::string& name);
         bool enableTexture(const std::string& name);
-        bool enableUniform(const std::string& name);
 
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
+        bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {});
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {});
+
+        [[deprecated("use enableDescriptor(..)")]]
+        bool enableUniform(const std::string& name) { return enableDescriptor(name); }
+
+        [[deprecated("use assignDescriptor(..)")]]
+        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}) { return assignDescriptor(name, data); }
 
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;
