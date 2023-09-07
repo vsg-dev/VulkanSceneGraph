@@ -19,7 +19,7 @@ namespace vsg
 {
 
     /// DescriptorBuffer is a Descriptor class that encapsulates the bufferInfoList used to set VkWriteDescriptorSet::pBufferInfo settings
-    /// DescriptorBuffer is a means for passing uniforms to shaders.
+    /// DescriptorBuffer is a means for passing uniform and storage buffers to shaders.
     class VSG_DECLSPEC DescriptorBuffer : public Inherit<Descriptor, DescriptorBuffer>
     {
     public:
