@@ -151,48 +151,48 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
 
 bool DescriptorConfigurator::enableUniform(const std::string& name)
 {
-    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    if (auto& descriptorBinding = shaderSet->getUniformBinding(name))
     {
         assigned.insert(name);
 
         // set up bindings
-        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+        if (!descriptorBinding.define.empty()) defines.insert(descriptorBinding.define);
 
         // create uniform and associated DescriptorSets and binding
-        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(uniformBinding.data, uniformBinding.binding));
+        return assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                DescriptorBuffer::create(descriptorBinding.data, descriptorBinding.binding));
     }
     return false;
 }
 
 bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
-    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    if (auto& descriptorBinding = shaderSet->getUniformBinding(name))
     {
         assigned.insert(name);
 
         // set up bindings
-        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+        if (!descriptorBinding.define.empty()) defines.insert(descriptorBinding.define);
 
         // create uniform and associated DescriptorSets and binding
-        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(data ? data : uniformBinding.data, uniformBinding.binding, dstArrayElement, uniformBinding.descriptorType));
+        return assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                DescriptorBuffer::create(data ? data : descriptorBinding.data, descriptorBinding.binding, dstArrayElement, descriptorBinding.descriptorType));
     }
     return false;
 }
 
 bool DescriptorConfigurator::assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
-    if (auto& uniformBinding = shaderSet->getUniformBinding(name))
+    if (auto& descriptorBinding = shaderSet->getUniformBinding(name))
     {
         assigned.insert(name);
 
         // set up bindings
-        if (!uniformBinding.define.empty()) defines.insert(uniformBinding.define);
+        if (!descriptorBinding.define.empty()) defines.insert(descriptorBinding.define);
 
         // create uniform and associated DescriptorSets and binding
-        return assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                DescriptorBuffer::create(bufferInfoList, uniformBinding.binding, dstArrayElement, uniformBinding.descriptorType));
+        return assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                DescriptorBuffer::create(bufferInfoList, descriptorBinding.binding, dstArrayElement, descriptorBinding.descriptorType));
     }
     return false;
 }
@@ -223,14 +223,14 @@ bool DescriptorConfigurator::assignDefaults()
     bool assignedDefault = false;
     if (shaderSet)
     {
-        for (auto& uniformBinding : shaderSet->uniformBindings)
+        for (auto& descriptorBinding : shaderSet->descriptorBindings)
         {
-            if (uniformBinding.define.empty() && assigned.count(uniformBinding.name) == 0)
+            if (descriptorBinding.define.empty() && assigned.count(descriptorBinding.name) == 0)
             {
                 bool set_matched = false;
                 for (auto& cds : shaderSet->customDescriptorSetBindings)
                 {
-                    if (cds->set == uniformBinding.set)
+                    if (cds->set == descriptorBinding.set)
                     {
                         set_matched = true;
                         break;
@@ -239,7 +239,7 @@ bool DescriptorConfigurator::assignDefaults()
                 if (!set_matched)
                 {
                     bool isTexture = false;
-                    switch (uniformBinding.descriptorType)
+                    switch (descriptorBinding.descriptorType)
                     {
                     case (VK_DESCRIPTOR_TYPE_SAMPLER):
                     case (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER):
@@ -253,16 +253,16 @@ bool DescriptorConfigurator::assignDefaults()
 
                     if (isTexture)
                     {
-                        assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                         DescriptorImage::create(Sampler::create(), uniformBinding.data, uniformBinding.binding, 0, uniformBinding.descriptorType));
+                        assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                         DescriptorImage::create(Sampler::create(), descriptorBinding.data, descriptorBinding.binding, 0, descriptorBinding.descriptorType));
                     }
                     else
                     {
-                        assignDescriptor(uniformBinding.set, uniformBinding.binding, uniformBinding.descriptorType, uniformBinding.descriptorCount, uniformBinding.stageFlags,
-                                         DescriptorBuffer::create(uniformBinding.data, uniformBinding.binding));
+                        assignDescriptor(descriptorBinding.set, descriptorBinding.binding, descriptorBinding.descriptorType, descriptorBinding.descriptorCount, descriptorBinding.stageFlags,
+                                         DescriptorBuffer::create(descriptorBinding.data, descriptorBinding.binding));
                     }
 
-                    assigned.insert(uniformBinding.name);
+                    assigned.insert(descriptorBinding.name);
                     assignedDefault = true;
                 }
             }
