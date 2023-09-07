@@ -101,7 +101,7 @@ void DescriptorConfigurator::reset()
 
 bool DescriptorConfigurator::enableTexture(const std::string& name)
 {
-    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    if (auto& textureBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -118,7 +118,7 @@ bool DescriptorConfigurator::enableTexture(const std::string& name)
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler, uint32_t dstArrayElement)
 {
-    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    if (auto& textureBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -135,7 +135,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
 
 bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement)
 {
-    if (auto& textureBinding = shaderSet->getUniformBinding(name))
+    if (auto& textureBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -151,7 +151,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
 
 bool DescriptorConfigurator::enableUniform(const std::string& name)
 {
-    if (auto& descriptorBinding = shaderSet->getUniformBinding(name))
+    if (auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -167,7 +167,7 @@ bool DescriptorConfigurator::enableUniform(const std::string& name)
 
 bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
 {
-    if (auto& descriptorBinding = shaderSet->getUniformBinding(name))
+    if (auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 
@@ -183,7 +183,7 @@ bool DescriptorConfigurator::assignUniform(const std::string& name, ref_ptr<Data
 
 bool DescriptorConfigurator::assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
 {
-    if (auto& descriptorBinding = shaderSet->getUniformBinding(name))
+    if (auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
         assigned.insert(name);
 

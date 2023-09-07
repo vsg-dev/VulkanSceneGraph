@@ -334,7 +334,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     _graphicsPipelineConfig->enableArray("vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, 8, VK_FORMAT_R32G32_SFLOAT);
     _graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16, VK_FORMAT_R32G32B32A32_SFLOAT);
 
-    if (auto& materialBinding = _shaderSet->getUniformBinding("material"))
+    if (auto& materialBinding = _shaderSet->getDescriptorBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
