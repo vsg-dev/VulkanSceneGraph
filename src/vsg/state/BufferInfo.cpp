@@ -198,6 +198,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     VkDeviceSize alignment = 4;
     if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
@@ -303,6 +304,7 @@ BufferInfoList vsg::createHostVisibleBuffer(Device* device, const DataList& data
 
     VkDeviceSize alignment = 4;
     if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
