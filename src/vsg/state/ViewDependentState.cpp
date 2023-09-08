@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/View.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -195,14 +196,124 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 {
-#if 0
+#if 1
+    // usefule reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
+    // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231
+    // sampler2DArrayShadow
+    // https://ogldev.org/www/tutorial42/tutorial42.html
+
     info("ViewDependentState::traverse(", &rt, ", ", &view, ")");
     for (auto& [mv, light] : directionalLights)
     {
-        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
-        info("   directional light : direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
-    }
+        // compute directional light space
+        auto projectionMatrix = view.camera->projectionMatrix->transform();
+        auto viewMatrix = view.camera->viewMatrix->transform();
 
+        // view direction in world coords
+        auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
+
+        // eye space light direction in world coords
+        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+
+
+        info("   directional light : eye space direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
+        info("      light->direction = ", light->direction);
+        info("      viewDirection = ", view_direction);
+
+        auto light_z = eye_direction;
+        auto light_x = normalize(cross(view_direction, eye_direction));
+        auto light_y = normalize(cross(light_z, light_x));
+
+        auto eye_point = inverse(viewMatrix) * dvec3(0.0, 0.0, 0.0);
+
+        auto clipToEye = inverse(projectionMatrix);
+
+        auto Clog = [](double n, double f, double i, double m) -> double
+        {
+            return n * std::pow((f/n), (i/m));
+        };
+
+        auto Cuniform = [](double n, double f, double i, double m) -> double
+        {
+            return n + (f - n) * (i/m);
+        };
+
+        auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double
+        {
+            return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0-lambda);
+        };
+
+        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
+        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
+
+        // clamp the near and far values
+        double maxShadowDistance = 1000.0;
+        if (n > maxShadowDistance)
+        {
+            info("Oopps near is further than the maxShadowDistance!");
+            n = maxShadowDistance * 0.5;
+            f = maxShadowDistance;
+        }
+        if (f > maxShadowDistance)
+        {
+            f = maxShadowDistance;
+        }
+
+        double range = f-n;
+        info("  n = ", n, ", f = ", f, ", range = ", range);
+
+
+        info("Clog(n, f, 0.0, 3.0) = ", Clog(n, f, 0.0, 3.0));
+        info("Clog(n, f, 1.0, 3.0) = ", Clog(n, f, 1.0, 3.0));
+        info("Clog(n, f, 2.0, 3.0) = ", Clog(n, f, 2.0, 3.0));
+        info("Clog(n, f, 3.0, 3.0) = ", Clog(n, f, 3.0, 3.0));
+
+        info("Cuniform(n, f, 0.0, 3.0) = ", Cuniform(n, f, 0.0, 3.0));
+        info("Cuniform(n, f, 1.0, 3.0) = ", Cuniform(n, f, 1.0, 3.0));
+        info("Cuniform(n, f, 2.0, 3.0) = ", Cuniform(n, f, 2.0, 3.0));
+        info("Cuniform(n, f, 3.0, 3.0) = ", Cuniform(n, f, 3.0, 3.0));
+
+        info("Ccombined(n, f, 0.0, 3.0) = ", Cpractical(n, f, 0.0, 3.0, 0.5));
+        info("Cpractical(n, f, 1.0, 3.0) = ", Cpractical(n, f, 1.0, 3.0, 0.5));
+        info("Cpractical(n, f, 2.0, 3.0) = ", Cpractical(n, f, 2.0, 3.0, 0.5));
+        info("Cpractical(n, f, 3.0, 3.0) = ", Cpractical(n, f, 3.0, 3.0, 0.5));
+
+
+        auto clipToWorld = inverse(projectionMatrix * viewMatrix);
+
+        std::vector<dvec3> corners;
+        corners.reserve(8);
+        corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 1.0));
+        corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 1.0));
+        corners.push_back(clipToWorld * dvec3(1.0, -1.0, 1.0));
+        corners.push_back(clipToWorld * dvec3(1.0, 1.0, 1.0));
+        corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 0.0));
+        corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 0.0));
+        corners.push_back(clipToWorld * dvec3(1.0, -1.0, 0.0));
+        corners.push_back(clipToWorld * dvec3(1.0, 1.0, 0.0));
+
+        dbox lightSpaceFrustumBounds;
+        for(auto& v : corners)
+        {
+            lightSpaceFrustumBounds.add(dot(v, light_x), dot(v, light_y), dot(v, light_z));
+        }
+
+        info("    light_x = ", light_x);
+        info("    light_y = ", light_y);
+        info("    light_z = ", light_z);
+        info("    lightSpaceFrustumBounds = ", lightSpaceFrustumBounds);
+        info("    eye_point = ", eye_point);
+        for(auto& v : corners)
+        {
+            info("      ", v);
+        }
+
+
+
+    }
+#endif
+
+#if 1
     for (auto& [mv, light] : pointLights)
     {
         auto eye_position = mv * light->position;
@@ -211,9 +322,9 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 
     for (auto& [mv, light] : spotLights)
     {
-        auto eye_position = mv * light->position;
-        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
-        info("   spot light : position = ", eye_position, ", direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
+        auto eye_position =  mv * light->position;
+        auto eye_direction1 = normalize(light->direction * inverse_3x3(mv));
+        info("   spot light : light->direction = ", light->direction, ", position = ", eye_position, ", direction = ", eye_direction1, ", light->shadowMaps = ", light->shadowMaps);
     }
 #endif
 }
@@ -240,7 +351,7 @@ void ViewDependentState::pack()
 
     for (auto& [mv, light] : directionalLights)
     {
-        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+        auto eye_direction = normalize(inverse_3x3(mv) * light->direction);
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
         (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
