@@ -475,7 +475,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         // get main queue used for RecordAndSubmitTask
         ref_ptr<Queue> mainQueue = device->getQueue(deviceQueueFamily.queueFamily);
 
-        // get presentat queue if required/supported
+        // get presentation queue if required/supported
         ref_ptr<Queue> presentQueue;
         if (deviceQueueFamily.presentFamily >= 0) presentQueue = device->getQueue(deviceQueueFamily.presentFamily);
 
@@ -485,6 +485,12 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         VkQueueFlags transferQueueFlags = VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT; // use VK_QUEUE_GRAPHICS_BIT to ensure we can blit images
         for (auto& queue : device->getQueues())
         {
+            if (mainQueue->queueFamilyIndex() != queue->queueFamilyIndex())
+            {
+                // need to implement queue family ownership transfer to use a different queue family
+                // see Vulkan spec 7.4.4, "Queue Family Ownership Transfer"
+                continue;
+            }
             if ((queue->queueFlags() & transferQueueFlags) == transferQueueFlags)
             {
                 if (queue != mainQueue)
