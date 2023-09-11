@@ -205,6 +205,9 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
     info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ")");
     for (auto& [mv, light] : directionalLights)
     {
+        if (light->shadowMaps == 0) continue;
+
+
         // compute directional light space
         auto projectionMatrix = view.camera->projectionMatrix->transform();
         auto viewMatrix = view.camera->viewMatrix->transform();
@@ -238,21 +241,6 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 
         auto clipToEye = inverse(projectionMatrix);
 
-        auto Clog = [](double n, double f, double i, double m) -> double
-        {
-            return n * std::pow((f/n), (i/m));
-        };
-
-        auto Cuniform = [](double n, double f, double i, double m) -> double
-        {
-            return n + (f - n) * (i/m);
-        };
-
-        auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double
-        {
-            return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0-lambda);
-        };
-
         auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
         auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
@@ -272,52 +260,75 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         double range = f-n;
         info("  n = ", n, ", f = ", f, ", range = ", range);
 
-
-        info("Clog(n, f, 0.0, 3.0) = ", Clog(n, f, 0.0, 3.0));
-        info("Clog(n, f, 1.0, 3.0) = ", Clog(n, f, 1.0, 3.0));
-        info("Clog(n, f, 2.0, 3.0) = ", Clog(n, f, 2.0, 3.0));
-        info("Clog(n, f, 3.0, 3.0) = ", Clog(n, f, 3.0, 3.0));
-
-        info("Cuniform(n, f, 0.0, 3.0) = ", Cuniform(n, f, 0.0, 3.0));
-        info("Cuniform(n, f, 1.0, 3.0) = ", Cuniform(n, f, 1.0, 3.0));
-        info("Cuniform(n, f, 2.0, 3.0) = ", Cuniform(n, f, 2.0, 3.0));
-        info("Cuniform(n, f, 3.0, 3.0) = ", Cuniform(n, f, 3.0, 3.0));
-
-        info("Ccombined(n, f, 0.0, 3.0) = ", Cpractical(n, f, 0.0, 3.0, 0.5));
-        info("Cpractical(n, f, 1.0, 3.0) = ", Cpractical(n, f, 1.0, 3.0, 0.5));
-        info("Cpractical(n, f, 2.0, 3.0) = ", Cpractical(n, f, 2.0, 3.0, 0.5));
-        info("Cpractical(n, f, 3.0, 3.0) = ", Cpractical(n, f, 3.0, 3.0, 0.5));
-
-
-        auto clipToWorld = inverse(projectionMatrix * viewMatrix);
-
-        std::vector<dvec3> corners;
-        corners.reserve(8);
-        corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 1.0));
-        corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 1.0));
-        corners.push_back(clipToWorld * dvec3(1.0, -1.0, 1.0));
-        corners.push_back(clipToWorld * dvec3(1.0, 1.0, 1.0));
-        corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 0.0));
-        corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 0.0));
-        corners.push_back(clipToWorld * dvec3(1.0, -1.0, 0.0));
-        corners.push_back(clipToWorld * dvec3(1.0, 1.0, 0.0));
-
-        dbox lightSpaceFrustumBounds;
-        for(auto& v : corners)
+        auto computeLightSpaceBounds = [&]()
         {
-            lightSpaceFrustumBounds.add(dot(v, light_x), dot(v, light_y), dot(v, light_z));
-        }
+            auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
-        info("    light_x = ", light_x);
-        info("    light_y = ", light_y);
-        info("    light_z = ", light_z);
-        info("    lightSpaceFrustumBounds = ", lightSpaceFrustumBounds);
-        info("    eye_point = ", eye_point);
-        for(auto& v : corners)
+            std::vector<dvec3> corners;
+            corners.reserve(8);
+            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 1.0));
+            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 1.0));
+            corners.push_back(clipToWorld * dvec3(1.0, -1.0, 1.0));
+            corners.push_back(clipToWorld * dvec3(1.0, 1.0, 1.0));
+            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 0.0));
+            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 0.0));
+            corners.push_back(clipToWorld * dvec3(1.0, -1.0, 0.0));
+            corners.push_back(clipToWorld * dvec3(1.0, 1.0, 0.0));
+
+            dbox lightSpaceFrustumBounds;
+            for(auto& v : corners)
+            {
+                lightSpaceFrustumBounds.add(dot(v, light_x), dot(v, light_y), dot(v, light_z));
+            }
+
+            info("    light_x = ", light_x);
+            info("    light_y = ", light_y);
+            info("    light_z = ", light_z);
+            info("    lightSpaceFrustumBounds = ", lightSpaceFrustumBounds);
+            info("    eye_point = ", eye_point);
+            for(auto& v : corners)
+            {
+                info("      ", v);
+            }
+        };
+
+
+        if (light->shadowMaps > 1)
         {
-            info("      ", v);
-        }
+            auto Clog = [](double n, double f, double i, double m) -> double
+            {
+                return n * std::pow((f/n), (i/m));
+            };
 
+            auto Cuniform = [](double n, double f, double i, double m) -> double
+            {
+                return n + (f - n) * (i/m);
+            };
+
+            auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double
+            {
+                return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0-lambda);
+            };
+
+            double i = 0.0;
+            double m = static_cast<double>(light->shadowMaps);
+            double delta = 1.0;
+            double lambda = 0.5;
+            for(uint32_t si = 0; si < light->shadowMaps; ++si)
+            {
+                // computeLightSpaceBounds();
+
+                info("    Clog() = ", Clog(n, f, i, m), ", ", Clog(n, f, i+delta, m));
+                info("    Cuniform() = ", Cuniform(n, f, i, m), ", ", Cuniform(n, f, i+delta, m));
+                info("    Cpractical(", n, ", ", f, ", ", i, ", ", m, ", ", lambda,") = ", Cpractical(n, f, i, m, lambda), ", ", Cpractical(n, f, i+delta, m, lambda));
+
+                i += 1.0;
+            }
+        }
+        else
+        {
+            computeLightSpaceBounds();
+        }
 
 
     }
