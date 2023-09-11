@@ -232,36 +232,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
 
-
-        info("     light_x = ", light_x);
-        info("     light_y = ", light_y);
-        info("     light_z = ", light_z);
-
-        auto eye_point = inverse(viewMatrix) * dvec3(0.0, 0.0, 0.0);
-
-        auto clipToEye = inverse(projectionMatrix);
-
-        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
-        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
-
-#if 0
-        // clamp the near and far values
-        double maxShadowDistance = 1000.0;
-        if (n > maxShadowDistance)
-        {
-            info("Oopps near is further than the maxShadowDistance!");
-            n = maxShadowDistance * 0.5;
-            f = maxShadowDistance;
-        }
-        if (f > maxShadowDistance)
-        {
-            f = maxShadowDistance;
-        }
-#endif
-        double range = f-n;
-        info("  n = ", n, ", f = ", f, ", range = ", range);
-
-        auto computeLightSpaceBounds = [&](double n, double f)
+        auto computeLightSpaceBounds = [&](double n, double f) -> dbox
         {
             auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
@@ -281,44 +252,58 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
             {
                 lightSpaceFrustumBounds.add(dot(v, light_x), dot(v, light_y), dot(v, light_z));
             }
-
-            info("    light_x = ", light_x);
-            info("    light_y = ", light_y);
-            info("    light_z = ", light_z);
-            info("    lightSpaceFrustumBounds = ", lightSpaceFrustumBounds);
-            info("    eye_point = ", eye_point);
-            for(auto& v : corners)
-            {
-                info("      ", v);
-            }
+            return lightSpaceFrustumBounds;
         };
 
+        auto Clog = [](double n, double f, double i, double m) -> double
+        {
+            return n * std::pow((f/n), (i/m));
+        };
+
+        auto Cuniform = [](double n, double f, double i, double m) -> double
+        {
+            return n + (f - n) * (i/m);
+        };
+
+        auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double
+        {
+            return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0-lambda);
+        };
+
+        info("     light_x = ", light_x);
+        info("     light_y = ", light_y);
+        info("     light_z = ", light_z);
+
+        auto clipToEye = inverse(projectionMatrix);
+
+        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
+        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
+
+#if 1
+        // clamp the near and far values
+        double maxShadowDistance = 1000.0;
+        if (n > maxShadowDistance)
+        {
+            info("Oopps near is further than the maxShadowDistance!");
+            n = maxShadowDistance * 0.5;
+            f = maxShadowDistance;
+        }
+        if (f > maxShadowDistance)
+        {
+            f = maxShadowDistance;
+        }
+#endif
+        double range = f-n;
+        info("  n = ", n, ", f = ", f, ", range = ", range);
 
         if (light->shadowMaps > 1)
         {
-            auto Clog = [](double n, double f, double i, double m) -> double
-            {
-                return n * std::pow((f/n), (i/m));
-            };
-
-            auto Cuniform = [](double n, double f, double i, double m) -> double
-            {
-                return n + (f - n) * (i/m);
-            };
-
-            auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double
-            {
-                return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0-lambda);
-            };
-
             double i = 0.0;
             double m = static_cast<double>(light->shadowMaps);
             double delta = 1.0;
             double lambda = 0.5;
             for(uint32_t si = 0; si < light->shadowMaps; ++si)
             {
-                // computeLightSpaceBounds();
-
                 info("    Clog() = ", Clog(n, f, i, m), ", ", Clog(n, f, i+delta, m));
                 info("    Cuniform() = ", Cuniform(n, f, i, m), ", ", Cuniform(n, f, i+delta, m));
                 info("    Cpractical(", n, ", ", f, ", ", i, ", ", m, ", ", lambda,") = ", Cpractical(n, f, i, m, lambda), ", ", Cpractical(n, f, i+delta, m, lambda));
@@ -332,14 +317,17 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
                 info("    clip_near = ", clip_near);
                 info("    clip_far = ", clip_far);
 
-                computeLightSpaceBounds(clip_near.z, clip_far.z);
+                auto ls_bounds = computeLightSpaceBounds(clip_near.z, clip_far.z);
+
+                info("    ls_bounds = ", ls_bounds);
 
                 i += 1.0;
             }
         }
         else
         {
-            computeLightSpaceBounds(1.0, 0.0);
+            auto ls_bounds = computeLightSpaceBounds(1.0, 0.0);
+            info("    ls_bounds = ", ls_bounds);
         }
 
 
