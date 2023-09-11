@@ -211,6 +211,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 
         // view direction in world coords
         auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
+        auto view_up = normalize(dvec3(0.0, -1.0, 0.0) * (projectionMatrix * viewMatrix));
 
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse(viewMatrix))));
@@ -218,11 +219,20 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 
         info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
         info("      light->direction in model = ", light->direction);
-        info("      viewDirection in world = ", view_direction);
+        info("      view_direction in world = ", view_direction);
+        info("      view_up in world = ", view_up);
 
+        auto light_x_direction = cross(light_direction, view_direction);
+        auto light_x_up = cross(light_direction, view_up);
+
+        auto light_x = (length(light_x_direction) > length(light_x_up)) ? normalize(light_x_direction) : normalize(light_x_up);
+        auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
-        auto light_x = normalize(cross(view_direction, light_direction));
-        auto light_y = normalize(cross(light_z, light_x));
+
+
+        info("     light_x = ", light_x);
+        info("     light_y = ", light_y);
+        info("     light_z = ", light_z);
 
         auto eye_point = inverse(viewMatrix) * dvec3(0.0, 0.0, 0.0);
 
