@@ -244,6 +244,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
         auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
+#if 0
         // clamp the near and far values
         double maxShadowDistance = 1000.0;
         if (n > maxShadowDistance)
@@ -256,24 +257,24 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         {
             f = maxShadowDistance;
         }
-
+#endif
         double range = f-n;
         info("  n = ", n, ", f = ", f, ", range = ", range);
 
-        auto computeLightSpaceBounds = [&]()
+        auto computeLightSpaceBounds = [&](double n, double f)
         {
             auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
             std::vector<dvec3> corners;
             corners.reserve(8);
-            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 1.0));
-            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 1.0));
-            corners.push_back(clipToWorld * dvec3(1.0, -1.0, 1.0));
-            corners.push_back(clipToWorld * dvec3(1.0, 1.0, 1.0));
-            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, 0.0));
-            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, 0.0));
-            corners.push_back(clipToWorld * dvec3(1.0, -1.0, 0.0));
-            corners.push_back(clipToWorld * dvec3(1.0, 1.0, 0.0));
+            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, n));
+            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, n));
+            corners.push_back(clipToWorld * dvec3(1.0, -1.0, n));
+            corners.push_back(clipToWorld * dvec3(1.0, 1.0, n));
+            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, f));
+            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, f));
+            corners.push_back(clipToWorld * dvec3(1.0, -1.0, f));
+            corners.push_back(clipToWorld * dvec3(1.0, 1.0, f));
 
             dbox lightSpaceFrustumBounds;
             for(auto& v : corners)
@@ -322,12 +323,23 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
                 info("    Cuniform() = ", Cuniform(n, f, i, m), ", ", Cuniform(n, f, i+delta, m));
                 info("    Cpractical(", n, ", ", f, ", ", i, ", ", m, ", ", lambda,") = ", Cpractical(n, f, i, m, lambda), ", ", Cpractical(n, f, i+delta, m, lambda));
 
+                dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
+                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i+delta, m, lambda));
+
+                auto clip_near = projectionMatrix * eye_near;
+                auto clip_far = projectionMatrix * eye_far;
+
+                info("    clip_near = ", clip_near);
+                info("    clip_far = ", clip_far);
+
+                computeLightSpaceBounds(clip_near.z, clip_far.z);
+
                 i += 1.0;
             }
         }
         else
         {
-            computeLightSpaceBounds();
+            computeLightSpaceBounds(1.0, 0.0);
         }
 
 
