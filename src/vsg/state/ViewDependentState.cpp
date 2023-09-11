@@ -202,7 +202,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
     // sampler2DArrayShadow
     // https://ogldev.org/www/tutorial42/tutorial42.html
 
-    info("ViewDependentState::traverse(", &rt, ", ", &view, ")");
+    info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ")");
     for (auto& [mv, light] : directionalLights)
     {
         // compute directional light space
@@ -212,16 +212,16 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         // view direction in world coords
         auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
 
-        // eye space light direction in world coords
-        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
+        // light direction in world coords
+        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse(viewMatrix))));
 
 
-        info("   directional light : eye space direction = ", eye_direction, ", light->shadowMaps = ", light->shadowMaps);
-        info("      light->direction = ", light->direction);
-        info("      viewDirection = ", view_direction);
+        info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
+        info("      light->direction in model = ", light->direction);
+        info("      viewDirection in world = ", view_direction);
 
-        auto light_z = eye_direction;
-        auto light_x = normalize(cross(view_direction, eye_direction));
+        auto light_z = light_direction;
+        auto light_x = normalize(cross(view_direction, light_direction));
         auto light_y = normalize(cross(light_z, light_x));
 
         auto eye_point = inverse(viewMatrix) * dvec3(0.0, 0.0, 0.0);
