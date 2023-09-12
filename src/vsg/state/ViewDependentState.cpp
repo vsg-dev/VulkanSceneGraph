@@ -207,6 +207,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
     preRenderSwitch = Switch::create();
 
     preRenderCommandGraph = CommandGraph::create();
+    preRenderCommandGraph->submitOrder = -1;
     preRenderCommandGraph->addChild(preRenderSwitch);
 
     auto tcon = TraverseChildrenOfNode::create(view);
