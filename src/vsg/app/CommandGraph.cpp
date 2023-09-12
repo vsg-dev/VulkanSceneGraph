@@ -18,6 +18,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+CommandGraph::CommandGraph()
+{
+}
+
 CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
     device(in_device),
     queueFamily(family),

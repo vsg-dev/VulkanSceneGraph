@@ -26,6 +26,7 @@ namespace vsg
     class VSG_DECLSPEC CommandGraph : public Inherit<Group, CommandGraph>
     {
     public:
+        CommandGraph();
         CommandGraph(ref_ptr<Device> in_device, int family);
         explicit CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child = {});
 
