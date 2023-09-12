@@ -232,27 +232,19 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
 
-        auto computeLightSpaceBounds = [&](double n, double f) -> dbox
+        auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox
         {
-            auto clipToWorld = inverse(projectionMatrix * viewMatrix);
+            dbox bounds;
+            bounds.add(clipToWorld * dvec3(-1.0, -1.0, n));
+            bounds.add(clipToWorld * dvec3(-1.0, 1.0, n));
+            bounds.add(clipToWorld * dvec3(1.0, -1.0, n));
+            bounds.add(clipToWorld * dvec3(1.0, 1.0, n));
+            bounds.add(clipToWorld * dvec3(-1.0, -1.0, f));
+            bounds.add(clipToWorld * dvec3(-1.0, 1.0, f));
+            bounds.add(clipToWorld * dvec3(1.0, -1.0, f));
+            bounds.add(clipToWorld * dvec3(1.0, 1.0, f));
 
-            std::vector<dvec3> corners;
-            corners.reserve(8);
-            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, n));
-            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, n));
-            corners.push_back(clipToWorld * dvec3(1.0, -1.0, n));
-            corners.push_back(clipToWorld * dvec3(1.0, 1.0, n));
-            corners.push_back(clipToWorld * dvec3(-1.0, -1.0, f));
-            corners.push_back(clipToWorld * dvec3(-1.0, 1.0, f));
-            corners.push_back(clipToWorld * dvec3(1.0, -1.0, f));
-            corners.push_back(clipToWorld * dvec3(1.0, 1.0, f));
-
-            dbox lightSpaceFrustumBounds;
-            for(auto& v : corners)
-            {
-                lightSpaceFrustumBounds.add(dot(v, light_x), dot(v, light_y), dot(v, light_z));
-            }
-            return lightSpaceFrustumBounds;
+            return bounds;
         };
 
         auto Clog = [](double n, double f, double i, double m) -> double
@@ -296,37 +288,58 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         double range = f-n;
         info("  n = ", n, ", f = ", f, ", range = ", range);
 
+        auto clipToWorld = inverse(projectionMatrix * viewMatrix);
+
         if (light->shadowMaps > 1)
         {
-            double i = 0.0;
-            double m = static_cast<double>(light->shadowMaps);
-            double delta = 1.0;
             double lambda = 0.5;
-            for(uint32_t si = 0; si < light->shadowMaps; ++si)
+            double m = static_cast<double>(light->shadowMaps);
+            for(double i = 0; i < m; i += 1.0)
             {
-                info("    Clog() = ", Clog(n, f, i, m), ", ", Clog(n, f, i+delta, m));
-                info("    Cuniform() = ", Cuniform(n, f, i, m), ", ", Cuniform(n, f, i+delta, m));
-                info("    Cpractical(", n, ", ", f, ", ", i, ", ", m, ", ", lambda,") = ", Cpractical(n, f, i, m, lambda), ", ", Cpractical(n, f, i+delta, m, lambda));
-
                 dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
-                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i+delta, m, lambda));
+                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i+1.0, m, lambda));
 
                 auto clip_near = projectionMatrix * eye_near;
                 auto clip_far = projectionMatrix * eye_far;
 
+                auto ls_bounds = computeFrsutumBounds(clip_near.z, clip_far.z, clipToWorld);
+
+                auto centre = (ls_bounds.min + ls_bounds.max) * 0.5;
+                ls_bounds.min -= centre;
+                ls_bounds.max -= centre;
+
+                auto ls_projMatrix = Orthographic::create(ls_bounds.min.x, ls_bounds.max.x,
+                                                          ls_bounds.min.y, ls_bounds.max.y,
+                                                          ls_bounds.min.z, ls_bounds.max.z);
+
+                auto ls_viewMatrix = LookAt::create(centre, centre + light_z, light_y);
+
+
+                auto ls_view = dmat4(light_x.x, light_y.x, light_z.x, 0.0,
+                                     light_x.y, light_y.y, light_z.y, 0.0,
+                                     light_x.z, light_y.z, light_z.z, 0.0,
+                                     0.0, 0.0, 0.0, 1.0);
+
+                info("    centre = ", centre);
+                info("    centre +  light_z = ", centre + light_z);
+                info("    ls_viewMatrix->eye = ", ls_viewMatrix->eye);
+                info("    ls_viewMatrix->center = ", ls_viewMatrix->center);
+                info("    ls_viewMatrix->up = ", ls_viewMatrix->up);
+
+                info("    light_x = ", light_x);
+                info("    light_y = ", light_y);
+                info("    light_z = ", light_z);
                 info("    clip_near = ", clip_near);
                 info("    clip_far = ", clip_far);
-
-                auto ls_bounds = computeLightSpaceBounds(clip_near.z, clip_far.z);
-
                 info("    ls_bounds = ", ls_bounds);
-
-                i += 1.0;
+                info("    ls_projMatrix = ", ls_projMatrix->transform());
+                info("    ls_viewMatrix = ", ls_viewMatrix->transform());
+                info("    ls_view = ", ls_view);
             }
         }
         else
         {
-            auto ls_bounds = computeLightSpaceBounds(1.0, 0.0);
+            auto ls_bounds = computeFrsutumBounds(1.0, 0.0, clipToWorld);;
             info("    ls_bounds = ", ls_bounds);
         }
 
