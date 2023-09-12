@@ -196,7 +196,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
             float* data = shadowMapData->data(shadowMapData->index(0, j, k));
             for(uint32_t i = 0; i < shadowMapData->width(); ++i)
             {
-                *(data++) = sin(vsg::PI * static_cast<double>(i)/static_cast<double>(shadowMapData->width()-1));
+                *(data++) = static_cast<float>(sin(vsg::PI * static_cast<double>(i)/static_cast<double>(shadowMapData->width()-1)));
             }
         }
     }
