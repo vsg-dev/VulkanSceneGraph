@@ -302,26 +302,18 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
                 auto clip_near = projectionMatrix * eye_near;
                 auto clip_far = projectionMatrix * eye_far;
 
-                auto ls_bounds = computeFrustumBounds(clip_near.z, clip_far.z, clipToWorld);
+                auto ws_bounds = computeFrustumBounds(clip_near.z, clip_far.z, clipToWorld);
 
-                auto centre = (ls_bounds.min + ls_bounds.max) * 0.5;
-                ls_bounds.min -= centre;
-                ls_bounds.max -= centre;
+                auto center = (ws_bounds.min + ws_bounds.max) * 0.5;
+
+                auto ls_viewMatrix = vsg::LookAt::create(center, center + light_z, light_y);
+
+                auto ls_bounds = computeFrustumBounds(clip_near.z, clip_far.z, ls_viewMatrix->transform() * clipToWorld);
 
                 auto ls_projMatrix = Orthographic::create(ls_bounds.min.x, ls_bounds.max.x,
                                                           ls_bounds.min.y, ls_bounds.max.y,
                                                           ls_bounds.min.z, ls_bounds.max.z);
 
-                auto ls_viewMatrix = LookAt::create(centre, centre + light_z, light_y);
-
-
-                auto ls_view = dmat4(light_x.x, light_y.x, light_z.x, 0.0,
-                                     light_x.y, light_y.y, light_z.y, 0.0,
-                                     light_x.z, light_y.z, light_z.z, 0.0,
-                                     0.0, 0.0, 0.0, 1.0);
-
-                info("    centre = ", centre);
-                info("    centre +  light_z = ", centre + light_z);
                 info("    ls_viewMatrix->eye = ", ls_viewMatrix->eye);
                 info("    ls_viewMatrix->center = ", ls_viewMatrix->center);
                 info("    ls_viewMatrix->up = ", ls_viewMatrix->up);
@@ -329,12 +321,8 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
                 info("    light_x = ", light_x);
                 info("    light_y = ", light_y);
                 info("    light_z = ", light_z);
-                info("    clip_near = ", clip_near);
-                info("    clip_far = ", clip_far);
-                info("    ls_bounds = ", ls_bounds);
-                info("    ls_projMatrix = ", ls_projMatrix->transform());
                 info("    ls_viewMatrix = ", ls_viewMatrix->transform());
-                info("    ls_view = ", ls_view);
+                info("    ls_projMatrix = ", ls_projMatrix->transform());
             }
         }
         else
