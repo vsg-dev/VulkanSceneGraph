@@ -23,6 +23,33 @@ using namespace vsg;
 
 //////////////////////////////////////
 //
+// TraverseChildrenOfNode
+//
+namespace vsg
+{
+    class TraverseChildrenOfNode : public vsg::Inherit<vsg::Node, TraverseChildrenOfNode>
+    {
+    public:
+
+        explicit TraverseChildrenOfNode(vsg::Node* in_node) : node(in_node) {}
+
+        vsg::observer_ptr<vsg::Node> node;
+
+        template<class N, class V>
+        static void t_traverse(N& in_node, V& visitor)
+        {
+            if (auto ref_node = in_node.node.ref_ptr()) ref_node->traverse(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+    };
+    VSG_type_name(vsg::TraverseChildrenOfNode);
+}
+
+//////////////////////////////////////
+//
 // ViewDescriptorSetLayout
 //
 ViewDescriptorSetLayout::ViewDescriptorSetLayout()
@@ -113,16 +140,17 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(uint32_t maxNumberLights, uint32_t maxViewports)
+ViewDependentState::ViewDependentState(View* in_view, uint32_t maxNumberLights, uint32_t maxViewports, uint32_t maxShadowMaps) :
+    view(in_view)
 {
-    init(maxNumberLights, maxViewports);
+    init(maxNumberLights, maxViewports, maxShadowMaps);
 }
 
 ViewDependentState::~ViewDependentState()
 {
 }
 
-void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
+void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, uint32_t maxShadowMaps)
 {
     // info("ViewDependentState::init(", maxNumberLights, ", ", maxViewports, ") ", this);
 
@@ -136,6 +164,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
 
     descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
 
+    // set up ShadowMaps
     auto shadwoMapSampler = vsg::Sampler::create();
     shadwoMapSampler->minFilter = VK_FILTER_NEAREST;
     shadwoMapSampler->magFilter = VK_FILTER_NEAREST;
@@ -147,8 +176,8 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
 
     // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
     // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
-    shadowMapData = floatArray3D::create(2048, 2048, 8, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
-    shadowMaps = DescriptorImage::create(shadwoMapSampler, shadowMapData, 2);
+    shadowMapData = floatArray3D::create(2048, 2048, maxShadowMaps, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
+    shadowMapImages = DescriptorImage::create(shadwoMapSampler, shadowMapData, 2);
 
 
     DescriptorSetLayoutBindings descriptorBindings{
@@ -158,7 +187,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
     };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMaps});
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
 
     for(uint32_t k = 0; k < shadowMapData->depth(); ++k)
     {
@@ -170,6 +199,27 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports)
                 *(data++) = sin(vsg::PI * static_cast<double>(i)/static_cast<double>(shadowMapData->width()-1));
             }
         }
+    }
+
+    shadowMaps.resize(maxShadowMaps);
+
+    auto tcon = TraverseChildrenOfNode::create(view);
+
+    ref_ptr<View> first_view;
+    for(auto& shadowMap : shadowMaps)
+    {
+        if (first_view)
+        {
+            shadowMap.view = View::create(*first_view);
+        }
+        else
+        {
+            first_view = View::create(false);
+            shadowMap.view = first_view;
+        }
+
+        shadowMap.view->camera = Camera::create();
+        shadowMap.view->addChild(tcon);
     }
 
     //vsg::write(shadowMapData, "test.vsgt");
@@ -194,7 +244,7 @@ void ViewDependentState::clear()
     spotLights.clear();
 }
 
-void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
+void ViewDependentState::traverse(RecordTraversal& rt) const
 {
 #if 1
     // usefule reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
@@ -209,8 +259,8 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
 
 
         // compute directional light space
-        auto projectionMatrix = view.camera->projectionMatrix->transform();
-        auto viewMatrix = view.camera->viewMatrix->transform();
+        auto projectionMatrix = view->camera->projectionMatrix->transform();
+        auto viewMatrix = view->camera->viewMatrix->transform();
 
         // view direction in world coords
         auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
@@ -286,7 +336,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         }
 #endif
         double range = f-n;
-        info("  n = ", n, ", f = ", f, ", range = ", range);
+        info("    n = ", n, ", f = ", f, ", range = ", range);
 
         auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
@@ -318,16 +368,13 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
                 info("    ls_viewMatrix->center = ", ls_viewMatrix->center);
                 info("    ls_viewMatrix->up = ", ls_viewMatrix->up);
 
-                info("    light_x = ", light_x);
-                info("    light_y = ", light_y);
-                info("    light_z = ", light_z);
                 info("    ls_viewMatrix = ", ls_viewMatrix->transform());
                 info("    ls_projMatrix = ", ls_projMatrix->transform());
             }
         }
         else
         {
-            auto ls_bounds = computeFrustumBounds(1.0, 0.0, clipToWorld);;
+            auto ls_bounds = computeFrustumBounds(1.0, 0.0, clipToWorld);
             info("    ls_bounds = ", ls_bounds);
         }
 

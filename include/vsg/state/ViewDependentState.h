@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/CommandGraph.h>
+#include <vsg/app/RenderGraph.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
@@ -99,7 +100,7 @@ namespace vsg
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:
-        ViewDependentState(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1);
+        ViewDependentState(View* view, uint32_t maxNumberLights = 64, uint32_t maxViewports = 1, uint32_t maxShadowMaps = 8);
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
@@ -109,8 +110,7 @@ namespace vsg
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-
-        virtual void traverse(RecordTraversal& rt, const View& view);
+        void traverse(RecordTraversal& rt) const override;
 
         // containers filled in by RecordTraversal
         std::vector<std::pair<dmat4, const AmbientLight*>> ambientLights;
@@ -118,11 +118,13 @@ namespace vsg
         std::vector<std::pair<dmat4, const PointLight*>> pointLights;
         std::vector<std::pair<dmat4, const SpotLight*>> spotLights;
 
-        virtual void init(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1);
+        virtual void init(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1, uint32_t maxShadowMaps = 8);
         virtual void compile(Context& context);
         virtual void clear();
         virtual void pack();
         virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
+
+        View* view = nullptr;
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
@@ -131,7 +133,7 @@ namespace vsg
         ref_ptr<BufferInfo> viewportDataBufferInfo;
 
         ref_ptr<floatArray3D> shadowMapData;
-        ref_ptr<DescriptorImage> shadowMaps;
+        ref_ptr<DescriptorImage> shadowMapImages;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorBuffer> descriptor;
@@ -141,8 +143,15 @@ namespace vsg
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
 
-        ref_ptr<CommandGraph> debugCommandGraph;
-        ref_ptr<Switch> debugSwitch;
+        struct ShadowMap
+        {
+            ref_ptr<RenderGraph> renderGraph;
+            ref_ptr<View> view;
+            ref_ptr<ImageInfo> colorImageInfo;
+            ref_ptr<ImageInfo> depthImageInfo;
+        };
+
+        std::vector<ShadowMap> shadowMaps;
 
     protected:
         ~ViewDependentState();

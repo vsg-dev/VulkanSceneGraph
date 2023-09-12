@@ -65,10 +65,15 @@ static void releaseViewID(uint32_t viewID)
 //
 // View
 //
-View::View() :
-    viewID(getUniqueViewID()),
-    viewDependentState(ViewDependentState::create())
+View::View(bool assignViewDependentState) :
+    viewID(getUniqueViewID())
 {
+    if (assignViewDependentState)
+    {
+        viewDependentState = ViewDependentState::create(this);
+    }
+
+    info("View::View(bool) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
 View::View(const View& view):
@@ -81,18 +86,30 @@ View::View(const View& view):
         camera = vsg::Camera::create();
         camera->viewportState = view.camera->viewportState;
     }
+
+    if (view.viewDependentState)
+    {
+        viewDependentState = ViewDependentState::create(this);
+    }
+    info("View::View(const View&) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
-View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph) :
+View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph, bool assignViewDependentState) :
     camera(in_camera),
-    viewID(getUniqueViewID()),
-    viewDependentState(ViewDependentState::create())
+    viewID(getUniqueViewID())
 {
     if (in_scenegraph) addChild(in_scenegraph);
+
+    if (assignViewDependentState)
+    {
+        viewDependentState = ViewDependentState::create(this);
+    }
+    info("View::View(ref_ptr<Camera> in_camera) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
 View::~View()
 {
+    if (viewDependentState) viewDependentState->view = nullptr;
     releaseViewID(viewID);
 }
 

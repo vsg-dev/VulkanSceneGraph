@@ -469,7 +469,7 @@ void RecordTraversal::apply(const View& view)
 
     if (_viewDependentState)
     {
-        _viewDependentState->traverse(*this, view);
+        _viewDependentState->traverse(*this);
         _viewDependentState->pack();
     }
 
