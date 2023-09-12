@@ -302,7 +302,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
                 auto clip_near = projectionMatrix * eye_near;
                 auto clip_far = projectionMatrix * eye_far;
 
-                auto ls_bounds = computeFrsutumBounds(clip_near.z, clip_far.z, clipToWorld);
+                auto ls_bounds = computeFrustumBounds(clip_near.z, clip_far.z, clipToWorld);
 
                 auto centre = (ls_bounds.min + ls_bounds.max) * 0.5;
                 ls_bounds.min -= centre;
@@ -339,7 +339,7 @@ void ViewDependentState::traverse(RecordTraversal& rt, const View& view)
         }
         else
         {
-            auto ls_bounds = computeFrsutumBounds(1.0, 0.0, clipToWorld);;
+            auto ls_bounds = computeFrustumBounds(1.0, 0.0, clipToWorld);;
             info("    ls_bounds = ", ls_bounds);
         }
 
