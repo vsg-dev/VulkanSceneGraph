@@ -201,11 +201,20 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
         }
     }
 
-    shadowMaps.resize(maxShadowMaps);
+
+
+    // create a switch to toggle on/off the render to texture subgraphs for each shadowmap layer
+    preRenderSwitch = Switch::create();
+
+    preRenderCommandGraph = CommandGraph::create();
+    preRenderCommandGraph->addChild(preRenderSwitch);
 
     auto tcon = TraverseChildrenOfNode::create(view);
 
+    Mask shadowMask = 0x1; // TODO: do we inherit from main scene? how?
+
     ref_ptr<View> first_view;
+    shadowMaps.resize(maxShadowMaps);
     for(auto& shadowMap : shadowMaps)
     {
         if (first_view)
@@ -217,13 +226,16 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
             first_view = View::create(false);
             shadowMap.view = first_view;
         }
-
+        shadowMap.view->mask = shadowMask;
         shadowMap.view->camera = Camera::create();
         shadowMap.view->addChild(tcon);
+
+        shadowMap.renderGraph = RenderGraph::create();
+        shadowMap.renderGraph->addChild(shadowMap.view);
+        preRenderSwitch->addChild(MASK_ALL, shadowMap.renderGraph);
     }
 
     //vsg::write(shadowMapData, "test.vsgt");
-
 }
 
 void ViewDependentState::compile(Context& context)
@@ -246,17 +258,25 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt) const
 {
+    bool requiresPerRenderShadowMaps = false;
+    preRenderSwitch->setAllChildren(false);
+
 #if 1
-    // usefule reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
+    // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
     // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231
     // sampler2DArrayShadow
     // https://ogldev.org/www/tutorial42/tutorial42.html
 
     info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ")");
+    uint32_t shadowMapIndex = 0;
+    uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
+
     for (auto& [mv, light] : directionalLights)
     {
         if (light->shadowMaps == 0) continue;
+        if (shadowMapIndex >= numShadowMaps) continue;
 
+        requiresPerRenderShadowMaps = true;
 
         // compute directional light space
         auto projectionMatrix = view->camera->projectionMatrix->transform();
@@ -340,10 +360,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
-        if (light->shadowMaps > 1)
+        uint32_t numShadowMapsForThisLight = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
+
+        if (numShadowMapsForThisLight > 1)
         {
             double lambda = 0.5;
-            double m = static_cast<double>(light->shadowMaps);
+            double m = static_cast<double>(numShadowMapsForThisLight);
             for(double i = 0; i < m; i += 1.0)
             {
                 dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
@@ -370,14 +392,27 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
                 info("    ls_viewMatrix = ", ls_viewMatrix->transform());
                 info("    ls_projMatrix = ", ls_projMatrix->transform());
+
+                auto& shadowMap = shadowMaps[shadowMapIndex];
+                preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
+                shadowMapIndex++;
+
+                auto& camera = shadowMap.view->camera;
+                info("    need to set camera ", camera);
             }
         }
         else
         {
             auto ls_bounds = computeFrustumBounds(1.0, 0.0, clipToWorld);
             info("    ls_bounds = ", ls_bounds);
-        }
 
+            auto& shadowMap = shadowMaps[shadowMapIndex];
+            preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
+            shadowMapIndex++;
+
+            auto& camera = shadowMap.view->camera;
+            info("    need to set camera ", camera);
+        }
 
     }
 #endif
@@ -396,6 +431,17 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         info("   spot light : light->direction = ", light->direction, ", position = ", eye_position, ", direction = ", eye_direction1, ", light->shadowMaps = ", light->shadowMaps);
     }
 #endif
+
+    // traverse pre render graph
+    if (requiresPerRenderShadowMaps && preRenderCommandGraph)
+    {
+        info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
+        preRenderCommandGraph->accept(rt);
+    }
+    else
+    {
+        info("ViewDependentState::traverse(RecordTraversal&) no need for pre render command graph.");
+    }
 }
 
 void ViewDependentState::pack()

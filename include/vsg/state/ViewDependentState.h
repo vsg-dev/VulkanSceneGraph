@@ -151,7 +151,7 @@ namespace vsg
             ref_ptr<ImageInfo> depthImageInfo;
         };
 
-        std::vector<ShadowMap> shadowMaps;
+        mutable std::vector<ShadowMap> shadowMaps;
 
     protected:
         ~ViewDependentState();
