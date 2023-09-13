@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/MultisampleState.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceRequirements.h>
 
@@ -34,7 +35,7 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
 {
-    vsg::info("ResourceRequirements::ResourceRequirements(" , hints, " ) ", this);
+    vsg::info("ResourceRequirements::ResourceRequirements(", hints, " ) ", this);
 
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     if (hints) apply(*hints);
@@ -214,7 +215,7 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
 
 void CollectResourceRequirements::apply(const Light& light)
 {
-    vsg::info("CollectResourceRequirements::apply(", light.className(),")");
+    vsg::info("CollectResourceRequirements::apply(", light.className(), ")");
     requirements.viewDetailsStack.top().lights.insert(&light);
 }
 
@@ -254,7 +255,7 @@ void CollectResourceRequirements::apply(const View& view)
         vsg::info("CollectResourceRequirements::apply(const View& view) after collecting stats from ", view.viewDependentState);
 
         uint32_t numShadowMaps = 0;
-        for(auto& light : viewDetails.lights)
+        for (auto& light : viewDetails.lights)
         {
             numShadowMaps += light->shadowMaps;
         }

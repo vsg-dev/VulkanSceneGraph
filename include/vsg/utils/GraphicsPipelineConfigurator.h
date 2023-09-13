@@ -52,15 +52,11 @@ namespace vsg
         bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
         bool assignDescriptor(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
 
-        [[deprecated("use enableDescriptor(..)")]]
-        bool enableUniform(const std::string& name) { return enableDescriptor(name); }
+        [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 
-        [[deprecated("use assignDescriptor(..)")]]
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0) { return assignDescriptor(name, data, dstArrayElement); }
+        [[deprecated("use assignDescriptor(..)")]] bool assignUniform(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0) { return assignDescriptor(name, data, dstArrayElement); }
 
-        [[deprecated("use assignDescriptor(..)")]]
-        bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0) { return assignDescriptor(name, bufferInfoList, dstArrayElement); }
-
+        [[deprecated("use assignDescriptor(..)")]] bool assignUniform(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0) { return assignDescriptor(name, bufferInfoList, dstArrayElement); }
 
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
@@ -120,11 +116,9 @@ namespace vsg
         bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {});
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
 
-        [[deprecated("use enableDescriptor(..)")]]
-        bool enableUniform(const std::string& name) { return enableDescriptor(name); }
+        [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 
-        [[deprecated("use assignDescriptor(..)")]]
-        bool assignUniform(const std::string& name, ref_ptr<Data> data = {}) { return assignDescriptor(name, data); }
+        [[deprecated("use assignDescriptor(..)")]] bool assignUniform(const std::string& name, ref_ptr<Data> data = {}) { return assignDescriptor(name, data); }
 
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/state/ViewDependentState.h>
 
 using namespace vsg;
 
@@ -27,7 +28,7 @@ static uint32_t getUniqueViewID()
     uint32_t viewID = 0;
     for (viewID = 0; viewID < static_cast<uint32_t>(s_ActiveViews.size()); ++viewID)
     {
-        if (s_ActiveViews[viewID]==0)
+        if (s_ActiveViews[viewID] == 0)
         {
             ++s_ActiveViews[viewID];
             return viewID;
@@ -76,7 +77,7 @@ View::View(bool assignViewDependentState) :
     info("View::View(bool) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
-View::View(const View& view):
+View::View(const View& view) :
     Inherit(view),
     viewID(sharedViewID(view.viewID)),
     mask(view.mask)

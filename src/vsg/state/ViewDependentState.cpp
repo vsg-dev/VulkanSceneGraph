@@ -14,10 +14,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/state/ViewDependentState.h>
-#include <vsg/state/DescriptorImage.h>
-#include <vsg/vk/Context.h>
 #include <vsg/io/write.h>
+#include <vsg/state/DescriptorImage.h>
+#include <vsg/state/ViewDependentState.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -30,8 +30,8 @@ namespace vsg
     class TraverseChildrenOfNode : public vsg::Inherit<vsg::Node, TraverseChildrenOfNode>
     {
     public:
-
-        explicit TraverseChildrenOfNode(vsg::Node* in_node) : node(in_node) {}
+        explicit TraverseChildrenOfNode(vsg::Node* in_node) :
+            node(in_node) {}
 
         vsg::observer_ptr<vsg::Node> node;
 
@@ -46,7 +46,7 @@ namespace vsg
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
     };
     VSG_type_name(vsg::TraverseChildrenOfNode);
-}
+} // namespace vsg
 
 //////////////////////////////////////
 //
@@ -179,7 +179,6 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
     shadowMapData = floatArray3D::create(2048, 2048, maxShadowMaps, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
     shadowMapImages = DescriptorImage::create(shadwoMapSampler, shadowMapData, 2);
 
-
     DescriptorSetLayoutBindings descriptorBindings{
         VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
         VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
@@ -189,19 +188,17 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
     descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
 
-    for(uint32_t k = 0; k < shadowMapData->depth(); ++k)
+    for (uint32_t k = 0; k < shadowMapData->depth(); ++k)
     {
-        for(uint32_t j = 0; j < shadowMapData->height(); ++j)
+        for (uint32_t j = 0; j < shadowMapData->height(); ++j)
         {
             float* data = shadowMapData->data(shadowMapData->index(0, j, k));
-            for(uint32_t i = 0; i < shadowMapData->width(); ++i)
+            for (uint32_t i = 0; i < shadowMapData->width(); ++i)
             {
-                *(data++) = static_cast<float>(sin(vsg::PI * static_cast<double>(i)/static_cast<double>(shadowMapData->width()-1)));
+                *(data++) = static_cast<float>(sin(vsg::PI * static_cast<double>(i) / static_cast<double>(shadowMapData->width() - 1)));
             }
         }
     }
-
-
 
     // create a switch to toggle on/off the render to texture subgraphs for each shadowmap layer
     preRenderSwitch = Switch::create();
@@ -216,7 +213,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
 
     ref_ptr<View> first_view;
     shadowMaps.resize(maxShadowMaps);
-    for(auto& shadowMap : shadowMaps)
+    for (auto& shadowMap : shadowMaps)
     {
         if (first_view)
         {
@@ -290,7 +287,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse(viewMatrix))));
 
-
         info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
         info("      light->direction in model = ", light->direction);
         info("      view_direction in world = ", view_direction);
@@ -303,8 +299,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
 
-        auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox
-        {
+        auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
             dbox bounds;
             bounds.add(clipToWorld * dvec3(-1.0, -1.0, n));
             bounds.add(clipToWorld * dvec3(-1.0, 1.0, n));
@@ -318,19 +313,16 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             return bounds;
         };
 
-        auto Clog = [](double n, double f, double i, double m) -> double
-        {
-            return n * std::pow((f/n), (i/m));
+        auto Clog = [](double n, double f, double i, double m) -> double {
+            return n * std::pow((f / n), (i / m));
         };
 
-        auto Cuniform = [](double n, double f, double i, double m) -> double
-        {
-            return n + (f - n) * (i/m);
+        auto Cuniform = [](double n, double f, double i, double m) -> double {
+            return n + (f - n) * (i / m);
         };
 
-        auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double
-        {
-            return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0-lambda);
+        auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double {
+            return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0 - lambda);
         };
 
         info("     light_x = ", light_x);
@@ -342,7 +334,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
         auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
-#if 1
+#    if 1
         // clamp the near and far values
         double maxShadowDistance = 1000.0;
         if (n > maxShadowDistance)
@@ -355,8 +347,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             f = maxShadowDistance;
         }
-#endif
-        double range = f-n;
+#    endif
+        double range = f - n;
         info("    n = ", n, ", f = ", f, ", range = ", range);
 
         auto clipToWorld = inverse(projectionMatrix * viewMatrix);
@@ -367,10 +359,10 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             double lambda = 0.5;
             double m = static_cast<double>(numShadowMapsForThisLight);
-            for(double i = 0; i < m; i += 1.0)
+            for (double i = 0; i < m; i += 1.0)
             {
                 dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
-                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i+1.0, m, lambda));
+                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i + 1.0, m, lambda));
 
                 auto clip_near = projectionMatrix * eye_near;
                 auto clip_far = projectionMatrix * eye_far;
@@ -414,7 +406,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             auto& camera = shadowMap.view->camera;
             info("    need to set camera ", camera);
         }
-
     }
 #endif
 
@@ -427,7 +418,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     for (auto& [mv, light] : spotLights)
     {
-        auto eye_position =  mv * light->position;
+        auto eye_position = mv * light->position;
         auto eye_direction1 = normalize(light->direction * inverse_3x3(mv));
         info("   spot light : light->direction = ", light->direction, ", position = ", eye_position, ", direction = ", eye_direction1, ", light->shadowMaps = ", light->shadowMaps);
     }

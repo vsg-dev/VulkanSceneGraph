@@ -15,10 +15,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Camera.h>
 #include <vsg/app/Window.h>
 #include <vsg/nodes/Group.h>
-#include <vsg/state/ViewDependentState.h>
 
 namespace vsg
 {
+
+    // forward declare
+    class ViewDependentState;
 
     /// View is a Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>

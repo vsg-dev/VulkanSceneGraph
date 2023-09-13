@@ -136,9 +136,7 @@ namespace vsg
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addDescriptorBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
 
-        [[deprecated("use addDescriptorBinding(..)")]]
-        void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
-
+        [[deprecated("use addDescriptorBinding(..)")]] void addUniformBinding(std::string name, std::string define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
 
         /// add a push constant range. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(std::string name, std::string define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);
@@ -155,11 +153,9 @@ namespace vsg
         /// get the const DescriptorBinding associated with name
         const DescriptorBinding& getDescriptorBinding(const std::string& name) const;
 
-        [[deprecated("use getDescriptorBinding(..)")]]
-        DescriptorBinding& getUniformBinding(const std::string& name) { return getDescriptorBinding(name); }
+        [[deprecated("use getDescriptorBinding(..)")]] DescriptorBinding& getUniformBinding(const std::string& name) { return getDescriptorBinding(name); }
 
-        [[deprecated("use getDescriptorBinding(..)")]]
-        const DescriptorBinding& getUnifomrBinding(const std::string& name) const { return getDescriptorBinding(name); }
+        [[deprecated("use getDescriptorBinding(..)")]] const DescriptorBinding& getUnifomrBinding(const std::string& name) const { return getDescriptorBinding(name); }
 
         /// get the first ArrayState that has matches with defines in the specified list of defines.
         ref_ptr<ArrayState> getSuitableArrayState(const std::set<std::string>& defines) const;
