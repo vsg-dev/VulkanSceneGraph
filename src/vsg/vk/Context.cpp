@@ -86,18 +86,19 @@ void BuildAccelerationStructureCommand::setScratchBuffer(ref_ptr<Buffer> scratch
 //
 // vsg::Context
 //
-Context::Context(Device* in_device, const ResourceRequirements& resourceRequirements) :
+Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequirements) :
     deviceID(in_device->deviceID),
     device(in_device),
-    deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, resourceRequirements)),
-    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, resourceRequirements)),
+    resourceRequirements(in_resourceRequirements),
+    deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, in_resourceRequirements)),
+    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, in_resourceRequirements)),
     scratchBufferSize(0)
 {
     //semaphore = vsg::Semaphore::create(device);
     scratchMemory = ScratchMemory::create(4096);
 
-    minimum_maxSets = resourceRequirements.computeNumDescriptorSets();
-    minimum_descriptorPoolSizes = resourceRequirements.computeDescriptorPoolSizes();
+    minimum_maxSets = in_resourceRequirements.computeNumDescriptorSets();
+    minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
 }
 
 Context::Context(const Context& context) :

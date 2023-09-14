@@ -133,26 +133,33 @@ void BindViewDescriptorSets::compile(Context& context)
 
 void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
-    commandBuffer.viewDependentState->bindDescriptorSets(commandBuffer, pipelineBindPoint, layout->vk(commandBuffer.deviceID), firstSet);
+    if (commandBuffer.viewDependentState)
+    {
+        commandBuffer.viewDependentState->bindDescriptorSets(commandBuffer, pipelineBindPoint, layout->vk(commandBuffer.deviceID), firstSet);
+    }
 }
 
 //////////////////////////////////////
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(View* in_view, uint32_t maxNumberLights, uint32_t maxViewports, uint32_t maxShadowMaps) :
-    view(in_view)
+ViewDependentState::ViewDependentState(View* in_view, bool in_active) :
+    view(in_view),
+    active(in_active)
 {
-    init(maxNumberLights, maxViewports, maxShadowMaps);
 }
 
 ViewDependentState::~ViewDependentState()
 {
 }
 
-void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, uint32_t maxShadowMaps)
+void ViewDependentState::init(ResourceRequirements& requirements)
 {
-    // info("ViewDependentState::init(", maxNumberLights, ", ", maxViewports, ") ", this);
+    uint32_t maxNumberLights = 64;
+    uint32_t maxViewports = 1;
+    uint32_t maxShadowMaps = 8;
+
+    info("ViewDependentState::init() ", maxNumberLights, ", ", maxViewports, ", this = ", this, ", acrive = ", active);
 
     lightData = vec4Array::create(maxNumberLights);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
@@ -187,7 +194,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
     descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
-
+#if 0
     for (uint32_t k = 0; k < shadowMapData->depth(); ++k)
     {
         for (uint32_t j = 0; j < shadowMapData->height(); ++j)
@@ -199,6 +206,9 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
             }
         }
     }
+#endif
+    // if not active then don't enable shadow maps
+    if (!active) return;
 
     // create a switch to toggle on/off the render to texture subgraphs for each shadowmap layer
     preRenderSwitch = Switch::create();
@@ -224,6 +234,7 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
             first_view = View::create(false);
             shadowMap.view = first_view;
         }
+
         shadowMap.view->mask = shadowMask;
         shadowMap.view->camera = Camera::create();
         shadowMap.view->addChild(tcon);
@@ -236,11 +247,179 @@ void ViewDependentState::init(uint32_t maxNumberLights, uint32_t maxViewports, u
     //vsg::write(shadowMapData, "test.vsgt");
 }
 
+vsg::ref_ptr<vsg::Image> createShadowImage(vsg::Context& context, uint32_t width, uint32_t height, uint32_t levels, VkFormat format, VkImageUsageFlags usage)
+{
+    auto image = vsg::Image::create();
+    image->imageType = VK_IMAGE_TYPE_2D;
+    image->format = format;
+    image->extent = VkExtent3D{width, height, 1};
+    image->mipLevels = 1;
+    image->arrayLayers = levels;
+    image->samples = VK_SAMPLE_COUNT_1_BIT;
+    image->tiling = VK_IMAGE_TILING_OPTIMAL;
+    image->usage = usage;
+    image->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    image->flags = 0;
+    image->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    // allocte vkImage and required memory
+    image->compile(context);
+
+    return image;
+}
+
 void ViewDependentState::compile(Context& context)
 {
-    info("ViewDependentState::compile()", this);
+    info("ViewDependentState::compile( ", &context, " ) ", this);
 
     descriptorSet->compile(context);
+
+    if (active && preRenderCommandGraph && !preRenderCommandGraph->device)
+    {
+
+        preRenderCommandGraph->device = context.device;
+
+        auto& resourceRequirements = context.resourceRequirements;
+        auto& viewDetails = resourceRequirements.views[view];
+        info("   assigning device to preCommandGraph ", preRenderCommandGraph->device);
+        info("   assigning device to preRenderCommandGraph->queueFamily =  ", preRenderCommandGraph->queueFamily);
+        info("   resourceRequirements.numLightsRange = ", resourceRequirements.numLightsRange);
+        info("   resourceRequirements.numShadowMapsRange = ", resourceRequirements.numShadowMapsRange);
+        info("   resourceRequirements.shadowMapSize = ", resourceRequirements.shadowMapSize);
+        info("   viewDetails.indices.size() = ", viewDetails.indices.size());
+        info("   viewDetails.bins.size() = ", viewDetails.bins.size());
+        info("   viewDetails.lights.size() = ", viewDetails.lights.size());
+        info("   resourceRequirements.numLightsRange = ", resourceRequirements.numLightsRange);
+        info("   resourceRequirements.numShadowMapsRange = ", resourceRequirements.numShadowMapsRange);
+
+        // TODO
+        preRenderCommandGraph->queueFamily = 0;
+
+        VkExtent2D extent{2048, 2048};
+        uint32_t numLayers = shadowMaps.size();
+
+        shadowColorImage = createShadowImage(context, extent.width, extent.height, numLayers, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+
+        shadowDepthImage = createShadowImage(context, extent.width, extent.height, numLayers, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+        shadowColorImage->compile(context);
+        shadowDepthImage->compile(context);
+
+        uint32_t layer = 0;
+        for(auto& shadowMap : shadowMaps)
+        {
+            auto colorImageView = vsg::ImageView::create(shadowColorImage, VK_IMAGE_ASPECT_COLOR_BIT);
+            colorImageView->subresourceRange.baseArrayLayer = layer;
+            colorImageView->subresourceRange.layerCount = 1;
+            colorImageView->compile(context);
+
+            // Sampler for accessing attachment as a texture
+            auto colorSampler = vsg::Sampler::create();
+            colorSampler->flags = 0;
+            colorSampler->magFilter = VK_FILTER_LINEAR;
+            colorSampler->minFilter = VK_FILTER_LINEAR;
+            colorSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            colorSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            colorSampler->addressModeV = colorSampler->addressModeU;
+            colorSampler->addressModeW = colorSampler->addressModeU;
+            colorSampler->mipLodBias = 0.0f;
+            colorSampler->maxAnisotropy = 1.0f;
+            colorSampler->minLod = 0.0f;
+            colorSampler->maxLod = 1.0f;
+            colorSampler->borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+            auto colorImageInfo = ImageInfo::create();
+            colorImageInfo->imageView = colorImageView;
+            colorImageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            colorImageInfo->sampler = colorSampler;
+
+            // create depth buffer
+
+            auto depthImageView = vsg::ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+            depthImageView->subresourceRange.baseArrayLayer = layer;
+            depthImageView->subresourceRange.layerCount = 1;
+            depthImageView->compile(context);
+
+            auto depthImageInfo = ImageInfo::create();
+            depthImageInfo->sampler = nullptr;
+            depthImageInfo->imageView = depthImageView;
+            depthImageInfo->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+            // attachment descriptions
+            vsg::RenderPass::Attachments attachments(2);
+            // Color attachment
+            attachments[0].format = shadowColorImage->format;
+            attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+            attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            // Depth attachment
+            attachments[1].format = shadowDepthImage->format;
+            attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
+            attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+            vsg::AttachmentReference colorReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+            vsg::AttachmentReference depthReference = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+            vsg::RenderPass::Subpasses subpassDescription(1);
+            subpassDescription[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            subpassDescription[0].colorAttachments.emplace_back(colorReference);
+            subpassDescription[0].depthStencilAttachments.emplace_back(depthReference);
+
+            vsg::RenderPass::Dependencies dependencies(2);
+
+            // XXX This dependency is copied from the offscreenrender.cpp
+            // example. I don't completely understand it, but I think its
+            // purpose is to create a barrier if some earlier render pass was
+            // using this framebuffer's attachment as a texture.
+            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[0].dstSubpass = 0;
+            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+            // This is the heart of what makes Vulkan offscreen rendering
+            // work: render passes that follow are blocked from using this
+            // passes' color attachment in their fragment shaders until all
+            // this pass' color writes are finished.
+            dependencies[1].srcSubpass = 0;
+            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+            auto renderPass = vsg::RenderPass::create(context.device, attachments, subpassDescription, dependencies);
+
+            // Framebuffer
+            auto fbuf = vsg::Framebuffer::create(renderPass, vsg::ImageViews{colorImageInfo->imageView, depthImageInfo->imageView}, extent.width, extent.height, 1);
+
+            auto rendergraph = shadowMap.renderGraph;
+            rendergraph->renderArea.offset = VkOffset2D{0, 0};
+            rendergraph->renderArea.extent = extent;
+            rendergraph->framebuffer = fbuf;
+
+            rendergraph->clearValues.resize(2);
+            rendergraph->clearValues[0].color = {{0.4f, 0.2f, 0.4f, 1.0f}};
+            rendergraph->clearValues[1].depthStencil = VkClearDepthStencilValue{0.0f, 0};
+
+            // assign to ShadowMap struct
+            shadowMap.colorImageInfo = colorImageInfo;
+            shadowMap.depthImageInfo = depthImageInfo;
+
+            ++layer;
+        }
+    }
 }
 
 void ViewDependentState::clear()
@@ -258,6 +437,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 {
     bool requiresPerRenderShadowMaps = false;
     preRenderSwitch->setAllChildren(false);
+
+    return;
 
 #if 1
     // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps

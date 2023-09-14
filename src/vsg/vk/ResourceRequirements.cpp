@@ -251,6 +251,8 @@ void CollectResourceRequirements::apply(const View& view)
 
         vsg::info("CollectResourceRequirements::apply(const View& view) about to collect stats from ", view.viewDependentState);
 
+        view.viewDependentState->init(requirements);
+
         view.viewDependentState->accept(*this);
 
         vsg::info("CollectResourceRequirements::apply(const View& view) after collecting stats from ", view.viewDependentState);

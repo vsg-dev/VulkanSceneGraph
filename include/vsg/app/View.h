@@ -26,12 +26,12 @@ namespace vsg
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
     public:
-        View(bool assignViewDependentState = true);
+        View(bool activeViewDependentState = true);
 
         // share the specified view's children, viewID, mask and camera ViewportState
         View(const View& view);
 
-        explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {}, bool assignViewDependentState = true);
+        explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {}, bool activeViewDependentState = true);
 
         template<class N, class V>
         static void t_accept(N& node, V& visitor)

@@ -486,7 +486,14 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     if (recordedCommandBuffers)
     {
         auto cg = const_cast<CommandGraph*>(&commandGraph);
-        cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
+        if (cg->device)
+        {
+            cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
+        }
+        else
+        {
+            warn("RecordTraversal::apply(const CommandGraph& commandGraph) cannot traverse as commandGraph->device = ", cg->device);
+        }
     }
     else
     {
