@@ -435,12 +435,11 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt) const
 {
+    if (!active || !preRenderSwitch) return;
+
     bool requiresPerRenderShadowMaps = false;
     preRenderSwitch->setAllChildren(false);
 
-    return;
-
-#if 1
     // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
     // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231
     // sampler2DArrayShadow
@@ -506,6 +505,54 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0 - lambda);
         };
 
+        auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
+
+            auto& shadowMap = shadowMaps[shadowMapIndex];
+            preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
+
+            auto& camera = shadowMap.view->camera;
+            auto lookAt = camera->viewMatrix.cast<LookAt>();
+            auto ortho = camera->projectionMatrix.cast<Orthographic>();
+
+            info("   lookAt = ", lookAt);
+            info("   ortho = ", ortho);
+
+            auto ws_bounds = computeFrustumBounds(clip_near_z, clip_far_z, clipToWorld);
+            auto center = (ws_bounds.min + ws_bounds.max) * 0.5;
+
+            if (!lookAt)
+            {
+                lookAt = vsg::LookAt::create(center, center + light_z, light_y);
+                camera->viewMatrix = lookAt;
+            }
+            else
+            {
+                lookAt->eye = center;
+                lookAt->center = center + light_z;
+                lookAt->up = light_y;
+            }
+
+            auto ls_bounds = computeFrustumBounds(clip_near_z, clip_far_z, lookAt->transform() * clipToWorld);
+            if (!ortho)
+            {
+                ortho = Orthographic::create(ls_bounds.min.x, ls_bounds.max.x,
+                                            ls_bounds.min.y, ls_bounds.max.y,
+                                            ls_bounds.min.z, ls_bounds.max.z);
+                camera->projectionMatrix = ortho;
+            }
+            else
+            {
+                ortho->left = ls_bounds.min.x;
+                ortho->right = ls_bounds.max.x;
+                ortho->bottom = ls_bounds.min.y;
+                ortho->top = ls_bounds.max.y;
+                ortho->nearDistance = ls_bounds.min.z;
+                ortho->farDistance = ls_bounds.max.z;
+            }
+
+            shadowMapIndex++;
+        };
+
         info("     light_x = ", light_x);
         info("     light_y = ", light_y);
         info("     light_z = ", light_z);
@@ -548,47 +595,14 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
                 auto clip_near = projectionMatrix * eye_near;
                 auto clip_far = projectionMatrix * eye_far;
 
-                auto ws_bounds = computeFrustumBounds(clip_near.z, clip_far.z, clipToWorld);
-
-                auto center = (ws_bounds.min + ws_bounds.max) * 0.5;
-
-                auto ls_viewMatrix = vsg::LookAt::create(center, center + light_z, light_y);
-
-                auto ls_bounds = computeFrustumBounds(clip_near.z, clip_far.z, ls_viewMatrix->transform() * clipToWorld);
-
-                auto ls_projMatrix = Orthographic::create(ls_bounds.min.x, ls_bounds.max.x,
-                                                          ls_bounds.min.y, ls_bounds.max.y,
-                                                          ls_bounds.min.z, ls_bounds.max.z);
-
-                info("    ls_viewMatrix->eye = ", ls_viewMatrix->eye);
-                info("    ls_viewMatrix->center = ", ls_viewMatrix->center);
-                info("    ls_viewMatrix->up = ", ls_viewMatrix->up);
-
-                info("    ls_viewMatrix = ", ls_viewMatrix->transform());
-                info("    ls_projMatrix = ", ls_projMatrix->transform());
-
-                auto& shadowMap = shadowMaps[shadowMapIndex];
-                preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
-                shadowMapIndex++;
-
-                auto& camera = shadowMap.view->camera;
-                info("    need to set camera ", camera);
+                updateCamera(clip_near.z, clip_far.z, clipToWorld);
             }
         }
         else
         {
-            auto ls_bounds = computeFrustumBounds(1.0, 0.0, clipToWorld);
-            info("    ls_bounds = ", ls_bounds);
-
-            auto& shadowMap = shadowMaps[shadowMapIndex];
-            preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
-            shadowMapIndex++;
-
-            auto& camera = shadowMap.view->camera;
-            info("    need to set camera ", camera);
+            updateCamera(1.0, 0.0, clipToWorld);
         }
     }
-#endif
 
 #if 1
     for (auto& [mv, light] : pointLights)
