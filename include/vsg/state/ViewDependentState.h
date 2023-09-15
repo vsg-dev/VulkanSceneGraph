@@ -109,8 +109,6 @@ namespace vsg
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
-            info(__PRETTY_FUNCTION__, " visitor = ", visitor.className());
-
             node.descriptorSet->accept(visitor);
             if (node.preRenderCommandGraph) node.preRenderCommandGraph->accept(visitor );
         }
