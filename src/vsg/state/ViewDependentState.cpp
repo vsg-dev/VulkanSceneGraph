@@ -270,8 +270,6 @@ vsg::ref_ptr<vsg::Image> createShadowImage(vsg::Context& context, uint32_t width
 
 void ViewDependentState::compile(Context& context)
 {
-    info("ViewDependentState::compile( ", &context, " ) ", this);
-
     descriptorSet->compile(context);
 
     if (active && preRenderCommandGraph && !preRenderCommandGraph->device)
@@ -281,25 +279,14 @@ void ViewDependentState::compile(Context& context)
 
         auto& resourceRequirements = context.resourceRequirements;
         auto& viewDetails = resourceRequirements.views[view];
-        info("   assigning device to preCommandGraph ", preRenderCommandGraph->device);
-        info("   assigning device to preRenderCommandGraph->queueFamily =  ", preRenderCommandGraph->queueFamily);
-        info("   resourceRequirements.numLightsRange = ", resourceRequirements.numLightsRange);
-        info("   resourceRequirements.numShadowMapsRange = ", resourceRequirements.numShadowMapsRange);
-        info("   resourceRequirements.shadowMapSize = ", resourceRequirements.shadowMapSize);
-        info("   viewDetails.indices.size() = ", viewDetails.indices.size());
-        info("   viewDetails.bins.size() = ", viewDetails.bins.size());
-        info("   viewDetails.lights.size() = ", viewDetails.lights.size());
-        info("   resourceRequirements.numLightsRange = ", resourceRequirements.numLightsRange);
-        info("   resourceRequirements.numShadowMapsRange = ", resourceRequirements.numShadowMapsRange);
 
         // TODO
         preRenderCommandGraph->queueFamily = 0;
 
         VkExtent2D extent{2048, 2048};
-        uint32_t numLayers = shadowMaps.size();
+        uint32_t numLayers = static_cast<uint32_t>(shadowMaps.size());
 
         shadowColorImage = createShadowImage(context, extent.width, extent.height, numLayers, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-
         shadowDepthImage = createShadowImage(context, extent.width, extent.height, numLayers, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
         shadowColorImage->compile(context);

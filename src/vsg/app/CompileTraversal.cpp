@@ -307,8 +307,6 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
 void CompileTraversal::apply(View& view)
 {
-    info("CompileTraversal::apply(View& ", &view, ") START ", this, ", contexts.size() = ", contexts.size());
-
     for (auto& context : contexts)
     {
         // if context is associated with a view make sure we only apply it if it matches with view, otherwise we skip this context
@@ -325,24 +323,16 @@ void CompileTraversal::apply(View& view)
         context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
 
-        info("   A ");
-
         if (view.viewDependentState)
         {
             view.viewDependentState->compile(*context);
         }
 
-        info("   B ");
-
         // assign view specific pipeline states
         if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
         mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, view.overridePipelineStates);
 
-        info("   C view->children.size() = ", view.children.size());
-
         view.traverse(*this);
-
-        info("   D ");
 
         // restore previous states
         context->viewID = previous_viewID;
@@ -351,10 +341,7 @@ void CompileTraversal::apply(View& view)
         context->overridePipelineStates = previous_overridePipelineStates;
     }
 
-    info("   E ");
-
     if (view.viewDependentState) view.viewDependentState->accept(*this);
-    info("CompileTraversal::apply(View& ", &view, ") END ", this, "\n");
 }
 
 bool CompileTraversal::record()
