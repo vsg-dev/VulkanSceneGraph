@@ -101,7 +101,7 @@ void View::share(const View& view)
     if (viewID != view.viewID)
     {
         releaseViewID(viewID);
-        const_cast<uint32_t&>(viewID) = sharedViewID(view.viewID);
+        viewID = sharedViewID(view.viewID);
     }
 
     mask = view.mask;
