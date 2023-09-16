@@ -360,7 +360,7 @@ VkResult TransferTask::transferDynamicData()
 
     if (!semaphore)
     {
-        semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_TRANSFER_BIT);
+        semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     }
 
     VkResult result = VK_SUCCESS;
@@ -395,7 +395,7 @@ VkResult TransferTask::transferDynamicData()
 
     vkEndCommandBuffer(vk_commandBuffer);
 
-    // if no regions to copy have been found then commandBuffer will be empty so no need to submit it to queue and use the associated single semaphore
+    // if no regions to copy have been found then commandBuffer will be empty so no need to submit it to queue and signal the associated semaphore
     if (offset > 0)
     {
         // submit the transfer commands
