@@ -27,13 +27,13 @@ using namespace vsg;
 //
 namespace vsg
 {
-    class TraverseChildrenOfNode : public vsg::Inherit<vsg::Node, TraverseChildrenOfNode>
+    class TraverseChildrenOfNode : public Inherit<Node, TraverseChildrenOfNode>
     {
     public:
-        explicit TraverseChildrenOfNode(vsg::Node* in_node) :
+        explicit TraverseChildrenOfNode(Node* in_node) :
             node(in_node) {}
 
-        vsg::observer_ptr<vsg::Node> node;
+        observer_ptr<Node> node;
 
         template<class N, class V>
         static void t_traverse(N& in_node, V& visitor)
@@ -45,7 +45,7 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
     };
-    VSG_type_name(vsg::TraverseChildrenOfNode);
+    VSG_type_name(TraverseChildrenOfNode);
 } // namespace vsg
 
 //////////////////////////////////////
@@ -153,6 +153,24 @@ ViewDependentState::~ViewDependentState()
 {
 }
 
+ref_ptr<Image> createShadowImage(uint32_t width, uint32_t height, uint32_t levels, VkFormat format, VkImageUsageFlags usage)
+{
+    auto image = Image::create();
+    image->imageType = VK_IMAGE_TYPE_2D;
+    image->format = format;
+    image->extent = VkExtent3D{width, height, 1};
+    image->mipLevels = 1;
+    image->arrayLayers = levels;
+    image->samples = VK_SAMPLE_COUNT_1_BIT;
+    image->tiling = VK_IMAGE_TILING_OPTIMAL;
+    image->usage = usage;
+    image->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    image->flags = 0;
+    image->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    return image;
+}
+
 void ViewDependentState::init(ResourceRequirements& requirements)
 {
     // check if ViewDependentState has already been initialized
@@ -160,6 +178,9 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     uint32_t maxNumberLights = 64;
     uint32_t maxViewports = 1;
+
+    uint32_t shadowWidth = 2048;
+    uint32_t shadowHeight = 2048;
     uint32_t maxShadowMaps = 8;
 
     info("ViewDependentState::init() ", maxNumberLights, ", ", maxViewports, ", this = ", this, ", active = ", active);
@@ -175,19 +196,25 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
 
     // set up ShadowMaps
-    auto shadwoMapSampler = vsg::Sampler::create();
-    shadwoMapSampler->minFilter = VK_FILTER_NEAREST;
-    shadwoMapSampler->magFilter = VK_FILTER_NEAREST;
-    shadwoMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadwoMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadwoMapSampler->anisotropyEnable = VK_FALSE;
-    shadwoMapSampler->maxAnisotropy = 1;
-    shadwoMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    auto shadowMapSampler = Sampler::create();
+    shadowMapSampler->minFilter = VK_FILTER_NEAREST;
+    shadowMapSampler->magFilter = VK_FILTER_NEAREST;
+    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->anisotropyEnable = VK_FALSE;
+    shadowMapSampler->maxAnisotropy = 1;
+    shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
 
-    // image->imageType = VK_IMAGE_TYPE_2D or VK_IMAGE_TYPE_3D?
-    // imageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY
-    shadowMapData = floatArray3D::create(2048, 2048, maxShadowMaps, vsg::Data::Properties{VK_FORMAT_R32_SFLOAT});
-    shadowMapImages = DescriptorImage::create(shadwoMapSampler, shadowMapData, 2);
+    shadowColorImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+    shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+
+    auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+    depthImageView->subresourceRange.baseArrayLayer = 0;
+    depthImageView->subresourceRange.layerCount = maxShadowMaps;
+
+    auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_GENERAL);
+
+    shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
 
     DescriptorSetLayoutBindings descriptorBindings{
         VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
@@ -197,19 +224,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
     descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
-#if 0
-    for (uint32_t k = 0; k < shadowMapData->depth(); ++k)
-    {
-        for (uint32_t j = 0; j < shadowMapData->height(); ++j)
-        {
-            float* data = shadowMapData->data(shadowMapData->index(0, j, k));
-            for (uint32_t i = 0; i < shadowMapData->width(); ++i)
-            {
-                *(data++) = static_cast<float>(sin(vsg::PI * static_cast<double>(i) / static_cast<double>(shadowMapData->width() - 1)));
-            }
-        }
-    }
-#endif
+
     // if not active then don't enable shadow maps
     if (!active) return;
 
@@ -247,29 +262,9 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         preRenderSwitch->addChild(MASK_ALL, shadowMap.renderGraph);
     }
 
-    //vsg::write(shadowMapData, "test.vsgt");
+    //write(shadowMapData, "test.vsgt");
 }
 
-vsg::ref_ptr<vsg::Image> createShadowImage(vsg::Context& context, uint32_t width, uint32_t height, uint32_t levels, VkFormat format, VkImageUsageFlags usage)
-{
-    auto image = vsg::Image::create();
-    image->imageType = VK_IMAGE_TYPE_2D;
-    image->format = format;
-    image->extent = VkExtent3D{width, height, 1};
-    image->mipLevels = 1;
-    image->arrayLayers = levels;
-    image->samples = VK_SAMPLE_COUNT_1_BIT;
-    image->tiling = VK_IMAGE_TILING_OPTIMAL;
-    image->usage = usage;
-    image->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    image->flags = 0;
-    image->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    // allocte vkImage and required memory
-    image->compile(context);
-
-    return image;
-}
 
 void ViewDependentState::compile(Context& context)
 {
@@ -286,11 +281,7 @@ void ViewDependentState::compile(Context& context)
         // TODO
         preRenderCommandGraph->queueFamily = 0;
 
-        VkExtent2D extent{2048, 2048};
-        uint32_t numLayers = static_cast<uint32_t>(shadowMaps.size());
-
-        shadowColorImage = createShadowImage(context, extent.width, extent.height, numLayers, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-        shadowDepthImage = createShadowImage(context, extent.width, extent.height, numLayers, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+        auto extent = shadowDepthImage->extent;
 
         shadowColorImage->compile(context);
         shadowDepthImage->compile(context);
@@ -298,45 +289,19 @@ void ViewDependentState::compile(Context& context)
         uint32_t layer = 0;
         for(auto& shadowMap : shadowMaps)
         {
-            auto colorImageView = vsg::ImageView::create(shadowColorImage, VK_IMAGE_ASPECT_COLOR_BIT);
+            auto colorImageView = ImageView::create(shadowColorImage, VK_IMAGE_ASPECT_COLOR_BIT);
             colorImageView->subresourceRange.baseArrayLayer = layer;
             colorImageView->subresourceRange.layerCount = 1;
             colorImageView->compile(context);
 
-            // Sampler for accessing attachment as a texture
-            auto colorSampler = vsg::Sampler::create();
-            colorSampler->flags = 0;
-            colorSampler->magFilter = VK_FILTER_LINEAR;
-            colorSampler->minFilter = VK_FILTER_LINEAR;
-            colorSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-            colorSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-            colorSampler->addressModeV = colorSampler->addressModeU;
-            colorSampler->addressModeW = colorSampler->addressModeU;
-            colorSampler->mipLodBias = 0.0f;
-            colorSampler->maxAnisotropy = 1.0f;
-            colorSampler->minLod = 0.0f;
-            colorSampler->maxLod = 1.0f;
-            colorSampler->borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-
-            auto colorImageInfo = ImageInfo::create();
-            colorImageInfo->imageView = colorImageView;
-            colorImageInfo->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            colorImageInfo->sampler = colorSampler;
-
             // create depth buffer
-
-            auto depthImageView = vsg::ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+            auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
             depthImageView->subresourceRange.baseArrayLayer = layer;
             depthImageView->subresourceRange.layerCount = 1;
             depthImageView->compile(context);
 
-            auto depthImageInfo = ImageInfo::create();
-            depthImageInfo->sampler = nullptr;
-            depthImageInfo->imageView = depthImageView;
-            depthImageInfo->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
             // attachment descriptions
-            vsg::RenderPass::Attachments attachments(2);
+            RenderPass::Attachments attachments(2);
             // Color attachment
             attachments[0].format = shadowColorImage->format;
             attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -356,14 +321,14 @@ void ViewDependentState::compile(Context& context)
             attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            vsg::AttachmentReference colorReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
-            vsg::AttachmentReference depthReference = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
-            vsg::RenderPass::Subpasses subpassDescription(1);
+            AttachmentReference colorReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+            AttachmentReference depthReference = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+            RenderPass::Subpasses subpassDescription(1);
             subpassDescription[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
             subpassDescription[0].colorAttachments.emplace_back(colorReference);
             subpassDescription[0].depthStencilAttachments.emplace_back(depthReference);
 
-            vsg::RenderPass::Dependencies dependencies(2);
+            RenderPass::Dependencies dependencies(2);
 
             // XXX This dependency is copied from the offscreenrender.cpp
             // example. I don't completely understand it, but I think its
@@ -389,23 +354,19 @@ void ViewDependentState::compile(Context& context)
             dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
             dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-            auto renderPass = vsg::RenderPass::create(context.device, attachments, subpassDescription, dependencies);
+            auto renderPass = RenderPass::create(context.device, attachments, subpassDescription, dependencies);
 
             // Framebuffer
-            auto fbuf = vsg::Framebuffer::create(renderPass, vsg::ImageViews{colorImageInfo->imageView, depthImageInfo->imageView}, extent.width, extent.height, 1);
+            auto fbuf = Framebuffer::create(renderPass, ImageViews{colorImageView, depthImageView}, extent.width, extent.height, 1);
 
             auto rendergraph = shadowMap.renderGraph;
             rendergraph->renderArea.offset = VkOffset2D{0, 0};
-            rendergraph->renderArea.extent = extent;
+            rendergraph->renderArea.extent = VkExtent2D{extent.width, extent.height};
             rendergraph->framebuffer = fbuf;
 
             rendergraph->clearValues.resize(2);
             rendergraph->clearValues[0].color = {{0.4f, 0.2f, 0.4f, 1.0f}};
             rendergraph->clearValues[1].depthStencil = VkClearDepthStencilValue{0.0f, 0};
-
-            // assign to ShadowMap struct
-            shadowMap.colorImageInfo = colorImageInfo;
-            shadowMap.depthImageInfo = depthImageInfo;
 
             ++layer;
         }
@@ -512,7 +473,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             if (!lookAt)
             {
-                lookAt = vsg::LookAt::create(center, center + light_z, light_y);
+                lookAt = LookAt::create(center, center + light_z, light_y);
                 camera->viewMatrix = lookAt;
             }
             else
