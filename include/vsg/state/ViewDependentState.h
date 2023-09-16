@@ -140,6 +140,7 @@ namespace vsg
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
 
+        ref_ptr<Image> shadowDepthImage;
         ref_ptr<DescriptorImage> shadowMapImages;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
@@ -149,9 +150,6 @@ namespace vsg
         // Shadow backend.
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
-
-        ref_ptr<Image> shadowColorImage;
-        ref_ptr<Image> shadowDepthImage;
 
         struct ShadowMap
         {

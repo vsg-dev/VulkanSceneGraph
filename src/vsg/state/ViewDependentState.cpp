@@ -205,7 +205,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     shadowMapSampler->maxAnisotropy = 1;
     shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
 
-    shadowColorImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
     shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
     auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -283,17 +282,11 @@ void ViewDependentState::compile(Context& context)
 
         auto extent = shadowDepthImage->extent;
 
-        shadowColorImage->compile(context);
         shadowDepthImage->compile(context);
 
         uint32_t layer = 0;
         for(auto& shadowMap : shadowMaps)
         {
-            auto colorImageView = ImageView::create(shadowColorImage, VK_IMAGE_ASPECT_COLOR_BIT);
-            colorImageView->subresourceRange.baseArrayLayer = layer;
-            colorImageView->subresourceRange.layerCount = 1;
-            colorImageView->compile(context);
-
             // create depth buffer
             auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
             depthImageView->subresourceRange.baseArrayLayer = layer;
@@ -301,31 +294,20 @@ void ViewDependentState::compile(Context& context)
             depthImageView->compile(context);
 
             // attachment descriptions
-            RenderPass::Attachments attachments(2);
-            // Color attachment
-            attachments[0].format = shadowColorImage->format;
+            RenderPass::Attachments attachments(1);
+            // Depth attachment
+            attachments[0].format = shadowDepthImage->format;
             attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
             attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attachments[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            // Depth attachment
-            attachments[1].format = shadowDepthImage->format;
-            attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-            attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-            AttachmentReference colorReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
-            AttachmentReference depthReference = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+            AttachmentReference depthReference = {0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
             RenderPass::Subpasses subpassDescription(1);
             subpassDescription[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-            subpassDescription[0].colorAttachments.emplace_back(colorReference);
             subpassDescription[0].depthStencilAttachments.emplace_back(depthReference);
 
             RenderPass::Dependencies dependencies(2);
@@ -357,16 +339,15 @@ void ViewDependentState::compile(Context& context)
             auto renderPass = RenderPass::create(context.device, attachments, subpassDescription, dependencies);
 
             // Framebuffer
-            auto fbuf = Framebuffer::create(renderPass, ImageViews{colorImageView, depthImageView}, extent.width, extent.height, 1);
+            auto fbuf = Framebuffer::create(renderPass, ImageViews{depthImageView}, extent.width, extent.height, 1);
 
             auto rendergraph = shadowMap.renderGraph;
             rendergraph->renderArea.offset = VkOffset2D{0, 0};
             rendergraph->renderArea.extent = VkExtent2D{extent.width, extent.height};
             rendergraph->framebuffer = fbuf;
 
-            rendergraph->clearValues.resize(2);
-            rendergraph->clearValues[0].color = {{0.4f, 0.2f, 0.4f, 1.0f}};
-            rendergraph->clearValues[1].depthStencil = VkClearDepthStencilValue{0.0f, 0};
+            rendergraph->clearValues.resize(1);
+            rendergraph->clearValues[0].depthStencil = VkClearDepthStencilValue{0.0f, 0};
 
             ++layer;
         }
@@ -396,7 +377,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // sampler2DArrayShadow
     // https://ogldev.org/www/tutorial42/tutorial42.html
 
-    info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ")");
+    // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ")");
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
 
@@ -417,12 +398,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse(viewMatrix))));
-
+#if 0
         info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
         info("      light->direction in model = ", light->direction);
         info("      view_direction in world = ", view_direction);
         info("      view_up in world = ", view_up);
-
+#endif
         auto light_x_direction = cross(light_direction, view_direction);
         auto light_x_up = cross(light_direction, view_up);
 
@@ -465,9 +446,10 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             auto lookAt = camera->viewMatrix.cast<LookAt>();
             auto ortho = camera->projectionMatrix.cast<Orthographic>();
 
+#if 0
             info("   lookAt = ", lookAt);
             info("   ortho = ", ortho);
-
+#endif
             auto ws_bounds = computeFrustumBounds(clip_near_z, clip_far_z, clipToWorld);
             auto center = (ws_bounds.min + ws_bounds.max) * 0.5;
 
@@ -504,9 +486,11 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             shadowMapIndex++;
         };
 
+#if 0
         info("     light_x = ", light_x);
         info("     light_y = ", light_y);
         info("     light_z = ", light_z);
+#endif
 
         auto clipToEye = inverse(projectionMatrix);
 
@@ -528,8 +512,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         }
 #    endif
         double range = f - n;
+#if 0
         info("    n = ", n, ", f = ", f, ", range = ", range);
-
+#endif
         auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
         uint32_t numShadowMapsForThisLight = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
@@ -573,12 +558,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // traverse pre render graph
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
     {
-        info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
+        // info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
         preRenderCommandGraph->accept(rt);
     }
     else
     {
-        info("ViewDependentState::traverse(RecordTraversal&) no need for pre render command graph.");
+        //  info("ViewDependentState::traverse(RecordTraversal&) no need for pre render command graph.");
     }
 }
 
