@@ -126,7 +126,6 @@ namespace vsg
         virtual void init(ResourceRequirements& requirements);
 
         virtual void clear();
-        virtual void pack();
         virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
 
         virtual void compile(Context& context);

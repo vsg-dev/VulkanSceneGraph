@@ -380,15 +380,67 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
 
-    info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
+    auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
+        dbox bounds;
+        bounds.add(clipToWorld * dvec3(-1.0, -1.0, n));
+        bounds.add(clipToWorld * dvec3(-1.0, 1.0, n));
+        bounds.add(clipToWorld * dvec3(1.0, -1.0, n));
+        bounds.add(clipToWorld * dvec3(1.0, 1.0, n));
+        bounds.add(clipToWorld * dvec3(-1.0, -1.0, f));
+        bounds.add(clipToWorld * dvec3(-1.0, 1.0, f));
+        bounds.add(clipToWorld * dvec3(1.0, -1.0, f));
+        bounds.add(clipToWorld * dvec3(1.0, 1.0, f));
+
+        return bounds;
+    };
+
+    auto Clog = [](double n, double f, double i, double m) -> double {
+        return n * std::pow((f / n), (i / m));
+    };
+
+    auto Cuniform = [](double n, double f, double i, double m) -> double {
+        return n + (f - n) * (i / m);
+    };
+
+    auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double {
+        return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0 - lambda);
+    };
+
+    //info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
+
+
+    // set up the light data
+    auto light_itr = lightData->begin();
+    lightData->dirty();
+
+    (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),
+                          static_cast<float>(directionalLights.size()),
+                          static_cast<float>(pointLights.size()),
+                          static_cast<float>(spotLights.size()));
+
+    // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
+
+    for (auto& entry : ambientLights)
+    {
+        auto light = entry.second;
+        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+    }
 
     for (auto& [mv, light] : directionalLights)
     {
-        info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
+        //info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
 
-        if (light->shadowMaps == 0) continue;
-        if (shadowMapIndex >= numShadowMaps) continue;
+        // assign basic direction light settings to light data
+        auto eye_direction = normalize(inverse_3x3(mv) * light->direction);
+        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+        (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
+        uint32_t activeNumShadowMaps = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
+        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
+
+        if (activeNumShadowMaps == 0) continue;
+
+        // set up shadow map rendering backend
         requiresPerRenderShadowMaps = true;
 
         // compute directional light space
@@ -414,32 +466,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto light_x = (length(light_x_direction) > length(light_x_up)) ? normalize(light_x_direction) : normalize(light_x_up);
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
-
-        auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
-            dbox bounds;
-            bounds.add(clipToWorld * dvec3(-1.0, -1.0, n));
-            bounds.add(clipToWorld * dvec3(-1.0, 1.0, n));
-            bounds.add(clipToWorld * dvec3(1.0, -1.0, n));
-            bounds.add(clipToWorld * dvec3(1.0, 1.0, n));
-            bounds.add(clipToWorld * dvec3(-1.0, -1.0, f));
-            bounds.add(clipToWorld * dvec3(-1.0, 1.0, f));
-            bounds.add(clipToWorld * dvec3(1.0, -1.0, f));
-            bounds.add(clipToWorld * dvec3(1.0, 1.0, f));
-
-            return bounds;
-        };
-
-        auto Clog = [](double n, double f, double i, double m) -> double {
-            return n * std::pow((f / n), (i / m));
-        };
-
-        auto Cuniform = [](double n, double f, double i, double m) -> double {
-            return n + (f - n) * (i / m);
-        };
-
-        auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double {
-            return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0 - lambda);
-        };
 
         auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
 
@@ -490,7 +516,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
             dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
-            info("    shadowMapIndex = ", shadowMapIndex, ", shadowMapTM = ", shadowMapTM);
+            // convert tex gen matrix to float matrix and assign to light data
+            mat4 m(shadowMapTM);
+            (*light_itr++).set(m(0,0), m(1,0), m(2,0), m(3,0));
+            (*light_itr++).set(m(0,1), m(1,1), m(2,1), m(3,1));
+            (*light_itr++).set(m(0,2), m(1,2), m(2,2), m(3,2));
+            (*light_itr++).set(m(0,3), m(1,3), m(2,3), m(3,3));
 
             // advance to the next shadowMap
             shadowMapIndex++;
@@ -527,12 +558,10 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 #endif
         auto clipToWorld = inverse(projectionMatrix * viewMatrix);
 
-        uint32_t numShadowMapsForThisLight = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
-
-        if (numShadowMapsForThisLight > 1)
+        if (activeNumShadowMaps > 1)
         {
             double lambda = 0.5;
-            double m = static_cast<double>(numShadowMapsForThisLight);
+            double m = static_cast<double>(activeNumShadowMaps);
             for (double i = 0; i < m; i += 1.0)
             {
                 dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
@@ -548,62 +577,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             updateCamera(1.0, 0.0, clipToWorld);
         }
-
-    }
-
-#if 1
-    for (auto& [mv, light] : pointLights)
-    {
-        auto eye_position = mv * light->position;
-        info("   positional light : position = ", eye_position, ", light->shadowMaps = ", light->shadowMaps);
-    }
-
-    for (auto& [mv, light] : spotLights)
-    {
-        auto eye_position = mv * light->position;
-        auto eye_direction1 = normalize(light->direction * inverse_3x3(mv));
-        info("   spot light : light->direction = ", light->direction, ", position = ", eye_position, ", direction = ", eye_direction1, ", light->shadowMaps = ", light->shadowMaps);
-    }
-#endif
-
-    // traverse pre render graph
-    if (requiresPerRenderShadowMaps && preRenderCommandGraph)
-    {
-        // info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
-        preRenderCommandGraph->accept(rt);
-    }
-    else
-    {
-        //  info("ViewDependentState::traverse(RecordTraversal&) no need for pre render command graph.");
-    }
-}
-
-void ViewDependentState::pack()
-{
-    //debug("ViewDependentState::pack() ambient ", ambientLights.size(), ", diffuse ", directionalLights.size(), ", point ", pointLights.size(), ", spot ", spotLights.size());
-
-    auto light_itr = lightData->begin();
-    lightData->dirty();
-
-    (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),
-                          static_cast<float>(directionalLights.size()),
-                          static_cast<float>(pointLights.size()),
-                          static_cast<float>(spotLights.size()));
-
-    // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
-
-    for (auto& entry : ambientLights)
-    {
-        auto light = entry.second;
-        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-    }
-
-    for (auto& [mv, light] : directionalLights)
-    {
-        auto eye_direction = normalize(inverse_3x3(mv) * light->direction);
-        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
-        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : pointLights)
@@ -611,7 +584,10 @@ void ViewDependentState::pack()
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
-        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
+
+        // shadow maps on point lights not yet supported so set to zero
+        uint32_t activeNumShadowMaps = 0;
+        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : spotLights)
@@ -623,14 +599,17 @@ void ViewDependentState::pack()
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
-        (*light_itr++).set(static_cast<float>(light->shadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
+
+        // shadow maps on spot lights not yet supported so set to zero
+        uint32_t activeNumShadowMaps = 0;
+        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
-#if 0
-    for(auto itr = lightData->begin(); itr != light_itr; ++itr)
+
+    if (requiresPerRenderShadowMaps && preRenderCommandGraph)
     {
-        debug("   ", *itr);
+        // info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
+        preRenderCommandGraph->accept(rt);
     }
-#endif
 }
 
 void ViewDependentState::bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet)
