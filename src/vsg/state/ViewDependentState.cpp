@@ -377,12 +377,15 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // sampler2DArrayShadow
     // https://ogldev.org/www/tutorial42/tutorial42.html
 
-    // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ")");
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
 
+    info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
+
     for (auto& [mv, light] : directionalLights)
     {
+        info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
+
         if (light->shadowMaps == 0) continue;
         if (shadowMapIndex >= numShadowMaps) continue;
 
@@ -391,13 +394,14 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         // compute directional light space
         auto projectionMatrix = view->camera->projectionMatrix->transform();
         auto viewMatrix = view->camera->viewMatrix->transform();
+        auto inverse_viewMatrix = inverse(viewMatrix);
 
         // view direction in world coords
         auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
         auto view_up = normalize(dvec3(0.0, -1.0, 0.0) * (projectionMatrix * viewMatrix));
 
         // light direction in world coords
-        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse(viewMatrix))));
+        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
 #if 0
         info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
         info("      light->direction in model = ", light->direction);
@@ -483,6 +487,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
                 ortho->farDistance = ls_bounds.max.z;
             }
 
+            dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
+
+            info("    shadowMapIndex = ", shadowMapIndex, ", shadowMapTM = ", shadowMapTM);
+
+            // advance to the next shadowMap
             shadowMapIndex++;
         };
 
@@ -497,7 +507,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
         auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
-#    if 1
+#    if 0
         // clamp the near and far values
         double maxShadowDistance = 1000.0;
         if (n > maxShadowDistance)
@@ -511,8 +521,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             f = maxShadowDistance;
         }
 #    endif
-        double range = f - n;
 #if 0
+        double range = f - n;
         info("    n = ", n, ", f = ", f, ", range = ", range);
 #endif
         auto clipToWorld = inverse(projectionMatrix * viewMatrix);
@@ -538,6 +548,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             updateCamera(1.0, 0.0, clipToWorld);
         }
+
     }
 
 #if 1
