@@ -147,6 +147,7 @@ namespace vsg
         ref_ptr<DescriptorSet> descriptorSet;
 
         // Shadow backend.
+        double maxShadowDistance = 1e8;
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
 

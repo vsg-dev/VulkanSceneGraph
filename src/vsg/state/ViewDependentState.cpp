@@ -559,9 +559,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
         auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
-#    if 0
         // clamp the near and far values
-        double maxShadowDistance = 1000.0;
         if (n > maxShadowDistance)
         {
             info("Oopps near is further than the maxShadowDistance!");
@@ -572,7 +570,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             f = maxShadowDistance;
         }
-#    endif
 #if 0
         double range = f - n;
         info("    n = ", n, ", f = ", f, ", range = ", range);
