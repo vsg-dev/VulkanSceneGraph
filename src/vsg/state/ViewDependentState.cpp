@@ -197,6 +197,18 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     // set up ShadowMaps
     auto shadowMapSampler = Sampler::create();
+#define HARDWARE_PCF 1
+#if HARDWARE_PCF == 1
+    shadowMapSampler->minFilter = VK_FILTER_NEAREST;
+    shadowMapSampler->magFilter = VK_FILTER_LINEAR;
+    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->anisotropyEnable = VK_FALSE;
+    shadowMapSampler->maxAnisotropy = 1;
+    shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    shadowMapSampler->compareEnable = VK_TRUE;
+    shadowMapSampler->compareOp = VK_COMPARE_OP_LESS;
+#else
     shadowMapSampler->minFilter = VK_FILTER_NEAREST;
     shadowMapSampler->magFilter = VK_FILTER_NEAREST;
     shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
@@ -204,6 +216,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     shadowMapSampler->anisotropyEnable = VK_FALSE;
     shadowMapSampler->maxAnisotropy = 1;
     shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+#endif
 
     shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
@@ -376,6 +389,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231
     // sampler2DArrayShadow
     // https://ogldev.org/www/tutorial42/tutorial42.html
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPipelineDepthStencilStateCreateInfo.html
+    // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkCmdSetDepthBoundsTestEnable.html
 
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
