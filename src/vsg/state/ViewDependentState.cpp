@@ -406,8 +406,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0 - lambda);
     };
 
-    //info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
-
+    // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
 
     // set up the light data
     auto light_itr = lightData->begin();
@@ -431,7 +430,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         //info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
 
         // assign basic direction light settings to light data
-        auto eye_direction = normalize(inverse_3x3(mv) * light->direction);
+        auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
@@ -514,14 +513,18 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             }
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
+
             dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
-            (*light_itr++).set(m(0,0), m(1,0), m(2,0), m(3,0));
-            (*light_itr++).set(m(0,1), m(1,1), m(2,1), m(3,1));
-            (*light_itr++).set(m(0,2), m(1,2), m(2,2), m(3,2));
-            (*light_itr++).set(m(0,3), m(1,3), m(2,3), m(3,3));
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
+
+            // info("m = ", m);
 
             // advance to the next shadowMap
             shadowMapIndex++;
