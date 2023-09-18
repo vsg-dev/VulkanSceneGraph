@@ -183,9 +183,11 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     uint32_t shadowHeight = 2048;
     uint32_t maxShadowMaps = 8;
 
-    info("ViewDependentState::init() ", maxNumberLights, ", ", maxViewports, ", this = ", this, ", active = ", active);
+    uint32_t lightDataSize = 4  + maxNumberLights * 16  + maxShadowMaps * 16;
 
-    lightData = vec4Array::create(maxNumberLights);
+    info("ViewDependentState::init() ", lightDataSize, ", ", maxViewports, ", this = ", this, ", active = ", active);
+
+    lightData = vec4Array::create(lightDataSize);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
 
@@ -223,6 +225,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
     depthImageView->subresourceRange.baseArrayLayer = 0;
     depthImageView->subresourceRange.layerCount = maxShadowMaps;
+    depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 
     auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_GENERAL);
 
