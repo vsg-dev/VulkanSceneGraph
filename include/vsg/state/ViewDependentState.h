@@ -146,8 +146,11 @@ namespace vsg
         ref_ptr<DescriptorBuffer> descriptor;
         ref_ptr<DescriptorSet> descriptorSet;
 
-        // Shadow backend.
+        // shadow map hints
         double maxShadowDistance = 1e8;
+        double shadowMapBias = 0.001;
+
+        // Shadow backend.
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
 
