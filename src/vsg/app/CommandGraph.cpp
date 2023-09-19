@@ -87,8 +87,6 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     }
     if (!commandBuffer)
     {
-        info("Allocating CommnadPool::create() for device = ", device, ", queueFamily = ", queueFamily);
-
         ref_ptr<CommandPool> cp = CommandPool::create(device, queueFamily);
         commandBuffer = cp->allocate(level());
         _commandBuffers.push_back(commandBuffer);

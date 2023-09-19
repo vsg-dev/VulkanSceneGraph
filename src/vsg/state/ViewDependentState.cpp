@@ -185,7 +185,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     uint32_t lightDataSize = 4  + maxNumberLights * 16  + maxShadowMaps * 16;
 
-    info("ViewDependentState::init() ", lightDataSize, ", ", maxViewports, ", this = ", this, ", active = ", active);
+    // info("ViewDependentState::init() ", lightDataSize, ", ", maxViewports, ", this = ", this, ", active = ", active);
 
     lightData = vec4Array::create(lightDataSize);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
