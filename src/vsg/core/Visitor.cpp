@@ -922,6 +922,10 @@ void Visitor::apply(AnimationPath& animationPath)
 {
     apply(static_cast<Object&>(animationPath));
 }
+void Visitor::apply(ShaderCompileSettings& shaderCompileSettings)
+{
+    apply(static_cast<Object&>(shaderCompileSettings));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

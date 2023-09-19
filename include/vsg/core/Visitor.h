@@ -130,6 +130,7 @@ namespace vsg
 
     // forward declare util classes
     class AnimationPath;
+    class ShaderCompileSettings;
 
     // forward declare viewer classes
     class Camera;
@@ -382,6 +383,7 @@ namespace vsg
 
         // utils
         virtual void apply(AnimationPath&);
+        virtual void apply(ShaderCompileSettings&);
 
         // viewer
         virtual void apply(Camera&);
