@@ -87,7 +87,7 @@ View::View(const View& view) :
 
     viewDependentState = ViewDependentState::create(this, view.viewDependentState->active);
 
-    info("View::View(const View&) ", this, ", ", viewDependentState, ", ", viewID);
+    // info("View::View(const View&) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
 View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph, bool activeViewDependentState) :
@@ -98,7 +98,7 @@ View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph, bool activeVi
 
     viewDependentState = ViewDependentState::create(this, activeViewDependentState);
 
-    info("View::View(ref_ptr<Camera> in_camera) ", this, ", ", viewDependentState, ", ", viewID);
+    // info("View::View(ref_ptr<Camera> in_camera) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
 View::~View()
