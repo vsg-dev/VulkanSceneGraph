@@ -75,6 +75,9 @@ void AnimationPath::read(Input& input)
 {
     vsg::Object::read(input);
 
+    if (input.version_greater_equal(1, 0, 10))
+        input.readValue<uint32_t>("mode", mode);
+    
     auto numLocations = input.readValue<uint32_t>("NumLocations");
 
     locations.clear();
@@ -93,6 +96,9 @@ void AnimationPath::read(Input& input)
 void AnimationPath::write(Output& output) const
 {
     vsg::Object::write(output);
+
+    if (output.version_greater_equal(1, 0, 10))
+        output.writeValue<uint32_t>("mode", mode);
 
     output.writeValue<uint32_t>("NumLocations", locations.size());
     for (auto& [time, location] : locations)
