@@ -602,10 +602,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto eye_position = mv * light->position;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
-
-        // shadow maps on point lights not yet supported so set to zero
-        uint32_t activeNumShadowMaps = 0;
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     for (auto& [mv, light] : spotLights)
@@ -617,10 +613,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
-
-        // shadow maps on spot lights not yet supported so set to zero
-        uint32_t activeNumShadowMaps = 0;
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
     }
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
