@@ -36,8 +36,6 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
 {
-    vsg::info("ResourceRequirements::ResourceRequirements(", hints, " ) ", this);
-
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     if (hints) apply(*hints);
 }
@@ -216,7 +214,6 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
 
 void CollectResourceRequirements::apply(const Light& light)
 {
-    vsg::info("CollectResourceRequirements::apply(", light.className(), ")");
     requirements.viewDetailsStack.top().lights.insert(&light);
 }
 
@@ -232,11 +229,7 @@ void CollectResourceRequirements::apply(const View& view)
         requirements.viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     }
 
-    vsg::info("CollectResourceRequirements::apply(const View& view) before traverse, this = ", this);
-
     view.traverse(*this);
-
-    vsg::info("CollectResourceRequirements::apply(const View& view) after traverse ");
 
     auto& viewDetails = requirements.viewDetailsStack.top();
 
@@ -249,19 +242,15 @@ void CollectResourceRequirements::apply(const View& view)
     {
         if (requirements.maxSlot < 2) requirements.maxSlot = 2;
 
-        vsg::info("CollectResourceRequirements::apply(const View& view) about to collect stats from ", view.viewDependentState);
+        view.viewDependentState->init(requirements);
 
         view.viewDependentState->accept(*this);
-
-        vsg::info("CollectResourceRequirements::apply(const View& view) after collecting stats from ", view.viewDependentState);
 
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
             numShadowMaps += light->shadowMaps;
         }
-
-        vsg::info("    viewDetails.lights.size() ", viewDetails.lights.size(), ", numShadowMaps = ", numShadowMaps);
     }
 
     requirements.views[&view] = viewDetails;

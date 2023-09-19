@@ -471,7 +471,6 @@ void RecordTraversal::apply(const View& view)
     if (_viewDependentState)
     {
         _viewDependentState->traverse(*this);
-        _viewDependentState->pack();
     }
 
     // swap back previous bin setup.
@@ -486,7 +485,14 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     if (recordedCommandBuffers)
     {
         auto cg = const_cast<CommandGraph*>(&commandGraph);
-        cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
+        if (cg->device)
+        {
+            cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
+        }
+        else
+        {
+            warn("RecordTraversal::apply(const CommandGraph& commandGraph) cannot traverse as commandGraph->device = ", cg->device);
+        }
     }
     else
     {

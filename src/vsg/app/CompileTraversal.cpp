@@ -322,7 +322,11 @@ void CompileTraversal::apply(View& view)
         context->viewID = view.viewID;
         context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
-        if (view.viewDependentState) view.viewDependentState->compile(*context);
+
+        if (view.viewDependentState)
+        {
+            view.viewDependentState->compile(*context);
+        }
 
         // assign view specific pipeline states
         if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
@@ -336,6 +340,8 @@ void CompileTraversal::apply(View& view)
         context->defaultPipelineStates = previous_defaultPipelineStates;
         context->overridePipelineStates = previous_overridePipelineStates;
     }
+
+    if (view.viewDependentState) view.viewDependentState->accept(*this);
 }
 
 bool CompileTraversal::record()
