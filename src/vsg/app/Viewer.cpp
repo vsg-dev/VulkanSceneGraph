@@ -485,7 +485,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         // get main queue used for RecordAndSubmitTask
         ref_ptr<Queue> mainQueue = device->getQueue(deviceQueueFamily.queueFamily);
 
-        // get presentat queue if required/supported
+        // get presentation queue if required/supported
         ref_ptr<Queue> presentQueue;
         if (deviceQueueFamily.presentFamily >= 0) presentQueue = device->getQueue(deviceQueueFamily.presentFamily);
 
