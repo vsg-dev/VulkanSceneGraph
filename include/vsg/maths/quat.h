@@ -98,7 +98,7 @@ namespace vsg
             if (len < epsilon)
             {
                 // ~zero length axis, so reset rotation to zero.
-                *this = {};
+                set(0, 0, 0, 1);
                 return;
             }
 
