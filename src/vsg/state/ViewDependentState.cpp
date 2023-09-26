@@ -227,14 +227,14 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     depthImageView->subresourceRange.baseArrayLayer = 0;
     depthImageView->subresourceRange.layerCount = maxShadowMaps;
 
-    auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_GENERAL);
+    auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
     shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
 
     DescriptorSetLayoutBindings descriptorBindings{
         VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
         VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
-        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // shadow map 2D texture array
     };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
@@ -321,7 +321,7 @@ void ViewDependentState::compile(Context& context)
             attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
             AttachmentReference depthReference = {0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
             RenderPass::Subpasses subpassDescription(1);
@@ -594,7 +594,13 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         }
         else
         {
-            updateCamera(1.0, 0.0, clipToWorld);
+            dvec3 eye_near(0.0, 0.0, -n);
+            dvec3 eye_far(0.0, 0.0, -f);
+
+            auto clip_near = projectionMatrix * eye_near;
+            auto clip_far = projectionMatrix * eye_far;
+
+            updateCamera(clip_near.z, clip_far.z, clipToWorld);
         }
     }
 
