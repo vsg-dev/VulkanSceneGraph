@@ -201,31 +201,31 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     auto shadowMapSampler = Sampler::create();
 #define HARDWARE_PCF 1
 #if HARDWARE_PCF == 1
-    shadowMapSampler->minFilter = VK_FILTER_NEAREST;
+    shadowMapSampler->minFilter = VK_FILTER_LINEAR;
     shadowMapSampler->magFilter = VK_FILTER_LINEAR;
+    shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->anisotropyEnable = VK_FALSE;
-    shadowMapSampler->maxAnisotropy = 1;
-    shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapSampler->compareEnable = VK_TRUE;
     shadowMapSampler->compareOp = VK_COMPARE_OP_LESS;
 #else
     shadowMapSampler->minFilter = VK_FILTER_NEAREST;
     shadowMapSampler->magFilter = VK_FILTER_NEAREST;
+    shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
     shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->anisotropyEnable = VK_FALSE;
-    shadowMapSampler->maxAnisotropy = 1;
-    shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #endif
 
     shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
     auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+    depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    depthImageView->subresourceRange.baseMipLevel = 0;
+    depthImageView->subresourceRange.levelCount = 1;
     depthImageView->subresourceRange.baseArrayLayer = 0;
     depthImageView->subresourceRange.layerCount = maxShadowMaps;
-    depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 
     auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_GENERAL);
 
@@ -304,6 +304,9 @@ void ViewDependentState::compile(Context& context)
         {
             // create depth buffer
             auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+            depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+            depthImageView->subresourceRange.baseMipLevel = 0;
+            depthImageView->subresourceRange.levelCount = 1;
             depthImageView->subresourceRange.baseArrayLayer = layer;
             depthImageView->subresourceRange.layerCount = 1;
             depthImageView->compile(context);
