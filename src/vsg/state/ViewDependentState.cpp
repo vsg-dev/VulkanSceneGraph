@@ -183,7 +183,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     uint32_t shadowHeight = 2048;
     uint32_t maxShadowMaps = 8;
 
-    uint32_t lightDataSize = 4  + maxNumberLights * 16  + maxShadowMaps * 16;
+    uint32_t lightDataSize = 4 + maxNumberLights * 16 + maxShadowMaps * 16;
 
     // info("ViewDependentState::init() ", lightDataSize, ", ", maxViewports, ", this = ", this, ", active = ", active);
 
@@ -280,7 +280,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     //write(shadowMapData, "test.vsgt");
 }
 
-
 void ViewDependentState::compile(Context& context)
 {
     descriptorSet->compile(context);
@@ -301,7 +300,7 @@ void ViewDependentState::compile(Context& context)
         shadowDepthImage->compile(context);
 
         uint32_t layer = 0;
-        for(auto& shadowMap : shadowMaps)
+        for (auto& shadowMap : shadowMaps)
         {
             // create depth buffer
             auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -485,7 +484,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto light_z = light_direction;
 
         auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
-
             auto& shadowMap = shadowMaps[shadowMapIndex];
             preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
 
@@ -516,8 +514,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             if (!ortho)
             {
                 ortho = Orthographic::create(ls_bounds.min.x, ls_bounds.max.x,
-                                            ls_bounds.min.y, ls_bounds.max.y,
-                                            ls_bounds.min.z, ls_bounds.max.z);
+                                             ls_bounds.min.y, ls_bounds.max.y,
+                                             ls_bounds.min.z, ls_bounds.max.z);
                 camera->projectionMatrix = ortho;
             }
             else

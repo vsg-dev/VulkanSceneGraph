@@ -84,7 +84,6 @@ View::View(const View& view) :
         camera->viewportState = view.camera->viewportState;
     }
 
-
     viewDependentState = ViewDependentState::create(this, view.viewDependentState->active);
 
     // info("View::View(const View&) ", this, ", ", viewDependentState, ", ", viewID);

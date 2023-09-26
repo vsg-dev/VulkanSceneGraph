@@ -136,8 +136,7 @@ namespace vsg
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
         void addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
 
-        [[deprecated("use addDescriptorBinding(..)")]]
-        void addUniformBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
+        [[deprecated("use addDescriptorBinding(..)")]] void addUniformBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
 
         /// add a push constant range. Not thread safe, should only be called when initially setting up the ShaderSet
         void addPushConstantRange(const std::string& name, const std::string& define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size);

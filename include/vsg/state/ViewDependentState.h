@@ -14,12 +14,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/io/Logger.h>
 
 namespace vsg
 {
@@ -110,7 +110,7 @@ namespace vsg
         static void t_traverse(N& node, V& visitor)
         {
             node.descriptorSet->accept(visitor);
-            if (node.preRenderCommandGraph) node.preRenderCommandGraph->accept(visitor );
+            if (node.preRenderCommandGraph) node.preRenderCommandGraph->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }

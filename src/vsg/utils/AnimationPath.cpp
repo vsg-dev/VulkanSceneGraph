@@ -77,7 +77,7 @@ void AnimationPath::read(Input& input)
 
     if (input.version_greater_equal(1, 0, 10))
         input.readValue<uint32_t>("mode", mode);
-    
+
     auto numLocations = input.readValue<uint32_t>("NumLocations");
 
     locations.clear();
