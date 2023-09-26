@@ -246,11 +246,13 @@ void CollectResourceRequirements::apply(const View& view)
 
         view.viewDependentState->accept(*this);
 
+#if 0
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
             numShadowMaps += light->shadowMaps;
         }
+#endif
     }
 
     requirements.views[&view] = viewDetails;

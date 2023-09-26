@@ -487,7 +487,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             auto& shadowMap = shadowMaps[shadowMapIndex];
             preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
 
-            auto& camera = shadowMap.view->camera;
+            const auto& camera = shadowMap.view->camera;
             auto lookAt = camera->viewMatrix.cast<LookAt>();
             auto ortho = camera->projectionMatrix.cast<Orthographic>();
 
