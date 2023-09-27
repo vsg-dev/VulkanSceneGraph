@@ -218,18 +218,45 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #endif
 
-    shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+    if (active)
+    {
+        shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
-    depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    depthImageView->subresourceRange.baseMipLevel = 0;
-    depthImageView->subresourceRange.levelCount = 1;
-    depthImageView->subresourceRange.baseArrayLayer = 0;
-    depthImageView->subresourceRange.layerCount = maxShadowMaps;
+        auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+        depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        depthImageView->subresourceRange.baseMipLevel = 0;
+        depthImageView->subresourceRange.levelCount = 1;
+        depthImageView->subresourceRange.baseArrayLayer = 0;
+        depthImageView->subresourceRange.layerCount = maxShadowMaps;
 
-    auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-    shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+    }
+    else
+    {
+        //
+        // fallback to provide a descriptor image to use when the ViewDependentState shadow map generation is not active
+        //
+        Data::Properties properties;
+        properties.format = VK_FORMAT_D32_SFLOAT;
+        properties.imageViewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+
+        auto shadowMapData = floatArray3D::create(1, 1, 1, 0.0, properties);
+        shadowDepthImage = Image::create(shadowMapData);
+        shadowDepthImage->usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+        auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
+        depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        depthImageView->subresourceRange.baseMipLevel = 0;
+        depthImageView->subresourceRange.levelCount = 1;
+        depthImageView->subresourceRange.baseArrayLayer = 0;
+        depthImageView->subresourceRange.layerCount = 1;
+
+        auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+
+        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+    }
 
     DescriptorSetLayoutBindings descriptorBindings{
         VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
