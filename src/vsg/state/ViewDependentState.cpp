@@ -446,9 +446,14 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
     // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231
     // sampler2DArrayShadow
-    // https://ogldev.org/www/tutorial42/tutorial42.html
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPipelineDepthStencilStateCreateInfo.html
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkCmdSetDepthBoundsTestEnable.html
+    //
+    // Soft shadows:
+    // https://ogldev.org/www/tutorial42/tutorial42.html
+    // https://developer.download.nvidia.com/shaderlibrary/docs/shadow_PCSS.pdf
+    // https://andrew-pham.blog/2019/08/03/percentage-closer-soft-shadows/
+    // https://github.com/vsgopenmw-dev/vsgopenmw/blob/master/files/shaders/lib/view/shadow.glsl
 
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
