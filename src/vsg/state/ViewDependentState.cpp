@@ -47,6 +47,14 @@ namespace vsg
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
     };
     VSG_type_name(TraverseChildrenOfNode);
+
+    inline double Cpractical(double n, double f, double i, double m, double lambda)
+    {
+        double Clog = n * std::pow((f / n), (i / m));
+        double Cuniform = n + (f - n) * (i / m);
+        return Clog * lambda + Cuniform * (1.0 - lambda);
+    };
+
 } // namespace vsg
 
 //////////////////////////////////////
@@ -459,18 +467,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         return bounds;
     };
 
-    auto Clog = [](double n, double f, double i, double m) -> double {
-        return n * std::pow((f / n), (i / m));
-    };
-
-    auto Cuniform = [](double n, double f, double i, double m) -> double {
-        return n + (f - n) * (i / m);
-    };
-
-    auto Cpractical = [&Clog, &Cuniform](double n, double f, double i, double m, double lambda) -> double {
-        return Clog(n, f, i, m) * lambda + Cuniform(n, f, i, m) * (1.0 - lambda);
-    };
-
     // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
 
     // set up the light data
@@ -624,7 +620,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         if (activeNumShadowMaps > 1)
         {
-            double lambda = 0.5;
             double m = static_cast<double>(activeNumShadowMaps);
             for (double i = 0; i < m; i += 1.0)
             {

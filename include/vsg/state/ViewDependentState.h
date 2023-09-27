@@ -149,6 +149,7 @@ namespace vsg
         // shadow map hints
         double maxShadowDistance = 1e8;
         double shadowMapBias = 0.005;
+        double lambda = 0.5;
 
         // Shadow backend.
         ref_ptr<CommandGraph> preRenderCommandGraph;
@@ -166,5 +167,7 @@ namespace vsg
         ~ViewDependentState();
     };
     VSG_type_name(vsg::ViewDependentState);
+
+
 
 } // namespace vsg
