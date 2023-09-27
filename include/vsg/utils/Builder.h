@@ -57,6 +57,9 @@ namespace vsg
         vec4 color = {1.0f, 1.0f, 1.0f, 1.0f};
         mat4 transform;
 
+        /// cullNode flag indicates whether a CullNode should decorate the creted subgraph
+        bool cullNode = false;
+
         template<typename T>
         void set(const t_box<T>& bb)
         {
@@ -122,6 +125,7 @@ namespace vsg
         ref_ptr<Data> instancePositions(const GeometryInfo& info, uint32_t& instanceCount);
         ref_ptr<Data> instanceColors(const GeometryInfo& info, uint32_t instanceCount);
         vec3 y_texcoord(const StateInfo& info) const;
+        ref_ptr<Node> decorateWithCullNodeIfRequired(const GeometryInfo& info, ref_ptr<Node> node) const;
 
         ref_ptr<ShaderSet> _flatShadedShaderSet;
         ref_ptr<ShaderSet> _phongShaderSet;
