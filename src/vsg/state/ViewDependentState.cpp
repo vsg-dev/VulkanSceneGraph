@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/commands/PipelineBarrier.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -396,6 +397,23 @@ void ViewDependentState::compile(Context& context)
 
             ++layer;
         }
+
+        // use an image barrier to transition the initial shadow map array layout to VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
+        // so that whole shadow map is usable in fragment shader even when only portions of it have been set using a render to texture pass
+        auto initLayoutBarrier = ImageMemoryBarrier::create(
+            0,
+            VK_ACCESS_SHADER_READ_BIT,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            shadowDepthImage,
+            VkImageSubresourceRange{VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, static_cast<uint32_t>(shadowMaps.size())}
+        );
+
+        auto pipelinBarrier = PipelineBarrier::create(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, initLayoutBarrier);
+
+        context.commands.push_back(pipelinBarrier);
     }
 }
 
