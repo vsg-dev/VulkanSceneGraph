@@ -2,6 +2,7 @@
 #include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
@@ -202,6 +203,45 @@ vec3 Builder::y_texcoord(const StateInfo& info) const
     }
 }
 
+ref_ptr<Node> Builder::decorateWithCullNodeIfRequired(const GeometryInfo& info, ref_ptr<Node> node) const
+{
+   if (info.cullNode)
+    {
+        auto cullNode = vsg::CullNode::create();
+        cullNode->child = node;
+
+        if (info.positions)
+        {
+            if (auto v3a = info.positions.cast<vec3Array>())
+            {
+                box bound;
+                for(auto& v : *v3a)
+                {
+                    bound.add(v);
+                }
+                cullNode->bound.center = (bound.min + bound.max) * 0.5f;
+                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz);
+            }
+            else
+            {
+                // unable to compute bound so do not decorate with a CullNode.
+                return node;
+            }
+        }
+        else
+        {
+            cullNode->bound.center = info.position;
+            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz);
+        }
+
+        return cullNode;
+    }
+    else
+    {
+        return node;
+    }
+}
+
 ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stateInfo)
 {
     auto& subgraph = _boxes[info];
@@ -338,7 +378,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
 
@@ -567,7 +607,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
 
@@ -777,7 +817,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
 
@@ -1024,7 +1064,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
 
@@ -1127,7 +1167,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
 
@@ -1316,7 +1356,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
 
@@ -1449,6 +1489,6 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
 
     if (compileTraversal) compileTraversal->compile(scenegraph);
 
-    subgraph = scenegraph;
+    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
     return subgraph;
 }
