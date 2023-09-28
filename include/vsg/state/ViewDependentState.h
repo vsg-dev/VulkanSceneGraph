@@ -168,6 +168,4 @@ namespace vsg
     };
     VSG_type_name(vsg::ViewDependentState);
 
-
-
 } // namespace vsg

@@ -11,13 +11,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/View.h>
+#include <vsg/commands/PipelineBarrier.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/write.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
-#include <vsg/commands/PipelineBarrier.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -270,7 +270,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     DescriptorSetLayoutBindings descriptorBindings{
         VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
         VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
-        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // shadow map 2D texture array
+        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                      // shadow map 2D texture array
     };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
@@ -416,8 +416,7 @@ void ViewDependentState::compile(Context& context)
             VK_QUEUE_FAMILY_IGNORED,
             VK_QUEUE_FAMILY_IGNORED,
             shadowDepthImage,
-            VkImageSubresourceRange{VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, static_cast<uint32_t>(shadowMaps.size())}
-        );
+            VkImageSubresourceRange{VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, static_cast<uint32_t>(shadowMaps.size())});
 
         auto pipelinBarrier = PipelineBarrier::create(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, initLayoutBarrier);
 
