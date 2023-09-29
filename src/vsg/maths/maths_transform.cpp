@@ -278,7 +278,7 @@ bool t_decompose(const t_mat4<T>& m, t_vec3<T>& translation, t_quat<T>& rotation
 
         auto root = sqrt(rm[i][i] - rm[j][j] - rm[k][k] + static_cast<T>(1.0));
         auto half_inv_root = static_cast<T>(0.5) / root;
-        rotation[i] = static_cast<T>(0.5) / root;
+        rotation[i] = static_cast<T>(0.5) * root;
         rotation[j] = half_inv_root * (rm[i][j] + rm[j][i]);
         rotation[k] = half_inv_root * (rm[i][k] + rm[k][i]);
         rotation[3] = half_inv_root * (rm[j][k] - rm[k][j]);
