@@ -207,30 +207,12 @@ void RecordAnimationPathHandler::apply(Camera& camera)
     }
     else if (recording)
     {
-#if 0
-        auto lookAt = camera.viewMatrix.cast<LookAt>();
-        if (lookAt)
+        dvec3 position, scale;
+        dquat orientation;
+        auto matrix = camera.viewMatrix->inverse();
+        if (decompose(matrix, position, orientation, scale))
         {
-            dvec3 position = lookAt->eye;
-            dvec3 scale(1.0, 1.0, 1.0);
-            dquat orientation;
             path->add(time, position, orientation, scale);
-        }
-        else
-#endif
-        {
-            dvec3 position, scale;
-            dquat orientation;
-            auto matrix = camera.viewMatrix->inverse();
-            if (decompose(matrix, position, orientation, scale))
-            {
-                auto result = vsg::translate(position) * vsg::rotate(orientation) * vsg::scale(scale);
-
-                double det = determinant(matrix * inverse(result));
-                info("det = ", det, ", matrix = ", matrix, ", decompose results = ", result);
-
-                path->add(time, position, orientation, scale);
-            }
         }
     }
 }
@@ -243,6 +225,12 @@ void RecordAnimationPathHandler::apply(MatrixTransform& transform)
     }
     else if (recording)
     {
+        dvec3 position, scale;
+        dquat orientation;
+        if (decompose(transform.matrix, position, orientation, scale))
+        {
+            path->add(time, position, orientation, scale);
+        }
     }
 }
 
