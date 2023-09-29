@@ -531,6 +531,22 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
 
+        auto clipToEye = inverse(projectionMatrix);
+
+        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
+        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
+
+        // clamp the near and far values
+        if (n > maxShadowDistance)
+        {
+            // near plane further than maximum shadow distance so no need to generate shadow maps
+            continue;
+        }
+        if (f > maxShadowDistance)
+        {
+            f = maxShadowDistance;
+        }
+
         auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
             auto& shadowMap = shadowMaps[shadowMapIndex];
             preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
@@ -600,22 +616,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         info("     light_z = ", light_z);
 #endif
 
-        auto clipToEye = inverse(projectionMatrix);
-
-        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
-        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
-
-        // clamp the near and far values
-        if (n > maxShadowDistance)
-        {
-            info("Oopps near is further than the maxShadowDistance!");
-            n = maxShadowDistance * 0.5;
-            f = maxShadowDistance;
-        }
-        if (f > maxShadowDistance)
-        {
-            f = maxShadowDistance;
-        }
 #if 0
         double range = f - n;
         info("    n = ", n, ", f = ", f, ", range = ", range);
