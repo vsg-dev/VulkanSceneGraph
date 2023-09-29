@@ -67,7 +67,9 @@ namespace vsg
 
         ref_ptr<Object> object;
         ref_ptr<AnimationPath> path;
+
         KeySymbol resetKey = KEY_Space;
+
         clock::time_point startPoint;
         double time = 0.0;
 
@@ -84,5 +86,40 @@ namespace vsg
     protected:
     };
     VSG_type_name(vsg::AnimationPathHandler);
+
+
+    /// RecordAnimationPathHandler event handler records the camera
+    class VSG_DECLSPEC RecordAnimationPathHandler : public Inherit<Visitor, RecordAnimationPathHandler>
+    {
+    public:
+        RecordAnimationPathHandler(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+
+        ref_ptr<Object> object;
+        Path filename;
+        ref_ptr<Options> options;
+
+        ref_ptr<AnimationPath> path;
+        KeySymbol toggleRecordingKey = KEY_r;
+        KeySymbol togglePlaybackKey = KEY_p;
+
+        bool recording = false;
+        bool playing = false;
+        clock::time_point startPoint;
+        double time = 0.0;
+
+        bool printFrameStatsToConsole = false;
+        clock::time_point statsStartPoint;
+        double frameCount = 0.0;
+
+        void apply(Camera& camera) override;
+        void apply(MatrixTransform& transform) override;
+
+        void apply(KeyPressEvent& keyPress) override;
+        void apply(FrameEvent& frame) override;
+
+    protected:
+    };
+    VSG_type_name(vsg::RecordAnimationPathHandler);
+
 
 } // namespace vsg

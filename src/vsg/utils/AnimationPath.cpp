@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/read.h>
+#include <vsg/io/write.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PrintEvents.h>
@@ -168,6 +170,168 @@ void AnimationPathHandler::apply(FrameEvent& frame)
             // reset stats time back to start
             statsStartPoint = frame.time;
             frameCount = 0;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// RecordAnimationPathHandler
+//
+RecordAnimationPathHandler::RecordAnimationPathHandler(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
+    object(in_object),
+    filename(in_filename),
+    options(in_options)
+{
+    if (filename)
+    {
+        path = vsg::read_cast<AnimationPath>(filename, options);
+    }
+    else
+    {
+        filename = "saved_animation.vsgt";
+    }
+
+    if (!path) path = AnimationPath::create();
+}
+
+void RecordAnimationPathHandler::apply(Camera& camera)
+{
+    if (playing)
+    {
+        auto lookAt = camera.viewMatrix.cast<LookAt>();
+        if (lookAt)
+        {
+            lookAt->set(path->computeMatrix(time));
+        }
+    }
+    else if (recording)
+    {
+#if 0
+        auto lookAt = camera.viewMatrix.cast<LookAt>();
+        if (lookAt)
+        {
+            dvec3 position = lookAt->eye;
+            dvec3 scale(1.0, 1.0, 1.0);
+            dquat orientation;
+            path->add(time, position, orientation, scale);
+        }
+        else
+#endif
+        {
+            dvec3 position, scale;
+            dquat orientation;
+            auto matrix = camera.viewMatrix->inverse();
+            if (decompose(matrix, position, orientation, scale))
+            {
+                auto result = vsg::translate(position) * vsg::rotate(orientation) * vsg::scale(scale);
+
+                double det = determinant(matrix * inverse(result));
+                info("det = ", det, ", matrix = ", matrix, ", decompose results = ", result);
+
+                path->add(time, position, orientation, scale);
+            }
+        }
+    }
+}
+
+void RecordAnimationPathHandler::apply(MatrixTransform& transform)
+{
+    if (playing)
+    {
+        transform.matrix = path->computeMatrix(time);
+    }
+    else if (recording)
+    {
+    }
+}
+
+void RecordAnimationPathHandler::apply(KeyPressEvent& keyPress)
+{
+    if (keyPress.keyModified == togglePlaybackKey)
+    {
+        if (!playing)
+        {
+            info("Starting playback.");
+
+            recording = false;
+            playing = true;
+
+            // reset main animation time back to start
+            startPoint = keyPress.time;
+            time = 0.0;
+
+            // reset stats time back to start
+            statsStartPoint = startPoint;
+            frameCount = 0;
+        }
+        else
+        {
+            playing = false;
+        }
+    }
+    else if (keyPress.keyModified == toggleRecordingKey)
+    {
+        if (!recording)
+        {
+            info("Starting recording.");
+
+            // reset main animation time back to start
+            startPoint = keyPress.time;
+            time = 0.0;
+
+            // reset stats time back to start
+            statsStartPoint = startPoint;
+            frameCount = 0;
+
+            recording = true;
+            playing = false;
+
+            path->locations.clear();
+        }
+        else
+        {
+            info("Stop recording.");
+
+            if (filename)
+            {
+                if (vsg::write(path, filename, options))
+                {
+                    info("Written recoded path to : ", filename);
+                }
+            }
+
+            recording = false;
+            playing = false;
+        }
+    }
+}
+
+void RecordAnimationPathHandler::apply(FrameEvent& frame)
+{
+    if (!object) return;
+
+    // update the main animation time and apply it to the attached object (Camera or Transform)
+    time = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - startPoint).count();
+    if (playing || recording)
+    {
+        object->accept(*this);
+
+        if (playing && printFrameStatsToConsole)
+        {
+            double statsTime = std::chrono::duration<double, std::chrono::seconds::period>(frame.time - statsStartPoint).count();
+            ++frameCount;
+            if (statsTime > path->period())
+            {
+                double averageFramerate = static_cast<double>(frameCount) / statsTime;
+                vsg::info("Animation path complete: duration = ", statsTime, ", frame count = ", frameCount, ", average frame rate = ", averageFramerate);
+
+                if (path->mode == AnimationPath::ONCE) playing = false;
+
+                // reset stats time back to start
+                statsStartPoint = frame.time;
+                frameCount = 0;
+            }
         }
     }
 }

@@ -221,12 +221,12 @@ T t_determinant(const t_mat4<T>& m)
     return det;
 }
 
-float determinant(const mat4& m)
+float vsg::determinant(const mat4& m)
 {
     return t_determinant<float>(m);
 }
 
-double determinant(const dmat4& m)
+double vsg::determinant(const dmat4& m)
 {
     return t_determinant<double>(m);
 }
