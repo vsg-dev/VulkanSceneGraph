@@ -238,7 +238,7 @@ void RecordAnimationPathHandler::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.keyModified == togglePlaybackKey)
     {
-        if (!playing)
+        if (!playing && path->locations.size() > 1)
         {
             info("Starting playback.");
 
