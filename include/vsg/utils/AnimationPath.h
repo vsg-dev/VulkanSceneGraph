@@ -91,7 +91,7 @@ namespace vsg
     class VSG_DECLSPEC RecordAnimationPathHandler : public Inherit<Visitor, RecordAnimationPathHandler>
     {
     public:
-        RecordAnimationPathHandler(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        explicit RecordAnimationPathHandler(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
 
         ref_ptr<Object> object;
         Path filename;
