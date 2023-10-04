@@ -197,7 +197,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     if (active)
     {
-        uint32_t numLights = viewDetails.lights.size();
+        uint32_t numLights = static_cast<uint32_t>(viewDetails.lights.size());
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
@@ -303,7 +303,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         properties.format = VK_FORMAT_D32_SFLOAT;
         properties.imageViewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 
-        auto shadowMapData = floatArray3D::create(1, 1, 1, 0.0, properties);
+        auto shadowMapData = floatArray3D::create(1, 1, 1, 0.0f, properties);
         shadowDepthImage = Image::create(shadowMapData);
         shadowDepthImage->usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
