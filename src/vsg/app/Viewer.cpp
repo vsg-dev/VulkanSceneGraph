@@ -283,10 +283,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         auto& collectResources = deviceResources.collectResources;
         auto& resourceRequirements = collectResources.requirements;
 
-        vsg::info("resourceRequirements.numLightsRange = ", resourceRequirements.numLightsRange);
-        vsg::info("resourceRequirements.numShadowMapsRange = ", resourceRequirements.numShadowMapsRange);
-        vsg::info("resourceRequirements.shadowMapSize = ", resourceRequirements.shadowMapSize);
-
         views.insert(resourceRequirements.views.begin(), resourceRequirements.views.end());
 
         if (resourceRequirements.containsPagedLOD) containsPagedLOD = true;

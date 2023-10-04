@@ -156,6 +156,7 @@ ViewDependentState::ViewDependentState(View* in_view, bool in_active) :
     view(in_view),
     active(in_active)
 {
+    // info("ViewDependentState::ViewDependentState(view = ", view, ", active = ", active, ")");
 }
 
 ViewDependentState::~ViewDependentState()
@@ -192,9 +193,55 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     uint32_t shadowHeight = 2048;
     uint32_t maxShadowMaps = 8;
 
+    auto& viewDetails = requirements.views[view];
+
+    if (active)
+    {
+        uint32_t numLights = viewDetails.lights.size();
+        uint32_t numShadowMaps = 0;
+        for (auto& light : viewDetails.lights)
+        {
+            numShadowMaps += light->shadowMaps;
+        }
+
+        if (numLights < requirements.numLightsRange[0]) maxNumberLights = requirements.numLightsRange[0];
+        else if (numLights > requirements.numLightsRange[1]) maxNumberLights = requirements.numLightsRange[1];
+        else maxNumberLights = numLights;
+
+        if (numShadowMaps < requirements.numShadowMapsRange[0]) maxShadowMaps = requirements.numShadowMapsRange[0];
+        else if (numShadowMaps > requirements.numShadowMapsRange[1]) maxShadowMaps = requirements.numShadowMapsRange[1];
+        else maxShadowMaps = numShadowMaps;
+
+        shadowWidth = requirements.shadowMapSize.x;
+        shadowHeight = requirements.shadowMapSize.y;
+    }
+    else
+    {
+        maxNumberLights = 0;
+        maxShadowMaps = 0;
+    }
+
+
     uint32_t lightDataSize = 4 + maxNumberLights * 16 + maxShadowMaps * 16;
 
-    // info("ViewDependentState::init() ", lightDataSize, ", ", maxViewports, ", this = ", this, ", active = ", active);
+#if 0
+    if (active)
+    {
+        info("void ViewDependentState::init(ResourceRequirements& requirements) view = ", view, ", active = ", active);
+        info("    viewDetails.indices.size() = ", viewDetails.indices.size());
+        info("    viewDetails.bins.size() = ", viewDetails.bins.size());
+        info("    viewDetails.lights.size() = ", viewDetails.lights.size());
+        info("    maxViewports = ", maxViewports);
+        info("    maxNumberLights = ", maxNumberLights);
+        info("    maxShadowMaps = ", maxShadowMaps);
+        info("    lightDataSize = ", lightDataSize);
+        info("    shadowWidth = ", shadowWidth);
+        info("    shadowHeight = ", shadowHeight);
+        info("    requirements.numLightsRange = ", requirements.numLightsRange);
+        info("    requirements.numShadowMapsRange = ", requirements.numShadowMapsRange);
+        info("    requirements.shadowMapSize = ", requirements.shadowMapSize);
+    }
+#endif
 
     lightData = vec4Array::create(lightDataSize);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
@@ -227,7 +274,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #endif
 
-    if (active)
+    if (maxShadowMaps > 0)
     {
         shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
@@ -277,7 +324,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
 
     // if not active then don't enable shadow maps
-    if (!active) return;
+    if (maxShadowMaps == 0) return;
 
     // create a switch to toggle on/off the render to texture subgraphs for each shadowmap layer
     preRenderSwitch = Switch::create();
@@ -312,8 +359,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         shadowMap.renderGraph->addChild(shadowMap.view);
         preRenderSwitch->addChild(MASK_ALL, shadowMap.renderGraph);
     }
-
-    //write(shadowMapData, "test.vsgt");
 }
 
 void ViewDependentState::compile(Context& context)
@@ -322,11 +367,7 @@ void ViewDependentState::compile(Context& context)
 
     if (active && preRenderCommandGraph && !preRenderCommandGraph->device)
     {
-
         preRenderCommandGraph->device = context.device;
-
-        auto& resourceRequirements = context.resourceRequirements;
-        auto& viewDetails = resourceRequirements.views[view];
 
         // TODO
         preRenderCommandGraph->queueFamily = 0;
@@ -437,10 +478,7 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt) const
 {
-    if (!active || !preRenderSwitch) return;
-
-    bool requiresPerRenderShadowMaps = false;
-    preRenderSwitch->setAllChildren(false);
+    if (!active) return;
 
     // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
     // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231
@@ -454,8 +492,11 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // https://andrew-pham.blog/2019/08/03/percentage-closer-soft-shadows/
     // https://github.com/vsgopenmw-dev/vsgopenmw/blob/master/files/shaders/lib/view/shadow.glsl
 
+    bool requiresPerRenderShadowMaps = false;
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
+    if (preRenderSwitch) preRenderSwitch->setAllChildren(false);
+    else numShadowMaps = 0;
 
     auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
         dbox bounds;
@@ -548,7 +589,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         }
 
         auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
-            auto& shadowMap = shadowMaps[shadowMapIndex];
+            const auto& shadowMap = shadowMaps[shadowMapIndex];
             preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
 
             const auto& camera = shadowMap.view->camera;
