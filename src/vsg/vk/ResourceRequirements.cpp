@@ -247,9 +247,7 @@ void CollectResourceRequirements::apply(const View& view)
         view.viewDependentState->init(requirements);
 
         view.viewDependentState->accept(*this);
-
     }
-
 
     requirements.viewDetailsStack.pop();
 }

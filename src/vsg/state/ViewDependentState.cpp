@@ -204,13 +204,19 @@ void ViewDependentState::init(ResourceRequirements& requirements)
             numShadowMaps += light->shadowMaps;
         }
 
-        if (numLights < requirements.numLightsRange[0]) maxNumberLights = requirements.numLightsRange[0];
-        else if (numLights > requirements.numLightsRange[1]) maxNumberLights = requirements.numLightsRange[1];
-        else maxNumberLights = numLights;
+        if (numLights < requirements.numLightsRange[0])
+            maxNumberLights = requirements.numLightsRange[0];
+        else if (numLights > requirements.numLightsRange[1])
+            maxNumberLights = requirements.numLightsRange[1];
+        else
+            maxNumberLights = numLights;
 
-        if (numShadowMaps < requirements.numShadowMapsRange[0]) maxShadowMaps = requirements.numShadowMapsRange[0];
-        else if (numShadowMaps > requirements.numShadowMapsRange[1]) maxShadowMaps = requirements.numShadowMapsRange[1];
-        else maxShadowMaps = numShadowMaps;
+        if (numShadowMaps < requirements.numShadowMapsRange[0])
+            maxShadowMaps = requirements.numShadowMapsRange[0];
+        else if (numShadowMaps > requirements.numShadowMapsRange[1])
+            maxShadowMaps = requirements.numShadowMapsRange[1];
+        else
+            maxShadowMaps = numShadowMaps;
 
         shadowWidth = requirements.shadowMapSize.x;
         shadowHeight = requirements.shadowMapSize.y;
@@ -220,7 +226,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         maxNumberLights = 0;
         maxShadowMaps = 0;
     }
-
 
     uint32_t lightDataSize = 4 + maxNumberLights * 16 + maxShadowMaps * 16;
 
@@ -495,8 +500,10 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     bool requiresPerRenderShadowMaps = false;
     uint32_t shadowMapIndex = 0;
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
-    if (preRenderSwitch) preRenderSwitch->setAllChildren(false);
-    else numShadowMaps = 0;
+    if (preRenderSwitch)
+        preRenderSwitch->setAllChildren(false);
+    else
+        numShadowMaps = 0;
 
     auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
         dbox bounds;

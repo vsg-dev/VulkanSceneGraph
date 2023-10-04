@@ -87,7 +87,6 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationPathHandler);
 
-
     /// RecordAnimationPathHandler event handler records the camera
     class VSG_DECLSPEC RecordAnimationPathHandler : public Inherit<Visitor, RecordAnimationPathHandler>
     {
@@ -120,6 +119,5 @@ namespace vsg
     protected:
     };
     VSG_type_name(vsg::RecordAnimationPathHandler);
-
 
 } // namespace vsg
