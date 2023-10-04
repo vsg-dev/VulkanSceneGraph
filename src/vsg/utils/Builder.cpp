@@ -1,8 +1,8 @@
 
 #include <vsg/io/Logger.h>
 #include <vsg/io/read.h>
-#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/CullNode.h>
+#include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
@@ -206,7 +206,7 @@ vec3 Builder::y_texcoord(const StateInfo& info) const
 
 ref_ptr<Node> Builder::decorateWithCullNodeIfRequired(const GeometryInfo& info, ref_ptr<Node> node) const
 {
-   if (info.cullNode)
+    if (info.cullNode)
     {
         auto cullNode = vsg::CullNode::create();
         cullNode->child = node;
@@ -216,7 +216,7 @@ ref_ptr<Node> Builder::decorateWithCullNodeIfRequired(const GeometryInfo& info, 
             if (auto v3a = info.positions.cast<vec3Array>())
             {
                 box bound;
-                for(auto& v : *v3a)
+                for (auto& v : *v3a)
                 {
                     bound.add(v);
                 }

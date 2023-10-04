@@ -432,7 +432,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
     };
 
-
     // find all the windows
     struct FindWindows : public Visitor
     {
