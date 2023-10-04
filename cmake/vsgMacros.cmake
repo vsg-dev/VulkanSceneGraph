@@ -280,11 +280,12 @@ macro(vsg_add_target_clobber)
         else()
             if (NOT TARGET clobber)
                 add_custom_target(clobber)
+                set_target_properties(clobber PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
             endif()
             add_custom_target(clobber-${PROJECT_NAME}
                 COMMAND ${GIT_EXECUTABLE} -C ${PROJECT_SOURCE_DIR} clean -d -f -x
             )
-            set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER "${PROJECT_NAME} Folder")
+            set_target_properties(clobber-${PROJECT_NAME} PROPERTIES FOLDER "${PROJECT_NAME} Folder" EXCLUDE_FROM_DEFAULT_BUILD TRUE)
             add_dependencies(clobber clobber-${PROJECT_NAME})
         endif()
     endif()
@@ -401,11 +402,12 @@ macro(vsg_add_target_uninstall)
     endif()
     if (NOT TARGET uninstall)
         add_custom_target(uninstall)
+        set_target_properties(uninstall PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
     endif()
     add_custom_target(uninstall-${PROJECT_NAME}
         COMMAND ${CMAKE_COMMAND} -P ${DIR}/uninstall.cmake
     )
-    set_target_properties(uninstall-${PROJECT_NAME} PROPERTIES FOLDER "${PROJECT_NAME} Folder")
+    set_target_properties(uninstall-${PROJECT_NAME} PROPERTIES FOLDER "${PROJECT_NAME} Folder" EXCLUDE_FROM_DEFAULT_BUILD TRUE)
     add_dependencies(uninstall uninstall-${PROJECT_NAME})
 endmacro()
 
