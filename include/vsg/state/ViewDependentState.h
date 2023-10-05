@@ -104,7 +104,6 @@ namespace vsg
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:
-
         ViewDependentState(View* in_view);
 
         template<class N, class V>
