@@ -412,10 +412,6 @@ void ViewDependentState::compile(Context& context)
 
             RenderPass::Dependencies dependencies(2);
 
-            // XXX This dependency is copied from the offscreenrender.cpp
-            // example. I don't completely understand it, but I think its
-            // purpose is to create a barrier if some earlier render pass was
-            // using this framebuffer's attachment as a texture.
             dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
             dependencies[0].dstSubpass = 0;
             dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
@@ -424,10 +420,6 @@ void ViewDependentState::compile(Context& context)
             dependencies[0].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
             dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-            // This is the heart of what makes Vulkan offscreen rendering
-            // work: render passes that follow are blocked from using this
-            // passes' color attachment in their fragment shaders until all
-            // this pass' color writes are finished.
             dependencies[1].srcSubpass = 0;
             dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
             dependencies[1].srcStageMask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
@@ -453,7 +445,7 @@ void ViewDependentState::compile(Context& context)
         }
 
         // use an image barrier to transition the initial shadow map array layout to VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
-        // so that whole shadow map is usable in fragment shader even when only portions of it have been set using a render to texture pass
+        // so that the whole shadow map is usable in fragment shader even when only portions of it have been set using a render to texture pass
         auto initLayoutBarrier = ImageMemoryBarrier::create(
             0,
             VK_ACCESS_SHADER_READ_BIT,
@@ -540,7 +532,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     for (auto& [mv, light] : directionalLights)
     {
-        //info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
+        // info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
 
         // assign basic direction light settings to light data
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
