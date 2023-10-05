@@ -22,6 +22,7 @@ namespace vsg
     // forward declare
     class ViewDependentState;
 
+    /// ViewFeatures mask provide a means for controlling what features should be implemented by the View's ViewDependentState.
     enum ViewFeatures
     {
         RECORD_BASE = 0,
@@ -29,7 +30,6 @@ namespace vsg
         RECORD_SHADOW_MAPS = (1 << 1),
         RECORD_ALL = (RECORD_LIGHTS | RECORD_SHADOW_MAPS)
     };
-
 
     /// View is a Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>
