@@ -152,11 +152,10 @@ void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 //
 // ViewDependentState
 //
-ViewDependentState::ViewDependentState(View* in_view, bool in_active) :
-    view(in_view),
-    active(in_active)
+ViewDependentState::ViewDependentState(View* in_view) :
+    view(in_view)
 {
-    // info("ViewDependentState::ViewDependentState(view = ", view, ", active = ", active, ")");
+    // info("ViewDependentState::ViewDependentState(view = ", view, ")");
 }
 
 ViewDependentState::~ViewDependentState()
@@ -195,7 +194,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     auto& viewDetails = requirements.views[view];
 
-    if (active)
+    if (view->features != 0)
     {
         uint32_t numLights = static_cast<uint32_t>(viewDetails.lights.size());
         uint32_t numShadowMaps = 0;
@@ -352,7 +351,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         }
         else
         {
-            first_view = View::create(false);
+            first_view = View::create(RECORD_BASE);
             shadowMap.view = first_view;
         }
 
@@ -370,7 +369,7 @@ void ViewDependentState::compile(Context& context)
 {
     descriptorSet->compile(context);
 
-    if (active && preRenderCommandGraph && !preRenderCommandGraph->device)
+    if (view->features && preRenderCommandGraph && !preRenderCommandGraph->device)
     {
         preRenderCommandGraph->device = context.device;
 
@@ -475,7 +474,7 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt) const
 {
-    if (!active) return;
+    if (!view->features) return;
 
     // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
     // PCF filtering : https://github.com/SaschaWillems/Vulkan/issues/231

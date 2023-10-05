@@ -104,7 +104,8 @@ namespace vsg
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:
-        ViewDependentState(View* view, bool in_active);
+
+        ViewDependentState(View* in_view);
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
@@ -131,7 +132,6 @@ namespace vsg
         virtual void compile(Context& context);
 
         View* view = nullptr;
-        bool active = true;
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;

@@ -22,16 +22,25 @@ namespace vsg
     // forward declare
     class ViewDependentState;
 
+    enum ViewFeatures
+    {
+        RECORD_BASE = 0,
+        RECORD_LIGHTS = (1 << 0),
+        RECORD_SHADOW_MAPS = (1 << 1),
+        RECORD_ALL = (RECORD_LIGHTS | RECORD_SHADOW_MAPS)
+    };
+
+
     /// View is a Group class that pairs a Camera that defines the view with a subgraph that defines the scene that is being viewed/rendered
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
     public:
-        View(bool activeViewDependentState = true);
+        View(ViewFeatures in_features = RECORD_ALL);
 
         // share the specified view's children, viewID, mask and camera ViewportState
         View(const View& view);
 
-        explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {}, bool activeViewDependentState = true);
+        explicit View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph = {}, ViewFeatures in_features = RECORD_ALL);
 
         template<class N, class V>
         static void t_accept(N& node, V& visitor)
@@ -59,6 +68,9 @@ namespace vsg
 
         /// viewID is automatically assigned in View constructor
         const uint32_t viewID = 0;
+
+        /// Hints for how ViewDependentState features should be handled
+        ViewFeatures features;
 
         /// mask that controls traversal of the View's subgraph
         /// View is visited if the (visitor.traversalMask & view.mask) != 0,
