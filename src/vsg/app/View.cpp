@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/state/ViewDependentState.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -65,15 +67,17 @@ static void releaseViewID(uint32_t viewID)
 //
 // View
 //
-View::View() :
+View::View(ViewFeatures in_features) :
     viewID(getUniqueViewID()),
-    viewDependentState(ViewDependentState::create())
+    features(in_features)
 {
+    viewDependentState = ViewDependentState::create(this);
 }
 
 View::View(const View& view) :
     Inherit(view),
     viewID(sharedViewID(view.viewID)),
+    features(view.features),
     mask(view.mask)
 {
     if (view.camera && view.camera->viewportState)
@@ -81,18 +85,27 @@ View::View(const View& view) :
         camera = vsg::Camera::create();
         camera->viewportState = view.camera->viewportState;
     }
+
+    viewDependentState = ViewDependentState::create(this);
+
+    // info("View::View(const View&) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
-View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph) :
+View::View(ref_ptr<Camera> in_camera, ref_ptr<Node> in_scenegraph, ViewFeatures in_features) :
     camera(in_camera),
     viewID(getUniqueViewID()),
-    viewDependentState(ViewDependentState::create())
+    features(in_features)
 {
     if (in_scenegraph) addChild(in_scenegraph);
+
+    viewDependentState = ViewDependentState::create(this);
+
+    // info("View::View(ref_ptr<Camera> in_camera) ", this, ", ", viewDependentState, ", ", viewID);
 }
 
 View::~View()
 {
+    if (viewDependentState) viewDependentState->view = nullptr;
     releaseViewID(viewID);
 }
 

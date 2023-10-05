@@ -23,6 +23,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/MultisampleState.h>
+#include <vsg/state/ViewDependentState.h>
+#include <vsg/vk/Context.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceRequirements.h>
 
@@ -34,7 +36,7 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
 {
-    binStack.push(ResourceRequirements::BinDetails{});
+    viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     if (hints) apply(*hints);
 }
 
@@ -66,6 +68,10 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
             descriptorTypeMap[type] += count;
         }
     }
+
+    numLightsRange = resourceHints.numLightsRange;
+    numShadowMapsRange = resourceHints.numShadowMapsRange;
+    shadowMapSize = resourceHints.shadowMapSize;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -206,46 +212,56 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
     }
 }
 
+void CollectResourceRequirements::apply(const Light& light)
+{
+    requirements.viewDetailsStack.top().lights.insert(&light);
+}
+
 void CollectResourceRequirements::apply(const View& view)
 {
+
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
-        requirements.binStack.push(itr->second);
+        requirements.viewDetailsStack.push(itr->second);
     }
     else
     {
-        requirements.binStack.push(ResourceRequirements::BinDetails{});
+        requirements.viewDetailsStack.push(ResourceRequirements::ViewDetails{});
     }
 
     view.traverse(*this);
 
+    auto& viewDetails = requirements.viewDetailsStack.top();
+
     for (auto& bin : view.bins)
     {
-        requirements.binStack.top().bins.insert(bin);
+        viewDetails.bins.insert(bin);
     }
+
+    requirements.views[&view] = viewDetails;
 
     if (view.viewDependentState)
     {
         if (requirements.maxSlot < 2) requirements.maxSlot = 2;
 
+        view.viewDependentState->init(requirements);
+
         view.viewDependentState->accept(*this);
     }
 
-    requirements.views[&view] = requirements.binStack.top();
-
-    requirements.binStack.pop();
+    requirements.viewDetailsStack.pop();
 }
 
 void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
 {
-    requirements.binStack.top().indices.insert(depthSorted.binNumber);
+    requirements.viewDetailsStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);
 }
 
 void CollectResourceRequirements::apply(const Bin& bin)
 {
-    requirements.binStack.top().bins.insert(&bin);
+    requirements.viewDetailsStack.top().bins.insert(&bin);
 }
 
 void CollectResourceRequirements::apply(const Geometry& geometry)

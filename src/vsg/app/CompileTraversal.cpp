@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/MultisampleState.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
@@ -321,7 +322,11 @@ void CompileTraversal::apply(View& view)
         context->viewID = view.viewID;
         context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
-        if (view.viewDependentState) view.viewDependentState->compile(*context);
+
+        if (view.viewDependentState)
+        {
+            view.viewDependentState->compile(*context);
+        }
 
         // assign view specific pipeline states
         if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
@@ -335,6 +340,8 @@ void CompileTraversal::apply(View& view)
         context->defaultPipelineStates = previous_defaultPipelineStates;
         context->overridePipelineStates = previous_overridePipelineStates;
     }
+
+    if (view.viewDependentState) view.viewDependentState->accept(*this);
 }
 
 bool CompileTraversal::record()

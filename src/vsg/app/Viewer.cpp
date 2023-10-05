@@ -266,9 +266,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     for (auto& task : recordAndSubmitTasks)
     {
         auto& collectResources = deviceResourceMap[task->device].collectResources;
+        if (hints) hints->accept(collectResources);
+
         for (auto& commandGraph : task->commandGraphs)
         {
-
             commandGraph->accept(collectResources);
         }
 
@@ -281,8 +282,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     {
         auto& collectResources = deviceResources.collectResources;
         auto& resourceRequirements = collectResources.requirements;
-
-        if (hints) hints->accept(collectResources);
 
         views.insert(resourceRequirements.views.begin(), resourceRequirements.views.end());
 

@@ -27,6 +27,7 @@ namespace vsg
         std::string name;
         vec3 color = vec3(1.0f, 1.0f, 1.0f);
         float intensity = 1.0f;
+        uint32_t shadowMaps = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;

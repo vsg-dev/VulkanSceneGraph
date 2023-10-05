@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/maths/vec2.h>
 #include <vsg/vk/DescriptorPool.h>
 
 namespace vsg
@@ -31,6 +32,10 @@ namespace vsg
 
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
+
+        uivec2 numLightsRange = {8, 1024};
+        uivec2 numShadowMapsRange = {0, 64};
+        uivec2 shadowMapSize = {2048, 2028};
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -39,17 +39,18 @@ namespace vsg
         uint32_t computeNumDescriptorSets() const;
         DescriptorPoolSizes computeDescriptorPoolSizes() const;
 
-        struct BinDetails
+        struct ViewDetails
         {
             std::set<int32_t> indices;
             std::set<const Bin*> bins;
+            std::set<const Light*> lights;
         };
 
         using Descriptors = std::set<const Descriptor*>;
         using DescriptorSets = std::set<const DescriptorSet*>;
         using DescriptorTypeMap = std::map<VkDescriptorType, uint32_t>;
-        using Views = std::map<const View*, BinDetails>;
-        using BinStack = std::stack<BinDetails>;
+        using Views = std::map<const View*, ViewDetails>;
+        using ViewDetailStack = std::stack<ViewDetails>;
 
         struct DynamicData
         {
@@ -78,7 +79,7 @@ namespace vsg
         DescriptorSets descriptorSets;
         DescriptorTypeMap descriptorTypeMap;
         Views views;
-        BinStack binStack;
+        ViewDetailStack viewDetailsStack;
 
         uint32_t maxSlot = 0;
         uint32_t externalNumDescriptorSets = 0;
@@ -86,6 +87,10 @@ namespace vsg
 
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
+
+        uivec2 numLightsRange = {8, 1024};
+        uivec2 numShadowMapsRange = {0, 64};
+        uivec2 shadowMapSize = {2048, 2048};
     };
     VSG_type_name(vsg::ResourceRequirements);
 
@@ -114,6 +119,7 @@ namespace vsg
         void apply(const DescriptorBuffer& descriptorBuffer) override;
         void apply(const DescriptorImage& descriptorImage) override;
         void apply(const PagedLOD& plod) override;
+        void apply(const Light& light) override;
         void apply(const View& view) override;
         void apply(const DepthSorted& depthSorted) override;
         void apply(const Bin& bin) override;

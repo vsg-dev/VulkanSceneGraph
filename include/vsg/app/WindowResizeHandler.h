@@ -23,22 +23,22 @@ namespace vsg
 
     /// Utility class for updating a scene graph when a View's camera ViewportState has been updated so that associated GraphicsPipelines in the
     /// scene graph can be recompiled and correctly reflect the new ViewportState.
-    class VSG_DECLSPEC UpdateGraphicsPipelines : public vsg::Inherit<vsg::Visitor, UpdateGraphicsPipelines>
+    class VSG_DECLSPEC UpdateGraphicsPipelines : public Inherit<Visitor, UpdateGraphicsPipelines>
     {
     public:
         UpdateGraphicsPipelines();
 
-        vsg::ref_ptr<vsg::Context> context;
-        std::set<std::pair<const vsg::Object*, uint32_t>> visited;
+        ref_ptr<Context> context;
+        std::set<std::pair<const Object*, uint32_t>> visited;
 
         bool visit(const Object* object, uint32_t index);
 
-        void apply(vsg::Object& object) override;
-        void apply(vsg::BindGraphicsPipeline& bindPipeline) override;
-        void apply(vsg::StateGroup& sg) override;
-        void apply(vsg::View& view) override;
+        void apply(Object& object) override;
+        void apply(BindGraphicsPipeline& bindPipeline) override;
+        void apply(StateGroup& sg) override;
+        void apply(View& view) override;
     };
-    VSG_type_name(vsg::UpdateGraphicsPipelines);
+    VSG_type_name(UpdateGraphicsPipelines);
 
     /// WindowResizeHandler class for updating viewport/scissor and attachments to fit with new window dimensions.
     class VSG_DECLSPEC WindowResizeHandler : public Inherit<Visitor, WindowResizeHandler>
@@ -70,6 +70,6 @@ namespace vsg
         void apply(ClearAttachments& clearAttachments) override;
         void apply(View& view) override;
     };
-    VSG_type_name(vsg::WindowResizeHandler);
+    VSG_type_name(WindowResizeHandler);
 
 } // namespace vsg

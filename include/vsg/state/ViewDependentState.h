@@ -12,9 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/CommandGraph.h>
+#include <vsg/app/RenderGraph.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/Light.h>
+#include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
+#include <vsg/state/DescriptorImage.h>
 
 namespace vsg
 {
@@ -86,6 +91,9 @@ namespace vsg
     };
     VSG_type_name(vsg::BindViewDescriptorSets);
 
+    // forward declare
+    class ResourceRequirements;
+
     /// ViewDependentState to manage lighting, clip planes and texture projection
     /// By default assigned to the vsg::View, for standard usage you don't need to create or modify the ViewDependentState
     /// If you wish to override the standard lighting support provided by ViewDependentState you can subclass it.
@@ -96,16 +104,18 @@ namespace vsg
     class VSG_DECLSPEC ViewDependentState : public Inherit<Object, ViewDependentState>
     {
     public:
-        ViewDependentState(uint32_t maxNumberLights = 64, uint32_t maxViewports = 1);
+        ViewDependentState(View* in_view);
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
             node.descriptorSet->accept(visitor);
+            if (node.preRenderCommandGraph) node.preRenderCommandGraph->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& rt) const override;
 
         // containers filled in by RecordTraversal
         std::vector<std::pair<dmat4, const AmbientLight*>> ambientLights;
@@ -113,10 +123,14 @@ namespace vsg
         std::vector<std::pair<dmat4, const PointLight*>> pointLights;
         std::vector<std::pair<dmat4, const SpotLight*>> spotLights;
 
-        virtual void compile(Context& context);
+        virtual void init(ResourceRequirements& requirements);
+
         virtual void clear();
-        virtual void pack();
         virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
+
+        virtual void compile(Context& context);
+
+        View* view = nullptr;
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
@@ -124,9 +138,29 @@ namespace vsg
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
 
+        ref_ptr<Image> shadowDepthImage;
+        ref_ptr<DescriptorImage> shadowMapImages;
+
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorBuffer> descriptor;
         ref_ptr<DescriptorSet> descriptorSet;
+
+        // shadow map hints
+        double maxShadowDistance = 1e8;
+        double shadowMapBias = 0.005;
+        double lambda = 0.5;
+
+        // Shadow backend.
+        ref_ptr<CommandGraph> preRenderCommandGraph;
+        ref_ptr<Switch> preRenderSwitch;
+
+        struct ShadowMap
+        {
+            ref_ptr<RenderGraph> renderGraph;
+            ref_ptr<View> view;
+        };
+
+        mutable std::vector<ShadowMap> shadowMaps;
 
     protected:
         ~ViewDependentState();
