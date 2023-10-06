@@ -45,7 +45,7 @@ namespace vsg
         };
 
         constexpr t_quat() :
-            value{} {}
+            value{0.0, 0.0, 0.0, 1.0} {}
         constexpr t_quat(const t_quat& v) :
             value{v.x, v.y, v.z, v.w} {}
         constexpr t_quat(value_type in_x, value_type in_y, value_type in_z, value_type in_w) :
