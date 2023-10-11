@@ -25,6 +25,7 @@ useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp
 useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
 useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
+useStlAlgorithm:*/src/vsg/state/ViewDependentState.cpp
 useStlAlgorithm:*/src/vsg/threading/Affinity.cpp
 useStlAlgorithm:*/src/vsg/utils/Intersector.cpp
 useStlAlgorithm:*/src/vsg/app/Presentation.cpp
@@ -48,6 +49,7 @@ useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
 useStlAlgorithm:*/include/vsg/utils/CommandLine.h
+
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
