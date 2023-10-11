@@ -67,7 +67,7 @@ namespace vsg
             value{normal.x, normal.y, normal.z, in_p} {}
 
         constexpr t_plane(const normal_type& position, const normal_type& normal) :
-            value{normal.x, normal.y, normal.z, -(position * normal)} {}
+            value{normal.x, normal.y, normal.z, -dot(position, normal)} {}
 
         template<typename R>
         constexpr explicit t_plane(const t_plane<R>& v) :
