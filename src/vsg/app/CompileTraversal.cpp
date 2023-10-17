@@ -112,6 +112,8 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
     context->viewDependentState = view->viewDependentState;
 
     contexts.push_back(context);
+
+    if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), resourceRequirements);
 }
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -138,6 +140,8 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     context->viewDependentState = view->viewDependentState;
 
     contexts.push_back(context);
+
+    if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), resourceRequirements);
 }
 
 void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
@@ -179,6 +183,8 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
                     ct->add(*window, ref_ptr<View>(&view), resourceRequirements);
                 else if (auto framebuffer = obj.cast<Framebuffer>())
                     ct->add(*framebuffer, ref_ptr<View>(&view), resourceRequirements);
+
+                if (view.viewDependentState) ct->addViewDependentState(*view.viewDependentState, resourceRequirements);
             }
         }
     } addViews(this, resourceRequirements);
@@ -189,6 +195,16 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
         {
             cg->accept(addViews);
         }
+    }
+}
+
+void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentState, const ResourceRequirements& resourceRequirements)
+{
+    if (viewDependentState.shadowMaps.size() > 0)
+    {
+        auto nested_view = viewDependentState.shadowMaps.front().view;
+        auto nested_framebuffer = viewDependentState.shadowMaps.front().renderGraph->framebuffer;
+        add(*nested_framebuffer, nested_view, resourceRequirements);
     }
 }
 

@@ -247,8 +247,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         return;
     }
 
-    if (!compileManager) compileManager = CompileManager::create(*this, hints);
-
     auto start_tick = clock::now();
 
     bool containsPagedLOD = false;
@@ -380,6 +378,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     {
         dp.second.compile->waitForCompletion();
     }
+
+
+    // set up the CompileManager
+    if (!compileManager) compileManager = CompileManager::create(*this, hints);
 
     // start any DatabasePagers
     for (auto& task : recordAndSubmitTasks)
