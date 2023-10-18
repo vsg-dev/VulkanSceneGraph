@@ -344,11 +344,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         {
             if (!task->databasePager) task->databasePager = databasePager;
         }
-
-        if (task->databasePager)
-        {
-            task->databasePager->compileManager = compileManager;
-        }
     }
 
     // assign dynamic data to transfer tasks
@@ -367,6 +362,15 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         }
     }
 
+    // set up the CompileManager
+    if (!compileManager) compileManager = CompileManager::create(*this, hints);
+
+    // assign CompileManager to DatabasePager
+    if (databasePager && !databasePager->compileManager)
+    {
+        databasePager->compileManager = compileManager;
+    }
+
     // record any transfer commands
     for (auto& dp : deviceResourceMap)
     {
@@ -378,10 +382,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     {
         dp.second.compile->waitForCompletion();
     }
-
-
-    // set up the CompileManager
-    if (!compileManager) compileManager = CompileManager::create(*this, hints);
 
     // start any DatabasePagers
     for (auto& task : recordAndSubmitTasks)
