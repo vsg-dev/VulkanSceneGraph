@@ -275,7 +275,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
         }
     };
 
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
         {
