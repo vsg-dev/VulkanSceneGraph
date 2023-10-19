@@ -124,6 +124,7 @@ namespace vsg
         std::vector<std::pair<dmat4, const SpotLight*>> spotLights;
 
         virtual void init(ResourceRequirements& requirements);
+        virtual void update(ResourceRequirements& requirements);
 
         virtual void clear();
         virtual void bindDescriptorSets(CommandBuffer& commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet);
