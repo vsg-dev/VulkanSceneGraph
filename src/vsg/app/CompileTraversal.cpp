@@ -275,6 +275,14 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
         }
     };
 
+    for (auto& context : contexts)
+    {
+        if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
+        {
+            commandGraph.maxSlot = context->resourceRequirements.maxSlot;
+        }
+    }
+
     if (commandGraph.framebuffer)
     {
         traverseRenderedSubgraph(commandGraph.framebuffer->getRenderPass(), commandGraph.framebuffer->extent2D());

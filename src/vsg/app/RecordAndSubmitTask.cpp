@@ -202,7 +202,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
-    //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) ");
+    //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) compileResult.maxSlot = ", compileResult.maxSlot);
     if (compileResult.earlyDynamicData || compileResult.lateDynamicData)
     {
         for (auto& task : tasks)

@@ -365,6 +365,14 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     }
 }
 
+void ViewDependentState::update(ResourceRequirements& requirements)
+{
+    if (preRenderCommandGraph && requirements.maxSlot > preRenderCommandGraph->maxSlot)
+    {
+        preRenderCommandGraph->maxSlot = requirements.maxSlot;
+    }
+}
+
 void ViewDependentState::compile(Context& context)
 {
     descriptorSet->compile(context);
