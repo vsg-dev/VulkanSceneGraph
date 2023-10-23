@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/state/ViewDependentState.h>
 
 using namespace vsg;
 
@@ -175,14 +176,22 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
             for (auto& context : compileTraversal->contexts)
             {
                 ref_ptr<View> view = context->view;
-                if (view && !viewDetailsStack.empty())
+
+                if (view)
                 {
-                    if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                    if (view->viewDependentState)
                     {
-                        result.views[view] = viewDetailsStack.top();
+                        view->viewDependentState->update(requirements);
+                    }
+
+                    if (!viewDetailsStack.empty())
+                    {
+                        if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                        {
+                            result.views[view] = viewDetailsStack.top();
+                        }
                     }
                 }
-
                 context->reserve(requirements);
             }
 

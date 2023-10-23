@@ -205,6 +205,11 @@ ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(Descriptor
 
 void Context::reserve(const ResourceRequirements& requirements)
 {
+    if (requirements.maxSlot > resourceRequirements.maxSlot)
+    {
+        resourceRequirements.maxSlot = requirements.maxSlot;
+    }
+
     auto maxSets = requirements.computeNumDescriptorSets();
     auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
 
