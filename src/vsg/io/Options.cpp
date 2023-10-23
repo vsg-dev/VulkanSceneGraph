@@ -64,7 +64,7 @@ int Options::compare(const Object& rhs_object) const
 
     if ((result = compare_pointer_container(readerWriters, rhs.readerWriters))) return result;
     if ((result = compare_value(checkFilenameHint, rhs.checkFilenameHint))) return result;
-    if ((result = compare_value_container(paths, rhs.paths))) return result;
+    if ((result = compare_container(paths, rhs.paths))) return result;
     if ((result = compare_value(fileCache, rhs.fileCache))) return result;
     if ((result = compare_value(extensionHint, rhs.extensionHint))) return result;
     if ((result = compare_value(mapRGBtoRGBAHint, rhs.mapRGBtoRGBAHint))) return result;
