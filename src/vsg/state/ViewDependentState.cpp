@@ -412,9 +412,11 @@ void ViewDependentState::compile(Context& context)
             attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
+            AttachmentReference ignoreColorReference = {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
             AttachmentReference depthReference = {0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
             RenderPass::Subpasses subpassDescription(1);
             subpassDescription[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            subpassDescription[0].colorAttachments.emplace_back(ignoreColorReference);
             subpassDescription[0].depthStencilAttachments.emplace_back(depthReference);
 
             RenderPass::Dependencies dependencies(2);
