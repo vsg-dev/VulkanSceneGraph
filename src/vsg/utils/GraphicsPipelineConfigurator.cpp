@@ -423,7 +423,7 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
     }
     return false;
 }
-
+#if 0
 bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
@@ -435,7 +435,7 @@ bool GraphicsPipelineConfigurator::assignDescriptor(const std::string& name, ref
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
     return descriptorConfigurator->assignDescriptor(name, data);
 }
-
+#endif
 int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);

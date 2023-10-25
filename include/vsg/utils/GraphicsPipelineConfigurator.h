@@ -113,8 +113,22 @@ namespace vsg
         bool enableTexture(const std::string& name);
 
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
-        bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {});
-        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
+
+        template<typename ...Args>
+        bool assignDescriptor(Args && ...args)
+        {
+            descriptorConfigurator = vsg::DescriptorConfigurator::create_if(!descriptorConfigurator,
+                                                                            shaderSet);
+            return descriptorConfigurator->assignDescriptor(std::forward<Args>(args)...);
+        }
+
+        template<typename ...Args>
+        bool assignTexture(Args && ...args)
+        {
+            descriptorConfigurator = vsg::DescriptorConfigurator::create_if(!descriptorConfigurator,
+                                                                            shaderSet);
+            return descriptorConfigurator->assignTexture(std::forward<Args>(args)...);
+        }
 
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 
