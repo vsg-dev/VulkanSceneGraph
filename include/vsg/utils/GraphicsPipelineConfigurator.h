@@ -113,8 +113,10 @@ namespace vsg
         bool enableTexture(const std::string& name);
 
         bool assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
-        bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {});
-        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {});
+        bool assignDescriptor(const std::string& name, ref_ptr<Data> data = {}, uint32_t dstArrayElement = 0);
+        bool assignDescriptor(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement = 0);
+        bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
+        bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 

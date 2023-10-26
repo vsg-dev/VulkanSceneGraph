@@ -423,16 +423,28 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
     return false;
 }
 
-bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler)
+bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, ref_ptr<Data> textureData, ref_ptr<Sampler> sampler, uint32_t dstArrayElement)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->assignTexture(name, textureData, sampler);
+    return descriptorConfigurator->assignTexture(name, textureData, sampler, dstArrayElement);
 }
 
-bool GraphicsPipelineConfigurator::assignDescriptor(const std::string& name, ref_ptr<Data> data)
+bool GraphicsPipelineConfigurator::assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement)
 {
     if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-    return descriptorConfigurator->assignDescriptor(name, data);
+    return descriptorConfigurator->assignTexture(name, imageInfoList, dstArrayElement);
+}
+
+bool GraphicsPipelineConfigurator::assignDescriptor(const std::string& name, ref_ptr<Data> data, uint32_t dstArrayElement)
+{
+    if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
+    return descriptorConfigurator->assignDescriptor(name, data, dstArrayElement);
+}
+
+bool GraphicsPipelineConfigurator::assignDescriptor(const std::string& name, const BufferInfoList& bufferInfoList, uint32_t dstArrayElement)
+{
+    if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
+    return descriptorConfigurator->assignDescriptor(name, bufferInfoList, dstArrayElement);
 }
 
 int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
