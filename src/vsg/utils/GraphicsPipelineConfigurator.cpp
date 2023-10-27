@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/visit.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
@@ -495,6 +496,60 @@ void GraphicsPipelineConfigurator::init()
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }
 
+// Determine if a descriptor set contains null values and therefore should not be written, updated,
+// or bound. This might conflict someday with Vulkan features and extensions for null descriptors.
+
+class DescriptorSetContainsNull : public ConstVisitor
+{
+public:
+    bool containsNull = false;
+    void apply(const DescriptorSet& ds) override
+    {
+        if (ds.descriptors.empty())
+        {
+            containsNull = true;
+        }
+        else
+        {
+            ds.traverse(*this);
+        }
+    }
+
+    void apply(const DescriptorBuffer& db) override
+    {
+        containsNull = containsNull || db.bufferInfoList.empty();
+    }
+
+    void apply(const DescriptorImage& di) override
+    {
+        containsNull = containsNull || di.imageInfoList.empty();
+    }
+    // DescriptorTexelBufferView?
+};
+
+// The inverse, mainly for issuing a warning if a descriptor set contains nulls and values
+
+class DescriptorSetContainsData : public ConstVisitor
+{
+public:
+    bool containsData = false;
+    void apply(const DescriptorSet& ds) override
+    {
+        ds.traverse(*this);
+    }
+
+    void apply(const DescriptorBuffer& db) override
+    {
+        containsData = containsData || !db.bufferInfoList.empty();
+    }
+
+    void apply(const DescriptorImage& di) override
+    {
+        containsData = containsData || !di.imageInfoList.empty();
+    }
+    // DescriptorTexelBufferView?
+};
+
 void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
 {
     // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
@@ -508,18 +563,28 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
         {
             if (auto ds = descriptorConfigurator->descriptorSets[set])
             {
-                if (sharedObjects)
+                if (visit<DescriptorSetContainsNull>(ds).containsNull)
                 {
-                    sharedObjects->share(ds);
+                    if (visit<DescriptorSetContainsData>(ds).containsData)
+                    {
+                        warn("descriptor set contains null values and data");
+                    }
                 }
-
-                auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
-                if (sharedObjects)
+                else
                 {
-                    sharedObjects->share(bindDescriptorSet);
-                }
+                    if (sharedObjects)
+                    {
+                        sharedObjects->share(ds);
+                    }
 
-                stateGroup->add(bindDescriptorSet);
+                    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
+                    if (sharedObjects)
+                    {
+                        sharedObjects->share(bindDescriptorSet);
+                    }
+
+                    stateGroup->add(bindDescriptorSet);
+                }
             }
         }
     }
