@@ -156,7 +156,7 @@ namespace vsg
         return t_mat4<T>(2.0 / (right - left), 0.0, 0.0, 0.0,
                          0.0, 2.0 / (bottom - top), 0.0, 0.0,
                          0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
-                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), 0.5 - (zNear + zFar) / (2.0 * (zFar - zNear)), 1.0);
+                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zFar / (zFar - zNear), 1.0);
     }
 
     template<typename T>
