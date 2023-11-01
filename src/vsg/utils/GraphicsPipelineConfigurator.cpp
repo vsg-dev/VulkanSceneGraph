@@ -93,6 +93,21 @@ DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) 
 {
 }
 
+int DescriptorConfigurator::compare(const Object&  rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
+    if ((result = compare_value(blending, rhs.blending))) return result;
+    if ((result = compare_value(two_sided, rhs.two_sided))) return result;
+    if ((result = compare_container(assigned, rhs.assigned))) return result;
+    if ((result = compare_container(defines, rhs.defines))) return result;
+    return compare_pointer_container(descriptorSets, rhs.descriptorSets);
+}
+
 void DescriptorConfigurator::reset()
 {
     assigned.clear();
@@ -280,6 +295,21 @@ bool DescriptorConfigurator::assignDefaults()
 ArrayConfigurator::ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
 {
+}
+
+int ArrayConfigurator::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
+    if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
+    if ((result = compare_container(assigned, rhs.assigned))) return result;
+    if ((result = compare_container(defines, rhs.defines))) return result;
+    if ((result = compare_value_container(vertexBindingDescriptions, rhs.vertexBindingDescriptions))) return result;
+    return compare_value_container(vertexAttributeDescriptions, rhs.vertexAttributeDescriptions);
 }
 
 bool ArrayConfigurator::assignArray(const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)

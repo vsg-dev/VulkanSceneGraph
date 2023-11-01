@@ -38,11 +38,13 @@ namespace vsg
     public:
         DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
-        void reset();
-
         ref_ptr<ShaderSet> shaderSet;
         bool blending = false;
         bool two_sided = false;
+
+        int compare(const Object& rhs) const override;
+
+        void reset();
 
         bool enableTexture(const std::string& name);
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
@@ -77,6 +79,7 @@ namespace vsg
 
         ref_ptr<ShaderSet> shaderSet;
 
+        int compare(const Object& rhs) const override;
         bool assignArray(const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array);
 
         uint32_t baseAttributeBinding = 0;
