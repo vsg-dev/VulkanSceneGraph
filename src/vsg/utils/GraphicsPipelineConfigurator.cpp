@@ -509,15 +509,19 @@ void GraphicsPipelineConfigurator::init()
         descriptorConfigurator->assignDefaults();
 
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
-        for (auto& ds : descriptorConfigurator->descriptorSets)
+
+        for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
         {
-            desriptorSetLayouts.push_back(ds->setLayout);
+            if (set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(set + 1);
+            auto& ds = descriptorConfigurator->descriptorSets[set];
+            if (ds) desriptorSetLayouts[set] = ds->setLayout;
         }
     }
 
     for (auto& cds : shaderSet->customDescriptorSetBindings)
     {
-        desriptorSetLayouts.push_back(cds->createDescriptorSetLayout());
+        if (cds->set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(cds->set + 1);
+        desriptorSetLayouts[cds->set] = cds->createDescriptorSetLayout();
     }
 
     layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
