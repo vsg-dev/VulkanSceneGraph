@@ -98,7 +98,7 @@ void PipelineLayout::compile(Context& context)
     {
         for (auto dsl : setLayouts)
         {
-            dsl->compile(context);
+            if (dsl) dsl->compile(context);
         }
         _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, flags);
     }
@@ -114,7 +114,8 @@ PipelineLayout::Implementation::Implementation(Device* device, const DescriptorS
     std::vector<VkDescriptorSetLayout> layouts;
     for (auto& dsl : descriptorSetLayouts)
     {
-        layouts.push_back(dsl->vk(device->deviceID));
+        if (dsl) layouts.push_back(dsl->vk(device->deviceID));
+        else layouts.push_back(0);
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;

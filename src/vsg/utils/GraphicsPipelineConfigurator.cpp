@@ -217,14 +217,15 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
     if (auto currentSize = descriptorSets.size(); set >= currentSize)
     {
         descriptorSets.resize(set + 1);
-        for (auto i = currentSize; i <= set; i++)
-        {
-            descriptorSets[i] = vsg::DescriptorSet::create();
-            descriptorSets[i]->setLayout = DescriptorSetLayout::create();
-        }
     }
 
     auto& ds = descriptorSets[set];
+    if (!ds)
+    {
+        ds = vsg::DescriptorSet::create();
+        ds->setLayout = DescriptorSetLayout::create();
+    }
+
     ds->descriptors.push_back(descriptor);
 
     auto& descriptorBindings = ds->setLayout->bindings;
@@ -522,6 +523,12 @@ void GraphicsPipelineConfigurator::init()
     {
         if (cds->set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(cds->set + 1);
         desriptorSetLayouts[cds->set] = cds->createDescriptorSetLayout();
+    }
+
+    for(auto& dsl : desriptorSetLayouts)
+    {
+        // provide default DescriptorSetLayout if none already assigned
+        if (!dsl) dsl = vsg::DescriptorSetLayout::create();
     }
 
     layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
