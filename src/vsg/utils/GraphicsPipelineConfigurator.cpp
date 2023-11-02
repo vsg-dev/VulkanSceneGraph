@@ -252,7 +252,7 @@ bool DescriptorConfigurator::assignDefaults()
                         break;
                     }
                 }
-                if (!set_matched)
+                if (!set_matched && descriptorBinding.data)
                 {
                     bool isTexture = false;
                     switch (descriptorBinding.descriptorType)
