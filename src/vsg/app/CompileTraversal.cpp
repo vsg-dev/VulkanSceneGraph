@@ -247,6 +247,21 @@ void CompileTraversal::apply(Geometry& geometry)
     geometry.traverse(*this);
 }
 
+namespace
+{
+    ref_ptr<MultisampleState> getContextMSState(const ref_ptr<Context>& context)
+    {
+        for (const auto& state : context->overridePipelineStates)
+        {
+            if (auto overideMs = state.cast<MultisampleState>())
+            {
+                return overideMs;
+            }
+        }
+        return {};
+    }
+}
+
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
     auto traverseRenderedSubgraph = [&](vsg::RenderPass* renderpass, VkExtent2D renderArea) {
@@ -262,7 +277,9 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
             mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderArea));
 
-            if (samples != VK_SAMPLE_COUNT_1_BIT)
+            auto contextMSState = getContextMSState(context);
+            if (samples != VK_SAMPLE_COUNT_1_BIT
+                || (contextMSState && contextMSState->rasterizationSamples != samples))
             {
                 mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(samples));
             }
@@ -316,9 +333,15 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
             mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
         }
 
-        if (context->renderPass && context->renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
+        if (context->renderPass)
         {
-            mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
+            auto contextMSState = getContextMSState(context);
+            if (context->renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT
+                || (contextMSState
+                    && contextMSState->rasterizationSamples != context->renderPass->maxSamples))
+            {
+                mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
+            }
         }
 
         renderGraph.traverse(*this);
