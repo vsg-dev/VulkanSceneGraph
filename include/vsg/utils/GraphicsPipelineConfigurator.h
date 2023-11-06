@@ -63,7 +63,7 @@ namespace vsg
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
         /// call after all the textures/uniforms have been explictly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
-        bool assignDefaults();
+        bool assignDefaults(const std::set<uint32_t>& inheritedSets = {});
 
         std::set<std::string> assigned;
         std::set<std::string> defines;
@@ -121,6 +121,9 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
+        /// updated the inhertedSets based in which of the inherted state are compatible.
+        void inheritedState(const Object* object);
+
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 
         [[deprecated("use assignDescriptor(..)")]] bool assignUniform(const std::string& name, ref_ptr<Data> data = {}) { return assignDescriptor(name, data); }
@@ -128,6 +131,7 @@ namespace vsg
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;
         ref_ptr<DescriptorConfigurator> descriptorConfigurator;
+        std::set<uint32_t> inheritedSets;
 
         int compare(const Object& rhs) const override;
 

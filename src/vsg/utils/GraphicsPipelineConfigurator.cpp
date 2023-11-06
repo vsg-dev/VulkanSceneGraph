@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -234,13 +235,19 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
     return true;
 }
 
-bool DescriptorConfigurator::assignDefaults()
+bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedSets)
 {
     bool assignedDefault = false;
     if (shaderSet)
     {
         for (auto& descriptorBinding : shaderSet->descriptorBindings)
         {
+            if (inheritedSets.count(descriptorBinding.set) != 0)
+            {
+                info("DescriptorConfigurator::assignDefaults()(..) no need to assign on set ",descriptorBinding.set);
+                continue;
+            }
+
             if (descriptorBinding.define.empty() && assigned.count(descriptorBinding.name) == 0)
             {
                 bool set_matched = false;
@@ -492,7 +499,53 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
 
     if ((result = compare_pointer(shaderHints, rhs.shaderHints))) return result;
+    // if ((result = compare_container(inheritedSets, rhs.inheritedSets))) return result;
+
     return compare_pointer(descriptorConfigurator, rhs.descriptorConfigurator);
+}
+
+
+void GraphicsPipelineConfigurator::inheritedState(const Object* object)
+{
+    if (!object) return;
+
+    info("DescriptorConfigurator::inheritedState(", object, ")");
+
+    inheritedSets.clear();
+
+    struct FindInheritedState : public ConstVisitor
+    {
+        GraphicsPipelineConfigurator& gpc;
+
+        FindInheritedState(GraphicsPipelineConfigurator& in_gpc) : gpc(in_gpc) {}
+
+        void apply(const Object& obj) override
+        {
+            obj.traverse(*this);
+        }
+
+        void apply(const BindDescriptorSet& bds) override
+        {
+            gpc.inheritedSets.insert(bds.firstSet);
+        }
+
+        void apply(const BindDescriptorSets& bds) override
+        {
+            gpc.inheritedSets.insert(bds.firstSet);
+        }
+
+        void apply(const BindViewDescriptorSets& bvds) override
+        {
+            gpc.inheritedSets.insert(bvds.firstSet);
+        }
+    } findInheritedState(*this);
+
+    object->accept(findInheritedState);
+
+    for(auto& is : inheritedSets)
+    {
+        info("   inheriting set ", is);
+    }
 }
 
 void GraphicsPipelineConfigurator::init()
@@ -503,11 +556,10 @@ void GraphicsPipelineConfigurator::init()
         if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
     }
 
-    vsg::DescriptorSetLayouts desriptorSetLayouts;
-
+    vsg::DescriptorSetLayouts desriptorSetLayouts(shaderSet->descriptorSetRange().second);
     if (descriptorConfigurator)
     {
-        descriptorConfigurator->assignDefaults();
+        descriptorConfigurator->assignDefaults(inheritedSets);
 
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
 
@@ -525,10 +577,13 @@ void GraphicsPipelineConfigurator::init()
         desriptorSetLayouts[cds->set] = cds->createDescriptorSetLayout();
     }
 
-    for(auto& dsl : desriptorSetLayouts)
+    for (size_t set = 0; set < desriptorSetLayouts.size(); ++set)
     {
-        // provide default DescriptorSetLayout if none already assigned
-        if (!dsl) dsl = vsg::DescriptorSetLayout::create();
+        auto& dsl = desriptorSetLayouts[set];
+        if (!dsl)
+        {
+            dsl = shaderSet->createDescriptorSetLayout(shaderHints->defines, set);
+        }
     }
 
     layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
@@ -567,6 +622,12 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
 
     for (auto& cds : shaderSet->customDescriptorSetBindings)
     {
+        if (descriptorConfigurator && inheritedSets.count(cds->set) != 0)
+        {
+            info("GraphicsPipelineConfigurator::copyTo(..) no need to assign CustomDescriptorSetBinding on set ", cds->set);
+            continue;
+        }
+
         if (auto sc = cds->createStateCommand(layout))
         {
             if (sharedObjects)
