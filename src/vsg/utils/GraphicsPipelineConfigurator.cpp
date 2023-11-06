@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -583,7 +584,7 @@ void GraphicsPipelineConfigurator::init()
         auto& dsl = desriptorSetLayouts[set];
         if (!dsl)
         {
-            dsl = shaderSet->createDescriptorSetLayout(shaderHints->defines, set);
+            dsl = shaderSet->createDescriptorSetLayout(shaderHints->defines, static_cast<uint32_t>(set));
         }
     }
 
