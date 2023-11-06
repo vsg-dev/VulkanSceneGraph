@@ -122,7 +122,7 @@ namespace vsg
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
         /// updated the inhertedSets based in which of the inherted state are compatible.
-        void inheritedState(const Object* object);
+        void inheritedState(const StateCommands& stateCommands);
 
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 

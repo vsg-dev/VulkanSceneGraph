@@ -505,11 +505,9 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
 }
 
 
-void GraphicsPipelineConfigurator::inheritedState(const Object* object)
+void GraphicsPipelineConfigurator::inheritedState(const StateCommands& stateCommands)
 {
-    if (!object) return;
-
-    info("DescriptorConfigurator::inheritedState(", object, ")");
+    info("DescriptorConfigurator::inheritedState(", stateCommands.size(), ")");
 
     inheritedSets.clear();
 
@@ -540,7 +538,10 @@ void GraphicsPipelineConfigurator::inheritedState(const Object* object)
         }
     } findInheritedState(*this);
 
-    object->accept(findInheritedState);
+    for(auto sc : stateCommands)
+    {
+        sc->accept(findInheritedState);
+    }
 
     for(auto& is : inheritedSets)
     {
