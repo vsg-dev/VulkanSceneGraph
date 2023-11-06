@@ -64,6 +64,7 @@ namespace vsg
     class RenderPass;
     class BindDescriptorSet;
     class BindDescriptorSets;
+    class BindViewDescriptorSets;
     class Descriptor;
     class DescriptorBuffer;
     class DescriptorImage;
@@ -317,6 +318,7 @@ namespace vsg
         virtual void apply(const RenderPass&);
         virtual void apply(const BindDescriptorSet&);
         virtual void apply(const BindDescriptorSets&);
+        virtual void apply(const BindViewDescriptorSets&);
         virtual void apply(const Descriptor&);
         virtual void apply(const DescriptorBuffer&);
         virtual void apply(const DescriptorImage&);

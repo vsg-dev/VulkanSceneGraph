@@ -667,6 +667,10 @@ void ConstVisitor::apply(const BindDescriptorSets& value)
 {
     apply(static_cast<const StateCommand&>(value));
 }
+void ConstVisitor::apply(const BindViewDescriptorSets& value)
+{
+    apply(static_cast<const StateCommand&>(value));
+}
 void ConstVisitor::apply(const DescriptorSet& value)
 {
     apply(static_cast<const Object&>(value));
