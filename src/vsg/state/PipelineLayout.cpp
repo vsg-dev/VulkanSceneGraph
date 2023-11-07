@@ -114,8 +114,10 @@ PipelineLayout::Implementation::Implementation(Device* device, const DescriptorS
     std::vector<VkDescriptorSetLayout> layouts;
     for (auto& dsl : descriptorSetLayouts)
     {
-        if (dsl) layouts.push_back(dsl->vk(device->deviceID));
-        else layouts.push_back(0);
+        if (dsl)
+            layouts.push_back(dsl->vk(device->deviceID));
+        else
+            layouts.push_back(0);
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;

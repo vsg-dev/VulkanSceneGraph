@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
@@ -17,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
 #include <vsg/vk/Context.h>
-#include <vsg/app/View.h>
 
 using namespace vsg;
 
@@ -95,7 +95,7 @@ DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) 
 {
 }
 
-int DescriptorConfigurator::compare(const Object&  rhs_object) const
+int DescriptorConfigurator::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
@@ -246,7 +246,7 @@ bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedS
         {
             if (inheritedSets.count(descriptorBinding.set) != 0)
             {
-                info("DescriptorConfigurator::assignDefaults()(..) no need to assign on set ",descriptorBinding.set);
+                info("DescriptorConfigurator::assignDefaults()(..) no need to assign on set ", descriptorBinding.set);
                 continue;
             }
 
@@ -506,7 +506,6 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     return compare_pointer(descriptorConfigurator, rhs.descriptorConfigurator);
 }
 
-
 void GraphicsPipelineConfigurator::inheritedState(const StateCommands& stateCommands)
 {
     info("DescriptorConfigurator::inheritedState(", stateCommands.size(), ")");
@@ -517,7 +516,8 @@ void GraphicsPipelineConfigurator::inheritedState(const StateCommands& stateComm
     {
         GraphicsPipelineConfigurator& gpc;
 
-        FindInheritedState(GraphicsPipelineConfigurator& in_gpc) : gpc(in_gpc) {}
+        FindInheritedState(GraphicsPipelineConfigurator& in_gpc) :
+            gpc(in_gpc) {}
 
         void apply(const Object& obj) override
         {
@@ -540,12 +540,12 @@ void GraphicsPipelineConfigurator::inheritedState(const StateCommands& stateComm
         }
     } findInheritedState(*this);
 
-    for(auto sc : stateCommands)
+    for (auto sc : stateCommands)
     {
         sc->accept(findInheritedState);
     }
 
-    for(auto& is : inheritedSets)
+    for (auto& is : inheritedSets)
     {
         info("   inheriting set ", is);
     }
