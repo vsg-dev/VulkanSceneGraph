@@ -501,14 +501,16 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
 
     if ((result = compare_pointer(shaderHints, rhs.shaderHints))) return result;
-    // if ((result = compare_container(inheritedSets, rhs.inheritedSets))) return result;
+    if ((result = compare_pointer_container(inheritedState, rhs.inheritedState))) return result;
 
     return compare_pointer(descriptorConfigurator, rhs.descriptorConfigurator);
 }
 
-void GraphicsPipelineConfigurator::inheritedState(const StateCommands& stateCommands)
+void GraphicsPipelineConfigurator::assignInheritedState(const StateCommands& stateCommands)
 {
     info("DescriptorConfigurator::inheritedState(", stateCommands.size(), ")");
+
+    inheritedState = stateCommands;
 
     inheritedSets.clear();
 
@@ -516,7 +518,7 @@ void GraphicsPipelineConfigurator::inheritedState(const StateCommands& stateComm
     {
         GraphicsPipelineConfigurator& gpc;
 
-        FindInheritedState(GraphicsPipelineConfigurator& in_gpc) :
+        explicit FindInheritedState(GraphicsPipelineConfigurator& in_gpc) :
             gpc(in_gpc) {}
 
         void apply(const Object& obj) override
@@ -594,12 +596,33 @@ void GraphicsPipelineConfigurator::init()
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }
 
-void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
+bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects)
 {
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    if (sharedObjects) sharedObjects->share(bindGraphicsPipeline);
+    info("GraphicsPipelineConfigurator::copyTo()");
 
-    stateGroup->add(bindGraphicsPipeline);
+    bool stateAssigned = false;
+
+    bool pipelineUnique = true;
+    for(auto& sc : inheritedState)
+    {
+        if (compare_pointer(sc, bindGraphicsPipeline)==0) pipelineUnique = false;
+    }
+
+    if (pipelineUnique)
+    {
+        // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
+        if (sharedObjects) sharedObjects->share(bindGraphicsPipeline);
+
+        stateCommands.push_back(bindGraphicsPipeline);
+        stateAssigned = true;
+
+        info("   assigned unqiue ", bindGraphicsPipeline);
+    }
+    else
+    {
+        info("   pipeline NOT unqiue ", bindGraphicsPipeline);
+    }
+
 
     if (descriptorConfigurator)
     {
@@ -607,18 +630,31 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
         {
             if (auto ds = descriptorConfigurator->descriptorSets[set])
             {
-                if (sharedObjects)
+                auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
+
+                bool dsUnique = true;
+                for(auto& sc : inheritedState)
                 {
-                    sharedObjects->share(ds);
+                    if (compare_pointer(sc, bindDescriptorSet)==0) dsUnique = false;
                 }
 
-                auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
-                if (sharedObjects)
+                if (dsUnique)
                 {
-                    sharedObjects->share(bindDescriptorSet);
-                }
+                    if (sharedObjects)
+                    {
+                        sharedObjects->share(ds);
+                        sharedObjects->share(bindDescriptorSet);
+                    }
 
-                stateGroup->add(bindDescriptorSet);
+                    stateCommands.push_back(bindDescriptorSet);
+                    stateAssigned = true;
+
+                    info("   descriptorset and bind descriptorset unique ", bindDescriptorSet, ", ", ds);
+                }
+                else
+                {
+                    info("   descriptorset and bind descriptorset NOT unique ", bindDescriptorSet, ", ", ds);
+                }
             }
         }
     }
@@ -637,10 +673,25 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
             {
                 sharedObjects->share(sc);
             }
-            stateGroup->add(sc);
+            stateCommands.push_back(sc);
+            stateAssigned = true;
         }
     }
 
-    // assign any custom ArrayState that may be required.
-    stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(shaderHints->defines);
+    return stateAssigned;
+}
+
+bool GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
+{
+    if (copyTo(stateGroup->stateCommands, sharedObjects))
+    {
+        // assign any custom ArrayState that may be required.
+        stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(shaderHints->defines);
+
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

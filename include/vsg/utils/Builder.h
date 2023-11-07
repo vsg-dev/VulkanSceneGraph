@@ -125,7 +125,8 @@ namespace vsg
         ref_ptr<Data> instancePositions(const GeometryInfo& info, uint32_t& instanceCount);
         ref_ptr<Data> instanceColors(const GeometryInfo& info, uint32_t instanceCount);
         vec3 y_texcoord(const StateInfo& info) const;
-        ref_ptr<Node> decorateWithCullNodeIfRequired(const GeometryInfo& info, ref_ptr<Node> node) const;
+
+        ref_ptr<Node> decorateAndCompileIfRequired(const GeometryInfo& info, const StateInfo& stateInfo, ref_ptr<Node> node);
 
         ref_ptr<ShaderSet> _flatShadedShaderSet;
         ref_ptr<ShaderSet> _phongShaderSet;

@@ -53,6 +53,8 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
     auto graphicsPipelineConfig = vsg::GraphicsPipelineConfigurator::create(activeShaderSet);
 
+    if (options) graphicsPipelineConfig->assignInheritedState(options->inheritedState);
+
     auto& defines = graphicsPipelineConfig->shaderHints->defines;
 
     // set up graphics pipeline
@@ -146,10 +148,17 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     else
         graphicsPipelineConfig->init();
 
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto stateGroup = vsg::StateGroup::create();
-    graphicsPipelineConfig->copyTo(stateGroup, sharedObjects);
-    return stateGroup;
+    StateCommands stateCommands;
+    if (graphicsPipelineConfig->copyTo(stateCommands, sharedObjects))
+    {
+        // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
+        auto stateGroup = vsg::StateGroup::create();
+        stateGroup->stateCommands.swap(stateCommands);
+        stateGroup->prototypeArrayState = graphicsPipelineConfig->shaderSet->getSuitableArrayState(defines);
+        return stateGroup;
+    }
+
+    return {};
 }
 
 void Builder::transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals)
@@ -203,8 +212,17 @@ vec3 Builder::y_texcoord(const StateInfo& info) const
     }
 }
 
-ref_ptr<Node> Builder::decorateWithCullNodeIfRequired(const GeometryInfo& info, ref_ptr<Node> node) const
+ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, const StateInfo& stateInfo, ref_ptr<Node> node)
 {
+    ref_ptr<Node> subgraph = node;
+
+    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
+    if (auto stateGroup = createStateGroup(stateInfo))
+    {
+        stateGroup->addChild(node);
+        subgraph = stateGroup;
+    }
+
     if (info.cullNode)
     {
         auto cullNode = vsg::CullNode::create();
@@ -234,12 +252,12 @@ ref_ptr<Node> Builder::decorateWithCullNodeIfRequired(const GeometryInfo& info, 
             cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz);
         }
 
-        return cullNode;
+        subgraph = cullNode;
     }
-    else
-    {
-        return node;
-    }
+
+    if (compileTraversal) compileTraversal->compile(subgraph);
+
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -253,9 +271,6 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     uint32_t instanceCount = 1;
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
@@ -374,12 +389,7 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -394,9 +404,6 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -603,12 +610,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -623,9 +625,6 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -813,12 +812,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -833,9 +827,6 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -1060,12 +1051,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -1080,9 +1066,6 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -1163,12 +1146,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -1182,8 +1160,6 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     uint32_t instanceCount = 1;
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
-
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
@@ -1244,11 +1220,7 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    return scenegraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -1263,9 +1235,6 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx * 0.5f;
     auto dy = info.dy * 0.5f;
@@ -1352,12 +1321,7 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }
 
 ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateInfo& stateInfo)
@@ -1372,9 +1336,6 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     auto positions = instancePositions(info, instanceCount);
     auto colors = instanceColors(info, instanceCount);
     auto [t_origin, t_scale, t_top] = y_texcoord(stateInfo).value;
-
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    auto scenegraph = createStateGroup(stateInfo);
 
     auto dx = info.dx;
     auto dy = info.dy;
@@ -1485,10 +1446,5 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    scenegraph->addChild(vid);
-
-    if (compileTraversal) compileTraversal->compile(scenegraph);
-
-    subgraph = decorateWithCullNodeIfRequired(info, scenegraph);
-    return subgraph;
+    return decorateAndCompileIfRequired(info, stateInfo, vid);
 }

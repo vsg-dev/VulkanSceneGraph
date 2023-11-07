@@ -121,8 +121,8 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
-        /// updated the inhertedSets based in which of the inherted state are compatible.
-        void inheritedState(const StateCommands& stateCommands);
+        /// set the inherited state which if compatible can hint the the state setup and copying to avoid setting inherited state local subgraph
+        void assignInheritedState(const StateCommands& stateCommands);
 
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 
@@ -131,15 +131,19 @@ namespace vsg
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;
         ref_ptr<DescriptorConfigurator> descriptorConfigurator;
+        StateCommands inheritedState;
         std::set<uint32_t> inheritedSets;
 
         int compare(const Object& rhs) const override;
 
-        // initialize state objects
+        /// initialize state objects
         virtual void init();
 
-        // copy state objects to StateGroup
-        virtual void copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
+        /// copy state objects to StateCommands list, return true if is add added.
+        virtual bool copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects = {});
+
+        /// copy state objects to StateGroup, return true if state is added.
+        virtual bool copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
 
         // setup by init()
         ref_ptr<PipelineLayout> layout;
