@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
 #include <vsg/vk/Context.h>
+#include <vsg/app/View.h>
 
 using namespace vsg;
 
