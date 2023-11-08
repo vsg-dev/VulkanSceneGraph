@@ -514,6 +514,25 @@ ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set
     return DescriptorSetLayout::create(bindings);
 }
 
+bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const
+{
+    DescriptorSetLayoutBindings bindings;
+    for (auto& binding : descriptorBindings)
+    {
+        if (binding.set == set)
+        {
+            if (binding.define.empty() || defines.count(binding.define) > 0)
+            {
+                bindings.push_back(VkDescriptorSetLayoutBinding{binding.binding, binding.descriptorType, binding.descriptorCount, binding.stageFlags, nullptr});
+            }
+        }
+    }
+
+    return compare_value_container(dsl.bindings, bindings) == 0;
+}
+
+
+
 ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const
 {
     DescriptorSetLayouts descriptorSetLayouts;

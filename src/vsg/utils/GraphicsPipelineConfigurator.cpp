@@ -246,7 +246,6 @@ bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedS
         {
             if (inheritedSets.count(descriptorBinding.set) != 0)
             {
-                info("DescriptorConfigurator::assignDefaults()(..) no need to assign on set ", descriptorBinding.set);
                 continue;
             }
 
@@ -515,8 +514,6 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 {
     inheritedSets.clear();
 
-    info("DescriptorConfigurator::_assignInheritedSets() inheritedState.size() = ", inheritedState.size());
-
     struct FindInheritedState : public ConstVisitor
     {
         GraphicsPipelineConfigurator& gpc;
@@ -531,28 +528,46 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
         void apply(const BindDescriptorSet& bds) override
         {
-            gpc.inheritedSets.insert(bds.firstSet);
+            if (!bds.descriptorSet || !bds.descriptorSet->setLayout || !gpc.descriptorConfigurator) return;
+            if (gpc.shaderSet->compatibleDescriptorSetLayout(*bds.descriptorSet->setLayout, gpc.descriptorConfigurator->defines, bds.firstSet))
+            {
+                gpc.inheritedSets.insert(bds.firstSet);
+            }
         }
 
         void apply(const BindDescriptorSets& bds) override
         {
-            gpc.inheritedSets.insert(bds.firstSet);
+            if (!gpc.descriptorConfigurator) return;
+
+            uint32_t set = bds.firstSet;
+            for(auto& descriptorSet : bds.descriptorSets)
+            {
+                auto descriptorSetLayout = descriptorSet->setLayout;
+                if (descriptorSet->setLayout && gpc.shaderSet->compatibleDescriptorSetLayout(*(descriptorSet->setLayout), gpc.descriptorConfigurator->defines, bds.firstSet))
+                {
+                    gpc.inheritedSets.insert(set);
+                }
+
+                ++set;
+            }
         }
 
         void apply(const BindViewDescriptorSets& bvds) override
         {
-            gpc.inheritedSets.insert(bvds.firstSet);
+            for(auto& cdsb : gpc.shaderSet->customDescriptorSetBindings)
+            {
+                if (cdsb->set == bvds.firstSet && cdsb.cast<ViewDependentStateBinding>())
+                {
+                    gpc.inheritedSets.insert(bvds.firstSet);
+                    return;
+                }
+            }
         }
     } findInheritedState(*this);
 
     for (auto sc : inheritedState)
     {
         sc->accept(findInheritedState);
-    }
-
-    for (auto& is : inheritedSets)
-    {
-        info("   inheriting set ", is);
     }
 }
 
@@ -603,8 +618,6 @@ void GraphicsPipelineConfigurator::init()
 
 bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects)
 {
-    info("GraphicsPipelineConfigurator::copyTo()");
-
     bool stateAssigned = false;
 
     bool pipelineUnique = true;
@@ -620,14 +633,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
 
         stateCommands.push_back(bindGraphicsPipeline);
         stateAssigned = true;
-
-        info("   assigned unqiue ", bindGraphicsPipeline);
     }
-    else
-    {
-        info("   pipeline NOT unqiue ", bindGraphicsPipeline);
-    }
-
 
     if (descriptorConfigurator)
     {
@@ -653,12 +659,6 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
 
                     stateCommands.push_back(bindDescriptorSet);
                     stateAssigned = true;
-
-                    info("   descriptorset and bind descriptorset unique ", bindDescriptorSet, ", ", ds);
-                }
-                else
-                {
-                    info("   descriptorset and bind descriptorset NOT unique ", bindDescriptorSet, ", ", ds);
                 }
             }
         }
@@ -668,7 +668,6 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
     {
         if (descriptorConfigurator && inheritedSets.count(cds->set) != 0)
         {
-            info("GraphicsPipelineConfigurator::copyTo(..) no need to assign CustomDescriptorSetBinding on set ", cds->set);
             continue;
         }
 

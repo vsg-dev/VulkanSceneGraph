@@ -169,6 +169,9 @@ namespace vsg
         /// create the descriptor set layout.
         virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const;
 
+        /// return true of specified descriptor set layout is compatible with what is required for this ShaderSet
+        virtual bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const;
+
         /// create the pipeline layout for all descriptor sets enabled by specified defines or required by default.
         inline ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
 
