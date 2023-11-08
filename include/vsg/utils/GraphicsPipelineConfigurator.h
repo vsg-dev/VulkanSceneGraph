@@ -132,7 +132,6 @@ namespace vsg
         ref_ptr<ShaderCompileSettings> shaderHints;
         ref_ptr<DescriptorConfigurator> descriptorConfigurator;
         StateCommands inheritedState;
-        std::set<uint32_t> inheritedSets;
 
         int compare(const Object& rhs) const override;
 
@@ -146,12 +145,14 @@ namespace vsg
         virtual bool copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
 
         // setup by init()
+        std::set<uint32_t> inheritedSets;
         ref_ptr<PipelineLayout> layout;
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
 
     protected:
         void _assignShaderSetSettings();
+        void _assignInheritedSets();
     };
     VSG_type_name(vsg::GraphicsPipelineConfigurator);
 

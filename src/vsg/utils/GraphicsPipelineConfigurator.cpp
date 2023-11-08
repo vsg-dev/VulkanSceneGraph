@@ -511,7 +511,10 @@ void GraphicsPipelineConfigurator::assignInheritedState(const StateCommands& sta
     info("DescriptorConfigurator::inheritedState(", stateCommands.size(), ")");
 
     inheritedState = stateCommands;
+}
 
+void GraphicsPipelineConfigurator::_assignInheritedSets()
+{
     inheritedSets.clear();
 
     struct FindInheritedState : public ConstVisitor
@@ -555,6 +558,8 @@ void GraphicsPipelineConfigurator::assignInheritedState(const StateCommands& sta
 
 void GraphicsPipelineConfigurator::init()
 {
+    _assignInheritedSets();
+
     vsg::PushConstantRanges pushConstantRanges;
     for (auto& pcb : shaderSet->pushConstantRanges)
     {
