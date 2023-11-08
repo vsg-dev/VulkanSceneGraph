@@ -578,45 +578,6 @@ void GraphicsPipelineConfigurator::init()
 {
     _assignInheritedSets();
 
-#if 0
-    vsg::PushConstantRanges pushConstantRanges;
-    for (auto& pcb : shaderSet->pushConstantRanges)
-    {
-        if (pcb.define.empty() || shaderHints->defines.count(pcb.define) != 0) pushConstantRanges.push_back(pcb.range);
-    }
-
-    vsg::DescriptorSetLayouts desriptorSetLayouts(shaderSet->descriptorSetRange().second);
-    if (descriptorConfigurator)
-    {
-        descriptorConfigurator->assignDefaults(inheritedSets);
-
-        shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
-
-        for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
-        {
-            if (set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(set + 1);
-            auto& ds = descriptorConfigurator->descriptorSets[set];
-            if (ds) desriptorSetLayouts[set] = ds->setLayout;
-        }
-    }
-
-    for (auto& cds : shaderSet->customDescriptorSetBindings)
-    {
-        if (cds->set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(cds->set + 1);
-        desriptorSetLayouts[cds->set] = cds->createDescriptorSetLayout();
-    }
-
-    for (size_t set = 0; set < desriptorSetLayouts.size(); ++set)
-    {
-        auto& dsl = desriptorSetLayouts[set];
-        if (!dsl)
-        {
-            dsl = shaderSet->createDescriptorSetLayout(shaderHints->defines, static_cast<uint32_t>(set));
-        }
-    }
-
-    layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
-#else
     if (descriptorConfigurator)
     {
         descriptorConfigurator->assignDefaults(inheritedSets);
@@ -625,7 +586,6 @@ void GraphicsPipelineConfigurator::init()
     }
 
     layout = shaderSet->createPipelineLayout(shaderHints->defines);
-#endif
 
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
