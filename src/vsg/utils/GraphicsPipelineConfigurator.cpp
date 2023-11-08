@@ -508,14 +508,14 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
 
 void GraphicsPipelineConfigurator::assignInheritedState(const StateCommands& stateCommands)
 {
-    info("DescriptorConfigurator::inheritedState(", stateCommands.size(), ")");
-
     inheritedState = stateCommands;
 }
 
 void GraphicsPipelineConfigurator::_assignInheritedSets()
 {
     inheritedSets.clear();
+
+    info("DescriptorConfigurator::_assignInheritedSets() inheritedState.size() = ", inheritedState.size());
 
     struct FindInheritedState : public ConstVisitor
     {
@@ -545,7 +545,7 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
         }
     } findInheritedState(*this);
 
-    for (auto sc : stateCommands)
+    for (auto sc : inheritedState)
     {
         sc->accept(findInheritedState);
     }
