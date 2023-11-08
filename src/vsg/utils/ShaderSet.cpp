@@ -497,23 +497,6 @@ std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
     return {minimum, maximum + 1};
 }
 
-ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
-{
-    DescriptorSetLayoutBindings bindings;
-    for (auto& binding : descriptorBindings)
-    {
-        if (binding.set == set)
-        {
-            if (binding.define.empty() || defines.count(binding.define) > 0)
-            {
-                bindings.push_back(VkDescriptorSetLayoutBinding{binding.binding, binding.descriptorType, binding.descriptorCount, binding.stageFlags, nullptr});
-            }
-        }
-    }
-
-    return DescriptorSetLayout::create(bindings);
-}
-
 bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const
 {
     DescriptorSetLayoutBindings bindings;
@@ -531,6 +514,65 @@ bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, co
     return compare_value_container(dsl.bindings, bindings) == 0;
 }
 
+ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
+{
+    DescriptorSetLayoutBindings bindings;
+    for (auto& binding : descriptorBindings)
+    {
+        if (binding.set == set)
+        {
+            if (binding.define.empty() || defines.count(binding.define) > 0)
+            {
+                bindings.push_back(VkDescriptorSetLayoutBinding{binding.binding, binding.descriptorType, binding.descriptorCount, binding.stageFlags, nullptr});
+            }
+        }
+    }
+
+    return DescriptorSetLayout::create(bindings);
+}
+
+bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines) const
+{
+    vsg::info("ShaderSet::compatiblePipelineLayout()");
+
+    uint32_t set = 0;
+    for(auto& descriptorSetLayout : layout.setLayouts)
+    {
+        if (descriptorSetLayout && !compatibleDescriptorSetLayout(*descriptorSetLayout, defines, set))
+        {
+            vsg::info("    NOT Compatible set = ", set, ", descriptorSetLayout ", descriptorSetLayout);
+            return false;
+        }
+        else
+        {
+            vsg::info("    Compatible set = ", set, ", descriptorSetLayout ", descriptorSetLayout);
+        }
+        ++set;
+    }
+
+    PushConstantRanges ranges;
+    for(auto& pcr : pushConstantRanges)
+    {
+        if (pcr.define.empty() || defines.count(pcr.define)==1)
+        {
+            ranges.push_back(pcr.range);
+        }
+    }
+
+    if (compare_value_container(layout.pushConstantRanges, ranges) != 0)
+    {
+        vsg::info("    pushConstants not Compatible ");
+        return false;
+    }
+
+    for(auto& range : layout.pushConstantRanges)
+    {
+        vsg::info("    pushConstant.stageFlags = ", range.stageFlags, ", ", range.offset, ", ", range.size);
+    }
+
+    vsg::info("    Compatible PipelineLayout ");
+    return true;
+}
 
 
 ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const
@@ -551,7 +593,7 @@ ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::stri
     PushConstantRanges activePushConstantRanges;
     for (auto& pcb : pushConstantRanges)
     {
-        if (pcb.define.empty() || defines.count(pcb.define) > 0) activePushConstantRanges.push_back(pcb.range);
+        if (pcb.define.empty() || defines.count(pcb.define) != 0) activePushConstantRanges.push_back(pcb.range);
     }
 
     return vsg::PipelineLayout::create(descriptorSetLayouts, activePushConstantRanges);

@@ -529,7 +529,8 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
         void apply(const BindDescriptorSet& bds) override
         {
             if (!bds.descriptorSet || !bds.descriptorSet->setLayout || !gpc.descriptorConfigurator) return;
-            if (gpc.shaderSet->compatibleDescriptorSetLayout(*bds.descriptorSet->setLayout, gpc.descriptorConfigurator->defines, bds.firstSet))
+
+            if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
             {
                 gpc.inheritedSets.insert(bds.firstSet);
             }
@@ -539,21 +540,22 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
         {
             if (!gpc.descriptorConfigurator) return;
 
-            uint32_t set = bds.firstSet;
-            for(auto& descriptorSet : bds.descriptorSets)
+            if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
             {
-                auto descriptorSetLayout = descriptorSet->setLayout;
-                if (descriptorSet->setLayout && gpc.shaderSet->compatibleDescriptorSetLayout(*(descriptorSet->setLayout), gpc.descriptorConfigurator->defines, bds.firstSet))
+                for(size_t i = 0; i < bds.descriptorSets.size(); ++i)
                 {
-                    gpc.inheritedSets.insert(set);
+                    gpc.inheritedSets.insert(bds.firstSet + static_cast<uint32_t>(i));
                 }
-
-                ++set;
             }
         }
 
         void apply(const BindViewDescriptorSets& bvds) override
         {
+            if (!gpc.shaderSet->compatiblePipelineLayout(*bvds.layout, gpc.shaderHints->defines))
+            {
+                return;
+            }
+
             for(auto& cdsb : gpc.shaderSet->customDescriptorSetBindings)
             {
                 if (cdsb->set == bvds.firstSet && cdsb.cast<ViewDependentStateBinding>())
@@ -563,6 +565,7 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
                 }
             }
         }
+
     } findInheritedState(*this);
 
     for (auto sc : inheritedState)
@@ -575,10 +578,11 @@ void GraphicsPipelineConfigurator::init()
 {
     _assignInheritedSets();
 
+#if 0
     vsg::PushConstantRanges pushConstantRanges;
     for (auto& pcb : shaderSet->pushConstantRanges)
     {
-        if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
+        if (pcb.define.empty() || shaderHints->defines.count(pcb.define) != 0) pushConstantRanges.push_back(pcb.range);
     }
 
     vsg::DescriptorSetLayouts desriptorSetLayouts(shaderSet->descriptorSetRange().second);
@@ -612,6 +616,17 @@ void GraphicsPipelineConfigurator::init()
     }
 
     layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
+#else
+    if (descriptorConfigurator)
+    {
+        descriptorConfigurator->assignDefaults(inheritedSets);
+
+        shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
+    }
+
+    layout = shaderSet->createPipelineLayout(shaderHints->defines);
+#endif
+
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }

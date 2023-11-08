@@ -166,11 +166,14 @@ namespace vsg
         /// return the <minimum_set, maximum_set+1> range of set numbers encompassing DescriptorBindings
         std::pair<uint32_t, uint32_t> descriptorSetRange() const;
 
+        /// return true of specified descriptor set layout is compatible with what is required for this ShaderSet
+        virtual bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const;
+
         /// create the descriptor set layout.
         virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const;
 
-        /// return true of specified descriptor set layout is compatible with what is required for this ShaderSet
-        virtual bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const;
+        /// return true of specified pipline layout is compatible with what is required for this ShaderSet
+        virtual bool compatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines) const;
 
         /// create the pipeline layout for all descriptor sets enabled by specified defines or required by default.
         inline ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
