@@ -542,7 +542,7 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
             if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
             {
-                for(size_t i = 0; i < bds.descriptorSets.size(); ++i)
+                for (size_t i = 0; i < bds.descriptorSets.size(); ++i)
                 {
                     gpc.inheritedSets.insert(bds.firstSet + static_cast<uint32_t>(i));
                 }
@@ -556,7 +556,7 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
                 return;
             }
 
-            for(auto& cdsb : gpc.shaderSet->customDescriptorSetBindings)
+            for (auto& cdsb : gpc.shaderSet->customDescriptorSetBindings)
             {
                 if (cdsb->set == bvds.firstSet && cdsb.cast<ViewDependentStateBinding>())
                 {
@@ -596,9 +596,9 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
     bool stateAssigned = false;
 
     bool pipelineUnique = true;
-    for(auto& sc : inheritedState)
+    for (auto& sc : inheritedState)
     {
-        if (compare_pointer(sc, bindGraphicsPipeline)==0) pipelineUnique = false;
+        if (compare_pointer(sc, bindGraphicsPipeline) == 0) pipelineUnique = false;
     }
 
     if (pipelineUnique)
@@ -619,9 +619,9 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
 
                 bool dsUnique = true;
-                for(auto& sc : inheritedState)
+                for (auto& sc : inheritedState)
                 {
-                    if (compare_pointer(sc, bindDescriptorSet)==0) dsUnique = false;
+                    if (compare_pointer(sc, bindDescriptorSet) == 0) dsUnique = false;
                 }
 
                 if (dsUnique)

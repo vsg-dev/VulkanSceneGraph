@@ -536,7 +536,7 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
     vsg::info("ShaderSet::compatiblePipelineLayout()");
 
     uint32_t set = 0;
-    for(auto& descriptorSetLayout : layout.setLayouts)
+    for (auto& descriptorSetLayout : layout.setLayouts)
     {
         if (descriptorSetLayout && !compatibleDescriptorSetLayout(*descriptorSetLayout, defines, set))
         {
@@ -551,9 +551,9 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
     }
 
     PushConstantRanges ranges;
-    for(auto& pcr : pushConstantRanges)
+    for (auto& pcr : pushConstantRanges)
     {
-        if (pcr.define.empty() || defines.count(pcr.define)==1)
+        if (pcr.define.empty() || defines.count(pcr.define) == 1)
         {
             ranges.push_back(pcr.range);
         }
@@ -565,7 +565,7 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
         return false;
     }
 
-    for(auto& range : layout.pushConstantRanges)
+    for (auto& range : layout.pushConstantRanges)
     {
         vsg::info("    pushConstant.stageFlags = ", range.stageFlags, ", ", range.offset, ", ", range.size);
     }
@@ -573,7 +573,6 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
     vsg::info("    Compatible PipelineLayout ");
     return true;
 }
-
 
 ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const
 {
