@@ -226,7 +226,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
     if (info.cullNode)
     {
         auto cullNode = vsg::CullNode::create();
-        cullNode->child = node;
+        cullNode->child = subgraph;
 
         if (info.positions)
         {
