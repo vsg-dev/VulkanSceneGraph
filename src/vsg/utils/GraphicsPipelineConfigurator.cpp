@@ -660,12 +660,18 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
     return stateAssigned;
 }
 
+ref_ptr<ArrayState> GraphicsPipelineConfigurator::getSuitableArrayState() const
+{
+    if (shaderSet && shaderHints) return shaderSet->getSuitableArrayState(shaderHints->defines);
+    else return {};
+}
+
 bool GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
 {
     if (copyTo(stateGroup->stateCommands, sharedObjects))
     {
         // assign any custom ArrayState that may be required.
-        stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(shaderHints->defines);
+        stateGroup->prototypeArrayState = getSuitableArrayState();
 
         return true;
     }

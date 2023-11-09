@@ -138,6 +138,9 @@ namespace vsg
         /// initialize state objects
         virtual void init();
 
+        /// convinience function for calling shaderSet->getSuitableArrayState(shaderHints->defines) to return the appropriate ArrayState object
+        virtual ref_ptr<ArrayState> getSuitableArrayState() const;
+
         /// copy state objects to StateCommands list, return true if is add added.
         virtual bool copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects = {});
 

@@ -96,7 +96,13 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
     if (stateInfo.instance_colors_vec4)
     {
+        // vec4 colors
         graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16);
+    }
+    else
+    {
+        // ubvec4 colors
+        graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 4);
     }
 
     if (stateInfo.billboard)
@@ -154,7 +160,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
         auto stateGroup = vsg::StateGroup::create();
         stateGroup->stateCommands.swap(stateCommands);
-        stateGroup->prototypeArrayState = graphicsPipelineConfig->shaderSet->getSuitableArrayState(defines);
+        stateGroup->prototypeArrayState = graphicsPipelineConfig->getSuitableArrayState();
         return stateGroup;
     }
 
