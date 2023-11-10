@@ -586,7 +586,6 @@ void GraphicsPipelineConfigurator::init()
     }
 
     layout = shaderSet->createPipelineLayout(shaderHints->defines);
-
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }
@@ -604,7 +603,17 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
     if (pipelineUnique)
     {
         // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-        if (sharedObjects) sharedObjects->share(bindGraphicsPipeline);
+        if (sharedObjects)
+        {
+            for (auto& dsl : layout->setLayouts)
+            {
+                sharedObjects->share(dsl);
+            }
+            sharedObjects->share(layout);
+            sharedObjects->share(graphicsPipeline);
+            layout = graphicsPipeline->layout;
+            sharedObjects->share(bindGraphicsPipeline);
+        }
 
         stateCommands.push_back(bindGraphicsPipeline);
         stateAssigned = true;
@@ -628,6 +637,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 {
                     if (sharedObjects)
                     {
+                        sharedObjects->share(ds->setLayout);
                         sharedObjects->share(ds);
                         sharedObjects->share(bindDescriptorSet);
                     }
@@ -662,8 +672,10 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
 
 ref_ptr<ArrayState> GraphicsPipelineConfigurator::getSuitableArrayState() const
 {
-    if (shaderSet && shaderHints) return shaderSet->getSuitableArrayState(shaderHints->defines);
-    else return {};
+    if (shaderSet && shaderHints)
+        return shaderSet->getSuitableArrayState(shaderHints->defines);
+    else
+        return {};
 }
 
 bool GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)

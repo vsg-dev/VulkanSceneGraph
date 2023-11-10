@@ -143,6 +143,11 @@ void ViewDependentStateBinding::write(Output& output) const
     CustomDescriptorSetBinding::write(output);
 }
 
+bool ViewDependentStateBinding::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl) const
+{
+    return viewDescriptorSetLayout->compare(dsl) == 0;
+}
+
 ref_ptr<DescriptorSetLayout> ViewDependentStateBinding::createDescriptorSetLayout()
 {
     return viewDescriptorSetLayout;
@@ -499,6 +504,11 @@ std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
 
 bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const
 {
+    for (auto& cdsb : customDescriptorSetBindings)
+    {
+        if (cdsb->set == set && cdsb->compatibleDescriptorSetLayout(dsl)) return true;
+    }
+
     DescriptorSetLayoutBindings bindings;
     for (auto& binding : descriptorBindings)
     {
@@ -516,6 +526,11 @@ bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, co
 
 ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
 {
+    for (auto& cdsb : customDescriptorSetBindings)
+    {
+        if (cdsb->set == set) return cdsb->createDescriptorSetLayout();
+    }
+
     DescriptorSetLayoutBindings bindings;
     for (auto& binding : descriptorBindings)
     {

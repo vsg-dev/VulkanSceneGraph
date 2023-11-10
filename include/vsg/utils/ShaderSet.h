@@ -83,6 +83,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        virtual bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl) const = 0;
         virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() = 0;
         virtual ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) = 0;
     };
@@ -100,6 +101,7 @@ namespace vsg
 
         ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
 
+        bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl) const override;
         ref_ptr<DescriptorSetLayout> createDescriptorSetLayout() override;
         ref_ptr<StateCommand> createStateCommand(ref_ptr<PipelineLayout> layout) override;
     };
