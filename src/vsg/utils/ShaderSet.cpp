@@ -548,19 +548,12 @@ ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set
 
 bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines) const
 {
-    vsg::info("ShaderSet::compatiblePipelineLayout()");
-
     uint32_t set = 0;
     for (auto& descriptorSetLayout : layout.setLayouts)
     {
         if (descriptorSetLayout && !compatibleDescriptorSetLayout(*descriptorSetLayout, defines, set))
         {
-            vsg::info("    NOT Compatible set = ", set, ", descriptorSetLayout ", descriptorSetLayout);
             return false;
-        }
-        else
-        {
-            vsg::info("    Compatible set = ", set, ", descriptorSetLayout ", descriptorSetLayout);
         }
         ++set;
     }
@@ -576,16 +569,9 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
 
     if (compare_value_container(layout.pushConstantRanges, ranges) != 0)
     {
-        vsg::info("    pushConstants not Compatible ");
         return false;
     }
 
-    for (auto& range : layout.pushConstantRanges)
-    {
-        vsg::info("    pushConstant.stageFlags = ", range.stageFlags, ", ", range.offset, ", ", range.size);
-    }
-
-    vsg::info("    Compatible PipelineLayout ");
     return true;
 }
 
