@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/type_name.h>
 
+#include <bits/stdint-uintn.h>
 #include <cmath>
 #include <type_traits>
 
