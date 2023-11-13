@@ -10,11 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/SharedObjects.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -92,7 +95,7 @@ DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) 
 {
 }
 
-int DescriptorConfigurator::compare(const Object&  rhs_object) const
+int DescriptorConfigurator::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
@@ -217,14 +220,15 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
     if (auto currentSize = descriptorSets.size(); set >= currentSize)
     {
         descriptorSets.resize(set + 1);
-        for (auto i = currentSize; i <= set; i++)
-        {
-            descriptorSets[i] = vsg::DescriptorSet::create();
-            descriptorSets[i]->setLayout = DescriptorSetLayout::create();
-        }
     }
 
     auto& ds = descriptorSets[set];
+    if (!ds)
+    {
+        ds = vsg::DescriptorSet::create();
+        ds->setLayout = DescriptorSetLayout::create();
+    }
+
     ds->descriptors.push_back(descriptor);
 
     auto& descriptorBindings = ds->setLayout->bindings;
@@ -233,13 +237,18 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
     return true;
 }
 
-bool DescriptorConfigurator::assignDefaults()
+bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedSets)
 {
     bool assignedDefault = false;
     if (shaderSet)
     {
         for (auto& descriptorBinding : shaderSet->descriptorBindings)
         {
+            if (inheritedSets.count(descriptorBinding.set) != 0)
+            {
+                continue;
+            }
+
             if (descriptorBinding.define.empty() && assigned.count(descriptorBinding.name) == 0)
             {
                 bool set_matched = false;
@@ -251,7 +260,7 @@ bool DescriptorConfigurator::assignDefaults()
                         break;
                     }
                 }
-                if (!set_matched)
+                if (!set_matched && descriptorBinding.data)
                 {
                     bool isTexture = false;
                     switch (descriptorBinding.descriptorType)
@@ -491,50 +500,124 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
 
     if ((result = compare_pointer(shaderHints, rhs.shaderHints))) return result;
+    if ((result = compare_pointer_container(inheritedState, rhs.inheritedState))) return result;
+
     return compare_pointer(descriptorConfigurator, rhs.descriptorConfigurator);
+}
+
+void GraphicsPipelineConfigurator::assignInheritedState(const StateCommands& stateCommands)
+{
+    inheritedState = stateCommands;
+}
+
+void GraphicsPipelineConfigurator::_assignInheritedSets()
+{
+    inheritedSets.clear();
+
+    struct FindInheritedState : public ConstVisitor
+    {
+        GraphicsPipelineConfigurator& gpc;
+
+        explicit FindInheritedState(GraphicsPipelineConfigurator& in_gpc) :
+            gpc(in_gpc) {}
+
+        void apply(const Object& obj) override
+        {
+            obj.traverse(*this);
+        }
+
+        void apply(const BindDescriptorSet& bds) override
+        {
+            if (!bds.descriptorSet || !bds.descriptorSet->setLayout || !gpc.descriptorConfigurator) return;
+
+            if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
+            {
+                gpc.inheritedSets.insert(bds.firstSet);
+            }
+        }
+
+        void apply(const BindDescriptorSets& bds) override
+        {
+            if (!gpc.descriptorConfigurator) return;
+
+            if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
+            {
+                for (size_t i = 0; i < bds.descriptorSets.size(); ++i)
+                {
+                    gpc.inheritedSets.insert(bds.firstSet + static_cast<uint32_t>(i));
+                }
+            }
+        }
+
+        void apply(const BindViewDescriptorSets& bvds) override
+        {
+            if (!gpc.shaderSet->compatiblePipelineLayout(*bvds.layout, gpc.shaderHints->defines))
+            {
+                return;
+            }
+
+            for (auto& cdsb : gpc.shaderSet->customDescriptorSetBindings)
+            {
+                if (cdsb->set == bvds.firstSet && cdsb.cast<ViewDependentStateBinding>())
+                {
+                    gpc.inheritedSets.insert(bvds.firstSet);
+                    return;
+                }
+            }
+        }
+
+    } findInheritedState(*this);
+
+    for (auto sc : inheritedState)
+    {
+        sc->accept(findInheritedState);
+    }
 }
 
 void GraphicsPipelineConfigurator::init()
 {
-    vsg::PushConstantRanges pushConstantRanges;
-    for (auto& pcb : shaderSet->pushConstantRanges)
-    {
-        if (pcb.define.empty()) pushConstantRanges.push_back(pcb.range);
-    }
-
-    vsg::DescriptorSetLayouts desriptorSetLayouts;
+    _assignInheritedSets();
 
     if (descriptorConfigurator)
     {
-        descriptorConfigurator->assignDefaults();
+        descriptorConfigurator->assignDefaults(inheritedSets);
 
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
-
-        for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
-        {
-            if (set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(set + 1);
-            auto& ds = descriptorConfigurator->descriptorSets[set];
-            if (ds) desriptorSetLayouts[set] = ds->setLayout;
-        }
     }
 
-    for (auto& cds : shaderSet->customDescriptorSetBindings)
-    {
-        if (cds->set >= desriptorSetLayouts.size()) desriptorSetLayouts.resize(cds->set + 1);
-        desriptorSetLayouts[cds->set] = cds->createDescriptorSetLayout();
-    }
-
-    layout = vsg::PipelineLayout::create(desriptorSetLayouts, pushConstantRanges);
+    layout = shaderSet->createPipelineLayout(shaderHints->defines);
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }
 
-void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
+bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects)
 {
-    // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
-    if (sharedObjects) sharedObjects->share(bindGraphicsPipeline);
+    bool stateAssigned = false;
 
-    stateGroup->add(bindGraphicsPipeline);
+    bool pipelineUnique = true;
+    for (auto& sc : inheritedState)
+    {
+        if (compare_pointer(sc, bindGraphicsPipeline) == 0) pipelineUnique = false;
+    }
+
+    if (pipelineUnique)
+    {
+        // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
+        if (sharedObjects)
+        {
+            for (auto& dsl : layout->setLayouts)
+            {
+                sharedObjects->share(dsl);
+            }
+            sharedObjects->share(layout);
+            sharedObjects->share(graphicsPipeline);
+            layout = graphicsPipeline->layout;
+            sharedObjects->share(bindGraphicsPipeline);
+        }
+
+        stateCommands.push_back(bindGraphicsPipeline);
+        stateAssigned = true;
+    }
 
     if (descriptorConfigurator)
     {
@@ -542,34 +625,70 @@ void GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_pt
         {
             if (auto ds = descriptorConfigurator->descriptorSets[set])
             {
-                if (sharedObjects)
+                auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
+
+                bool dsUnique = true;
+                for (auto& sc : inheritedState)
                 {
-                    sharedObjects->share(ds);
+                    if (compare_pointer(sc, bindDescriptorSet) == 0) dsUnique = false;
                 }
 
-                auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
-                if (sharedObjects)
+                if (dsUnique)
                 {
-                    sharedObjects->share(bindDescriptorSet);
-                }
+                    if (sharedObjects)
+                    {
+                        sharedObjects->share(ds->setLayout);
+                        sharedObjects->share(ds);
+                        sharedObjects->share(bindDescriptorSet);
+                    }
 
-                stateGroup->add(bindDescriptorSet);
+                    stateCommands.push_back(bindDescriptorSet);
+                    stateAssigned = true;
+                }
             }
         }
     }
 
     for (auto& cds : shaderSet->customDescriptorSetBindings)
     {
+        if (descriptorConfigurator && inheritedSets.count(cds->set) != 0)
+        {
+            continue;
+        }
+
         if (auto sc = cds->createStateCommand(layout))
         {
             if (sharedObjects)
             {
                 sharedObjects->share(sc);
             }
-            stateGroup->add(sc);
+            stateCommands.push_back(sc);
+            stateAssigned = true;
         }
     }
 
-    // assign any custom ArrayState that may be required.
-    stateGroup->prototypeArrayState = shaderSet->getSuitableArrayState(shaderHints->defines);
+    return stateAssigned;
+}
+
+ref_ptr<ArrayState> GraphicsPipelineConfigurator::getSuitableArrayState() const
+{
+    if (shaderSet && shaderHints)
+        return shaderSet->getSuitableArrayState(shaderHints->defines);
+    else
+        return {};
+}
+
+bool GraphicsPipelineConfigurator::copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects)
+{
+    if (copyTo(stateGroup->stateCommands, sharedObjects))
+    {
+        // assign any custom ArrayState that may be required.
+        stateGroup->prototypeArrayState = getSuitableArrayState();
+
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

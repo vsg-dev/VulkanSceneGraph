@@ -44,7 +44,8 @@ Options::Options(const Options& options) :
     mapRGBtoRGBAHint(options.mapRGBtoRGBAHint),
     sceneCoordinateConvention(options.sceneCoordinateConvention),
     formatCoordinateConventions(options.formatCoordinateConventions),
-    shaderSets(options.shaderSets)
+    shaderSets(options.shaderSets),
+    inheritedState(options.inheritedState)
 {
     getOrCreateAuxiliary();
     // copy any meta data.

@@ -38,4 +38,6 @@ namespace vsg
     };
     VSG_type_name(vsg::StateCommand);
 
+    using StateCommands = std::vector<ref_ptr<StateCommand>, allocator_affinity_nodes<ref_ptr<StateCommand>>>;
+
 } // namespace vsg

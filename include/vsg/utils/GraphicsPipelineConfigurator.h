@@ -63,7 +63,7 @@ namespace vsg
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
         /// call after all the textures/uniforms have been explictly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
-        bool assignDefaults();
+        bool assignDefaults(const std::set<uint32_t>& inheritedSets = {});
 
         std::set<std::string> assigned;
         std::set<std::string> defines;
@@ -121,6 +121,9 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
+        /// set the inherited state which if compatible can hint the the state setup and copying to avoid setting inherited state local subgraph
+        void assignInheritedState(const StateCommands& stateCommands);
+
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
 
         [[deprecated("use assignDescriptor(..)")]] bool assignUniform(const std::string& name, ref_ptr<Data> data = {}) { return assignDescriptor(name, data); }
@@ -128,22 +131,31 @@ namespace vsg
         // setup by assign calls
         ref_ptr<ShaderCompileSettings> shaderHints;
         ref_ptr<DescriptorConfigurator> descriptorConfigurator;
+        StateCommands inheritedState;
 
         int compare(const Object& rhs) const override;
 
-        // initialize state objects
+        /// initialize state objects
         virtual void init();
 
-        // copy state objects to StateGroup
-        virtual void copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
+        /// convinience function for calling shaderSet->getSuitableArrayState(shaderHints->defines) to return the appropriate ArrayState object
+        virtual ref_ptr<ArrayState> getSuitableArrayState() const;
+
+        /// copy state objects to StateCommands list, return true if is add added.
+        virtual bool copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects = {});
+
+        /// copy state objects to StateGroup, return true if state is added.
+        virtual bool copyTo(ref_ptr<StateGroup> stateGroup, ref_ptr<SharedObjects> sharedObjects = {});
 
         // setup by init()
+        std::set<uint32_t> inheritedSets;
         ref_ptr<PipelineLayout> layout;
         ref_ptr<GraphicsPipeline> graphicsPipeline;
         ref_ptr<BindGraphicsPipeline> bindGraphicsPipeline;
 
     protected:
         void _assignShaderSetSettings();
+        void _assignInheritedSets();
     };
     VSG_type_name(vsg::GraphicsPipelineConfigurator);
 
