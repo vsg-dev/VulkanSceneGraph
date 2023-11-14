@@ -335,12 +335,18 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
 
     if (auto& materialBinding = _shaderSet->getDescriptorBinding("material"))
     {
+        // use the ShaderSet's DescriptorBinding.set to set the _materialSetIndex used to assign the tile texture and material
+        _materialSetIndex = materialBinding.set;
+
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
         _material = vsg::DescriptorBuffer::create(mat, materialBinding.binding, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     }
     else
     {
+        // default to set 1 as we'll assumed the viewdependent state is assigned to set 0.
+        _materialSetIndex = 1;
+
         auto mat = vsg::PhongMaterialValue::create();
         _material = vsg::DescriptorBuffer::create(mat, 10, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
     }
@@ -383,7 +389,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     // create texture image, material and associated DescriptorSets and binding
     auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture, _material});
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, _materialSetIndex, vsg::Descriptors{texture, _material});
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
@@ -476,7 +482,7 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
     // create texture image and associated DescriptorSets and binding
     auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, 0, vsg::Descriptors{texture});
+    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, _materialSetIndex, vsg::Descriptors{texture});
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();

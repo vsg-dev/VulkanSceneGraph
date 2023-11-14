@@ -60,6 +60,7 @@ namespace vsg
 
         ref_ptr<ShaderSet> _shaderSet;
         ref_ptr<GraphicsPipelineConfigurator> _graphicsPipelineConfig;
+        uint32_t _materialSetIndex = 1;
         ref_ptr<Sampler> _sampler;
         ref_ptr<DescriptorBuffer> _material;
     };
