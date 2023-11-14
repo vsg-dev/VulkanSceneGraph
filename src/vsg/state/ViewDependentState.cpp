@@ -492,6 +492,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPipelineDepthStencilStateCreateInfo.html
     // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkCmdSetDepthBoundsTestEnable.html
     //
+    // Game industry SIGGRAPH presentation
+    // https://www.realtimeshadows.com/sites/default/files/Playing%20with%20Real-Time%20Shadows_0.pdf
+    //
     // Soft shadows:
     // https://ogldev.org/www/tutorial42/tutorial42.html
     // https://developer.download.nvidia.com/shaderlibrary/docs/shadow_PCSS.pdf
