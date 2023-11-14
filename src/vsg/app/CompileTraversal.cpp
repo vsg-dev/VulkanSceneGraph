@@ -249,32 +249,6 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    auto traverseRenderedSubgraph = [&](vsg::RenderPass* renderpass, VkExtent2D renderArea) {
-        auto samples = renderpass->maxSamples;
-
-        for (auto& context : contexts)
-        {
-            context->renderPass = renderpass;
-
-            // save previous states to be restored after traversal
-            auto previousDefaultPipelineStates = context->defaultPipelineStates;
-            auto previousOverridePipelineStates = context->overridePipelineStates;
-
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderArea));
-
-            if (samples != VK_SAMPLE_COUNT_1_BIT)
-            {
-                mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(samples));
-            }
-
-            commandGraph.traverse(*this);
-
-            // restore previous values
-            context->defaultPipelineStates = previousDefaultPipelineStates;
-            context->overridePipelineStates = previousOverridePipelineStates;
-        }
-    };
-
     for (auto& context : contexts)
     {
         if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
@@ -283,18 +257,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
         }
     }
 
-    if (commandGraph.framebuffer)
-    {
-        traverseRenderedSubgraph(commandGraph.framebuffer->getRenderPass(), commandGraph.framebuffer->extent2D());
-    }
-    else if (commandGraph.window)
-    {
-        traverseRenderedSubgraph(commandGraph.window->getOrCreateRenderPass(), commandGraph.window->extent2D());
-    }
-    else
-    {
-        commandGraph.traverse(*this);
-    }
+    commandGraph.traverse(*this);
 }
 
 void CompileTraversal::apply(RenderGraph& renderGraph)
@@ -316,7 +279,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
             mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
         }
 
-        if (context->renderPass && context->renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
+        if (context->renderPass)
         {
             mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
         }
