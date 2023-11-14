@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/Logger.h>
 
 #include <algorithm>
 #include <fstream>
@@ -125,8 +126,8 @@ namespace vsg
         void write(size_t num, const uint32_t* value) override { _write(num, value); }
         void write(size_t num, const int64_t* value) override { _write(num, value); }
         void write(size_t num, const uint64_t* value) override { _write(num, value); }
-        void write(size_t num, const float* value) override { _write_real(num, value); }
-        void write(size_t num, const double* value) override { _write_real(num, value); }
+        void write(size_t num, const float* value) override { _output.precision(float_precision); _write_real(num, value); }
+        void write(size_t num, const double* value) override { _output.precision(double_precision); _write_real(num, value); }
 
         void _write(const std::string& str)
         {
@@ -150,9 +151,11 @@ namespace vsg
         /// write object
         void write(const vsg::Object* object) override;
 
+        int float_precision = 6;
+        int double_precision = 12;
+
     protected:
         std::ostream& _output;
-
         std::size_t _indentationStep = 2;
         std::size_t _indentation = 0;
         std::size_t _maximumIndentation = 0;
