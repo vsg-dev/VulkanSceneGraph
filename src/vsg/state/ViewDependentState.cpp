@@ -607,42 +607,24 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             auto lookAt = camera->viewMatrix.cast<LookAt>();
             auto ortho = camera->projectionMatrix.cast<Orthographic>();
 
-#if 0
-            info("   lookAt = ", lookAt);
-            info("   ortho = ", ortho);
-#endif
-            auto ws_bounds = computeFrustumBounds(clip_near_z, clip_far_z, clipToWorld);
-            auto center = (ws_bounds.min + ws_bounds.max) * 0.5;
+            if (!lookAt) camera->viewMatrix = lookAt = LookAt::create();
+            if (!ortho) camera->projectionMatrix = ortho = Orthographic::create();
 
-            if (!lookAt)
-            {
-                lookAt = LookAt::create(center, center + light_z, light_y);
-                camera->viewMatrix = lookAt;
-            }
-            else
-            {
-                lookAt->eye = center;
-                lookAt->center = center + light_z;
-                lookAt->up = light_y;
-            }
+            auto ws_bounds = computeFrustumBounds(clip_near_z, clip_far_z, clipToWorld);
+            auto sm_eye = (ws_bounds.min + ws_bounds.max) * 0.5 - light_z * (0.5 * length(ws_bounds.max - ws_bounds.min));
+
+            lookAt->eye = sm_eye;
+            lookAt->center = sm_eye + light_z;
+            lookAt->up = light_y;
 
             auto ls_bounds = computeFrustumBounds(clip_near_z, clip_far_z, lookAt->transform() * clipToWorld);
-            if (!ortho)
-            {
-                ortho = Orthographic::create(ls_bounds.min.x, ls_bounds.max.x,
-                                             ls_bounds.min.y, ls_bounds.max.y,
-                                             ls_bounds.min.z, ls_bounds.max.z);
-                camera->projectionMatrix = ortho;
-            }
-            else
-            {
-                ortho->left = ls_bounds.min.x;
-                ortho->right = ls_bounds.max.x;
-                ortho->bottom = ls_bounds.min.y;
-                ortho->top = ls_bounds.max.y;
-                ortho->nearDistance = ls_bounds.min.z;
-                ortho->farDistance = ls_bounds.max.z;
-            }
+
+            ortho->left = ls_bounds.min.x;
+            ortho->right = ls_bounds.max.x;
+            ortho->bottom = ls_bounds.min.y;
+            ortho->top = ls_bounds.max.y;
+            ortho->nearDistance = -ls_bounds.max.z;
+            ortho->farDistance = -ls_bounds.min.z;
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
 
