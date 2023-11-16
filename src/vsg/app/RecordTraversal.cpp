@@ -108,11 +108,6 @@ void RecordTraversal::setDatabasePager(DatabasePager* dp)
     if (_culledPagedLODs) _culledPagedLODs->ref();
 }
 
-void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
-{
-    _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
-}
-
 void RecordTraversal::clearBins()
 {
     for (auto& bin : _bins)
@@ -434,7 +429,7 @@ void RecordTraversal::apply(const View& view)
 
     if (view.camera)
     {
-        setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
+        _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
         {
