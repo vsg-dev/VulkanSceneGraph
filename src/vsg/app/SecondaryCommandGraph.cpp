@@ -137,11 +137,6 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    if (camera)
-    {
-        recordTraversal->setProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
-    }
-
     traverse(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
@@ -163,8 +158,6 @@ ref_ptr<SecondaryCommandGraph> vsg::createSecondaryCommandGraphForView(ref_ptr<W
     if (scenegraph) view->addChild(scenegraph);
 
     auto commandGraph = SecondaryCommandGraph::create(window, view, subpass);
-
-    commandGraph->camera = camera;
 
     return commandGraph;
 }

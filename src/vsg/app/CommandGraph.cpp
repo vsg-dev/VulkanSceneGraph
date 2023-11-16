@@ -114,11 +114,6 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    if (camera)
-    {
-        recordTraversal->setProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
-    }
-
     traverse(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);

@@ -35,7 +35,6 @@ namespace vsg
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
         ref_ptr<Device> device;
-        ref_ptr<Camera> camera;
 
         int queueFamily = -1;
         int presentFamily = -1;
