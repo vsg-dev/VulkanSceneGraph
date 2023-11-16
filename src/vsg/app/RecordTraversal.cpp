@@ -46,9 +46,6 @@ using namespace vsg;
 RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_maxSlot, std::set<Bin*> in_bins) :
     _state(new State(in_commandBuffer, in_maxSlot))
 {
-    if (_frameStamp) _frameStamp->ref();
-    if (_state) _state->ref();
-
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
     for (auto& bin : in_bins)
@@ -67,10 +64,6 @@ RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_ma
 
 RecordTraversal::~RecordTraversal()
 {
-    if (_culledPagedLODs) _culledPagedLODs->unref();
-    if (_databasePager) _databasePager->unref();
-    if (_state) _state->unref();
-    if (_frameStamp) _frameStamp->unref();
 }
 
 CommandBuffer* RecordTraversal::getCommandBuffer()
@@ -85,27 +78,15 @@ uint32_t RecordTraversal::deviceID() const
 
 void RecordTraversal::setFrameStamp(FrameStamp* fs)
 {
-    if (fs == _frameStamp) return;
-
-    if (_frameStamp) _frameStamp->unref();
-
     _frameStamp = fs;
-
-    if (_frameStamp) _frameStamp->ref();
 }
 
 void RecordTraversal::setDatabasePager(DatabasePager* dp)
 {
     if (dp == _databasePager) return;
 
-    if (_databasePager) _databasePager->unref();
-    if (_culledPagedLODs) _culledPagedLODs->unref();
-
     _databasePager = dp;
     _culledPagedLODs = dp ? dp->culledPagedLODs.get() : nullptr;
-
-    if (_databasePager) _databasePager->ref();
-    if (_culledPagedLODs) _culledPagedLODs->ref();
 }
 
 void RecordTraversal::clearBins()

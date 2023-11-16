@@ -134,11 +134,11 @@ namespace vsg
         virtual ~RecordTraversal();
 
         ref_ptr<FrameStamp> _frameStamp;
-        State* _state = nullptr;
+        ref_ptr<State> _state;
 
         // used to handle loading of PagedLOD external children.
         ref_ptr<DatabasePager> _databasePager;
-        CulledPagedLODs* _culledPagedLODs = nullptr;
+        ref_ptr<CulledPagedLODs> _culledPagedLODs;
 
         int32_t _minimumBinNumber = 0;
         std::vector<ref_ptr<Bin>> _bins;
