@@ -79,7 +79,7 @@ namespace vsg
             offset(in_offset)
         {
             // make sure there is an initial matrix
-            matrixStack.emplace(mat4());
+            matrixStack.emplace(dmat4());
             dirty = true;
         }
 

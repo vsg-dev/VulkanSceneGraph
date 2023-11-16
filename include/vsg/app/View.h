@@ -25,9 +25,9 @@ namespace vsg
     /// ViewFeatures mask provide a means for controlling what features should be implemented by the View's ViewDependentState.
     enum ViewFeatures
     {
-        RECORD_BASE = 0,
-        RECORD_LIGHTS = (1 << 0),
-        RECORD_SHADOW_MAPS = (1 << 1),
+        INHERIT_VIEWPOINT = (1 << 0),
+        RECORD_LIGHTS = (1 << 1),
+        RECORD_SHADOW_MAPS = (1 << 2),
         RECORD_ALL = (RECORD_LIGHTS | RECORD_SHADOW_MAPS)
     };
 

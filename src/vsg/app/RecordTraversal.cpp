@@ -389,6 +389,7 @@ void RecordTraversal::apply(const Command& command)
     command.record(*(_state->_commandBuffer));
 }
 
+
 void RecordTraversal::apply(const View& view)
 {
     // note, View::accept() updates the RecordTraversal's traversalMask
@@ -429,6 +430,11 @@ void RecordTraversal::apply(const View& view)
 
     if (view.camera)
     {
+        if ((view.features & INHERIT_VIEWPOINT) != 0)
+        {
+            // we need a record of the enclosing View's projection and view matrix.
+        }
+
         _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
