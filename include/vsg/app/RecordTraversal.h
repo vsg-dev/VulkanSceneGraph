@@ -95,8 +95,6 @@ namespace vsg
         void setDatabasePager(DatabasePager* dp);
         DatabasePager* getDatabasePager() { return _databasePager; }
 
-        void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix);
-
         void apply(const Object& object);
 
         // scene graph nodes

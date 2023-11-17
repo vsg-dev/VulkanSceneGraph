@@ -89,11 +89,6 @@ void RecordTraversal::setDatabasePager(DatabasePager* dp)
     _culledPagedLODs = dp ? dp->culledPagedLODs.get() : nullptr;
 }
 
-void RecordTraversal::setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
-{
-    _state->setProjectionAndViewMatrix(projMatrix, viewMatrix);
-}
-
 void RecordTraversal::clearBins()
 {
     for (auto& bin : _bins)
@@ -375,6 +370,7 @@ void RecordTraversal::apply(const Command& command)
     command.record(*(_state->_commandBuffer));
 }
 
+
 void RecordTraversal::apply(const View& view)
 {
     // note, View::accept() updates the RecordTraversal's traversalMask
@@ -415,7 +411,8 @@ void RecordTraversal::apply(const View& view)
 
     if (view.camera)
     {
-        setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
+        _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
+        _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
         {
@@ -468,6 +465,12 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
         auto cg = const_cast<CommandGraph*>(&commandGraph);
         if (cg->device)
         {
+            if (_viewDependentState && _viewDependentState->view && _viewDependentState->view->camera)
+            {
+                auto camera = _viewDependentState->view->camera;
+                cg->getOrCreateRecordTraversal()->_state->setInhertiedViewProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
+            }
+
             cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
         }
         else

@@ -35,12 +35,17 @@ namespace vsg
         ref_ptr<Framebuffer> framebuffer;
         ref_ptr<Window> window;
         ref_ptr<Device> device;
-        ref_ptr<Camera> camera;
 
         int queueFamily = -1;
         int presentFamily = -1;
         uint32_t maxSlot = 2;
         int submitOrder = 0;
+
+        inline ref_ptr<RecordTraversal> getOrCreateRecordTraversal()
+        {
+            if (!recordTraversal) recordTraversal = RecordTraversal::create(maxSlot);
+            return recordTraversal;
+        }
 
         ref_ptr<RecordTraversal> recordTraversal;
 
