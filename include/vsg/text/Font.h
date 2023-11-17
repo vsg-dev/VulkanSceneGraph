@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Data.h>
 #include <vsg/io/Options.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/text/GlyphMetrics.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -35,6 +36,8 @@ namespace vsg
         ref_ptr<GlyphMetricsArray> glyphMetrics;
         ref_ptr<uintArray> charmap;
         ref_ptr<SharedObjects> sharedObjects;
+        ref_ptr<ImageInfo> atlasImageInfo;
+        ref_ptr<ImageInfo> glyphImageInfo;
 
         /// get the index into the glyphMetrics array for the glyph associated with specified charcode
         uint32_t glyphIndexForCharcode(uint32_t charcode) const
@@ -42,6 +45,8 @@ namespace vsg
             if (charmap && charcode < charmap->size()) return charmap->at(charcode);
             return 0;
         }
+        void createFontImages();
+    protected:
     };
     VSG_type_name(vsg::Font);
 
