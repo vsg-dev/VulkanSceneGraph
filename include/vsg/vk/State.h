@@ -227,8 +227,7 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        explicit State(CommandBuffer* commandBuffer, uint32_t maxSlot) :
-            _commandBuffer(commandBuffer),
+        explicit State(uint32_t maxSlot) :
             dirty(false),
             stateStacks(maxSlot + 1)
         {
