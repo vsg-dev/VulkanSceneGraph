@@ -259,7 +259,7 @@ namespace vsg
     /// write info message to the current vsg::Logger::instance().
     /// i.e. info("vertex = ", vsg::vec3(x,y,z));
     template<typename... Args>
-    void info(Args... args)
+    void info(Args&&... args)
     {
         Logger::instance()->info(args...);
     }
