@@ -63,10 +63,8 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
         return;
     }
 
-    if (!recordTraversal)
-    {
-        recordTraversal = RecordTraversal::create(maxSlot);
-    }
+    // create the RecordTraversal if it isn't already created
+    getOrCreateRecordTraversal();
 
     if ((maxSlot + 1) != recordTraversal->getState()->stateStacks.size())
     {

@@ -243,12 +243,23 @@ namespace vsg
         using FrustumStack = std::stack<Frustum>;
         FrustumStack _frustumStack;
 
-        bool dirty;
+        bool dirty = true;
+
+        bool inheritViewForLODScaling = false;
+        dmat4 inheritedProjectionMatrix;
+        dmat4 inheritedViewMatrix;
+        dmat4 inheritedViewTransform;
 
         StateStacks stateStacks;
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
+
+        void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
+        {
+            inheritedProjectionMatrix = projMatrix;
+            inheritedViewMatrix = viewMatrix;
+        }
 
         void setProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
@@ -262,6 +273,11 @@ namespace vsg
 
             // clear frustum stack
             while (!_frustumStack.empty()) _frustumStack.pop();
+
+            if (inheritViewForLODScaling)
+            {
+                inheritedViewTransform = inheritedViewMatrix * inverse(viewMatrix);
+            }
 
             // push frustum in world coords
             pushFrustum();
@@ -286,7 +302,8 @@ namespace vsg
         inline void pushFrustum()
         {
             _frustumStack.push(Frustum(_frustumProjected, modelviewMatrixStack.top()));
-            _frustumStack.top().computeLodScale(projectionMatrixStack.top(), modelviewMatrixStack.top());
+            if (inheritViewForLODScaling) _frustumStack.top().computeLodScale(inheritedProjectionMatrix, inheritedViewTransform * modelviewMatrixStack.top());
+            else _frustumStack.top().computeLodScale(projectionMatrixStack.top(), modelviewMatrixStack.top());
         }
 
         inline void applyFrustum()

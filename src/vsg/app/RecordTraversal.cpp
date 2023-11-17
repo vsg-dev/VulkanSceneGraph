@@ -411,11 +411,7 @@ void RecordTraversal::apply(const View& view)
 
     if (view.camera)
     {
-        if ((view.features & INHERIT_VIEWPOINT) != 0)
-        {
-            // we need a record of the enclosing View's projection and view matrix.
-        }
-
+        _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
         _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
@@ -469,6 +465,12 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
         auto cg = const_cast<CommandGraph*>(&commandGraph);
         if (cg->device)
         {
+            if (_viewDependentState && _viewDependentState->view && _viewDependentState->view->camera)
+            {
+                auto camera = _viewDependentState->view->camera;
+                cg->getOrCreateRecordTraversal()->_state->setInhertiedViewProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
+            }
+
             cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
         }
         else
