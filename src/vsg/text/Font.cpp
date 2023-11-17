@@ -56,3 +56,41 @@ void Font::write(Output& output) const
         output.writeObject("options", options);
     }
 }
+
+void Font::createFontImages()
+{
+    if (!atlasImageInfo)
+    {
+        auto sampler = Sampler::create();
+        sampler->magFilter = VK_FILTER_LINEAR;
+        sampler->minFilter = VK_FILTER_LINEAR;
+        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+        sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        sampler->anisotropyEnable = VK_TRUE;
+        sampler->maxAnisotropy = 16.0f;
+        sampler->maxLod = 12.0;
+        atlasImageInfo = ImageInfo::create(sampler, atlas);
+    }
+    if (!glyphImageInfo)
+    {
+        auto glyphMetricSampler = Sampler::create();
+        glyphMetricSampler->magFilter = VK_FILTER_NEAREST;
+        glyphMetricSampler->minFilter = VK_FILTER_NEAREST;
+        glyphMetricSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+        glyphMetricSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        glyphMetricSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        glyphMetricSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        glyphMetricSampler->unnormalizedCoordinates = VK_TRUE;
+
+        uint32_t stride = sizeof(vec4);
+        uint32_t numVec4PerGlyph = static_cast<uint32_t>(sizeof(GlyphMetrics) / sizeof(vec4));
+        uint32_t numGlyphs = static_cast<uint32_t>(glyphMetrics->valueCount());
+
+        auto glyphMetricsProxy = vec4Array2D::create(glyphMetrics, 0, stride, numVec4PerGlyph, numGlyphs,
+                                                     Data::Properties{VK_FORMAT_R32G32B32A32_SFLOAT});
+        glyphImageInfo = ImageInfo::create(glyphMetricSampler, glyphMetricsProxy);
+    }
+}

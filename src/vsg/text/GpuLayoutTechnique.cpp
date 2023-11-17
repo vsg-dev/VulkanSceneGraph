@@ -213,41 +213,12 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         {
             config->shaderHints->defines.insert("BILLBOARD");
         }
-
-        // set up sampler for atlas.
-        auto sampler = Sampler::create();
-        sampler->magFilter = VK_FILTER_LINEAR;
-        sampler->minFilter = VK_FILTER_LINEAR;
-        sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-        sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-        sampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-        sampler->borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
-        sampler->anisotropyEnable = VK_TRUE;
-        sampler->maxAnisotropy = 16.0f;
-        sampler->maxLod = 12.0;
-
-        if (sharedObjects) sharedObjects->share(sampler);
-
-        auto glyphMetricSampler = Sampler::create();
-        glyphMetricSampler->magFilter = VK_FILTER_NEAREST;
-        glyphMetricSampler->minFilter = VK_FILTER_NEAREST;
-        glyphMetricSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-        glyphMetricSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        glyphMetricSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        glyphMetricSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        glyphMetricSampler->unnormalizedCoordinates = VK_TRUE;
-
-        if (sharedObjects) sharedObjects->share(glyphMetricSampler);
-
-        uint32_t stride = sizeof(vec4);
-        uint32_t numVec4PerGlyph = static_cast<uint32_t>(sizeof(GlyphMetrics) / sizeof(vec4));
-        uint32_t numGlyphs = static_cast<uint32_t>(text->font->glyphMetrics->valueCount());
-
-        auto glyphMetricsProxy = vec4Array2D::create(text->font->glyphMetrics, 0, stride, numVec4PerGlyph, numGlyphs, Data::Properties{VK_FORMAT_R32G32B32A32_SFLOAT});
-
-        config->assignTexture("textureAtlas", text->font->atlas, sampler);
-        config->assignTexture("glyphMetrics", glyphMetricsProxy, glyphMetricSampler);
+        if (!text->font->atlasImageInfo)
+        {
+            text->font->createFontImages();
+        }
+        config->assignTexture("textureAtlas", {text->font->atlasImageInfo}, 0);
+        config->assignTexture("glyphMetrics", {text->font->glyphImageInfo}, 0);
 
         config->assignDescriptor("textLayout", layoutValue);
         config->assignDescriptor("text", textArray);
