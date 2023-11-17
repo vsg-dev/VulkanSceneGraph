@@ -43,8 +43,8 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(CommandBuffer* in_commandBuffer, uint32_t in_maxSlot, std::set<Bin*> in_bins) :
-    _state(new State(in_commandBuffer, in_maxSlot))
+RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
+    _state(new State(in_maxSlot))
 {
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
