@@ -42,11 +42,6 @@ namespace vsg
         /// advance the currentFrameIndex
         void advance();
 
-        /// return the fence index value for relativeFrameIndex where 0 is current frame, 1 is previous frame etc.
-        size_t index(size_t relativeFrameIndex = 0) const;
-
-        /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
-        Fence* fence(size_t relativeFrameIndex = 0);
 
         void assign(const ResourceRequirements::DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
@@ -59,6 +54,8 @@ namespace vsg
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
+        size_t index(size_t relativeFrameIndex = 0) const;
+
         VkDeviceSize _dynamicDataTotalRegions = 0;
         VkDeviceSize _dynamicDataTotalSize = 0;
         VkDeviceSize _dynamicImageTotalSize = 0;
@@ -70,7 +67,6 @@ namespace vsg
 
         struct Frame
         {
-            ref_ptr<Fence> fence;
             ref_ptr<CommandBuffer> transferCommandBuffer;
             ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Buffer> staging;

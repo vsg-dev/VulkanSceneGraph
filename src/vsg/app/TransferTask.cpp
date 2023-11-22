@@ -28,10 +28,6 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     }
 
     _frames.resize(numBuffers);
-    for (uint32_t i = 0; i < numBuffers; ++i)
-    {
-        _frames[i].fence = vsg::Fence::create(device);
-    }
 }
 
 void TransferTask::advance()
@@ -60,13 +56,6 @@ void TransferTask::advance()
 size_t TransferTask::index(size_t relativeFrameIndex) const
 {
     return relativeFrameIndex < _indices.size() ? _indices[relativeFrameIndex] : _indices.size();
-}
-
-/// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
-Fence* TransferTask::fence(size_t relativeFrameIndex)
-{
-    size_t i = index(relativeFrameIndex);
-    return i < _frames.size() ? _frames[i].fence.get() : nullptr;
 }
 
 bool TransferTask::containsDataToTransfer() const
@@ -360,6 +349,7 @@ VkResult TransferTask::transferDynamicData()
 
     if (!semaphore)
     {
+        // signal transfer submission has completed
         semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     }
 
@@ -402,18 +392,47 @@ VkResult TransferTask::transferDynamicData()
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        submitInfo.waitSemaphoreCount = 0;
-        submitInfo.pWaitSemaphores = nullptr;
-        submitInfo.pWaitDstStageMask = nullptr;
+        // set up the vulkan wait sempahore
+        std::vector<VkSemaphore> vk_waitSemaphores;
+        std::vector<VkPipelineStageFlags> vk_waitStages;
+        if (waitSemaphores.empty())
+        {
+            submitInfo.waitSemaphoreCount = 0;
+            submitInfo.pWaitSemaphores = nullptr;
+            submitInfo.pWaitDstStageMask = nullptr;
+            // info("TransferTask::transferDynamicData() ", this, ", _currentFrameIndex = ", _currentFrameIndex);
+        }
+        else
+        {
+            for (auto& waitSemaphore : waitSemaphores)
+            {
+                vk_waitSemaphores.emplace_back(*(waitSemaphore));
+                vk_waitStages.emplace_back(waitSemaphore->pipelineStageFlags());
+            }
+
+            submitInfo.waitSemaphoreCount = static_cast<uint32_t>(vk_waitSemaphores.size());
+            submitInfo.pWaitSemaphores = vk_waitSemaphores.data();
+            submitInfo.pWaitDstStageMask = vk_waitStages.data();
+        }
+
+        // set up the vulkan signal sempahore
+        std::vector<VkSemaphore> vk_signalSemaphores;
+        vk_signalSemaphores.push_back(*semaphore);
+        for(auto& ss : signalSemaphores)
+        {
+            vk_signalSemaphores.push_back(*ss);
+        }
+
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
+        submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vk_commandBuffer;
 
-        submitInfo.signalSemaphoreCount = 1;
-        VkSemaphore vk_transferCompletedSemaphore = *semaphore;
-        submitInfo.pSignalSemaphores = &vk_transferCompletedSemaphore;
-
         result = transferQueue->submit(submitInfo);
+
+        waitSemaphores.clear();
+
         if (result != VK_SUCCESS) return result;
 
         currentTransferCompletedSemaphore = semaphore;
@@ -421,6 +440,8 @@ VkResult TransferTask::transferDynamicData()
     else
     {
         log(level, "Nothing to submit");
+
+        waitSemaphores.clear();
     }
 
     return VK_SUCCESS;
