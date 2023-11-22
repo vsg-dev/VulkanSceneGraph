@@ -37,13 +37,13 @@ namespace vsg
         ref_ptr<Device> device;
         Windows windows;
         Semaphores waitSemaphores;
-        CommandGraphs commandGraphs;             // assign in application setup
-        Semaphores signalSemaphores;             // connect to Presentation.waitSemaphores
+        CommandGraphs commandGraphs; // assign in application setup
+        Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
         ref_ptr<TransferTask> earlyTransferTask; // data is updated prior to record traversal so can be transferred before/in parallel to record traversal
         ref_ptr<Semaphore> earlyTransferTaskConsumerCompletedSemaphore;
 
-        ref_ptr<TransferTask> lateTransferTask;  // data is updated during the record traversal so has to be transferred after record traversal
+        ref_ptr<TransferTask> lateTransferTask; // data is updated during the record traversal so has to be transferred after record traversal
         ref_ptr<Semaphore> lateTransferTaskConsumerCompletedSemaphore;
 
         /// advance the currentFrameIndex

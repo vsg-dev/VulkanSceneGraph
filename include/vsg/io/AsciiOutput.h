@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
-#include <vsg/io/Logger.h>
 
 #include <algorithm>
 #include <fstream>
@@ -126,8 +126,16 @@ namespace vsg
         void write(size_t num, const uint32_t* value) override { _write(num, value); }
         void write(size_t num, const int64_t* value) override { _write(num, value); }
         void write(size_t num, const uint64_t* value) override { _write(num, value); }
-        void write(size_t num, const float* value) override { _output.precision(float_precision); _write_real(num, value); }
-        void write(size_t num, const double* value) override { _output.precision(double_precision); _write_real(num, value); }
+        void write(size_t num, const float* value) override
+        {
+            _output.precision(float_precision);
+            _write_real(num, value);
+        }
+        void write(size_t num, const double* value) override
+        {
+            _output.precision(double_precision);
+            _write_real(num, value);
+        }
 
         void _write(const std::string& str)
         {

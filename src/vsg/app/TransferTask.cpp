@@ -418,7 +418,7 @@ VkResult TransferTask::transferDynamicData()
         // set up the vulkan signal sempahore
         std::vector<VkSemaphore> vk_signalSemaphores;
         vk_signalSemaphores.push_back(*semaphore);
-        for(auto& ss : signalSemaphores)
+        for (auto& ss : signalSemaphores)
         {
             vk_signalSemaphores.push_back(*ss);
         }

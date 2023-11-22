@@ -42,7 +42,6 @@ namespace vsg
         /// advance the currentFrameIndex
         void advance();
 
-
         void assign(const ResourceRequirements::DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
         void assign(const ImageInfoList& imageInfoList);
