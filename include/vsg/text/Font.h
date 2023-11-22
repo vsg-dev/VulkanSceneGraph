@@ -46,6 +46,7 @@ namespace vsg
             return 0;
         }
         void createFontImages();
+
     protected:
     };
     VSG_type_name(vsg::Font);

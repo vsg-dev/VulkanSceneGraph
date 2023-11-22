@@ -370,7 +370,6 @@ void RecordTraversal::apply(const Command& command)
     command.record(*(_state->_commandBuffer));
 }
 
-
 void RecordTraversal::apply(const View& view)
 {
     // note, View::accept() updates the RecordTraversal's traversalMask

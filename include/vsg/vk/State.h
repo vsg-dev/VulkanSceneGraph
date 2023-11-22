@@ -302,8 +302,10 @@ namespace vsg
         inline void pushFrustum()
         {
             _frustumStack.push(Frustum(_frustumProjected, modelviewMatrixStack.top()));
-            if (inheritViewForLODScaling) _frustumStack.top().computeLodScale(inheritedProjectionMatrix, inheritedViewTransform * modelviewMatrixStack.top());
-            else _frustumStack.top().computeLodScale(projectionMatrixStack.top(), modelviewMatrixStack.top());
+            if (inheritViewForLODScaling)
+                _frustumStack.top().computeLodScale(inheritedProjectionMatrix, inheritedViewTransform * modelviewMatrixStack.top());
+            else
+                _frustumStack.top().computeLodScale(projectionMatrixStack.top(), modelviewMatrixStack.top());
         }
 
         inline void applyFrustum()

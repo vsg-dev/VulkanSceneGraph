@@ -30,11 +30,14 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
     _fences.resize(numBuffers);
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
-        _fences[i] = vsg::Fence::create(device);
+        _fences[i] = Fence::create(device);
     }
 
-    earlyTransferTask = vsg::TransferTask::create(in_device, numBuffers);
-    lateTransferTask = vsg::TransferTask::create(in_device, numBuffers);
+    earlyTransferTask = TransferTask::create(in_device, numBuffers);
+    earlyTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
+
+    lateTransferTask = TransferTask::create(in_device, numBuffers);
+    lateTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
 }
 
 void RecordAndSubmitTask::advance()
@@ -77,14 +80,14 @@ Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
-    auto recordedCommandBuffers = RecordedCommandBuffers::create();
-
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
     if (earlyTransferTask)
     {
         if (VkResult result = earlyTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
     }
+
+    auto recordedCommandBuffers = RecordedCommandBuffers::create();
 
     if (VkResult result = record(recordedCommandBuffers, frameStamp); result != VK_SUCCESS) return result;
 
@@ -154,12 +157,18 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     {
         vk_waitSemaphores.emplace_back(*earlyTransferTask->currentTransferCompletedSemaphore);
         vk_waitStages.emplace_back(earlyTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
+
+        earlyTransferTask->waitSemaphores.push_back(earlyTransferTaskConsumerCompletedSemaphore);
+        vk_signalSemaphores.emplace_back(*earlyTransferTaskConsumerCompletedSemaphore);
     }
 
     if (lateTransferTask && lateTransferTask->currentTransferCompletedSemaphore)
     {
         vk_waitSemaphores.emplace_back(*lateTransferTask->currentTransferCompletedSemaphore);
         vk_waitStages.emplace_back(lateTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
+
+        lateTransferTask->waitSemaphores.push_back(lateTransferTaskConsumerCompletedSemaphore);
+        vk_signalSemaphores.emplace_back(*lateTransferTaskConsumerCompletedSemaphore);
     }
 
     for (auto& window : windows)
@@ -234,7 +243,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     // assign database pager if required
     if (compileResult.containsPagedLOD)
     {
-        vsg::ref_ptr<vsg::DatabasePager> databasePager;
+        ref_ptr<DatabasePager> databasePager;
         for (auto& task : tasks)
         {
             if (task->databasePager && !databasePager) databasePager = task->databasePager;
@@ -242,7 +251,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
 
         if (!databasePager)
         {
-            databasePager = vsg::DatabasePager::create();
+            databasePager = DatabasePager::create();
             for (auto& task : tasks)
             {
                 if (!task->databasePager)
@@ -259,7 +268,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     /// handle any new Bin needs
     for (auto& [const_view, binDetails] : compileResult.views)
     {
-        auto view = const_cast<vsg::View*>(const_view);
+        auto view = const_cast<View*>(const_view);
         for (auto& binNumber : binDetails.indices)
         {
             bool binNumberMatched = false;
@@ -272,8 +281,8 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
             }
             if (!binNumberMatched)
             {
-                vsg::Bin::SortOrder sortOrder = (binNumber < 0) ? vsg::Bin::ASCENDING : ((binNumber == 0) ? vsg::Bin::NO_SORT : vsg::Bin::DESCENDING);
-                view->bins.push_back(vsg::Bin::create(binNumber, sortOrder));
+                Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber == 0) ? Bin::NO_SORT : Bin::DESCENDING);
+                view->bins.push_back(Bin::create(binNumber, sortOrder));
             }
         }
     }
