@@ -18,6 +18,7 @@ useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
 useStlAlgorithm:*/include/vsg/vk/vk_buffer.h
+useStlAlgorithm:*/include/vsg/utils/CommandLine.h
 useStlAlgorithm:*/src/vsg/nodes/VertexDraw.cpp
 useStlAlgorithm:*/src/vsg/io/VSG.cpp
 useStlAlgorithm:*/src/vsg/commands/BindVertexBuffers.cpp
@@ -31,7 +32,7 @@ useStlAlgorithm:*/src/vsg/utils/Intersector.cpp
 useStlAlgorithm:*/src/vsg/app/Presentation.cpp
 useStlAlgorithm:*/src/vsg/app/ExecuteCommands.cpp
 useStlAlgorithm:*/src/vsg/app/RecordAndSubmitTask.cpp
-useStlAlgorithm:*/src/vsg/app/src/vsg/utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/app/TransferTask.cpp
 useStlAlgorithm:*/src/vsg/app/Viewer.cpp
 useStlAlgorithm:*/src/vsg/app/CompileManager.cpp
 useStlAlgorithm:*/src/vsg/vk/Device.cpp
@@ -48,7 +49,7 @@ useStlAlgorithm:*/src/vsg/app/CompileTraversal.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
-useStlAlgorithm:*/include/vsg/utils/CommandLine.h
+useStlAlgorithm:*/src/vsg//utils/Builder.cpp
 
 
 // suppress the warning about valid C++17 if (init; condition) usage
@@ -102,6 +103,7 @@ unassignedVariable:*src/vsg/core/External.cpp
 unassignedVariable:*src/vsg/core/MemorySlots.cpp
 unassignedVariable:*src/vsg/vk/Context.cpp
 unassignedVariable:*src/vsg/app/CompileManager.cpp
+unassignedVariable:*src/vsg/app/RecordAndSubmitTask.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
 unreadVariable:*/src/vsg/state/DescriptorTexelBufferView.cpp
