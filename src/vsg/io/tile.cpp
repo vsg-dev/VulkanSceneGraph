@@ -316,6 +316,11 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
 
     _graphicsPipelineConfig = GraphicsPipelineConfigurator::create(_shaderSet);
 
+    if (options)
+    {
+        _graphicsPipelineConfig->assignInheritedState(options->inheritedState);
+    }
+
     if (settings->imageLayer)
     {
         _graphicsPipelineConfig->enableTexture("diffuseMap");
