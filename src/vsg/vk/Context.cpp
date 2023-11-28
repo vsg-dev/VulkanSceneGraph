@@ -143,15 +143,12 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 {
     if (shaderCompiler) return shaderCompiler;
 
-#if VSG_SUPPORTS_ShaderCompiler
     shaderCompiler = ShaderCompiler::create();
 
     if (device && device->getInstance())
     {
         shaderCompiler->defaults->vulkanVersion = device->getInstance()->apiVersion;
     }
-
-#endif
 
     return shaderCompiler;
 }

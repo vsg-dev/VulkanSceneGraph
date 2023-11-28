@@ -37,29 +37,35 @@ find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
 find_package(Threads REQUIRED)
 
-# Enable/disable shader compilation support that pulls in glslang
-set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
-if (VSG_SUPPORTS_ShaderCompiler)
-    if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
-
-        if (Git_FOUND)
-
-            set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repository")
-            set(glslang_branch "VSG-1.0.x" CACHE STRING "branch/tag of the glslang git repository")
-
-            execute_process(COMMAND ${GIT_EXECUTABLE} clone --depth 1 --branch ${glslang_branch} ${glslang_URL}
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-                            RESULT_VARIABLE GIT_SUBMOD_RESULT)
-
-            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
-                set(VSG_SUPPORTS_ShaderCompiler 0)
+set(VSG_USE_SYSTEM_GLSLANG 1 CACHE STRING "Use system installed glslang, 0 for off, 1 for enabled." )
+set(GLSLANG_VERSION 13.1.1)
+if (VSG_USE_SYSTEM_GLSLANG)
+    find_package(glslang REQUIRED ${GLSLANG_VERSION})
+else ()
+    cmake_policy(SET CMP0135 NEW) # use DOWNLOAD_EXTRACT_TIMESTAMP
+    set(ENABLE_OPT OFF CACHE BOOL "")
+    include(FetchContent)
+    FetchContent_Declare(glslang
+            URL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANG_VERSION}.zip
+            URL_HASH SHA3_256=4b01f8b92754eb6ea2aee3747fba25a9439a37d69c24058222ec920b132a172a
+            SOURCE_DIR fetched/glslang
+    )
+    # Like `FetchContent_MakeAvailable` but passes EXCLUDE_FROM_ALL to `add_subdirectory`.
+    macro(FetchContent_MakeAvailableExcludeFromAll)
+        foreach(contentName IN ITEMS ${ARGV})
+            string(TOLOWER ${contentName} contentNameLower)
+            FetchContent_GetProperties(${contentName})
+            if(NOT ${contentNameLower}_POPULATED)
+                FetchContent_Populate(${contentName})
+                if(EXISTS ${${contentNameLower}_SOURCE_DIR}/CMakeLists.txt)
+                    add_subdirectory(${${contentNameLower}_SOURCE_DIR}
+                            ${${contentNameLower}_BINARY_DIR} EXCLUDE_FROM_ALL)
+                endif()
             endif()
-        else()
-                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
-                set(VSG_SUPPORTS_ShaderCompiler 0)
-        endif()
-    endif()
+        endforeach()
+    endmacro()
+    FetchContent_MakeAvailableExcludeFromAll(glslang)
+
 endif()
 
 set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )

@@ -19,11 +19,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/utils/ShaderCompiler.h>
 
-#if VSG_SUPPORTS_ShaderCompiler
-#    include <SPIRV/GlslangToSpv.h>
-#    include <glslang/Public/ResourceLimits.h>
-#    include <glslang/Public/ShaderLang.h>
-#endif
+#include <SPIRV/GlslangToSpv.h>
+#include <glslang/Public/ResourceLimits.h>
+#include <glslang/Public/ShaderLang.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -35,7 +33,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#if VSG_SUPPORTS_ShaderCompiler
 static std::atomic_uint s_initialized = 0;
 
 static void s_initializeProcess()
@@ -53,8 +50,6 @@ static void s_finalizeProcess()
         glslang::FinalizeProcess();
     }
 }
-
-#endif
 
 std::string debugFormatShaderSource(const std::string& source)
 {
@@ -79,17 +74,9 @@ ShaderCompiler::ShaderCompiler() :
 
 ShaderCompiler::~ShaderCompiler()
 {
-#if VSG_SUPPORTS_ShaderCompiler
     s_finalizeProcess();
-#endif
 }
 
-bool ShaderCompiler::supported() const
-{
-    return VSG_SUPPORTS_ShaderCompiler == 1;
-}
-
-#if VSG_SUPPORTS_ShaderCompiler
 bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, ref_ptr<const Options> options)
 {
     // need to balance the inits.
@@ -290,13 +277,6 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
     return true;
 }
-#else
-bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, ref_ptr<const Options> /*options*/)
-{
-    warn("ShaderCompile::compile(..) not supported,");
-    return false;
-}
-#endif
 
 bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines, ref_ptr<const Options> options)
 {
