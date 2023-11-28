@@ -4,7 +4,7 @@ on:
   pull_request:
 env:
   BuildDocEnabled: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-  CMakeVersion: 3.10.x
+  CMakeVersion: 3.24.x
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.12
+      uses: jwlawson/actions-setup-cmake@v1.14.1
       with:
         cmake-version: ${{ env.CMakeVersion }}
     - name: Install Vulkan SDK
