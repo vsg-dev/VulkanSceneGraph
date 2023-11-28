@@ -91,7 +91,8 @@ namespace vsg
 
         std::any nativeWindow;
         std::any systemConnection;
-
+        // Load function pointers for the VK_EXT_debug_utils extension, if it is available.
+        bool debugUtils = false;
     protected:
         virtual ~WindowTraits() {}
     };

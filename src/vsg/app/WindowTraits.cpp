@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/WindowTraits.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/vk/Extensions.h>
 #include <vsg/vk/vulkan.h>
 
 using namespace vsg;
@@ -50,7 +51,8 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     deviceExtensionNames(traits.deviceExtensionNames),
     deviceTypePreferences(traits.deviceTypePreferences),
     deviceFeatures(traits.deviceFeatures),
-    samples(traits.samples) /*,
+    samples(traits.samples),
+    debugUtils(traits.debugUtils) /*,
     nativeWindow(traits.nativeWindow),
     systemConnection(traits.systemConnection)*/
 {
@@ -104,7 +106,10 @@ void WindowTraits::validate()
     {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     }
-
+    if (debugUtils && isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+    {
+        instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
     if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
     if (synchronizationLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_synchronization2");
