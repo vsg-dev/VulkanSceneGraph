@@ -89,7 +89,7 @@ jobs:
             export VULKAN_SDK
             export PATH=$PATH:$VULKAN_SDK/bin
             mkdir build && cd build
-            cmake .. -G Ninja -D Vulkan_LIBRARY="$VULKAN_SDK/lib/libvulkan.so" -DBUILD_SHARED_LIBS=1
+            cmake .. -G Ninja -D Vulkan_LIBRARY="$VULKAN_SDK/lib/libvulkan.so" -DBUILD_SHARED_LIBS=1 -DVSG_USE_SYSTEM_GLSLANG=0
             ninja -v
         }
         build_vsg
@@ -128,7 +128,7 @@ jobs:
             export VULKAN_SDK
             export PATH=$PATH:$VULKAN_SDK/bin
             mkdir build && cd build
-            cmake .. -G Ninja -D Vulkan_LIBRARY="$VULKAN_SDK/lib/libvulkan.so"
+            cmake .. -G Ninja -D Vulkan_LIBRARY="$VULKAN_SDK/lib/libvulkan.so" -DVSG_USE_SYSTEM_GLSLANG=0
             ninja -v
         }
         build_vsg

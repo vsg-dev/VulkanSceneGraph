@@ -28,5 +28,5 @@ jobs:
     - name: Build and Install VSG
       shell: bash
       run: |
-        cmake . -DCMAKE_TOOLCHAIN_FILE=$(dirname $(which ndk-build))/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{matrix.android-abi}} -DANDROID_PLATFORM=${{matrix.android-platform}} -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DCMAKE_INSTALL_PREFIX=./install
+        cmake . -DCMAKE_TOOLCHAIN_FILE=$(dirname $(which ndk-build))/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{matrix.android-abi}} -DANDROID_PLATFORM=${{matrix.android-platform}} -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DCMAKE_INSTALL_PREFIX=./install -DVSG_USE_SYSTEM_GLSLANG=0
         cmake --build . --target install --config Release

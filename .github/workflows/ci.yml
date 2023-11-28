@@ -37,12 +37,13 @@ jobs:
       shell: bash
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
-              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
+              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64 -DVSG_USE_SYSTEM_GLSLANG=0
               MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
          elif [ "$RUNNER_OS" == "Linux" ]; then
-              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
+              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DVSG_USE_SYSTEM_GLSLANG=0
               make -j 3 && sudo make install
          elif [ "$RUNNER_OS" == "macOS" ]; then
+              brew install glslang
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
               make -j 4 && make install
          else
