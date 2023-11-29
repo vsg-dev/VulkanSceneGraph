@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ref_ptr.h>
 #include <vsg/vk/AllocationCallbacks.h>
+#include <vsg/vk/InstanceExtensions.h>
 
 #include <vector>
 
@@ -68,6 +69,9 @@ namespace vsg
         /// get a PhysicalDevice and queue family index that supports the specified queueFlags, and presentation of specified surface if one is provided.
         std::tuple<ref_ptr<PhysicalDevice>, int, int> getPhysicalDeviceAndQueueFamily(VkQueueFlags queueFlags, Surface* surface, const PhysicalDeviceTypes& deviceTypePreferences = {}) const;
 
+        /// get the extensions structure that holds a range of function pointers to vkInstance extensions
+        const InstanceExtensions* getExtensions() const { return _extensions.get(); }
+
         /// get the address of specified function using vkGetInstanceProcAddr.
         template<typename T>
         bool getProcAddr(T& procAddress, const char* pName, const char* pNameFallback = nullptr) const
@@ -78,18 +82,6 @@ namespace vsg
             if (pNameFallback) procAddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pNameFallback));
             return (procAddress);
         }
-        // VK_EXT_debug_utils
-        PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = nullptr;
-        PFN_vkSetDebugUtilsObjectTagEXT vkSetDebugUtilsObjectTagEXT = nullptr;
-        PFN_vkQueueBeginDebugUtilsLabelEXT vkQueueBeginDebugUtilsLabelEXT = nullptr;
-        PFN_vkQueueEndDebugUtilsLabelEXT vkQueueEndDebugUtilsLabelEXT = nullptr;
-        PFN_vkQueueInsertDebugUtilsLabelEXT vkQueueInsertDebugUtilsLabelEXT = nullptr;
-        PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXT = nullptr;
-        PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXT = nullptr;
-        PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = nullptr;
-        PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT = nullptr;
-        PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
-        PFN_vkSubmitDebugUtilsMessageEXT vkSubmitDebugUtilsMessageEXT = nullptr;
     protected:
         virtual ~Instance();
 
@@ -97,6 +89,8 @@ namespace vsg
         ref_ptr<AllocationCallbacks> _allocator;
 
         PhysicalDevices _physicalDevices;
+
+        ref_ptr<InstanceExtensions> _extensions;
     };
     VSG_type_name(vsg::Instance);
 

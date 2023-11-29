@@ -52,5 +52,6 @@ namespace vsg
         PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = nullptr;
         PFN_vkCmdDrawMeshTasksIndirectCountEXT vkCmdDrawMeshTasksIndirectCountEXT = nullptr;
     };
+    VSG_type_name(vsg::Extensions);
 
 } // namespace vsg

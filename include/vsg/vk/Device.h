@@ -57,6 +57,7 @@ namespace vsg
 
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
+        /// get the extensions structure that holds a range of function pointers to vkInstance extensions
         const Extensions* getExtensions() const { return _extensions.get(); }
 
         /// get the address of specified function using vkGetDeviceProcAddr

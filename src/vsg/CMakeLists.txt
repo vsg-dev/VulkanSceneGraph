@@ -204,6 +204,7 @@ set(SOURCES
     vk/Fence.cpp
     vk/Framebuffer.cpp
     vk/Instance.cpp
+    vk/InstanceExtensions.cpp
     vk/MemoryBufferPools.cpp
     vk/PhysicalDevice.cpp
     vk/Queue.cpp

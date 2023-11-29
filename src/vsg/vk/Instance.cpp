@@ -131,31 +131,13 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
         {
             _physicalDevices.emplace_back(new PhysicalDevice(this, device));
         }
-        if (isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
-            && std::any_of(instanceExtensions.begin(), instanceExtensions.end(),
-                           [](auto&& extName)
-                           {
-                               return !strncmp(extName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-                                               VK_MAX_EXTENSION_NAME_SIZE);
-                           }))
-        {
-            getProcAddr(vkSetDebugUtilsObjectNameEXT, "vkSetDebugUtilsObjectNameEXT");
-            getProcAddr(vkSetDebugUtilsObjectTagEXT, "vkSetDebugUtilsObjectTagEXT");
-            getProcAddr(vkQueueBeginDebugUtilsLabelEXT, "vkQueueBeginDebugUtilsLabelEXT");
-            getProcAddr(vkQueueEndDebugUtilsLabelEXT, "vkQueueEndDebugUtilsLabelEXT");
-            getProcAddr(vkQueueInsertDebugUtilsLabelEXT, "vkQueueInsertDebugUtilsLabelEXT");
-            getProcAddr(vkCmdBeginDebugUtilsLabelEXT, "vkCmdBeginDebugUtilsLabelEXT");
-            getProcAddr(vkCmdEndDebugUtilsLabelEXT, "vkCmdEndDebugUtilsLabelEXT");
-            getProcAddr(vkCmdInsertDebugUtilsLabelEXT, "vkCmdInsertDebugUtilsLabelEXT");
-            getProcAddr(vkCreateDebugUtilsMessengerEXT, "vkCreateDebugUtilsMessengerEXT");
-            getProcAddr(vkDestroyDebugUtilsMessengerEXT, "vkDestroyDebugUtilsMessengerEXT");
-            getProcAddr(vkSubmitDebugUtilsMessageEXT, "vkSubmitDebugUtilsMessageEXT");
-        }
     }
     else
     {
         throw Exception{"Error: vsg::Instance::create(...) failed to create VkInstance.", result};
     }
+
+    _extensions = InstanceExtensions::create(this);
 }
 
 Instance::~Instance()
