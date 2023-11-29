@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/PhysicalDevice.h>
 
 #include <algorithm>
-#include <set>
 #include <cstring>
+#include <set>
 
 using namespace vsg;
 

@@ -82,6 +82,7 @@ namespace vsg
             if (pNameFallback) procAddress = reinterpret_cast<T>(vkGetInstanceProcAddr(_instance, pNameFallback));
             return (procAddress);
         }
+
     protected:
         virtual ~Instance();
 

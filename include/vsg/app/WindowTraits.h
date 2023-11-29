@@ -70,10 +70,10 @@ namespace vsg
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         // hints to which extenstion to enable during Instance/Device setup
-        bool debugLayer = false; // VK_LAYER_KHRONOS_validation
+        bool debugLayer = false;           // VK_LAYER_KHRONOS_validation
         bool synchronizationLayer = false; // VK_LAYER_KHRONOS_synchronization2
-        bool apiDumpLayer = false; // VK_LAYER_LUNARG_api_dump
-        bool debugUtils = false; // VK_EXT_debug_utils
+        bool apiDumpLayer = false;         // VK_LAYER_LUNARG_api_dump
+        bool debugUtils = false;           // VK_EXT_debug_utils
 
         // Device to use, if not assigned use the device preferences below
         ref_ptr<vsg::Device> device;
