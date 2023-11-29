@@ -69,9 +69,11 @@ namespace vsg
         std::vector<float> queuePiorities{1.0, 0.0};
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        bool debugLayer = false;
-        bool synchronizationLayer = false;
-        bool apiDumpLayer = false;
+        // hints to which extenstion to enable during Instance/Device setup
+        bool debugLayer = false;           // VK_LAYER_KHRONOS_validation
+        bool synchronizationLayer = false; // VK_LAYER_KHRONOS_synchronization2
+        bool apiDumpLayer = false;         // VK_LAYER_LUNARG_api_dump
+        bool debugUtils = false;           // VK_EXT_debug_utils
 
         // Device to use, if not assigned use the device preferences below
         ref_ptr<vsg::Device> device;

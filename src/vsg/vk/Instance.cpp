@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Instance.h>
 #include <vsg/vk/PhysicalDevice.h>
 
+#include <algorithm>
+#include <cstring>
 #include <set>
 
 using namespace vsg;
@@ -134,6 +136,8 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     {
         throw Exception{"Error: vsg::Instance::create(...) failed to create VkInstance.", result};
     }
+
+    _extensions = InstanceExtensions::create(this);
 }
 
 Instance::~Instance()
