@@ -26,7 +26,7 @@ using namespace vsg;
 
 InstanceExtensions::InstanceExtensions(Instance* instance)
 {
-    // VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    // VK_EXT_debug_utils
     instance->getProcAddr(vkSetDebugUtilsObjectNameEXT, "vkSetDebugUtilsObjectNameEXT");
     instance->getProcAddr(vkSetDebugUtilsObjectTagEXT, "vkSetDebugUtilsObjectTagEXT");
     instance->getProcAddr(vkQueueBeginDebugUtilsLabelEXT, "vkQueueBeginDebugUtilsLabelEXT");
