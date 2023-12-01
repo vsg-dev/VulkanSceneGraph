@@ -206,12 +206,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Device.h>
+#include <vsg/vk/DeviceExtensions.h>
 #include <vsg/vk/DeviceFeatures.h>
 #include <vsg/vk/DeviceMemory.h>
-#include <vsg/vk/Extensions.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Framebuffer.h>
 #include <vsg/vk/Instance.h>
+#include <vsg/vk/InstanceExtensions.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/PhysicalDevice.h>
 #include <vsg/vk/Queue.h>

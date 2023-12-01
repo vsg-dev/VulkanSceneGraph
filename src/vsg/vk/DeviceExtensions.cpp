@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/vk/Device.h>
-#include <vsg/vk/Extensions.h>
 
 #include <algorithm>
 #include <cstring>
@@ -41,7 +40,7 @@ bool vsg::isExtensionListSupported(const Names& extensionList)
     return true;
 }
 
-Extensions::Extensions(Device* device)
+DeviceExtensions::DeviceExtensions(Device* device)
 {
     // VK_EXT_host_query_reset
     device->getProcAddr(vkResetQueryPool, "vkResetQueryPool", "vkResetQueryPoolEXT");
