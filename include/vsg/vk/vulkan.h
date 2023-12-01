@@ -838,3 +838,85 @@ typedef struct VkPhysicalDevicePortabilitySubsetPropertiesKHR {
     uint32_t           minVertexInputBindingStrideAlignment;
 } VkPhysicalDevicePortabilitySubsetPropertiesKHR;
 #endif
+
+#ifndef VK_EXT_debug_utils
+#define VK_EXT_debug_utils 1
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugUtilsMessengerEXT)
+#define VK_EXT_DEBUG_UTILS_SPEC_VERSION   2
+#define VK_EXT_DEBUG_UTILS_EXTENSION_NAME "VK_EXT_debug_utils"
+typedef VkFlags VkDebugUtilsMessengerCallbackDataFlagsEXT;
+
+typedef enum VkDebugUtilsMessageSeverityFlagBitsEXT {
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT = 0x00000001,
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT = 0x00000010,
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT = 0x00000100,
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT = 0x00001000,
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkDebugUtilsMessageSeverityFlagBitsEXT;
+
+typedef enum VkDebugUtilsMessageTypeFlagBitsEXT {
+    VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT = 0x00000001,
+    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT = 0x00000002,
+    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT = 0x00000004,
+    VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT = 0x00000008,
+    VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkDebugUtilsMessageTypeFlagBitsEXT;
+typedef VkFlags VkDebugUtilsMessageTypeFlagsEXT;
+typedef VkFlags VkDebugUtilsMessageSeverityFlagsEXT;
+typedef VkFlags VkDebugUtilsMessengerCreateFlagsEXT;
+typedef struct VkDebugUtilsLabelEXT {
+    VkStructureType    sType;
+    const void*        pNext;
+    const char*        pLabelName;
+    float              color[4];
+} VkDebugUtilsLabelEXT;
+
+typedef struct VkDebugUtilsObjectNameInfoEXT {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkObjectType       objectType;
+    uint64_t           objectHandle;
+    const char*        pObjectName;
+} VkDebugUtilsObjectNameInfoEXT;
+
+typedef struct VkDebugUtilsMessengerCallbackDataEXT {
+    VkStructureType                              sType;
+    const void*                                  pNext;
+    VkDebugUtilsMessengerCallbackDataFlagsEXT    flags;
+    const char*                                  pMessageIdName;
+    int32_t                                      messageIdNumber;
+    const char*                                  pMessage;
+    uint32_t                                     queueLabelCount;
+    const VkDebugUtilsLabelEXT*                  pQueueLabels;
+    uint32_t                                     cmdBufLabelCount;
+    const VkDebugUtilsLabelEXT*                  pCmdBufLabels;
+    uint32_t                                     objectCount;
+    const VkDebugUtilsObjectNameInfoEXT*         pObjects;
+} VkDebugUtilsMessengerCallbackDataEXT;
+
+typedef VkBool32 (VKAPI_PTR *PFN_vkDebugUtilsMessengerCallbackEXT)(
+    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,
+    void*                                            pUserData);
+
+typedef struct VkDebugUtilsMessengerCreateInfoEXT {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkDebugUtilsMessengerCreateFlagsEXT     flags;
+    VkDebugUtilsMessageSeverityFlagsEXT     messageSeverity;
+    VkDebugUtilsMessageTypeFlagsEXT         messageType;
+    PFN_vkDebugUtilsMessengerCallbackEXT    pfnUserCallback;
+    void*                                   pUserData;
+} VkDebugUtilsMessengerCreateInfoEXT;
+
+typedef struct VkDebugUtilsObjectTagInfoEXT {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkObjectType       objectType;
+    uint64_t           objectHandle;
+    uint64_t           tagName;
+    size_t             tagSize;
+    const void*        pTag;
+} VkDebugUtilsObjectTagInfoEXT;
+#endif
