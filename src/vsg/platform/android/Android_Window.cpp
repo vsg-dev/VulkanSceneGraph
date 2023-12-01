@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <android/looper.h>
 #include <android/native_activity.h>
 
+#include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/io/Logger.h>
 #include <vsg/ui/KeyEvent.h>
