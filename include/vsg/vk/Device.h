@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/vk/DeviceExtensions.h>
 #include <vsg/vk/DeviceFeatures.h>
-#include <vsg/vk/Extensions.h>
 #include <vsg/vk/Queue.h>
 
 #include <list>
@@ -58,7 +58,7 @@ namespace vsg
         ref_ptr<Queue> getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex = 0);
 
         /// get the extensions structure that holds a range of function pointers to vkInstance extensions
-        const Extensions* getExtensions() const { return _extensions.get(); }
+        const DeviceExtensions* getExtensions() const { return _extensions.get(); }
 
         /// get the address of specified function using vkGetDeviceProcAddr
         /// for core commands beyond the apiVersion specified in vsg::Instance creation, vkGetDeviceProcAddr may return a non-nullptr function pointer, though the function pointer must not be called.
@@ -84,7 +84,7 @@ namespace vsg
         ref_ptr<Instance> _instance;
         ref_ptr<PhysicalDevice> _physicalDevice;
         ref_ptr<AllocationCallbacks> _allocator;
-        ref_ptr<Extensions> _extensions;
+        ref_ptr<DeviceExtensions> _extensions;
 
         Queues _queues;
     };

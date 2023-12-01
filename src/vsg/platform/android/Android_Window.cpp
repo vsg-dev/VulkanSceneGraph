@@ -21,7 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/TouchEvent.h>
-#include <vsg/vk/Extensions.h>
 
 #include <time.h>
 

@@ -200,7 +200,7 @@ set(SOURCES
     vk/Device.cpp
     vk/DeviceFeatures.cpp
     vk/DeviceMemory.cpp
-    vk/Extensions.cpp
+    vk/DeviceExtensions.cpp
     vk/Fence.cpp
     vk/Framebuffer.cpp
     vk/Instance.cpp

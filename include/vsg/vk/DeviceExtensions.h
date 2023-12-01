@@ -24,10 +24,10 @@ namespace vsg
 
     /// Extensions manages a set of Vulkan extension function pointers.
     /// The vsg::Device "has a" Extensions object that can be accessed via device->getExtensions().
-    class VSG_DECLSPEC Extensions : public Inherit<Object, Extensions>
+    class VSG_DECLSPEC DeviceExtensions : public Inherit<Object, DeviceExtensions>
     {
     public:
-        explicit Extensions(Device* device);
+        explicit DeviceExtensions(Device* device);
 
         // VK_EXT_host_query_reset / Vulkan-1.2
         PFN_vkResetQueryPoolEXT vkResetQueryPool = nullptr;
@@ -52,6 +52,6 @@ namespace vsg
         PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = nullptr;
         PFN_vkCmdDrawMeshTasksIndirectCountEXT vkCmdDrawMeshTasksIndirectCountEXT = nullptr;
     };
-    VSG_type_name(vsg::Extensions);
+    VSG_type_name(vsg::DeviceExtensions);
 
 } // namespace vsg
