@@ -576,6 +576,8 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
 void GraphicsPipelineConfigurator::init()
 {
+    // if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
+
     _assignInheritedSets();
 
     if (descriptorConfigurator)
