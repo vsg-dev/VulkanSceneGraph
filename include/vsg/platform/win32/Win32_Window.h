@@ -187,8 +187,7 @@ namespace vsgWin32
 
         void resize() override;
 
-        operator HWND() { return _window; }
-        operator const HWND() const { return _window; }
+        operator HWND() const { return _window; }
 
         LRESULT handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
 

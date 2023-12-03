@@ -44,6 +44,10 @@ namespace vsgWin32
             surfaceCreateInfo.pNext = nullptr;
 
             auto result = vkCreateWin32SurfaceKHR(*instance, &surfaceCreateInfo, _instance->getAllocationCallbacks(), &_surface);
+            if (result != VK_SUCCESS)
+            {
+                throw Exception{"Failed to created Win32Surface.", result};
+            }
         }
     };
 
@@ -360,7 +364,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         // assume a traits->screenNum of < 0 will default to screen 0
         int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
-        if (screenNum >= displayDevices.size()) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (screenNum >= static_cast<in32_t>(displayDevices.size())) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         DEVMODE deviceMode;
         deviceMode.dmSize = sizeof(deviceMode);
@@ -636,12 +640,10 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_SETFOCUS: {
-        vsg::clock::time_point event_time = vsg::clock::now();
         bufferedEvents.emplace_back(vsg::FocusInEvent::create(this, event_time));
         break;
     }
     case WM_KILLFOCUS: {
-        vsg::clock::time_point event_time = vsg::clock::now();
         bufferedEvents.emplace_back(vsg::FocusOutEvent::create(this, event_time));
         break;
     }
