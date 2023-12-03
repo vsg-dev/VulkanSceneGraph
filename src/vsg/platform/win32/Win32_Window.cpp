@@ -364,7 +364,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         // assume a traits->screenNum of < 0 will default to screen 0
         int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
-        if (screenNum >= static_cast<in32_t>(displayDevices.size())) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (screenNum >= static_cast<int32_t>(displayDevices.size())) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         DEVMODE deviceMode;
         deviceMode.dmSize = sizeof(deviceMode);
