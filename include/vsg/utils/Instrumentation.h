@@ -25,9 +25,6 @@ namespace vsg
     # define VsgFunctionName __FUNCSIG__
     #endif
 
-
-#if 1
-
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
     struct SourceLocation
@@ -39,22 +36,21 @@ namespace vsg
         ubvec4 color;
     };
 
-    struct ScopedInstrumentation
-    {
-        const SourceLocation* sl;
-        inline ScopedInstrumentation(const SourceLocation* in_sl) : sl(in_sl) { info("enter ", sl, " : ", sl->file, ", ", sl->line, ", ", sl->function); }
-        inline ~ScopedInstrumentation() { info("leave ", sl); }
-    };
-
-    #define SCOPED_INSTRUMENTASTION static constexpr SourceLocation s_source_location_##__LINE__ { nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255) }; ScopedInstrumentation __scoped_instrumentation(&(s_source_location_##__LINE__));
-#endif
-
-#if 0
     class VSG_DECLSPEC Instrumentation : public Inherit<Object, Instrumentation>
     {
     public:
 
         Instrumentation();
+
+        virtual void enter(const SourceLocation* sl) const
+        {
+            info("enter ", sl, " : ", sl->file, ", ", sl->line, ", ", sl->function);
+        }
+
+        virtual void leave(const SourceLocation* sl) const
+        {
+            info("leave ", sl);
+        }
 
     protected:
 
@@ -62,6 +58,16 @@ namespace vsg
 
     };
     VSG_type_name(vsg::Instrumentation);
-#endif
+
+    struct ScopedInstrumentation
+    {
+        const SourceLocation* sl;
+        const Instrumentation* instr;
+        inline ScopedInstrumentation(const SourceLocation* in_sl, const Instrumentation* in_instr) : sl(in_sl), instr(in_instr) { if (instr) instr->enter(sl); }
+        inline ~ScopedInstrumentation() { if (instr) instr->leave(sl); }
+    };
+
+    #define SCOPED_INSTRUMENTASTION(instrumentation) static constexpr SourceLocation s_source_location_##__LINE__ { nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255) }; ScopedInstrumentation __scoped_instrumentation(&(s_source_location_##__LINE__), instrumentation);
+
 
 } // namespace vsg

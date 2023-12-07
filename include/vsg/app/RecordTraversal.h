@@ -53,6 +53,7 @@ namespace vsg
     class SpotLight;
     class CommandGraph;
     class RecordedCommandBuffers;
+    class Instrumentation;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -127,6 +128,8 @@ namespace vsg
 
         // clear the bins to record a new frame.
         void clearBins();
+
+        ref_ptr<Instrumentation> instrumentation;
 
     protected:
         virtual ~RecordTraversal();
