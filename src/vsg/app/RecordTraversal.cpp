@@ -50,7 +50,7 @@ RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
     _state(new State(in_maxSlot))
 {
     // instrumentation = Instrumentation::create();
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 0, 255, 255));
 
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
@@ -334,7 +334,7 @@ void RecordTraversal::apply(const SpotLight& light)
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(255, 255, 0, 255));
 
     //debug("Visiting StateGroup");
 
@@ -400,7 +400,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 // Vulkan nodes
 void RecordTraversal::apply(const Commands& commands)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 255, 0, 255));
 
     _state->record();
     for (auto& command : commands.children)
@@ -411,7 +411,7 @@ void RecordTraversal::apply(const Commands& commands)
 
 void RecordTraversal::apply(const Command& command)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 255, 0, 255));
 
     //debug("Visiting Command");
     _state->record();
@@ -420,7 +420,7 @@ void RecordTraversal::apply(const Command& command)
 
 void RecordTraversal::apply(const View& view)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 0, 255, 255));
 
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
@@ -509,7 +509,7 @@ void RecordTraversal::apply(const View& view)
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 0, 255, 255));
 
     if (recordedCommandBuffers)
     {
