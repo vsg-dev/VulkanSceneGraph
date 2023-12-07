@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/Descriptor.h>
-#include <vsg/utils/Instrumentation.h>
 
 #include <chrono>
 #include <map>

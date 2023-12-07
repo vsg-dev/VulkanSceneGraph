@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/State.h>
-#include <vsg/utils/Instrumentation.h>
 
 using namespace vsg;
 

@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/utils/Instrumentation.h>
 
 namespace vsg
 {
