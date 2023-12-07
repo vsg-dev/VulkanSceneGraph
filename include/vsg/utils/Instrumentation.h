@@ -25,6 +25,8 @@ namespace vsg
     # define VsgFunctionName __FUNCSIG__
     #endif
 
+    class CommandBuffer;
+
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
     struct SourceLocation
@@ -42,15 +44,10 @@ namespace vsg
 
         Instrumentation();
 
-        virtual void enter(const SourceLocation* sl) const
-        {
-            info("enter ", sl, " : ", sl->file, ", ", sl->line, ", ", sl->function);
-        }
+        virtual void enter(const SourceLocation* sl, uint64_t& reference) const= 0;
+        virtual void leave(const SourceLocation* sl, uint64_t& reference) const = 0;
 
-        virtual void leave(const SourceLocation* sl) const
-        {
-            info("leave ", sl);
-        }
+        ref_ptr<vsg::CommandBuffer> commandBuffer;
 
     protected:
 
@@ -61,13 +58,14 @@ namespace vsg
 
     struct ScopedInstrumentation
     {
-        const SourceLocation* sl;
         const Instrumentation* instr;
-        inline ScopedInstrumentation(const SourceLocation* in_sl, const Instrumentation* in_instr) : sl(in_sl), instr(in_instr) { if (instr) instr->enter(sl); }
-        inline ~ScopedInstrumentation() { if (instr) instr->leave(sl); }
+        const SourceLocation* sl;
+        uint64_t reference;
+        inline ScopedInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl) : instr(in_instr), sl(in_sl) { if (instr) instr->enter(sl, reference); }
+        inline ~ScopedInstrumentation() { if (instr) instr->leave(sl, reference); }
     };
 
-    #define SCOPED_INSTRUMENTASTION(instrumentation) static constexpr SourceLocation s_source_location_##__LINE__ { nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255) }; ScopedInstrumentation __scoped_instrumentation(&(s_source_location_##__LINE__), instrumentation);
+    #define SCOPED_INSTRUMENTASTION(instrumentation) static constexpr SourceLocation s_source_location_##__LINE__ { nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255) }; ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
 
 
 } // namespace vsg
