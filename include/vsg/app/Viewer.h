@@ -133,6 +133,9 @@ namespace vsg
         /// Call vkDeviceWaitIdle on all the devices associated with this Viewer
         virtual void deviceWaitIdle() const;
 
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
     protected:
         virtual ~Viewer();
 

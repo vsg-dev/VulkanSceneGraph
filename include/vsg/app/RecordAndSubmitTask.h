@@ -59,6 +59,9 @@ namespace vsg
 
         ref_ptr<DatabasePager> databasePager;
 
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
     protected:
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;

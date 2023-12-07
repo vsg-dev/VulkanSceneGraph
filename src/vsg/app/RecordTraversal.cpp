@@ -39,6 +39,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
+#include <vsg/utils/Instrumentation.h>
+
+
 using namespace vsg;
 
 #define INLINE_TRAVERSE 0
@@ -46,6 +49,9 @@ using namespace vsg;
 RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
     _state(new State(in_maxSlot))
 {
+    // instrumentation = Instrumentation::create();
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 0, 255, 255));
+
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
     for (auto& bin : in_bins)
@@ -60,10 +66,12 @@ RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
     {
         _bins[bin->binNumber - _minimumBinNumber] = bin;
     }
+
 }
 
 RecordTraversal::~RecordTraversal()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
 }
 
 CommandBuffer* RecordTraversal::getCommandBuffer()
@@ -91,6 +99,8 @@ void RecordTraversal::setDatabasePager(DatabasePager* dp)
 
 void RecordTraversal::clearBins()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     for (auto& bin : _bins)
     {
         if (bin) bin->clear();
@@ -99,12 +109,16 @@ void RecordTraversal::clearBins()
 
 void RecordTraversal::apply(const Object& object)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("Visiting Object");
     object.traverse(*this);
 }
 
 void RecordTraversal::apply(const Group& group)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("Visiting Group");
 #if INLINE_TRAVERSE
     vsg::Group::t_traverse(group, *this);
@@ -115,6 +129,8 @@ void RecordTraversal::apply(const Group& group)
 
 void RecordTraversal::apply(const QuadGroup& quadGroup)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
     vsg::QuadGroup::t_traverse(quadGroup, *this);
@@ -125,6 +141,8 @@ void RecordTraversal::apply(const QuadGroup& quadGroup)
 
 void RecordTraversal::apply(const LOD& lod)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     const auto& sphere = lod.bound;
 
     // check if lod bounding sphere is in view frustum.
@@ -148,6 +166,8 @@ void RecordTraversal::apply(const LOD& lod)
 
 void RecordTraversal::apply(const PagedLOD& plod)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     const auto& sphere = plod.bound;
     auto frameCount = _frameStamp->frameCount;
 
@@ -226,6 +246,8 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
 void RecordTraversal::apply(const CullGroup& cullGroup)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (_state->intersect(cullGroup.bound))
     {
         // debug("Passed node");
@@ -235,6 +257,8 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 
 void RecordTraversal::apply(const CullNode& cullNode)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (_state->intersect(cullNode.bound))
     {
         //debug("Passed node");
@@ -244,6 +268,8 @@ void RecordTraversal::apply(const CullNode& cullNode)
 
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (_state->intersect(depthSorted.bound))
     {
         const auto& mv = _state->modelviewMatrixStack.top();
@@ -256,6 +282,8 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 
 void RecordTraversal::apply(const Switch& sw)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     for (auto& child : sw.children)
     {
         if ((traversalMask & (overrideMask | child.mask)) != MASK_OFF)
@@ -267,35 +295,47 @@ void RecordTraversal::apply(const Switch& sw)
 
 void RecordTraversal::apply(const Light& /*light*/)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("RecordTraversal::apply(Light) ", light.className());
 }
 
 void RecordTraversal::apply(const AmbientLight& light)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("RecordTraversal::apply(AmbientLight) ", light.className());
     if (_viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const DirectionalLight& light)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("RecordTraversal::apply(DirectionalLight) ", light.className());
     if (_viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const PointLight& light)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("RecordTraversal::apply(PointLight) ", light.className());
     if (_viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const SpotLight& light)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     //debug("RecordTraversal::apply(SpotLight) ", light.className());
     if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(255, 255, 0, 255));
+
     //debug("Visiting StateGroup");
 
     for (auto& command : stateGroup.stateCommands)
@@ -315,6 +355,8 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
 void RecordTraversal::apply(const Transform& transform)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     _state->modelviewMatrixStack.push(transform);
     _state->dirty = true;
 
@@ -335,6 +377,8 @@ void RecordTraversal::apply(const Transform& transform)
 
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     _state->modelviewMatrixStack.push(mt);
     _state->dirty = true;
 
@@ -356,6 +400,8 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 // Vulkan nodes
 void RecordTraversal::apply(const Commands& commands)
 {
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 255, 0, 255));
+
     _state->record();
     for (auto& command : commands.children)
     {
@@ -365,6 +411,8 @@ void RecordTraversal::apply(const Commands& commands)
 
 void RecordTraversal::apply(const Command& command)
 {
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 255, 0, 255));
+
     //debug("Visiting Command");
     _state->record();
     command.record(*(_state->_commandBuffer));
@@ -372,6 +420,8 @@ void RecordTraversal::apply(const Command& command)
 
 void RecordTraversal::apply(const View& view)
 {
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 0, 255, 255));
+
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
     _state->_commandBuffer->traversalMask = traversalMask;
@@ -459,6 +509,8 @@ void RecordTraversal::apply(const View& view)
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
 {
+    SCOPED_INSTRUMENTASTION_C(instrumentation, ubvec4(0, 0, 255, 255));
+
     if (recordedCommandBuffers)
     {
         auto cg = const_cast<CommandGraph*>(&commandGraph);

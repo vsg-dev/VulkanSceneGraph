@@ -15,12 +15,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/State.h>
+#include <vsg/utils/Instrumentation.h>
 
 using namespace vsg;
 
 RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers) :
     device(in_device)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     _currentFrameIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
@@ -42,6 +45,8 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
 
 void RecordAndSubmitTask::advance()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (_currentFrameIndex >= _indices.size())
     {
         // first frame so set to 0
@@ -80,6 +85,8 @@ Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
     if (earlyTransferTask)
@@ -96,6 +103,8 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
 VkResult RecordAndSubmitTask::start()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (earlyTransferTask) earlyTransferTask->currentTransferCompletedSemaphore = {};
     if (lateTransferTask) lateTransferTask->currentTransferCompletedSemaphore = {};
 
@@ -112,6 +121,8 @@ VkResult RecordAndSubmitTask::start()
 
 VkResult RecordAndSubmitTask::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     for (auto& commandGraph : commandGraphs)
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
@@ -122,6 +133,8 @@ VkResult RecordAndSubmitTask::record(ref_ptr<RecordedCommandBuffers> recordedCom
 
 VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (lateTransferTask)
     {
         if (VkResult result = lateTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;

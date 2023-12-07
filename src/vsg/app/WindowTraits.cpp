@@ -105,7 +105,7 @@ void WindowTraits::validate()
     {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
     }
-    if (debugUtils && isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+    if ((apiDumpLayer || debugUtils) && isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
     {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }

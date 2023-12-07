@@ -223,6 +223,7 @@ set(SOURCES
     utils/ShaderCompiler.cpp
     utils/ComputeBounds.cpp
     utils/Intersector.cpp
+    utils/Instrumentation.cpp
     utils/LineSegmentIntersector.cpp
     utils/LoadPagedLOD.cpp
 )

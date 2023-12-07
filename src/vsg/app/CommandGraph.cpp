@@ -17,11 +17,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/State.h>
+#include <vsg/utils/Instrumentation.h>
 
 using namespace vsg;
 
 CommandGraph::CommandGraph()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
 }
 
 CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
@@ -29,12 +31,15 @@ CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
     queueFamily(family),
     presentFamily(-1)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
 }
 
 CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
     window(in_window),
     device(in_window->getOrCreateDevice())
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
     if (window->traits()) queueFlags = window->traits()->queueFlags;
 
@@ -45,6 +50,7 @@ CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
 
 CommandGraph::~CommandGraph()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
 }
 
 VkCommandBufferLevel CommandGraph::level() const
@@ -56,8 +62,28 @@ void CommandGraph::reset()
 {
 }
 
+ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
+{
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
+    if (!recordTraversal)
+    {
+        recordTraversal = RecordTraversal::create(maxSlot);
+        if (!recordTraversal->instrumentation && window && window->traits() && window->traits()->apiDumpLayer)
+        {
+            recordTraversal->instrumentation = VulkanAnnotation::create();
+        }
+
+        info("CommandGraph::getOrCreateRecordTraversal() ", recordTraversal);
+    }
+    return recordTraversal;
+}
+
+
 void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (window && !window->visible())
     {
         return;
@@ -100,6 +126,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     recordTraversal->getState()->_commandBuffer = commandBuffer;
 
+
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
 
@@ -112,9 +139,21 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
+    if (recordTraversal->instrumentation)
+    {
+        // attach the commandBuffer to instrumentation so it can be recorded to if required.
+        recordTraversal->instrumentation->commandBuffer = commandBuffer;
+    }
+
     traverse(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
+
+    if (recordTraversal->instrumentation)
+    {
+        // disconnect the commandBuffer from instrumentation as it's no longer valid for recording commands to
+        recordTraversal->instrumentation->commandBuffer = {};
+    }
 
     recordedCommandBuffers->add(submitOrder, commandBuffer);
 }
