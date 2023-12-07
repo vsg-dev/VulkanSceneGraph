@@ -16,10 +16,54 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Instrumentation base class
+//
 Instrumentation::Instrumentation()
 {
 }
 
 Instrumentation::~Instrumentation()
 {
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// VulkanAnnotation uses VK_debug_utils to pass annotation to Vulkan
+//
+VulkanAnnotation::VulkanAnnotation()
+{
+}
+
+VulkanAnnotation::~VulkanAnnotation()
+{
+}
+
+
+void VulkanAnnotation::enter(const SourceLocation* sl, uint64_t&) const
+{
+    if (!commandBuffer) return;
+
+    auto extensions = commandBuffer->getDevice()->getInstance()->getExtensions();
+
+    VkDebugUtilsLabelEXT markerInfo = {};
+    markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+    if (sl->name) markerInfo.pLabelName = sl->name;
+    else markerInfo.pLabelName = sl->function;
+    markerInfo.color[0] = static_cast<float>(sl->color[0])/255.0;
+    markerInfo.color[1] = static_cast<float>(sl->color[1])/255.0;
+    markerInfo.color[2] = static_cast<float>(sl->color[2])/255.0;
+    markerInfo.color[3] = static_cast<float>(sl->color[3])/255.0;
+
+    extensions->vkCmdBeginDebugUtilsLabelEXT(*commandBuffer, &markerInfo);
+}
+
+void VulkanAnnotation::leave(const SourceLocation*, uint64_t&) const
+{
+    if (!commandBuffer) return;
+
+    auto extensions = commandBuffer->getDevice()->getInstance()->getExtensions();
+    extensions->vkCmdEndDebugUtilsLabelEXT(*commandBuffer);
 }

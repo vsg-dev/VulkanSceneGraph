@@ -38,6 +38,7 @@ namespace vsg
         ubvec4 color;
     };
 
+    /// base class for Instrumentation implentations
     class VSG_DECLSPEC Instrumentation : public Inherit<Object, Instrumentation>
     {
     public:
@@ -55,6 +56,24 @@ namespace vsg
 
     };
     VSG_type_name(vsg::Instrumentation);
+
+    /// Concrete Implementation that uses VK_debug_utils to emit annotation to scene graph traversal.
+    /// Provides tools like RenderDoc a way to report the source location associated with Vulkan calls.
+    class VSG_DECLSPEC VulkanAnnotation : public Inherit<Instrumentation, VulkanAnnotation>
+    {
+    public:
+
+        VulkanAnnotation();
+
+        virtual void enter(const SourceLocation* sl, uint64_t& reference) const;
+        virtual void leave(const SourceLocation* sl, uint64_t& reference) const;
+
+    protected:
+
+        virtual ~VulkanAnnotation();
+
+    };
+    VSG_type_name(vsg::VulkanAnnotation);
 
     struct ScopedInstrumentation
     {

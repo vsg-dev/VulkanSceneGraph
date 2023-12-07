@@ -41,11 +41,7 @@ namespace vsg
         uint32_t maxSlot = 2;
         int submitOrder = 0;
 
-        inline ref_ptr<RecordTraversal> getOrCreateRecordTraversal()
-        {
-            if (!recordTraversal) recordTraversal = RecordTraversal::create(maxSlot);
-            return recordTraversal;
-        }
+        ref_ptr<RecordTraversal> getOrCreateRecordTraversal();
 
         ref_ptr<RecordTraversal> recordTraversal;
 
