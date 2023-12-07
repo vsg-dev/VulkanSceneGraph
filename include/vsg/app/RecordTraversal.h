@@ -129,6 +129,7 @@ namespace vsg
         // clear the bins to record a new frame.
         void clearBins();
 
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
 
     protected:

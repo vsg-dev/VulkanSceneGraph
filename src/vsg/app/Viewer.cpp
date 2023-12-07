@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/Descriptor.h>
+#include <vsg/utils/Instrumentation.h>
 
 #include <chrono>
 #include <map>
@@ -32,10 +33,13 @@ Viewer::Viewer() :
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
 }
 
 Viewer::~Viewer()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     stopThreading();
 
     // don't destroy viewer while devices are still active
@@ -44,6 +48,8 @@ Viewer::~Viewer()
 
 void Viewer::deviceWaitIdle() const
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     std::set<VkDevice> devices;
     for (auto& window : _windows)
     {
@@ -96,6 +102,8 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
 void Viewer::close()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     _close = true;
     status->set(false);
 
@@ -104,6 +112,8 @@ void Viewer::close()
 
 bool Viewer::active() const
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     bool viewerIsActive = !_close;
     if (viewerIsActive)
     {
@@ -127,6 +137,8 @@ bool Viewer::active() const
 
 bool Viewer::pollEvents(bool discardPreviousEvents)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     bool result = false;
 
     if (discardPreviousEvents) _events.clear();
@@ -140,6 +152,8 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
 
 bool Viewer::advanceToNextFrame()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (!active()) return false;
 
     // poll all the windows for events.
@@ -178,6 +192,8 @@ bool Viewer::advanceToNextFrame()
 
 bool Viewer::acquireNextFrame()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (_close) return false;
 
     VkResult result = VK_SUCCESS;
@@ -216,6 +232,8 @@ bool Viewer::acquireNextFrame()
 
 VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     VkResult result = VK_SUCCESS;
     for (auto& task : recordAndSubmitTasks)
     {
@@ -231,6 +249,8 @@ VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 
 void Viewer::handleEvents()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     for (auto& vsg_event : _events)
     {
         for (auto& handler : _eventHandlers)
@@ -242,6 +262,8 @@ void Viewer::handleEvents()
 
 void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (recordAndSubmitTasks.empty())
     {
         return;
@@ -399,6 +421,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     // now remove any commandGraphs associated with window
     bool needToStartThreading = _threading;
     if (_threading) stopThreading();
@@ -554,6 +578,8 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
 void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     // collect the existing CommandGraphs
     CommandGraphs combinedCommandGraphs;
     for (auto& task : recordAndSubmitTasks)
@@ -573,6 +599,8 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
 void Viewer::setupThreading()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     debug("Viewer::setupThreading() ");
 
     stopThreading();
@@ -723,6 +751,8 @@ void Viewer::setupThreading()
 
 void Viewer::stopThreading()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     if (!_threading) return;
     _threading = false;
 
@@ -742,6 +772,8 @@ void Viewer::stopThreading()
 
 void Viewer::update()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     for (auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
@@ -757,6 +789,8 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     // reset connected ExecuteCommands
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
@@ -789,6 +823,8 @@ void Viewer::recordAndSubmit()
 
 void Viewer::present()
 {
+    SCOPED_INSTRUMENTASTION(instrumentation);
+
     for (auto& presentation : presentations)
     {
         presentation->present();
@@ -797,5 +833,7 @@ void Viewer::present()
 
 void vsg::updateViewer(Viewer& viewer, const CompileResult& compileResult)
 {
+    SCOPED_INSTRUMENTASTION(viewer.instrumentation);
+
     updateTasks(viewer.recordAndSubmitTasks, viewer.compileManager, compileResult);
 }

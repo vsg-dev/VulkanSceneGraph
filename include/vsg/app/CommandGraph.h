@@ -49,6 +49,9 @@ namespace vsg
         virtual void reset();
         virtual void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
 
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
     protected:
         virtual ~CommandGraph();
 
