@@ -571,6 +571,16 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
             recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
         }
+        if (instrumentation)
+        {
+            auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+            // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT might be appropriate too.
+            auto commandPool = CommandPool::create(device, queueFamily,
+                                                   VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+            auto cmd = commandPool->allocate();
+            ref_ptr<Device> ref_device(device);
+            instrumentation->init(ref_device, mainQueue, cmd);
+        }
     }
 
     if (needToStartThreading) setupThreading();
