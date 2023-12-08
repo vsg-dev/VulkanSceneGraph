@@ -49,6 +49,9 @@ namespace vsg
         ref_ptr<Queue> transferQueue;
         ref_ptr<Semaphore> currentTransferCompletedSemaphore;
 
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
     protected:
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;

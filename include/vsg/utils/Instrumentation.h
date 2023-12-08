@@ -65,8 +65,8 @@ namespace vsg
     public:
         VulkanAnnotation();
 
-        virtual void enter(const SourceLocation* sl, uint64_t& reference) const;
-        virtual void leave(const SourceLocation* sl, uint64_t& reference) const;
+        virtual void enter(const SourceLocation* sl, uint64_t& reference) const override;
+        virtual void leave(const SourceLocation* sl, uint64_t& reference) const override;
 
     protected:
         virtual ~VulkanAnnotation();
