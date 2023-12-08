@@ -78,7 +78,6 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
     return recordTraversal;
 }
 
-
 void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     SCOPED_INSTRUMENTASTION(instrumentation);
@@ -124,7 +123,6 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
     recordTraversal->getState()->_commandBuffer = commandBuffer;
-
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;

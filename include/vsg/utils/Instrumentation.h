@@ -19,11 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    #if defined ( __clang__ ) || defined ( __GNUC__ )
-    # define VsgFunctionName __PRETTY_FUNCTION__
-    #elif defined ( _MSC_VER )
-    # define VsgFunctionName __FUNCSIG__
-    #endif
+#if defined(__clang__) || defined(__GNUC__)
+#    define VsgFunctionName __PRETTY_FUNCTION__
+#elif defined(_MSC_VER)
+#    define VsgFunctionName __FUNCSIG__
+#endif
 
     class CommandBuffer;
 
@@ -42,18 +42,15 @@ namespace vsg
     class VSG_DECLSPEC Instrumentation : public Inherit<Object, Instrumentation>
     {
     public:
-
         Instrumentation();
 
-        virtual void enter(const SourceLocation* sl, uint64_t& reference) const= 0;
+        virtual void enter(const SourceLocation* sl, uint64_t& reference) const = 0;
         virtual void leave(const SourceLocation* sl, uint64_t& reference) const = 0;
 
         ref_ptr<vsg::CommandBuffer> commandBuffer;
 
     protected:
-
         virtual ~Instrumentation();
-
     };
     VSG_type_name(vsg::Instrumentation);
 
@@ -62,16 +59,13 @@ namespace vsg
     class VSG_DECLSPEC VulkanAnnotation : public Inherit<Instrumentation, VulkanAnnotation>
     {
     public:
-
         VulkanAnnotation();
 
         virtual void enter(const SourceLocation* sl, uint64_t& reference) const;
         virtual void leave(const SourceLocation* sl, uint64_t& reference) const;
 
     protected:
-
         virtual ~VulkanAnnotation();
-
     };
     VSG_type_name(vsg::VulkanAnnotation);
 
@@ -80,13 +74,28 @@ namespace vsg
         const Instrumentation* instr;
         const SourceLocation* sl;
         uint64_t reference;
-        inline ScopedInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl) : instr(in_instr), sl(in_sl) { if (instr) instr->enter(sl, reference); }
-        inline ~ScopedInstrumentation() { if (instr) instr->leave(sl, reference); }
+        inline ScopedInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl) :
+            instr(in_instr), sl(in_sl)
+        {
+            if (instr) instr->enter(sl, reference);
+        }
+        inline ~ScopedInstrumentation()
+        {
+            if (instr) instr->leave(sl, reference);
+        }
     };
 
-    #define SCOPED_INSTRUMENTASTION(instrumentation) static constexpr SourceLocation s_source_location_##__LINE__ { nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255) }; ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-    #define SCOPED_INSTRUMENTASTION_N(instrumentation, name) static constexpr SourceLocation s_source_location_##__LINE__ { name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255) }; ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-    #define SCOPED_INSTRUMENTASTION_C(instrumentation, color) static constexpr SourceLocation s_source_location_##__LINE__ { nullptr, VsgFunctionName, __FILE__, __LINE__, color }; ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-    #define SCOPED_INSTRUMENTASTION_NC(instrumentation, name, color) static constexpr SourceLocation s_source_location_##__LINE__ { name, VsgFunctionName, __FILE__, __LINE__, color }; ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+#define SCOPED_INSTRUMENTASTION(instrumentation)                                                                                            \
+    static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
+    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+#define SCOPED_INSTRUMENTASTION_N(instrumentation, name)                                                                                 \
+    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
+    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+#define SCOPED_INSTRUMENTASTION_C(instrumentation, color)                                                              \
+    static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, color}; \
+    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+#define SCOPED_INSTRUMENTASTION_NC(instrumentation, name, color)                                                    \
+    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color}; \
+    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
 
 } // namespace vsg
