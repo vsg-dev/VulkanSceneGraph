@@ -32,12 +32,12 @@ Viewer::Viewer() :
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 }
 
 Viewer::~Viewer()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     stopThreading();
 
@@ -47,7 +47,7 @@ Viewer::~Viewer()
 
 void Viewer::deviceWaitIdle() const
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     std::set<VkDevice> devices;
     for (auto& window : _windows)
@@ -101,7 +101,7 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
 void Viewer::close()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     _close = true;
     status->set(false);
@@ -111,7 +111,7 @@ void Viewer::close()
 
 bool Viewer::active() const
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     bool viewerIsActive = !_close;
     if (viewerIsActive)
@@ -136,7 +136,7 @@ bool Viewer::active() const
 
 bool Viewer::pollEvents(bool discardPreviousEvents)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     bool result = false;
 
@@ -151,7 +151,7 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
 
 bool Viewer::advanceToNextFrame()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     if (!active()) return false;
 
@@ -191,7 +191,7 @@ bool Viewer::advanceToNextFrame()
 
 bool Viewer::acquireNextFrame()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     if (_close) return false;
 
@@ -231,7 +231,7 @@ bool Viewer::acquireNextFrame()
 
 VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     VkResult result = VK_SUCCESS;
     for (auto& task : recordAndSubmitTasks)
@@ -248,7 +248,7 @@ VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 
 void Viewer::handleEvents()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     for (auto& vsg_event : _events)
     {
@@ -261,7 +261,7 @@ void Viewer::handleEvents()
 
 void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     if (recordAndSubmitTasks.empty())
     {
@@ -420,7 +420,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     // now remove any commandGraphs associated with window
     bool needToStartThreading = _threading;
@@ -570,6 +570,16 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
             recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
         }
+        if (instrumentation)
+        {
+            auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
+            // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT might be appropriate too.
+            auto commandPool = CommandPool::create(device, queueFamily,
+                                                   VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+            auto cmd = commandPool->allocate();
+            ref_ptr<Device> ref_device(device);
+            instrumentation->init(ref_device, mainQueue, cmd);
+        }
     }
 
     if (needToStartThreading) setupThreading();
@@ -577,7 +587,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
 void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     // collect the existing CommandGraphs
     CommandGraphs combinedCommandGraphs;
@@ -598,7 +608,7 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
 void Viewer::setupThreading()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     debug("Viewer::setupThreading() ");
 
@@ -750,7 +760,7 @@ void Viewer::setupThreading()
 
 void Viewer::stopThreading()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     if (!_threading) return;
     _threading = false;
@@ -771,7 +781,7 @@ void Viewer::stopThreading()
 
 void Viewer::update()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     for (auto& task : recordAndSubmitTasks)
     {
@@ -788,7 +798,7 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     // reset connected ExecuteCommands
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
@@ -822,7 +832,7 @@ void Viewer::recordAndSubmit()
 
 void Viewer::present()
 {
-    SCOPED_INSTRUMENTASTION(instrumentation);
+    SCOPED_INSTRUMENTATION(instrumentation);
 
     for (auto& presentation : presentations)
     {
@@ -832,7 +842,7 @@ void Viewer::present()
 
 void vsg::updateViewer(Viewer& viewer, const CompileResult& compileResult)
 {
-    SCOPED_INSTRUMENTASTION(viewer.instrumentation);
+    SCOPED_INSTRUMENTATION(viewer.instrumentation);
 
     updateTasks(viewer.recordAndSubmitTasks, viewer.compileManager, compileResult);
 }

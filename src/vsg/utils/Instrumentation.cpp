@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/Queue.h>
 
 using namespace vsg;
 
@@ -21,6 +22,10 @@ using namespace vsg;
 // Instrumentation base class
 //
 Instrumentation::Instrumentation()
+{
+}
+
+void Instrumentation::init(vsg::ref_ptr<Device>, vsg::ref_ptr<Queue>, vsg::ref_ptr<CommandBuffer>)
 {
 }
 
