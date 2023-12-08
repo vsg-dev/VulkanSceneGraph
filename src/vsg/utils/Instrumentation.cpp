@@ -29,7 +29,7 @@ Instrumentation::~Instrumentation()
 {
 }
 
-void Instrumentation::init(vsg::ref_ptr<Device> /*device*/, vsg::ref_ptr<Queue> /*queue*/, vsg::ref_ptr<CommandBuffer> cmd)
+void Instrumentation::init(ref_ptr<Queue> /*queue*/, ref_ptr<CommandBuffer> cmd)
 {
     commandBuffer = cmd;
 }

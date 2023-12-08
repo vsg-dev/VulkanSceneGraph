@@ -47,7 +47,7 @@ namespace vsg
         Instrumentation();
 
         // Conceived for the needs of Tracy
-        virtual void init(vsg::ref_ptr<Device> device, vsg::ref_ptr<Queue> queue, vsg::ref_ptr<CommandBuffer> cmd);
+        virtual void init(ref_ptr<Queue> queue, ref_ptr<CommandBuffer> cmd);
         virtual void enter(const SourceLocation* sl, uint64_t& reference) const = 0;
         virtual void leave(const SourceLocation* sl, uint64_t& reference) const = 0;
 
