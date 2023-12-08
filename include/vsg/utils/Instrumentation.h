@@ -25,6 +25,8 @@ namespace vsg
 #    define VsgFunctionName __FUNCSIG__
 #endif
 
+    class Device;
+    class Queue;
     class CommandBuffer;
 
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
@@ -44,6 +46,8 @@ namespace vsg
     public:
         Instrumentation();
 
+        // Conceived for the needs of Tracy
+        virtual void init(vsg::ref_ptr<Device> device, vsg::ref_ptr<Queue> queue, vsg::ref_ptr<CommandBuffer> cmd);
         virtual void enter(const SourceLocation* sl, uint64_t& reference) const = 0;
         virtual void leave(const SourceLocation* sl, uint64_t& reference) const = 0;
 
@@ -85,16 +89,16 @@ namespace vsg
         }
     };
 
-#define SCOPED_INSTRUMENTASTION(instrumentation)                                                                                            \
+#define SCOPED_INSTRUMENTATION(instrumentation)                                                                                            \
     static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
     ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-#define SCOPED_INSTRUMENTASTION_N(instrumentation, name)                                                                                 \
+#define SCOPED_INSTRUMENTATION_N(instrumentation, name)                                                                                 \
     static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
     ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-#define SCOPED_INSTRUMENTASTION_C(instrumentation, color)                                                              \
+#define SCOPED_INSTRUMENTATION_C(instrumentation, color)                                                              \
     static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, color}; \
     ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-#define SCOPED_INSTRUMENTASTION_NC(instrumentation, name, color)                                                    \
+#define SCOPED_INSTRUMENTATION_NC(instrumentation, name, color)                                                    \
     static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color}; \
     ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
 
