@@ -136,21 +136,13 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    if (recordTraversal->instrumentation)
-    {
-        // attach the commandBuffer to instrumentation so it can be recorded to if required.
-        recordTraversal->instrumentation->commandBuffer = commandBuffer;
-    }
+    if (instrumentation) instrumentation->enterCommandBuffer(commandBuffer);
 
     traverse(*recordTraversal);
 
-    vkEndCommandBuffer(vk_commandBuffer);
+    if (instrumentation) instrumentation->leaveCommandBuffer();
 
-    if (recordTraversal->instrumentation)
-    {
-        // disconnect the commandBuffer from instrumentation as it's no longer valid for recording commands to
-        recordTraversal->instrumentation->commandBuffer = {};
-    }
+    vkEndCommandBuffer(vk_commandBuffer);
 
     recordedCommandBuffers->add(submitOrder, commandBuffer);
 }

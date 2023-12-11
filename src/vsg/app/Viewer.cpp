@@ -273,17 +273,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
 
-    for(auto task : recordAndSubmitTasks)
-    {
-        if (task->instrumentation)
-        {
-            // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT might be appropriate too.
-            auto commandPool = CommandPool::create(task->device, task->queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-            auto commandBuffer = commandPool->allocate();
-            task->instrumentation->init(task->queue, commandBuffer);
-        }
-    }
-
     struct DeviceResources
     {
         CollectResourceRequirements collectResources;

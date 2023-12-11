@@ -107,7 +107,7 @@ void RecordTraversal::clearBins()
 
 void RecordTraversal::apply(const Object& object)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     //debug("Visiting Object");
     object.traverse(*this);
@@ -115,7 +115,7 @@ void RecordTraversal::apply(const Object& object)
 
 void RecordTraversal::apply(const Group& group)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     //debug("Visiting Group");
 #if INLINE_TRAVERSE
@@ -127,7 +127,7 @@ void RecordTraversal::apply(const Group& group)
 
 void RecordTraversal::apply(const QuadGroup& quadGroup)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
@@ -139,7 +139,7 @@ void RecordTraversal::apply(const QuadGroup& quadGroup)
 
 void RecordTraversal::apply(const LOD& lod)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     const auto& sphere = lod.bound;
 
@@ -164,7 +164,7 @@ void RecordTraversal::apply(const LOD& lod)
 
 void RecordTraversal::apply(const PagedLOD& plod)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     const auto& sphere = plod.bound;
     auto frameCount = _frameStamp->frameCount;
@@ -244,7 +244,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
 void RecordTraversal::apply(const CullGroup& cullGroup)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     if (_state->intersect(cullGroup.bound))
     {
@@ -255,7 +255,7 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 
 void RecordTraversal::apply(const CullNode& cullNode)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     if (_state->intersect(cullNode.bound))
     {
@@ -266,7 +266,7 @@ void RecordTraversal::apply(const CullNode& cullNode)
 
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     if (_state->intersect(depthSorted.bound))
     {
@@ -280,7 +280,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 
 void RecordTraversal::apply(const Switch& sw)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     for (auto& child : sw.children)
     {
@@ -332,7 +332,7 @@ void RecordTraversal::apply(const SpotLight& light)
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
-    SCOPED_INSTRUMENTATION_C(instrumentation, ubvec4(255, 255, 0, 255));
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(255, 255, 0, 255));
 
     //debug("Visiting StateGroup");
 
@@ -353,7 +353,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
 void RecordTraversal::apply(const Transform& transform)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     _state->modelviewMatrixStack.push(transform);
     _state->dirty = true;
@@ -375,7 +375,7 @@ void RecordTraversal::apply(const Transform& transform)
 
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
 
     _state->modelviewMatrixStack.push(mt);
     _state->dirty = true;
@@ -398,7 +398,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 // Vulkan nodes
 void RecordTraversal::apply(const Commands& commands)
 {
-    SCOPED_INSTRUMENTATION_C(instrumentation, ubvec4(0, 255, 0, 255));
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 255, 0, 255));
 
     _state->record();
     for (auto& command : commands.children)
@@ -409,7 +409,7 @@ void RecordTraversal::apply(const Commands& commands)
 
 void RecordTraversal::apply(const Command& command)
 {
-    SCOPED_INSTRUMENTATION_C(instrumentation, ubvec4(0, 255, 0, 255));
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 255, 0, 255));
 
     //debug("Visiting Command");
     _state->record();
@@ -418,7 +418,7 @@ void RecordTraversal::apply(const Command& command)
 
 void RecordTraversal::apply(const View& view)
 {
-    SCOPED_INSTRUMENTATION_C(instrumentation, ubvec4(0, 0, 255, 255));
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));
 
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
@@ -507,7 +507,7 @@ void RecordTraversal::apply(const View& view)
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
 {
-    SCOPED_INSTRUMENTATION_C(instrumentation, ubvec4(0, 0, 255, 255));
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));
 
     if (recordedCommandBuffers)
     {

@@ -29,7 +29,10 @@ namespace vsg
         operator VkCommandPool() const { return _commandPool; }
         VkCommandPool vk() const { return _commandPool; }
 
-        void reset(VkCommandPoolResetFlags flags = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT) const { vkResetCommandPool(*_device, _commandPool, flags); }
+        const uint32_t queueFamilyIndex;
+        const VkCommandPoolCreateFlags flags;
+
+        void reset(VkCommandPoolResetFlags reset_flags = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT) const { vkResetCommandPool(*_device, _commandPool, reset_flags); }
 
         /// allocate CommandBuffer from CommandPool
         ref_ptr<CommandBuffer> allocate(VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);

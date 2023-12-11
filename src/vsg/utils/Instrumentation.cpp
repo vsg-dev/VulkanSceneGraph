@@ -29,11 +29,6 @@ Instrumentation::~Instrumentation()
 {
 }
 
-void Instrumentation::init(ref_ptr<Queue> /*queue*/, ref_ptr<CommandBuffer> cmd)
-{
-    commandBuffer = cmd;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // VulkanAnnotation uses VK_debug_utils to pass annotation to Vulkan
@@ -46,11 +41,11 @@ VulkanAnnotation::~VulkanAnnotation()
 {
 }
 
-void VulkanAnnotation::enter(const SourceLocation* sl, uint64_t&) const
+void VulkanAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffer& commandBuffer) const
 {
     if (!commandBuffer) return;
 
-    auto extensions = commandBuffer->getDevice()->getInstance()->getExtensions();
+    auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
 
     VkDebugUtilsLabelEXT markerInfo = {};
     markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
@@ -63,13 +58,13 @@ void VulkanAnnotation::enter(const SourceLocation* sl, uint64_t&) const
     markerInfo.color[2] = static_cast<float>(sl->color[2]) / 255.0;
     markerInfo.color[3] = static_cast<float>(sl->color[3]) / 255.0;
 
-    extensions->vkCmdBeginDebugUtilsLabelEXT(*commandBuffer, &markerInfo);
+    extensions->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &markerInfo);
 }
 
-void VulkanAnnotation::leave(const SourceLocation*, uint64_t&) const
+void VulkanAnnotation::leave(const SourceLocation*, uint64_t&, vsg::CommandBuffer& commandBuffer) const
 {
     if (!commandBuffer) return;
 
-    auto extensions = commandBuffer->getDevice()->getInstance()->getExtensions();
-    extensions->vkCmdEndDebugUtilsLabelEXT(*commandBuffer);
+    auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
+    extensions->vkCmdEndDebugUtilsLabelEXT(commandBuffer);
 }
