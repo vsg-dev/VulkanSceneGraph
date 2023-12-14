@@ -416,6 +416,14 @@ void RecordTraversal::apply(const Command& command)
     command.record(*(_state->_commandBuffer));
 }
 
+void RecordTraversal::apply(const Bin& object)
+{
+    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
+
+    //debug("Visiting Bin");
+    object.traverse(*this);
+}
+
 void RecordTraversal::apply(const View& view)
 {
     SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));

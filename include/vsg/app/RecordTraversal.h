@@ -123,6 +123,7 @@ namespace vsg
         void apply(const Command& command);
 
         // Viewer level nodes
+        void apply(const Bin& bin);
         void apply(const View& view);
         void apply(const CommandGraph& commandGraph);
 
