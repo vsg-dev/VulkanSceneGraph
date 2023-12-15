@@ -35,6 +35,9 @@ namespace vsg
     class DepthSorted;
     class Transform;
     class MatrixTransform;
+    class VertexDraw;
+    class VertexIndexDraw;
+    class Geometry;
     class Command;
     class Commands;
     class CommandBuffer;
@@ -108,6 +111,11 @@ namespace vsg
         void apply(const DepthSorted& depthSorted);
         void apply(const Switch& sw);
 
+        // leaf node
+        void apply(const VertexDraw& vid);
+        void apply(const VertexIndexDraw& vid);
+        void apply(const Geometry& vid);
+
         // positional state
         void apply(const Light& light);
         void apply(const AmbientLight& light);
@@ -119,6 +127,8 @@ namespace vsg
         void apply(const Transform& transform);
         void apply(const MatrixTransform& mt);
         void apply(const StateGroup& object);
+
+        // Commands
         void apply(const Commands& commands);
         void apply(const Command& command);
 

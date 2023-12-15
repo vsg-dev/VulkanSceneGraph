@@ -32,6 +32,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
+#include <vsg/nodes/VertexDraw.h>
+#include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -264,20 +267,6 @@ void RecordTraversal::apply(const CullNode& cullNode)
     }
 }
 
-void RecordTraversal::apply(const DepthSorted& depthSorted)
-{
-    SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
-
-    if (_state->intersect(depthSorted.bound))
-    {
-        const auto& mv = _state->modelviewMatrixStack.top();
-        auto& center = depthSorted.bound.center;
-        auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
-
-        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
-    }
-}
-
 void RecordTraversal::apply(const Switch& sw)
 {
     SCOPED_INSTRUMENTATION_CG(instrumentation, *getCommandBuffer());
@@ -289,6 +278,47 @@ void RecordTraversal::apply(const Switch& sw)
             child.node->accept(*this);
         }
     }
+}
+
+void RecordTraversal::apply(const DepthSorted& depthSorted)
+{
+    SCOPED_INSTRUMENTATION(instrumentation);
+
+    if (_state->intersect(depthSorted.bound))
+    {
+        const auto& mv = _state->modelviewMatrixStack.top();
+        auto& center = depthSorted.bound.center;
+        auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
+
+        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
+    }
+}
+
+void RecordTraversal::apply(const VertexDraw& vd)
+{
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 255, 0, 255));
+
+    //debug("Visiting VertexDraw");
+    _state->record();
+    vd.record(*(_state->_commandBuffer));
+}
+
+void RecordTraversal::apply(const VertexIndexDraw& vid)
+{
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 255, 0, 255));
+
+    //debug("Visiting VertexIndexDraw");
+    _state->record();
+    vid.record(*(_state->_commandBuffer));
+}
+
+void RecordTraversal::apply(const Geometry& geometry)
+{
+    SCOPED_INSTRUMENTATION_CG_C(instrumentation, *getCommandBuffer(), ubvec4(0, 255, 0, 255));
+
+    //debug("Visiting Geometry");
+    _state->record();
+    geometry.record(*(_state->_commandBuffer));
 }
 
 void RecordTraversal::apply(const Light& /*light*/)
