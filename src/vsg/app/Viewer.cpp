@@ -830,6 +830,33 @@ void Viewer::present()
     }
 }
 
+void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
+{
+    bool previous_threading = _threading;
+    if (_threading) stopThreading();
+
+    // don't change Instrumentation while devices are still active
+    Viewer::deviceWaitIdle();
+
+    instrumentation = in_instrumentation;
+
+    // assign instrumentation after settings up recordAndSubmitTasks, but before compile() to allow compile to initialize the Instrumentation with the approach queue etc.
+    for(auto& task : recordAndSubmitTasks)
+    {
+        task->instrumentation = instrumentation;
+        if (task->earlyTransferTask) task->earlyTransferTask->instrumentation = task->instrumentation;
+        if (task->lateTransferTask) task->lateTransferTask->instrumentation = task->instrumentation;
+
+        for(auto cg : task->commandGraphs)
+        {
+            cg->instrumentation = task->instrumentation;
+            cg->getOrCreateRecordTraversal()->instrumentation = task->instrumentation;
+        }
+    }
+
+    if (previous_threading) setupThreading();
+}
+
 void vsg::updateViewer(Viewer& viewer, const CompileResult& compileResult)
 {
     SCOPED_INSTRUMENTATION(viewer.instrumentation);
