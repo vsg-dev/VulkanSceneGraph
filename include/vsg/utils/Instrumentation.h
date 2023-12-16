@@ -28,6 +28,7 @@ namespace vsg
     class Device;
     class Queue;
     class CommandBuffer;
+    class FrameStamp;
 
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
