@@ -136,7 +136,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    if (instrumentation) instrumentation->enterCommandBuffer(commandBuffer);
+    if (instrumentation) instrumentation->enterCommandBuffer(*commandBuffer);
 
     traverse(*recordTraversal);
 

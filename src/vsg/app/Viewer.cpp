@@ -155,7 +155,7 @@ bool Viewer::advanceToNextFrame()
 
     if (!active()) return false;
 
-    if (instrumentation && _frameStamp) instrumentation->leaveFrame(_frameStamp);
+    if (instrumentation && _frameStamp) instrumentation->leaveFrame(*_frameStamp);
 
     // poll all the windows for events.
     pollEvents(true);
@@ -180,7 +180,7 @@ bool Viewer::advanceToNextFrame()
         task->advance();
     }
 
-    if (instrumentation) instrumentation->enterFrame(_frameStamp);
+    if (instrumentation) instrumentation->enterFrame(*_frameStamp);
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));
