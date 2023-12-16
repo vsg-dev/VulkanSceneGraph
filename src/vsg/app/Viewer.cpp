@@ -155,6 +155,8 @@ bool Viewer::advanceToNextFrame()
 
     if (!active()) return false;
 
+    if (instrumentation && _frameStamp) instrumentation->leaveFrame(_frameStamp);
+
     // poll all the windows for events.
     pollEvents(true);
 
@@ -166,22 +168,19 @@ bool Viewer::advanceToNextFrame()
     {
         // first frame, initialize to frame count and indices to 0
         _frameStamp = FrameStamp::create(time, 0);
-
-        for (auto& task : recordAndSubmitTasks)
-        {
-            task->advance();
-        }
     }
     else
     {
         // after first frame so increment frame count and indices
         _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1);
-
-        for (auto& task : recordAndSubmitTasks)
-        {
-            task->advance();
-        }
     }
+
+    for (auto& task : recordAndSubmitTasks)
+    {
+        task->advance();
+    }
+
+    if (instrumentation) instrumentation->enterFrame(_frameStamp);
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));

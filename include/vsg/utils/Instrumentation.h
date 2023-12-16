@@ -46,6 +46,9 @@ namespace vsg
     public:
         Instrumentation();
 
+        virtual void enterFrame(vsg::ref_ptr<vsg::FrameStamp> frameStamp) = 0;
+        virtual void leaveFrame(vsg::ref_ptr<vsg::FrameStamp> frameStamp) = 0;
+
         virtual void enterCommandBuffer(vsg::ref_ptr<vsg::CommandBuffer> commandBuffer) = 0;
         virtual void leaveCommandBuffer() = 0;
 
@@ -66,6 +69,9 @@ namespace vsg
     {
     public:
         VulkanAnnotation();
+
+        void enterFrame(vsg::ref_ptr<vsg::FrameStamp>) override {};
+        void leaveFrame(vsg::ref_ptr<vsg::FrameStamp>) override {};
 
         void enterCommandBuffer(vsg::ref_ptr<vsg::CommandBuffer>) override {}
         void leaveCommandBuffer() override {}
