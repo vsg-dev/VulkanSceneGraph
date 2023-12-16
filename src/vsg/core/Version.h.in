@@ -30,6 +30,9 @@ extern "C"
     /// maximum number of logical vkDevice supported
     #define VSG_MAX_DEVICES @VSG_MAX_DEVICES@
 
+    /// Instrumentation level to built into the VSG ibrary, 0 for off, 1 coarse grained, 2 medium, 3 fine grained.
+    #define VSG_MAX_INSTRUMENTATION_LEVEL @VSG_MAX_INSTRUMENTATION_LEVEL@
+
     /// vsg::ShaderCompiler support enabled when 1, disabled when 0
     #define VSG_SUPPORTS_ShaderCompiler @VSG_SUPPORTS_ShaderCompiler@
 

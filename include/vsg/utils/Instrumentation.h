@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Version.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/io/Logger.h>
 #include <vsg/maths/vec4.h>
@@ -30,6 +31,11 @@ namespace vsg
     class CommandBuffer;
     class FrameStamp;
 
+    #define VSG_INSTUMENTATION_OFF 0
+    #define VSG_INSTUMENTATION_COARSE 1
+    #define VSG_INSTUMENTATION_MEDIUM 2
+    #define VSG_INSTUMENTATION_FINE 3
+
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
     struct SourceLocation
@@ -39,6 +45,7 @@ namespace vsg
         const char* file;
         uint32_t line;
         ubvec4 color;
+        uint32_t level;
     };
 
     /// base class for Instrumentation implentations
@@ -123,31 +130,50 @@ namespace vsg
         }
     };
 
-#define SCOPED_INSTRUMENTATION(instrumentation)                                                                                            \
-    static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
-    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-#define SCOPED_INSTRUMENTATION_N(instrumentation, name)                                                                                 \
-    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
-    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-#define SCOPED_INSTRUMENTATION_C(instrumentation, color)                                                              \
-    static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, color}; \
-    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
-#define SCOPED_INSTRUMENTATION_NC(instrumentation, name, color)                                                    \
-    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color}; \
-    ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+#if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
 
-#define SCOPED_INSTRUMENTATION_CG(instrumentation, cg)                                                                                            \
-    static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
-    ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
-#define SCOPED_INSTRUMENTATION_CG_N(instrumentation, cg, name)                                                                                 \
-    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255)}; \
-    ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
-#define SCOPED_INSTRUMENTATION_CG_C(instrumentation, cg, color)                                                              \
-    static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, color}; \
-    ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
-#define SCOPED_INSTRUMENTATION_CG_NC(instrumentation, cg, name, color)                                                    \
-    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color}; \
-    ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
+    #define SCOPED_INSTRUMENTATION(instrumentation)       \
+        static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255), 1}; \
+        ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
 
+    #define COARS_L1_INSTRUMENTATION_N(instrumentation, name)                                                                                 \
+        static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255), 1}; \
+        ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+
+    #define SCOPED_INSTRUMENTATION_C(instrumentation, color)                                                              \
+        static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, color, 1}; \
+        ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+
+    #define SCOPED_INSTRUMENTATION_NC(instrumentation, name, color)                                                    \
+        static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, 1}; \
+        ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+
+    #define SCOPED_INSTRUMENTATION_CG(instrumentation, cg)                                                                                            \
+        static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255), 1}; \
+        ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
+
+    #define SCOPED_INSTRUMENTATION_CG_N(instrumentation, cg, name)                                                                                 \
+        static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255), 1}; \
+        ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
+
+    #define SCOPED_INSTRUMENTATION_CG_C(instrumentation, cg, color)                                                              \
+        static constexpr SourceLocation s_source_location_##__LINE__{nullptr, VsgFunctionName, __FILE__, __LINE__, color, 1}; \
+        ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
+
+    #define SCOPED_INSTRUMENTATION_CG_NC(instrumentation, cg, name, color)                                                    \
+        static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, 1}; \
+        ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
+
+#else
+    #define SCOPED_INSTRUMENTATION(instrumentation)
+    #define SCOPED_INSTRUMENTATION_N(instrumentation, name)
+    #define SCOPED_INSTRUMENTATION_C(instrumentation, color)
+    #define SCOPED_INSTRUMENTATION_NC(instrumentation, name, color)
+
+    #define SCOPED_INSTRUMENTATION_CG(instrumentation, cg)
+    #define SCOPED_INSTRUMENTATION_CG_N(instrumentation, cg, name)
+    #define SCOPED_INSTRUMENTATION_CG_C(instrumentation, cg, color)
+    #define SCOPED_INSTRUMENTATION_CG_NC(instrumentation, cg, name, color)
+#endif
 
 } // namespace vsg
