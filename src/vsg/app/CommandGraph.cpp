@@ -22,7 +22,7 @@ using namespace vsg;
 
 CommandGraph::CommandGraph()
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION(1, instrumentation);
 }
 
 CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
@@ -30,14 +30,14 @@ CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
     queueFamily(family),
     presentFamily(-1)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION(1, instrumentation);
 }
 
 CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
     window(in_window),
     device(in_window->getOrCreateDevice())
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION(1, instrumentation);
 
     VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
     if (window->traits()) queueFlags = window->traits()->queueFlags;
@@ -49,7 +49,7 @@ CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
 
 CommandGraph::~CommandGraph()
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION(1, instrumentation);
 }
 
 VkCommandBufferLevel CommandGraph::level() const
@@ -63,7 +63,7 @@ void CommandGraph::reset()
 
 ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION(1, instrumentation);
 
     if (!recordTraversal)
     {
@@ -80,7 +80,7 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 
 void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-    SCOPED_INSTRUMENTATION(instrumentation);
+    SCOPED_INSTRUMENTATION(1, instrumentation);
 
     if (window && !window->visible())
     {
