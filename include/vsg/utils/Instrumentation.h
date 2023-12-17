@@ -132,32 +132,32 @@ namespace vsg
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
 
-    #define SCOPED_INSTRUMENTATION_NC(level, instrumentation, name, color)                                                    \
+    #define CPU_INSTRUMENTATION_NC(level, instrumentation, name, color)                                                    \
         static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
         ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
 
-    #define SCOPED_INSTRUMENTATION(level, instrumentation) SCOPED_INSTRUMENTATION_NC(level, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
-    #define SCOPED_INSTRUMENTATION_N(level, instrumentation, name) SCOPED_INSTRUMENTATION_NC(level, instrumentation, name, ubvec4(255, 255, 255, 255))
-    #define SCOPED_INSTRUMENTATION_C(level, instrumentation, color) SCOPED_INSTRUMENTATION_NC(level, instrumentation, nullptr, color)
+    #define CPU_INSTRUMENTATION(level, instrumentation) CPU_INSTRUMENTATION_NC(level, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
+    #define CPU_INSTRUMENTATION_N(level, instrumentation, name) CPU_INSTRUMENTATION_NC(level, instrumentation, name, ubvec4(255, 255, 255, 255))
+    #define CPU_INSTRUMENTATION_C(level, instrumentation, color) CPU_INSTRUMENTATION_NC(level, instrumentation, nullptr, color)
 
-    #define SCOPED_INSTRUMENTATION_CG_NC(level, instrumentation, cg, name, color)                                                    \
+    #define GPU_INSTRUMENTATION_NC(level, instrumentation, cg, name, color)                                                    \
         static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
         ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
 
-    #define SCOPED_INSTRUMENTATION_CG(level, instrumentation, cg) SCOPED_INSTRUMENTATION_CG_NC(level, instrumentation, cg, nullptr, ubvec4(255, 255, 255, 255))
-    #define SCOPED_INSTRUMENTATION_CG_N(level, instrumentation, cg, name) SCOPED_INSTRUMENTATION_CG_NC(level, instrumentation, cg, name, ubvec4(255, 255, 255, 255))
-    #define SCOPED_INSTRUMENTATION_CG_C(level, instrumentation, cg, color) SCOPED_INSTRUMENTATION_CG_NC(level, instrumentation, cg, nullptr, color)
+    #define GPU_INSTRUMENTATION(level, instrumentation, cg) GPU_INSTRUMENTATION_NC(level, instrumentation, cg, nullptr, ubvec4(255, 255, 255, 255))
+    #define GPU_INSTRUMENTATION_N(level, instrumentation, cg, name) GPU_INSTRUMENTATION_NC(level, instrumentation, cg, name, ubvec4(255, 255, 255, 255))
+    #define GPU_INSTRUMENTATION_C(level, instrumentation, cg, color) GPU_INSTRUMENTATION_NC(level, instrumentation, cg, nullptr, color)
 
 #else
-    #define SCOPED_INSTRUMENTATION(level, instrumentation)
-    #define SCOPED_INSTRUMENTATION_N(level, instrumentation, name)
-    #define SCOPED_INSTRUMENTATION_C(level, instrumentation, color)
-    #define SCOPED_INSTRUMENTATION_NC(level, instrumentation, name, color)
+    #define CPU_INSTRUMENTATION(level, instrumentation)
+    #define CPU_INSTRUMENTATION_N(level, instrumentation, name)
+    #define CPU_INSTRUMENTATION_C(level, instrumentation, color)
+    #define CPU_INSTRUMENTATION_NC(level, instrumentation, name, color)
 
-    #define SCOPED_INSTRUMENTATION_CG(level, instrumentation, cg)
-    #define SCOPED_INSTRUMENTATION_CG_N(level, instrumentation, cg, name)
-    #define SCOPED_INSTRUMENTATION_CG_C(level, instrumentation, cg, color)
-    #define SCOPED_INSTRUMENTATION_CG_NC(level, instrumentation, cg, name, color)
+    #define GPU_INSTRUMENTATION(level, instrumentation, cg)
+    #define GPU_INSTRUMENTATION_N(level, instrumentation, cg, name)
+    #define GPU_INSTRUMENTATION_C(level, instrumentation, cg, color)
+    #define GPU_INSTRUMENTATION_NC(level, instrumentation, cg, name, color)
 #endif
 
 } // namespace vsg
