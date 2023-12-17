@@ -11,21 +11,43 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/utils/Instrumentation.h>
+#include <vsg/utils/GpuAnnotation.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Queue.h>
-#include <vsg/ui/FrameStamp.h>
 
 using namespace vsg;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Instrumentation base class
-//
-Instrumentation::Instrumentation()
+GpuAnnotation::GpuAnnotation()
 {
 }
 
-Instrumentation::~Instrumentation()
+GpuAnnotation::~GpuAnnotation()
 {
+}
+
+void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffer& commandBuffer) const
+{
+    if (!commandBuffer) return;
+
+    auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
+
+    VkDebugUtilsLabelEXT markerInfo = {};
+    markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+    if (sl->name)
+        markerInfo.pLabelName = sl->name;
+    else
+        markerInfo.pLabelName = sl->function;
+    markerInfo.color[0] = static_cast<float>(sl->color[0]) / 255.0;
+    markerInfo.color[1] = static_cast<float>(sl->color[1]) / 255.0;
+    markerInfo.color[2] = static_cast<float>(sl->color[2]) / 255.0;
+    markerInfo.color[3] = static_cast<float>(sl->color[3]) / 255.0;
+
+    extensions->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &markerInfo);
+}
+
+void GpuAnnotation::leave(const SourceLocation*, uint64_t&, vsg::CommandBuffer& commandBuffer) const
+{
+    if (!commandBuffer) return;
+
+    auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
+    extensions->vkCmdEndDebugUtilsLabelEXT(commandBuffer);
 }

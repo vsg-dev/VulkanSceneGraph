@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/utils/GpuAnnotation.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -70,7 +71,7 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
         recordTraversal = RecordTraversal::create(maxSlot);
         if (!recordTraversal->instrumentation && window && window->traits() && window->traits()->apiDumpLayer)
         {
-            recordTraversal->instrumentation = VulkanAnnotation::create();
+            recordTraversal->instrumentation = GpuAnnotation::create();
         }
 
         info("CommandGraph::getOrCreateRecordTraversal() ", recordTraversal);

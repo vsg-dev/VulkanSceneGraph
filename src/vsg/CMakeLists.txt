@@ -224,6 +224,7 @@ set(SOURCES
     utils/ComputeBounds.cpp
     utils/Intersector.cpp
     utils/Instrumentation.cpp
+    utils/GpuAnnotation.cpp
     utils/LineSegmentIntersector.cpp
     utils/LoadPagedLOD.cpp
 )

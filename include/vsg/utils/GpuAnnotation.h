@@ -1,3 +1,5 @@
+#pragma once
+
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2023 Robert Osfield
@@ -10,22 +12,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/utils/Instrumentation.h>
-#include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/Queue.h>
-#include <vsg/ui/FrameStamp.h>
 
-using namespace vsg;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Instrumentation base class
-//
-Instrumentation::Instrumentation()
+namespace vsg
 {
-}
 
-Instrumentation::~Instrumentation()
-{
-}
+    /// GpuAnnotationo is a vsg::Instrumentation subclasses that uses VK_debug_utils to emit annotation of the scene graph traversal.
+    /// Provides tools like RenderDoc a way to report the source location associated with Vulkan calls.
+    class VSG_DECLSPEC GpuAnnotation : public Inherit<Instrumentation, GpuAnnotation>
+    {
+    public:
+        GpuAnnotation();
+
+        void enterFrame(FrameStamp&) override {};
+        void leaveFrame(FrameStamp&) override {};
+
+        void enterCommandBuffer(CommandBuffer&) override {}
+        void leaveCommandBuffer() override {}
+
+        void enter(const SourceLocation*, uint64_t&) const override {}
+        void leave(const SourceLocation*, uint64_t&) const override {}
+
+        void enter(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
+        void leave(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
+
+    protected:
+        virtual ~GpuAnnotation();
+    };
+    VSG_type_name(vsg::GpuAnnotation);
+
+} // namespace vsg

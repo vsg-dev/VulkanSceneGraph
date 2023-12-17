@@ -31,6 +31,7 @@ namespace vsg
     class CommandBuffer;
     class FrameStamp;
 
+    // Instrumentation uint32_t level defines/meanings
     #define VSG_INSTUMENTATION_OFF 0
     #define VSG_INSTUMENTATION_COARSE 1
     #define VSG_INSTUMENTATION_MEDIUM 2
@@ -71,60 +72,35 @@ namespace vsg
     };
     VSG_type_name(vsg::Instrumentation);
 
-    /// Concrete Implementation that uses VK_debug_utils to emit annotation to scene graph traversal.
-    /// Provides tools like RenderDoc a way to report the source location associated with Vulkan calls.
-    class VSG_DECLSPEC VulkanAnnotation : public Inherit<Instrumentation, VulkanAnnotation>
-    {
-    public:
-        VulkanAnnotation();
-
-
-        void enterFrame(FrameStamp&) override {};
-        void leaveFrame(FrameStamp&) override {};
-
-        void enterCommandBuffer(CommandBuffer&) override {}
-        void leaveCommandBuffer() override {}
-
-        void enter(const SourceLocation*, uint64_t&) const override {}
-        void leave(const SourceLocation*, uint64_t&) const override {}
-
-        void enter(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
-        void leave(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
-
-    protected:
-        virtual ~VulkanAnnotation();
-    };
-    VSG_type_name(vsg::VulkanAnnotation);
-
-    struct ScopedInstrumentation
+    struct CpuInstrumentation
     {
         const Instrumentation* instr;
         const SourceLocation* sl;
         uint64_t reference;
-        inline ScopedInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl) :
+        inline CpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl) :
             instr(in_instr), sl(in_sl)
         {
             if (instr) instr->enter(sl, reference);
         }
-        inline ~ScopedInstrumentation()
+        inline ~CpuInstrumentation()
         {
             if (instr) instr->leave(sl, reference);
         }
     };
 
-    struct ScopedInstrumentationCG
+    struct GpuInstrumentation
     {
         const Instrumentation* instr;
         const SourceLocation* sl;
         uint64_t reference;
         CommandBuffer& commandBuffer;
 
-        inline ScopedInstrumentationCG(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer) :
+        inline GpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer) :
             instr(in_instr), sl(in_sl), commandBuffer(in_commandBuffer)
         {
             if (instr) instr->enter(sl, reference, commandBuffer);
         }
-        inline ~ScopedInstrumentationCG()
+        inline ~GpuInstrumentation()
         {
             if (instr) instr->leave(sl, reference, commandBuffer);
         }
@@ -132,11 +108,11 @@ namespace vsg
 
     #define __CPU_INSTRUMENTATION(level, instrumentation, name, color)                                                    \
         static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-        ScopedInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
+        CpuInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__));
 
     #define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color)                                                    \
         static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-        ScopedInstrumentationCG __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
+        GpuInstrumentation __scoped_instrumentation(instrumentation, &(s_source_location_##__LINE__), cg);
 
     #if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
         #define CPU_INSTRUMENTATION_L1(instrumentation) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
