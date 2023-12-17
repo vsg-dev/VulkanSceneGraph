@@ -21,7 +21,7 @@ using namespace vsg;
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     device(in_device)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     _currentFrameIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
@@ -34,7 +34,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 
 void TransferTask::advance()
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     if (_currentFrameIndex >= _indices.size())
     {
@@ -69,7 +69,7 @@ bool TransferTask::containsDataToTransfer() const
 
 void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     assign(dynamicData.bufferInfos);
     assign(dynamicData.imageInfos);
@@ -77,7 +77,7 @@ void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
 
 void TransferTask::assign(const BufferInfoList& bufferInfoList)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     for (auto& bufferInfo : bufferInfoList)
     {
@@ -105,7 +105,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 
 void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
@@ -181,7 +181,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 
 void TransferTask::assign(const ImageInfoList& imageInfoList)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
@@ -215,7 +215,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 
 void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
@@ -245,7 +245,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
 
 void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo)
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
@@ -331,7 +331,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
 
 VkResult TransferTask::transferDynamicData()
 {
-    CPU_INSTRUMENTATION(1, instrumentation);
+    CPU_INSTRUMENTATION_L1(instrumentation);
 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
