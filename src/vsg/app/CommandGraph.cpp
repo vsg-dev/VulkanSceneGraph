@@ -73,8 +73,6 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
         {
             recordTraversal->instrumentation = GpuAnnotation::create();
         }
-
-        info("CommandGraph::getOrCreateRecordTraversal() ", recordTraversal);
     }
     return recordTraversal;
 }
