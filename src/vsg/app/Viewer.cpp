@@ -840,13 +840,13 @@ void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
     instrumentation = in_instrumentation;
 
     // assign instrumentation after settings up recordAndSubmitTasks, but before compile() to allow compile to initialize the Instrumentation with the approach queue etc.
-    for(auto& task : recordAndSubmitTasks)
+    for (auto& task : recordAndSubmitTasks)
     {
         task->instrumentation = instrumentation;
         if (task->earlyTransferTask) task->earlyTransferTask->instrumentation = task->instrumentation;
         if (task->lateTransferTask) task->lateTransferTask->instrumentation = task->instrumentation;
 
-        for(auto cg : task->commandGraphs)
+        for (auto cg : task->commandGraphs)
         {
             cg->instrumentation = task->instrumentation;
             cg->getOrCreateRecordTraversal()->instrumentation = task->instrumentation;

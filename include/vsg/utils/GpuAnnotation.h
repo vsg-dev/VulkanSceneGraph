@@ -24,8 +24,8 @@ namespace vsg
     public:
         GpuAnnotation();
 
-        void enterFrame(FrameStamp&) override {};
-        void leaveFrame(FrameStamp&) override {};
+        void enterFrame(FrameStamp&) override{};
+        void leaveFrame(FrameStamp&) override{};
 
         void enterCommandBuffer(CommandBuffer&) override {}
         void leaveCommandBuffer() override {}

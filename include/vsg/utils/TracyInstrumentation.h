@@ -22,123 +22,121 @@ using namespace tracy;
 namespace vsg
 {
 
-class TracyInstrumentation : public vsg::Inherit<vsg::Instrumentation, TracyInstrumentation>
-{
-public:
-
-    TracyInstrumentation()
+    class TracyInstrumentation : public vsg::Inherit<vsg::Instrumentation, TracyInstrumentation>
     {
-    }
-
-    mutable std::map<vsg::Device*, VkCtx*> ctxMap;
-    mutable VkCtx* ctx = nullptr;
-
-    uint32_t cpu_instumentation_level = 3;
-    uint32_t gpu_instumentation_level = 3;
-
-    void enterFrame(vsg::FrameStamp&) override {}
-
-    void leaveFrame(vsg::FrameStamp&) override
-    {
-        FrameMark;
-    }
-
-    void enterCommandBuffer(vsg::CommandBuffer& commandBuffer) override
-    {
-        auto device = commandBuffer.getDevice();
-        ctx = ctxMap[device];
-        if (!ctx)
+    public:
+        TracyInstrumentation()
         {
-            auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
-            auto commandPool = vsg::CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-            auto temporaryCommandBuffer = commandPool->allocate();
-            ctx = ctxMap[device] = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
         }
 
-        if (ctx)
-        {
-            TracyVkCollect(ctx, commandBuffer.vk());
-        }
-    }
+        mutable std::map<vsg::Device*, VkCtx*> ctxMap;
+        mutable VkCtx* ctx = nullptr;
 
-    void leaveCommandBuffer() override
-    {
-        ctx = nullptr;
-    }
+        uint32_t cpu_instumentation_level = 3;
+        uint32_t gpu_instumentation_level = 3;
 
-    void enter(const vsg::SourceLocation* slcloc, uint64_t& reference) const override
-    {
-        if (!GetProfiler().IsConnected() || (slcloc->level > cpu_instumentation_level))
+        void enterFrame(vsg::FrameStamp&) override {}
+
+        void leaveFrame(vsg::FrameStamp&) override
         {
-            reference = 0;
-            return;
+            FrameMark;
         }
 
-        reference = GetProfiler().ConnectionId();
-
-        TracyQueuePrepare( QueueType::ZoneBegin );
-        MemWrite( &item->zoneBegin.time, Profiler::GetTime() );
-        MemWrite( &item->zoneBegin.srcloc, (uint64_t)slcloc );
-        TracyQueueCommit( zoneBeginThread );
-    }
-
-    void leave(const vsg::SourceLocation*, uint64_t& reference) const override
-    {
-        if( reference==0 || GetProfiler().ConnectionId() != reference ) return;
-
-        TracyQueuePrepare( QueueType::ZoneEnd );
-        MemWrite( &item->zoneEnd.time, Profiler::GetTime() );
-        TracyQueueCommit( zoneEndThread );
-    }
-
-    void enter(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
-    {
-        if (!GetProfiler().IsConnected() || (slcloc->level > gpu_instumentation_level))
+        void enterCommandBuffer(vsg::CommandBuffer& commandBuffer) override
         {
-            reference = 0;
-            return;
+            auto device = commandBuffer.getDevice();
+            ctx = ctxMap[device];
+            if (!ctx)
+            {
+                auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
+                auto commandPool = vsg::CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+                auto temporaryCommandBuffer = commandPool->allocate();
+                ctx = ctxMap[device] = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
+            }
+
+            if (ctx)
+            {
+                TracyVkCollect(ctx, commandBuffer.vk());
+            }
         }
 
-        reference = GetProfiler().ConnectionId();
-
-        const auto queryId = ctx->NextQueryId();
-        CONTEXT_VK_FUNCTION_WRAPPER( vkCmdWriteTimestamp( cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId ) );
-
-        auto item = Profiler::QueueSerial();
-        MemWrite( &item->hdr.type, QueueType::GpuZoneBeginSerial );
-        MemWrite( &item->gpuZoneBegin.cpuTime, Profiler::GetTime() );
-        MemWrite( &item->gpuZoneBegin.srcloc, (uint64_t)slcloc );
-        MemWrite( &item->gpuZoneBegin.thread, GetThreadHandle() );
-        MemWrite( &item->gpuZoneBegin.queryId, uint16_t( queryId ) );
-        MemWrite( &item->gpuZoneBegin.context, ctx->GetId() );
-        Profiler::QueueSerialFinish();
-    }
-
-    void leave(const vsg::SourceLocation* /*slcloc*/, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
-    {
-        if( reference==0 || GetProfiler().ConnectionId() != reference ) return;
-
-        const auto queryId = ctx->NextQueryId();
-        CONTEXT_VK_FUNCTION_WRAPPER( vkCmdWriteTimestamp( cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId ) );
-
-        auto item = Profiler::QueueSerial();
-        MemWrite( &item->hdr.type, QueueType::GpuZoneEndSerial );
-        MemWrite( &item->gpuZoneEnd.cpuTime, Profiler::GetTime() );
-        MemWrite( &item->gpuZoneEnd.thread, GetThreadHandle() );
-        MemWrite( &item->gpuZoneEnd.queryId, uint16_t( queryId ) );
-        MemWrite( &item->gpuZoneEnd.context, ctx->GetId() );
-        Profiler::QueueSerialFinish();
-    }
-
-protected:
-
-    ~TracyInstrumentation()
-    {
-        for(auto itr = ctxMap.begin(); itr != ctxMap.end(); ++itr)
+        void leaveCommandBuffer() override
         {
-            TracyVkDestroy(itr->second);
+            ctx = nullptr;
         }
-    }
-};
 
-}
+        void enter(const vsg::SourceLocation* slcloc, uint64_t& reference) const override
+        {
+            if (!GetProfiler().IsConnected() || (slcloc->level > cpu_instumentation_level))
+            {
+                reference = 0;
+                return;
+            }
+
+            reference = GetProfiler().ConnectionId();
+
+            TracyQueuePrepare(QueueType::ZoneBegin);
+            MemWrite(&item->zoneBegin.time, Profiler::GetTime());
+            MemWrite(&item->zoneBegin.srcloc, (uint64_t)slcloc);
+            TracyQueueCommit(zoneBeginThread);
+        }
+
+        void leave(const vsg::SourceLocation*, uint64_t& reference) const override
+        {
+            if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
+
+            TracyQueuePrepare(QueueType::ZoneEnd);
+            MemWrite(&item->zoneEnd.time, Profiler::GetTime());
+            TracyQueueCommit(zoneEndThread);
+        }
+
+        void enter(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
+        {
+            if (!GetProfiler().IsConnected() || (slcloc->level > gpu_instumentation_level))
+            {
+                reference = 0;
+                return;
+            }
+
+            reference = GetProfiler().ConnectionId();
+
+            const auto queryId = ctx->NextQueryId();
+            CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
+
+            auto item = Profiler::QueueSerial();
+            MemWrite(&item->hdr.type, QueueType::GpuZoneBeginSerial);
+            MemWrite(&item->gpuZoneBegin.cpuTime, Profiler::GetTime());
+            MemWrite(&item->gpuZoneBegin.srcloc, (uint64_t)slcloc);
+            MemWrite(&item->gpuZoneBegin.thread, GetThreadHandle());
+            MemWrite(&item->gpuZoneBegin.queryId, uint16_t(queryId));
+            MemWrite(&item->gpuZoneBegin.context, ctx->GetId());
+            Profiler::QueueSerialFinish();
+        }
+
+        void leave(const vsg::SourceLocation* /*slcloc*/, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
+        {
+            if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
+
+            const auto queryId = ctx->NextQueryId();
+            CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
+
+            auto item = Profiler::QueueSerial();
+            MemWrite(&item->hdr.type, QueueType::GpuZoneEndSerial);
+            MemWrite(&item->gpuZoneEnd.cpuTime, Profiler::GetTime());
+            MemWrite(&item->gpuZoneEnd.thread, GetThreadHandle());
+            MemWrite(&item->gpuZoneEnd.queryId, uint16_t(queryId));
+            MemWrite(&item->gpuZoneEnd.context, ctx->GetId());
+            Profiler::QueueSerialFinish();
+        }
+
+    protected:
+        ~TracyInstrumentation()
+        {
+            for (auto itr = ctxMap.begin(); itr != ctxMap.end(); ++itr)
+            {
+                TracyVkDestroy(itr->second);
+            }
+        }
+    };
+
+} // namespace vsg

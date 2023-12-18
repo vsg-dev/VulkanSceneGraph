@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
+#include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Light.h>
@@ -34,7 +35,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Switch.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/nodes/Geometry.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -361,7 +361,7 @@ void RecordTraversal::apply(const SpotLight& light)
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
-    GPU_INSTRUMENTATION_L2_C( instrumentation, *getCommandBuffer(), ubvec4(255, 255, 0, 255));
+    GPU_INSTRUMENTATION_L2_C(instrumentation, *getCommandBuffer(), ubvec4(255, 255, 0, 255));
 
     //debug("Visiting StateGroup");
 
@@ -455,7 +455,7 @@ void RecordTraversal::apply(const Bin& object)
 
 void RecordTraversal::apply(const View& view)
 {
-    GPU_INSTRUMENTATION_L2_C( instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));
+    GPU_INSTRUMENTATION_L2_C(instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));
 
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
@@ -544,7 +544,7 @@ void RecordTraversal::apply(const View& view)
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
 {
-    GPU_INSTRUMENTATION_L2_C( instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));
+    GPU_INSTRUMENTATION_L2_C(instrumentation, *getCommandBuffer(), ubvec4(0, 0, 255, 255));
 
     if (recordedCommandBuffers)
     {
