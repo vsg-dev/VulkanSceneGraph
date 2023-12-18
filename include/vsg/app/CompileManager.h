@@ -58,6 +58,9 @@ namespace vsg
         /// add a compile Context for all the Views assigned to a Viewer
         void add(const Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
+        /// assign Instrumentation to all CompileTraversal and their associated Context
+        void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
+
         using ContextSelectionFunction = std::function<bool(vsg::Context&)>;
 
         /// compile object

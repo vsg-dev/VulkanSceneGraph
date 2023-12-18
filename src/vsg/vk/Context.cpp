@@ -316,22 +316,24 @@ bool Context::record()
 
     vkBeginCommandBuffer(*commandBuffer, &beginInfo);
 
-    // issue commands of interest
     {
-        for (auto& command : commands) command->record(*commandBuffer);
-    }
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer)
 
-    // create scratch buffer and issue build acceleration structure commands
-    ref_ptr<Buffer> scratchBuffer;
-    ref_ptr<DeviceMemory> scratchBufferMemory;
-    if (scratchBufferSize > 0)
-    {
-        scratchBuffer = vsg::createBufferAndMemory(device, scratchBufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-        for (auto& command : buildAccelerationStructureCommands)
+        // issue commands of interest
         {
-            command->setScratchBuffer(scratchBuffer);
-            command->record(*commandBuffer);
+            for (auto& command : commands) command->record(*commandBuffer);
+        }
+
+        // create scratch buffer and issue build acceleration structure commands
+        if (scratchBufferSize > 0)
+        {
+            ref_ptr<Buffer> scratchBuffer = vsg::createBufferAndMemory(device, scratchBufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+            for (auto& command : buildAccelerationStructureCommands)
+            {
+                command->setScratchBuffer(scratchBuffer);
+                command->record(*commandBuffer);
+            }
         }
     }
 

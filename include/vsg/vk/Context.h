@@ -26,7 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/ResourceRequirements.h>
-
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/CopyAndReleaseImage.h>
@@ -118,6 +118,9 @@ namespace vsg
 
         // ShaderCompiler
         ref_ptr<ShaderCompiler> shaderCompiler;
+
+        /// Hook for assigning Instrumentation to enable profiling
+        ref_ptr<Instrumentation> instrumentation;
 
         // transfer data settings
         ref_ptr<Queue> graphicsQueue;

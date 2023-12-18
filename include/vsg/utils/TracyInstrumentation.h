@@ -102,7 +102,10 @@ namespace vsg
 
         void leaveCommandBuffer(const vsg::SourceLocation* slcloc, uint64_t& reference, CommandBuffer& commandBuffer) const override
         {
-            leave(slcloc, reference, commandBuffer);
+            if (ctx)
+            {
+                leave(slcloc, reference, commandBuffer);
+            }
 
             ctx = nullptr;
         }
@@ -110,9 +113,9 @@ namespace vsg
         void enter(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
         {
 #ifdef TRACY_ON_DEMAND
-            if (!GetProfiler().IsConnected() || (slcloc->level > gpu_instumentation_level))
+            if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > gpu_instumentation_level))
 #else
-            if (slcloc->level > gpu_instumentation_level)
+            if (!ctx || slcloc->level > gpu_instumentation_level)
 #endif
             {
                 reference = 0;
