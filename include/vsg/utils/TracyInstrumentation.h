@@ -67,13 +67,21 @@ namespace vsg
 
         void enter(const vsg::SourceLocation* slcloc, uint64_t& reference) const override
         {
+#ifdef TRACY_ON_DEMAND
             if (!GetProfiler().IsConnected() || (slcloc->level > cpu_instumentation_level))
+#else
+            if (slcloc->level > cpu_instumentation_level)
+#endif
             {
                 reference = 0;
                 return;
             }
 
+#ifdef TRACY_ON_DEMAND
             reference = GetProfiler().ConnectionId();
+#else
+            reference = 1;
+#endif
 
             TracyQueuePrepare(QueueType::ZoneBegin);
             MemWrite(&item->zoneBegin.time, Profiler::GetTime());
@@ -83,7 +91,11 @@ namespace vsg
 
         void leave(const vsg::SourceLocation*, uint64_t& reference) const override
         {
+#ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
+#else
+            if (reference == 0) return;
+#endif
 
             TracyQueuePrepare(QueueType::ZoneEnd);
             MemWrite(&item->zoneEnd.time, Profiler::GetTime());
@@ -92,13 +104,22 @@ namespace vsg
 
         void enter(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
         {
+#ifdef TRACY_ON_DEMAND
             if (!GetProfiler().IsConnected() || (slcloc->level > gpu_instumentation_level))
+#else
+            if (slcloc->level > gpu_instumentation_level)
+#endif
             {
                 reference = 0;
                 return;
             }
 
+#ifdef TRACY_ON_DEMAND
             reference = GetProfiler().ConnectionId();
+#else
+            reference = 1;
+#endif
+
 
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
@@ -115,7 +136,11 @@ namespace vsg
 
         void leave(const vsg::SourceLocation* /*slcloc*/, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
         {
+#ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
+#else
+            if (reference == 0) return;
+#endif
 
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
