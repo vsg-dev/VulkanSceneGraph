@@ -63,6 +63,9 @@ namespace vsg
         /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
 
+        /// Convenience method for assigning Instrumentation to the viewer and any associated objects.
+        void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
+
     protected:
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;

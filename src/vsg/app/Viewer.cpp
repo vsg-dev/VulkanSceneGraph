@@ -345,7 +345,11 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         }
     }
 
-    if (containsPagedLOD && !databasePager) databasePager = DatabasePager::create();
+    if (containsPagedLOD && !databasePager)
+    {
+        databasePager = DatabasePager::create();
+        if (instrumentation) databasePager->assignInstrumentation(instrumentation);
+    }
 
     // create the Vulkan objects
     for (auto& task : recordAndSubmitTasks)
@@ -553,6 +557,9 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
             recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
 
+            // assign instrumentation
+            recordAndSubmitTask->assignInstrumentation(instrumentation);
+
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
             presentation->windows = windows;
@@ -571,6 +578,9 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
             recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
             recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
+
+            // assign instrumentation
+            recordAndSubmitTask->assignInstrumentation(instrumentation);
         }
     }
 
@@ -845,15 +855,7 @@ void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
     // assign instrumentation after settings up recordAndSubmitTasks, but before compile() to allow compile to initialize the Instrumentation with the approach queue etc.
     for (auto& task : recordAndSubmitTasks)
     {
-        task->instrumentation = instrumentation;
-        if (task->earlyTransferTask) task->earlyTransferTask->instrumentation = task->instrumentation;
-        if (task->lateTransferTask) task->lateTransferTask->instrumentation = task->instrumentation;
-
-        for (auto cg : task->commandGraphs)
-        {
-            cg->instrumentation = task->instrumentation;
-            cg->getOrCreateRecordTraversal()->instrumentation = task->instrumentation;
-        }
+        task->assignInstrumentation(instrumentation);
     }
 
     if (compileManager) compileManager->assignInstrumentation(instrumentation);

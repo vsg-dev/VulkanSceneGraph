@@ -221,6 +221,21 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     return queue->submit(submitInfo, current_fence);
 }
 
+void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
+{
+    instrumentation = in_instrumentation;
+
+    if (databasePager) databasePager->assignInstrumentation(instrumentation);
+    if (earlyTransferTask) earlyTransferTask->instrumentation = instrumentation;
+    if (lateTransferTask) lateTransferTask->instrumentation = instrumentation;
+
+    for (auto cg : commandGraphs)
+    {
+        cg->instrumentation = instrumentation;
+        cg->getOrCreateRecordTraversal()->instrumentation = instrumentation;
+    }
+}
+
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) compileResult.maxSlot = ", compileResult.maxSlot);

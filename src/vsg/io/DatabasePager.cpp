@@ -126,6 +126,12 @@ DatabasePager::~DatabasePager()
     }
 }
 
+
+void DatabasePager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
+{
+    instrumentation = in_instrumentation;
+}
+
 void DatabasePager::start()
 {
     int numReadThreads = 4;
@@ -141,6 +147,8 @@ void DatabasePager::start()
             auto plod = requestQueue->take_when_available();
             if (plod)
             {
+                CPU_INSTRUMENTATION_L1(databasePager.instrumentation);
+
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
                 if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
                 {
@@ -233,6 +241,8 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
 
 void DatabasePager::updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr)
 {
+    CPU_INSTRUMENTATION_L1(instrumentation);
+
     frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
 
     auto nodes = _toMergeQueue->take_all(cr);
