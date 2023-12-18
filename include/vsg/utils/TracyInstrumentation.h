@@ -22,6 +22,7 @@ using namespace tracy;
 namespace vsg
 {
 
+    /// TracyInstrumentation provided integration between the vsg::Instrumentation system and the Tracy profiler
     class TracyInstrumentation : public vsg::Inherit<vsg::Instrumentation, TracyInstrumentation>
     {
     public:
@@ -35,34 +36,11 @@ namespace vsg
         uint32_t cpu_instumentation_level = 3;
         uint32_t gpu_instumentation_level = 3;
 
-        void enterFrame(vsg::FrameStamp&) override {}
+        void enterFrame(const vsg::SourceLocation*, uint64_t&, vsg::FrameStamp&) const override {}
 
-        void leaveFrame(vsg::FrameStamp&) override
+        void leaveFrame(const vsg::SourceLocation*, uint64_t&, vsg::FrameStamp&) const override
         {
             FrameMark;
-        }
-
-        void enterCommandBuffer(vsg::CommandBuffer& commandBuffer) override
-        {
-            auto device = commandBuffer.getDevice();
-            ctx = ctxMap[device];
-            if (!ctx)
-            {
-                auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
-                auto commandPool = vsg::CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-                auto temporaryCommandBuffer = commandPool->allocate();
-                ctx = ctxMap[device] = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
-            }
-
-            if (ctx)
-            {
-                TracyVkCollect(ctx, commandBuffer.vk());
-            }
-        }
-
-        void leaveCommandBuffer() override
-        {
-            ctx = nullptr;
         }
 
         void enter(const vsg::SourceLocation* slcloc, uint64_t& reference) const override
@@ -102,6 +80,33 @@ namespace vsg
             TracyQueueCommit(zoneEndThread);
         }
 
+        void enterCommandBuffer(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& commandBuffer) const override
+        {
+            auto device = commandBuffer.getDevice();
+            ctx = ctxMap[device];
+            if (!ctx)
+            {
+                auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
+                auto commandPool = vsg::CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+                auto temporaryCommandBuffer = commandPool->allocate();
+                ctx = ctxMap[device] = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
+            }
+
+            if (ctx)
+            {
+                TracyVkCollect(ctx, commandBuffer.vk());
+
+                enter(slcloc, reference, commandBuffer);
+            }
+        }
+
+        void leaveCommandBuffer(const vsg::SourceLocation* slcloc, uint64_t& reference, CommandBuffer& commandBuffer) const override
+        {
+            leave(slcloc, reference, commandBuffer);
+
+            ctx = nullptr;
+        }
+
         void enter(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
         {
 #ifdef TRACY_ON_DEMAND
@@ -120,7 +125,6 @@ namespace vsg
             reference = 1;
 #endif
 
-
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
 
@@ -134,7 +138,7 @@ namespace vsg
             Profiler::QueueSerialFinish();
         }
 
-        void leave(const vsg::SourceLocation* /*slcloc*/, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
+        void leave(const vsg::SourceLocation*, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
         {
 #ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;

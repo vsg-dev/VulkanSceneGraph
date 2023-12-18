@@ -151,11 +151,13 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
 
 bool Viewer::advanceToNextFrame()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    static constexpr SourceLocation s_frame_source_location{"frame", VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255), 1};
+    uint64_t reference = 0;
 
     if (!active()) return false;
 
-    if (instrumentation && _frameStamp) instrumentation->leaveFrame(*_frameStamp);
+    // signal to instrumentation the end of the previous frame
+    if (instrumentation && _frameStamp) instrumentation->leaveFrame(&s_frame_source_location, reference, *_frameStamp);
 
     // poll all the windows for events.
     pollEvents(true);
@@ -180,7 +182,8 @@ bool Viewer::advanceToNextFrame()
         task->advance();
     }
 
-    if (instrumentation) instrumentation->enterFrame(*_frameStamp);
+    // signal to instrumentation the start of frame
+    if (instrumentation) instrumentation->enterFrame(&s_frame_source_location, reference, *_frameStamp);
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));

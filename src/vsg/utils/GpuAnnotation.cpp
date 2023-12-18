@@ -24,6 +24,16 @@ GpuAnnotation::~GpuAnnotation()
 {
 }
 
+void GpuAnnotation::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const
+{
+    enter(sl, reference, commandBuffer);
+}
+
+void GpuAnnotation::leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const
+{
+    leave(sl, reference, commandBuffer);
+}
+
 void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffer& commandBuffer) const
 {
     if (!commandBuffer) return;

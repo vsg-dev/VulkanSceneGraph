@@ -24,14 +24,8 @@ namespace vsg
     public:
         GpuAnnotation();
 
-        void enterFrame(FrameStamp&) override{};
-        void leaveFrame(FrameStamp&) override{};
-
-        void enterCommandBuffer(CommandBuffer&) override {}
-        void leaveCommandBuffer() override {}
-
-        void enter(const SourceLocation*, uint64_t&) const override {}
-        void leave(const SourceLocation*, uint64_t&) const override {}
+        void enterCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
+        void leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
 
         void enter(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
         void leave(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;

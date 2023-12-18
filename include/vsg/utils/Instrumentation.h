@@ -41,17 +41,17 @@ namespace vsg
     public:
         Instrumentation();
 
-        virtual void enterFrame(FrameStamp& frameStamp) = 0;
-        virtual void leaveFrame(FrameStamp& frameStamp) = 0;
+        virtual void enterFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
+        virtual void leaveFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
 
-        virtual void enterCommandBuffer(CommandBuffer& commandBuffer) = 0;
-        virtual void leaveCommandBuffer() = 0;
+        virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/) const {};
+        virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/) const {};
 
-        virtual void enter(const SourceLocation* sl, uint64_t& reference) const = 0;
-        virtual void leave(const SourceLocation* sl, uint64_t& reference) const = 0;
+        virtual void enterCommandBuffer(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
+        virtual void leaveCommandBuffer(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
 
-        virtual void enter(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const = 0;
-        virtual void leave(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const = 0;
+        virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
+        virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
 
     protected:
         virtual ~Instrumentation();
@@ -92,21 +92,44 @@ namespace vsg
         }
     };
 
-#if defined(__clang__) || defined(__GNUC__)
+    struct CommandBufferInstrumentation
+    {
+        const Instrumentation* instr;
+        const SourceLocation* sl;
+        uint64_t reference;
+        CommandBuffer& commandBuffer;
+
+        inline CommandBufferInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer) :
+            instr(in_instr), sl(in_sl), commandBuffer(in_commandBuffer)
+        {
+            if (instr) instr->enterCommandBuffer(sl, reference, commandBuffer);
+        }
+        inline ~CommandBufferInstrumentation()
+        {
+            if (instr) instr->leaveCommandBuffer(sl, reference, commandBuffer);
+        }
+    };
+
+    #if defined(__clang__) || defined(__GNUC__)
 #    define VsgFunctionName __PRETTY_FUNCTION__
 #elif defined(_MSC_VER)
 #    define VsgFunctionName __FUNCSIG__
 #endif
 
 #define __CPU_INSTRUMENTATION(level, instrumentation, name, color)                                                         \
-    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-    CpuInstrumentation __cpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_source_location_##__LINE__));
+    static constexpr SourceLocation s_cpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
+    CpuInstrumentation __cpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_cpu_source_location_##__LINE__));
 
 #define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color)                                                     \
-    static constexpr SourceLocation s_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-    GpuInstrumentation __gpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_source_location_##__LINE__), cg);
+    static constexpr SourceLocation s_gpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
+    GpuInstrumentation __gpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_gpu_source_location_##__LINE__), cg);
+
+#define __COMMAND_BUFFER_INSTRUMENTATION(level, instrumentation, cg, name, color)                                          \
+    static constexpr SourceLocation s_cg_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
+    CommandBufferInstrumentation __cb_scoped_instrumentation_##__LINE__(instrumentation, &(s_cg_source_location_##__LINE__), cg);
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
+
 #    define CPU_INSTRUMENTATION_L1(instrumentation) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
 #    define CPU_INSTRUMENTATION_L1_N(instrumentation, name) __CPU_INSTRUMENTATION(1, instrumentation, name, ubvec4(255, 255, 255, 255))
 #    define CPU_INSTRUMENTATION_L1_C(instrumentation, color) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, color)
@@ -116,7 +139,11 @@ namespace vsg
 #    define GPU_INSTRUMENTATION_L1_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, ubvec4(255, 255, 255, 255))
 #    define GPU_INSTRUMENTATION_L1_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, color)
 #    define GPU_INSTRUMENTATION_L1_NC(instrumentation, cg, name, color) __CPU_INSTRUMENTATION(1, instrumentation, name, color)
+
+#    define COMMAND_BUFFER_INSTRUMENTATION(instrumentation, cg) __COMMAND_BUFFER_INSTRUMENTATION(1, instrumentation, cg, nullptr, ubvec4(255, 255, 255, 255))
+
 #else
+
 #    define CPU_INSTRUMENTATION_L1(instrumentation)
 #    define CPU_INSTRUMENTATION_L1_N(instrumentation, name)
 #    define CPU_INSTRUMENTATION_L1_C(instrumentation, color)
@@ -126,6 +153,9 @@ namespace vsg
 #    define GPU_INSTRUMENTATION_L1_N(instrumentation, cg, name)
 #    define GPU_INSTRUMENTATION_L1_C(instrumentation, cg, color)
 #    define GPU_INSTRUMENTATION_L1_NC(instrumentation, cg, name, color)
+
+#    define COMMAND_BUFFER_INSTRUMENTATION(instrumentation, cg)
+
 #endif
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 2

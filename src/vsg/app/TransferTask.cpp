@@ -396,10 +396,13 @@ VkResult TransferTask::transferDynamicData()
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     VkDeviceSize offset = 0;
+    {
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer)
 
-    // transfer the modified BufferInfo and ImageInfo
-    _transferBufferInfos(vk_commandBuffer, frame, offset);
-    _transferImageInfos(vk_commandBuffer, frame, offset);
+        // transfer the modified BufferInfo and ImageInfo
+        _transferBufferInfos(vk_commandBuffer, frame, offset);
+        _transferImageInfos(vk_commandBuffer, frame, offset);
+    }
 
     vkEndCommandBuffer(vk_commandBuffer);
 
