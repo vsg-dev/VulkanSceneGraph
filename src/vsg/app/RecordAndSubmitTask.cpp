@@ -226,13 +226,13 @@ void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_inst
     instrumentation = in_instrumentation;
 
     if (databasePager) databasePager->assignInstrumentation(instrumentation);
-    if (earlyTransferTask) earlyTransferTask->instrumentation = instrumentation;
-    if (lateTransferTask) lateTransferTask->instrumentation = instrumentation;
+    if (earlyTransferTask) earlyTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+    if (lateTransferTask) lateTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
 
     for (auto cg : commandGraphs)
     {
-        cg->instrumentation = instrumentation;
-        cg->getOrCreateRecordTraversal()->instrumentation = instrumentation;
+        cg->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+        cg->getOrCreateRecordTraversal()->instrumentation = cg->instrumentation;
     }
 }
 

@@ -142,6 +142,8 @@ void DatabasePager::start()
     auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager) {
         debug("Started DatabaseThread read thread");
 
+        auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);
+
         while (status->active())
         {
             auto plod = requestQueue->take_when_available();

@@ -22,33 +22,89 @@ using namespace tracy;
 namespace vsg
 {
 
-    /// TracyInstrumentation provided integration between the vsg::Instrumentation system and the Tracy profiler
-    class TracyInstrumentation : public vsg::Inherit<vsg::Instrumentation, TracyInstrumentation>
+    /// thread safe helper class for creating the Tracy VkCtx objects per Device.
+    class TracyContexts : public Inherit<Object, TracyContexts>
     {
     public:
-        TracyInstrumentation()
+
+        VkCtx* getOrCreateContext(CommandBuffer& commandBuffer) const
         {
+            std::scoped_lock<std::mutex> lock(mutex);
+
+            auto device = commandBuffer.getDevice();
+            auto& ctx = ctxMap[device];
+            if (!ctx)
+            {
+                auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
+                auto commandPool = CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+                auto temporaryCommandBuffer = commandPool->allocate();
+                ctx = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
+            }
+            return ctx;
         }
 
-        mutable std::map<vsg::Device*, VkCtx*> ctxMap;
-        mutable VkCtx* ctx = nullptr;
+    protected:
+        ~TracyContexts()
+        {
+            for (auto itr = ctxMap.begin(); itr != ctxMap.end(); ++itr)
+            {
+                TracyVkDestroy(itr->second);
+            }
+        }
 
+        mutable std::mutex mutex;
+        mutable std::map<Device*, VkCtx*> ctxMap;
+    };
+    VSG_type_name(vsg::TracyContexts);
+
+    class TracySettings : public Inherit<Object, TracySettings>
+    {
+    public:
         uint32_t cpu_instumentation_level = 3;
         uint32_t gpu_instumentation_level = 3;
+    };
+    VSG_type_name(vsg::TracySettings);
 
-        void enterFrame(const vsg::SourceLocation*, uint64_t&, vsg::FrameStamp&) const override {}
+    /// TracyInstrumentation provides integration between the Instrumentation system and the Tracy profiler
+    class TracyInstrumentation : public Inherit<Instrumentation, TracyInstrumentation>
+    {
+    public:
+        TracyInstrumentation() :
+            settings(TracySettings::create()),
+            contexts(TracyContexts::create())
+        {
+            vsg::info("creating TracyInstrumentation", this, ", ", settings, ", ", contexts);
+        }
 
-        void leaveFrame(const vsg::SourceLocation*, uint64_t&, vsg::FrameStamp&) const override
+        TracyInstrumentation(TracyInstrumentation& parent):
+            settings(parent.settings),
+            contexts(parent.contexts)
+        {
+            vsg::info("duplicating TracyInstrumentation", this, ", ", settings, ", ", contexts);
+        }
+
+        ref_ptr<TracySettings> settings;
+        ref_ptr<TracyContexts> contexts;
+        mutable VkCtx* ctx = nullptr;
+
+        ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety() override
+        {
+            return TracyInstrumentation::create(*this);
+        }
+
+        void enterFrame(const SourceLocation*, uint64_t&, FrameStamp&) const override {}
+
+        void leaveFrame(const SourceLocation*, uint64_t&, FrameStamp&) const override
         {
             FrameMark;
         }
 
-        void enter(const vsg::SourceLocation* slcloc, uint64_t& reference) const override
+        void enter(const SourceLocation* slcloc, uint64_t& reference) const override
         {
 #ifdef TRACY_ON_DEMAND
-            if (!GetProfiler().IsConnected() || (slcloc->level > cpu_instumentation_level))
+            if (!GetProfiler().IsConnected() || (slcloc->level > settings->cpu_instumentation_level))
 #else
-            if (slcloc->level > cpu_instumentation_level)
+            if (slcloc->level > settings->cpu_instumentation_level)
 #endif
             {
                 reference = 0;
@@ -67,7 +123,7 @@ namespace vsg
             TracyQueueCommit(zoneBeginThread);
         }
 
-        void leave(const vsg::SourceLocation*, uint64_t& reference) const override
+        void leave(const SourceLocation*, uint64_t& reference) const override
         {
 #ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
@@ -80,19 +136,9 @@ namespace vsg
             TracyQueueCommit(zoneEndThread);
         }
 
-        void enterCommandBuffer(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& commandBuffer) const override
+        void enterCommandBuffer(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& commandBuffer) const override
         {
-            auto device = commandBuffer.getDevice();
-            ctx = ctxMap[device];
-            if (!ctx)
-            {
-                auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
-                auto commandPool = vsg::CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-                auto temporaryCommandBuffer = commandPool->allocate();
-                ctx = ctxMap[device] = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
-            }
-
-            if (ctx)
+            if (ctx = contexts->getOrCreateContext(commandBuffer))
             {
                 TracyVkCollect(ctx, commandBuffer.vk());
 
@@ -100,7 +146,7 @@ namespace vsg
             }
         }
 
-        void leaveCommandBuffer(const vsg::SourceLocation* slcloc, uint64_t& reference, CommandBuffer& commandBuffer) const override
+        void leaveCommandBuffer(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& commandBuffer) const override
         {
             if (ctx)
             {
@@ -110,12 +156,12 @@ namespace vsg
             ctx = nullptr;
         }
 
-        void enter(const vsg::SourceLocation* slcloc, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
+        void enter(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& cmdbuf) const override
         {
 #ifdef TRACY_ON_DEMAND
-            if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > gpu_instumentation_level))
+            if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > settings->gpu_instumentation_level))
 #else
-            if (!ctx || slcloc->level > gpu_instumentation_level)
+            if (!ctx || slcloc->level > settings->gpu_instumentation_level)
 #endif
             {
                 reference = 0;
@@ -141,7 +187,7 @@ namespace vsg
             Profiler::QueueSerialFinish();
         }
 
-        void leave(const vsg::SourceLocation*, uint64_t& reference, vsg::CommandBuffer& cmdbuf) const override
+        void leave(const SourceLocation*, uint64_t& reference, CommandBuffer& cmdbuf) const override
         {
 #ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
@@ -160,15 +206,7 @@ namespace vsg
             MemWrite(&item->gpuZoneEnd.context, ctx->GetId());
             Profiler::QueueSerialFinish();
         }
-
-    protected:
-        ~TracyInstrumentation()
-        {
-            for (auto itr = ctxMap.begin(); itr != ctxMap.end(); ++itr)
-            {
-                TracyVkDestroy(itr->second);
-            }
-        }
     };
+    VSG_type_name(vsg::TracyInstrumentation);
 
 } // namespace vsg

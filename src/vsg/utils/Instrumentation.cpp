@@ -28,3 +28,9 @@ Instrumentation::Instrumentation()
 Instrumentation::~Instrumentation()
 {
 }
+
+ref_ptr<Instrumentation> vsg::shareOrDuplicateForThreadSafety(ref_ptr<Instrumentation> instrumentation)
+{
+    return instrumentation ? instrumentation->shareOrDuplicateForThreadSafety() : instrumentation;
+}
+

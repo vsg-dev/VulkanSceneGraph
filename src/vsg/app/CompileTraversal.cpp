@@ -219,7 +219,7 @@ void CompileTraversal::assignInstrumentation(ref_ptr<Instrumentation> in_instrum
     instrumentation = in_instrumentation;
     for(auto& context : contexts)
     {
-        context->instrumentation = instrumentation;
+        context->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
     }
 }
 

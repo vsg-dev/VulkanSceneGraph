@@ -41,6 +41,8 @@ namespace vsg
     public:
         Instrumentation();
 
+        virtual ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety() { return ref_ptr<Instrumentation>(this); }
+
         virtual void enterFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
         virtual void leaveFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
 
@@ -57,6 +59,9 @@ namespace vsg
         virtual ~Instrumentation();
     };
     VSG_type_name(vsg::Instrumentation);
+
+    /// convinience static method for sharing or duplicating Instrumentation if a valid Instrumentation object is provided
+    extern ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety(ref_ptr<Instrumentation> instrumentation);
 
     struct CpuInstrumentation
     {
