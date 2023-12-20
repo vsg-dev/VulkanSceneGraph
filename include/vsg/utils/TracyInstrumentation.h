@@ -22,6 +22,15 @@ using namespace tracy;
 namespace vsg
 {
 
+    class TracySettings : public Inherit<Object, TracySettings>
+    {
+    public:
+        uint32_t cpu_instumentation_level = 3;
+        uint32_t gpu_instumentation_level = 3;
+    };
+    VSG_type_name(vsg::TracySettings);
+
+#ifdef TRACY_ENABLE
     /// thread safe helper class for creating the Tracy VkCtx objects per Device.
     class TracyContexts : public Inherit<Object, TracyContexts>
     {
@@ -66,14 +75,6 @@ namespace vsg
         mutable std::map<Device*, VkCtx*> ctxMap;
     };
     VSG_type_name(vsg::TracyContexts);
-
-    class TracySettings : public Inherit<Object, TracySettings>
-    {
-    public:
-        uint32_t cpu_instumentation_level = 3;
-        uint32_t gpu_instumentation_level = 3;
-    };
-    VSG_type_name(vsg::TracySettings);
 
     /// TracyInstrumentation provides integration between the Instrumentation system and the Tracy profiler
     class TracyInstrumentation : public Inherit<Instrumentation, TracyInstrumentation>
@@ -218,5 +219,17 @@ namespace vsg
         }
     };
     VSG_type_name(vsg::TracyInstrumentation);
+#else
+    class TracyInstrumentation : public Inherit<Instrumentation, TracyInstrumentation>
+    {
+    public:
+        TracyInstrumentation()
+        {
+            vsg::info("TracyInstrumentation not supported and the tracy's TRACY_ENABLE is set to OFF.");
+        }
 
+        ref_ptr<TracySettings> settings;
+    };
+    VSG_type_name(vsg::TracyInstrumentation);
+#endif
 } // namespace vsg
