@@ -36,8 +36,6 @@ void GpuAnnotation::leaveCommandBuffer(const SourceLocation* sl, uint64_t& refer
 
 void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffer& commandBuffer) const
 {
-    if (!commandBuffer) return;
-
     auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
 
     VkDebugUtilsLabelEXT markerInfo = {};
@@ -56,8 +54,6 @@ void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffe
 
 void GpuAnnotation::leave(const SourceLocation*, uint64_t&, vsg::CommandBuffer& commandBuffer) const
 {
-    if (!commandBuffer) return;
-
     auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
     extensions->vkCmdEndDebugUtilsLabelEXT(commandBuffer);
 }

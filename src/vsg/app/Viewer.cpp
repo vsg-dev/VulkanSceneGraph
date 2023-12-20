@@ -558,7 +558,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
 
             // assign instrumentation
-            recordAndSubmitTask->assignInstrumentation(instrumentation);
+            if (instrumentation) recordAndSubmitTask->assignInstrumentation(instrumentation);
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
@@ -580,7 +580,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
 
             // assign instrumentation
-            recordAndSubmitTask->assignInstrumentation(instrumentation);
+            if (instrumentation) recordAndSubmitTask->assignInstrumentation(instrumentation);
         }
     }
 
