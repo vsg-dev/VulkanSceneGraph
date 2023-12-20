@@ -84,14 +84,12 @@ namespace vsg
             settings(TracySettings::create()),
             contexts(TracyContexts::create())
         {
-            vsg::info("creating TracyInstrumentation", this, ", ", settings, ", ", contexts);
         }
 
         TracyInstrumentation(TracyInstrumentation& parent) :
             settings(parent.settings),
             contexts(parent.contexts)
         {
-            vsg::info("duplicating TracyInstrumentation", this, ", ", settings, ", ", contexts);
         }
 
         ref_ptr<TracySettings> settings;
