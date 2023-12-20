@@ -41,7 +41,4 @@ InstanceExtensions::InstanceExtensions(Instance* instance)
     // VK_EXT_calibrated_timestamps
     instance->getProcAddr(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR", "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT");
     instance->getProcAddr(vkGetCalibratedTimestampsEXT, "vkGetCalibratedTimestampsKHR", "vkGetCalibratedTimestampsEXT");
-
-    info("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT = ", vkGetPhysicalDeviceCalibrateableTimeDomainsEXT);
-    info("vkGetCalibratedTimestampsEXT = ", vkGetCalibratedTimestampsEXT);
 }
