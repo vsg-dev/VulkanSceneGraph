@@ -37,7 +37,18 @@ namespace vsg
                 auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
                 auto commandPool = CommandPool::create(device, queue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
                 auto temporaryCommandBuffer = commandPool->allocate();
-                ctx = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
+
+                auto extensions = device->getInstance()->getExtensions();
+                if (extensions->vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)
+                {
+                    ctx = TracyVkContextCalibrated(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk(),
+                                                   extensions->vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, extensions->vkGetCalibratedTimestampsEXT);
+                }
+                else
+                {
+                    ctx = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
+                }
+
             }
             return ctx;
         }
