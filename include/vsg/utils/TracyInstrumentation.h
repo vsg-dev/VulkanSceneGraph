@@ -26,7 +26,6 @@ namespace vsg
     class TracyContexts : public Inherit<Object, TracyContexts>
     {
     public:
-
         VkCtx* getOrCreateContext(CommandBuffer& commandBuffer) const
         {
             std::scoped_lock<std::mutex> lock(mutex);
@@ -76,7 +75,7 @@ namespace vsg
             vsg::info("creating TracyInstrumentation", this, ", ", settings, ", ", contexts);
         }
 
-        TracyInstrumentation(TracyInstrumentation& parent):
+        TracyInstrumentation(TracyInstrumentation& parent) :
             settings(parent.settings),
             contexts(parent.contexts)
         {

@@ -126,7 +126,6 @@ DatabasePager::~DatabasePager()
     }
 }
 
-
 void DatabasePager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
     instrumentation = in_instrumentation;

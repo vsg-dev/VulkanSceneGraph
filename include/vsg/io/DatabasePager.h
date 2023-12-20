@@ -12,13 +12,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/CompileManager.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/threading/ActivityStatus.h>
-#include <vsg/app/CompileManager.h>
 #include <vsg/utils/Instrumentation.h>
 
 #include <condition_variable>

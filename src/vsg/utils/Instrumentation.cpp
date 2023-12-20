@@ -33,4 +33,3 @@ ref_ptr<Instrumentation> vsg::shareOrDuplicateForThreadSafety(ref_ptr<Instrument
 {
     return instrumentation ? instrumentation->shareOrDuplicateForThreadSafety() : instrumentation;
 }
-

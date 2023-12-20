@@ -19,12 +19,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/ResourceHints.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/ResourceRequirements.h>
-#include <vsg/utils/Instrumentation.h>
 
 namespace vsg
 {

@@ -217,7 +217,7 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
 void CompileTraversal::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
     instrumentation = in_instrumentation;
-    for(auto& context : contexts)
+    for (auto& context : contexts)
     {
         context->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
     }

@@ -115,21 +115,21 @@ namespace vsg
         }
     };
 
-    #if defined(__clang__) || defined(__GNUC__)
+#if defined(__clang__) || defined(__GNUC__)
 #    define VsgFunctionName __PRETTY_FUNCTION__
 #elif defined(_MSC_VER)
 #    define VsgFunctionName __FUNCSIG__
 #endif
 
-#define __CPU_INSTRUMENTATION(level, instrumentation, name, color)                                                         \
+#define __CPU_INSTRUMENTATION(level, instrumentation, name, color)                                                             \
     static constexpr SourceLocation s_cpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
     CpuInstrumentation __cpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_cpu_source_location_##__LINE__));
 
-#define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color)                                                     \
+#define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color)                                                         \
     static constexpr SourceLocation s_gpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
     GpuInstrumentation __gpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_gpu_source_location_##__LINE__), cg);
 
-#define __COMMAND_BUFFER_INSTRUMENTATION(level, instrumentation, cg, name, color)                                          \
+#define __COMMAND_BUFFER_INSTRUMENTATION(level, instrumentation, cg, name, color)                                             \
     static constexpr SourceLocation s_cg_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
     CommandBufferInstrumentation __cb_scoped_instrumentation_##__LINE__(instrumentation, &(s_cg_source_location_##__LINE__), cg);
 

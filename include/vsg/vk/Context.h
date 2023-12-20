@@ -15,21 +15,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <deque>
 #include <memory>
 
+#include <vsg/commands/Command.h>
+#include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/ImageInfo.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/utils/ShaderCompiler.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/DescriptorPool.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/ResourceRequirements.h>
-#include <vsg/utils/Instrumentation.h>
-#include <vsg/commands/Command.h>
-#include <vsg/commands/CopyAndReleaseBuffer.h>
-#include <vsg/commands/CopyAndReleaseImage.h>
 
 namespace vsg
 {
