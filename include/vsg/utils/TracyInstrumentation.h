@@ -39,7 +39,7 @@ namespace vsg
         {
             std::scoped_lock<std::mutex> lock(mutex);
 
-            auto device = commandBuffer.getDevice();
+            ref_ptr<Device> device(commandBuffer.getDevice());
             auto& ctx = ctxMap[device];
             if (!ctx)
             {
@@ -72,7 +72,7 @@ namespace vsg
         }
 
         mutable std::mutex mutex;
-        mutable std::map<Device*, VkCtx*> ctxMap;
+        mutable std::map<ref_ptr<Device>, VkCtx*> ctxMap;
     };
     VSG_type_name(vsg::TracyContexts);
 
