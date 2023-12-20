@@ -20,6 +20,8 @@ using namespace vsg;
 
 bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
+    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+
     bool fileWritten = false;
     if (options)
     {
