@@ -101,6 +101,11 @@ namespace vsg
             return TracyInstrumentation::create(*this);
         }
 
+        void setThreadName(const std::string& name) const override
+        {
+            tracy::SetThreadName(name.c_str());
+        }
+
         void enterFrame(const SourceLocation*, uint64_t&, FrameStamp&) const override {}
 
         void leaveFrame(const SourceLocation*, uint64_t&, FrameStamp&) const override

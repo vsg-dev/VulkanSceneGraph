@@ -610,8 +610,6 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
 void Viewer::setupThreading()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
-
     debug("Viewer::setupThreading() ");
 
     stopThreading();
@@ -643,19 +641,24 @@ void Viewer::setupThreading()
         if (task->commandGraphs.size() == 1 && !task->earlyTransferTask)
         {
             // task only contains a single CommandGraph so keep thread simple
-            auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted) {
+            auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted, const std::string& threadName) {
+                auto local_instrumentation = shareOrDuplicateForThreadSafety(viewer_task->instrumentation);
+                if (local_instrumentation) local_instrumentation->setThreadName(threadName);
+
                 auto frameStamp = viewer_frameBlock->initial_value;
 
                 // wait for this frame to be signaled
                 while (viewer_frameBlock->wait_for_change(frameStamp))
                 {
+                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+
                     viewer_task->submit(frameStamp);
 
                     submissionCompleted->arrive_and_drop();
                 }
             };
 
-            threads.emplace_back(run, task, _frameBlock, _submissionCompleted);
+            threads.emplace_back(run, task, _frameBlock, _submissionCompleted, make_string("Viewer run thread"));
         }
         else if (!task->commandGraphs.empty())
         {
@@ -688,12 +691,18 @@ void Viewer::setupThreading()
 
             ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, numThreads);
 
-            auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+            auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph, const std::string& threadName) {
+
+                auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
+                if (local_instrumentation) local_instrumentation->setThreadName(threadName);
+
                 auto frameStamp = data->frameBlock->initial_value;
 
                 // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
+                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+
                     // primary thread starts the task
                     data->task->start();
 
@@ -714,12 +723,18 @@ void Viewer::setupThreading()
                 }
             };
 
-            auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph) {
+            auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph, const std::string& threadName) {
+
+                auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
+                if (local_instrumentation) local_instrumentation->setThreadName(threadName);
+
                 auto frameStamp = data->frameBlock->initial_value;
 
                 // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
+                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+
                     data->recordStartBarrier->arrive_and_wait();
 
                     commandGraph->record(data->recordedCommandBuffers, frameStamp, data->task->databasePager);
@@ -728,12 +743,18 @@ void Viewer::setupThreading()
                 }
             };
 
-            auto run_transfer = [](ref_ptr<SharedData> data, ref_ptr<TransferTask> transferTask) {
+            auto run_transfer = [](ref_ptr<SharedData> data, ref_ptr<TransferTask> transferTask, const std::string& threadName) {
+
+                auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
+                if (local_instrumentation) local_instrumentation->setThreadName(threadName);
+
                 auto frameStamp = data->frameBlock->initial_value;
 
                 // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
+                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+
                     data->recordStartBarrier->arrive_and_wait();
 
                     //vsg::info("run_transfer");
@@ -747,14 +768,14 @@ void Viewer::setupThreading()
             for (uint32_t i = 0; i < task->commandGraphs.size(); ++i)
             {
                 if (i == 0)
-                    threads.emplace_back(run_primary, sharedData, task->commandGraphs[i]);
+                    threads.emplace_back(run_primary, sharedData, task->commandGraphs[i], make_string("Viewer primary thread"));
                 else
-                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i]);
+                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i], make_string("Viewer seconary thread ", i));
             }
 
             if (task->earlyTransferTask)
             {
-                threads.emplace_back(run_transfer, sharedData, task->earlyTransferTask);
+                threads.emplace_back(run_transfer, sharedData, task->earlyTransferTask, make_string("Viewer earlyDynamicData thread"));
             }
         }
     }

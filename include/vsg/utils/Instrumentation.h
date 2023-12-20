@@ -43,6 +43,8 @@ namespace vsg
 
         virtual ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety() { return ref_ptr<Instrumentation>(this); }
 
+        virtual void setThreadName(const std::string& /*name*/) const {};
+
         virtual void enterFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
         virtual void leaveFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
 
@@ -54,6 +56,7 @@ namespace vsg
 
         virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
         virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
+
 
     protected:
         virtual ~Instrumentation();
@@ -131,7 +134,7 @@ namespace vsg
 
 #define __COMMAND_BUFFER_INSTRUMENTATION(level, instrumentation, cg, name, color)                                             \
     static constexpr SourceLocation s_cg_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-    CommandBufferInstrumentation __cb_scoped_instrumentation_##__LINE__(instrumentation, &(s_cg_source_location_##__LINE__), cg);
+    CommandBufferInstrumentation __cg_scoped_instrumentation_##__LINE__(instrumentation, &(s_cg_source_location_##__LINE__), cg);
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
 

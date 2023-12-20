@@ -138,10 +138,11 @@ void DatabasePager::start()
     //
     // set up read thread(s)
     //
-    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager) {
+    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager, const std::string& threadName) {
         debug("Started DatabaseThread read thread");
 
         auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);
+        if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
         while (status->active())
         {
@@ -198,7 +199,7 @@ void DatabasePager::start()
 
     for (int i = 0; i < numReadThreads; ++i)
     {
-        _readThreads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this));
+        _readThreads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager thread ", i));
     }
 }
 
