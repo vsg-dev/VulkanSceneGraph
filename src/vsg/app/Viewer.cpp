@@ -610,8 +610,6 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
 void Viewer::setupThreading()
 {
-    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer setupThreading", COLOR_VIEWER);
-
     stopThreading();
 
     // check how many valid tasks there are.

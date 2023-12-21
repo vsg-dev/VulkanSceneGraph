@@ -23,14 +23,29 @@ namespace vsg
     class CommandBuffer;
     class FrameStamp;
 
-    #define COLOR_VIEWER ubvec4(128, 249, 240, 255)
-    #define COLOR_UPDATE ubvec4(0, 255, 0, 255)
-    #define COLOR_RECORD ubvec4(0, 255, 255, 255)
-    #define COLOR_GPU ubvec4(255, 127, 0, 255)
-    #define COLOR_COMPILE ubvec4(255, 249, 64, 255)
-    #define COLOR_READ ubvec4(128, 255, 0, 255)
-    #define COLOR_WRITE ubvec4(255, 128, 0, 255)
-    #define COLOR_PAGER ubvec4(240, 255, 64, 255)
+    /// uint_color struct used to provide a {r, g, b, a} interface a colors assigned as uint32_t
+    struct uint_color
+    {
+#if 0
+        // RGBA order standard with VSG/Vulkan
+        uint8_t r = 255, g = 255, b = 255, a = 255;
+        constexpr uint_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : r(red), g(green), b(blue), a(alpha) {}
+#else
+        // BGRA order required to map to Tracy's uint32_t color value
+        uint8_t b = 255, g = 255, r = 255, a = 255;
+        constexpr uint_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : b(blue), g(green), r(red), a(alpha) {}
+#endif
+    };
+
+    // standard colours specified in {r, g, b, a} ordering
+    #define COLOR_VIEWER uint_color(128, 249, 240, 255)
+    #define COLOR_UPDATE uint_color(0, 255, 0, 255)
+    #define COLOR_RECORD uint_color(0, 255, 255, 255)
+    #define COLOR_GPU uint_color(255, 127, 0, 255)
+    #define COLOR_COMPILE uint_color(255, 249, 64, 255)
+    #define COLOR_READ uint_color(128, 255, 0, 255)
+    #define COLOR_WRITE uint_color(255, 128, 0, 255)
+    #define COLOR_PAGER uint_color(240, 255, 64, 255)
 
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
@@ -40,7 +55,7 @@ namespace vsg
         const char* function;
         const char* file;
         uint32_t line;
-        ubvec4 color;
+        uint_color color;
         uint32_t level;
     };
 
@@ -147,13 +162,13 @@ namespace vsg
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
 
-#    define CPU_INSTRUMENTATION_L1(instrumentation) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L1_N(instrumentation, name) __CPU_INSTRUMENTATION(1, instrumentation, name, ubvec4(255, 255, 255, 255))
+#    define CPU_INSTRUMENTATION_L1(instrumentation) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, uint_color(255, 255, 255, 255))
+#    define CPU_INSTRUMENTATION_L1_N(instrumentation, name) __CPU_INSTRUMENTATION(1, instrumentation, name, uint_color(255, 255, 255, 255))
 #    define CPU_INSTRUMENTATION_L1_C(instrumentation, color) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, color)
 #    define CPU_INSTRUMENTATION_L1_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(1, instrumentation, name, color)
 
-#    define GPU_INSTRUMENTATION_L1(instrumentation, cg) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, ubvec4(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L1_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, ubvec4(255, 255, 255, 255))
+#    define GPU_INSTRUMENTATION_L1(instrumentation, cg) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255))
+#    define GPU_INSTRUMENTATION_L1_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, uint_color(255, 255, 255, 255))
 #    define GPU_INSTRUMENTATION_L1_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, color)
 #    define GPU_INSTRUMENTATION_L1_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, color)
 
@@ -176,13 +191,13 @@ namespace vsg
 #endif
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 2
-#    define CPU_INSTRUMENTATION_L2(instrumentation) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L2_N(instrumentation, name) __CPU_INSTRUMENTATION(2, instrumentation, name, ubvec4(255, 255, 255, 255))
+#    define CPU_INSTRUMENTATION_L2(instrumentation) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, uint_color(255, 255, 255, 255))
+#    define CPU_INSTRUMENTATION_L2_N(instrumentation, name) __CPU_INSTRUMENTATION(2, instrumentation, name, uint_color(255, 255, 255, 255))
 #    define CPU_INSTRUMENTATION_L2_C(instrumentation, color) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, color)
 #    define CPU_INSTRUMENTATION_L2_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(2, instrumentation, name, color)
 
-#    define GPU_INSTRUMENTATION_L2(instrumentation, cg) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, ubvec4(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L2_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, ubvec4(255, 255, 255, 255))
+#    define GPU_INSTRUMENTATION_L2(instrumentation, cg) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255))
+#    define GPU_INSTRUMENTATION_L2_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, uint_color(255, 255, 255, 255))
 #    define GPU_INSTRUMENTATION_L2_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, color)
 #    define GPU_INSTRUMENTATION_L2_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, color)
 #else
@@ -198,13 +213,13 @@ namespace vsg
 #endif
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 3
-#    define CPU_INSTRUMENTATION_L3(instrumentation) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, ubvec4(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L3_N(instrumentation, name) __CPU_INSTRUMENTATION(3, instrumentation, name, ubvec4(255, 255, 255, 255))
+#    define CPU_INSTRUMENTATION_L3(instrumentation) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, uint_color(255, 255, 255, 255))
+#    define CPU_INSTRUMENTATION_L3_N(instrumentation, name) __CPU_INSTRUMENTATION(3, instrumentation, name, uint_color(255, 255, 255, 255))
 #    define CPU_INSTRUMENTATION_L3_C(instrumentation, color) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, color)
 #    define CPU_INSTRUMENTATION_L3_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(3, instrumentation, name, color)
 
-#    define GPU_INSTRUMENTATION_L3(instrumentation, cg) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, ubvec4(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L3_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, ubvec4(255, 255, 255, 255))
+#    define GPU_INSTRUMENTATION_L3(instrumentation, cg) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255))
+#    define GPU_INSTRUMENTATION_L3_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, uint_color(255, 255, 255, 255))
 #    define GPU_INSTRUMENTATION_L3_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, color)
 #    define GPU_INSTRUMENTATION_L3_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, color)
 #else

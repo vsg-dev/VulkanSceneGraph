@@ -44,10 +44,10 @@ void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffe
         markerInfo.pLabelName = sl->name;
     else
         markerInfo.pLabelName = sl->function;
-    markerInfo.color[0] = static_cast<float>(sl->color[0]) / 255.0;
-    markerInfo.color[1] = static_cast<float>(sl->color[1]) / 255.0;
-    markerInfo.color[2] = static_cast<float>(sl->color[2]) / 255.0;
-    markerInfo.color[3] = static_cast<float>(sl->color[3]) / 255.0;
+    markerInfo.color[0] = static_cast<float>(sl->color.r) / 255.0;
+    markerInfo.color[1] = static_cast<float>(sl->color.g) / 255.0;
+    markerInfo.color[2] = static_cast<float>(sl->color.b) / 255.0;
+    markerInfo.color[3] = static_cast<float>(sl->color.a) / 255.0;
 
     extensions->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &markerInfo);
 }
