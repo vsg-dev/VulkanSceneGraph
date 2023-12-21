@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/TileDatabase.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
@@ -476,13 +477,13 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     }
 
     // setup geometry
-    auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, normals, texcoords, colors}));
-    drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
-    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->size()), 1, 0, 0, 0));
+    auto vid = vsg::VertexIndexDraw::create();
+    vid->assignArrays(vsg::DataList{vertices, normals, texcoords, colors});
+    vid->assignIndices(indices);
+    vid->indexCount = indices->size();
+    vid->instanceCount = 1;
 
-    // add drawCommands to transform
-    transform->addChild(drawCommands);
+    transform->addChild(vid);
 
     return scenegraph;
 }
