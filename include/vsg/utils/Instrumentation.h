@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
     class CommandBuffer;
     class FrameStamp;
 
@@ -37,16 +38,6 @@ namespace vsg
             b(blue), g(green), r(red), a(alpha) {}
 #endif
     };
-
-// standard colours specified in {r, g, b, a} ordering
-#define COLOR_VIEWER uint_color(128, 249, 240, 255)
-#define COLOR_UPDATE uint_color(0, 255, 0, 255)
-#define COLOR_RECORD uint_color(0, 255, 255, 255)
-#define COLOR_GPU uint_color(255, 127, 0, 255)
-#define COLOR_COMPILE uint_color(255, 249, 64, 255)
-#define COLOR_READ uint_color(128, 255, 0, 255)
-#define COLOR_WRITE uint_color(255, 128, 0, 255)
-#define COLOR_PAGER uint_color(240, 255, 64, 255)
 
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
@@ -141,6 +132,16 @@ namespace vsg
             if (instr) instr->leaveCommandBuffer(sl, reference, commandBuffer);
         }
     };
+
+// standard colours specified in {r, g, b, a} ordering
+#define COLOR_VIEWER uint_color(128, 249, 240, 255)
+#define COLOR_UPDATE uint_color(0, 255, 0, 255)
+#define COLOR_RECORD uint_color(0, 255, 255, 255)
+#define COLOR_GPU uint_color(255, 127, 0, 255)
+#define COLOR_COMPILE uint_color(255, 249, 64, 255)
+#define COLOR_READ uint_color(128, 255, 0, 255)
+#define COLOR_WRITE uint_color(255, 128, 0, 255)
+#define COLOR_PAGER uint_color(240, 255, 64, 255)
 
 #if defined(__clang__) || defined(__GNUC__)
 #    define VsgFunctionName __PRETTY_FUNCTION__
