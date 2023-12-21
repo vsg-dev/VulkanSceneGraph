@@ -166,7 +166,7 @@ void RecordTraversal::apply(const LOD& lod)
 
 void RecordTraversal::apply(const PagedLOD& plod)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "CullNode", COLOR_PAGER);
+    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "PagedLOD", COLOR_PAGER);
 
     const auto& sphere = plod.bound;
     auto frameCount = _frameStamp->frameCount;
