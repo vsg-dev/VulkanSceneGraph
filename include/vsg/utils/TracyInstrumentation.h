@@ -57,7 +57,6 @@ namespace vsg
                 {
                     ctx = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
                 }
-
             }
             return ctx;
         }
@@ -115,21 +114,21 @@ namespace vsg
 
         void enter(const SourceLocation* slcloc, uint64_t& reference) const override
         {
-#ifdef TRACY_ON_DEMAND
+#    ifdef TRACY_ON_DEMAND
             if (!GetProfiler().IsConnected() || (slcloc->level > settings->cpu_instumentation_level))
-#else
+#    else
             if (slcloc->level > settings->cpu_instumentation_level)
-#endif
+#    endif
             {
                 reference = 0;
                 return;
             }
 
-#ifdef TRACY_ON_DEMAND
+#    ifdef TRACY_ON_DEMAND
             reference = GetProfiler().ConnectionId();
-#else
+#    else
             reference = 1;
-#endif
+#    endif
 
             TracyQueuePrepare(QueueType::ZoneBegin);
             MemWrite(&item->zoneBegin.time, Profiler::GetTime());
@@ -139,11 +138,11 @@ namespace vsg
 
         void leave(const SourceLocation*, uint64_t& reference) const override
         {
-#ifdef TRACY_ON_DEMAND
+#    ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
-#else
+#    else
             if (reference == 0) return;
-#endif
+#    endif
 
             TracyQueuePrepare(QueueType::ZoneEnd);
             MemWrite(&item->zoneEnd.time, Profiler::GetTime());
@@ -172,21 +171,21 @@ namespace vsg
 
         void enter(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& cmdbuf) const override
         {
-#ifdef TRACY_ON_DEMAND
+#    ifdef TRACY_ON_DEMAND
             if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > settings->gpu_instumentation_level))
-#else
+#    else
             if (!ctx || slcloc->level > settings->gpu_instumentation_level)
-#endif
+#    endif
             {
                 reference = 0;
                 return;
             }
 
-#ifdef TRACY_ON_DEMAND
+#    ifdef TRACY_ON_DEMAND
             reference = GetProfiler().ConnectionId();
-#else
+#    else
             reference = 1;
-#endif
+#    endif
 
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
@@ -203,11 +202,11 @@ namespace vsg
 
         void leave(const SourceLocation*, uint64_t& reference, CommandBuffer& cmdbuf) const override
         {
-#ifdef TRACY_ON_DEMAND
+#    ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
-#else
+#    else
             if (reference == 0) return;
-#endif
+#    endif
 
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));

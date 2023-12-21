@@ -33,19 +33,20 @@ namespace vsg
 #else
         // BGRA order required to map to Tracy's uint32_t color value
         uint8_t b = 255, g = 255, r = 255, a = 255;
-        constexpr uint_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : b(blue), g(green), r(red), a(alpha) {}
+        constexpr uint_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
+            b(blue), g(green), r(red), a(alpha) {}
 #endif
     };
 
-    // standard colours specified in {r, g, b, a} ordering
-    #define COLOR_VIEWER uint_color(128, 249, 240, 255)
-    #define COLOR_UPDATE uint_color(0, 255, 0, 255)
-    #define COLOR_RECORD uint_color(0, 255, 255, 255)
-    #define COLOR_GPU uint_color(255, 127, 0, 255)
-    #define COLOR_COMPILE uint_color(255, 249, 64, 255)
-    #define COLOR_READ uint_color(128, 255, 0, 255)
-    #define COLOR_WRITE uint_color(255, 128, 0, 255)
-    #define COLOR_PAGER uint_color(240, 255, 64, 255)
+// standard colours specified in {r, g, b, a} ordering
+#define COLOR_VIEWER uint_color(128, 249, 240, 255)
+#define COLOR_UPDATE uint_color(0, 255, 0, 255)
+#define COLOR_RECORD uint_color(0, 255, 255, 255)
+#define COLOR_GPU uint_color(255, 127, 0, 255)
+#define COLOR_COMPILE uint_color(255, 249, 64, 255)
+#define COLOR_READ uint_color(128, 255, 0, 255)
+#define COLOR_WRITE uint_color(255, 128, 0, 255)
+#define COLOR_PAGER uint_color(240, 255, 64, 255)
 
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.
     /// Memory layout was chosen to be compatible to Tracy's SourceLocationData object.
@@ -80,7 +81,6 @@ namespace vsg
 
         virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
         virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
-
 
     protected:
         virtual ~Instrumentation();

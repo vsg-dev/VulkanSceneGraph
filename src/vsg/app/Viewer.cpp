@@ -690,7 +690,6 @@ void Viewer::setupThreading()
             ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, numThreads);
 
             auto run_primary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph, const std::string& threadName) {
-
                 auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
                 if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
@@ -722,7 +721,6 @@ void Viewer::setupThreading()
             };
 
             auto run_secondary = [](ref_ptr<SharedData> data, ref_ptr<CommandGraph> commandGraph, const std::string& threadName) {
-
                 auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
                 if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
@@ -742,7 +740,6 @@ void Viewer::setupThreading()
             };
 
             auto run_transfer = [](ref_ptr<SharedData> data, ref_ptr<TransferTask> transferTask, const std::string& threadName) {
-
                 auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
                 if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
