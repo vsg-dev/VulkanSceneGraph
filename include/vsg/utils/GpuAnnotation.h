@@ -24,6 +24,14 @@ namespace vsg
     public:
         GpuAnnotation();
 
+        enum LabelType
+        {
+            SourceLocation_name,
+            SourceLocation_function,
+        };
+
+        LabelType labelType = SourceLocation_name;
+
         void enterCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
         void leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
 
