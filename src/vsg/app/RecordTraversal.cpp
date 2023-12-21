@@ -33,6 +33,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
+#include <vsg/nodes/TileDatabase.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/ViewDependentState.h>
@@ -242,6 +243,13 @@ void RecordTraversal::apply(const PagedLOD& plod)
             }
         }
     }
+}
+
+void RecordTraversal::apply(const TileDatabase& tileDatabase)
+{
+    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "TileDatabase", COLOR_RECORD);
+
+    tileDatabase.traverse(*this);
 }
 
 void RecordTraversal::apply(const CullGroup& cullGroup)

@@ -35,6 +35,7 @@ namespace vsg
     class DepthSorted;
     class Transform;
     class MatrixTransform;
+    class TileDatabase;
     class VertexDraw;
     class VertexIndexDraw;
     class Geometry;
@@ -106,6 +107,7 @@ namespace vsg
         void apply(const QuadGroup& quadGroup);
         void apply(const LOD& lod);
         void apply(const PagedLOD& pagedLOD);
+        void apply(const TileDatabase& tileDatabase);
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
         void apply(const DepthSorted& depthSorted);
