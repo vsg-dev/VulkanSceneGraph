@@ -48,7 +48,7 @@ bool glsl::extensionSupported(const Path& ext)
 
 ref_ptr<Object> glsl::createShader(const Path& found_filename, std::string& source, VkShaderStageFlagBits stageFlagBits, ref_ptr<const Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "glsl createShader", COLOR_READ);
 
     // handle any #includes in the source
     if (source.find("include") != std::string::npos)
@@ -68,7 +68,7 @@ ref_ptr<Object> glsl::createShader(const Path& found_filename, std::string& sour
 
 ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "glsl read", COLOR_READ);
 
     auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
     if (stage_itr == s_extensionToStage.end()) stage_itr = s_extensionToStage.find(lowerCaseFileExtension(filename));
@@ -92,7 +92,7 @@ ref_ptr<Object> glsl::read(const Path& filename, ref_ptr<const Options> options)
 
 ref_ptr<vsg::Object> glsl::read(std::istream& fin, ref_ptr<const Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "glsl read", COLOR_READ);
 
     auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
     if (stage_itr == s_extensionToStage.end()) return {};
@@ -110,7 +110,7 @@ ref_ptr<vsg::Object> glsl::read(std::istream& fin, ref_ptr<const Options> option
 
 ref_ptr<vsg::Object> glsl::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "glsl read", COLOR_READ);
 
     auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
     if (stage_itr == s_extensionToStage.end()) return {};
@@ -122,7 +122,7 @@ ref_ptr<vsg::Object> glsl::read(const uint8_t* ptr, size_t size, ref_ptr<const O
 
 bool glsl::write(const Object* object, const Path& filename, ref_ptr<const Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "glsl write", COLOR_READ);
 
     auto stage_itr = (options && options->extensionHint) ? s_extensionToStage.find(options->extensionHint) : s_extensionToStage.end();
     if (stage_itr == s_extensionToStage.end()) stage_itr = s_extensionToStage.find(lowerCaseFileExtension(filename));

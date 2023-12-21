@@ -32,12 +32,12 @@ Viewer::Viewer() :
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer costructor", COLOR_VIEWER);
 }
 
 Viewer::~Viewer()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer destructor", COLOR_VIEWER);
 
     stopThreading();
 
@@ -47,7 +47,7 @@ Viewer::~Viewer()
 
 void Viewer::deviceWaitIdle() const
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer deviceWaitIdle", COLOR_VIEWER);
 
     std::set<VkDevice> devices;
     for (auto& window : _windows)
@@ -101,7 +101,7 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
 void Viewer::close()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer close", COLOR_VIEWER);
 
     _close = true;
     status->set(false);
@@ -111,7 +111,7 @@ void Viewer::close()
 
 bool Viewer::active() const
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer active", COLOR_VIEWER);
 
     bool viewerIsActive = !_close;
     if (viewerIsActive)
@@ -136,7 +136,7 @@ bool Viewer::active() const
 
 bool Viewer::pollEvents(bool discardPreviousEvents)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer pollEvents", COLOR_UPDATE);
 
     bool result = false;
 
@@ -151,7 +151,7 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
 
 bool Viewer::advanceToNextFrame()
 {
-    static constexpr SourceLocation s_frame_source_location{"frame", VsgFunctionName, __FILE__, __LINE__, ubvec4(255, 255, 255, 255), 1};
+    static constexpr SourceLocation s_frame_source_location{"Viewer advanceToNextFrame", VsgFunctionName, __FILE__, __LINE__, COLOR_VIEWER, 1};
     uint64_t reference = 0;
 
     if (!active()) return false;
@@ -193,7 +193,7 @@ bool Viewer::advanceToNextFrame()
 
 bool Viewer::acquireNextFrame()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer acquireNextFrame", COLOR_VIEWER);
 
     if (_close) return false;
 
@@ -233,7 +233,7 @@ bool Viewer::acquireNextFrame()
 
 VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer waitForFences", COLOR_VIEWER);
 
     VkResult result = VK_SUCCESS;
     for (auto& task : recordAndSubmitTasks)
@@ -250,7 +250,7 @@ VkResult Viewer::waitForFences(size_t relativeFrameIndex, uint64_t timeout)
 
 void Viewer::handleEvents()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer handle events", COLOR_UPDATE);
 
     for (auto& vsg_event : _events)
     {
@@ -263,7 +263,7 @@ void Viewer::handleEvents()
 
 void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer compile", COLOR_COMPILE);
 
     if (recordAndSubmitTasks.empty())
     {
@@ -426,7 +426,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer assignRecordAndSubmitTaskAndPresentation", COLOR_VIEWER);
 
     // now remove any commandGraphs associated with window
     bool needToStartThreading = _threading;
@@ -589,7 +589,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
 void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer addRecordAndSubmitTaskAndPresentation", COLOR_VIEWER);
 
     // collect the existing CommandGraphs
     CommandGraphs combinedCommandGraphs;
@@ -610,7 +610,7 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
 void Viewer::setupThreading()
 {
-    debug("Viewer::setupThreading() ");
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer setupThreading", COLOR_VIEWER);
 
     stopThreading();
 
@@ -650,7 +650,7 @@ void Viewer::setupThreading()
                 // wait for this frame to be signaled
                 while (viewer_frameBlock->wait_for_change(frameStamp))
                 {
-                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+                    CPU_INSTRUMENTATION_L1_NC(local_instrumentation, "Viewer run", COLOR_RECORD);
 
                     viewer_task->submit(frameStamp);
 
@@ -701,7 +701,7 @@ void Viewer::setupThreading()
                 // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
-                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+                    CPU_INSTRUMENTATION_L1_NC(local_instrumentation, "Viewer primary", COLOR_RECORD);
 
                     // primary thread starts the task
                     data->task->start();
@@ -733,7 +733,7 @@ void Viewer::setupThreading()
                 // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
-                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+                    CPU_INSTRUMENTATION_L1_NC(local_instrumentation, "Viewer secondary", COLOR_RECORD);
 
                     data->recordStartBarrier->arrive_and_wait();
 
@@ -753,7 +753,7 @@ void Viewer::setupThreading()
                 // wait for this frame to be signaled
                 while (data->frameBlock->wait_for_change(frameStamp))
                 {
-                    CPU_INSTRUMENTATION_L1(local_instrumentation);
+                    CPU_INSTRUMENTATION_L1_NC(local_instrumentation, "Viewer transfer", COLOR_RECORD);
 
                     data->recordStartBarrier->arrive_and_wait();
 
@@ -783,7 +783,7 @@ void Viewer::setupThreading()
 
 void Viewer::stopThreading()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer stopThreading", COLOR_VIEWER);
 
     if (!_threading) return;
     _threading = false;
@@ -804,7 +804,7 @@ void Viewer::stopThreading()
 
 void Viewer::update()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer update", COLOR_UPDATE);
 
     for (auto& task : recordAndSubmitTasks)
     {
@@ -821,7 +821,7 @@ void Viewer::update()
 
 void Viewer::recordAndSubmit()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer recordAndSubmitTask", COLOR_VIEWER);
 
     // reset connected ExecuteCommands
     for (auto& recordAndSubmitTask : recordAndSubmitTasks)
@@ -855,7 +855,7 @@ void Viewer::recordAndSubmit()
 
 void Viewer::present()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer present", COLOR_VIEWER);
 
     for (auto& presentation : presentations)
     {
@@ -886,7 +886,7 @@ void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 
 void vsg::updateViewer(Viewer& viewer, const CompileResult& compileResult)
 {
-    CPU_INSTRUMENTATION_L1(viewer.instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(viewer.instrumentation, "updateViewer", COLOR_VIEWER);
 
     updateTasks(viewer.recordAndSubmitTasks, viewer.compileManager, compileResult);
 }

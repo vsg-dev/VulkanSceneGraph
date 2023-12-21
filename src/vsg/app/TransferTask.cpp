@@ -331,7 +331,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
 
 VkResult TransferTask::transferDynamicData()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferDynamicData", COLOR_RECORD);
 
     Logger::Level level = Logger::LOGGER_DEBUG;
     //level = Logger::LOGGER_INFO;
@@ -397,7 +397,7 @@ VkResult TransferTask::transferDynamicData()
 
     VkDeviceSize offset = 0;
     {
-        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer)
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "transferDynamicData", COLOR_GPU)
 
         // transfer the modified BufferInfo and ImageInfo
         _transferBufferInfos(vk_commandBuffer, frame, offset);

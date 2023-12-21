@@ -149,7 +149,7 @@ void DatabasePager::start()
             auto plod = requestQueue->take_when_available();
             if (plod)
             {
-                CPU_INSTRUMENTATION_L1(databasePager.instrumentation);
+                CPU_INSTRUMENTATION_L1_NC(databasePager.instrumentation, "DatabasePager read", COLOR_PAGER);
 
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
                 if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))

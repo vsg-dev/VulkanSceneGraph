@@ -225,14 +225,14 @@ void CompileTraversal::assignInstrumentation(ref_ptr<Instrumentation> in_instrum
 
 void CompileTraversal::apply(Object& object)
 {
-    CPU_INSTRUMENTATION_L2(instrumentation);
+    CPU_INSTRUMENTATION_L2_NC(instrumentation,"CompileTraversal Object", COLOR_COMPILE);
 
     object.traverse(*this);
 }
 
 void CompileTraversal::apply(Compilable& node)
 {
-    CPU_INSTRUMENTATION_L3(instrumentation);
+    CPU_INSTRUMENTATION_L3_NC(instrumentation,"CompileTraversal Compilable", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -242,7 +242,7 @@ void CompileTraversal::apply(Compilable& node)
 
 void CompileTraversal::apply(Commands& commands)
 {
-    CPU_INSTRUMENTATION_L3(instrumentation);
+    CPU_INSTRUMENTATION_L3_NC(instrumentation,"CompileTraversal Commands", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -252,7 +252,7 @@ void CompileTraversal::apply(Commands& commands)
 
 void CompileTraversal::apply(StateGroup& stateGroup)
 {
-    CPU_INSTRUMENTATION_L2(instrumentation);
+    CPU_INSTRUMENTATION_L2_NC(instrumentation,"CompileTraversal StateGroup", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -263,7 +263,7 @@ void CompileTraversal::apply(StateGroup& stateGroup)
 
 void CompileTraversal::apply(Geometry& geometry)
 {
-    CPU_INSTRUMENTATION_L3(instrumentation);
+    CPU_INSTRUMENTATION_L3_NC(instrumentation,"CompileTraversal Geometry", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -274,7 +274,7 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation,"CompileTraversal CommandGraph", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -289,7 +289,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation,"CompileTraversal RenderGraph", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -323,7 +323,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
 void CompileTraversal::apply(View& view)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation,"CompileTraversal View", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
@@ -364,7 +364,7 @@ void CompileTraversal::apply(View& view)
 
 bool CompileTraversal::record()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation,"CompileTraversal record", COLOR_COMPILE);
 
     bool recorded = false;
     for (auto& context : contexts)
@@ -376,7 +376,7 @@ bool CompileTraversal::record()
 
 void CompileTraversal::waitForCompletion()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation,"CompileTraversal waitForCompletion", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {

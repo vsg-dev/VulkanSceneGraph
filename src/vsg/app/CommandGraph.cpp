@@ -79,7 +79,7 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 
 void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CommandGraph record", COLOR_RECORD);
 
     if (window && !window->visible())
     {
@@ -136,7 +136,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     {
-        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer)
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "CommandGraph record", COLOR_RECORD)
         traverse(*recordTraversal);
     }
 

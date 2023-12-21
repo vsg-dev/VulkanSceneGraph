@@ -23,7 +23,7 @@ using namespace vsg;
 
 ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "read", COLOR_READ);
 
     auto read_file = [&]() -> ref_ptr<Object> {
         if (options && !options->readerWriters.empty())
@@ -83,7 +83,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
 PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "read", COLOR_READ);
 
     ref_ptr<OperationThreads> operationThreads;
     if (options) operationThreads = options->operationThreads;
@@ -154,7 +154,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
 
 ref_ptr<Object> vsg::read(std::istream& fin, ref_ptr<const Options> options)
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "read", COLOR_READ);
 
     if (options && !options->readerWriters.empty())
     {
@@ -170,7 +170,7 @@ ref_ptr<Object> vsg::read(std::istream& fin, ref_ptr<const Options> options)
 
 ref_ptr<Object> vsg::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options)
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "read", COLOR_READ);
 
     if (options && !options->readerWriters.empty())
     {

@@ -157,6 +157,8 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
 
 void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context getDescriptorPoolSizesToUse", COLOR_COMPILE)
+
     if (minimum_maxSets > maxSets)
     {
         maxSets = minimum_maxSets;
@@ -183,6 +185,8 @@ void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes
 
 ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context allocateDescriptorSet", COLOR_COMPILE)
+
     for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
     {
         auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
@@ -204,6 +208,8 @@ ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(Descriptor
 
 void Context::reserve(const ResourceRequirements& requirements)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context reserve", COLOR_COMPILE)
+
     if (requirements.maxSlot > resourceRequirements.maxSlot)
     {
         resourceRequirements.maxSlot = requirements.maxSlot;
@@ -262,6 +268,8 @@ void Context::reserve(const ResourceRequirements& requirements)
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
+
     if (!copyImageCmd)
     {
         copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
@@ -273,6 +281,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
+
     if (!copyImageCmd)
     {
         copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
@@ -284,6 +294,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipM
 
 void Context::copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
+
     if (!copyBufferCmd)
     {
         copyBufferCmd = CopyAndReleaseBuffer::create();
@@ -295,6 +307,8 @@ void Context::copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
 
 bool Context::record()
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context record", COLOR_COMPILE)
+
     if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
 
     //auto before_compile = std::chrono::steady_clock::now();
@@ -317,7 +331,7 @@ bool Context::record()
     vkBeginCommandBuffer(*commandBuffer, &beginInfo);
 
     {
-        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer)
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "Context record", COLOR_COMPILE)
 
         // issue commands of interest
         {
@@ -364,6 +378,8 @@ bool Context::record()
 
 void Context::waitForCompletion()
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context waitForCompletion", COLOR_COMPILE)
+
     if (!commandBuffer || !fence)
     {
         return;

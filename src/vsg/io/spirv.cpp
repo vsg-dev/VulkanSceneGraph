@@ -45,7 +45,7 @@ spirv::spirv()
 
 vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "spirv read", COLOR_READ);
 
     if (!compatibleExtension(filename, options, ".spv")) return {};
 
@@ -59,7 +59,7 @@ vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<co
 
 ref_ptr<vsg::Object> spirv::read(std::istream& fin, ref_ptr<const Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "spirv read", COLOR_READ);
 
     if (!compatibleExtension(options, ".spv")) return {};
 
@@ -97,7 +97,7 @@ ref_ptr<vsg::Object> spirv::read(const uint8_t* ptr, size_t size, ref_ptr<const 
 
 bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "spirv write", COLOR_WRITE);
 
     if (!compatibleExtension(filename, options, ".spv")) return false;
 

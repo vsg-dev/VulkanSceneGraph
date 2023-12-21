@@ -117,7 +117,7 @@ vsg::Path tile::getTilePath(const vsg::Path& src, uint32_t x, uint32_t y, uint32
 
 vsg::ref_ptr<vsg::Object> tile::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "tile read", COLOR_READ);
 
     auto extension = vsg::lowerCaseFileExtension(filename);
     if (extension != ".tile") return {};
@@ -142,7 +142,7 @@ vsg::ref_ptr<vsg::Object> tile::read(const vsg::Path& filename, vsg::ref_ptr<con
 
 vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "tile read_root", COLOR_READ);
 
     auto group = createRoot();
 
@@ -203,7 +203,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
 
 vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lod, vsg::ref_ptr<const vsg::Options> options) const
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "tile read_subtile", COLOR_READ);
 
     // need to load subtile x y lod
     vsg::time_point start_read = vsg::clock::now();
@@ -299,7 +299,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
 void tile::init(vsg::ref_ptr<const vsg::Options> options)
 {
-    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "tile init", COLOR_READ);
 
     if (settings->shaderSet)
     {
