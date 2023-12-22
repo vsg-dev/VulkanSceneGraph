@@ -136,8 +136,11 @@ namespace vsg
 // standard colours specified in {r, g, b, a} ordering
 #define COLOR_VIEWER uint_color(127, 240, 240, 255)
 #define COLOR_UPDATE uint_color(0, 255, 0, 255)
-#define COLOR_RECORD uint_color(128, 255, 0, 255)
 #define COLOR_GPU uint_color(255, 127, 0, 255)
+#define COLOR_RECORD_L1 uint_color(140, 247, 0, 255)
+#define COLOR_RECORD_L2 uint_color(176, 176, 0, 255)
+#define COLOR_RECORD_L3 COLOR_GPU
+#define COLOR_RECORD COLOR_RECORD_L1
 #define COLOR_COMPILE uint_color(255, 249, 64, 255)
 #define COLOR_PAGER uint_color(240, 255, 64, 255)
 #define COLOR_READ uint_color(0, 255, 128, 255)
