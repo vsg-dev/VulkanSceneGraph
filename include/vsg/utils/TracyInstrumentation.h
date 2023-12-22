@@ -40,7 +40,7 @@ namespace vsg
             std::scoped_lock<std::mutex> lock(mutex);
 
             ref_ptr<Device> device(commandBuffer.getDevice());
-            auto& ctx = ctxMap[device];
+            auto& [ctx, requiresCollection] = ctxMap[device];
             if (!ctx)
             {
                 auto queue = device->getQueue(commandBuffer.getCommandPool()->queueFamilyIndex, 0);
@@ -57,21 +57,39 @@ namespace vsg
                 {
                     ctx = TracyVkContext(device->getPhysicalDevice()->vk(), device->vk(), queue->vk(), temporaryCommandBuffer->vk());
                 }
+                requiresCollection = false;
             }
+
+            if (ctx && requiresCollection)
+            {
+                TracyVkCollect(ctx, commandBuffer.vk());
+                requiresCollection = false;
+            }
+
             return ctx;
         }
+
+        void frameComplete()
+        {
+            std::scoped_lock<std::mutex> lock(mutex);
+            for (auto itr = ctxMap.begin(); itr != ctxMap.end(); ++itr)
+            {
+                itr->second.second = true;
+            }
+        }
+
+        mutable std::mutex mutex;
+        mutable std::map<ref_ptr<Device>, std::pair<VkCtx*, bool>> ctxMap;
 
     protected:
         ~TracyContexts()
         {
             for (auto itr = ctxMap.begin(); itr != ctxMap.end(); ++itr)
             {
-                TracyVkDestroy(itr->second);
+                TracyVkDestroy(itr->second.first);
             }
         }
 
-        mutable std::mutex mutex;
-        mutable std::map<ref_ptr<Device>, VkCtx*> ctxMap;
     };
     VSG_type_name(vsg::TracyContexts);
 
@@ -94,6 +112,7 @@ namespace vsg
         ref_ptr<TracySettings> settings;
         ref_ptr<TracyContexts> contexts;
         mutable VkCtx* ctx = nullptr;
+        bool requiresCollection = false;
 
         ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety() override
         {
@@ -109,6 +128,8 @@ namespace vsg
 
         void leaveFrame(const SourceLocation*, uint64_t&, FrameStamp&) const override
         {
+            contexts->frameComplete();
+
             FrameMark;
         }
 
@@ -153,8 +174,6 @@ namespace vsg
         {
             if (ctx = contexts->getOrCreateContext(commandBuffer))
             {
-                TracyVkCollect(ctx, commandBuffer.vk());
-
                 enter(slcloc, reference, commandBuffer);
             }
         }
