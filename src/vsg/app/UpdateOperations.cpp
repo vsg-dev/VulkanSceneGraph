@@ -35,14 +35,8 @@ void UpdateOperations::add(ref_ptr<Operation> op, RunBehavior runBehavior)
 void UpdateOperations::remove(ref_ptr<Operation> op)
 {
     std::scoped_lock<std::mutex> lock(_updateOperationMutex);
-    for (auto itr = _updateOperationsOneTime.begin(); itr != _updateOperationsOneTime.end(); ++itr)
-    {
-        if (*itr == op) itr = _updateOperationsOneTime.erase(itr);
-    }
-    for (auto itr = _updateOperationsAllFrames.begin(); itr != _updateOperationsAllFrames.end(); ++itr)
-    {
-        if (*itr == op) itr = _updateOperationsAllFrames.erase(itr);
-    }
+    _updateOperationsOneTime.remove(op);
+    _updateOperationsAllFrames.remove(op);
 }
 
 void UpdateOperations::clear()
