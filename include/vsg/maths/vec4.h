@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 #include <vsg/maths/vec3.h>
+#include <vsg/vk/vulkan.h>
 
 namespace vsg
 {
@@ -154,6 +155,8 @@ namespace vsg
             }
             return *this;
         }
+
+        operator VkClearColorValue() const noexcept { return VkClearColorValue{{r, g, b, a}}; }
 
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };

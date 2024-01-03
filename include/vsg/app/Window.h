@@ -63,8 +63,8 @@ namespace vsg
 
         const VkExtent2D& extent2D() const { return _extent2D; }
 
-        VkClearColorValue& clearColor() { return _clearColor; }
-        const VkClearColorValue& clearColor() const { return _clearColor; }
+        vec4& clearColor() { return _clearColor; }
+        const vec4& clearColor() const { return _clearColor; }
 
         VkSurfaceFormatKHR surfaceFormat();
 
@@ -149,7 +149,7 @@ namespace vsg
         ref_ptr<WindowTraits> _traits;
 
         VkExtent2D _extent2D;
-        VkClearColorValue _clearColor;
+        vec4 _clearColor;
         VkSurfaceFormatKHR _imageFormat;
         VkFormat _depthFormat;
 
