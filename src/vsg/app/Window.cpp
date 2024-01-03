@@ -42,7 +42,7 @@ Window::Window(ref_ptr<WindowTraits> traits) :
     if (_traits && (_traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8A8_SRGB || _traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8_SRGB))
     {
         info("Selected sRGB window");
-        _clearColor = linear_to_sRGB(0.2f, 0.2f, 0.4f, 1.0f);
+        _clearColor = linear_to_sRGB(_clearColor);
     }
 }
 
