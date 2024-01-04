@@ -26,21 +26,23 @@ GpuAnnotation::~GpuAnnotation()
 
 void GpuAnnotation::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const
 {
-    enter(sl, reference, commandBuffer);
+    enter(sl, reference, commandBuffer, nullptr);
 }
 
 void GpuAnnotation::leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const
 {
-    leave(sl, reference, commandBuffer);
+    leave(sl, reference, commandBuffer, nullptr);
 }
 
-void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffer& commandBuffer) const
+void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffer& commandBuffer, const Object* object) const
 {
     auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
 
     VkDebugUtilsLabelEXT markerInfo = {};
     markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-    if (sl->name && labelType == SourceLocation_name)
+    if (labelType == Object_className && object)
+        markerInfo.pLabelName = object->className();
+    else if (sl->name && labelType == SourceLocation_name)
         markerInfo.pLabelName = sl->name;
     else
         markerInfo.pLabelName = sl->function;
@@ -53,7 +55,7 @@ void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffe
     extensions->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &markerInfo);
 }
 
-void GpuAnnotation::leave(const SourceLocation*, uint64_t&, vsg::CommandBuffer& commandBuffer) const
+void GpuAnnotation::leave(const SourceLocation*, uint64_t&, vsg::CommandBuffer& commandBuffer, const Object*) const
 {
     auto extensions = commandBuffer.getDevice()->getInstance()->getExtensions();
     extensions->vkCmdEndDebugUtilsLabelEXT(commandBuffer);

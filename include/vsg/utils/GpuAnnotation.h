@@ -28,6 +28,7 @@ namespace vsg
         {
             SourceLocation_name,
             SourceLocation_function,
+            Object_className,
         };
 
         LabelType labelType = SourceLocation_name;
@@ -35,8 +36,8 @@ namespace vsg
         void enterCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
         void leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
 
-        void enter(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
-        void leave(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer) const override;
+        void enter(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer, const Object* object) const override;
+        void leave(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer, const Object* object) const override;
 
     protected:
         virtual ~GpuAnnotation();

@@ -64,14 +64,14 @@ namespace vsg
         virtual void enterFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
         virtual void leaveFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};
 
-        virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/) const {};
-        virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/) const {};
+        virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, const Object* /*object*/ = nullptr) const {};
+        virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, const Object* /*object*/ = nullptr) const {};
 
         virtual void enterCommandBuffer(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
         virtual void leaveCommandBuffer(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
 
-        virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
-        virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/) const {};
+        virtual void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/, const Object* /*object*/ = nullptr) const {};
+        virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/, const Object* /*object*/ = nullptr) const {};
 
     protected:
         virtual ~Instrumentation();
@@ -86,14 +86,16 @@ namespace vsg
         const Instrumentation* instr;
         const SourceLocation* sl;
         uint64_t reference;
-        inline CpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl) :
-            instr(in_instr), sl(in_sl)
+        const Object* object;
+
+        inline CpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, const Object* in_object = nullptr) :
+            instr(in_instr), sl(in_sl), object(in_object)
         {
-            if (instr) instr->enter(sl, reference);
+            if (instr) instr->enter(sl, reference, object);
         }
         inline ~CpuInstrumentation()
         {
-            if (instr) instr->leave(sl, reference);
+            if (instr) instr->leave(sl, reference, object);
         }
     };
 
@@ -103,15 +105,16 @@ namespace vsg
         const SourceLocation* sl;
         uint64_t reference;
         CommandBuffer& commandBuffer;
+        const Object* object;
 
-        inline GpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer) :
-            instr(in_instr), sl(in_sl), commandBuffer(in_commandBuffer)
+        inline GpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer, const Object* in_object = nullptr) :
+            instr(in_instr), sl(in_sl), commandBuffer(in_commandBuffer), object(in_object)
         {
-            if (instr) instr->enter(sl, reference, commandBuffer);
+            if (instr) instr->enter(sl, reference, commandBuffer, object);
         }
         inline ~GpuInstrumentation()
         {
-            if (instr) instr->leave(sl, reference, commandBuffer);
+            if (instr) instr->leave(sl, reference, commandBuffer, object);
         }
     };
 
@@ -152,13 +155,13 @@ namespace vsg
 #    define VsgFunctionName __FUNCSIG__
 #endif
 
-#define __CPU_INSTRUMENTATION(level, instrumentation, name, color)                                                             \
+#define __CPU_INSTRUMENTATION(level, instrumentation, name, color, object)                                                             \
     static constexpr SourceLocation s_cpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-    CpuInstrumentation __cpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_cpu_source_location_##__LINE__));
+    CpuInstrumentation __cpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_cpu_source_location_##__LINE__), object);
 
-#define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color)                                                         \
+#define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color, object)                                                         \
     static constexpr SourceLocation s_gpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
-    GpuInstrumentation __gpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_gpu_source_location_##__LINE__), cg);
+    GpuInstrumentation __gpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_gpu_source_location_##__LINE__), cg, object);
 
 #define __COMMAND_BUFFER_INSTRUMENTATION(level, instrumentation, cg, name, color)                                             \
     static constexpr SourceLocation s_cg_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
@@ -166,15 +169,25 @@ namespace vsg
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 1
 
-#    define CPU_INSTRUMENTATION_L1(instrumentation) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, uint_color(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L1_N(instrumentation, name) __CPU_INSTRUMENTATION(1, instrumentation, name, uint_color(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L1_C(instrumentation, color) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, color)
-#    define CPU_INSTRUMENTATION_L1_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(1, instrumentation, name, color)
+#    define CPU_INSTRUMENTATION_L1(instrumentation) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, uint_color(255, 255, 255, 255), nullptr)
+#    define CPU_INSTRUMENTATION_L1_N(instrumentation, name) __CPU_INSTRUMENTATION(1, instrumentation, name, uint_color(255, 255, 255, 255), nullptr)
+#    define CPU_INSTRUMENTATION_L1_C(instrumentation, color) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, color, nullptr)
+#    define CPU_INSTRUMENTATION_L1_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(1, instrumentation, name, color, nullptr)
 
-#    define GPU_INSTRUMENTATION_L1(instrumentation, cg) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L1_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, uint_color(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L1_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, color)
-#    define GPU_INSTRUMENTATION_L1_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, color)
+#    define GPU_INSTRUMENTATION_L1(instrumentation, cg) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255), nullptr)
+#    define GPU_INSTRUMENTATION_L1_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, uint_color(255, 255, 255, 255), nullptr)
+#    define GPU_INSTRUMENTATION_L1_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, color, nullptr)
+#    define GPU_INSTRUMENTATION_L1_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, color, nullptr)
+
+#    define CPU_INSTRUMENTATION_L1_O(instrumentation, object) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, uint_color(255, 255, 255, 255), object)
+#    define CPU_INSTRUMENTATION_L1_NO(instrumentation, name, object) __CPU_INSTRUMENTATION(1, instrumentation, name, uint_color(255, 255, 255, 255), object)
+#    define CPU_INSTRUMENTATION_L1_CO(instrumentation, color, object) __CPU_INSTRUMENTATION(1, instrumentation, nullptr, color, object)
+#    define CPU_INSTRUMENTATION_L1_NCO(instrumentation, name, color, object) __CPU_INSTRUMENTATION(1, instrumentation, name, color, object)
+
+#    define GPU_INSTRUMENTATION_L1_O(instrumentation, cg, object) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255), object)
+#    define GPU_INSTRUMENTATION_L1_NO(instrumentation, cg, name, object) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, uint_color(255, 255, 255, 255), object)
+#    define GPU_INSTRUMENTATION_L1_CO(instrumentation, cg, color, object) __GPU_INSTRUMENTATION(1, instrumentation, cg, nullptr, color, object)
+#    define GPU_INSTRUMENTATION_L1_NCO(instrumentation, cg, name, color, object) __GPU_INSTRUMENTATION(1, instrumentation, cg, name, color, object)
 
 #    define COMMAND_BUFFER_INSTRUMENTATION(instrumentation, cg, name, color) __COMMAND_BUFFER_INSTRUMENTATION(1, instrumentation, cg, name, color)
 
@@ -190,21 +203,44 @@ namespace vsg
 #    define GPU_INSTRUMENTATION_L1_C(instrumentation, cg, color)
 #    define GPU_INSTRUMENTATION_L1_NC(instrumentation, cg, name, color)
 
+#    define CPU_INSTRUMENTATION_L1_O(instrumentation, object)
+#    define CPU_INSTRUMENTATION_L1_NO(instrumentation, name, object)
+#    define CPU_INSTRUMENTATION_L1_CO(instrumentation, color, object)
+#    define CPU_INSTRUMENTATION_L1_NCO(instrumentation, name, color, object)
+
+#    define GPU_INSTRUMENTATION_L1_O(instrumentation, cg, object)
+#    define GPU_INSTRUMENTATION_L1_NO(instrumentation, cg, name, object)
+#    define GPU_INSTRUMENTATION_L1_CO(instrumentation, cg, color, object)
+#    define GPU_INSTRUMENTATION_L1_NCO(instrumentation, cg, name, color, object)
+
 #    define COMMAND_BUFFER_INSTRUMENTATION(instrumentation, cg, name, color)
 
 #endif
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 2
-#    define CPU_INSTRUMENTATION_L2(instrumentation) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, uint_color(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L2_N(instrumentation, name) __CPU_INSTRUMENTATION(2, instrumentation, name, uint_color(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L2_C(instrumentation, color) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, color)
-#    define CPU_INSTRUMENTATION_L2_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(2, instrumentation, name, color)
 
-#    define GPU_INSTRUMENTATION_L2(instrumentation, cg) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L2_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, uint_color(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L2_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, color)
-#    define GPU_INSTRUMENTATION_L2_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, color)
+#    define CPU_INSTRUMENTATION_L2(instrumentation) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, uint_color(255, 255, 255, 255), nullptr)
+#    define CPU_INSTRUMENTATION_L2_N(instrumentation, name) __CPU_INSTRUMENTATION(2, instrumentation, name, uint_color(255, 255, 255, 255), nullptr)
+#    define CPU_INSTRUMENTATION_L2_C(instrumentation, color) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, color, nullptr)
+#    define CPU_INSTRUMENTATION_L2_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(2, instrumentation, name, color, nullptr)
+
+#    define GPU_INSTRUMENTATION_L2(instrumentation, cg) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255), nullptr)
+#    define GPU_INSTRUMENTATION_L2_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, uint_color(255, 255, 255, 255), nullptr)
+#    define GPU_INSTRUMENTATION_L2_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, color, nullptr)
+#    define GPU_INSTRUMENTATION_L2_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, color, nullptr)
+
+#    define CPU_INSTRUMENTATION_L2_O(instrumentation, object) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, uint_color(255, 255, 255, 255), object)
+#    define CPU_INSTRUMENTATION_L2_NO(instrumentation, name, object) __CPU_INSTRUMENTATION(2, instrumentation, name, uint_color(255, 255, 255, 255), object)
+#    define CPU_INSTRUMENTATION_L2_CO(instrumentation, color, object) __CPU_INSTRUMENTATION(2, instrumentation, nullptr, color, object)
+#    define CPU_INSTRUMENTATION_L2_NCO(instrumentation, name, color, object) __CPU_INSTRUMENTATION(2, instrumentation, name, color, object)
+
+#    define GPU_INSTRUMENTATION_L2_O(instrumentation, cg, object) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255), object)
+#    define GPU_INSTRUMENTATION_L2_NO(instrumentation, cg, name, object) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, uint_color(255, 255, 255, 255), object)
+#    define GPU_INSTRUMENTATION_L2_CO(instrumentation, cg, color, object) __GPU_INSTRUMENTATION(2, instrumentation, cg, nullptr, color, object)
+#    define GPU_INSTRUMENTATION_L2_NCO(instrumentation, cg, name, color, object) __GPU_INSTRUMENTATION(2, instrumentation, cg, name, color, object)
+
 #else
+
 #    define CPU_INSTRUMENTATION_L2(instrumentation)
 #    define CPU_INSTRUMENTATION_L2_N(instrumentation, name)
 #    define CPU_INSTRUMENTATION_L2_C(instrumentation, color)
@@ -214,19 +250,43 @@ namespace vsg
 #    define GPU_INSTRUMENTATION_L2_N(instrumentation, cg, name)
 #    define GPU_INSTRUMENTATION_L2_C(instrumentation, cg, color)
 #    define GPU_INSTRUMENTATION_L2_NC(instrumentation, cg, name, color)
+
+#    define CPU_INSTRUMENTATION_L2_O(instrumentation, object)
+#    define CPU_INSTRUMENTATION_L2_NO(instrumentation, name, object)
+#    define CPU_INSTRUMENTATION_L2_CO(instrumentation, color, object)
+#    define CPU_INSTRUMENTATION_L2_NCO(instrumentation, name, color, object)
+
+#    define GPU_INSTRUMENTATION_L2_O(instrumentation, cg, object)
+#    define GPU_INSTRUMENTATION_L2_NO(instrumentation, cg, name, object)
+#    define GPU_INSTRUMENTATION_L2_CO(instrumentation, cg, color, object)
+#    define GPU_INSTRUMENTATION_L2_NCO(instrumentation, cg, name, color, object)
+
 #endif
 
 #if VSG_MAX_INSTRUMENTATION_LEVEL >= 3
-#    define CPU_INSTRUMENTATION_L3(instrumentation) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, uint_color(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L3_N(instrumentation, name) __CPU_INSTRUMENTATION(3, instrumentation, name, uint_color(255, 255, 255, 255))
-#    define CPU_INSTRUMENTATION_L3_C(instrumentation, color) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, color)
-#    define CPU_INSTRUMENTATION_L3_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(3, instrumentation, name, color)
 
-#    define GPU_INSTRUMENTATION_L3(instrumentation, cg) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L3_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, uint_color(255, 255, 255, 255))
-#    define GPU_INSTRUMENTATION_L3_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, color)
-#    define GPU_INSTRUMENTATION_L3_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, color)
+#    define CPU_INSTRUMENTATION_L3(instrumentation) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, uint_color(255, 255, 255, 255), nullptr)
+#    define CPU_INSTRUMENTATION_L3_N(instrumentation, name) __CPU_INSTRUMENTATION(3, instrumentation, name, uint_color(255, 255, 255, 255), nullptr)
+#    define CPU_INSTRUMENTATION_L3_C(instrumentation, color) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, color, nullptr)
+#    define CPU_INSTRUMENTATION_L3_NC(instrumentation, name, color) __CPU_INSTRUMENTATION(3, instrumentation, name, color, nullptr)
+
+#    define GPU_INSTRUMENTATION_L3(instrumentation, cg) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255), nullptr)
+#    define GPU_INSTRUMENTATION_L3_N(instrumentation, cg, name) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, uint_color(255, 255, 255, 255), nullptr)
+#    define GPU_INSTRUMENTATION_L3_C(instrumentation, cg, color) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, color, nullptr)
+#    define GPU_INSTRUMENTATION_L3_NC(instrumentation, cg, name, color) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, color, nullptr)
+
+#    define CPU_INSTRUMENTATION_L3_O(instrumentation, object) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, uint_color(255, 255, 255, 255), object)
+#    define CPU_INSTRUMENTATION_L3_NO(instrumentation, name, object) __CPU_INSTRUMENTATION(3, instrumentation, name, uint_color(255, 255, 255, 255), object)
+#    define CPU_INSTRUMENTATION_L3_CO(instrumentation, color, object) __CPU_INSTRUMENTATION(3, instrumentation, nullptr, color, object)
+#    define CPU_INSTRUMENTATION_L3_NCO(instrumentation, name, color, object) __CPU_INSTRUMENTATION(3, instrumentation, name, color, object)
+
+#    define GPU_INSTRUMENTATION_L3_O(instrumentation, cg, object) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, uint_color(255, 255, 255, 255), object)
+#    define GPU_INSTRUMENTATION_L3_NO(instrumentation, cg, name, object) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, uint_color(255, 255, 255, 255), object)
+#    define GPU_INSTRUMENTATION_L3_CO(instrumentation, cg, color, object) __GPU_INSTRUMENTATION(3, instrumentation, cg, nullptr, color, object)
+#    define GPU_INSTRUMENTATION_L3_NCO(instrumentation, cg, name, color, object) __GPU_INSTRUMENTATION(3, instrumentation, cg, name, color, object)
+
 #else
+
 #    define CPU_INSTRUMENTATION_L3(instrumentation)
 #    define CPU_INSTRUMENTATION_L3_N(instrumentation, name)
 #    define CPU_INSTRUMENTATION_L3_C(instrumentation, color)
@@ -236,6 +296,17 @@ namespace vsg
 #    define GPU_INSTRUMENTATION_L3_N(instrumentation, cg, name)
 #    define GPU_INSTRUMENTATION_L3_C(instrumentation, cg, color)
 #    define GPU_INSTRUMENTATION_L3_NC(instrumentation, cg, name, color)
+
+#    define CPU_INSTRUMENTATION_L3_O(instrumentation, object)
+#    define CPU_INSTRUMENTATION_L3_NO(instrumentation, name, object)
+#    define CPU_INSTRUMENTATION_L3_CO(instrumentation, color, object)
+#    define CPU_INSTRUMENTATION_L3_NCO(instrumentation, name, color, object)
+
+#    define GPU_INSTRUMENTATION_L3_O(instrumentation, cg, object)
+#    define GPU_INSTRUMENTATION_L3_NO(instrumentation, cg, name, object)
+#    define GPU_INSTRUMENTATION_L3_CO(instrumentation, cg, color, object)
+#    define GPU_INSTRUMENTATION_L3_NCO(instrumentation, cg, name, color, object)
+
 #endif
 
 } // namespace vsg

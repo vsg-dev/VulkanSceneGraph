@@ -110,7 +110,7 @@ void RecordTraversal::clearBins()
 
 void RecordTraversal::apply(const Object& object)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "Object", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Object", COLOR_RECORD_L2, &object);
 
     //debug("Visiting Object");
     object.traverse(*this);
@@ -118,7 +118,7 @@ void RecordTraversal::apply(const Object& object)
 
 void RecordTraversal::apply(const Group& group)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "Group", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Group", COLOR_RECORD_L2, &group);
 
     //debug("Visiting Group");
 #if INLINE_TRAVERSE
@@ -130,7 +130,7 @@ void RecordTraversal::apply(const Group& group)
 
 void RecordTraversal::apply(const QuadGroup& quadGroup)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "QuadGroup", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "QuadGroup", COLOR_RECORD_L2, &quadGroup);
 
     //debug("Visiting QuadGroup");
 #if INLINE_TRAVERSE
@@ -142,7 +142,7 @@ void RecordTraversal::apply(const QuadGroup& quadGroup)
 
 void RecordTraversal::apply(const LOD& lod)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "LOD", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "LOD", COLOR_RECORD_L2, &lod);
 
     const auto& sphere = lod.bound;
 
@@ -167,7 +167,7 @@ void RecordTraversal::apply(const LOD& lod)
 
 void RecordTraversal::apply(const PagedLOD& plod)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "PagedLOD", COLOR_PAGER);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "PagedLOD", COLOR_PAGER, &plod);
 
     const auto& sphere = plod.bound;
     auto frameCount = _frameStamp->frameCount;
@@ -247,14 +247,14 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
 void RecordTraversal::apply(const TileDatabase& tileDatabase)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "TileDatabase", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "TileDatabase", COLOR_RECORD_L2, &tileDatabase);
 
     tileDatabase.traverse(*this);
 }
 
 void RecordTraversal::apply(const CullGroup& cullGroup)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "CullGroup", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CullGroup", COLOR_RECORD_L2, &cullGroup);
 
     if (_state->intersect(cullGroup.bound))
     {
@@ -265,7 +265,7 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 
 void RecordTraversal::apply(const CullNode& cullNode)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "CullNode", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CullNode", COLOR_RECORD_L2, &cullNode);
 
     if (_state->intersect(cullNode.bound))
     {
@@ -276,7 +276,7 @@ void RecordTraversal::apply(const CullNode& cullNode)
 
 void RecordTraversal::apply(const Switch& sw)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "Switch", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Switch", COLOR_RECORD_L2, &sw);
 
     for (auto& child : sw.children)
     {
@@ -289,7 +289,7 @@ void RecordTraversal::apply(const Switch& sw)
 
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
-    CPU_INSTRUMENTATION_L2_NC(instrumentation, "DepthSorted", COLOR_RECORD_L2);
+    CPU_INSTRUMENTATION_L2_NCO(instrumentation, "DepthSorted", COLOR_RECORD_L2, &depthSorted);
 
     if (_state->intersect(depthSorted.bound))
     {
@@ -303,7 +303,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 
 void RecordTraversal::apply(const VertexDraw& vd)
 {
-    GPU_INSTRUMENTATION_L3_NC(instrumentation, *getCommandBuffer(), "VertexDraw", COLOR_GPU);
+    GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "VertexDraw", COLOR_GPU, &vd);
 
     //debug("Visiting VertexDraw");
     _state->record();
@@ -312,7 +312,7 @@ void RecordTraversal::apply(const VertexDraw& vd)
 
 void RecordTraversal::apply(const VertexIndexDraw& vid)
 {
-    GPU_INSTRUMENTATION_L3_NC(instrumentation, *getCommandBuffer(), "VertexIndexDraw", COLOR_GPU);
+    GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "VertexIndexDraw", COLOR_GPU, &vid);
 
     //debug("Visiting VertexIndexDraw");
     _state->record();
@@ -321,14 +321,14 @@ void RecordTraversal::apply(const VertexIndexDraw& vid)
 
 void RecordTraversal::apply(const Geometry& geometry)
 {
-    GPU_INSTRUMENTATION_L3_NC(instrumentation, *getCommandBuffer(), "Geometry", COLOR_GPU);
+    GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Geometry", COLOR_GPU, &geometry);
 
     //debug("Visiting Geometry");
     _state->record();
     geometry.record(*(_state->_commandBuffer));
 }
 
-void RecordTraversal::apply(const Light& /*light*/)
+void RecordTraversal::apply(const Light&)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
@@ -337,7 +337,7 @@ void RecordTraversal::apply(const Light& /*light*/)
 
 void RecordTraversal::apply(const AmbientLight& light)
 {
-    CPU_INSTRUMENTATION_L2(instrumentation);
+    CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(AmbientLight) ", light.className());
     if (_viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
@@ -345,7 +345,7 @@ void RecordTraversal::apply(const AmbientLight& light)
 
 void RecordTraversal::apply(const DirectionalLight& light)
 {
-    CPU_INSTRUMENTATION_L2(instrumentation);
+    CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(DirectionalLight) ", light.className());
     if (_viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
@@ -353,7 +353,7 @@ void RecordTraversal::apply(const DirectionalLight& light)
 
 void RecordTraversal::apply(const PointLight& light)
 {
-    CPU_INSTRUMENTATION_L2(instrumentation);
+    CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(PointLight) ", light.className());
     if (_viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
@@ -361,7 +361,7 @@ void RecordTraversal::apply(const PointLight& light)
 
 void RecordTraversal::apply(const SpotLight& light)
 {
-    CPU_INSTRUMENTATION_L2(instrumentation);
+    CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(SpotLight) ", light.className());
     if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
@@ -369,7 +369,7 @@ void RecordTraversal::apply(const SpotLight& light)
 
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "StateGroup", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "StateGroup", COLOR_RECORD_L2, &stateGroup);
 
     //debug("Visiting StateGroup");
 
@@ -390,7 +390,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
 void RecordTraversal::apply(const Transform& transform)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "Transform", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Transform", COLOR_RECORD_L2, &transform);
 
     _state->modelviewMatrixStack.push(transform);
     _state->dirty = true;
@@ -412,7 +412,7 @@ void RecordTraversal::apply(const Transform& transform)
 
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
-    GPU_INSTRUMENTATION_L2_NC(instrumentation, *getCommandBuffer(), "MatrixTransform", COLOR_RECORD_L2);
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "MatrixTransform", COLOR_RECORD_L2, &mt);
 
     _state->modelviewMatrixStack.push(mt);
     _state->dirty = true;
@@ -435,7 +435,7 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 // Vulkan nodes
 void RecordTraversal::apply(const Commands& commands)
 {
-    GPU_INSTRUMENTATION_L3_NC(instrumentation, *getCommandBuffer(), "Commands", COLOR_GPU);
+    GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Commands", COLOR_GPU, &commands);
 
     _state->record();
     for (auto& command : commands.children)
@@ -446,24 +446,24 @@ void RecordTraversal::apply(const Commands& commands)
 
 void RecordTraversal::apply(const Command& command)
 {
-    GPU_INSTRUMENTATION_L3_NC(instrumentation, *getCommandBuffer(), "Command", COLOR_GPU);
+    GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Command", COLOR_GPU, &command);
 
     //debug("Visiting Command");
     _state->record();
     command.record(*(_state->_commandBuffer));
 }
 
-void RecordTraversal::apply(const Bin& object)
+void RecordTraversal::apply(const Bin& bin)
 {
-    GPU_INSTRUMENTATION_L1_NC(instrumentation, *getCommandBuffer(), "Bin", COLOR_RECORD_L1);
+    GPU_INSTRUMENTATION_L1_NCO(instrumentation, *getCommandBuffer(), "Bin", COLOR_RECORD_L1, &bin);
 
     //debug("Visiting Bin");
-    object.traverse(*this);
+    bin.traverse(*this);
 }
 
 void RecordTraversal::apply(const View& view)
 {
-    GPU_INSTRUMENTATION_L1_NC(instrumentation, *getCommandBuffer(), "View", COLOR_RECORD_L1);
+    GPU_INSTRUMENTATION_L1_NCO(instrumentation, *getCommandBuffer(), "View", COLOR_RECORD_L1, &view);
 
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
@@ -552,7 +552,7 @@ void RecordTraversal::apply(const View& view)
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
 {
-    GPU_INSTRUMENTATION_L1_NC(instrumentation, *getCommandBuffer(), "RecordTraversal CommandGraph", COLOR_RECORD_L1);
+    GPU_INSTRUMENTATION_L1_NCO(instrumentation, *getCommandBuffer(), "RecordTraversal CommandGraph", COLOR_RECORD_L1, &commandGraph);
 
     if (recordedCommandBuffers)
     {

@@ -133,7 +133,7 @@ namespace vsg
             FrameMark;
         }
 
-        void enter(const SourceLocation* slcloc, uint64_t& reference) const override
+        void enter(const SourceLocation* slcloc, uint64_t& reference, const Object*) const override
         {
 #    ifdef TRACY_ON_DEMAND
             if (!GetProfiler().IsConnected() || (slcloc->level > settings->cpu_instumentation_level))
@@ -157,7 +157,7 @@ namespace vsg
             TracyQueueCommit(zoneBeginThread);
         }
 
-        void leave(const SourceLocation*, uint64_t& reference) const override
+        void leave(const SourceLocation*, uint64_t& reference, const Object*) const override
         {
 #    ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
@@ -174,7 +174,7 @@ namespace vsg
         {
             if (ctx = contexts->getOrCreateContext(commandBuffer))
             {
-                enter(slcloc, reference, commandBuffer);
+                enter(slcloc, reference, commandBuffer, nullptr);
             }
         }
 
@@ -182,13 +182,13 @@ namespace vsg
         {
             if (ctx)
             {
-                leave(slcloc, reference, commandBuffer);
+                leave(slcloc, reference, commandBuffer, nullptr);
             }
 
             ctx = nullptr;
         }
 
-        void enter(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& cmdbuf) const override
+        void enter(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& cmdbuf, const Object*) const override
         {
 #    ifdef TRACY_ON_DEMAND
             if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > settings->gpu_instumentation_level))
@@ -219,7 +219,7 @@ namespace vsg
             Profiler::QueueSerialFinish();
         }
 
-        void leave(const SourceLocation*, uint64_t& reference, CommandBuffer& cmdbuf) const override
+        void leave(const SourceLocation*, uint64_t& reference, CommandBuffer& cmdbuf, const Object*) const override
         {
 #    ifdef TRACY_ON_DEMAND
             if (reference == 0 || GetProfiler().ConnectionId() != reference) return;
