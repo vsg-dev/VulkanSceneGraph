@@ -63,7 +63,7 @@ namespace vsg
             value{in_x, in_y, in_z, in_w} {}
 
         constexpr t_vec4(const VkClearColorValue& v) :
-            value{ static_cast<value_type>(v.float32[0]), static_cast<value_type>(v.float32[1]), static_cast<value_type>(v.float32[2]), static_cast<value_type>(v.float32[3])} {}
+            value{static_cast<value_type>(v.float32[0]), static_cast<value_type>(v.float32[1]), static_cast<value_type>(v.float32[2]), static_cast<value_type>(v.float32[3])} {}
 
         template<typename R>
         constexpr explicit t_vec4(const t_vec4<R>& v) :
