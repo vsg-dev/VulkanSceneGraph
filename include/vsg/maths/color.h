@@ -100,28 +100,28 @@ namespace vsg
     constexpr t_vec4<T> linear_to_sRGB(const t_vec4<T>& src)
     {
         const T exponent = 2.2;
-        return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), std::pow(src.a, exponent));
+        return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), src.a);
     }
 
     template<typename T>
     constexpr t_vec4<T> linear_to_sRGB(T r, T g, T b, T a)
     {
         const T exponent = 2.2;
-        return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), std::pow(a, exponent));
+        return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), a);
     }
 
     template<typename T>
     constexpr t_vec4<T> sRGB_to_linear(const t_vec4<T>& src)
     {
         const T exponent = 1.0/2.2;
-        return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), std::pow(src.a, exponent));
+        return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), src.a);
     }
 
     template<typename T>
     constexpr t_vec4<T> sRGB_to_linear(T r, T g, T b, T a)
     {
         const T exponent = 1.0/2.2;
-        return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), std::pow(a, exponent));
+        return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), a);
     }
 
 } // namespace vsg
