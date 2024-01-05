@@ -18,10 +18,6 @@ namespace vsg
 {
     class Device;
 
-    extern VSG_DECLSPEC bool isExtensionSupported(const char* extensionName);
-
-    extern VSG_DECLSPEC bool isExtensionListSupported(const Names& extensionList);
-
     /// Extensions manages a set of Vulkan extension function pointers.
     /// The vsg::Device "has a" DeviceExtensions object that can be accessed via device->getExtensions().
     class VSG_DECLSPEC DeviceExtensions : public Inherit<Object, DeviceExtensions>
