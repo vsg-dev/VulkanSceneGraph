@@ -51,7 +51,7 @@ namespace vsg
         uint_color _color;
         std::string _name;
 
-        // local caches of setting for passing to Instrumentation
+        // SourceLocation variants for passing to Instrumentation that adapt the level, color and name to work with SourceLocation usad by Instrumentation
         SourceLocation _sl_Visitor;
         SourceLocation _sl_ConstVisitor;
         SourceLocation _sl_RecordTraversal;
