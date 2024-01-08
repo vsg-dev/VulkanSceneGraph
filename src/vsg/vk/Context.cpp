@@ -163,6 +163,7 @@ void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes
     {
         maxSets = minimum_maxSets;
     }
+    maxSets = std::max(1u, maxSets);
 
     for (auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
     {
@@ -255,7 +256,7 @@ void Context::reserve(const ResourceRequirements& requirements)
     if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
     {
         getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
-        if (required_maxSets > 0 && !required_descriptorPoolSizes.empty())
+        if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
         {
             descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
         }
