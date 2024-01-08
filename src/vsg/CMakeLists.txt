@@ -42,6 +42,7 @@ set(SOURCES
     nodes/StateGroup.cpp
     nodes/Light.cpp
     nodes/TileDatabase.cpp
+    nodes/InstrumentationNode.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp

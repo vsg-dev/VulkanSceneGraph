@@ -189,6 +189,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::SpotLight>();
     add<vsg::TileDatabase>();
     add<vsg::TileDatabaseSettings>();
+    add<vsg::InstrumentationNode>();
 
     // vulkan objects
     add<vsg::BindGraphicsPipeline>();

@@ -40,17 +40,17 @@ void GpuAnnotation::enter(const SourceLocation* sl, uint64_t&, vsg::CommandBuffe
 
     VkDebugUtilsLabelEXT markerInfo = {};
     markerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-    if (labelType == Object_className && object)
-        markerInfo.pLabelName = object->className();
-    else if (sl->name && labelType == SourceLocation_name)
+    if (sl->name && labelType == SourceLocation_name)
         markerInfo.pLabelName = sl->name;
+    else if (labelType == Object_className && object)
+        markerInfo.pLabelName = object->className();
     else
         markerInfo.pLabelName = sl->function;
 
-    markerInfo.color[0] = static_cast<float>(sl->color.r) / 255.0;
-    markerInfo.color[1] = static_cast<float>(sl->color.g) / 255.0;
-    markerInfo.color[2] = static_cast<float>(sl->color.b) / 255.0;
-    markerInfo.color[3] = static_cast<float>(sl->color.a) / 255.0;
+    markerInfo.color[0] = static_cast<float>(sl->color.r) / 255.0f;
+    markerInfo.color[1] = static_cast<float>(sl->color.g) / 255.0f;
+    markerInfo.color[2] = static_cast<float>(sl->color.b) / 255.0f;
+    markerInfo.color[3] = static_cast<float>(sl->color.a) / 255.0f;
 
     extensions->vkCmdBeginDebugUtilsLabelEXT(commandBuffer, &markerInfo);
 }

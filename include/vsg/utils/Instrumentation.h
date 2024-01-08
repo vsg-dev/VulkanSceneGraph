@@ -27,16 +27,11 @@ namespace vsg
     /// uint_color struct used to provide a {r, g, b, a} interface a colors assigned as uint32_t
     struct uint_color
     {
-#if 0
-        // RGBA order standard with VSG/Vulkan
-        uint8_t r = 255, g = 255, b = 255, a = 255;
-        constexpr uint_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : r(red), g(green), b(blue), a(alpha) {}
-#else
         // BGRA order required to map to Tracy's uint32_t color value
         uint8_t b = 255, g = 255, r = 255, a = 255;
+        constexpr uint_color() = default;
         constexpr uint_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
             b(blue), g(green), r(red), a(alpha) {}
-#endif
     };
 
     /// SourceLocation structs mark the location in a source file when instrumentation is placed.

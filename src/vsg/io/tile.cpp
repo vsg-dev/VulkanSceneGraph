@@ -480,7 +480,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     auto vid = vsg::VertexIndexDraw::create();
     vid->assignArrays(vsg::DataList{vertices, normals, texcoords, colors});
     vid->assignIndices(indices);
-    vid->indexCount = indices->size();
+    vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = 1;
 
     transform->addChild(vid);

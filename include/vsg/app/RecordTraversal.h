@@ -82,6 +82,8 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 
+        ref_ptr<Instrumentation> instrumentation;
+
         /// Container for CommandBuffers that have been recorded in current frame
         ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
 
@@ -142,8 +144,6 @@ namespace vsg
         // clear the bins to record a new frame.
         void clearBins();
 
-        /// hook for assigning Instrumentation to enable profiling of record traversal.
-        ref_ptr<Instrumentation> instrumentation;
 
     protected:
         virtual ~RecordTraversal();

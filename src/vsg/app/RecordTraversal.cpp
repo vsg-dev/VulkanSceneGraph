@@ -110,7 +110,7 @@ void RecordTraversal::clearBins()
 
 void RecordTraversal::apply(const Object& object)
 {
-    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Object", COLOR_RECORD_L2, &object);
+    // GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Object", COLOR_RECORD_L2, &object);
 
     //debug("Visiting Object");
     object.traverse(*this);

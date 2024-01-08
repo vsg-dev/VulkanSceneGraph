@@ -67,6 +67,8 @@ namespace vsg
         /// assign Instrumentation to all Context
         void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
+        Instrumentation* getInstrumentation() override { return instrumentation.get(); }
+
         virtual bool record();
         virtual void waitForCompletion();
 
