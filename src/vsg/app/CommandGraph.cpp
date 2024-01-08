@@ -22,6 +22,7 @@ using namespace vsg;
 
 CommandGraph::CommandGraph()
 {
+    CPU_INSTRUMENTATION_L1(instrumentation);
 }
 
 CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
@@ -29,12 +30,15 @@ CommandGraph::CommandGraph(ref_ptr<Device> in_device, int family) :
     queueFamily(family),
     presentFamily(-1)
 {
+    CPU_INSTRUMENTATION_L1(instrumentation);
 }
 
 CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
     window(in_window),
     device(in_window->getOrCreateDevice())
 {
+    CPU_INSTRUMENTATION_L1(instrumentation);
+
     VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
     if (window->traits()) queueFlags = window->traits()->queueFlags;
 
@@ -45,6 +49,7 @@ CommandGraph::CommandGraph(ref_ptr<Window> in_window, ref_ptr<Node> child) :
 
 CommandGraph::~CommandGraph()
 {
+    CPU_INSTRUMENTATION_L1(instrumentation);
 }
 
 VkCommandBufferLevel CommandGraph::level() const
@@ -56,8 +61,21 @@ void CommandGraph::reset()
 {
 }
 
+ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
+{
+    CPU_INSTRUMENTATION_L1(instrumentation);
+
+    if (!recordTraversal)
+    {
+        recordTraversal = RecordTraversal::create(maxSlot);
+    }
+    return recordTraversal;
+}
+
 void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CommandGraph record", COLOR_RECORD_L1);
+
     if (window && !window->visible())
     {
         return;
@@ -112,7 +130,10 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    traverse(*recordTraversal);
+    {
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "CommandGraph record", COLOR_RECORD)
+        traverse(*recordTraversal);
+    }
 
     vkEndCommandBuffer(vk_commandBuffer);
 

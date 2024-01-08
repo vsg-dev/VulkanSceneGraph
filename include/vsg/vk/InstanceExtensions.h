@@ -19,7 +19,7 @@ namespace vsg
     class Instance;
 
     /// Extensions manages a set of Vulkan extension function pointers.
-    /// The vsg::Device "has a" Extensions object that can be accessed via device->getExtensions().
+    /// The vsg::Instance "has a" InstanceExtensions object that can be accessed via instance->getExtensions().
     class VSG_DECLSPEC InstanceExtensions : public Inherit<Object, InstanceExtensions>
     {
     public:
@@ -37,6 +37,10 @@ namespace vsg
         PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT = nullptr;
         PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
         PFN_vkSubmitDebugUtilsMessageEXT vkSubmitDebugUtilsMessageEXT = nullptr;
+
+        // VK_EXT_calibrated_timestamps
+        PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT vkGetPhysicalDeviceCalibrateableTimeDomainsEXT = nullptr;
+        PFN_vkGetCalibratedTimestampsEXT vkGetCalibratedTimestampsEXT = nullptr;
     };
     VSG_type_name(vsg::InstanceExtensions);
 

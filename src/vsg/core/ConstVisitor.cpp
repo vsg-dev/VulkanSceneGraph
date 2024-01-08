@@ -609,6 +609,10 @@ void ConstVisitor::apply(const SpotLight& value)
 {
     apply(static_cast<const Light&>(value));
 }
+void ConstVisitor::apply(const InstrumentationNode& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

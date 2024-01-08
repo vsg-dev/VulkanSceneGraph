@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/ResourceHints.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
@@ -45,6 +46,9 @@ namespace vsg
         /// list of Context that Vulkan objects should be compiled for.
         std::list<ref_ptr<Context>> contexts;
 
+        /// Hook for assigning Instrumentation to enable profiling
+        ref_ptr<Instrumentation> instrumentation;
+
         /// add a compile Context for device
         void add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
 
@@ -59,6 +63,11 @@ namespace vsg
 
         /// add a compile Context for all the Views assigned to a Viewer
         void add(const Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
+
+        /// assign Instrumentation to all Context
+        void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
+
+        Instrumentation* getInstrumentation() override { return instrumentation.get(); }
 
         virtual bool record();
         virtual void waitForCompletion();

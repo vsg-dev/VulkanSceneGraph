@@ -23,17 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-InstanceLayerProperties vsg::enumerateInstanceLayerProperties()
-{
-    uint32_t layerCount;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-    return availableLayers;
-}
-
-InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char* pLayerName)
+ExtensionProperties vsg::enumerateInstanceExtensionProperties(const char* pLayerName)
 {
     uint32_t extCount = 0;
     VkResult result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, nullptr);
@@ -43,7 +33,7 @@ InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char
         return {};
     }
 
-    InstanceExtensionProperties extensionProperties(extCount);
+    ExtensionProperties extensionProperties(extCount);
     result = vkEnumerateInstanceExtensionProperties(pLayerName, &extCount, extensionProperties.data());
     if (result != VK_SUCCESS)
     {
@@ -51,6 +41,23 @@ InstanceExtensionProperties vsg::enumerateInstanceExtensionProperties(const char
         return {};
     }
     return extensionProperties;
+}
+
+bool vsg::isExtensionSupported(const char* extensionName, const char* pLayerName)
+{
+    auto extProps = enumerateInstanceExtensionProperties(pLayerName);
+    auto compare = [&](const VkExtensionProperties& rhs) { return strcmp(extensionName, rhs.extensionName) == 0; };
+    return std::find_if(extProps.begin(), extProps.end(), compare) != extProps.end();
+}
+
+InstanceLayerProperties vsg::enumerateInstanceLayerProperties()
+{
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    return availableLayers;
 }
 
 Names vsg::validateInstancelayerNames(const Names& names)

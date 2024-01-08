@@ -63,6 +63,7 @@ void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& r
 {
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
+    context->instrumentation = instrumentation;
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
     contexts.push_back(context);
@@ -74,6 +75,7 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
     auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
+    context->instrumentation = instrumentation;
     context->renderPass = renderPass;
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
@@ -94,6 +96,7 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
     auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
+    context->instrumentation = instrumentation;
     context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
@@ -122,6 +125,7 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     auto renderPass = framebuffer.getRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
+    context->instrumentation = instrumentation;
     context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
@@ -146,6 +150,8 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
 
 void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
+    if (viewer.instrumentation) instrumentation = viewer.instrumentation;
+
     struct AddViews : public Visitor
     {
         CompileTraversal* ct = nullptr;
@@ -208,13 +214,26 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
     }
 }
 
+void CompileTraversal::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
+{
+    instrumentation = in_instrumentation;
+    for (auto& context : contexts)
+    {
+        context->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+    }
+}
+
 void CompileTraversal::apply(Object& object)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "CompileTraversal Object", COLOR_COMPILE);
+
     object.traverse(*this);
 }
 
 void CompileTraversal::apply(Compilable& node)
 {
+    CPU_INSTRUMENTATION_L3_NC(instrumentation, "CompileTraversal Compilable", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         node.compile(*context);
@@ -223,6 +242,8 @@ void CompileTraversal::apply(Compilable& node)
 
 void CompileTraversal::apply(Commands& commands)
 {
+    CPU_INSTRUMENTATION_L3_NC(instrumentation, "CompileTraversal Commands", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         commands.compile(*context);
@@ -231,6 +252,8 @@ void CompileTraversal::apply(Commands& commands)
 
 void CompileTraversal::apply(StateGroup& stateGroup)
 {
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "CompileTraversal StateGroup", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         stateGroup.compile(*context);
@@ -240,6 +263,8 @@ void CompileTraversal::apply(StateGroup& stateGroup)
 
 void CompileTraversal::apply(Geometry& geometry)
 {
+    CPU_INSTRUMENTATION_L3_NC(instrumentation, "CompileTraversal Geometry", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         geometry.compile(*context);
@@ -249,6 +274,8 @@ void CompileTraversal::apply(Geometry& geometry)
 
 void CompileTraversal::apply(CommandGraph& commandGraph)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal CommandGraph", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
@@ -262,6 +289,8 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal RenderGraph", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         context->renderPass = renderGraph.getRenderPass();
@@ -294,6 +323,8 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
 void CompileTraversal::apply(View& view)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal View", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         // if context is associated with a view make sure we only apply it if it matches with view, otherwise we skip this context
@@ -333,6 +364,8 @@ void CompileTraversal::apply(View& view)
 
 bool CompileTraversal::record()
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal record", COLOR_COMPILE);
+
     bool recorded = false;
     for (auto& context : contexts)
     {
@@ -343,6 +376,8 @@ bool CompileTraversal::record()
 
 void CompileTraversal::waitForCompletion()
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal waitForCompletion", COLOR_COMPILE);
+
     for (auto& context : contexts)
     {
         context->waitForCompletion();

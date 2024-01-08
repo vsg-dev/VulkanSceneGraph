@@ -17,7 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CommandPool::CommandPool(Device* device, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags) :
+CommandPool::CommandPool(Device* device, uint32_t in_queueFamilyIndex, VkCommandPoolCreateFlags in_flags) :
+    queueFamilyIndex(in_queueFamilyIndex),
+    flags(in_flags),
     _device(device)
 {
     VkCommandPoolCreateInfo poolInfo = {};

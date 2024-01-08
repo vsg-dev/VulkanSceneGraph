@@ -45,7 +45,8 @@ Options::Options(const Options& options) :
     sceneCoordinateConvention(options.sceneCoordinateConvention),
     formatCoordinateConventions(options.formatCoordinateConventions),
     shaderSets(options.shaderSets),
-    inheritedState(options.inheritedState)
+    inheritedState(options.inheritedState),
+    instrumentation(options.instrumentation)
 {
     getOrCreateAuxiliary();
     // copy any meta data.

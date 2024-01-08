@@ -19,26 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-bool vsg::isExtensionSupported(const char* extensionName)
-{
-    auto extProps = enumerateInstanceExtensionProperties();
-    for (const auto& prop : extProps)
-    {
-        if (strncmp(prop.extensionName, extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0) return true;
-    }
-    return false;
-}
-
-bool vsg::isExtensionListSupported(const Names& extensionList)
-{
-    auto extProps = enumerateInstanceExtensionProperties();
-    for (const auto& ext : extensionList)
-    {
-        auto compare = [&](const VkExtensionProperties& rhs) { return strcmp(ext, rhs.extensionName) == 0; };
-        if (std::find_if(extProps.begin(), extProps.end(), compare) == extProps.end()) return false;
-    }
-    return true;
-}
 
 DeviceExtensions::DeviceExtensions(Device* device)
 {

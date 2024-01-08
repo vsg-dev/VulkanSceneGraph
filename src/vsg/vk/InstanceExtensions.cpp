@@ -37,4 +37,8 @@ InstanceExtensions::InstanceExtensions(Instance* instance)
     instance->getProcAddr(vkCreateDebugUtilsMessengerEXT, "vkCreateDebugUtilsMessengerEXT");
     instance->getProcAddr(vkDestroyDebugUtilsMessengerEXT, "vkDestroyDebugUtilsMessengerEXT");
     instance->getProcAddr(vkSubmitDebugUtilsMessageEXT, "vkSubmitDebugUtilsMessageEXT");
+
+    // VK_EXT_calibrated_timestamps
+    instance->getProcAddr(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT, "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR", "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT");
+    instance->getProcAddr(vkGetCalibratedTimestampsEXT, "vkGetCalibratedTimestampsKHR", "vkGetCalibratedTimestampsEXT");
 }

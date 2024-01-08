@@ -26,6 +26,9 @@ macro(BUILD_ALL_H)
     file(GLOB RAYTRACING_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/raytracing/*.h )
     file(GLOB MESHSHADERS_HEADERS RELATIVE ${INCLUDE_DIR} ${INCLUDE_DIR}/vsg/meshshaders/*.h )
 
+    # remove items that are inapprorpiate to include in all.h as they are optional have external dependencies not provided by the VSG itself.
+    list (REMOVE_ITEM UTILS_HEADERS "vsg/utils/TracyInstrumentation.h")
+
     file(READ ${VSG_SOURCE_DIR}/cmake/header_license_preamble.txt ALL_H_CONTENTS)
     APPEND_INCLUDES(ALL_H_CONTENTS CORE_HEADERS "// Core header files\n")
     APPEND_INCLUDES(ALL_H_CONTENTS MATHS_HEADERS "// Maths header files\n")

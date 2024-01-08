@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Window.h>
 #include <vsg/threading/Barrier.h>
 #include <vsg/threading/FrameBlock.h>
+#include <vsg/utils/Instrumentation.h>
 
 #include <map>
 
@@ -132,6 +133,12 @@ namespace vsg
 
         /// Call vkDeviceWaitIdle on all the devices associated with this Viewer
         virtual void deviceWaitIdle() const;
+
+        /// Hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
+        /// Convenience method for assigning Instrumentation to the viewer and any associated objects.
+        void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
     protected:
         virtual ~Viewer();

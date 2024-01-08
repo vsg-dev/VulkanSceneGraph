@@ -64,6 +64,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -257,7 +258,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/ComputeBounds.h>
+#include <vsg/utils/GpuAnnotation.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/LoadPagedLOD.h>

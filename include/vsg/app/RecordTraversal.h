@@ -35,6 +35,10 @@ namespace vsg
     class DepthSorted;
     class Transform;
     class MatrixTransform;
+    class TileDatabase;
+    class VertexDraw;
+    class VertexIndexDraw;
+    class Geometry;
     class Command;
     class Commands;
     class CommandBuffer;
@@ -53,6 +57,7 @@ namespace vsg
     class SpotLight;
     class CommandGraph;
     class RecordedCommandBuffers;
+    class Instrumentation;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -76,6 +81,8 @@ namespace vsg
 
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
+
+        ref_ptr<Instrumentation> instrumentation;
 
         /// Container for CommandBuffers that have been recorded in current frame
         ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
@@ -102,10 +109,16 @@ namespace vsg
         void apply(const QuadGroup& quadGroup);
         void apply(const LOD& lod);
         void apply(const PagedLOD& pagedLOD);
+        void apply(const TileDatabase& tileDatabase);
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
         void apply(const DepthSorted& depthSorted);
         void apply(const Switch& sw);
+
+        // leaf node
+        void apply(const VertexDraw& vid);
+        void apply(const VertexIndexDraw& vid);
+        void apply(const Geometry& vid);
 
         // positional state
         void apply(const Light& light);
@@ -118,15 +131,19 @@ namespace vsg
         void apply(const Transform& transform);
         void apply(const MatrixTransform& mt);
         void apply(const StateGroup& object);
+
+        // Commands
         void apply(const Commands& commands);
         void apply(const Command& command);
 
         // Viewer level nodes
+        void apply(const Bin& bin);
         void apply(const View& view);
         void apply(const CommandGraph& commandGraph);
 
         // clear the bins to record a new frame.
         void clearBins();
+
 
     protected:
         virtual ~RecordTraversal();

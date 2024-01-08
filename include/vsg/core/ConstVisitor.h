@@ -47,6 +47,7 @@ namespace vsg
     class DirectionalLight;
     class PointLight;
     class SpotLight;
+    class InstrumentationNode;
 
     // forward declare text classes
     class Text;
@@ -142,6 +143,7 @@ namespace vsg
 
     // forward declare general classes
     class FrameStamp;
+    class Instrumentation;
 
     class VSG_DECLSPEC ConstVisitor : public Object
     {
@@ -150,6 +152,8 @@ namespace vsg
 
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
+
+        virtual Instrumentation* getInstrumentation() { return nullptr; }
 
         virtual void apply(const Object&);
         virtual void apply(const Objects&);
@@ -302,6 +306,7 @@ namespace vsg
         virtual void apply(const DirectionalLight&);
         virtual void apply(const PointLight&);
         virtual void apply(const SpotLight&);
+        virtual void apply(const InstrumentationNode&);
 
         // text
         virtual void apply(const Text&);

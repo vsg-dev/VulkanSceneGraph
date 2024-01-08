@@ -25,12 +25,16 @@ namespace vsg
     class Surface;
 
     using Names = std::vector<const char*>;
+    using ExtensionProperties = std::vector<VkExtensionProperties>;
     using PhysicalDeviceTypes = std::vector<VkPhysicalDeviceType>;
     using InstanceLayerProperties = std::vector<VkLayerProperties>;
-    using InstanceExtensionProperties = std::vector<VkExtensionProperties>;
+
 
     /// wrapper for vkEnumerateInstanceExtensionProperties
-    extern VSG_DECLSPEC InstanceExtensionProperties enumerateInstanceExtensionProperties(const char* pLayerName = nullptr);
+    extern VSG_DECLSPEC ExtensionProperties enumerateInstanceExtensionProperties(const char* pLayerName = nullptr);
+
+    /// return true if the specified instance extension is supported
+    extern VSG_DECLSPEC bool isExtensionSupported(const char* extensionName, const char* pLayerName = nullptr);
 
     /// wrapper for vkEnumerateInstanceLayerProperties
     extern VSG_DECLSPEC InstanceLayerProperties enumerateInstanceLayerProperties();

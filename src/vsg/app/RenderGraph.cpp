@@ -102,6 +102,8 @@ VkExtent2D RenderGraph::getExtent() const
 
 void RenderGraph::accept(RecordTraversal& recordTraversal) const
 {
+    GPU_INSTRUMENTATION_L1_NC(recordTraversal.instrumentation, *recordTraversal.getCommandBuffer(), "RenderGraph", COLOR_RECORD_L1);
+
     auto extent = getExtent();
     if (previous_extent.width == invalid_dimension || previous_extent.height == invalid_dimension || !windowResizeHandler)
     {

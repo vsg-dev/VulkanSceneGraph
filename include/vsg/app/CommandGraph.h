@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Export.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
@@ -41,17 +42,16 @@ namespace vsg
         uint32_t maxSlot = 2;
         int submitOrder = 0;
 
-        inline ref_ptr<RecordTraversal> getOrCreateRecordTraversal()
-        {
-            if (!recordTraversal) recordTraversal = RecordTraversal::create(maxSlot);
-            return recordTraversal;
-        }
+        ref_ptr<RecordTraversal> getOrCreateRecordTraversal();
 
         ref_ptr<RecordTraversal> recordTraversal;
 
         virtual VkCommandBufferLevel level() const;
         virtual void reset();
         virtual void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
 
     protected:
         virtual ~CommandGraph();

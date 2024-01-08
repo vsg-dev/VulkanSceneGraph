@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Window.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
@@ -58,6 +59,12 @@ namespace vsg
         ref_ptr<Queue> queue;
 
         ref_ptr<DatabasePager> databasePager;
+
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
+        /// Convenience method for assigning Instrumentation to the viewer and any associated objects.
+        void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
     protected:
         size_t _currentFrameIndex;

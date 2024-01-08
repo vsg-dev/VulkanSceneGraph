@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.1.0
+    VERSION 1.1.1
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
@@ -36,6 +36,9 @@ endif()
 find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
 find_package(Threads REQUIRED)
+
+# Set the instrumentation level to compile into sources
+set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level to build into the VSG ibrary, 0 for off, 1 coarse grained, 2 medium, 3 fine grained." )
 
 # Enable/disable shader compilation support that pulls in glslang
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )

@@ -609,6 +609,10 @@ void Visitor::apply(SpotLight& value)
 {
     apply(static_cast<Light&>(value));
 }
+void Visitor::apply(InstrumentationNode& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

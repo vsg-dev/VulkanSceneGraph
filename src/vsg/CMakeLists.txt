@@ -42,6 +42,7 @@ set(SOURCES
     nodes/StateGroup.cpp
     nodes/Light.cpp
     nodes/TileDatabase.cpp
+    nodes/InstrumentationNode.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
@@ -223,6 +224,8 @@ set(SOURCES
     utils/ShaderCompiler.cpp
     utils/ComputeBounds.cpp
     utils/Intersector.cpp
+    utils/Instrumentation.cpp
+    utils/GpuAnnotation.cpp
     utils/LineSegmentIntersector.cpp
     utils/LoadPagedLOD.cpp
 )
