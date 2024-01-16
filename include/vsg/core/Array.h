@@ -25,7 +25,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #define VSG_array(N, T) \
     using N = Array<T>; \
     template<>          \
-    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
+    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; } \
+    template<>          \
+    constexpr const char* type_name<const N>() noexcept { return "vsg::" #N; } \
 
 namespace vsg
 {
