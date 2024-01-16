@@ -24,7 +24,7 @@ namespace vsg
     {
     public:
         InstrumentationNode();
-        InstrumentationNode(ref_ptr<Node> in_child);
+        explicit InstrumentationNode(ref_ptr<Node> in_child);
 
         void traverse(Visitor& visitor) override;
         void traverse(ConstVisitor& visitor) const override;
