@@ -91,11 +91,11 @@ namespace vsgWin32
             // Check if the modifier keys are down (these are non-toggle keys, so the high-order bit is relevant!)
             // again, vsg only has a side-independent modifier
             if (keyState[VK_LSHIFT] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
-            if (keyState[VK_LSHIFT] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
+            if (keyState[VK_RSHIFT] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
             if (keyState[VK_LCONTROL] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Control;
             if (keyState[VK_RCONTROL] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Control;
             if (keyState[VK_LMENU] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
-            if (keyState[VK_LMENU] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
+            if (keyState[VK_RMENU] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
 
             // This is the final keyModifier
             keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
