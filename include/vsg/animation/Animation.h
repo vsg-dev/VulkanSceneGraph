@@ -19,7 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class TransformAnimation : public Inherit<Object, TransformAnimation>
+    class VSG_DECLSPEC TransformAnimation : public Inherit<Object, TransformAnimation>
     {
     public:
         TransformAnimation();
@@ -37,7 +37,7 @@ namespace vsg
     };
     VSG_type_name(vsg::TransformAnimation);
 
-    class MorphAnimation : public Inherit<Object, MorphAnimation>
+    class VSG_DECLSPEC MorphAnimation : public Inherit<Object, MorphAnimation>
     {
     public:
         MorphAnimation();
@@ -49,7 +49,7 @@ namespace vsg
     };
     VSG_type_name(vsg::MorphAnimation);
 
-    class RiggedAnimation : public Inherit<Object, RiggedAnimation>
+    class VSG_DECLSPEC RiggedAnimation : public Inherit<Object, RiggedAnimation>
     {
     public:
         RiggedAnimation();
