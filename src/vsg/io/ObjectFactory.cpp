@@ -283,6 +283,13 @@ ObjectFactory::ObjectFactory()
     add<vsg::DrawMeshTasksIndirect>();
     add<vsg::DrawMeshTasksIndirectCount>();
 
+    // animation
+    add<vsg::TransformAnimation>();
+    add<vsg::MorphAnimation>();
+    add<vsg::RiggedAnimation>();
+    add<vsg::Animation>();
+    add<vsg::AnimationGroup>();
+
     // io
     add<vsg::Options>();
     add<vsg::CompositeReaderWriter>();

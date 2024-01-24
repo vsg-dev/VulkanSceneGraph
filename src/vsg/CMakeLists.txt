@@ -180,6 +180,8 @@ set(SOURCES
     meshshaders/DrawMeshTasksIndirect.cpp
     meshshaders/DrawMeshTasksIndirectCount.cpp
 
+    animation/Animation.cpp
+
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
     ui/KeyEvent.cpp
