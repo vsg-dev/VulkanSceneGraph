@@ -286,7 +286,6 @@ ObjectFactory::ObjectFactory()
     // animation
     add<vsg::TransformAnimation>();
     add<vsg::MorphAnimation>();
-    add<vsg::RiggedAnimation>();
     add<vsg::Animation>();
     add<vsg::AnimationGroup>();
 
