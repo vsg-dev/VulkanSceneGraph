@@ -21,13 +21,13 @@ using namespace vsg;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// TransformAnimation
+// TransformKeyframes
 //
-TransformAnimation::TransformAnimation()
+TransformKeyframes::TransformKeyframes()
 {
 }
 
-void TransformAnimation::read(Input& input)
+void TransformKeyframes::read(Input& input)
 {
     Object::read(input);
 
@@ -64,7 +64,7 @@ void TransformAnimation::read(Input& input)
     }
 }
 
-void TransformAnimation::write(Output& output) const
+void TransformKeyframes::write(Output& output) const
 {
     Object::write(output);
 
@@ -103,42 +103,42 @@ void TransformAnimation::write(Output& output) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// MorphAnimation
+// MorphKeyframes
 //
-MorphAnimation::MorphAnimation()
+MorphKeyframes::MorphKeyframes()
 {
 }
 
-void MorphAnimation::read(Input& input)
+void MorphKeyframes::read(Input& input)
 {
     Object::read(input);
 
     input.read("name", name);
 
     // read key frames
-    uint32_t num_keyFrames = input.readValue<uint32_t>("keyFrames");
-    keyFrames.resize(num_keyFrames);
-    for(auto& keyFrame : keyFrames)
+    uint32_t num_keyframes = input.readValue<uint32_t>("keyframes");
+    keyframes.resize(num_keyframes);
+    for(auto& keyframe : keyframes)
     {
-        input.read("keyFrame", keyFrame.time);
-        input.readValues("values", keyFrame.values);
-        input.readValues("weights", keyFrame.weights);
+        input.read("keyFrame", keyframe.time);
+        input.readValues("values", keyframe.values);
+        input.readValues("weights", keyframe.weights);
     }
 }
 
-void MorphAnimation::write(Output& output) const
+void MorphKeyframes::write(Output& output) const
 {
     Object::write(output);
 
     output.write("name", name);
 
     // write key frames
-    output.writeValue<uint32_t>("keyFrames", keyFrames.size());
-    for(auto& keyFrame : keyFrames)
+    output.writeValue<uint32_t>("keyFrames", keyframes.size());
+    for(auto& keyframe : keyframes)
     {
-        output.write("keyFrame", keyFrame.time);
-        output.writeValues("values", keyFrame.values);
-        output.writeValues("weights", keyFrame.weights);
+        output.write("keyframe", keyframe.time);
+        output.writeValues("values", keyframe.values);
+        output.writeValues("weights", keyframe.weights);
     }
 }
 
@@ -156,8 +156,8 @@ void Animation::read(Input& input)
 
     input.read("name", name);
 
-    input.readObjects("transformAnimations", transformAnimations);
-    input.readObjects("morphAnimations", morphAnimations);
+    input.readObjects("transformKeyframes", transformKeyframes);
+    input.readObjects("morphKeyframes", morphKeyframes);
 }
 
 void Animation::write(Output& output) const
@@ -166,8 +166,8 @@ void Animation::write(Output& output) const
 
     output.write("name", name);
 
-    output.writeObjects("transformAnimations", transformAnimations);
-    output.writeObjects("morphAnimations", morphAnimations);
+    output.writeObjects("transformKeyframes", transformKeyframes);
+    output.writeObjects("morphKeyframes", morphKeyframes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,4 +207,55 @@ void AnimationGroup::write(Output& output) const
 
     output.writeObjects("animations", animations);
     output.writeObjects("children", children);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// AnimationTransform
+//
+AnimationTransform::AnimationTransform() :
+    Inherit()
+{
+}
+
+AnimationTransform::~AnimationTransform()
+{
+}
+
+int AnimationTransform::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(name, rhs.name)) != 0) return result;
+    return compare_pointer_container(children, rhs.children);
+}
+
+void AnimationTransform::read(Input& input)
+{
+    Node::read(input);
+
+    input.read("name", name);
+    input.read("matrix", matrix);
+    input.readObjects("children", children);
+
+    // TODO : subgraphRequiresLocalFrustum
+}
+
+void AnimationTransform::write(Output& output) const
+{
+    Node::write(output);
+
+    output.write("name", name);
+    output.write("matrix", matrix);
+    output.writeObjects("children", children);
+
+    // TODO : subgraphRequiresLocalFrustum
+}
+
+dmat4 AnimationTransform::transform(const dmat4& mv) const
+{
+    return mv * matrix;
 }

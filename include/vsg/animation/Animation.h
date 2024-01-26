@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/Transform.h>
 
 #include <vector>
 namespace vsg
@@ -44,10 +45,10 @@ namespace vsg
         bool operator < (const MorphKey& rhs) const { return time < rhs.time; }
     };
 
-    class VSG_DECLSPEC TransformAnimation : public Inherit<Object, TransformAnimation>
+    class VSG_DECLSPEC TransformKeyframes : public Inherit<Object, TransformKeyframes>
     {
     public:
-        TransformAnimation();
+        TransformKeyframes();
 
         /// name of animation
         std::string name;
@@ -67,23 +68,23 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
-    VSG_type_name(vsg::TransformAnimation);
+    VSG_type_name(vsg::TransformKeyframes);
 
-    class VSG_DECLSPEC MorphAnimation : public Inherit<Object, MorphAnimation>
+    class VSG_DECLSPEC MorphKeyframes : public Inherit<Object, MorphKeyframes>
     {
     public:
-        MorphAnimation();
+        MorphKeyframes();
 
         /// name of animation
         std::string name;
 
         /// key frames
-        std::vector<MorphKey> keyFrames;
+        std::vector<MorphKey> keyframes;
 
         void read(Input& input) override;
         void write(Output& output) const override;
     };
-    VSG_type_name(vsg::MorphAnimation);
+    VSG_type_name(vsg::MorphKeyframes);
 
     class VSG_DECLSPEC Animation : public Inherit<Object, Animation>
     {
@@ -93,11 +94,11 @@ namespace vsg
 
         std::string name;
 
-        using TransformAnimations = std::vector<ref_ptr<TransformAnimation>>;
-        TransformAnimations transformAnimations;
+        using TransformKeyframesList = std::vector<ref_ptr<TransformKeyframes>>;
+        TransformKeyframesList transformKeyframes;
 
-        using MorphAnimations = std::vector<ref_ptr<MorphAnimation>>;
-        MorphAnimations morphAnimations;
+        using MorphKeyframesList = std::vector<ref_ptr<MorphKeyframes>>;
+        MorphKeyframesList morphKeyframes;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -123,5 +124,26 @@ namespace vsg
         virtual ~AnimationGroup();
     };
     VSG_type_name(vsg::AnimationGroup);
+
+    /// AnimationTransform node provides a list of children.
+    class VSG_DECLSPEC AnimationTransform : public Inherit<Transform, AnimationTransform>
+    {
+    public:
+        explicit AnimationTransform();
+
+        std::string name;
+        vsg::dmat4 matrix;
+
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        dmat4 transform(const dmat4& mv) const override;
+
+    protected:
+        virtual ~AnimationTransform();
+    };
+    VSG_type_name(vsg::AnimationTransform);
 
 } // namespace vsg

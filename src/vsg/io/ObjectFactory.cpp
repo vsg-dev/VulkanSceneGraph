@@ -284,10 +284,11 @@ ObjectFactory::ObjectFactory()
     add<vsg::DrawMeshTasksIndirectCount>();
 
     // animation
-    add<vsg::TransformAnimation>();
-    add<vsg::MorphAnimation>();
+    add<vsg::TransformKeyframes>();
+    add<vsg::MorphKeyframes>();
     add<vsg::Animation>();
     add<vsg::AnimationGroup>();
+    add<vsg::AnimationTransform>();
 
     // io
     add<vsg::Options>();
