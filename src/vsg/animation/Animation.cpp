@@ -32,6 +32,36 @@ void TransformAnimation::read(Input& input)
     Object::read(input);
 
     input.read("name", name);
+
+    // read position key frames
+    uint32_t num_positions = input.readValue<uint32_t>("positions");
+    positions.resize(num_positions);
+    for(auto& position : positions)
+    {
+        input.matchPropertyName("position");
+        input.read(1, &position.time);
+        input.read(1, &position.value);
+    }
+
+    // read rotation key frames
+    uint32_t num_rotations = input.readValue<uint32_t>("rotations");
+    rotations.resize(num_rotations);
+    for(auto& rotation : rotations)
+    {
+        input.matchPropertyName("rotation");
+        input.read(1, &rotation.time);
+        input.read(1, &rotation.value);
+    }
+
+    // read scale key frames
+    uint32_t num_scales = input.readValue<uint32_t>("scales");
+    scales.resize(num_scales);
+    for(auto& scale : scales)
+    {
+        input.matchPropertyName("scale");
+        input.read(1, &scale.time);
+        input.read(1, &scale.value);
+    }
 }
 
 void TransformAnimation::write(Output& output) const
@@ -39,6 +69,36 @@ void TransformAnimation::write(Output& output) const
     Object::write(output);
 
     output.write("name", name);
+
+    // write position key frames
+    output.writeValue<uint32_t>("positions", positions.size());
+    for(auto& position : positions)
+    {
+        output.writePropertyName("position");
+        output.write(1, &position.time);
+        output.write(1, &position.value);
+        output.writeEndOfLine();
+    }
+
+    // write rotation key frames
+    output.writeValue<uint32_t>("rotations", rotations.size());
+    for(auto& rotation : rotations)
+    {
+        output.writePropertyName("rotation");
+        output.write(1, &rotation.time);
+        output.write(1, &rotation.value);
+        output.writeEndOfLine();
+    }
+
+    // write scale key frames
+    output.writeValue<uint32_t>("scales", scales.size());
+    for(auto& scale : scales)
+    {
+        output.writePropertyName("scale");
+        output.write(1, &scale.time);
+        output.write(1, &scale.value);
+        output.writeEndOfLine();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +114,16 @@ void MorphAnimation::read(Input& input)
     Object::read(input);
 
     input.read("name", name);
+
+    // read key frames
+    uint32_t num_keyFrames = input.readValue<uint32_t>("keyFrames");
+    keyFrames.resize(num_keyFrames);
+    for(auto& keyFrame : keyFrames)
+    {
+        input.read("keyFrame", keyFrame.time);
+        input.readValues("values", keyFrame.values);
+        input.readValues("weights", keyFrame.weights);
+    }
 }
 
 void MorphAnimation::write(Output& output) const
@@ -61,28 +131,15 @@ void MorphAnimation::write(Output& output) const
     Object::write(output);
 
     output.write("name", name);
-}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// RiggedAnimation
-//
-RiggedAnimation::RiggedAnimation()
-{
-}
-
-void RiggedAnimation::read(Input& input)
-{
-    Object::read(input);
-
-    input.read("name", name);
-}
-
-void RiggedAnimation::write(Output& output) const
-{
-    Object::write(output);
-
-    output.write("name", name);
+    // write key frames
+    output.writeValue<uint32_t>("keyFrames", keyFrames.size());
+    for(auto& keyFrame : keyFrames)
+    {
+        output.write("keyFrame", keyFrame.time);
+        output.writeValues("values", keyFrame.values);
+        output.writeValues("weights", keyFrame.weights);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +158,6 @@ void Animation::read(Input& input)
 
     input.readObjects("transformAnimations", transformAnimations);
     input.readObjects("morphAnimations", morphAnimations);
-    input.readObjects("riggedAnimations", riggedAnimations);
 }
 
 void Animation::write(Output& output) const
@@ -112,7 +168,6 @@ void Animation::write(Output& output) const
 
     output.writeObjects("transformAnimations", transformAnimations);
     output.writeObjects("morphAnimations", morphAnimations);
-    output.writeObjects("riggedAnimations", riggedAnimations);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

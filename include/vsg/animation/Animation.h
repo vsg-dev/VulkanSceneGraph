@@ -19,18 +19,50 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    struct VectorKey
+    {
+        double time;
+        dvec3 value;
+
+        bool operator < (const VectorKey& rhs) const { return time < rhs.time; }
+    };
+
+    struct QuatKey
+    {
+        double time;
+        dquat value;
+
+        bool operator < (const QuatKey& rhs) const { return time < rhs.time; }
+    };
+
+    struct MorphKey
+    {
+        double time;
+        std::vector<unsigned int> values;
+        std::vector<double> weights;
+
+        bool operator < (const MorphKey& rhs) const { return time < rhs.time; }
+    };
+
     class VSG_DECLSPEC TransformAnimation : public Inherit<Object, TransformAnimation>
     {
     public:
         TransformAnimation();
 
+        /// name of animation
         std::string name;
 
-        // Positions key frames
-        // Rotations key frames
-        // Scales key frames
-        // pre state
-        // post state
+        /// position key frames
+        std::vector<VectorKey> positions;
+
+        /// rotation key frames
+        std::vector<QuatKey> rotations;
+
+        /// scale key frames
+        std::vector<VectorKey> scales;
+
+        // assimp pre state ?
+        // assimp post state ?
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -42,24 +74,16 @@ namespace vsg
     public:
         MorphAnimation();
 
+        /// name of animation
         std::string name;
+
+        /// key frames
+        std::vector<MorphKey> keyFrames;
 
         void read(Input& input) override;
         void write(Output& output) const override;
     };
     VSG_type_name(vsg::MorphAnimation);
-
-    class VSG_DECLSPEC RiggedAnimation : public Inherit<Object, RiggedAnimation>
-    {
-    public:
-        RiggedAnimation();
-
-        std::string name;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-    };
-    VSG_type_name(vsg::RiggedAnimation);
 
     class VSG_DECLSPEC Animation : public Inherit<Object, Animation>
     {
@@ -74,9 +98,6 @@ namespace vsg
 
         using MorphAnimations = std::vector<ref_ptr<MorphAnimation>>;
         MorphAnimations morphAnimations;
-
-        using RiggedAnimations = std::vector<ref_ptr<RiggedAnimation>>;
-        RiggedAnimations riggedAnimations;
 
         void read(Input& input) override;
         void write(Output& output) const override;
