@@ -213,10 +213,19 @@ typedef void (VKAPI_PTR *PFN_vkCmdDrawMeshTasksIndirectCountEXT)(VkCommandBuffer
 //
 //  Definitions not provided prior to 1.1.97
 //
-#if VK_HEADER_VERSION < 96
+#if VK_HEADER_VERSION < 97
 
 typedef uint64_t VkDeviceAddress;
 
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Definitions not provided prior to 1.1.96
+//
+#if VK_HEADER_VERSION < 96
+
+typedef uint64_t VkDeviceAddress;
 #    define VK_KHR_shader_float_controls 1
 #    define VK_KHR_SHADER_FLOAT_CONTROLS_SPEC_VERSION 1
 #    define VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME "VK_KHR_shader_float_controls"
