@@ -32,6 +32,7 @@ void TransformKeyframes::read(Input& input)
     Object::read(input);
 
     input.read("name", name);
+    input.read("matrix", matrix);
 
     // read position key frames
     uint32_t num_positions = input.readValue<uint32_t>("positions");
@@ -69,6 +70,7 @@ void TransformKeyframes::write(Output& output) const
     Object::write(output);
 
     output.write("name", name);
+    output.write("matrix", matrix);
 
     // write position key frames
     output.writeValue<uint32_t>("positions", positions.size());
@@ -230,6 +232,7 @@ int AnimationTransform::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
+    if ((result = compare_pointer(matrix, rhs.matrix)) != 0) return result;
     return compare_pointer_container(children, rhs.children);
 }
 
@@ -257,5 +260,52 @@ void AnimationTransform::write(Output& output) const
 
 dmat4 AnimationTransform::transform(const dmat4& mv) const
 {
-    return mv * matrix;
+    return mv * matrix->value();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// RiggedTransform
+//
+RiggedTransform::RiggedTransform() :
+    Inherit()
+{
+}
+
+RiggedTransform::~RiggedTransform()
+{
+}
+
+int RiggedTransform::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(name, rhs.name)) != 0) return result;
+    if ((result = compare_pointer(matrix, rhs.matrix)) != 0) return result;
+    return compare_pointer_container(children, rhs.children);
+}
+
+void RiggedTransform::read(Input& input)
+{
+    Node::read(input);
+
+    input.read("name", name);
+    input.read("matrix", matrix);
+    input.readObjects("children", children);
+
+    // TODO : subgraphRequiresLocalFrustum
+}
+
+void RiggedTransform::write(Output& output) const
+{
+    Node::write(output);
+
+    output.write("name", name);
+    output.write("matrix", matrix);
+    output.writeObjects("children", children);
+
+    // TODO : subgraphRequiresLocalFrustum
 }

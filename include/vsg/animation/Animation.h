@@ -50,8 +50,11 @@ namespace vsg
     public:
         TransformKeyframes();
 
-        /// name of animation
+        /// name of node
         std::string name;
+
+        /// matrix to update
+        ref_ptr<dmat4Value> matrix;
 
         /// position key frames
         std::vector<VectorKey> positions;
@@ -132,7 +135,8 @@ namespace vsg
         explicit AnimationTransform();
 
         std::string name;
-        vsg::dmat4 matrix;
+
+        ref_ptr<dmat4Value> matrix;
 
         int compare(const Object& rhs) const override;
 
@@ -145,5 +149,30 @@ namespace vsg
         virtual ~AnimationTransform();
     };
     VSG_type_name(vsg::AnimationTransform);
+
+
+    /// AnimationTransform node provides a list of children.
+    class VSG_DECLSPEC RiggedTransform : public Inherit<Node, RiggedTransform>
+    {
+    public:
+        explicit RiggedTransform();
+
+        std::string name;
+
+        ref_ptr<dmat4Value> matrix;
+
+        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
+        Children children;
+
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+    protected:
+        virtual ~RiggedTransform();
+    };
+    VSG_type_name(vsg::RiggedTransform);
+
 
 } // namespace vsg

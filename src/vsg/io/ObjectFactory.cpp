@@ -289,6 +289,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::Animation>();
     add<vsg::AnimationGroup>();
     add<vsg::AnimationTransform>();
+    add<vsg::RiggedTransform>();
 
     // io
     add<vsg::Options>();
