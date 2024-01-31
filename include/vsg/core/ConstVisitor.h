@@ -55,6 +55,12 @@ namespace vsg
     class TextTechnique;
     class TextLayout;
 
+    // forward declare animation classes
+    class Animation;
+    class AnimationGroup;
+    class RiggedTransform;
+    class AnimationTransform;
+
     // forward declare vulkan classes
     class BufferInfo;
     class Compilable;
@@ -313,6 +319,12 @@ namespace vsg
         virtual void apply(const TextGroup&);
         virtual void apply(const TextTechnique&);
         virtual void apply(const TextLayout&);
+
+        // animation
+        virtual void apply(const Animation&);
+        virtual void apply(const AnimationGroup&);
+        virtual void apply(const RiggedTransform&);
+        virtual void apply(const AnimationTransform&);
 
         // Vulkan nodes
         virtual void apply(const BufferInfo&);

@@ -637,6 +637,27 @@ void ConstVisitor::apply(const TextLayout& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Animation Objects/Nodes
+//
+void ConstVisitor::apply(const Animation& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const AnimationGroup& value)
+{
+    apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const RiggedTransform& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const AnimationTransform& value)
+{
+    apply(static_cast<const Transform&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Vulkan Objects
 //
 void ConstVisitor::apply(const BufferInfo& value)

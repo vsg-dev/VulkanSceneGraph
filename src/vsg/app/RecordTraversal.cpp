@@ -36,6 +36,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/animation/Animation.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -367,27 +368,7 @@ void RecordTraversal::apply(const SpotLight& light)
     if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
-void RecordTraversal::apply(const StateGroup& stateGroup)
-{
-    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "StateGroup", COLOR_RECORD_L2, &stateGroup);
-
-    //debug("Visiting StateGroup");
-
-    for (auto& command : stateGroup.stateCommands)
-    {
-        _state->stateStacks[command->slot].push(command);
-    }
-    _state->dirty = true;
-
-    stateGroup.traverse(*this);
-
-    for (auto& command : stateGroup.stateCommands)
-    {
-        _state->stateStacks[command->slot].pop();
-    }
-    _state->dirty = true;
-}
-
+// transform nodes
 void RecordTraversal::apply(const Transform& transform)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Transform", COLOR_RECORD_L2, &transform);
@@ -432,7 +413,36 @@ void RecordTraversal::apply(const MatrixTransform& mt)
     _state->dirty = true;
 }
 
+// Animation nodes
+void RecordTraversal::apply(const RiggedTransform&)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    // non op for RiggedTransform as it's designed not to have any renderable children
+}
+
 // Vulkan nodes
+void RecordTraversal::apply(const StateGroup& stateGroup)
+{
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "StateGroup", COLOR_RECORD_L2, &stateGroup);
+
+    //debug("Visiting StateGroup");
+
+    for (auto& command : stateGroup.stateCommands)
+    {
+        _state->stateStacks[command->slot].push(command);
+    }
+    _state->dirty = true;
+
+    stateGroup.traverse(*this);
+
+    for (auto& command : stateGroup.stateCommands)
+    {
+        _state->stateStacks[command->slot].pop();
+    }
+    _state->dirty = true;
+}
+
 void RecordTraversal::apply(const Commands& commands)
 {
     GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Commands", COLOR_GPU, &commands);

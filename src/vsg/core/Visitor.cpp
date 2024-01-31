@@ -637,6 +637,27 @@ void Visitor::apply(TextLayout& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Animation Objects/Nodes
+//
+void Visitor::apply(Animation& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(AnimationGroup& value)
+{
+    apply(static_cast<Group&>(value));
+}
+void Visitor::apply(RiggedTransform& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(AnimationTransform& value)
+{
+    apply(static_cast<Transform&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Vulkan Objects
 //
 void Visitor::apply(BufferInfo& value)
