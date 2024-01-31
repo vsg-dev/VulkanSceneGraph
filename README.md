@@ -33,6 +33,7 @@ Community projects:
 * [vsgvr](https://github.com/geefr/vsgvr) OpenVR integration with VulkanSceneGraph.
 * [vsgCs](https://github.com/timoore/vsgCs) 3D Tiles and Cesium ion integration
 * [vsgEarth](https://github.com/timoore/vsgEarth) osgEarth integration
+* [rocky](https://github.com/pelicanmapping/rocky) 3D Geospatial Application Engine (Vulkan / C++17 / VSG). Pelican Mapping's successor to osgEerth.
 
 ## Quick Guide to building the VSG
 
