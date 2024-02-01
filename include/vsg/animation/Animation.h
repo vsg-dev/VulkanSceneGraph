@@ -66,13 +66,13 @@ namespace vsg
         /// scale key frames
         std::vector<VectorKey> scales;
 
-        bool get(double time, dvec3& position, dquat& rotation, dvec3& scale) const;
-
         // assimp pre state ?
         // assimp post state ?
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+        virtual void update(double simulationTime);
     };
     VSG_type_name(vsg::TransformKeyframes);
 
@@ -89,6 +89,8 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+        virtual void update(double time);
     };
     VSG_type_name(vsg::MorphKeyframes);
 

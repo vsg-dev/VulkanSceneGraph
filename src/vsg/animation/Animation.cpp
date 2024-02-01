@@ -103,11 +103,11 @@ void TransformKeyframes::write(Output& output) const
     }
 }
 
-bool TransformKeyframes::get(double time, dvec3& position, dquat& rotation, dvec3& scale) const
+void TransformKeyframes::update(double simulationTime)
 {
-    vsg::info("TransformKeyframes::get(time = ", time, ", psoition = {", position,"}, rotation =  {",rotation,"}, scale = {", scale,"}");
+    vsg::info("TODO  TransformKeyframes::update(", simulationTime, ") name = ", name);
 
-    return false;
+    matrix->set(translate(simulationTime*0.01, 0.0, 0.0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -151,6 +151,11 @@ void MorphKeyframes::write(Output& output) const
     }
 }
 
+void MorphKeyframes::update(double simulationTime)
+{
+    vsg::info("TODO  MorphKeyframes::update(", simulationTime, ") name = ", name);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Animation
@@ -182,6 +187,11 @@ void Animation::write(Output& output) const
 void Animation::update(double simulationTime)
 {
     vsg::info("Animation::update(...) name = ", name, ", simulationTime = ", simulationTime, ", local time = ", simulationTime - startTime);
+    for(auto tkf :  transformKeyframes)
+    {
+        vsg::info("    rkd->name = ", tkf->name);
+        tkf->update(simulationTime - startTime);
+    }
 }
 
 
