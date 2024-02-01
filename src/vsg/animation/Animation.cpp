@@ -103,11 +103,36 @@ void TransformKeyframes::write(Output& output) const
     }
 }
 
-void TransformKeyframes::update(double simulationTime)
+void TransformKeyframes::update(double time)
 {
-    vsg::info("TODO  TransformKeyframes::update(", simulationTime, ") name = ", name);
+    vsg::info("TODO  TransformKeyframes::update(", time, ") name = ", name);
 
-    matrix->set(translate(simulationTime*0.01, 0.0, 0.0));
+    dvec3 position;
+
+    auto pos_itr = positions.begin();
+    if (time < pos_itr->time)
+    {
+        position = pos_itr->value;
+    }
+    else
+    {
+        while (pos_itr != positions.end() && pos_itr->time < time) ++pos_itr;
+
+        auto before_pos_itr = pos_itr-1;
+
+        if (pos_itr != positions.end())
+        {
+            double r = (time - before_pos_itr->time) / (pos_itr->time - before_pos_itr->time);
+            position = before_pos_itr->value * (1.0 - r) + pos_itr->value * (r);
+        }
+        else
+        {
+            position = before_pos_itr->value;
+        }
+
+    }
+
+    matrix->set(translate(position));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
