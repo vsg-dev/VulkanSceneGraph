@@ -168,13 +168,15 @@ bool Viewer::advanceToNextFrame()
     auto time = vsg::clock::now();
     if (!_frameStamp)
     {
+        _start_point = time;
+
         // first frame, initialize to frame count and indices to 0
-        _frameStamp = FrameStamp::create(time, 0);
+        _frameStamp = FrameStamp::create(time, 0, 0.0);
     }
     else
     {
         // after first frame so increment frame count and indices
-        _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1);
+        _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1, std::chrono::duration<double, std::chrono::seconds::period>(time - _start_point).count());
     }
 
     for (auto& task : recordAndSubmitTasks)
