@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Allocator.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/Transform.h>
+#include <vsg/ui/UIEvent.h>
 
 #include <vector>
 namespace vsg
@@ -65,6 +66,8 @@ namespace vsg
         /// scale key frames
         std::vector<VectorKey> scales;
 
+        bool get(double time, dvec3& position, dquat& rotation, dvec3& scale) const;
+
         // assimp pre state ?
         // assimp post state ?
 
@@ -97,6 +100,9 @@ namespace vsg
 
         std::string name;
 
+        // start time point of animation to be used to calaculate the current time to use when looking up current values
+        double startTime;
+
         using TransformKeyframesList = std::vector<ref_ptr<TransformKeyframes>>;
         TransformKeyframesList transformKeyframes;
 
@@ -105,6 +111,9 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+        // update
+        virtual void update(double simulationTime);
     };
     VSG_type_name(vsg::Animation);
 
@@ -121,7 +130,12 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        // update
+        virtual void update(double simulationTime);
+
         Animations animations;
+
+        Animations active;
 
     protected:
         virtual ~AnimationGroup();

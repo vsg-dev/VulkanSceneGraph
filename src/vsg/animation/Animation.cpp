@@ -103,6 +103,13 @@ void TransformKeyframes::write(Output& output) const
     }
 }
 
+bool TransformKeyframes::get(double time, dvec3& position, dquat& rotation, dvec3& scale) const
+{
+    vsg::info("TransformKeyframes::get(time = ", time, ", psoition = {", position,"}, rotation =  {",rotation,"}, scale = {", scale,"}");
+
+    return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // MorphKeyframes
@@ -172,6 +179,12 @@ void Animation::write(Output& output) const
     output.writeObjects("morphKeyframes", morphKeyframes);
 }
 
+void Animation::update(double simulationTime)
+{
+    vsg::info("Animation::update(...) name = ", name, ", simulationTime = ", simulationTime, ", local time = ", simulationTime - startTime);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // AnimationGroup
@@ -211,6 +224,13 @@ void AnimationGroup::write(Output& output) const
     output.writeObjects("children", children);
 }
 
+void AnimationGroup::update(double simulationTime)
+{
+    for(auto animation : active)
+    {
+        animation->update(simulationTime);
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
