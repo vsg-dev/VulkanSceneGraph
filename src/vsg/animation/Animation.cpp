@@ -103,36 +103,58 @@ void TransformKeyframes::write(Output& output) const
     }
 }
 
-void TransformKeyframes::update(double time)
+template<typename T, typename V>
+bool sample(double time, const T& values, V& value)
 {
-    vsg::info("TODO  TransformKeyframes::update(", time, ") name = ", name);
+    if (values.size()==0) return false;
 
-    dvec3 position;
-
-    auto pos_itr = positions.begin();
-    if (time < pos_itr->time)
+    if (values.size()==1)
     {
-        position = pos_itr->value;
+        value = values.front().value;
+        return true;
+    }
+
+    auto pos_itr = values.begin();
+    if (time <= pos_itr->time)
+    {
+        value = pos_itr->value;
+        return true;
     }
     else
     {
-        while (pos_itr != positions.end() && pos_itr->time < time) ++pos_itr;
+        while (pos_itr != values.end() && pos_itr->time < time) ++pos_itr;
 
         auto before_pos_itr = pos_itr-1;
 
-        if (pos_itr != positions.end())
+        if (pos_itr != values.end())
         {
-            double r = (time - before_pos_itr->time) / (pos_itr->time - before_pos_itr->time);
-            position = before_pos_itr->value * (1.0 - r) + pos_itr->value * (r);
+            double delta_time = (pos_itr->time - before_pos_itr->time);
+            double r = delta_time != 0.0 ? (time - before_pos_itr->time) / delta_time : 0.5;
+
+            value = mix(before_pos_itr->value, pos_itr->value, r);
+
+            return true;
         }
         else
         {
-            position = before_pos_itr->value;
+            value = before_pos_itr->value;
+            return true;
         }
-
     }
+}
 
-    matrix->set(translate(position));
+void TransformKeyframes::update(double time)
+{
+    dvec3 position;
+    sample(time, positions, position);
+
+    dquat rotation;
+    sample(time, rotations, rotation);
+
+    dvec3 scale(1.0, 1.0, 1.0);
+    sample(time, scales, scale);
+
+    matrix->set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -211,11 +233,34 @@ void Animation::write(Output& output) const
 
 void Animation::update(double simulationTime)
 {
-    vsg::info("Animation::update(...) name = ", name, ", simulationTime = ", simulationTime, ", local time = ", simulationTime - startTime);
+    double maxTime = 0.0;
+    for(auto& tfk : transformKeyframes)
+    {
+        if (!tfk->positions.empty()) maxTime = std::max(maxTime, tfk->positions.back().time);
+        if (!tfk->rotations.empty()) maxTime = std::max(maxTime, tfk->rotations.back().time);
+        if (!tfk->scales.empty()) maxTime = std::max(maxTime, tfk->scales.back().time);
+    }
+
+    for(auto& mkf : morphKeyframes)
+    {
+        if (!mkf->keyframes.empty()) maxTime = std::max(maxTime, mkf->keyframes.back().time);
+    }
+
+    // TODO: need to use delta since last time update...
+    double time = (simulationTime - startTime) * speed;
+    if (mode == REPEAT)
+    {
+        time = std::fmod(time, maxTime);
+    }
+    else if (mode == FORWARD_AND_BACK)
+    {
+        time = std::fmod(time, 2.0 * maxTime);
+        if (time > maxTime) time = 2.0 * maxTime - time;
+    }
+
     for(auto tkf :  transformKeyframes)
     {
-        vsg::info("    rkd->name = ", tkf->name);
-        tkf->update(simulationTime - startTime);
+        tkf->update(time);
     }
 }
 

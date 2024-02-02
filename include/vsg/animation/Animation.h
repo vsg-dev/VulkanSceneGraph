@@ -102,6 +102,16 @@ namespace vsg
 
         std::string name;
 
+        enum Mode
+        {
+            ONCE,
+            REPEAT,
+            FORWARD_AND_BACK
+        };
+
+        Mode mode = ONCE;
+        double speed = 1.0;
+
         // start time point of animation to be used to calaculate the current time to use when looking up current values
         double startTime;
 
