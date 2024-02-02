@@ -165,6 +165,14 @@ void Visitor::apply(uivec4Value& value)
 {
     apply(static_cast<Data&>(value));
 }
+void Visitor::apply(mat4Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dmat4Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
