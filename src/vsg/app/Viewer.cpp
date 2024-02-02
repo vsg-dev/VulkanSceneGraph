@@ -29,6 +29,7 @@ using namespace vsg;
 
 Viewer::Viewer() :
     updateOperations(UpdateOperations::create()),
+    animationManager(AnimationManager::create()),
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
@@ -803,6 +804,7 @@ void Viewer::update()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer update", COLOR_UPDATE);
 
+    // merge any updates from the DatabasePager
     for (auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
@@ -813,7 +815,11 @@ void Viewer::update()
         }
     }
 
+    // run update operations
     updateOperations->run();
+
+    // run aniamtions
+    animationManager->run(_frameStamp);
 }
 
 void Viewer::recordAndSubmit()

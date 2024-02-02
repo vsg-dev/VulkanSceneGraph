@@ -35,7 +35,7 @@ bool AnimationManager::start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, v
 
     animationGroup->active.push_back(animation);
 
-    if (frameStamp) animation->startTime = frameStamp->simulationTime;
+    animation->startTime = _simulationTime;
 
     bool animationGroupAlreadyAdded = false;
     for(auto ag : animationGroups)
@@ -90,8 +90,10 @@ bool AnimationManager::end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg
     return animationEnded;
 }
 
-void AnimationManager::run()
+void AnimationManager::run(vsg::ref_ptr<vsg::FrameStamp> frameStamp)
 {
+    _simulationTime = frameStamp->simulationTime;
+
     for(auto ag : animationGroups)
     {
         ag->update(frameStamp->simulationTime);

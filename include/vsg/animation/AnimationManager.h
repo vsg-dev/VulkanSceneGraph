@@ -24,7 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-class VSG_DECLSPEC AnimationManager : public vsg::Inherit<Operation, AnimationManager>
+class VSG_DECLSPEC AnimationManager : public vsg::Inherit<Object, AnimationManager>
 {
 public:
 
@@ -32,13 +32,15 @@ public:
 
     AnimationGroups animationGroups;
 
-    vsg::ref_ptr<vsg::FrameStamp> frameStamp;
-
     virtual bool start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation);
 
     virtual bool end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation);
 
-    void run() override;
+    virtual void run(vsg::ref_ptr<vsg::FrameStamp> frameStamp);
+
+protected:
+
+    double _simulationTime = 0.0;
 };
 
 
