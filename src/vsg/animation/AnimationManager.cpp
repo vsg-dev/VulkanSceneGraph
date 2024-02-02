@@ -23,7 +23,7 @@ bool AnimationManager::start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, v
 {
     bool animationStarted = false;
 
-    for(auto activeAnimation : animationGroup->active)
+    for (auto activeAnimation : animationGroup->active)
     {
         if (activeAnimation == animation)
         {
@@ -39,7 +39,7 @@ bool AnimationManager::start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, v
     animation->startTime = _simulationTime;
 
     bool animationGroupAlreadyAdded = false;
-    for(auto ag : animationGroups)
+    for (auto ag : animationGroups)
     {
         if (ag == animationGroup) animationGroupAlreadyAdded = true;
     }
@@ -64,7 +64,7 @@ bool AnimationManager::end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg
 
     bool animationEnded = false;
 
-    for(auto a_itr = animationGroup->active.begin(); a_itr != animationGroup->active.end(); ++a_itr)
+    for (auto a_itr = animationGroup->active.begin(); a_itr != animationGroup->active.end(); ++a_itr)
     {
         if ((*a_itr) == animation)
         {
@@ -77,7 +77,7 @@ bool AnimationManager::end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg
 
     if (animationGroup->active.empty())
     {
-        for(auto ag_itr = animationGroups.begin(); ag_itr != animationGroups.end(); ++ag_itr)
+        for (auto ag_itr = animationGroups.begin(); ag_itr != animationGroups.end(); ++ag_itr)
         {
             if ((*ag_itr) == animationGroup)
             {
@@ -95,9 +95,8 @@ void AnimationManager::run(vsg::ref_ptr<vsg::FrameStamp> frameStamp)
 {
     _simulationTime = frameStamp->simulationTime;
 
-    for(auto ag : animationGroups)
+    for (auto ag : animationGroups)
     {
         ag->update(frameStamp->simulationTime);
     }
 }
-

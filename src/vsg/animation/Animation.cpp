@@ -10,14 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/animation/Animation.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
-#include <vsg/animation/Animation.h>
 
 using namespace vsg;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -37,7 +36,7 @@ void TransformKeyframes::read(Input& input)
     // read position key frames
     uint32_t num_positions = input.readValue<uint32_t>("positions");
     positions.resize(num_positions);
-    for(auto& position : positions)
+    for (auto& position : positions)
     {
         input.matchPropertyName("position");
         input.read(1, &position.time);
@@ -47,7 +46,7 @@ void TransformKeyframes::read(Input& input)
     // read rotation key frames
     uint32_t num_rotations = input.readValue<uint32_t>("rotations");
     rotations.resize(num_rotations);
-    for(auto& rotation : rotations)
+    for (auto& rotation : rotations)
     {
         input.matchPropertyName("rotation");
         input.read(1, &rotation.time);
@@ -57,7 +56,7 @@ void TransformKeyframes::read(Input& input)
     // read scale key frames
     uint32_t num_scales = input.readValue<uint32_t>("scales");
     scales.resize(num_scales);
-    for(auto& scale : scales)
+    for (auto& scale : scales)
     {
         input.matchPropertyName("scale");
         input.read(1, &scale.time);
@@ -74,7 +73,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write position key frames
     output.writeValue<uint32_t>("positions", positions.size());
-    for(auto& position : positions)
+    for (auto& position : positions)
     {
         output.writePropertyName("position");
         output.write(1, &position.time);
@@ -84,7 +83,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write rotation key frames
     output.writeValue<uint32_t>("rotations", rotations.size());
-    for(auto& rotation : rotations)
+    for (auto& rotation : rotations)
     {
         output.writePropertyName("rotation");
         output.write(1, &rotation.time);
@@ -94,7 +93,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write scale key frames
     output.writeValue<uint32_t>("scales", scales.size());
-    for(auto& scale : scales)
+    for (auto& scale : scales)
     {
         output.writePropertyName("scale");
         output.write(1, &scale.time);
@@ -106,9 +105,9 @@ void TransformKeyframes::write(Output& output) const
 template<typename T, typename V>
 bool sample(double time, const T& values, V& value)
 {
-    if (values.size()==0) return false;
+    if (values.size() == 0) return false;
 
-    if (values.size()==1)
+    if (values.size() == 1)
     {
         value = values.front().value;
         return true;
@@ -124,7 +123,7 @@ bool sample(double time, const T& values, V& value)
     {
         while (pos_itr != values.end() && pos_itr->time < time) ++pos_itr;
 
-        auto before_pos_itr = pos_itr-1;
+        auto before_pos_itr = pos_itr - 1;
 
         if (pos_itr != values.end())
         {
@@ -174,7 +173,7 @@ void MorphKeyframes::read(Input& input)
     // read key frames
     uint32_t num_keyframes = input.readValue<uint32_t>("keyframes");
     keyframes.resize(num_keyframes);
-    for(auto& keyframe : keyframes)
+    for (auto& keyframe : keyframes)
     {
         input.read("keyFrame", keyframe.time);
         input.readValues("values", keyframe.values);
@@ -190,7 +189,7 @@ void MorphKeyframes::write(Output& output) const
 
     // write key frames
     output.writeValue<uint32_t>("keyFrames", keyframes.size());
-    for(auto& keyframe : keyframes)
+    for (auto& keyframe : keyframes)
     {
         output.write("keyframe", keyframe.time);
         output.writeValues("values", keyframe.values);
@@ -234,14 +233,14 @@ void Animation::write(Output& output) const
 void Animation::update(double simulationTime)
 {
     double maxTime = 0.0;
-    for(auto& tfk : transformKeyframes)
+    for (auto& tfk : transformKeyframes)
     {
         if (!tfk->positions.empty()) maxTime = std::max(maxTime, tfk->positions.back().time);
         if (!tfk->rotations.empty()) maxTime = std::max(maxTime, tfk->rotations.back().time);
         if (!tfk->scales.empty()) maxTime = std::max(maxTime, tfk->scales.back().time);
     }
 
-    for(auto& mkf : morphKeyframes)
+    for (auto& mkf : morphKeyframes)
     {
         if (!mkf->keyframes.empty()) maxTime = std::max(maxTime, mkf->keyframes.back().time);
     }
@@ -258,12 +257,11 @@ void Animation::update(double simulationTime)
         if (time > maxTime) time = 2.0 * maxTime - time;
     }
 
-    for(auto tkf :  transformKeyframes)
+    for (auto tkf : transformKeyframes)
     {
         tkf->update(time);
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -306,7 +304,7 @@ void AnimationGroup::write(Output& output) const
 
 void AnimationGroup::update(double simulationTime)
 {
-    for(auto animation : active)
+    for (auto animation : active)
     {
         animation->update(simulationTime);
     }
@@ -362,7 +360,6 @@ dmat4 AnimationTransform::transform(const dmat4& mv) const
 {
     return mv * matrix->value();
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

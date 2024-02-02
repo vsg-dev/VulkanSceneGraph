@@ -25,7 +25,7 @@ namespace vsg
         double time;
         dvec3 value;
 
-        bool operator < (const VectorKey& rhs) const { return time < rhs.time; }
+        bool operator<(const VectorKey& rhs) const { return time < rhs.time; }
     };
 
     struct QuatKey
@@ -33,7 +33,7 @@ namespace vsg
         double time;
         dquat value;
 
-        bool operator < (const QuatKey& rhs) const { return time < rhs.time; }
+        bool operator<(const QuatKey& rhs) const { return time < rhs.time; }
     };
 
     struct MorphKey
@@ -42,7 +42,7 @@ namespace vsg
         std::vector<unsigned int> values;
         std::vector<double> weights;
 
-        bool operator < (const MorphKey& rhs) const { return time < rhs.time; }
+        bool operator<(const MorphKey& rhs) const { return time < rhs.time; }
     };
 
     class VSG_DECLSPEC TransformKeyframes : public Inherit<Object, TransformKeyframes>
@@ -96,7 +96,6 @@ namespace vsg
     class VSG_DECLSPEC Animation : public Inherit<Object, Animation>
     {
     public:
-
         Animation();
 
         std::string name;
@@ -177,7 +176,6 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationTransform);
 
-
     /// AnimationTransform node provides a list of children.
     class VSG_DECLSPEC RiggedTransform : public Inherit<Node, RiggedTransform>
     {
@@ -200,6 +198,5 @@ namespace vsg
         virtual ~RiggedTransform();
     };
     VSG_type_name(vsg::RiggedTransform);
-
 
 } // namespace vsg

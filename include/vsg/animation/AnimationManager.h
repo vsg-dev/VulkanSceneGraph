@@ -12,36 +12,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Allocator.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/Transform.h>
-#include <vsg/ui/UIEvent.h>
-#include <vsg/threading/OperationQueue.h>
 #include <vsg/animation/Animation.h>
 #include <vsg/ui/FrameStamp.h>
 
-#include <vector>
 namespace vsg
 {
 
-class VSG_DECLSPEC AnimationManager : public vsg::Inherit<Object, AnimationManager>
-{
-public:
+    class VSG_DECLSPEC AnimationManager : public vsg::Inherit<Object, AnimationManager>
+    {
+    public:
+        AnimationManager();
 
-    AnimationManager();
+        AnimationGroups animationGroups;
 
-    AnimationGroups animationGroups;
+        virtual bool start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation);
 
-    virtual bool start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation);
+        virtual bool end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation);
 
-    virtual bool end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation);
+        virtual void run(vsg::ref_ptr<vsg::FrameStamp> frameStamp);
 
-    virtual void run(vsg::ref_ptr<vsg::FrameStamp> frameStamp);
+    protected:
+        double _simulationTime = 0.0;
+    };
 
-protected:
-
-    double _simulationTime = 0.0;
-};
-
-
-}
+} // namespace vsg

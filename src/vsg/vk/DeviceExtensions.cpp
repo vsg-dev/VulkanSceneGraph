@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 DeviceExtensions::DeviceExtensions(Device* device)
 {
     // VK_EXT_host_query_reset

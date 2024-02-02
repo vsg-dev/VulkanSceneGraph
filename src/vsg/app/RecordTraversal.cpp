@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/animation/Animation.h>
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RecordTraversal.h>
 #include <vsg/app/View.h>
@@ -36,7 +37,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/animation/Animation.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>

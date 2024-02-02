@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/animation/AnimationPath.h>
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -18,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PrintEvents.h>
-#include <vsg/animation/AnimationPath.h>
 
 using namespace vsg;
 

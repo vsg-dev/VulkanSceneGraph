@@ -89,7 +89,6 @@ namespace vsg
                 TracyVkDestroy(itr->second.first);
             }
         }
-
     };
     VSG_type_name(vsg::TracyContexts);
 
