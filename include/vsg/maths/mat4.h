@@ -106,6 +106,15 @@ namespace vsg
             value[3].set(v12, v13, v14, v15);
         }
 
+        template<typename R>
+        void set(const t_mat4<R>& rhs)
+        {
+            value[0] = rhs[0];
+            value[1] = rhs[1];
+            value[2] = rhs[2];
+            value[3] = rhs[3];
+        }
+
         T* data() { return value[0].data(); }
         const T* data() const { return value[0].data(); }
     };
