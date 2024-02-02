@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
+#include <vsg/nodes/MatrixTransform.h>
 
 using namespace vsg;
 
@@ -155,6 +156,57 @@ void TransformKeyframes::update(double time)
 
     matrix->set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// TransformSampler
+//
+TransformSampler::TransformSampler() :
+    position(0.0, 0.0, 0.0),
+    rotation(),
+    scale(1.0, 1.0, 1.0)
+{
+}
+
+void TransformSampler::update(double time)
+{
+    if (keyFrames)
+    {
+        sample(time, keyFrames->positions, position);
+        sample(time, keyFrames->rotations, rotation);
+        sample(time, keyFrames->scales, scale);
+    }
+
+    if (object) object->accept(*this);
+}
+
+void TransformSampler::apply(mat4Value& matrix)
+{
+    matrix.set(mat4(vsg::scale(scale) * vsg::rotate(rotation) * translate(position)));
+}
+
+void TransformSampler::apply(dmat4Value& matrix)
+{
+    matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+}
+
+void TransformSampler::apply(MatrixTransform& mt)
+{
+    mt.matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+}
+
+void TransformSampler::apply(AnimationTransform& at)
+{
+    at.matrix->set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+}
+
+void TransformSampler::apply(RiggedTransform& rt)
+{
+    rt.matrix->set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

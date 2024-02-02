@@ -75,6 +75,28 @@ namespace vsg
     };
     VSG_type_name(vsg::TransformKeyframes);
 
+    class VSG_DECLSPEC TransformSampler : public Inherit<Visitor, TransformSampler>
+    {
+    public:
+        TransformSampler();
+
+        ref_ptr<TransformKeyframes> keyFrames;
+        ref_ptr<Object> object;
+
+        // updated using keyFrames
+        dvec3 position;
+        dquat rotation;
+        dvec3 scale;
+
+        void update(double time);
+
+        void apply(mat4Value& mat) override;
+        void apply(dmat4Value& mat) override;
+        void apply(MatrixTransform& mt) override;
+        void apply(AnimationTransform& at) override;
+        void apply(RiggedTransform& at) override;
+    };
+
     class VSG_DECLSPEC MorphKeyframes : public Inherit<Object, MorphKeyframes>
     {
     public:
