@@ -181,6 +181,8 @@ set(SOURCES
     meshshaders/DrawMeshTasksIndirectCount.cpp
 
     animation/Animation.cpp
+    animation/AnimationManager.cpp
+    animation/AnimationPath.cpp
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
@@ -217,7 +219,6 @@ set(SOURCES
     vk/Swapchain.cpp
     vk/ResourceRequirements.cpp
 
-    utils/AnimationPath.cpp
     utils/CommandLine.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp

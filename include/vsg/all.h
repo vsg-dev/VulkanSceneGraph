@@ -80,6 +80,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Animation header files
 #include <vsg/animation/Animation.h>
+#include <vsg/animation/AnimationManager.h>
+#include <vsg/animation/AnimationPath.h>
 
 // Commands header files
 #include <vsg/commands/BeginQuery.h>
@@ -257,7 +259,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 
 // Utility header files
-#include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/ComputeBounds.h>

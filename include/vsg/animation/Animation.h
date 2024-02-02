@@ -154,6 +154,8 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationGroup);
 
+    using AnimationGroups = std::vector<vsg::ref_ptr<vsg::AnimationGroup>>;
+
     /// AnimationTransform node provides a list of children.
     class VSG_DECLSPEC AnimationTransform : public Inherit<Transform, AnimationTransform>
     {

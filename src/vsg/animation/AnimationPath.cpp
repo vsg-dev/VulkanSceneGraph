@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PrintEvents.h>
-#include <vsg/utils/AnimationPath.h>
+#include <vsg/animation/AnimationPath.h>
 
 using namespace vsg;
 
