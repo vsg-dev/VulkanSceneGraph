@@ -13,107 +13,26 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/Transform.h>
-#include <vsg/ui/UIEvent.h>
+#include <vsg/core/Visitor.h>
+#include <vsg/core/Inherit.h>
 
 namespace vsg
 {
 
-    struct VectorKey
-    {
-        double time;
-        dvec3 value;
-
-        bool operator<(const VectorKey& rhs) const { return time < rhs.time; }
-    };
-
-    struct QuatKey
-    {
-        double time;
-        dquat value;
-
-        bool operator<(const QuatKey& rhs) const { return time < rhs.time; }
-    };
-
-    struct MorphKey
-    {
-        double time;
-        std::vector<unsigned int> values;
-        std::vector<double> weights;
-
-        bool operator<(const MorphKey& rhs) const { return time < rhs.time; }
-    };
-
-    class VSG_DECLSPEC TransformKeyframes : public Inherit<Object, TransformKeyframes>
+    class VSG_DECLSPEC AnimationSampler : public Inherit<Visitor, AnimationSampler>
     {
     public:
-        TransformKeyframes();
+        AnimationSampler();
 
-        /// name of node
         std::string name;
 
-        /// matrix to update
-        ref_ptr<dmat4Value> matrix;
-
-        /// position key frames
-        std::vector<VectorKey> positions;
-
-        /// rotation key frames
-        std::vector<QuatKey> rotations;
-
-        /// scale key frames
-        std::vector<VectorKey> scales;
-
-        // assimp pre state ?
-        // assimp post state ?
+        virtual void update(double time) = 0;
+        virtual double maxTime() const = 0;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        virtual void update(double simulationTime);
     };
-    VSG_type_name(vsg::TransformKeyframes);
-
-    class VSG_DECLSPEC TransformSampler : public Inherit<Visitor, TransformSampler>
-    {
-    public:
-        TransformSampler();
-
-        ref_ptr<TransformKeyframes> keyFrames;
-        ref_ptr<Object> object;
-
-        // updated using keyFrames
-        dvec3 position;
-        dquat rotation;
-        dvec3 scale;
-
-        void update(double time);
-
-        void apply(mat4Value& mat) override;
-        void apply(dmat4Value& mat) override;
-        void apply(MatrixTransform& mt) override;
-        void apply(AnimationTransform& at) override;
-        void apply(RiggedTransform& at) override;
-    };
-
-    class VSG_DECLSPEC MorphKeyframes : public Inherit<Object, MorphKeyframes>
-    {
-    public:
-        MorphKeyframes();
-
-        /// name of animation
-        std::string name;
-
-        /// key frames
-        std::vector<MorphKey> keyframes;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        virtual void update(double time);
-    };
-    VSG_type_name(vsg::MorphKeyframes);
+    VSG_type_name(vsg::AnimationSampler);
 
     class VSG_DECLSPEC Animation : public Inherit<Object, Animation>
     {
@@ -135,11 +54,8 @@ namespace vsg
         // start time point of animation to be used to calaculate the current time to use when looking up current values
         double startTime;
 
-        using TransformKeyframesList = std::vector<ref_ptr<TransformKeyframes>>;
-        TransformKeyframesList transformKeyframes;
-
-        using MorphKeyframesList = std::vector<ref_ptr<MorphKeyframes>>;
-        MorphKeyframesList morphKeyframes;
+        using Samplers = std::vector<ref_ptr<AnimationSampler>>;
+        Samplers samplers;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -151,74 +67,5 @@ namespace vsg
 
     using Animations = std::vector<ref_ptr<Animation>, allocator_affinity_nodes<ref_ptr<Animation>>>;
 
-    /// AnimationGroup node provides a list of children.
-    class VSG_DECLSPEC AnimationGroup : public Inherit<Group, AnimationGroup>
-    {
-    public:
-        explicit AnimationGroup(size_t numChildren = 0);
-
-        int compare(const Object& rhs) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        // update
-        virtual void update(double simulationTime);
-
-        Animations animations;
-
-        Animations active;
-
-    protected:
-        virtual ~AnimationGroup();
-    };
-    VSG_type_name(vsg::AnimationGroup);
-
-    using AnimationGroups = std::vector<vsg::ref_ptr<vsg::AnimationGroup>>;
-
-    /// AnimationTransform node provides a list of children.
-    class VSG_DECLSPEC AnimationTransform : public Inherit<Transform, AnimationTransform>
-    {
-    public:
-        explicit AnimationTransform();
-
-        std::string name;
-
-        ref_ptr<dmat4Value> matrix;
-
-        int compare(const Object& rhs) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        dmat4 transform(const dmat4& mv) const override;
-
-    protected:
-        virtual ~AnimationTransform();
-    };
-    VSG_type_name(vsg::AnimationTransform);
-
-    /// AnimationTransform node provides a list of children.
-    class VSG_DECLSPEC RiggedTransform : public Inherit<Node, RiggedTransform>
-    {
-    public:
-        explicit RiggedTransform();
-
-        std::string name;
-
-        ref_ptr<dmat4Value> matrix;
-
-        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
-        Children children;
-
-        int compare(const Object& rhs) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-    protected:
-        virtual ~RiggedTransform();
-    };
-    VSG_type_name(vsg::RiggedTransform);
 
 } // namespace vsg

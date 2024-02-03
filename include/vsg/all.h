@@ -80,8 +80,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 // Animation header files
 #include <vsg/animation/Animation.h>
+#include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/AnimationManager.h>
 #include <vsg/animation/AnimationPath.h>
+#include <vsg/animation/MorphSampler.h>
+#include <vsg/animation/TransformSampler.h>
 
 // Commands header files
 #include <vsg/commands/BeginQuery.h>

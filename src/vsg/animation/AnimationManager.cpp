@@ -19,84 +19,43 @@ AnimationManager::AnimationManager()
 {
 }
 
-bool AnimationManager::start(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation)
+bool AnimationManager::start(vsg::ref_ptr<vsg::Animation> animation)
 {
-    bool animationStarted = false;
+    vsg::info("AnimationManager::start(", animation, ", ", animation->name, ") added to active list");
 
-    for (auto activeAnimation : animationGroup->active)
+    if (std::find(animations.begin(), animations.end(), animation) != animations.end())
     {
-        if (activeAnimation == animation)
-        {
-            vsg::info("AnimationManager::start(", animationGroup, ", ", animation, ", ", animation->name, ") can't start already active animnation.");
-            return animationStarted;
-        }
+        return false;
     }
-
-    animationStarted = true;
-
-    animationGroup->active.push_back(animation);
 
     animation->startTime = _simulationTime;
+    animations.push_back(animation);
 
-    bool animationGroupAlreadyAdded = false;
-    for (auto ag : animationGroups)
-    {
-        if (ag == animationGroup) animationGroupAlreadyAdded = true;
-    }
+    return true;
+}
 
-    if (!animationGroupAlreadyAdded)
+bool AnimationManager::end(vsg::ref_ptr<vsg::Animation> animation)
+{
+    vsg::info("AnimationManager::end(", animation, ", ", animation->name, ")");
+
+    auto itr = std::find(animations.begin(), animations.end(), animation);
+    if (itr != animations.end())
     {
-        animationGroups.push_back(animationGroup);
+        animations.erase(itr);
+        return true;
     }
     else
     {
-        // vsg::info("AnimationManager::start(", animationGroup, ", ", animation, ", ", animation->name, ") can't start already active animnation group.");
+        return false;
     }
-
-    vsg::info("AnimationManager::start(", animationGroup, ", ", animation, ", ", animation->name, ") added to active list");
-
-    return animationStarted;
-}
-
-bool AnimationManager::end(vsg::ref_ptr<vsg::AnimationGroup> animationGroup, vsg::ref_ptr<vsg::Animation> animation)
-{
-    vsg::info("AnimationManager::end(", animationGroup, ", ", animation, ", ", animation->name, ")");
-
-    bool animationEnded = false;
-
-    for (auto a_itr = animationGroup->active.begin(); a_itr != animationGroup->active.end(); ++a_itr)
-    {
-        if ((*a_itr) == animation)
-        {
-            vsg::info("    removing Animation.");
-            animationGroup->active.erase(a_itr);
-            animationEnded = true;
-            break;
-        }
-    }
-
-    if (animationGroup->active.empty())
-    {
-        for (auto ag_itr = animationGroups.begin(); ag_itr != animationGroups.end(); ++ag_itr)
-        {
-            if ((*ag_itr) == animationGroup)
-            {
-                vsg::info("    removing AnimationGroup.");
-                animationGroups.erase(ag_itr);
-                animationEnded = true;
-                break;
-            }
-        }
-    }
-    return animationEnded;
 }
 
 void AnimationManager::run(vsg::ref_ptr<vsg::FrameStamp> frameStamp)
 {
     _simulationTime = frameStamp->simulationTime;
 
-    for (auto ag : animationGroups)
+    for (auto& animation : animations)
     {
-        ag->update(frameStamp->simulationTime);
+        animation->update(frameStamp->simulationTime);
     }
 }

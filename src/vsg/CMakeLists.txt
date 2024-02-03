@@ -181,8 +181,11 @@ set(SOURCES
     meshshaders/DrawMeshTasksIndirectCount.cpp
 
     animation/Animation.cpp
+    animation/AnimationGroup.cpp
     animation/AnimationManager.cpp
     animation/AnimationPath.cpp
+    animation/MorphSampler.cpp
+    animation/TransformSampler.cpp
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp

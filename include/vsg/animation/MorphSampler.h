@@ -12,28 +12,51 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/AnimationGroup.h>
-#include <vsg/ui/FrameStamp.h>
+#include <vsg/animation/Animation.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC AnimationManager : public vsg::Inherit<Object, AnimationManager>
+    struct MorphKey
+    {
+        double time;
+        std::vector<unsigned int> values;
+        std::vector<double> weights;
+
+        bool operator<(const MorphKey& rhs) const { return time < rhs.time; }
+    };
+    VSG_type_name(vsg::MorphKey);
+
+    class VSG_DECLSPEC MorphKeyframes : public Inherit<Object, MorphKeyframes>
     {
     public:
-        AnimationManager();
+        MorphKeyframes();
 
-        Animations animations;
+        /// name of animation
+        std::string name;
 
-        virtual bool start(vsg::ref_ptr<vsg::Animation> animation);
+        /// key frames
+        std::vector<MorphKey> keyframes;
 
-        virtual bool end(vsg::ref_ptr<vsg::Animation> animation);
-
-        virtual void run(vsg::ref_ptr<vsg::FrameStamp> frameStamp);
-
-    protected:
-        double _simulationTime = 0.0;
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
-    VSG_type_name(vsg::AnimationManager);
+    VSG_type_name(vsg::MorphKeyframes);
+
+    class VSG_DECLSPEC MorphSampler : public Inherit<AnimationSampler, MorphSampler>
+    {
+    public:
+        MorphSampler();
+
+        ref_ptr<MorphKeyframes> keyframes;
+        ref_ptr<Object> object;
+
+        void update(double time) override;
+        double maxTime() const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+    };
+    VSG_type_name(vsg::MorphSampler);
 
 } // namespace vsg
