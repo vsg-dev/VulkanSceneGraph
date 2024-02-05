@@ -451,6 +451,8 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
     const auto& attributeBinding = shaderSet->getAttributeBinding(name);
     if (attributeBinding)
     {
+        if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
+
         VkFormat format = array ? array->properties.format : VK_FORMAT_UNDEFINED;
 
         SetPipelineStates setVertexAttributeState(baseAttributeBinding, attributeBinding, vertexInputRate, array->properties.stride, format);
