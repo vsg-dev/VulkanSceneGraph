@@ -288,6 +288,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::TransformSampler>();
     add<vsg::MorphKeyframes>();
     add<vsg::MorphSampler>();
+    add<vsg::JointSampler>();
     add<vsg::Animation>();
     add<vsg::AnimationGroup>();
     add<vsg::AnimationTransform>();
