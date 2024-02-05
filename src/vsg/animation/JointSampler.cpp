@@ -53,7 +53,7 @@ void JointSampler::read(Input& input)
 {
     AnimationSampler::read(input);
     input.read("jointMatrices", jointMatrices);
-    input.read("offsetMatrices", offsetMatrices);
+    input.readValues("offsetMatrices", offsetMatrices);
     input.read("transformSubgraph", transformSubgraph);
 }
 
@@ -61,7 +61,7 @@ void JointSampler::write(Output& output) const
 {
     AnimationSampler::write(output);
     output.write("jointMatrices", jointMatrices);
-    output.write("offsetMatrices", offsetMatrices);
+    output.writeValues("offsetMatrices", offsetMatrices);
     output.write("transformSubgraph", transformSubgraph);
 }
 
