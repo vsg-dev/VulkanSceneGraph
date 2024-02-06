@@ -38,7 +38,10 @@ void JointSampler::update(double)
     _matrixStack.clear();
     _matrixStack.emplace_back();
 
-    if (transformSubgraph) transformSubgraph->accept(*this);
+    if (subgraph)
+    {
+        subgraph->accept(*this);
+    }
 
     jointMatrices->dirty();
 }
@@ -54,7 +57,7 @@ void JointSampler::read(Input& input)
     AnimationSampler::read(input);
     input.read("jointMatrices", jointMatrices);
     input.readValues("offsetMatrices", offsetMatrices);
-    input.read("transformSubgraph", transformSubgraph);
+    input.read("subgraph", subgraph);
 }
 
 void JointSampler::write(Output& output) const
@@ -62,13 +65,14 @@ void JointSampler::write(Output& output) const
     AnimationSampler::write(output);
     output.write("jointMatrices", jointMatrices);
     output.writeValues("offsetMatrices", offsetMatrices);
-    output.write("transformSubgraph", transformSubgraph);
+    output.write("subgraph", subgraph);
 }
 
 void JointSampler::apply(Transform& transform)
 {
     auto matrix = transform.transform(_matrixStack.back());
     jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
+    ++_jointIndex;
 
     if (!transform.children.empty())
     {
@@ -82,6 +86,7 @@ void JointSampler::apply(MatrixTransform& mt)
 {
     auto matrix = _matrixStack.back() * mt.matrix;
     jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
+    ++_jointIndex;
 
     if (!mt.children.empty())
     {
@@ -95,6 +100,7 @@ void JointSampler::apply(Joint& joint)
 {
     auto matrix = _matrixStack.back() * joint.matrix;
     jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
+    ++_jointIndex;
 
     if (!joint.children.empty())
     {
