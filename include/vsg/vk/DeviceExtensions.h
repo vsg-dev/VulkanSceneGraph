@@ -49,18 +49,18 @@ namespace vsg
         PFN_vkCmdDrawMeshTasksIndirectCountEXT vkCmdDrawMeshTasksIndirectCountEXT = nullptr;
 
         // VK_EXT_extended_dynamic_state / Vulkan 1.3
-        PFN_vkCmdSetCullMode vkCmdSetCullMode = nullptr;
-        PFN_vkCmdSetFrontFace vkCmdSetFrontFace = nullptr;
-        PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology = nullptr;
-        PFN_vkCmdSetViewportWithCount vkCmdSetViewportWithCount = nullptr;
-        PFN_vkCmdSetScissorWithCount vkCmdSetScissorWithCount = nullptr;
-        PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2 = nullptr;
-        PFN_vkCmdSetDepthTestEnable vkCmdSetDepthTestEnable = nullptr;
-        PFN_vkCmdSetDepthWriteEnable vkCmdSetDepthWriteEnable = nullptr;
-        PFN_vkCmdSetDepthCompareOp vkCmdSetDepthCompareOp = nullptr;
-        PFN_vkCmdSetDepthBoundsTestEnable vkCmdSetDepthBoundsTestEnable = nullptr;
-        PFN_vkCmdSetStencilTestEnable vkCmdSetStencilTestEnable = nullptr;
-        PFN_vkCmdSetStencilOp vkCmdSetStencilOp = nullptr;
+        PFN_vkCmdSetCullModeEXT vkCmdSetCullMode = nullptr;
+        PFN_vkCmdSetFrontFaceEXT vkCmdSetFrontFace = nullptr;
+        PFN_vkCmdSetPrimitiveTopologyEXT vkCmdSetPrimitiveTopology = nullptr;
+        PFN_vkCmdSetViewportWithCountEXT vkCmdSetViewportWithCount = nullptr;
+        PFN_vkCmdSetScissorWithCountEXT vkCmdSetScissorWithCount = nullptr;
+        PFN_vkCmdBindVertexBuffers2EXT vkCmdBindVertexBuffers2 = nullptr;
+        PFN_vkCmdSetDepthTestEnableEXT vkCmdSetDepthTestEnable = nullptr;
+        PFN_vkCmdSetDepthWriteEnableEXT vkCmdSetDepthWriteEnable = nullptr;
+        PFN_vkCmdSetDepthCompareOpEXT vkCmdSetDepthCompareOp = nullptr;
+        PFN_vkCmdSetDepthBoundsTestEnableEXT vkCmdSetDepthBoundsTestEnable = nullptr;
+        PFN_vkCmdSetStencilTestEnableEXT vkCmdSetStencilTestEnable = nullptr;
+        PFN_vkCmdSetStencilOpEXT vkCmdSetStencilOp = nullptr;
     };
     VSG_type_name(vsg::DeviceExtensions);
 
