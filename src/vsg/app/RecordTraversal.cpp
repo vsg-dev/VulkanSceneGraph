@@ -414,11 +414,11 @@ void RecordTraversal::apply(const MatrixTransform& mt)
 }
 
 // Animation nodes
-void RecordTraversal::apply(const RiggedTransform&)
+void RecordTraversal::apply(const Joint&)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
-    // non op for RiggedTransform as it's designed not to have any renderable children
+    // non op for RiggedJoint as it's designed not to have any renderable children
 }
 
 // Vulkan nodes

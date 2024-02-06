@@ -187,6 +187,7 @@ set(SOURCES
     animation/AnimationPath.cpp
     animation/MorphSampler.cpp
     animation/TransformSampler.cpp
+    animation/Joint.cpp
     animation/JointSampler.cpp
 
     ui/UIEvent.cpp

@@ -35,7 +35,7 @@ namespace vsg
     class DepthSorted;
     class Transform;
     class MatrixTransform;
-    class RiggedTransform;
+    class Joint;
     class TileDatabase;
     class VertexDraw;
     class VertexIndexDraw;
@@ -133,7 +133,7 @@ namespace vsg
         void apply(const MatrixTransform& mt);
 
         // Animation nodes
-        void apply(const RiggedTransform& transform);
+        void apply(const Joint& joint);
 
         // Vulkan nodes
         void apply(const StateGroup& object);

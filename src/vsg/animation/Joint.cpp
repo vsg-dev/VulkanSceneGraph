@@ -1,5 +1,3 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
 Copyright(c) 2024 Robert Osfield
@@ -12,35 +10,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/Animation.h>
+#include <vsg/animation/Joint.h>
+#include <vsg/core/compare.h>
+#include <vsg/io/Input.h>
+#include <vsg/io/Options.h>
+#include <vsg/io/Output.h>
 
-namespace vsg
+using namespace vsg;
+
+Joint::Joint() :
+    Inherit()
 {
+}
 
-    class VSG_DECLSPEC JointSampler : public Inherit<AnimationSampler, JointSampler>
-    {
-    public:
-        JointSampler();
+Joint::~Joint()
+{
+}
 
-        ref_ptr<mat4Array> jointMatrices;
-        std::vector<dmat4> offsetMatrices;
+int Joint::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
 
-        ref_ptr<Object> transformSubgraph;
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(name, rhs.name)) != 0) return result;
+    if ((result = compare_value(matrix, rhs.matrix)) != 0) return result;
+    return compare_pointer_container(children, rhs.children);
+}
 
-        void update(double time);
-        double maxTime() const override;
+void Joint::read(Input& input)
+{
+    Node::read(input);
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
+    input.read("name", name);
+    input.read("matrix", matrix);
+    input.readObjects("children", children);
+}
 
-    protected:
-        void apply(Transform& transform) override;
-        void apply(MatrixTransform& mt) override;
-        void apply(Joint& joint) override;
+void Joint::write(Output& output) const
+{
+    Node::write(output);
 
-        unsigned int _jointIndex = 0;
-        std::vector<dmat4> _matrixStack;
-    };
-    VSG_type_name(vsg::JointSampler);
-
-} // namespace vsg
+    output.write("name", name);
+    output.write("matrix", matrix);
+    output.writeObjects("children", children);
+}

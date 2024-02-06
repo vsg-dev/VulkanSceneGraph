@@ -655,13 +655,13 @@ void Visitor::apply(AnimationGroup& value)
 {
     apply(static_cast<Group&>(value));
 }
-void Visitor::apply(RiggedTransform& value)
+void Visitor::apply(AnimationPath& animationPath)
+{
+    apply(static_cast<Object&>(animationPath));
+}
+void Visitor::apply(Joint& value)
 {
     apply(static_cast<Node&>(value));
-}
-void Visitor::apply(AnimationTransform& value)
-{
-    apply(static_cast<Transform&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -955,10 +955,6 @@ void Visitor::apply(FrameEvent& event)
 //
 // util classes
 //
-void Visitor::apply(AnimationPath& animationPath)
-{
-    apply(static_cast<Object&>(animationPath));
-}
 void Visitor::apply(ShaderCompileSettings& shaderCompileSettings)
 {
     apply(static_cast<Object&>(shaderCompileSettings));

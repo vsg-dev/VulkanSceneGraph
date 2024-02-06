@@ -13,34 +13,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Animation.h>
+#include <vsg/nodes/Group.h>
+#include <vsg/nodes/Transform.h>
 
 namespace vsg
 {
 
-    class VSG_DECLSPEC JointSampler : public Inherit<AnimationSampler, JointSampler>
+    class VSG_DECLSPEC Joint : public Inherit<Node, Joint>
     {
     public:
-        JointSampler();
+        explicit Joint();
 
-        ref_ptr<mat4Array> jointMatrices;
-        std::vector<dmat4> offsetMatrices;
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& child : node.children) child->accept(visitor);
+        }
 
-        ref_ptr<Object> transformSubgraph;
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
-        void update(double time);
-        double maxTime() const override;
+        std::string name;
+        dmat4 matrix;
+
+        using Children = std::vector<ref_ptr<Joint>, allocator_affinity_nodes<ref_ptr<Joint>>>;
+        Children children;
+
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
     protected:
-        void apply(Transform& transform) override;
-        void apply(MatrixTransform& mt) override;
-        void apply(Joint& joint) override;
-
-        unsigned int _jointIndex = 0;
-        std::vector<dmat4> _matrixStack;
+        virtual ~Joint();
     };
-    VSG_type_name(vsg::JointSampler);
+    VSG_type_name(vsg::Joint);
 
 } // namespace vsg

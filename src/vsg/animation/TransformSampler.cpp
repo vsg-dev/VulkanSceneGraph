@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/AnimationGroup.h>
+#include <vsg/animation/Joint.h>
 #include <vsg/animation/TransformSampler.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
@@ -193,14 +194,9 @@ void TransformSampler::apply(MatrixTransform& mt)
     mt.matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
 }
 
-void TransformSampler::apply(AnimationTransform& at)
+void TransformSampler::apply(Joint& joint)
 {
-    at.matrix->set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
-}
-
-void TransformSampler::apply(RiggedTransform& rt)
-{
-    rt.matrix->set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+    joint.matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
 }
 
 void TransformSampler::read(Input& input)

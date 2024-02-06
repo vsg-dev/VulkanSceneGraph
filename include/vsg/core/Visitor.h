@@ -58,8 +58,7 @@ namespace vsg
     // forward declare animation classes
     class Animation;
     class AnimationGroup;
-    class RiggedTransform;
-    class AnimationTransform;
+    class Joint;
 
     // forward declare vulkan classes
     class BufferInfo;
@@ -325,8 +324,8 @@ namespace vsg
         // animation
         virtual void apply(Animation&);
         virtual void apply(AnimationGroup&);
-        virtual void apply(RiggedTransform&);
-        virtual void apply(AnimationTransform&);
+        virtual void apply(AnimationPath&);
+        virtual void apply(Joint&);
 
         // Vulkan nodes
         virtual void apply(BufferInfo&);
@@ -403,7 +402,6 @@ namespace vsg
         virtual void apply(FrameEvent&);
 
         // utils
-        virtual void apply(AnimationPath&);
         virtual void apply(ShaderCompileSettings&);
 
         // viewer

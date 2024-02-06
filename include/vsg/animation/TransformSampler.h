@@ -77,8 +77,7 @@ namespace vsg
         void apply(mat4Value& mat) override;
         void apply(dmat4Value& mat) override;
         void apply(MatrixTransform& mt) override;
-        void apply(AnimationTransform& at) override;
-        void apply(RiggedTransform& at) override;
+        void apply(Joint& joint) override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

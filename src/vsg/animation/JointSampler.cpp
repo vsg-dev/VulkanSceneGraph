@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/AnimationGroup.h>
+#include <vsg/animation/Joint.h>
 #include <vsg/animation/JointSampler.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
@@ -90,28 +91,20 @@ void JointSampler::apply(MatrixTransform& mt)
     }
 }
 
-void JointSampler::apply(AnimationTransform& at)
+void JointSampler::apply(Joint& joint)
 {
-    auto matrix = _matrixStack.back() * at.matrix->value();
+    auto matrix = _matrixStack.back() * joint.matrix;
     jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
 
-    if (!at.children.empty())
+    if (!joint.children.empty())
     {
         _matrixStack.push_back(matrix);
-        at.traverse(*this);
-        _matrixStack.pop_back();
-    }
-}
 
-void JointSampler::apply(RiggedTransform& rt)
-{
-    auto matrix = _matrixStack.back() * rt.matrix->value();
-    jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
+        for (auto& child : joint.children)
+        {
+            apply(*child);
+        }
 
-    if (!rt.children.empty())
-    {
-        _matrixStack.push_back(matrix);
-        rt.traverse(*this);
         _matrixStack.pop_back();
     }
 }
