@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-   class VSG_DECLSPEC JointSampler : public Inherit<AnimationSampler, JointSampler>
+    class VSG_DECLSPEC JointSampler : public Inherit<AnimationSampler, JointSampler>
     {
     public:
         JointSampler();
@@ -34,7 +34,6 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-
         void apply(Transform& transform) override;
         void apply(MatrixTransform& mt) override;
         void apply(AnimationTransform& at) override;

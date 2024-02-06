@@ -23,7 +23,6 @@ AnimationSampler::AnimationSampler()
 {
 }
 
-
 void AnimationSampler::read(Input& input)
 {
     Object::read(input);

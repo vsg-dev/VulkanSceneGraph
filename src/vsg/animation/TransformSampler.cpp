@@ -10,13 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/TransformSampler.h>
 #include <vsg/animation/AnimationGroup.h>
-#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/animation/TransformSampler.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
+#include <vsg/nodes/MatrixTransform.h>
 
 using namespace vsg;
 
@@ -216,4 +216,3 @@ void TransformSampler::write(Output& output) const
     output.write("keyframes", keyframes);
     output.write("object", object);
 }
-

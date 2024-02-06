@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
-#include <vsg/core/Visitor.h>
 #include <vsg/core/Inherit.h>
+#include <vsg/core/Visitor.h>
 
 namespace vsg
 {
@@ -66,6 +66,5 @@ namespace vsg
     VSG_type_name(vsg::Animation);
 
     using Animations = std::vector<ref_ptr<Animation>, allocator_affinity_nodes<ref_ptr<Animation>>>;
-
 
 } // namespace vsg

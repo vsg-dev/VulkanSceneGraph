@@ -10,17 +10,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/JointSampler.h>
 #include <vsg/animation/AnimationGroup.h>
-#include <vsg/state/DescriptorBuffer.h>
-#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/animation/JointSampler.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
+#include <vsg/nodes/MatrixTransform.h>
+#include <vsg/state/DescriptorBuffer.h>
 
 using namespace vsg;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
