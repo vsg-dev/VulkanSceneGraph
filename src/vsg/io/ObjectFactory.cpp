@@ -240,6 +240,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::EndQuery>();
     add<vsg::ResetQueryPool>();
     add<vsg::CopyQueryPoolResults>();
+    add<vsg::SetPrimitiveTopology>();
 
     // text
     add<vsg::GlyphMetricsArray>();
