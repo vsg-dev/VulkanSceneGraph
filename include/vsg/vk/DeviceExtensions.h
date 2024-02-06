@@ -47,6 +47,20 @@ namespace vsg
         PFN_vkCmdDrawMeshTasksEXT vkCmdDrawMeshTasksEXT = nullptr;
         PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT = nullptr;
         PFN_vkCmdDrawMeshTasksIndirectCountEXT vkCmdDrawMeshTasksIndirectCountEXT = nullptr;
+
+        // VK_EXT_extended_dynamic_state / Vulkan 1.3
+        PFN_vkCmdSetCullMode vkCmdSetCullMode = nullptr;
+        PFN_vkCmdSetFrontFace vkCmdSetFrontFace = nullptr;
+        PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology = nullptr;
+        PFN_vkCmdSetViewportWithCount vkCmdSetViewportWithCount = nullptr;
+        PFN_vkCmdSetScissorWithCount vkCmdSetScissorWithCount = nullptr;
+        PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2 = nullptr;
+        PFN_vkCmdSetDepthTestEnable vkCmdSetDepthTestEnable = nullptr;
+        PFN_vkCmdSetDepthWriteEnable vkCmdSetDepthWriteEnable = nullptr;
+        PFN_vkCmdSetDepthCompareOp vkCmdSetDepthCompareOp = nullptr;
+        PFN_vkCmdSetDepthBoundsTestEnable vkCmdSetDepthBoundsTestEnable = nullptr;
+        PFN_vkCmdSetStencilTestEnable vkCmdSetStencilTestEnable = nullptr;
+        PFN_vkCmdSetStencilOp vkCmdSetStencilOp = nullptr;
     };
     VSG_type_name(vsg::DeviceExtensions);
 

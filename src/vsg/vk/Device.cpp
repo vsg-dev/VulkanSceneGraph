@@ -196,6 +196,8 @@ ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 
 bool Device::supportsApiVersion(uint32_t version) const
 {
+    vsg::info("Device::supportsApiVersion(", version, ") getInstance()->apiVersion = ", getInstance()->apiVersion, ", _physicalDevice->getProperties().apiVersion = ", _physicalDevice->getProperties().apiVersion);
+
     return getInstance()->apiVersion >= version && _physicalDevice->getProperties().apiVersion >= version;
 }
 

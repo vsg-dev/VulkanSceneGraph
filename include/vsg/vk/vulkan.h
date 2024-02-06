@@ -816,6 +816,8 @@ typedef VkFlags VkInstanceCreateFlags;
 #define VK_KHR_PORTABILITY_ENUMERATION_SPEC_VERSION 1
 #define VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME "VK_KHR_portability_enumeration"
 
+#define VK_API_VERSION_1_3 VK_MAKE_VERSION(1, 3, 0)
+
 #endif
 
 //
@@ -1042,5 +1044,93 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetCalibratedTimestampsEXT(
     uint64_t*                                   pMaxDeviation);
 #endif
 
+#endif
+
+
+#if VK_HEADER_VERSION < 148
+
+// VK_EXT_extended_dynamic_state is a preprocessor guard. Do not pass it to API calls.
+#define VK_EXT_extended_dynamic_state 1
+#define VK_EXT_EXTENDED_DYNAMIC_STATE_SPEC_VERSION 1
+#define VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME "VK_EXT_extended_dynamic_state"
+typedef struct VkPhysicalDeviceExtendedDynamicStateFeaturesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           extendedDynamicState;
+} VkPhysicalDeviceExtendedDynamicStateFeaturesEXT;
+
+typedef void (VKAPI_PTR *PFN_vkCmdSetCullModeEXT)(VkCommandBuffer commandBuffer, VkCullModeFlags cullMode);
+typedef void (VKAPI_PTR *PFN_vkCmdSetFrontFaceEXT)(VkCommandBuffer commandBuffer, VkFrontFace frontFace);
+typedef void (VKAPI_PTR *PFN_vkCmdSetPrimitiveTopologyEXT)(VkCommandBuffer commandBuffer, VkPrimitiveTopology primitiveTopology);
+typedef void (VKAPI_PTR *PFN_vkCmdSetViewportWithCountEXT)(VkCommandBuffer commandBuffer, uint32_t viewportCount, const VkViewport* pViewports);
+typedef void (VKAPI_PTR *PFN_vkCmdSetScissorWithCountEXT)(VkCommandBuffer commandBuffer, uint32_t scissorCount, const VkRect2D* pScissors);
+typedef void (VKAPI_PTR *PFN_vkCmdBindVertexBuffers2EXT)(VkCommandBuffer commandBuffer, uint32_t firstBinding, uint32_t bindingCount, const VkBuffer* pBuffers, const VkDeviceSize* pOffsets, const VkDeviceSize* pSizes, const VkDeviceSize* pStrides);
+typedef void (VKAPI_PTR *PFN_vkCmdSetDepthTestEnableEXT)(VkCommandBuffer commandBuffer, VkBool32 depthTestEnable);
+typedef void (VKAPI_PTR *PFN_vkCmdSetDepthWriteEnableEXT)(VkCommandBuffer commandBuffer, VkBool32 depthWriteEnable);
+typedef void (VKAPI_PTR *PFN_vkCmdSetDepthCompareOpEXT)(VkCommandBuffer commandBuffer, VkCompareOp depthCompareOp);
+typedef void (VKAPI_PTR *PFN_vkCmdSetDepthBoundsTestEnableEXT)(VkCommandBuffer commandBuffer, VkBool32 depthBoundsTestEnable);
+typedef void (VKAPI_PTR *PFN_vkCmdSetStencilTestEnableEXT)(VkCommandBuffer commandBuffer, VkBool32 stencilTestEnable);
+typedef void (VKAPI_PTR *PFN_vkCmdSetStencilOpEXT)(VkCommandBuffer commandBuffer, VkStencilFaceFlags faceMask, VkStencilOp failOp, VkStencilOp passOp, VkStencilOp depthFailOp, VkCompareOp compareOp);
+
+#ifndef VK_NO_PROTOTYPES
+VKAPI_ATTR void VKAPI_CALL vkCmdSetCullModeEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkCullModeFlags                             cullMode);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetFrontFaceEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkFrontFace                                 frontFace);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveTopologyEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkPrimitiveTopology                         primitiveTopology);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetViewportWithCountEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    viewportCount,
+    const VkViewport*                           pViewports);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetScissorWithCountEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    scissorCount,
+    const VkRect2D*                             pScissors);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers2EXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    const VkBuffer*                             pBuffers,
+    const VkDeviceSize*                         pOffsets,
+    const VkDeviceSize*                         pSizes,
+    const VkDeviceSize*                         pStrides);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthTestEnableEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    depthTestEnable);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthWriteEnableEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    depthWriteEnable);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthCompareOpEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkCompareOp                                 depthCompareOp);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBoundsTestEnableEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    depthBoundsTestEnable);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilTestEnableEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    stencilTestEnable);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetStencilOpEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkStencilFaceFlags                          faceMask,
+    VkStencilOp                                 failOp,
+    VkStencilOp                                 passOp,
+    VkStencilOp                                 depthFailOp,
+    VkCompareOp                                 compareOp);
+#endif
 
 #endif
