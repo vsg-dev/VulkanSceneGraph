@@ -25,8 +25,8 @@ namespace vsg
 
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
-        void read(Input& inpur);
-        void write(Output& output) const;
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void record(CommandBuffer& commandBuffer) const override;
     };

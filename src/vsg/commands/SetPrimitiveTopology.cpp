@@ -37,5 +37,8 @@ void SetPrimitiveTopology::write(Output& output) const
 
 void SetPrimitiveTopology::record(CommandBuffer& commandBuffer) const
 {
-    vkCmdSetPrimitiveTopology(commandBuffer, topology);
+    auto extensions = commandBuffer.getDevice()->getExtensions();
+    if (!extensions->vkCmdSetPrimitiveTopology) return;
+
+    extensions->vkCmdSetPrimitiveTopology(commandBuffer, topology);
 }

@@ -46,4 +46,36 @@ DeviceExtensions::DeviceExtensions(Device* device)
     device->getProcAddr(vkCmdDrawMeshTasksEXT, "vkCmdDrawMeshTasksEXT");
     device->getProcAddr(vkCmdDrawMeshTasksIndirectEXT, "vkCmdDrawMeshTasksIndirectEXT");
     device->getProcAddr(vkCmdDrawMeshTasksIndirectCountEXT, "vkCmdDrawMeshTasksIndirectCountEXT");
+
+    // VK_EXT_extended_dynamic_state
+    if (device->supportsApiVersion(VK_API_VERSION_1_3))
+    {
+        device->getProcAddr(vkCmdSetCullMode, "vkCmdSetCullMode");
+        device->getProcAddr(vkCmdSetFrontFace, "vkCmdSetFrontFace");
+        device->getProcAddr(vkCmdSetPrimitiveTopology, "vkCmdSetPrimitiveTopology");
+        device->getProcAddr(vkCmdSetViewportWithCount, "vkCmdSetViewportWithCount");
+        device->getProcAddr(vkCmdSetScissorWithCount, "vkCmdSetScissorWithCount");
+        device->getProcAddr(vkCmdBindVertexBuffers2, "vkCmdBindVertexBuffers2");
+        device->getProcAddr(vkCmdSetDepthTestEnable, "vkCmdSetDepthTestEnable");
+        device->getProcAddr(vkCmdSetDepthWriteEnable, "vkCmdSetDepthWriteEnable");
+        device->getProcAddr(vkCmdSetDepthCompareOp, "vkCmdSetDepthCompareOp");
+        device->getProcAddr(vkCmdSetDepthBoundsTestEnable, "vkCmdSetDepthBoundsTestEnable");
+        device->getProcAddr(vkCmdSetStencilTestEnable, "vkCmdSetStencilTestEnable");
+        device->getProcAddr(vkCmdSetStencilOp, "vkCmdSetStencilOp");
+    }
+    else if (device->supportsDeviceExtension("VK_EXT_extended_dynamic_state"))
+    {
+        device->getProcAddr(vkCmdSetCullMode, "vkCmdSetCullModeEXT");
+        device->getProcAddr(vkCmdSetFrontFace, "vkCmdSetFrontFaceEXT");
+        device->getProcAddr(vkCmdSetPrimitiveTopology, "vkCmdSetPrimitiveTopologyEXT");
+        device->getProcAddr(vkCmdSetViewportWithCount, "vkCmdSetViewportWithCountEXT");
+        device->getProcAddr(vkCmdSetScissorWithCount, "vkCmdSetScissorWithCountEXT");
+        device->getProcAddr(vkCmdBindVertexBuffers2, "vkCmdBindVertexBuffers2EXT");
+        device->getProcAddr(vkCmdSetDepthTestEnable, "vkCmdSetDepthTestEnableEXT");
+        device->getProcAddr(vkCmdSetDepthWriteEnable, "vkCmdSetDepthWriteEnableEXT");
+        device->getProcAddr(vkCmdSetDepthCompareOp, "vkCmdSetDepthCompareOpEXT");
+        device->getProcAddr(vkCmdSetDepthBoundsTestEnable, "vkCmdSetDepthBoundsTestEnableEXT");
+        device->getProcAddr(vkCmdSetStencilTestEnable, "vkCmdSetStencilTestEnableEXT");
+        device->getProcAddr(vkCmdSetStencilOp, "vkCmdSetStencilOpEXT");
+    }
 }
