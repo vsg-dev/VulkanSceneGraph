@@ -66,6 +66,7 @@ set(SOURCES
     commands/SetLineWidth.cpp
     commands/SetScissor.cpp
     commands/SetViewport.cpp
+    commands/SetPrimitiveTopology.cpp
     commands/ResolveImage.cpp
     commands/ResetQueryPool.cpp
     commands/WriteTimestamp.cpp
