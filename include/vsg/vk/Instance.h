@@ -29,7 +29,6 @@ namespace vsg
     using PhysicalDeviceTypes = std::vector<VkPhysicalDeviceType>;
     using InstanceLayerProperties = std::vector<VkLayerProperties>;
 
-
     /// wrapper for vkEnumerateInstanceExtensionProperties
     extern VSG_DECLSPEC ExtensionProperties enumerateInstanceExtensionProperties(const char* pLayerName = nullptr);
 

@@ -144,7 +144,6 @@ namespace vsg
         // clear the bins to record a new frame.
         void clearBins();
 
-
     protected:
         virtual ~RecordTraversal();
 

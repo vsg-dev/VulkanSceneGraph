@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/io/convert_utf.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace vsg
 {

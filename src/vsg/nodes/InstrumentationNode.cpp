@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-InstrumentationNode::InstrumentationNode():
+InstrumentationNode::InstrumentationNode() :
     _level(1),
     _color(255, 255, 255, 255),
     _name("InstrumentationNode"),
@@ -105,7 +105,6 @@ void InstrumentationNode::read(Input& input)
     setName(name);
 
     input.read("child", child);
-
 }
 
 void InstrumentationNode::write(Output& output) const

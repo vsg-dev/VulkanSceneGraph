@@ -150,11 +150,11 @@ namespace vsg
 #    define VsgFunctionName __FUNCSIG__
 #endif
 
-#define __CPU_INSTRUMENTATION(level, instrumentation, name, color, object)                                                             \
+#define __CPU_INSTRUMENTATION(level, instrumentation, name, color, object)                                                     \
     static constexpr SourceLocation s_cpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
     CpuInstrumentation __cpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_cpu_source_location_##__LINE__), object);
 
-#define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color, object)                                                         \
+#define __GPU_INSTRUMENTATION(level, instrumentation, cg, name, color, object)                                                 \
     static constexpr SourceLocation s_gpu_source_location_##__LINE__{name, VsgFunctionName, __FILE__, __LINE__, color, level}; \
     GpuInstrumentation __gpu_scoped_instrumentation_##__LINE__(instrumentation, &(s_gpu_source_location_##__LINE__), cg, object);
 
