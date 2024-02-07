@@ -133,6 +133,14 @@ add_custom_target(build_ShaderSets
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "update built-in ShaderSets"
 )
+add_custom_target(build_simple_ShaderSets
+    COMMAND vsgshaderset --pbr -o src/vsg/utils/shaders/pbr_ShaderSet.cpp
+    COMMAND vsgshaderset --phong -o src/vsg/utils/shaders/phong_ShaderSet.cpp
+    COMMAND vsgshaderset --flat -o src/vsg/utils/shaders/flat_ShaderSet.cpp
+    COMMAND vsgshaderset --text -o src/vsg/text/shaders/text_ShaderSet.cpp
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "update built-in ShaderSets"
+)
 
 vsg_add_option_maintainer(
     PREFIX v
