@@ -39,6 +39,15 @@ namespace vsg
     public:
         Animation();
 
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& sampler : node.samplers) sampler->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+
         std::string name;
 
         enum Mode
