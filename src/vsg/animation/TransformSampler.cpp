@@ -181,22 +181,22 @@ double TransformSampler::maxTime() const
 
 void TransformSampler::apply(mat4Value& matrix)
 {
-    matrix.set(mat4(vsg::scale(scale) * vsg::rotate(rotation) * translate(position)));
+    matrix.set(mat4(translate(position) * vsg::rotate(rotation) * vsg::scale(scale)));
 }
 
 void TransformSampler::apply(dmat4Value& matrix)
 {
-    matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+    matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
 }
 
 void TransformSampler::apply(MatrixTransform& mt)
 {
-    mt.matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+    mt.matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
 }
 
 void TransformSampler::apply(Joint& joint)
 {
-    joint.matrix.set(vsg::scale(scale) * vsg::rotate(rotation) * translate(position));
+    joint.matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
 }
 
 void TransformSampler::read(Input& input)
