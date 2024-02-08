@@ -42,6 +42,7 @@ void Joint::read(Input& input)
 {
     Node::read(input);
 
+    input.read("index", index);
     input.read("name", name);
     input.read("matrix", matrix);
     input.readObjects("children", children);
@@ -51,6 +52,7 @@ void Joint::write(Output& output) const
 {
     Node::write(output);
 
+    output.write("index", index);
     output.write("name", name);
     output.write("matrix", matrix);
     output.writeObjects("children", children);

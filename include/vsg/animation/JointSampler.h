@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Animation.h>
+#include <vsg/animation/Joint.h>
 
 namespace vsg
 {
@@ -24,7 +25,7 @@ namespace vsg
 
         ref_ptr<mat4Array> jointMatrices;
         std::vector<dmat4> offsetMatrices;
-        ref_ptr<Object> subgraph;
+        ref_ptr<Joint> subgraph;
 
         void update(double time);
         double maxTime() const override;
@@ -33,11 +34,12 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
+        void apply(Node& node) override;
         void apply(Transform& transform) override;
         void apply(MatrixTransform& mt) override;
         void apply(Joint& joint) override;
 
-        unsigned int _jointIndex = 0;
+        double _time;
         std::vector<dmat4> _matrixStack;
     };
     VSG_type_name(vsg::JointSampler);

@@ -30,13 +30,14 @@ JointSampler::JointSampler()
 {
 }
 
-void JointSampler::update(double)
+void JointSampler::update(double time )
 {
+    _time = time;
+
     if (!jointMatrices) return;
 
-    _jointIndex = 0;
     _matrixStack.clear();
-    _matrixStack.emplace_back();
+    _matrixStack.push_back(dmat4());
 
     if (subgraph)
     {
@@ -68,30 +69,31 @@ void JointSampler::write(Output& output) const
     output.write("subgraph", subgraph);
 }
 
+void JointSampler::apply(Node& node)
+{
+    node.traverse(*this);
+}
+
 void JointSampler::apply(Transform& transform)
 {
-    auto matrix = transform.transform(_matrixStack.back());
-    jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
-    ++_jointIndex;
-
     if (!transform.children.empty())
     {
-        _matrixStack.push_back(matrix);
+        _matrixStack.push_back(transform.transform(_matrixStack.back()));
+
         transform.traverse(*this);
+
         _matrixStack.pop_back();
     }
 }
 
 void JointSampler::apply(MatrixTransform& mt)
 {
-    auto matrix = _matrixStack.back() * mt.matrix;
-    jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
-    ++_jointIndex;
-
     if (!mt.children.empty())
     {
-        _matrixStack.push_back(matrix);
+        _matrixStack.push_back(_matrixStack.back() * mt.matrix);
+
         mt.traverse(*this);
+
         _matrixStack.pop_back();
     }
 }
@@ -99,8 +101,7 @@ void JointSampler::apply(MatrixTransform& mt)
 void JointSampler::apply(Joint& joint)
 {
     auto matrix = _matrixStack.back() * joint.matrix;
-    jointMatrices->set(_jointIndex, mat4(matrix * offsetMatrices[_jointIndex]));
-    ++_jointIndex;
+    jointMatrices->set(joint.index, mat4(matrix * offsetMatrices[joint.index]));
 
     if (!joint.children.empty())
     {
@@ -108,7 +109,8 @@ void JointSampler::apply(Joint& joint)
 
         for (auto& child : joint.children)
         {
-            apply(*child);
+            // apply(*child);
+            child->accept(*this);
         }
 
         _matrixStack.pop_back();

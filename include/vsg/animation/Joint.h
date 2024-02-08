@@ -12,9 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/Animation.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/Transform.h>
+#include <vsg/nodes/Node.h>
+#include <vsg/maths/mat4.h>
 
 namespace vsg
 {
@@ -34,10 +33,11 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
+        unsigned int index = 0;
         std::string name;
         dmat4 matrix;
 
-        using Children = std::vector<ref_ptr<Joint>, allocator_affinity_nodes<ref_ptr<Joint>>>;
+        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
         int compare(const Object& rhs) const override;
