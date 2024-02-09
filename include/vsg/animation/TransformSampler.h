@@ -71,7 +71,7 @@ namespace vsg
         dquat rotation;
         dvec3 scale;
 
-        void update(double time);
+        void update(double time) override;
         double maxTime() const override;
 
         void apply(mat4Value& mat) override;

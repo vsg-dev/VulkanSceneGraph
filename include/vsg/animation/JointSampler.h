@@ -27,7 +27,7 @@ namespace vsg
         std::vector<dmat4> offsetMatrices;
         ref_ptr<Joint> subgraph;
 
-        void update(double time);
+        void update(double time) override;
         double maxTime() const override;
 
         void read(Input& input) override;
