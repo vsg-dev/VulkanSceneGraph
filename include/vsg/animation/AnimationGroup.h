@@ -52,4 +52,6 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationGroup);
 
+    using AnimationGroups = std::vector<ref_ptr<AnimationGroup>>;
+
 } // namespace vsg

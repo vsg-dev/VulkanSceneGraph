@@ -185,10 +185,11 @@ set(SOURCES
     animation/AnimationGroup.cpp
     animation/AnimationManager.cpp
     animation/AnimationPath.cpp
-    animation/MorphSampler.cpp
-    animation/TransformSampler.cpp
+    animation/FindAnimations.cpp
     animation/Joint.cpp
     animation/JointSampler.cpp
+    animation/MorphSampler.cpp
+    animation/TransformSampler.cpp
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
