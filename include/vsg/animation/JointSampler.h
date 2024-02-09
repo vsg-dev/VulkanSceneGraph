@@ -25,7 +25,7 @@ namespace vsg
 
         ref_ptr<mat4Array> jointMatrices;
         std::vector<dmat4> offsetMatrices;
-        ref_ptr<Joint> subgraph;
+        ref_ptr<Node> subgraph;
 
         void update(double time) override;
         double maxTime() const override;
