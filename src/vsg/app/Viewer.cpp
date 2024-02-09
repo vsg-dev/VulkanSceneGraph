@@ -884,6 +884,8 @@ void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 
     if (compileManager) compileManager->assignInstrumentation(instrumentation);
 
+    if (animationManager) animationManager->assignInstrumentation(instrumentation);
+
     if (previous_threading) setupThreading();
 }
 

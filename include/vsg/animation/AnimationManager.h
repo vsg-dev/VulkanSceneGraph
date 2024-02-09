@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/AnimationGroup.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/ui/FrameStamp.h>
 
 namespace vsg
@@ -24,6 +25,10 @@ namespace vsg
         AnimationManager();
 
         Animations animations;
+
+        ref_ptr<Instrumentation> instrumentation;
+
+        virtual void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
         virtual bool start(vsg::ref_ptr<vsg::Animation> animation);
 
