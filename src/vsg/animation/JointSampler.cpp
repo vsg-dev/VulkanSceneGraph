@@ -32,8 +32,6 @@ JointSampler::JointSampler()
 
 void JointSampler::update(double time )
 {
-    _time = time;
-
     if (!jointMatrices) return;
 
     _matrixStack.clear();

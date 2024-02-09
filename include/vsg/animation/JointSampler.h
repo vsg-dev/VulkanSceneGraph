@@ -39,7 +39,6 @@ namespace vsg
         void apply(MatrixTransform& mt) override;
         void apply(Joint& joint) override;
 
-        double _time;
         std::vector<dmat4> _matrixStack;
     };
     VSG_type_name(vsg::JointSampler);
