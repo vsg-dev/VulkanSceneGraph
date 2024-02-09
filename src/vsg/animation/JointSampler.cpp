@@ -30,7 +30,7 @@ JointSampler::JointSampler()
 {
 }
 
-void JointSampler::update(double time)
+void JointSampler::update(double)
 {
     if (!jointMatrices) return;
 
