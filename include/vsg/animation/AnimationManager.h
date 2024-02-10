@@ -24,15 +24,17 @@ namespace vsg
     public:
         AnimationManager();
 
-        Animations animations;
+        std::list<ref_ptr<Animation>> animations;
 
         ref_ptr<Instrumentation> instrumentation;
 
         virtual void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
-        virtual bool start(vsg::ref_ptr<vsg::Animation> animation);
+        virtual bool play(vsg::ref_ptr<vsg::Animation> animation);
 
-        virtual bool end(vsg::ref_ptr<vsg::Animation> animation);
+        virtual bool stop(vsg::ref_ptr<vsg::Animation> animation);
+
+        virtual bool update(vsg::Animation& animation);
 
         virtual void run(vsg::ref_ptr<vsg::FrameStamp> frameStamp);
 

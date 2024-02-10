@@ -70,7 +70,7 @@ namespace vsg
         void write(Output& output) const override;
 
         // update
-        virtual void update(double simulationTime);
+        virtual bool update(double simulationTime);
     };
     VSG_type_name(vsg::Animation);
 

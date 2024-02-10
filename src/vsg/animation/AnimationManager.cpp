@@ -24,7 +24,7 @@ void AnimationManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrum
     instrumentation = in_instrumentation;
 }
 
-bool AnimationManager::start(vsg::ref_ptr<vsg::Animation> animation)
+bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager start Animation", COLOR_VIEWER);
 
@@ -39,7 +39,7 @@ bool AnimationManager::start(vsg::ref_ptr<vsg::Animation> animation)
     return true;
 }
 
-bool AnimationManager::end(vsg::ref_ptr<vsg::Animation> animation)
+bool AnimationManager::stop(vsg::ref_ptr<vsg::Animation> animation)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager end Animation", COLOR_VIEWER);
 
@@ -55,14 +55,24 @@ bool AnimationManager::end(vsg::ref_ptr<vsg::Animation> animation)
     }
 }
 
+bool AnimationManager::update(vsg::Animation& animation)
+{
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager update", COLOR_VIEWER);
+    return animation.update(_simulationTime);
+}
+
 void AnimationManager::run(vsg::ref_ptr<vsg::FrameStamp> frameStamp)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager run", COLOR_VIEWER);
 
     _simulationTime = frameStamp->simulationTime;
 
-    for (auto& animation : animations)
+    for(auto itr = animations.begin(); itr != animations.end();)
     {
-        animation->update(_simulationTime);
+        if (update(**itr)) ++itr;
+        else
+        {
+            itr = animations.erase(itr);
+        }
     }
 }

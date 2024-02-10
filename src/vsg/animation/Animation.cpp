@@ -55,7 +55,7 @@ void Animation::write(Output& output) const
     output.writeObjects("samplers", samplers);
 }
 
-void Animation::update(double simulationTime)
+bool Animation::update(double simulationTime)
 {
     double maxTime = 0.0;
     for (auto sampler : samplers)
@@ -74,9 +74,15 @@ void Animation::update(double simulationTime)
         time = std::fmod(time, 2.0 * maxTime);
         if (time > maxTime) time = 2.0 * maxTime - time;
     }
+    else
+    {
+        if (time > maxTime) return false;
+    }
 
     for (auto sampler : samplers)
     {
         sampler->update(time);
     }
+
+    return true;
 }
