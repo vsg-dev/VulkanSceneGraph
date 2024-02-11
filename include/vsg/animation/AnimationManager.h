@@ -19,23 +19,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// AnimationManager provides a mechanism for playing/updating animations as part of the Viewer::update()
     class VSG_DECLSPEC AnimationManager : public vsg::Inherit<Object, AnimationManager>
     {
     public:
         AnimationManager();
 
+        /// list of animations that are currently being played
         std::list<ref_ptr<Animation>> animations;
 
         ref_ptr<Instrumentation> instrumentation;
 
+        /// assign instrumentation if required
         virtual void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
+        /// play animation
         virtual bool play(vsg::ref_ptr<vsg::Animation> animation);
 
+        /// stop animation
         virtual bool stop(vsg::ref_ptr<vsg::Animation> animation);
 
+        /// stop all running animations
+        virtual bool stop();
+
+        /// update animation, called automatically by AnimationManager::run()
         virtual bool update(vsg::Animation& animation);
 
+        /// update all the animations being played, called automatically by Viewer::update()
         virtual void run(vsg::ref_ptr<vsg::FrameStamp> frameStamp);
 
     protected:
