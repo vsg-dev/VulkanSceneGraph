@@ -659,6 +659,22 @@ void Visitor::apply(AnimationPath& animationPath)
 {
     apply(static_cast<Object&>(animationPath));
 }
+void Visitor::apply(AnimationSampler& sampler)
+{
+    apply(static_cast<Object&>(sampler));
+}
+void Visitor::apply(JointSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
+void Visitor::apply(MorphSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
+void Visitor::apply(TransformSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
 void Visitor::apply(Joint& value)
 {
     apply(static_cast<Node&>(value));

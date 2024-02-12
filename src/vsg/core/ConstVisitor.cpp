@@ -659,6 +659,22 @@ void ConstVisitor::apply(const AnimationPath& animationPath)
 {
     apply(static_cast<const Object&>(animationPath));
 }
+void ConstVisitor::apply(const AnimationSampler& sampler)
+{
+    apply(static_cast<const Object&>(sampler));
+}
+void ConstVisitor::apply(const JointSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const MorphSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const TransformSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
 void ConstVisitor::apply(const Joint& value)
 {
     apply(static_cast<const Node&>(value));

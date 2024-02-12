@@ -58,6 +58,11 @@ namespace vsg
     // forward declare animation classes
     class Animation;
     class AnimationGroup;
+    class AnimationPath;
+    class AnimationSampler;
+    class TransformSampler;
+    class MorphSampler;
+    class JointSampler;
     class Joint;
 
     // forward declare vulkan classes
@@ -136,7 +141,6 @@ namespace vsg
     class FrameEvent;
 
     // forward declare util classes
-    class AnimationPath;
     class ShaderCompileSettings;
 
     // forward declare viewer classes
@@ -325,6 +329,10 @@ namespace vsg
         virtual void apply(Animation&);
         virtual void apply(AnimationGroup&);
         virtual void apply(AnimationPath&);
+        virtual void apply(AnimationSampler&);
+        virtual void apply(JointSampler&);
+        virtual void apply(MorphSampler&);
+        virtual void apply(TransformSampler&);
         virtual void apply(Joint&);
 
         // Vulkan nodes
