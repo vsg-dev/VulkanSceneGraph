@@ -250,17 +250,6 @@ void CompileTraversal::apply(Commands& commands)
     }
 }
 
-void CompileTraversal::apply(StateGroup& stateGroup)
-{
-    CPU_INSTRUMENTATION_L2_NC(instrumentation, "CompileTraversal StateGroup", COLOR_COMPILE);
-
-    for (auto& context : contexts)
-    {
-        stateGroup.compile(*context);
-    }
-    stateGroup.traverse(*this);
-}
-
 void CompileTraversal::apply(Geometry& geometry)
 {
     CPU_INSTRUMENTATION_L3_NC(instrumentation, "CompileTraversal Geometry", COLOR_COMPILE);

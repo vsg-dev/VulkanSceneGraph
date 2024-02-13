@@ -35,7 +35,6 @@ namespace vsg
 
         void apply(Object& object) override;
         void apply(BindGraphicsPipeline& bindPipeline) override;
-        void apply(StateGroup& sg) override;
         void apply(View& view) override;
     };
     VSG_type_name(UpdateGraphicsPipelines);
@@ -66,7 +65,6 @@ namespace vsg
 
         void apply(BindGraphicsPipeline& bindPipeline) override;
         void apply(Object& object) override;
-        void apply(StateGroup& sg) override;
         void apply(ClearAttachments& clearAttachments) override;
         void apply(View& view) override;
     };

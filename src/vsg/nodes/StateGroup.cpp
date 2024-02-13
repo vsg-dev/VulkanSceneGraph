@@ -51,11 +51,3 @@ void StateGroup::write(Output& output) const
     output.writeObjects("stateCommands", stateCommands);
     output.write("prototypeArrayState", prototypeArrayState);
 }
-
-void StateGroup::compile(Context& context)
-{
-    for (auto& stateCommand : stateCommands)
-    {
-        stateCommand->compile(context);
-    }
-}
