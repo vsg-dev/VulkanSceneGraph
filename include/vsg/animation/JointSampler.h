@@ -30,6 +30,8 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
 

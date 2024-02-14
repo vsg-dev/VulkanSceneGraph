@@ -33,6 +33,7 @@ namespace vsg
         BufferInfo(const BufferInfo&) = delete;
         BufferInfo& operator=(const BufferInfo&) = delete;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
         int compare(const Object& rhs_object) const override;
 
         void release();

@@ -95,7 +95,7 @@ namespace vsg
             return ref_ptr<Array2D>(new Array2D(args...));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(CopyOp&) const override
         {
             return ref_ptr<Array2D>(new Array2D(*this));
         }

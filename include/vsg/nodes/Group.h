@@ -31,6 +31,18 @@ namespace vsg
             for (Iterator itr = begin; itr != end; ++itr) addChild(*itr);
         }
 
+        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
+        Children children;
+
+
+        void addChild(vsg::ref_ptr<Node> child)
+        {
+            children.push_back(child);
+        }
+
+        ref_ptr<Object> clone(CopyOp&) const override;
+        int compare(const Object& rhs) const override;
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -41,18 +53,8 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
-        int compare(const Object& rhs) const override;
-
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
-        Children children;
-
-        void addChild(vsg::ref_ptr<Node> child)
-        {
-            children.push_back(child);
-        }
 
     protected:
         virtual ~Group();

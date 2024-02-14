@@ -32,6 +32,7 @@ namespace vsg
     class Input;
     class Output;
     class Object;
+    class CopyOp;
 
     template<typename T>
     constexpr bool has_read_write() { return false; }
@@ -72,6 +73,8 @@ namespace vsg
 
         template<class T>
         const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
+
+        virtual ref_ptr<Object> clone(CopyOp&) const { return {}; }
 
         /// compare two objects, return -1 if this object is less than rhs, return 0 if it's equal, return 1 if rhs is greater,
         virtual int compare(const Object& rhs) const;

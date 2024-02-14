@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/View.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
@@ -28,6 +29,19 @@ BindDescriptorSets::BindDescriptorSets() :
     pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     firstSet(0)
 {
+}
+
+ref_ptr<Object> BindDescriptorSets::clone(CopyOp& copyop) const
+{
+    auto new_bds = BindDescriptorSets::create();
+    new_bds->slot = slot;
+    new_bds->pipelineBindPoint = pipelineBindPoint;
+    new_bds->layout = copyop(layout);
+    new_bds->firstSet = firstSet;
+    new_bds->descriptorSets = copyop(descriptorSets);
+    new_bds->dynamicOffsets = dynamicOffsets;
+
+    return new_bds;
 }
 
 int BindDescriptorSets::compare(const Object& rhs_object) const
@@ -118,6 +132,19 @@ BindDescriptorSet::BindDescriptorSet() :
     pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     firstSet(0)
 {
+}
+
+ref_ptr<Object> BindDescriptorSet::clone(CopyOp& copyop) const
+{
+    auto new_bds = BindDescriptorSet::create();
+    new_bds->slot = slot;
+    new_bds->pipelineBindPoint = pipelineBindPoint;
+    new_bds->layout = copyop(layout);
+    new_bds->firstSet = firstSet;
+    new_bds->descriptorSet = copyop(descriptorSet);
+    new_bds->dynamicOffsets = dynamicOffsets;
+
+    return new_bds;
 }
 
 int BindDescriptorSet::compare(const Object& rhs_object) const

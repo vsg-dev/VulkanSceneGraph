@@ -10,11 +10,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/nodes/Group.h>
+
+#include <vsg/io/Logger.h>
 
 using namespace vsg;
 
@@ -25,6 +28,14 @@ Group::Group(size_t numChildren) :
 
 Group::~Group()
 {
+}
+
+ref_ptr<Object> Group::clone(CopyOp& copyop) const
+{
+    auto new_group = Group::create();
+    new_group->children = copyop(children);
+
+    return new_group;
 }
 
 int Group::compare(const Object& rhs_object) const

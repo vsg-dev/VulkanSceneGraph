@@ -103,7 +103,7 @@ namespace vsg
             return ref_ptr<Array3D>(new Array3D(args...));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(CopyOp&) const override
         {
             return ref_ptr<Array3D>(new Array3D(*this));
         }

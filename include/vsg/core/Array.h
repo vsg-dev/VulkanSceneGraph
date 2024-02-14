@@ -125,7 +125,7 @@ namespace vsg
             return ref_ptr<Array>(new Array(data, offset, stride, l));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(CopyOp&) const override
         {
             return ref_ptr<Array>(new Array(*this));
         }

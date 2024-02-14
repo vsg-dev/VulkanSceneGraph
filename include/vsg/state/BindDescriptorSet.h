@@ -51,6 +51,7 @@ namespace vsg
         DescriptorSets descriptorSets;
         std::vector<uint32_t> dynamicOffsets;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
         int compare(const Object& rhs_object) const override;
 
         template<class N, class V>
@@ -126,6 +127,7 @@ namespace vsg
         ref_ptr<DescriptorSet> descriptorSet;
         std::vector<uint32_t> dynamicOffsets;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
         int compare(const Object& rhs_object) const override;
 
         template<class N, class V>

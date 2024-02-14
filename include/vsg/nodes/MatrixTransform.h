@@ -28,6 +28,7 @@ namespace vsg
 
         dmat4 matrix;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

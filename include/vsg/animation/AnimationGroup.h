@@ -25,6 +25,11 @@ namespace vsg
     public:
         explicit AnimationGroup(size_t numChildren = 0);
 
+        Animations animations;
+
+        ref_ptr<Object> clone(CopyOp&) const override;
+        int compare(const Object& rhs) const override;
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -34,15 +39,10 @@ namespace vsg
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-
         void traverse(RecordTraversal& visitor) const override
         {
             for (auto& child : children) child->accept(visitor);
         }
-
-        Animations animations;
-
-        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

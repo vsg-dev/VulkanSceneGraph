@@ -23,6 +23,15 @@ namespace vsg
     public:
         explicit Joint();
 
+        unsigned int index = 0;
+        std::string name;
+        dmat4 matrix;
+
+        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
+        Children children;
+
+        ref_ptr<Object> clone(CopyOp&) const override;
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -32,13 +41,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
-        unsigned int index = 0;
-        std::string name;
-        dmat4 matrix;
-
-        using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
-        Children children;
 
         int compare(const Object& rhs) const override;
 

@@ -39,6 +39,8 @@ namespace vsg
     public:
         Animation();
 
+        ref_ptr<Object> clone(CopyOp&) const override;
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {

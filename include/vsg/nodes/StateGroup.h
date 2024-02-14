@@ -33,17 +33,6 @@ namespace vsg
     public:
         StateGroup();
 
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
-        {
-            for (auto& sc : node.stateCommands) sc->accept(visitor);
-            for (auto& child : node.children) child->accept(visitor);
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
         StateCommands stateCommands;
 
         /// if the shaders associated with GraphicsPipeline don't treat the array 0 as xyz vertex then provide an ArrayState prototype to provide custom mapping of arrays to vertices.
@@ -69,7 +58,20 @@ namespace vsg
             }
         }
 
+        ref_ptr<Object> clone(CopyOp&) const override;
         int compare(const Object& rhs) const override;
+
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& sc : node.stateCommands) sc->accept(visitor);
+            for (auto& child : node.children) child->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+
 
         void read(Input& input) override;
         void write(Output& output) const override;

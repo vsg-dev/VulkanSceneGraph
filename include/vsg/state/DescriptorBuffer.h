@@ -32,6 +32,7 @@ namespace vsg
         /// VkWriteDescriptorSet.pBufferInfo settings
         BufferInfoList bufferInfoList;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;

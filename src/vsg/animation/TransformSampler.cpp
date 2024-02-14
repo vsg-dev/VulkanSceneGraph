@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/TransformSampler.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -152,6 +153,19 @@ TransformSampler::TransformSampler() :
     rotation(),
     scale(1.0, 1.0, 1.0)
 {
+}
+
+ref_ptr<Object> TransformSampler::clone(CopyOp& copyop) const
+{
+    auto new_ts = TransformSampler::create();
+    new_ts->name = name;
+    new_ts->position = position;
+    new_ts->rotation = rotation;
+    new_ts->scale = scale;
+    new_ts->keyframes = copyop(keyframes);
+    new_ts->object = copyop(object);
+
+    return new_ts;
 }
 
 void TransformSampler::update(double time)

@@ -10,10 +10,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/MatrixTransform.h>
+
+#include <vsg/io/Logger.h>
 
 using namespace vsg;
 
@@ -24,6 +27,16 @@ MatrixTransform::MatrixTransform()
 MatrixTransform::MatrixTransform(const dmat4& in_matrix) :
     matrix(in_matrix)
 {
+}
+
+
+ref_ptr<Object> MatrixTransform::clone(CopyOp& copyop) const
+{
+    auto new_mt = MatrixTransform::create();
+    new_mt->matrix = matrix;
+    new_mt->children = copyop(children);
+
+    return new_mt;
 }
 
 int MatrixTransform::compare(const Object& rhs_object) const

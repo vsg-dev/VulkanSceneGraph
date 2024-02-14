@@ -162,8 +162,6 @@ namespace vsg
 
         bool dynamic() const { return properties.dataVariance >= DYNAMIC_DATA; }
 
-        virtual ref_ptr<Data> clone() const = 0;
-
         virtual size_t valueSize() const = 0;
         virtual size_t valueCount() const = 0;
 

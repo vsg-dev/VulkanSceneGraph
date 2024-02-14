@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Animation.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -37,6 +38,18 @@ void AnimationSampler::write(Output& output) const
 
 Animation::Animation()
 {
+}
+
+ref_ptr<Object> Animation::clone(CopyOp& copyop) const
+{
+    auto new_animation = Animation::create();
+    new_animation->name = name;
+    new_animation->mode = mode;
+    new_animation->speed = speed;
+    new_animation->startTime = startTime;
+    new_animation->samplers = copyop(samplers);
+
+    return new_animation;
 }
 
 void Animation::read(Input& input)

@@ -57,7 +57,7 @@ namespace vsg
             return ref_ptr<Value>(new Value(args...));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(CopyOp&) const override
         {
             return ref_ptr<Value>(new Value(*this));
         }

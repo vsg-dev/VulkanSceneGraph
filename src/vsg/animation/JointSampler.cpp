@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/JointSampler.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -28,6 +29,18 @@ using namespace vsg;
 //
 JointSampler::JointSampler()
 {
+}
+
+
+ref_ptr<Object> JointSampler::clone(CopyOp& copyop) const
+{
+    auto new_js = JointSampler::create();
+    new_js->name = name;
+    new_js->jointMatrices = copyop(jointMatrices);
+    new_js->offsetMatrices = offsetMatrices;
+    new_js->subgraph = copyop(subgraph);
+
+    return new_js;
 }
 
 void JointSampler::update(double)

@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/commands/CopyAndReleaseBuffer.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -43,6 +44,18 @@ BufferInfo::BufferInfo(Buffer* in_buffer, VkDeviceSize in_offset, VkDeviceSize i
 BufferInfo::~BufferInfo()
 {
     release();
+}
+
+
+ref_ptr<Object> BufferInfo::clone(CopyOp& copyop) const
+{
+    auto new_bi = BufferInfo::create();
+    new_bi->data = copyop(data);
+    // new_bi->buffer = {};
+    // new_bi->offset = {};
+    // new_bi->range = {};
+
+    return new_bi;
 }
 
 int BufferInfo::compare(const Object& rhs_object) const

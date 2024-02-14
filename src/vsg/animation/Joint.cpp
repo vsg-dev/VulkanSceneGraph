@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Joint.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -25,6 +26,16 @@ Joint::Joint() :
 
 Joint::~Joint()
 {
+}
+
+
+ref_ptr<Object> Joint::clone(CopyOp& copyop) const
+{
+    auto new_joint = Joint::create();
+    new_joint->matrix = matrix;
+    new_joint->children = copyop(children);
+
+    return new_joint;
 }
 
 int Joint::compare(const Object& rhs_object) const

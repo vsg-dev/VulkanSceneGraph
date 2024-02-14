@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -24,6 +25,16 @@ StateGroup::StateGroup()
 
 StateGroup::~StateGroup()
 {
+}
+
+ref_ptr<Object> StateGroup::clone(CopyOp& copyop) const
+{
+    auto new_sg = StateGroup::create();
+    new_sg->children = copyop(children);
+    new_sg->stateCommands = copyop(stateCommands);
+    new_sg->prototypeArrayState = prototypeArrayState;
+
+    return new_sg;
 }
 
 int StateGroup::compare(const Object& rhs_object) const

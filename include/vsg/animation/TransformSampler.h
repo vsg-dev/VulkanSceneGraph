@@ -74,6 +74,8 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
+        ref_ptr<Object> clone(CopyOp&) const override;
+
         void apply(mat4Value& mat) override;
         void apply(dmat4Value& mat) override;
         void apply(MatrixTransform& mt) override;
