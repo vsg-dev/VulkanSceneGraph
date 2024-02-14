@@ -40,16 +40,13 @@ Animation::Animation()
 {
 }
 
-ref_ptr<Object> Animation::clone(CopyOp& copyop) const
+Animation::Animation(const Animation& rhs, CopyOp* copyop):
+    name(rhs.name),
+    mode(rhs.mode),
+    speed(rhs.speed),
+    startTime(rhs.startTime),
+    samplers(copyop ? (*copyop)(rhs.samplers) : rhs.samplers)
 {
-    auto new_animation = Animation::create();
-    new_animation->name = name;
-    new_animation->mode = mode;
-    new_animation->speed = speed;
-    new_animation->startTime = startTime;
-    new_animation->samplers = copyop(samplers);
-
-    return new_animation;
 }
 
 void Animation::read(Input& input)
