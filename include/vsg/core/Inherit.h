@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 
+
 namespace vsg
 {
 
@@ -31,8 +32,10 @@ namespace vsg
         Inherit(Args&&... args) :
             ParentClass(args...) {}
 
+#if 0
         Inherit(const Inherit& rhs, CopyOp* copyop = nullptr) :
             ParentClass(rhs, copyop) {}
+#endif
 
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)
