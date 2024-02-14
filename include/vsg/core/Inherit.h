@@ -31,6 +31,9 @@ namespace vsg
         Inherit(Args&&... args) :
             ParentClass(args...) {}
 
+        Inherit(const Inherit& rhs, CopyOp* copyop = nullptr) :
+            ParentClass(rhs, copyop) {}
+
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)
         {

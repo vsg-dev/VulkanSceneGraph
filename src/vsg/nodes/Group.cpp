@@ -26,16 +26,15 @@ Group::Group(size_t numChildren) :
 {
 }
 
-Group::~Group()
+Group::Group(const Group& rhs, CopyOp* copyop) :
+    Inherit(rhs, copyop),
+    children(rhs.children)
 {
+    if (copyop) for(auto& ptr : children) ptr = (*copyop)(ptr);
 }
 
-ref_ptr<Object> Group::clone(CopyOp& copyop) const
+Group::~Group()
 {
-    auto new_group = Group::create();
-    new_group->children = copyop(children);
-
-    return new_group;
 }
 
 int Group::compare(const Object& rhs_object) const

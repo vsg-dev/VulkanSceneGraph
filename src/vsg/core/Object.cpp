@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Auxiliary.h>
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/CopyOp.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Visitor.h>
 
@@ -29,7 +30,7 @@ Object::Object() :
 {
 }
 
-Object::Object(const Object& rhs) :
+Object::Object(const Object& rhs, CopyOp* copyop) :
     Object()
 {
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
@@ -37,6 +38,13 @@ Object::Object(const Object& rhs) :
         // the rhs's auxiliary is uniquely attached to it, so we need to create our own and copy its ObjectMap across
         auto& userObjects = getOrCreateAuxiliary()->userObjects;
         userObjects = rhs._auxiliary->userObjects;
+        if (copyop)
+        {
+            for(auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
+            {
+                itr->second = (*copyop)(itr->second);
+            }
+        }
     }
 }
 

@@ -22,6 +22,7 @@ namespace vsg
     {
     public:
         Transform();
+        Transform(const Transform& rhs, CopyOp* copyop = nullptr);
 
         /// Specify whether the subgraph below this Transform contains nodes that will be culled against the view frustum, such as LOD and CullGroup nodes.
         /// if the subgraph contains no nodes associated with culling then setting subgraphRequiresLocalFrustum to false will allow the RecordTraversal to skip

@@ -23,18 +23,16 @@ StateGroup::StateGroup()
 {
 }
 
-StateGroup::~StateGroup()
+StateGroup::StateGroup(const StateGroup& rhs, CopyOp* copyop) :
+    Inherit(rhs, copyop),
+    stateCommands(rhs.stateCommands),
+    prototypeArrayState(rhs.prototypeArrayState)
 {
+    if (copyop) for(auto& sc : stateCommands) sc = (*copyop)(sc);
 }
 
-ref_ptr<Object> StateGroup::clone(CopyOp& copyop) const
+StateGroup::~StateGroup()
 {
-    auto new_sg = StateGroup::create();
-    new_sg->children = copyop(children);
-    new_sg->stateCommands = copyop(stateCommands);
-    new_sg->prototypeArrayState = prototypeArrayState;
-
-    return new_sg;
 }
 
 int StateGroup::compare(const Object& rhs_object) const

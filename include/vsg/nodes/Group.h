@@ -25,6 +25,8 @@ namespace vsg
     public:
         explicit Group(size_t numChildren = 0);
 
+        Group(const Group& rhs, CopyOp* copyop = nullptr);
+
         template<typename Iterator>
         Group(Iterator begin, Iterator end)
         {
@@ -40,7 +42,8 @@ namespace vsg
             children.push_back(child);
         }
 
-        ref_ptr<Object> clone(CopyOp&) const override;
+        ref_ptr<Object> clone(CopyOp& copyop) const override { return Group::create(*this, &copyop); }
+
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

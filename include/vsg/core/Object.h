@@ -44,7 +44,7 @@ namespace vsg
     public:
         Object();
 
-        Object(const Object&);
+        Object(const Object& object, CopyOp* copyop = nullptr);
         Object& operator=(const Object&);
 
         static ref_ptr<Object> create() { return ref_ptr<Object>(new Object); }

@@ -32,6 +32,7 @@ namespace vsg
     {
     public:
         StateGroup();
+        StateGroup(const StateGroup& rhs, CopyOp* copyop);
 
         StateCommands stateCommands;
 
@@ -58,7 +59,7 @@ namespace vsg
             }
         }
 
-        ref_ptr<Object> clone(CopyOp&) const override;
+        ref_ptr<Object> clone(CopyOp& copyop) const override { return StateGroup::create(*this, &copyop); }
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

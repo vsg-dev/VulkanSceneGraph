@@ -42,8 +42,8 @@ namespace vsg
 
         Value() :
             _value{} { dirty(); }
-        Value(const Value& rhs) :
-            Data(rhs), _value(rhs._value) { dirty(); }
+        Value(const Value& rhs, CopyOp* copyop = nullptr) :
+            Data(rhs, copyop), _value(rhs._value) { dirty(); }
         explicit Value(const value_type& in_value) :
             _value(in_value) { dirty(); }
 
@@ -57,9 +57,9 @@ namespace vsg
             return ref_ptr<Value>(new Value(args...));
         }
 
-        ref_ptr<Object> clone(CopyOp&) const override
+        ref_ptr<Object> clone(CopyOp& copyop) const override
         {
-            return ref_ptr<Value>(new Value(*this));
+            return ref_ptr<Value>(new Value(*this, &copyop));
         }
 
         size_t sizeofObject() const noexcept override { return sizeof(Value); }

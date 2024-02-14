@@ -136,6 +136,8 @@ namespace vsg
 
         Data() {}
 
+        Data(const Data& data, CopyOp* copyop = nullptr) : Object(data, copyop), properties(data.properties) {}
+
         explicit Data(Properties layout) :
             properties(layout) {}
 

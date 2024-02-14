@@ -159,6 +159,11 @@ namespace vsg
     public:
         ConstVisitor();
 
+        ConstVisitor(const ConstVisitor& rhs, CopyOp* copyop = nullptr) :
+            Object(rhs, copyop),
+            traversalMask(rhs.traversalMask),
+            overrideMask(rhs.overrideMask) {}
+
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 

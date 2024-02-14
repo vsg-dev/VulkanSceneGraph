@@ -24,11 +24,12 @@ namespace vsg
     {
     public:
         MatrixTransform();
+        MatrixTransform(const MatrixTransform& rhs, CopyOp* copyop = nullptr);
         explicit MatrixTransform(const dmat4& in_matrix);
 
         dmat4 matrix;
 
-        ref_ptr<Object> clone(CopyOp&) const override;
+        ref_ptr<Object> clone(CopyOp& copyop) const override { return MatrixTransform::create(*this, &copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

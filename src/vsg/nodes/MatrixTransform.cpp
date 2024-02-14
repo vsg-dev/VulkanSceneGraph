@@ -24,19 +24,15 @@ MatrixTransform::MatrixTransform()
 {
 }
 
-MatrixTransform::MatrixTransform(const dmat4& in_matrix) :
-    matrix(in_matrix)
+MatrixTransform::MatrixTransform(const MatrixTransform& rhs, CopyOp* copyop) :
+    Inherit(rhs, copyop),
+    matrix(rhs.matrix)
 {
 }
 
-
-ref_ptr<Object> MatrixTransform::clone(CopyOp& copyop) const
+MatrixTransform::MatrixTransform(const dmat4& in_matrix) :
+    matrix(in_matrix)
 {
-    auto new_mt = MatrixTransform::create();
-    new_mt->matrix = matrix;
-    new_mt->children = copyop(children);
-
-    return new_mt;
 }
 
 int MatrixTransform::compare(const Object& rhs_object) const
