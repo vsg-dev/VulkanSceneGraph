@@ -21,8 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    struct CopyOp
+    class CopyOp
     {
+    public:
         std::map<const Object*, ref_ptr<Object>> duplicates;
 
         template<class T>
