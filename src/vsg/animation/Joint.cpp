@@ -32,6 +32,8 @@ Joint::~Joint()
 ref_ptr<Object> Joint::clone(CopyOp& copyop) const
 {
     auto new_joint = Joint::create();
+    new_joint->index = index;
+    new_joint->name = name;
     new_joint->matrix = matrix;
     new_joint->children = copyop(children);
 
@@ -44,6 +46,7 @@ int Joint::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(index, rhs.index)) != 0) return result;
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(matrix, rhs.matrix)) != 0) return result;
     return compare_pointer_container(children, rhs.children);

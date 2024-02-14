@@ -61,6 +61,9 @@ DescriptorBuffer::~DescriptorBuffer()
 ref_ptr<Object> DescriptorBuffer::clone(CopyOp& copyop) const
 {
     auto new_db = DescriptorBuffer::create();
+    new_db->dstBinding = dstBinding;
+    new_db->dstArrayElement = dstArrayElement;
+    new_db->descriptorType = descriptorType;
     new_db->bufferInfoList = copyop(bufferInfoList);
 
     return new_db;
