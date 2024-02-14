@@ -74,7 +74,9 @@ namespace vsg
         template<class T>
         const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
 
-        virtual ref_ptr<Object> clone(CopyOp&) const { return {}; }
+        /// clone this object using CopyOp's duplicates map to decide whether to clone or to return the original object.
+        /// The default clone(CopyOp&) implementation simply returns ref_ptr<> to this object rather attempt to clone.
+        virtual ref_ptr<Object> clone(CopyOp&) const;
 
         /// compare two objects, return -1 if this object is less than rhs, return 0 if it's equal, return 1 if rhs is greater,
         virtual int compare(const Object& rhs) const;
