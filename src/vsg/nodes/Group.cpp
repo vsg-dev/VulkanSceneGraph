@@ -30,7 +30,8 @@ Group::Group(const Group& rhs, CopyOp* copyop) :
     Inherit(rhs, copyop),
     children(rhs.children)
 {
-    if (copyop) for(auto& ptr : children) ptr = (*copyop)(ptr);
+    if (copyop)
+        for (auto& ptr : children) ptr = (*copyop)(ptr);
 }
 
 Group::~Group()

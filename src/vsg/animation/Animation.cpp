@@ -40,7 +40,7 @@ Animation::Animation()
 {
 }
 
-Animation::Animation(const Animation& rhs, CopyOp* copyop):
+Animation::Animation(const Animation& rhs, CopyOp* copyop) :
     name(rhs.name),
     mode(rhs.mode),
     speed(rhs.speed),

@@ -28,7 +28,6 @@ Joint::~Joint()
 {
 }
 
-
 ref_ptr<Object> Joint::clone(CopyOp& copyop) const
 {
     auto new_joint = Joint::create();

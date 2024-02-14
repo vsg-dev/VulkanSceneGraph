@@ -27,7 +27,7 @@ namespace vsg
         std::map<const Object*, ref_ptr<Object>> duplicates;
 
         template<class T>
-        ref_ptr<T> operator() (ref_ptr<T> ptr)
+        ref_ptr<T> operator()(ref_ptr<T> ptr)
         {
             if (ptr)
             {
@@ -44,12 +44,12 @@ namespace vsg
 
         /// container of pointers
         template<class C>
-        C operator() (const C& src)
+        C operator()(const C& src)
         {
             C dest;
             using T = typename C::value_type::element_type;
             dest.reserve(src.size());
-            for(auto& ptr : src)
+            for (auto& ptr : src)
             {
                 if (auto itr = duplicates.find(ptr); itr != duplicates.end())
                 {
@@ -73,7 +73,7 @@ namespace vsg
 
         void reset()
         {
-            for(auto itr = duplicates.begin(); itr != duplicates.end(); ++itr)
+            for (auto itr = duplicates.begin(); itr != duplicates.end(); ++itr)
             {
                 itr->second.reset();
             }

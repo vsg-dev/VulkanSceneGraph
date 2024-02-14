@@ -28,7 +28,8 @@ StateGroup::StateGroup(const StateGroup& rhs, CopyOp* copyop) :
     stateCommands(rhs.stateCommands),
     prototypeArrayState(rhs.prototypeArrayState)
 {
-    if (copyop) for(auto& sc : stateCommands) sc = (*copyop)(sc);
+    if (copyop)
+        for (auto& sc : stateCommands) sc = (*copyop)(sc);
 }
 
 StateGroup::~StateGroup()

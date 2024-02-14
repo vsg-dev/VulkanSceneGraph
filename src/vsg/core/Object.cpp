@@ -40,7 +40,7 @@ Object::Object(const Object& rhs, CopyOp* copyop) :
         userObjects = rhs._auxiliary->userObjects;
         if (copyop)
         {
-            for(auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
+            for (auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
             {
                 itr->second = (*copyop)(itr->second);
             }
@@ -94,8 +94,10 @@ void Object::_attemptDelete() const
 
 ref_ptr<Object> Object::clone(CopyOp& copyop) const
 {
-    if (auto itr = copyop.duplicates.find(this); itr != copyop.duplicates.end()) return itr->second;
-    else return ref_ptr<Object>(const_cast<Object*>(this));
+    if (auto itr = copyop.duplicates.find(this); itr != copyop.duplicates.end())
+        return itr->second;
+    else
+        return ref_ptr<Object>(const_cast<Object*>(this));
 }
 
 int Object::compare(const Object& rhs) const

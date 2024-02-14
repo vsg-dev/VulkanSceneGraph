@@ -63,7 +63,6 @@ bool AnimationManager::stop()
     return true;
 }
 
-
 bool AnimationManager::update(vsg::Animation& animation)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager update animation", COLOR_VIEWER);
@@ -76,9 +75,10 @@ void AnimationManager::run(vsg::ref_ptr<vsg::FrameStamp> frameStamp)
 
     _simulationTime = frameStamp->simulationTime;
 
-    for(auto itr = animations.begin(); itr != animations.end();)
+    for (auto itr = animations.begin(); itr != animations.end();)
     {
-        if (update(**itr)) ++itr;
+        if (update(**itr))
+            ++itr;
         else
         {
             itr = animations.erase(itr);
