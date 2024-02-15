@@ -13,10 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <atomic>
+#include <map>
 #include <string>
 #include <typeindex>
 #include <vector>
-#include <map>
 
 #include <vsg/core/Export.h>
 #include <vsg/core/ref_ptr.h>
@@ -42,20 +42,18 @@ namespace vsg
     class CopyOp
     {
     public:
-
         mutable ref_ptr<Duplicate> duplicate;
 
         /// copy/clone pointer
         template<class T>
-        inline ref_ptr<T> operator() (ref_ptr<T> ptr) const;
+        inline ref_ptr<T> operator()(ref_ptr<T> ptr) const;
 
         /// copy/clone container of pointers
         template<class C>
-        inline C operator() (const C& src) const;
+        inline C operator()(const C& src) const;
 
         explicit operator bool() const noexcept { return duplicate.valid(); }
     };
-
 
     VSG_type_name(vsg::Object);
 
@@ -217,7 +215,7 @@ namespace vsg
 
         void reset()
         {
-            for(auto itr = duplicates.begin(); itr != duplicates.end(); ++itr)
+            for (auto itr = duplicates.begin(); itr != duplicates.end(); ++itr)
             {
                 itr->second.reset();
             }
@@ -225,7 +223,7 @@ namespace vsg
     };
 
     template<class T>
-    inline ref_ptr<T> CopyOp::operator() (ref_ptr<T> ptr) const
+    inline ref_ptr<T> CopyOp::operator()(ref_ptr<T> ptr) const
     {
         if (ptr && duplicate)
         {
@@ -241,13 +239,13 @@ namespace vsg
     }
 
     template<class C>
-    inline C CopyOp::operator() (const C& src) const
+    inline C CopyOp::operator()(const C& src) const
     {
         if (!duplicate) return src;
 
         C dest;
         dest.reserve(src.size());
-        for(auto& ptr : src)
+        for (auto& ptr : src)
         {
             dest.push_back(operator()(ptr));
         }

@@ -136,7 +136,8 @@ namespace vsg
 
         Data() {}
 
-        Data(const Data& data, const CopyOp& copyop = {}) : Object(data, copyop), properties(data.properties) {}
+        Data(const Data& data, const CopyOp& copyop = {}) :
+            Object(data, copyop), properties(data.properties) {}
 
         explicit Data(Properties layout) :
             properties(layout) {}

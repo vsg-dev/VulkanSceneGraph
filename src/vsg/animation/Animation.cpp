@@ -40,7 +40,7 @@ Animation::Animation()
 {
 }
 
-Animation::Animation(const Animation& rhs, const CopyOp& copyop):
+Animation::Animation(const Animation& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     name(rhs.name),
     mode(rhs.mode),
