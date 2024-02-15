@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Array3D.h>
 #include <vsg/core/Auxiliary.h>
 #include <vsg/core/ConstVisitor.h>
-#include <vsg/core/CopyOp.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/Exception.h>
 #include <vsg/core/Export.h>

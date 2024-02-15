@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/AnimationGroup.h>
-#include <vsg/core/CopyOp.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>

@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/View.h>
-#include <vsg/core/CopyOp.h>
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Options.h>
