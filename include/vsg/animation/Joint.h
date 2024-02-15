@@ -21,7 +21,8 @@ namespace vsg
     class VSG_DECLSPEC Joint : public Inherit<Node, Joint>
     {
     public:
-        explicit Joint();
+        Joint();
+        Joint(const Joint& rhs, const CopyOp& copyop = {});
 
         unsigned int index = 0;
         std::string name;
@@ -30,7 +31,7 @@ namespace vsg
         using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const { return Joint::create(*this, copyop); }
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

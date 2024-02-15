@@ -23,19 +23,17 @@ Joint::Joint() :
 {
 }
 
-Joint::~Joint()
+Joint::Joint(const Joint& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    index(rhs.index),
+    name(rhs.name),
+    matrix(rhs.matrix),
+    children(copyop(rhs.children))
 {
 }
 
-ref_ptr<Object> Joint::clone(const CopyOp& copyop) const
+Joint::~Joint()
 {
-    auto new_joint = Joint::create();
-    new_joint->index = index;
-    new_joint->name = name;
-    new_joint->matrix = matrix;
-    new_joint->children = copyop(children);
-
-    return new_joint;
 }
 
 int Joint::compare(const Object& rhs_object) const
