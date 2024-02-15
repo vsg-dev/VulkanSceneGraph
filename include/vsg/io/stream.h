@@ -35,7 +35,7 @@ namespace vsg
     /// helper class for inserting indentation into streams useful for formatting output.
     struct indentation
     {
-        indentation(int i) :
+        explicit indentation(int i) :
             indent(i) {}
         int indent;
 
