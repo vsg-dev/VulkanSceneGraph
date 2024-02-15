@@ -47,13 +47,10 @@ BufferInfo::~BufferInfo()
 
 ref_ptr<Object> BufferInfo::clone(const CopyOp& copyop) const
 {
-    auto new_bi = BufferInfo::create();
-    new_bi->data = copyop(data);
-    // new_bi->buffer = {};
-    // new_bi->offset = {};
-    // new_bi->range = {};
+    auto new_data = copyop(data);
+    if (new_data == data) return ref_ptr<Object>(const_cast<BufferInfo*>(this));
 
-    return new_bi;
+    return BufferInfo::create(new_data);
 }
 
 int BufferInfo::compare(const Object& rhs_object) const
