@@ -23,7 +23,7 @@ AnimationSampler::AnimationSampler()
 {
 }
 
-AnimationSampler::AnimationSampler(const AnimationSampler& rhs, const CopyOp& copyop):
+AnimationSampler::AnimationSampler(const AnimationSampler& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     name(rhs.name)
 {

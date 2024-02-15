@@ -154,7 +154,7 @@ TransformSampler::TransformSampler() :
 {
 }
 
-TransformSampler::TransformSampler(const TransformSampler& rhs, const CopyOp& copyop):
+TransformSampler::TransformSampler(const TransformSampler& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     position(rhs.position),
     rotation(rhs.rotation),

@@ -23,7 +23,7 @@ AnimationGroup::AnimationGroup(size_t numChildren) :
 {
 }
 
-AnimationGroup::AnimationGroup(const AnimationGroup& rhs, const CopyOp& copyop):
+AnimationGroup::AnimationGroup(const AnimationGroup& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     animations(copyop(rhs.animations))
 {
