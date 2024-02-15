@@ -205,12 +205,22 @@ namespace vsg
     class Duplicate : public Object
     {
     public:
-        std::map<const Object*, ref_ptr<Object>> duplicates;
+        using DuplicateMap = std::map<const Object*, ref_ptr<Object>>;
+        using iterator = DuplicateMap::iterator;
+        using key_type = DuplicateMap::key_type;
+        using mapped_type = DuplicateMap::mapped_type;
 
-        void clear()
-        {
-            duplicates.clear();
-        }
+        DuplicateMap duplicates;
+
+        inline iterator find(const key_type& key) { return duplicates.find(key); }
+        inline iterator begin() { return duplicates.begin(); }
+        inline iterator end() { return duplicates.end(); }
+        std::size_t size() const { return duplicates.size(); }
+        inline mapped_type& operator[](const Object* object) { return duplicates[object]; }
+
+        bool contains(const Object* object) const { return duplicates.count(object)!=0; }
+        void insert(const Object* first, ref_ptr<Object> second = {}) { duplicates[first] = second; }
+        void clear() { duplicates.clear(); }
 
         void reset()
         {
@@ -226,7 +236,7 @@ namespace vsg
     {
         if (ptr && duplicate)
         {
-            if (auto itr = duplicate->duplicates.find(ptr); itr != duplicate->duplicates.end())
+            if (auto itr = duplicate->find(ptr); itr != duplicate->end())
             {
                 if (!itr->second) itr->second = ptr->clone(*this);
                 if (itr->second) return itr->second.template cast<T>();

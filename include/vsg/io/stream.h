@@ -35,9 +35,7 @@ namespace vsg
     /// helper class for inserting indentation into streams useful for formatting output.
     struct indentation
     {
-        explicit indentation(int i) :
-            indent(i) {}
-        int indent;
+        int indent = 0;
 
         indentation& operator+=(int delta)
         {
@@ -51,8 +49,8 @@ namespace vsg
         }
     };
 
-    inline indentation operator+(const indentation& lhs, const int rhs) { return indentation(lhs.indent + rhs); }
-    inline indentation operator-(const indentation& lhs, const int rhs) { return indentation(lhs.indent - rhs); }
+    inline indentation operator+(const indentation& lhs, const int rhs) { return indentation{lhs.indent + rhs}; }
+    inline indentation operator-(const indentation& lhs, const int rhs) { return indentation{lhs.indent - rhs}; }
 
     inline std::ostream& operator<<(std::ostream& output, const indentation& in)
     {
