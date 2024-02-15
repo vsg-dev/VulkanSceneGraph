@@ -128,7 +128,6 @@ void CollectResourceRequirements::apply(const Node& node)
     if (hasResourceHints) --_numResourceHintsAbove;
 }
 
-
 void CollectResourceRequirements::apply(const PagedLOD& plod)
 {
     bool hasResourceHints = checkForResourceHints(plod);

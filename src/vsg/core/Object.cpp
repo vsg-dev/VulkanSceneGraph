@@ -40,7 +40,7 @@ Object::Object(const Object& rhs, const CopyOp& copyop) :
         userObjects = rhs._auxiliary->userObjects;
         if (copyop.duplicate)
         {
-            for(auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
+            for (auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
             {
                 itr->second = (copyop)(itr->second);
             }
@@ -96,9 +96,10 @@ ref_ptr<Object> Object::clone(const CopyOp& copyop) const
 {
     if (copyop.duplicate)
     {
-        if (auto itr = copyop.duplicate->duplicates.find(this); itr != copyop.duplicate->duplicates.end()) return itr->second;
+        auto itr = copyop.duplicate->duplicates.find(this);
+        if (itr != copyop.duplicate->duplicates.end()) return itr->second;
     }
-    else return ref_ptr<Object>(const_cast<Object*>(this));
+    return ref_ptr<Object>(const_cast<Object*>(this));
 }
 
 int Object::compare(const Object& rhs) const

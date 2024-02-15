@@ -46,7 +46,6 @@ BufferInfo::~BufferInfo()
     release();
 }
 
-
 ref_ptr<Object> BufferInfo::clone(const CopyOp& copyop) const
 {
     auto new_bi = BufferInfo::create();

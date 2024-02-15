@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/AnimationGroup.h>
-#include <vsg/utils/Instrumentation.h>
 #include <vsg/ui/FrameStamp.h>
+#include <vsg/utils/Instrumentation.h>
 
 namespace vsg
 {

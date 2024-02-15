@@ -17,17 +17,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-class VSG_DECLSPEC FindAnimations : public Inherit<Visitor, FindAnimations>
-{
-public:
+    class VSG_DECLSPEC FindAnimations : public Inherit<Visitor, FindAnimations>
+    {
+    public:
+        Animations animations;
+        AnimationGroups animationGroups;
 
-    Animations animations;
-    AnimationGroups animationGroups;
-
-    void apply(Object& object) override;
-    void apply(Animation& animation) override;
-    void apply(AnimationGroup& node) override;
-};
-VSG_type_name(vsg::FindAnimations);
+        void apply(Object& object) override;
+        void apply(Animation& animation) override;
+        void apply(AnimationGroup& node) override;
+    };
+    VSG_type_name(vsg::FindAnimations);
 
 } // namespace vsg

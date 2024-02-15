@@ -36,7 +36,6 @@ namespace vsg
         using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
-
         void addChild(vsg::ref_ptr<Node> child)
         {
             children.push_back(child);
