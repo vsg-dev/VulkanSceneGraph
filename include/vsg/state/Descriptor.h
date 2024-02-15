@@ -26,6 +26,7 @@ namespace vsg
     {
     public:
         Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType);
+        Descriptor(const Descriptor& rhs, const CopyOp& copyop = {});
 
         /// Common VkWriteDescriptorSet settings
         uint32_t dstBinding;

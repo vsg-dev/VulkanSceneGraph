@@ -28,6 +28,12 @@ DescriptorBuffer::DescriptorBuffer() :
 {
 }
 
+DescriptorBuffer::DescriptorBuffer(const DescriptorBuffer& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    bufferInfoList(copyop(rhs.bufferInfoList))
+{
+}
+
 DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
@@ -55,17 +61,6 @@ DescriptorBuffer::DescriptorBuffer(const BufferInfoList& in_bufferInfoList, uint
 
 DescriptorBuffer::~DescriptorBuffer()
 {
-}
-
-ref_ptr<Object> DescriptorBuffer::clone(const CopyOp& copyop) const
-{
-    auto new_db = DescriptorBuffer::create();
-    new_db->dstBinding = dstBinding;
-    new_db->dstArrayElement = dstArrayElement;
-    new_db->descriptorType = descriptorType;
-    new_db->bufferInfoList = copyop(bufferInfoList);
-
-    return new_db;
 }
 
 int DescriptorBuffer::compare(const Object& rhs_object) const

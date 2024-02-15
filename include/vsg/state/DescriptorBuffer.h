@@ -24,6 +24,7 @@ namespace vsg
     {
     public:
         DescriptorBuffer();
+        DescriptorBuffer(const DescriptorBuffer& rhs, const CopyOp& copyop = {});
 
         explicit DescriptorBuffer(ref_ptr<Data> data, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
         explicit DescriptorBuffer(const DataList& dataList, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -32,7 +33,7 @@ namespace vsg
         /// VkWriteDescriptorSet.pBufferInfo settings
         BufferInfoList bufferInfoList;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorBuffer::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
