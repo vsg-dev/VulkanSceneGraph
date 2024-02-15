@@ -30,17 +30,14 @@ BindDescriptorSets::BindDescriptorSets() :
 {
 }
 
-ref_ptr<Object> BindDescriptorSets::clone(const CopyOp& copyop) const
+BindDescriptorSets::BindDescriptorSets(const BindDescriptorSets& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    pipelineBindPoint(rhs. pipelineBindPoint),
+    layout(copyop(rhs.layout)),
+    firstSet(rhs.firstSet),
+    descriptorSets(copyop(rhs.descriptorSets)),
+    dynamicOffsets(rhs.dynamicOffsets)
 {
-    auto new_bds = BindDescriptorSets::create();
-    new_bds->slot = slot;
-    new_bds->pipelineBindPoint = pipelineBindPoint;
-    new_bds->layout = copyop(layout);
-    new_bds->firstSet = firstSet;
-    new_bds->descriptorSets = copyop(descriptorSets);
-    new_bds->dynamicOffsets = dynamicOffsets;
-
-    return new_bds;
 }
 
 int BindDescriptorSets::compare(const Object& rhs_object) const
@@ -133,17 +130,14 @@ BindDescriptorSet::BindDescriptorSet() :
 {
 }
 
-ref_ptr<Object> BindDescriptorSet::clone(const CopyOp& copyop) const
+BindDescriptorSet::BindDescriptorSet(const BindDescriptorSet& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    pipelineBindPoint(rhs. pipelineBindPoint),
+    layout(copyop(rhs.layout)),
+    firstSet(rhs.firstSet),
+    descriptorSet(copyop(rhs.descriptorSet)),
+    dynamicOffsets(rhs.dynamicOffsets)
 {
-    auto new_bds = BindDescriptorSet::create();
-    new_bds->slot = slot;
-    new_bds->pipelineBindPoint = pipelineBindPoint;
-    new_bds->layout = copyop(layout);
-    new_bds->firstSet = firstSet;
-    new_bds->descriptorSet = copyop(descriptorSet);
-    new_bds->dynamicOffsets = dynamicOffsets;
-
-    return new_bds;
 }
 
 int BindDescriptorSet::compare(const Object& rhs_object) const

@@ -26,13 +26,14 @@ namespace vsg
     {
     public:
         DescriptorSet();
+        DescriptorSet(const DescriptorSet& rhs, const CopyOp& copyop = {});
         DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors);
 
         /// VkDescriptorSetAllocateInfo settings
         ref_ptr<DescriptorSetLayout> setLayout;
         Descriptors descriptors;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorSet::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         template<class N, class V>

@@ -23,6 +23,13 @@ DescriptorSet::DescriptorSet()
 {
 }
 
+DescriptorSet::DescriptorSet(const DescriptorSet& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    setLayout(copyop(rhs.setLayout)),
+    descriptors(copyop(rhs.descriptors))
+{
+}
+
 DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors) :
     setLayout(in_descriptorSetLayout),
     descriptors(in_descriptors)
@@ -32,15 +39,6 @@ DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout
 DescriptorSet::~DescriptorSet()
 {
     release();
-}
-
-ref_ptr<Object> DescriptorSet::clone(const CopyOp& copyop) const
-{
-    auto new_ds = DescriptorSet::create();
-    new_ds->setLayout = copyop(setLayout);
-    new_ds->descriptors = copyop(descriptors);
-
-    return new_ds;
 }
 
 int DescriptorSet::compare(const Object& rhs_object) const
