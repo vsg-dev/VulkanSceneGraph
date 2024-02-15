@@ -154,17 +154,14 @@ TransformSampler::TransformSampler() :
 {
 }
 
-ref_ptr<Object> TransformSampler::clone(const CopyOp& copyop) const
+TransformSampler::TransformSampler(const TransformSampler& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    position(rhs.position),
+    rotation(rhs.rotation),
+    scale(rhs.scale),
+    keyframes(copyop(rhs.keyframes)),
+    object(copyop(rhs.object))
 {
-    auto new_ts = TransformSampler::create();
-    new_ts->name = name;
-    new_ts->position = position;
-    new_ts->rotation = rotation;
-    new_ts->scale = scale;
-    new_ts->keyframes = copyop(keyframes);
-    new_ts->object = copyop(object);
-
-    return new_ts;
 }
 
 void TransformSampler::update(double time)

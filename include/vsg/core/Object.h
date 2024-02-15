@@ -33,7 +33,6 @@ namespace vsg
     class Input;
     class Output;
     class Object;
-    class CopyOp;
     class Duplicate;
 
     template<typename T>

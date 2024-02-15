@@ -23,17 +23,14 @@ AnimationGroup::AnimationGroup(size_t numChildren) :
 {
 }
 
-AnimationGroup::~AnimationGroup()
+AnimationGroup::AnimationGroup(const AnimationGroup& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    animations(copyop(rhs.animations))
 {
 }
 
-ref_ptr<Object> AnimationGroup::clone(const CopyOp& copyop) const
+AnimationGroup::~AnimationGroup()
 {
-    auto new_ag = AnimationGroup::create();
-    new_ag->animations = copyop(animations);
-    new_ag->children = copyop(children);
-
-    return new_ag;
 }
 
 int AnimationGroup::compare(const Object& rhs_object) const

@@ -22,6 +22,7 @@ namespace vsg
     {
     public:
         JointSampler();
+        JointSampler(const JointSampler& rhs, const CopyOp& copyop = {});
 
         ref_ptr<mat4Array> jointMatrices;
         std::vector<dmat4> offsetMatrices;
@@ -30,7 +31,7 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return JointSampler::create(*this, copyop); }
 
         void read(Input& input) override;
         void write(Output& output) const override;

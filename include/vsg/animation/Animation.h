@@ -23,6 +23,7 @@ namespace vsg
     {
     public:
         AnimationSampler();
+        AnimationSampler(const AnimationSampler& rhs, const CopyOp& copyop = {});
 
         std::string name;
 

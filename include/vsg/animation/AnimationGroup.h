@@ -24,10 +24,11 @@ namespace vsg
     {
     public:
         explicit AnimationGroup(size_t numChildren = 0);
+        AnimationGroup(const AnimationGroup& rhs, const CopyOp& copyop = {});
 
         Animations animations;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return AnimationGroup::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

@@ -62,6 +62,7 @@ namespace vsg
     {
     public:
         TransformSampler();
+        TransformSampler(const TransformSampler& rhs, const CopyOp& copyop = {});
 
         ref_ptr<TransformKeyframes> keyframes;
         ref_ptr<Object> object;
@@ -74,7 +75,7 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TransformSampler::create(*this, copyop); }
 
         void apply(mat4Value& mat) override;
         void apply(dmat4Value& mat) override;

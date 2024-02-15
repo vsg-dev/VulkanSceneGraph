@@ -23,6 +23,12 @@ AnimationSampler::AnimationSampler()
 {
 }
 
+AnimationSampler::AnimationSampler(const AnimationSampler& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    name(rhs.name)
+{
+}
+
 void AnimationSampler::read(Input& input)
 {
     Object::read(input);

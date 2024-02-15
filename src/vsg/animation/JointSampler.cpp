@@ -30,15 +30,12 @@ JointSampler::JointSampler()
 {
 }
 
-ref_ptr<Object> JointSampler::clone(const CopyOp& copyop) const
+JointSampler::JointSampler(const JointSampler& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    jointMatrices(copyop(rhs.jointMatrices)),
+    offsetMatrices(rhs.offsetMatrices),
+    subgraph(copyop(rhs.subgraph))
 {
-    auto new_js = JointSampler::create();
-    new_js->name = name;
-    new_js->jointMatrices = copyop(jointMatrices);
-    new_js->offsetMatrices = offsetMatrices;
-    new_js->subgraph = copyop(subgraph);
-
-    return new_js;
 }
 
 void JointSampler::update(double)
