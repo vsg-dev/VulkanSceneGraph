@@ -13,7 +13,7 @@ invalidPointerCast:*/include/vsg/core/Array3D.h
 invalidPointerCast:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate stl algorithm suggestions
-useStlAlgorithm:*/include/vsg/core/ObjectCache.h
+useStlAlgorithm:*/include/vsg/core/Object.h
 useStlAlgorithm:*/include/vsg/core/Value.h
 useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
