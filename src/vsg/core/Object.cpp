@@ -37,11 +37,11 @@ Object::Object(const Object& rhs, const CopyOp& copyop) :
         // the rhs's auxiliary is uniquely attached to it, so we need to create our own and copy its ObjectMap across
         auto& userObjects = getOrCreateAuxiliary()->userObjects;
         userObjects = rhs._auxiliary->userObjects;
-        if (copyop.duplicate)
+        if (copyop)
         {
             for (auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
             {
-                itr->second = (copyop)(itr->second);
+                itr->second = copyop(itr->second);
             }
         }
     }
