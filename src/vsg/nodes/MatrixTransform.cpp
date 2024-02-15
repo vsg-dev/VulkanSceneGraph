@@ -24,7 +24,7 @@ MatrixTransform::MatrixTransform()
 {
 }
 
-MatrixTransform::MatrixTransform(const MatrixTransform& rhs, CopyOp* copyop) :
+MatrixTransform::MatrixTransform(const MatrixTransform& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     matrix(rhs.matrix)
 {

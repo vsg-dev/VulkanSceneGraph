@@ -44,8 +44,8 @@ namespace vsg
             _data(nullptr),
             _size(0) {}
 
-        Array(const Array& rhs) :
-            Data(rhs.properties, sizeof(value_type)),
+        Array(const Array& rhs, const CopyOp copyop = {}) :
+            Data(rhs, copyop),
             _data(nullptr),
             _size(rhs._size)
         {
@@ -125,9 +125,9 @@ namespace vsg
             return ref_ptr<Array>(new Array(data, offset, stride, l));
         }
 
-        ref_ptr<Object> clone(CopyOp&) const override
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
-            return ref_ptr<Array>(new Array(*this));
+            return ref_ptr<Array>(new Array(*this, copyop));
         }
 
         size_t sizeofObject() const noexcept override { return sizeof(Array); }

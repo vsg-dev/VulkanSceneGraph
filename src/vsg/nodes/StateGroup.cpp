@@ -23,12 +23,11 @@ StateGroup::StateGroup()
 {
 }
 
-StateGroup::StateGroup(const StateGroup& rhs, CopyOp* copyop) :
+StateGroup::StateGroup(const StateGroup& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    stateCommands(rhs.stateCommands),
+    stateCommands(copyop(rhs.stateCommands)),
     prototypeArrayState(rhs.prototypeArrayState)
 {
-    if (copyop) for(auto& sc : stateCommands) sc = (*copyop)(sc);
 }
 
 StateGroup::~StateGroup()

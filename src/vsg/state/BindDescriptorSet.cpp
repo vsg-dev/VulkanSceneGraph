@@ -31,7 +31,7 @@ BindDescriptorSets::BindDescriptorSets() :
 {
 }
 
-ref_ptr<Object> BindDescriptorSets::clone(CopyOp& copyop) const
+ref_ptr<Object> BindDescriptorSets::clone(const CopyOp& copyop) const
 {
     auto new_bds = BindDescriptorSets::create();
     new_bds->slot = slot;
@@ -134,7 +134,7 @@ BindDescriptorSet::BindDescriptorSet() :
 {
 }
 
-ref_ptr<Object> BindDescriptorSet::clone(CopyOp& copyop) const
+ref_ptr<Object> BindDescriptorSet::clone(const CopyOp& copyop) const
 {
     auto new_bds = BindDescriptorSet::create();
     new_bds->slot = slot;

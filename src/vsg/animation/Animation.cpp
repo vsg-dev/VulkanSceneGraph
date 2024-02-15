@@ -40,12 +40,13 @@ Animation::Animation()
 {
 }
 
-Animation::Animation(const Animation& rhs, CopyOp* copyop):
+Animation::Animation(const Animation& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
     name(rhs.name),
     mode(rhs.mode),
     speed(rhs.speed),
     startTime(rhs.startTime),
-    samplers(copyop ? (*copyop)(rhs.samplers) : rhs.samplers)
+    samplers(copyop(rhs.samplers))
 {
 }
 

@@ -27,7 +27,7 @@ namespace vsg
 
         Animations animations;
 
-        ref_ptr<Object> clone(CopyOp&) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

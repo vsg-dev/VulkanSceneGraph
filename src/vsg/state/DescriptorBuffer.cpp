@@ -58,7 +58,7 @@ DescriptorBuffer::~DescriptorBuffer()
 {
 }
 
-ref_ptr<Object> DescriptorBuffer::clone(CopyOp& copyop) const
+ref_ptr<Object> DescriptorBuffer::clone(const CopyOp& copyop) const
 {
     auto new_db = DescriptorBuffer::create();
     new_db->dstBinding = dstBinding;

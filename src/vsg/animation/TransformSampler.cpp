@@ -155,7 +155,7 @@ TransformSampler::TransformSampler() :
 {
 }
 
-ref_ptr<Object> TransformSampler::clone(CopyOp& copyop) const
+ref_ptr<Object> TransformSampler::clone(const CopyOp& copyop) const
 {
     auto new_ts = TransformSampler::create();
     new_ts->name = name;

@@ -32,7 +32,7 @@ JointSampler::JointSampler()
 }
 
 
-ref_ptr<Object> JointSampler::clone(CopyOp& copyop) const
+ref_ptr<Object> JointSampler::clone(const CopyOp& copyop) const
 {
     auto new_js = JointSampler::create();
     new_js->name = name;

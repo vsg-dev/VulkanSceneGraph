@@ -28,7 +28,7 @@ AnimationGroup::~AnimationGroup()
 {
 }
 
-ref_ptr<Object> AnimationGroup::clone(CopyOp& copyop) const
+ref_ptr<Object> AnimationGroup::clone(const CopyOp& copyop) const
 {
     auto new_ag = AnimationGroup::create();
     new_ag->animations = copyop(animations);

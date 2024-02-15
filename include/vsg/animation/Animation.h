@@ -38,9 +38,9 @@ namespace vsg
     {
     public:
         Animation();
-        Animation(const Animation& rhs, CopyOp* copyop);
+        Animation(const Animation& rhs, const CopyOp& copyop = {});
 
-        ref_ptr<Object> clone(CopyOp& copyop) const override { return Animation::create(*this, &copyop); }
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Animation::create(*this, copyop); }
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

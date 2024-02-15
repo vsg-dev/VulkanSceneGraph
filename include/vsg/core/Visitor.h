@@ -159,6 +159,11 @@ namespace vsg
     public:
         Visitor();
 
+        Visitor(const Visitor& rhs, const CopyOp& copyop = {}) :
+            Object(rhs, copyop),
+            traversalMask(rhs.traversalMask),
+            overrideMask(rhs.overrideMask) {}
+
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 

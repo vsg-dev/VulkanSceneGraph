@@ -29,7 +29,7 @@ Joint::~Joint()
 }
 
 
-ref_ptr<Object> Joint::clone(CopyOp& copyop) const
+ref_ptr<Object> Joint::clone(const CopyOp& copyop) const
 {
     auto new_joint = Joint::create();
     new_joint->index = index;

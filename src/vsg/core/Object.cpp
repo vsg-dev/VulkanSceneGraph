@@ -30,7 +30,7 @@ Object::Object() :
 {
 }
 
-Object::Object(const Object& rhs, CopyOp* copyop) :
+Object::Object(const Object& rhs, const CopyOp& copyop) :
     Object()
 {
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
@@ -38,11 +38,11 @@ Object::Object(const Object& rhs, CopyOp* copyop) :
         // the rhs's auxiliary is uniquely attached to it, so we need to create our own and copy its ObjectMap across
         auto& userObjects = getOrCreateAuxiliary()->userObjects;
         userObjects = rhs._auxiliary->userObjects;
-        if (copyop)
+        if (copyop.duplicate)
         {
             for(auto itr = userObjects.begin(); ++itr != userObjects.end(); ++itr)
             {
-                itr->second = (*copyop)(itr->second);
+                itr->second = (copyop)(itr->second);
             }
         }
     }
@@ -92,9 +92,12 @@ void Object::_attemptDelete() const
     }
 }
 
-ref_ptr<Object> Object::clone(CopyOp& copyop) const
+ref_ptr<Object> Object::clone(const CopyOp& copyop) const
 {
-    if (auto itr = copyop.duplicates.find(this); itr != copyop.duplicates.end()) return itr->second;
+    if (copyop.duplicate)
+    {
+        if (auto itr = copyop.duplicate->duplicates.find(this); itr != copyop.duplicate->duplicates.end()) return itr->second;
+    }
     else return ref_ptr<Object>(const_cast<Object*>(this));
 }
 

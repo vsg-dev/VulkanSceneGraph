@@ -35,7 +35,7 @@ DescriptorSet::~DescriptorSet()
     release();
 }
 
-ref_ptr<Object> DescriptorSet::clone(CopyOp& copyop) const
+ref_ptr<Object> DescriptorSet::clone(const CopyOp& copyop) const
 {
     auto new_ds = DescriptorSet::create();
     new_ds->setLayout = copyop(setLayout);

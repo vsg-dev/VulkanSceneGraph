@@ -30,7 +30,7 @@ namespace vsg
         using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
-        ref_ptr<Object> clone(CopyOp&) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)

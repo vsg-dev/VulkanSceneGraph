@@ -26,11 +26,10 @@ Group::Group(size_t numChildren) :
 {
 }
 
-Group::Group(const Group& rhs, CopyOp* copyop) :
+Group::Group(const Group& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    children(rhs.children)
+    children(copyop(rhs.children))
 {
-    if (copyop) for(auto& ptr : children) ptr = (*copyop)(ptr);
 }
 
 Group::~Group()

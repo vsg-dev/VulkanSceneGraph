@@ -21,63 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    class CopyOp
-    {
-    public:
-        std::map<const Object*, ref_ptr<Object>> duplicates;
 
-        template<class T>
-        ref_ptr<T> operator() (ref_ptr<T> ptr)
-        {
-            if (ptr)
-            {
-                if (auto itr = duplicates.find(ptr); itr != duplicates.end())
-                {
-                    if (!itr->second) itr->second = ptr->clone(*this);
-                    if (itr->second) return itr->second.template cast<T>();
-
-                    warn("Unable to clone ", ptr);
-                }
-            }
-            return ptr;
-        }
-
-        /// container of pointers
-        template<class C>
-        C operator() (const C& src)
-        {
-            C dest;
-            using T = typename C::value_type::element_type;
-            dest.reserve(src.size());
-            for(auto& ptr : src)
-            {
-                if (auto itr = duplicates.find(ptr); itr != duplicates.end())
-                {
-                    if (!itr->second) itr->second = ptr->clone(*this);
-                    if (itr->second)
-                    {
-                        dest.push_back(itr->second.template cast<T>());
-                        continue;
-                    }
-                    warn("Unable to clone ", ptr);
-                }
-                dest.push_back(ptr);
-            }
-            return dest;
-        }
-
-        void clear()
-        {
-            duplicates.clear();
-        }
-
-        void reset()
-        {
-            for(auto itr = duplicates.begin(); itr != duplicates.end(); ++itr)
-            {
-                itr->second.reset();
-            }
-        }
-    };
 
 } // namespace vsg

@@ -21,7 +21,7 @@ Transform::Transform()
 {
 }
 
-Transform::Transform(const Transform& rhs, CopyOp* copyop) :
+Transform::Transform(const Transform& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     subgraphRequiresLocalFrustum(rhs.subgraphRequiresLocalFrustum)
 {
