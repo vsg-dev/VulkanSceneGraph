@@ -65,7 +65,7 @@ namespace vsg
         double speed = 1.0;
 
         // start time point of animation to be used to calaculate the current time to use when looking up current values
-        double startTime;
+        double startTime = 0.0;
 
         using Samplers = std::vector<ref_ptr<AnimationSampler>>;
         Samplers samplers;
