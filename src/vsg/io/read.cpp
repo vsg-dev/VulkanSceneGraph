@@ -17,7 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/tile.h>
 #include <vsg/io/txt.h>
 #include <vsg/threading/OperationThreads.h>
-#include <vsg/utils/FindAndPropagateDynamicObjects.h>
+#include <vsg/utils/FindDynamicObjects.h>
+#include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;

@@ -238,7 +238,8 @@ set(SOURCES
     utils/GpuAnnotation.cpp
     utils/LineSegmentIntersector.cpp
     utils/LoadPagedLOD.cpp
-    utils/FindAndPropagateDynamicObjects.cpp
+    utils/FindDynamicObjects.cpp
+    utils/PropagateDynamicObjects.cpp
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})

@@ -269,13 +269,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/ComputeBounds.h>
-#include <vsg/utils/FindAndPropagateDynamicObjects.h>
+#include <vsg/utils/FindDynamicObjects.h>
 #include <vsg/utils/GpuAnnotation.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
 #include <vsg/utils/Instrumentation.h>
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/LoadPagedLOD.h>
+#include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/ShaderCompiler.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
