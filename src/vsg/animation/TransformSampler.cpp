@@ -156,11 +156,11 @@ TransformSampler::TransformSampler() :
 
 TransformSampler::TransformSampler(const TransformSampler& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
+    keyframes(copyop(rhs.keyframes)),
+    object(copyop(rhs.object)),
     position(rhs.position),
     rotation(rhs.rotation),
-    scale(rhs.scale),
-    keyframes(copyop(rhs.keyframes)),
-    object(copyop(rhs.object))
+    scale(rhs.scale)
 {
 }
 
