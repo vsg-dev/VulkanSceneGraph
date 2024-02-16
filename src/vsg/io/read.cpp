@@ -17,8 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/tile.h>
 #include <vsg/io/txt.h>
 #include <vsg/threading/OperationThreads.h>
-#include <vsg/utils/FindAndPropogateDynamicObjects.h>
 #include <vsg/utils/SharedObjects.h>
+#include <vsg/utils/FindAndPropagateDynamicObjects.h>
 
 using namespace vsg;
 
@@ -73,14 +73,17 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         options->sharedObjects->share(loadedObject, [&](auto load) {
             load->object = read_file();
 
-            vsg::FindDynamicObjects findDynamicObjects;
-            load->object->accept(findDynamicObjects);
+            if (options && options->findDynamicObjects && options->propagateDynamicObjects)
+            {
+                // invoke the find and propogate visitiors to collate all the dynamic objects that will need to be cloned.
+                options->findDynamicObjects->dynamicObjects.clear();
+                load->object->accept(*(options->findDynamicObjects));
 
-            vsg::PropogateDynamicObjects propogateDynamicObjects;
-            propogateDynamicObjects.dynamicObjects.swap(findDynamicObjects.dynamicObjects);
-            load->object->accept(propogateDynamicObjects);
+                options->propagateDynamicObjects->dynamicObjects.swap(options->findDynamicObjects->dynamicObjects);
+                load->object->accept(*(options->propagateDynamicObjects));
 
-            load->dynamicObjects.swap(propogateDynamicObjects.dynamicObjects);
+                load->dynamicObjects.swap(options->propagateDynamicObjects->dynamicObjects);
+            }
         });
 
         if (!loadedObject->dynamicObjects.empty())

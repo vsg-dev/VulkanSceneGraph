@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/threading/OperationThreads.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/utils/FindAndPropagateDynamicObjects.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>
 
@@ -29,6 +30,9 @@ Options::Options()
     formatCoordinateConventions[".dae"] = CoordinateConvention::Y_UP;
     formatCoordinateConventions[".stl"] = CoordinateConvention::NO_PREFERENCE;
     formatCoordinateConventions[".obj"] = CoordinateConvention::NO_PREFERENCE;
+
+    findDynamicObjects = FindDynamicObjects::create();
+    propagateDynamicObjects = PropagateDynamicObjects::create();
 }
 
 Options::Options(const Options& options) :
@@ -46,7 +50,9 @@ Options::Options(const Options& options) :
     formatCoordinateConventions(options.formatCoordinateConventions),
     shaderSets(options.shaderSets),
     inheritedState(options.inheritedState),
-    instrumentation(options.instrumentation)
+    instrumentation(options.instrumentation),
+    findDynamicObjects(options.findDynamicObjects),
+    propagateDynamicObjects(options.propagateDynamicObjects)
 {
     getOrCreateAuxiliary();
     // copy any meta data.

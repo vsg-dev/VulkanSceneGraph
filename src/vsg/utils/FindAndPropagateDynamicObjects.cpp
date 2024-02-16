@@ -26,7 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/utils/FindAndPropogateDynamicObjects.h>
+#include <vsg/utils/FindAndPropagateDynamicObjects.h>
 #include <vsg/vk/DescriptorPool.h>
 
 using namespace vsg;
@@ -35,34 +35,34 @@ using namespace vsg;
 //
 // FindDynamicObjects
 //
-void FindDynamicObjects::apply(const vsg::Object& object)
+void FindDynamicObjects::apply(const Object& object)
 {
     object.traverse(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::Data& data)
+void FindDynamicObjects::apply(const Data& data)
 {
-    if (data.properties.dataVariance != vsg::STATIC_DATA) tag(&data);
+    if (data.properties.dataVariance != STATIC_DATA) tag(&data);
 }
 
-void FindDynamicObjects::apply(const vsg::AnimationGroup& ag)
+void FindDynamicObjects::apply(const AnimationGroup& ag)
 {
     tag(&ag);
     ag.traverse(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::Animation& animation)
+void FindDynamicObjects::apply(const Animation& animation)
 {
     tag(&animation);
     animation.traverse(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::AnimationSampler& sampler)
+void FindDynamicObjects::apply(const AnimationSampler& sampler)
 {
     tag(&sampler);
 }
 
-void FindDynamicObjects::apply(const vsg::TransformSampler& sampler)
+void FindDynamicObjects::apply(const TransformSampler& sampler)
 {
     tag(&sampler);
     if (sampler.object)
@@ -72,13 +72,13 @@ void FindDynamicObjects::apply(const vsg::TransformSampler& sampler)
     }
 }
 
-void FindDynamicObjects::apply(const vsg::MorphSampler& sampler)
+void FindDynamicObjects::apply(const MorphSampler& sampler)
 {
     tag(&sampler);
     tag(sampler.object);
 }
 
-void FindDynamicObjects::apply(const vsg::JointSampler& sampler)
+void FindDynamicObjects::apply(const JointSampler& sampler)
 {
     tag(&sampler);
     tag(sampler.jointMatrices);
@@ -86,28 +86,28 @@ void FindDynamicObjects::apply(const vsg::JointSampler& sampler)
     sampler.subgraph->traverse(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::BufferInfo& info)
+void FindDynamicObjects::apply(const BufferInfo& info)
 {
     if (info.data) info.data->accept(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::Image& image)
+void FindDynamicObjects::apply(const Image& image)
 {
     if (image.data) image.data->accept(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::ImageView& imageView)
+void FindDynamicObjects::apply(const ImageView& imageView)
 {
     if (imageView.image) imageView.image->accept(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::ImageInfo& info)
+void FindDynamicObjects::apply(const ImageInfo& info)
 {
     if (info.sampler) info.sampler->accept(*this);
     if (info.imageView) info.imageView->accept(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::DescriptorBuffer& db)
+void FindDynamicObjects::apply(const DescriptorBuffer& db)
 {
     for(auto info : db.bufferInfoList)
     {
@@ -115,7 +115,7 @@ void FindDynamicObjects::apply(const vsg::DescriptorBuffer& db)
     }
 }
 
-void FindDynamicObjects::apply(const vsg::DescriptorImage& di)
+void FindDynamicObjects::apply(const DescriptorImage& di)
 {
     for(auto info : di.imageInfoList)
     {
@@ -123,12 +123,12 @@ void FindDynamicObjects::apply(const vsg::DescriptorImage& di)
     }
 }
 
-void FindDynamicObjects::apply(const vsg::BindIndexBuffer& bib)
+void FindDynamicObjects::apply(const BindIndexBuffer& bib)
 {
     if (bib.indices) bib.indices->accept(*this);
 }
 
-void FindDynamicObjects::apply(const vsg::BindVertexBuffers& bvb)
+void FindDynamicObjects::apply(const BindVertexBuffers& bvb)
 {
     for(auto info : bvb.arrays)
     {
@@ -136,7 +136,7 @@ void FindDynamicObjects::apply(const vsg::BindVertexBuffers& bvb)
     }
 }
 
-void FindDynamicObjects::apply(const vsg::VertexDraw& vd)
+void FindDynamicObjects::apply(const VertexDraw& vd)
 {
     for(auto info : vd.arrays)
     {
@@ -144,7 +144,7 @@ void FindDynamicObjects::apply(const vsg::VertexDraw& vd)
     }
 }
 
-void FindDynamicObjects::apply(const vsg::VertexIndexDraw& vid)
+void FindDynamicObjects::apply(const VertexIndexDraw& vid)
 {
     if (vid.indices) vid.indices->accept(*this);
     for(auto info : vid.arrays)
@@ -153,7 +153,7 @@ void FindDynamicObjects::apply(const vsg::VertexIndexDraw& vid)
     }
 }
 
-void FindDynamicObjects::apply(const vsg::Geometry& geom)
+void FindDynamicObjects::apply(const Geometry& geom)
 {
     if (geom.indices) geom.indices->accept(*this);
     for(auto info : geom.arrays)
@@ -168,79 +168,79 @@ void FindDynamicObjects::apply(const vsg::Geometry& geom)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PropogateDynamicObjects
+// PropagateDynamicObjects
 //
-PropogateDynamicObjects::PropogateDynamicObjects()
+PropagateDynamicObjects::PropagateDynamicObjects()
 {
     taggedStack.push(false);
 }
 
-void PropogateDynamicObjects::apply(const vsg::Object& object)
+void PropagateDynamicObjects::apply(const Object& object)
 {
     TagIfChildIsDynamic t(this, &object);
     object.traverse(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::AnimationGroup& ag)
+void PropagateDynamicObjects::apply(const AnimationGroup& ag)
 {
     TagIfChildIsDynamic t(this, &ag);
     ag.traverse(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::Animation& animation)
+void PropagateDynamicObjects::apply(const Animation& animation)
 {
     TagIfChildIsDynamic t(this, &animation);
     animation.traverse(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::AnimationSampler& sampler)
+void PropagateDynamicObjects::apply(const AnimationSampler& sampler)
 {
     TagIfChildIsDynamic t(this, &sampler);
 }
 
-void PropogateDynamicObjects::apply(const vsg::TransformSampler& sampler)
+void PropagateDynamicObjects::apply(const TransformSampler& sampler)
 {
     TagIfChildIsDynamic t(this, &sampler);
     if (sampler.object) sampler.object->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::MorphSampler& sampler)
+void PropagateDynamicObjects::apply(const MorphSampler& sampler)
 {
     TagIfChildIsDynamic t(this, &sampler);
 }
 
-void PropogateDynamicObjects::apply(const vsg::JointSampler& sampler)
+void PropagateDynamicObjects::apply(const JointSampler& sampler)
 {
     TagIfChildIsDynamic t(this, &sampler);
     if (sampler.subgraph) sampler.subgraph->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::BufferInfo& info)
+void PropagateDynamicObjects::apply(const BufferInfo& info)
 {
     TagIfChildIsDynamic t(this, &info);
     if (info.data) info.data->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::Image& image)
+void PropagateDynamicObjects::apply(const Image& image)
 {
     TagIfChildIsDynamic t(this, &image);
     if (image.data) image.data->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::ImageView& imageView)
+void PropagateDynamicObjects::apply(const ImageView& imageView)
 {
     TagIfChildIsDynamic t(this, &imageView);
     if (imageView.image) imageView.image->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::ImageInfo& info)
+void PropagateDynamicObjects::apply(const ImageInfo& info)
 {
     TagIfChildIsDynamic t(this, &info);
     if (info.sampler) info.sampler->accept(*this);
     if (info.imageView) info.imageView->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::DescriptorBuffer& db)
+void PropagateDynamicObjects::apply(const DescriptorBuffer& db)
 {
     TagIfChildIsDynamic t(this, &db);
     for(auto info : db.bufferInfoList)
@@ -249,7 +249,7 @@ void PropogateDynamicObjects::apply(const vsg::DescriptorBuffer& db)
     }
 }
 
-void PropogateDynamicObjects::apply(const vsg::DescriptorImage& di)
+void PropagateDynamicObjects::apply(const DescriptorImage& di)
 {
     TagIfChildIsDynamic t(this, &di);
     for(auto info : di.imageInfoList)
@@ -258,13 +258,13 @@ void PropogateDynamicObjects::apply(const vsg::DescriptorImage& di)
     }
 }
 
-void PropogateDynamicObjects::apply(const vsg::BindIndexBuffer& bib)
+void PropagateDynamicObjects::apply(const BindIndexBuffer& bib)
 {
     TagIfChildIsDynamic t(this, &bib);
     if (bib.indices) bib.indices->accept(*this);
 }
 
-void PropogateDynamicObjects::apply(const vsg::BindVertexBuffers& bvb)
+void PropagateDynamicObjects::apply(const BindVertexBuffers& bvb)
 {
     TagIfChildIsDynamic t(this, &bvb);
     for(auto info : bvb.arrays)
@@ -273,7 +273,7 @@ void PropogateDynamicObjects::apply(const vsg::BindVertexBuffers& bvb)
     }
 }
 
-void PropogateDynamicObjects::apply(const vsg::VertexDraw& vd)
+void PropagateDynamicObjects::apply(const VertexDraw& vd)
 {
     TagIfChildIsDynamic t(this, &vd);
     for(auto info : vd.arrays)
@@ -282,7 +282,7 @@ void PropogateDynamicObjects::apply(const vsg::VertexDraw& vd)
     }
 }
 
-void PropogateDynamicObjects::apply(const vsg::VertexIndexDraw& vid)
+void PropagateDynamicObjects::apply(const VertexIndexDraw& vid)
 {
     TagIfChildIsDynamic t(this, &vid);
     if (vid.indices) vid.indices->accept(*this);
@@ -292,7 +292,7 @@ void PropogateDynamicObjects::apply(const vsg::VertexIndexDraw& vid)
     }
 }
 
-void PropogateDynamicObjects::apply(const vsg::Geometry& geom)
+void PropagateDynamicObjects::apply(const Geometry& geom)
 {
     TagIfChildIsDynamic t(this, &geom);
     if (geom.indices) geom.indices->accept(*this);
