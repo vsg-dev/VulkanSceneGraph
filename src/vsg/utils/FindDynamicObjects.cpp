@@ -161,4 +161,3 @@ void FindDynamicObjects::apply(const Geometry& geom)
         if (command) command->accept(*this);
     }
 }
-
