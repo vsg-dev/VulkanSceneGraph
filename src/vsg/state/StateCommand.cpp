@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-StateCommand::StateCommand(const StateCommand& rhs, const CopyOp& copyop):
+StateCommand::StateCommand(const StateCommand& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     slot(rhs.slot)
 {

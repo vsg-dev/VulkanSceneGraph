@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC FindDynamicObjects : public Inherit<ConstVisitor, FindDynamicObjects>
     {
     public:
-
         std::set<const Object*> dynamicObjects;
 
         inline void tag(const Object* object)
@@ -38,7 +37,6 @@ namespace vsg
         }
 
     protected:
-
         void apply(const Object& object) override;
         void apply(const Data& data) override;
         void apply(const AnimationGroup& ag) override;
@@ -65,7 +63,6 @@ namespace vsg
     class VSG_DECLSPEC PropagateDynamicObjects : public Inherit<ConstVisitor, PropagateDynamicObjects>
     {
     public:
-
         PropagateDynamicObjects();
 
         std::set<const Object*> dynamicObjects;
@@ -82,7 +79,6 @@ namespace vsg
         }
 
     protected:
-
         struct TagIfChildIsDynamic
         {
             inline TagIfChildIsDynamic(PropagateDynamicObjects* in_rd, const Object* in_object) :

@@ -218,7 +218,7 @@ namespace vsg
         std::size_t size() const { return duplicates.size(); }
         inline mapped_type& operator[](const Object* object) { return duplicates[object]; }
 
-        bool contains(const Object* object) const { return duplicates.count(object)!=0; }
+        bool contains(const Object* object) const { return duplicates.count(object) != 0; }
         void insert(const Object* first, ref_ptr<Object> second = {}) { duplicates[first] = second; }
         void clear() { duplicates.clear(); }
 

@@ -11,9 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/AnimationGroup.h>
-#include <vsg/animation/TransformSampler.h>
 #include <vsg/animation/JointSampler.h>
 #include <vsg/animation/MorphSampler.h>
+#include <vsg/animation/TransformSampler.h>
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Draw.h>
@@ -23,9 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Transform.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
+#include <vsg/state/DescriptorSet.h>
 #include <vsg/utils/FindAndPropagateDynamicObjects.h>
 #include <vsg/vk/DescriptorPool.h>
 
@@ -109,7 +109,7 @@ void FindDynamicObjects::apply(const ImageInfo& info)
 
 void FindDynamicObjects::apply(const DescriptorBuffer& db)
 {
-    for(auto info : db.bufferInfoList)
+    for (auto info : db.bufferInfoList)
     {
         info->accept(*this);
     }
@@ -117,7 +117,7 @@ void FindDynamicObjects::apply(const DescriptorBuffer& db)
 
 void FindDynamicObjects::apply(const DescriptorImage& di)
 {
-    for(auto info : di.imageInfoList)
+    for (auto info : di.imageInfoList)
     {
         info->accept(*this);
     }
@@ -130,7 +130,7 @@ void FindDynamicObjects::apply(const BindIndexBuffer& bib)
 
 void FindDynamicObjects::apply(const BindVertexBuffers& bvb)
 {
-    for(auto info : bvb.arrays)
+    for (auto info : bvb.arrays)
     {
         if (info) info->accept(*this);
     }
@@ -138,7 +138,7 @@ void FindDynamicObjects::apply(const BindVertexBuffers& bvb)
 
 void FindDynamicObjects::apply(const VertexDraw& vd)
 {
-    for(auto info : vd.arrays)
+    for (auto info : vd.arrays)
     {
         if (info) info->accept(*this);
     }
@@ -147,7 +147,7 @@ void FindDynamicObjects::apply(const VertexDraw& vd)
 void FindDynamicObjects::apply(const VertexIndexDraw& vid)
 {
     if (vid.indices) vid.indices->accept(*this);
-    for(auto info : vid.arrays)
+    for (auto info : vid.arrays)
     {
         if (info) info->accept(*this);
     }
@@ -156,11 +156,11 @@ void FindDynamicObjects::apply(const VertexIndexDraw& vid)
 void FindDynamicObjects::apply(const Geometry& geom)
 {
     if (geom.indices) geom.indices->accept(*this);
-    for(auto info : geom.arrays)
+    for (auto info : geom.arrays)
     {
         if (info) info->accept(*this);
     }
-    for(auto command : geom.commands)
+    for (auto command : geom.commands)
     {
         if (command) command->accept(*this);
     }
@@ -243,7 +243,7 @@ void PropagateDynamicObjects::apply(const ImageInfo& info)
 void PropagateDynamicObjects::apply(const DescriptorBuffer& db)
 {
     TagIfChildIsDynamic t(this, &db);
-    for(auto info : db.bufferInfoList)
+    for (auto info : db.bufferInfoList)
     {
         info->accept(*this);
     }
@@ -252,7 +252,7 @@ void PropagateDynamicObjects::apply(const DescriptorBuffer& db)
 void PropagateDynamicObjects::apply(const DescriptorImage& di)
 {
     TagIfChildIsDynamic t(this, &di);
-    for(auto info : di.imageInfoList)
+    for (auto info : di.imageInfoList)
     {
         info->accept(*this);
     }
@@ -267,7 +267,7 @@ void PropagateDynamicObjects::apply(const BindIndexBuffer& bib)
 void PropagateDynamicObjects::apply(const BindVertexBuffers& bvb)
 {
     TagIfChildIsDynamic t(this, &bvb);
-    for(auto info : bvb.arrays)
+    for (auto info : bvb.arrays)
     {
         if (info) info->accept(*this);
     }
@@ -276,7 +276,7 @@ void PropagateDynamicObjects::apply(const BindVertexBuffers& bvb)
 void PropagateDynamicObjects::apply(const VertexDraw& vd)
 {
     TagIfChildIsDynamic t(this, &vd);
-    for(auto info : vd.arrays)
+    for (auto info : vd.arrays)
     {
         if (info) info->accept(*this);
     }
@@ -286,7 +286,7 @@ void PropagateDynamicObjects::apply(const VertexIndexDraw& vid)
 {
     TagIfChildIsDynamic t(this, &vid);
     if (vid.indices) vid.indices->accept(*this);
-    for(auto info : vid.arrays)
+    for (auto info : vid.arrays)
     {
         if (info) info->accept(*this);
     }
@@ -296,11 +296,11 @@ void PropagateDynamicObjects::apply(const Geometry& geom)
 {
     TagIfChildIsDynamic t(this, &geom);
     if (geom.indices) geom.indices->accept(*this);
-    for(auto info : geom.arrays)
+    for (auto info : geom.arrays)
     {
         if (info) info->accept(*this);
     }
-    for(auto command : geom.commands)
+    for (auto command : geom.commands)
     {
         if (command) command->accept(*this);
     }

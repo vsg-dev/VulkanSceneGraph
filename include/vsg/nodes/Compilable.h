@@ -23,7 +23,8 @@ namespace vsg
     {
     public:
         Compilable() {}
-        Compilable(const Compilable& rhs, const CopyOp& copyop = {}) : Inherit(rhs, copyop) {}
+        Compilable(const Compilable& rhs, const CopyOp& copyop = {}) :
+            Inherit(rhs, copyop) {}
 
         virtual void compile(Context& /*context*/){};
     };

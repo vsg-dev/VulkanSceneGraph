@@ -30,9 +30,9 @@ BindDescriptorSets::BindDescriptorSets() :
 {
 }
 
-BindDescriptorSets::BindDescriptorSets(const BindDescriptorSets& rhs, const CopyOp& copyop):
+BindDescriptorSets::BindDescriptorSets(const BindDescriptorSets& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    pipelineBindPoint(rhs. pipelineBindPoint),
+    pipelineBindPoint(rhs.pipelineBindPoint),
     layout(copyop(rhs.layout)),
     firstSet(rhs.firstSet),
     descriptorSets(copyop(rhs.descriptorSets)),
@@ -130,9 +130,9 @@ BindDescriptorSet::BindDescriptorSet() :
 {
 }
 
-BindDescriptorSet::BindDescriptorSet(const BindDescriptorSet& rhs, const CopyOp& copyop):
+BindDescriptorSet::BindDescriptorSet(const BindDescriptorSet& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    pipelineBindPoint(rhs. pipelineBindPoint),
+    pipelineBindPoint(rhs.pipelineBindPoint),
     layout(copyop(rhs.layout)),
     firstSet(rhs.firstSet),
     descriptorSet(copyop(rhs.descriptorSet)),

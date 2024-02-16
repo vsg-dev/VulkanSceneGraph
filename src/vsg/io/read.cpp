@@ -17,8 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/tile.h>
 #include <vsg/io/txt.h>
 #include <vsg/threading/OperationThreads.h>
-#include <vsg/utils/SharedObjects.h>
 #include <vsg/utils/FindAndPropagateDynamicObjects.h>
+#include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
 
@@ -90,7 +90,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         {
             vsg::CopyOp copyop;
             auto duplicate = copyop.duplicate = new vsg::Duplicate;
-            for(auto& object : loadedObject->dynamicObjects)
+            for (auto& object : loadedObject->dynamicObjects)
             {
                 duplicate->insert(object);
             }
@@ -98,7 +98,6 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
             vsg::info("loaded filename = ", filename, ", object = ", loadedObject->object, ", dynamicObjects.size() = ", loadedObject->dynamicObjects.size());
 
             return copyop(loadedObject->object);
-
         }
 
         return loadedObject->object;

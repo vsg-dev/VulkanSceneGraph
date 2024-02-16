@@ -23,7 +23,8 @@ namespace vsg
     {
     public:
         Command() {}
-        Command(const Command& rhs, const CopyOp& copyop = {}) : Inherit(rhs, copyop) {}
+        Command(const Command& rhs, const CopyOp& copyop = {}) :
+            Inherit(rhs, copyop) {}
 
         virtual void record(CommandBuffer& commandBuffer) const = 0;
     };
