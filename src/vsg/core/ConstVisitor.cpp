@@ -688,6 +688,18 @@ void ConstVisitor::apply(const BufferInfo& value)
 {
     apply(static_cast<const Object&>(value));
 }
+void ConstVisitor::apply(const ImageInfo& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ImageView& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Image& value)
+{
+    apply(static_cast<const Object&>(value));
+}
 void ConstVisitor::apply(const Command& value)
 {
     apply(static_cast<const Compilable&>(value));

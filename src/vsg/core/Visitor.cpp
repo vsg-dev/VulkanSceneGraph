@@ -688,6 +688,18 @@ void Visitor::apply(BufferInfo& value)
 {
     apply(static_cast<Object&>(value));
 }
+void Visitor::apply(ImageInfo& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ImageView& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Image& value)
+{
+    apply(static_cast<Object&>(value));
+}
 void Visitor::apply(Command& value)
 {
     apply(static_cast<Compilable&>(value));

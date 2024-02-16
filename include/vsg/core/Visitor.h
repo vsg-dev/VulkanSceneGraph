@@ -67,6 +67,9 @@ namespace vsg
 
     // forward declare vulkan classes
     class BufferInfo;
+    class ImageInfo;
+    class ImageView;
+    class Image;
     class Compilable;
     class Command;
     class StateCommand;
@@ -342,6 +345,9 @@ namespace vsg
 
         // Vulkan nodes
         virtual void apply(BufferInfo&);
+        virtual void apply(ImageInfo&);
+        virtual void apply(ImageView&);
+        virtual void apply(Image&);
         virtual void apply(Command&);
         virtual void apply(StateCommand&);
         virtual void apply(StateSwitch&);
