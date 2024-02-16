@@ -74,7 +74,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
         options->sharedObjects->share(loadedObject, [&](auto load) {
             load->object = read_file();
 
-            if (options && options->findDynamicObjects && options->propagateDynamicObjects)
+            if (load->object && options && options->findDynamicObjects && options->propagateDynamicObjects)
             {
                 // invoke the find and propogate visitiors to collate all the dynamic objects that will need to be cloned.
                 options->findDynamicObjects->dynamicObjects.clear();
