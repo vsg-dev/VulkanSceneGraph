@@ -57,7 +57,6 @@ void SecondaryCommandGraph::_disconnect(ExecuteCommands* ec)
     if (itr != _executeCommands.end()) _executeCommands.erase(itr);
 }
 
-
 RenderPass* SecondaryCommandGraph::getRenderPass()
 {
     if (renderPass)
@@ -139,8 +138,10 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
     inheritanceInfo.pipelineStatistics = pipelineStatistics;
     beginInfo.pInheritanceInfo = &inheritanceInfo;
 
-    if (auto activeRenderPass = getRenderPass()) inheritanceInfo.renderPass = *(activeRenderPass);
-    else inheritanceInfo.renderPass = VK_NULL_HANDLE;
+    if (auto activeRenderPass = getRenderPass())
+        inheritanceInfo.renderPass = *(activeRenderPass);
+    else
+        inheritanceInfo.renderPass = VK_NULL_HANDLE;
 
     inheritanceInfo.subpass = subpass;
 
