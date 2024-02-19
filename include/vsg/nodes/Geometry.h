@@ -30,7 +30,7 @@ namespace vsg
     {
     public:
         Geometry();
-        Geometry(const Geometry& ths, const CopyOp& copyop = {});
+        Geometry(const Geometry& rhs, const CopyOp& copyop = {});
 
         using DrawCommands = std::vector<ref_ptr<Command>>;
 

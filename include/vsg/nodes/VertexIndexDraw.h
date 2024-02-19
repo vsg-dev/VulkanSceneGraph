@@ -25,7 +25,7 @@ namespace vsg
     {
     public:
         VertexIndexDraw();
-        VertexIndexDraw(const VertexIndexDraw& ths, const CopyOp& copyop = {});
+        VertexIndexDraw(const VertexIndexDraw& rhs, const CopyOp& copyop = {});
 
         // vkCmdDrawIndexed settings
         // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);

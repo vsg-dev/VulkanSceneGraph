@@ -27,10 +27,6 @@ namespace vsg
     class VSG_DECLSPEC TileDatabaseSettings : public Inherit<Object, TileDatabaseSettings>
     {
     public:
-        // read/write of TileReader settings
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         // defaults for readymap
         dbox extents = {{-180.0, -90.0, 0.0}, {180.0, 90.0, 1.0}};
         uint32_t noX = 2;
@@ -51,6 +47,11 @@ namespace vsg
 
         /// optional shaderSet to use for setting up shaders, if left null use vsg::createTileShaderSet().
         ref_ptr<ShaderSet> shaderSet;
+
+    public:
+        // read/write of TileReader settings
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::TileDatabaseSettings);
 
@@ -62,6 +63,7 @@ namespace vsg
         ref_ptr<TileDatabaseSettings> settings;
         ref_ptr<Node> child;
 
+    public:
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {

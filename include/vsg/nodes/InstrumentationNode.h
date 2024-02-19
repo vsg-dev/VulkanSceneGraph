@@ -24,14 +24,8 @@ namespace vsg
     {
     public:
         InstrumentationNode();
+        InstrumentationNode(const InstrumentationNode& rhs, const CopyOp& copyop = {});
         explicit InstrumentationNode(ref_ptr<Node> in_child);
-
-        void traverse(Visitor& visitor) override;
-        void traverse(ConstVisitor& visitor) const override;
-        void traverse(RecordTraversal& visitor) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
 
         void setColor(uint_color color);
         uint_color getColor() const { return _color; }
@@ -43,6 +37,17 @@ namespace vsg
         uint32_t getLevel() const { return _level; }
 
         ref_ptr<vsg::Node> child;
+
+    public:
+        void traverse(Visitor& visitor) override;
+        void traverse(ConstVisitor& visitor) const override;
+        void traverse(RecordTraversal& visitor) const override;
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return InstrumentationNode::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~InstrumentationNode();

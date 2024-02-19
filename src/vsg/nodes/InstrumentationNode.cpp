@@ -27,6 +27,20 @@ InstrumentationNode::InstrumentationNode() :
 {
 }
 
+InstrumentationNode::InstrumentationNode(const InstrumentationNode& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    _level(rhs._level),
+    _color(rhs._color),
+    _name(rhs._name),
+    _sl_Visitor{rhs._sl_Visitor},
+    _sl_ConstVisitor{rhs._sl_ConstVisitor},
+    _sl_RecordTraversal{rhs._sl_RecordTraversal}
+{
+    _sl_Visitor.name = _name.c_str();
+    _sl_ConstVisitor.name = _name.c_str();
+    _sl_RecordTraversal.name = _name.c_str();
+}
+
 InstrumentationNode::InstrumentationNode(ref_ptr<Node> in_child) :
     InstrumentationNode()
 {
@@ -36,6 +50,18 @@ InstrumentationNode::InstrumentationNode(ref_ptr<Node> in_child) :
 InstrumentationNode::~InstrumentationNode()
 {
 }
+
+int InstrumentationNode::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(_level, rhs._level)) != 0) return result;
+    if ((result = compare_memory(_color, rhs._color)) != 0) return result;
+    return compare_value(_name, rhs._name);
+}
+
 
 void InstrumentationNode::traverse(Visitor& visitor)
 {

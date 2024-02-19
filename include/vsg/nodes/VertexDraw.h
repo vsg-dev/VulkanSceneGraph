@@ -25,7 +25,7 @@ namespace vsg
     {
     public:
         VertexDraw();
-        VertexDraw(const VertexDraw& ths, const CopyOp& copyop = {});
+        VertexDraw(const VertexDraw& rhs, const CopyOp& copyop = {});
 
         // vkCmdDraw settings
         // vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
