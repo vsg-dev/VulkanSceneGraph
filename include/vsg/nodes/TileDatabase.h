@@ -27,6 +27,9 @@ namespace vsg
     class VSG_DECLSPEC TileDatabaseSettings : public Inherit<Object, TileDatabaseSettings>
     {
     public:
+        TileDatabaseSettings();
+        TileDatabaseSettings(const TileDatabaseSettings& rhs, const CopyOp& copyop = {});
+
         // defaults for readymap
         dbox extents = {{-180.0, -90.0, 0.0}, {180.0, 90.0, 1.0}};
         uint32_t noX = 2;
@@ -49,6 +52,10 @@ namespace vsg
         ref_ptr<ShaderSet> shaderSet;
 
     public:
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TileDatabaseSettings::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
         // read/write of TileReader settings
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -60,6 +67,9 @@ namespace vsg
     class VSG_DECLSPEC TileDatabase : public Inherit<Node, TileDatabase>
     {
     public:
+        TileDatabase();
+        TileDatabase(const TileDatabase& rhs, const CopyOp& copyop = {});
+
         ref_ptr<TileDatabaseSettings> settings;
         ref_ptr<Node> child;
 
@@ -73,6 +83,9 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TileDatabase::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         // read/write of TileReader settings
         void read(Input& input) override;
