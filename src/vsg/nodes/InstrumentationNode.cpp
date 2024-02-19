@@ -62,7 +62,6 @@ int InstrumentationNode::compare(const Object& rhs_object) const
     return compare_value(_name, rhs._name);
 }
 
-
 void InstrumentationNode::traverse(Visitor& visitor)
 {
     CpuInstrumentation cpuInst(visitor.getInstrumentation(), &_sl_Visitor, child.get());
