@@ -20,6 +20,31 @@ using namespace vsg;
 //
 // Light
 //
+Light::Light()
+{
+}
+
+Light::Light(const Light& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    name(rhs.name),
+    color(rhs.color),
+    intensity(rhs.intensity),
+    shadowMaps(rhs.shadowMaps)
+{
+}
+
+int Light::compare(const Object& rhs_object) const
+{
+    int result = Node::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(name, rhs.name)) != 0) return result;
+    if ((result = compare_value(color, rhs.color)) != 0) return result;
+    if ((result = compare_value(intensity, rhs.intensity)) != 0) return result;
+    return compare_value(shadowMaps, rhs.shadowMaps);
+}
+
 void Light::read(Input& input)
 {
     input.read("name", name);
@@ -38,6 +63,15 @@ void Light::write(Output& output) const
 //
 // AmbientLight
 //
+AmbientLight::AmbientLight()
+{
+}
+
+AmbientLight::AmbientLight(const AmbientLight& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+}
+
 void AmbientLight::read(Input& input)
 {
     Light::read(input);
@@ -52,6 +86,25 @@ void AmbientLight::write(Output& output) const
 //
 // DirectionalLight
 //
+DirectionalLight::DirectionalLight()
+{
+}
+
+DirectionalLight::DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    direction(rhs.direction)
+{
+}
+
+int DirectionalLight::compare(const Object& rhs_object) const
+{
+    int result = Light::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(direction, rhs.direction);
+}
+
 void DirectionalLight::read(Input& input)
 {
     Light::read(input);
@@ -70,6 +123,25 @@ void DirectionalLight::write(Output& output) const
 //
 // PointLight
 //
+PointLight::PointLight()
+{
+}
+
+PointLight::PointLight(const PointLight& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    position(rhs.position)
+{
+}
+
+int PointLight::compare(const Object& rhs_object) const
+{
+    int result = Light::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(position, rhs.position);
+}
+
 void PointLight::read(Input& input)
 {
     Light::read(input);
@@ -88,6 +160,31 @@ void PointLight::write(Output& output) const
 //
 // SpotLight
 //
+SpotLight::SpotLight()
+{
+}
+
+SpotLight::SpotLight(const SpotLight& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    position(rhs.position),
+    direction(rhs.direction),
+    innerAngle(rhs.innerAngle),
+    outerAngle(rhs.outerAngle)
+{
+}
+
+int SpotLight::compare(const Object& rhs_object) const
+{
+    int result = Light::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(position, rhs.position)) != 0) return result;
+    if ((result = compare_value(direction, rhs.direction)) != 0) return result;
+    if ((result = compare_value(innerAngle, rhs.innerAngle)) != 0) return result;
+    return compare_value(outerAngle, rhs.outerAngle);
+}
+
 void SpotLight::read(Input& input)
 {
     Light::read(input);
