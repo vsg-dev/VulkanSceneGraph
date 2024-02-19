@@ -947,6 +947,10 @@ void Visitor::apply(CommandGraph& cg)
 {
     apply(static_cast<Group&>(cg));
 }
+void Visitor::apply(SecondaryCommandGraph& cg)
+{
+    apply(static_cast<CommandGraph&>(cg));
+}
 void Visitor::apply(RenderGraph& rg)
 {
     apply(static_cast<Group&>(rg));

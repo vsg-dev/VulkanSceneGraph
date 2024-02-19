@@ -32,6 +32,12 @@ namespace vsg
         VkQueryControlFlags queryFlags = 0;
         VkQueryPipelineStatisticFlags pipelineStatistics = 0;
 
+        /// RenderPass to use passed to the VkCommandBufferInheritanceInfo in place of the framebuffer's or window's renderPass. renderPass must be compatible with the render pass used to create the window or framebuffer.
+        ref_ptr<RenderPass> renderPass;
+
+        /// RenderPass to use passed to the VkCommandBufferInheritanceInfo, if renderPass is set it takes precedence, if not then either obtained from which of the framebuffer or window are active
+        RenderPass* getRenderPass();
+
         VkCommandBufferLevel level() const override;
         void reset() override;
         void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {}) override;

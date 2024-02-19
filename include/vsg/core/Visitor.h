@@ -137,6 +137,7 @@ namespace vsg
     // forward declare viewer classes
     class Camera;
     class CommandGraph;
+    class SecondaryCommandGraph;
     class RenderGraph;
     class View;
     class Viewer;
@@ -395,6 +396,7 @@ namespace vsg
         // viewer
         virtual void apply(Camera&);
         virtual void apply(CommandGraph&);
+        virtual void apply(SecondaryCommandGraph&);
         virtual void apply(RenderGraph&);
         virtual void apply(View&);
         virtual void apply(Viewer&);

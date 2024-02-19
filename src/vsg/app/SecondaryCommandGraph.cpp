@@ -57,6 +57,24 @@ void SecondaryCommandGraph::_disconnect(ExecuteCommands* ec)
     if (itr != _executeCommands.end()) _executeCommands.erase(itr);
 }
 
+
+RenderPass* SecondaryCommandGraph::getRenderPass()
+{
+    if (renderPass)
+    {
+        return renderPass;
+    }
+    else if (framebuffer)
+    {
+        return framebuffer->getRenderPass();
+    }
+    else if (window)
+    {
+        return window->getOrCreateRenderPass();
+    }
+    return nullptr;
+}
+
 void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp, ref_ptr<DatabasePager> databasePager)
 {
     if (window && !window->visible())
@@ -121,16 +139,17 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
     inheritanceInfo.pipelineStatistics = pipelineStatistics;
     beginInfo.pInheritanceInfo = &inheritanceInfo;
 
+    if (auto activeRenderPass = getRenderPass()) inheritanceInfo.renderPass = *(activeRenderPass);
+    else inheritanceInfo.renderPass = VK_NULL_HANDLE;
+
+    inheritanceInfo.subpass = subpass;
+
     if (framebuffer)
     {
-        inheritanceInfo.renderPass = *(framebuffer->getRenderPass());
-        inheritanceInfo.subpass = subpass;
         inheritanceInfo.framebuffer = *framebuffer;
     }
     else if (window)
     {
-        inheritanceInfo.renderPass = *(window->getRenderPass());
-        inheritanceInfo.subpass = subpass;
         //inheritanceInfo.framebuffer = *(window->framebuffer(window->nextImageIndex()));
         inheritanceInfo.framebuffer = VK_NULL_HANDLE;
     }
