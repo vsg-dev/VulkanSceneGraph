@@ -19,9 +19,24 @@ AbsoluteTransform::AbsoluteTransform()
 {
 }
 
+AbsoluteTransform::AbsoluteTransform(const AbsoluteTransform& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    matrix(rhs.matrix)
+{
+}
+
 AbsoluteTransform::AbsoluteTransform(const dmat4& in_matrix) :
     matrix(in_matrix)
 {
+}
+
+int AbsoluteTransform::compare(const Object& rhs_object) const
+{
+    int result = Transform::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(matrix, rhs.matrix);
 }
 
 void AbsoluteTransform::read(Input& input)

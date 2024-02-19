@@ -22,13 +22,18 @@ namespace vsg
     class VSG_DECLSPEC CullGroup : public Inherit<Group, CullGroup>
     {
     public:
-        explicit CullGroup();
+        CullGroup();
+        CullGroup(const CullGroup& rhs, const CopyOp& copyop = {});
         explicit CullGroup(const dsphere& bound);
+
+        dsphere bound;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return CullGroup::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        dsphere bound;
 
     protected:
         virtual ~CullGroup();

@@ -24,14 +24,19 @@ namespace vsg
     {
     public:
         AbsoluteTransform();
+        AbsoluteTransform(const AbsoluteTransform& rhs, const CopyOp& copyop = {});
         explicit AbsoluteTransform(const dmat4& in_matrix);
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
+        dmat4 matrix;
 
         dmat4 transform(const dmat4&) const override { return matrix; }
 
-        dmat4 matrix;
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return AbsoluteTransform::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
     };
