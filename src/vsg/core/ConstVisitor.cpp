@@ -1000,6 +1000,10 @@ void ConstVisitor::apply(const CommandGraph& cg)
 {
     apply(static_cast<const Group&>(cg));
 }
+void ConstVisitor::apply(const SecondaryCommandGraph& cg)
+{
+    apply(static_cast<const CommandGraph&>(cg));
+}
 void ConstVisitor::apply(const RenderGraph& rg)
 {
     apply(static_cast<const Group&>(rg));

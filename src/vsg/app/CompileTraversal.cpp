@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/CompileTraversal.h>
 
 #include <vsg/app/CommandGraph.h>
+#include <vsg/app/SecondaryCommandGraph.h>
 #include <vsg/app/RenderGraph.h>
 #include <vsg/app/View.h>
 #include <vsg/app/Viewer.h>
@@ -276,18 +277,62 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
     commandGraph.traverse(*this);
 }
 
+void CompileTraversal::apply(SecondaryCommandGraph& secondaryCommandGraph)
+{
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal SecondaryCommandGraph", COLOR_COMPILE);
+
+    auto renderPass = secondaryCommandGraph.getRenderPass();
+
+    for (auto& context : contexts)
+    {
+        if (context->resourceRequirements.maxSlot > secondaryCommandGraph.maxSlot)
+        {
+            secondaryCommandGraph.maxSlot = context->resourceRequirements.maxSlot;
+        }
+
+        // save previous states to be restored after traversal
+        auto previousRenderPass = context->renderPass;
+        auto previousDefaultPipelineStates = context->defaultPipelineStates;
+        auto previousOverridePipelineStates = context->overridePipelineStates;
+
+        context->renderPass = renderPass;
+
+        if (secondaryCommandGraph.window)
+        {
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(secondaryCommandGraph.window->extent2D()));
+        }
+        else if (secondaryCommandGraph.framebuffer)
+        {
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(secondaryCommandGraph.framebuffer->extent2D()));
+        }
+
+        if (renderPass)
+        {
+            mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
+        }
+
+        secondaryCommandGraph.traverse(*this);
+
+        // restore previous values
+        context->defaultPipelineStates = previousDefaultPipelineStates;
+        context->overridePipelineStates = previousOverridePipelineStates;
+        context->renderPass = previousRenderPass;
+    }
+}
+
+
 void CompileTraversal::apply(RenderGraph& renderGraph)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal RenderGraph", COLOR_COMPILE);
 
     for (auto& context : contexts)
     {
-        context->renderPass = renderGraph.getRenderPass();
-
         // save previous states to be restored after traversal
+        auto previousRenderPass = context->renderPass;
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
         auto previousOverridePipelineStates = context->overridePipelineStates;
 
+        context->renderPass = renderGraph.getRenderPass();
         if (renderGraph.window)
         {
             mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
@@ -307,6 +352,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         // restore previous values
         context->defaultPipelineStates = previousDefaultPipelineStates;
         context->overridePipelineStates = previousOverridePipelineStates;
+        context->renderPass = previousRenderPass;
     }
 }
 
