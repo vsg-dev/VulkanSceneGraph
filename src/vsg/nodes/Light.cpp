@@ -24,7 +24,7 @@ Light::Light()
 {
 }
 
-Light::Light(const Light& rhs, const CopyOp& copyop):
+Light::Light(const Light& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     name(rhs.name),
     color(rhs.color),

@@ -26,7 +26,7 @@ LOD::LOD(const LOD& rhs, const CopyOp& copyop) :
     bound(rhs.bound)
 {
     children.reserve(rhs.children.size());
-    for(auto child : rhs.children)
+    for (auto child : rhs.children)
     {
         children.push_back(Child{child.minimumScreenHeightRatio, copyop(child.node)});
     }
