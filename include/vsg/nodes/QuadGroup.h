@@ -29,7 +29,12 @@ namespace vsg
     {
     public:
         QuadGroup();
+        QuadGroup(const QuadGroup& rhs, const CopyOp& copyop = {});
 
+        using Children = std::array<ref_ptr<vsg::Node>, 4>;
+        Children children;
+
+    public:
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -40,13 +45,11 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return QuadGroup::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        using Children = std::array<ref_ptr<vsg::Node>, 4>;
-        Children children;
 
     protected:
         virtual ~QuadGroup();

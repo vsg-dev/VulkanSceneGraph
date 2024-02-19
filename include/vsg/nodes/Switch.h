@@ -24,25 +24,8 @@ namespace vsg
     class VSG_DECLSPEC Switch : public Inherit<Node, Switch>
     {
     public:
-        explicit Switch();
-
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
-        {
-            for (auto& child : node.children)
-            {
-                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != MASK_OFF) child.node->accept(visitor);
-            }
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
-        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
-        int compare(const Object& rhs) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
+        Switch();
+        Switch(const Switch& rhs, const CopyOp& copyop = {});
 
         struct Child
         {
@@ -64,6 +47,26 @@ namespace vsg
 
         /// set specified child to be on and all other children off.
         void setSingleChildOn(size_t index);
+
+    public:
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& child : node.children)
+            {
+                if ((visitor.traversalMask & (visitor.overrideMask | child.mask)) != MASK_OFF) child.node->accept(visitor);
+            }
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Switch::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~Switch();
