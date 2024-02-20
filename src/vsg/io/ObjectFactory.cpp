@@ -215,6 +215,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::BindDescriptorSets>();
     add<vsg::BindDescriptorSet>();
     add<vsg::BindVertexBuffers>();
+    add<vsg::DescriptorTexelBufferView>();
     add<vsg::BindIndexBuffer>();
     add<vsg::BindViewDescriptorSets>();
     add<vsg::DescriptorSet>();

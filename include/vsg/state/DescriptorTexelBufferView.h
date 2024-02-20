@@ -22,18 +22,23 @@ namespace vsg
     class VSG_DECLSPEC DescriptorTexelBufferView : public Inherit<Descriptor, DescriptorTexelBufferView>
     {
     public:
+        DescriptorTexelBufferView();
+        DescriptorTexelBufferView(const DescriptorTexelBufferView& rhs, const CopyOp& copyop = {});
         DescriptorTexelBufferView(uint32_t dstBinding, uint32_t dstArrayElement, VkDescriptorType descriptorType, const BufferViewList& in_texelBufferViews);
 
         /// VkWriteDescriptorSet.pTexelBufferViews settings
         BufferViewList texelBufferViews;
 
+        void compile(Context& context) override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
+        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(texelBufferViews.size()); }
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorTexelBufferView::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
-        void compile(Context& context) override;
-
-        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
-
-        uint32_t getNumDescriptors() const override { return static_cast<uint32_t>(texelBufferViews.size()); }
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
     };

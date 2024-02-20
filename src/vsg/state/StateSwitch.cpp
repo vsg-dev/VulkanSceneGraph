@@ -16,6 +16,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+StateSwitch::StateSwitch()
+{
+}
+
+StateSwitch::StateSwitch(const StateSwitch& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+    children.reserve(rhs.children.size());
+    for (auto child : rhs.children)
+    {
+        children.push_back(Child{child.mask, copyop(child.stateCommand)});
+    }
+}
+
 void StateSwitch::compile(Context& context)
 {
     for (auto& child : children) child.stateCommand->compile(context);
