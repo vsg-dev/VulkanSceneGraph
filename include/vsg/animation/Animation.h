@@ -30,6 +30,9 @@ namespace vsg
         virtual void update(double time) = 0;
         virtual double maxTime() const = 0;
 
+    public:
+        int compare(const Object& rhs) const override;
+
         void read(Input& input) override;
         void write(Output& output) const override;
     };
@@ -40,17 +43,6 @@ namespace vsg
     public:
         Animation();
         Animation(const Animation& rhs, const CopyOp& copyop = {});
-
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Animation::create(*this, copyop); }
-
-        template<class N, class V>
-        static void t_traverse(N& node, V& visitor)
-        {
-            for (auto& sampler : node.samplers) sampler->accept(visitor);
-        }
-
-        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
-        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 
         std::string name;
 
@@ -70,11 +62,24 @@ namespace vsg
         using Samplers = std::vector<ref_ptr<AnimationSampler>>;
         Samplers samplers;
 
+        // update
+        virtual bool update(double simulationTime);
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Animation::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& sampler : node.samplers) sampler->accept(visitor);
+        }
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        // update
-        virtual bool update(double simulationTime);
     };
     VSG_type_name(vsg::Animation);
 

@@ -35,7 +35,7 @@ AnimationGroup::~AnimationGroup()
 
 int AnimationGroup::compare(const Object& rhs_object) const
 {
-    int result = Object::compare(rhs_object);
+    int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);

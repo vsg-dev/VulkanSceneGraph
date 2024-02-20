@@ -164,6 +164,19 @@ TransformSampler::TransformSampler(const TransformSampler& rhs, const CopyOp& co
 {
 }
 
+int TransformSampler::compare(const Object& rhs_object) const
+{
+    int result = AnimationSampler::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_pointer(keyframes, rhs.keyframes)) != 0) return result;
+    if ((result = compare_pointer(object, rhs.object)) != 0) return result;
+    if ((result = compare_value(position, rhs.position)) != 0) return result;
+    if ((result = compare_value(rotation, rhs.rotation)) != 0) return result;
+    return compare_value(scale, rhs.scale);
+}
+
 void TransformSampler::update(double time)
 {
     if (keyframes)

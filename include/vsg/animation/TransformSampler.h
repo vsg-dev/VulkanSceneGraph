@@ -75,15 +75,17 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
+    public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TransformSampler::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
         void apply(mat4Value& mat) override;
         void apply(dmat4Value& mat) override;
         void apply(MatrixTransform& mt) override;
         void apply(Joint& joint) override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
     };
     VSG_type_name(vsg::TransformSampler);
 

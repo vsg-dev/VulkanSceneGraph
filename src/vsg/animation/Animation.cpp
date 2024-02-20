@@ -29,6 +29,15 @@ AnimationSampler::AnimationSampler(const AnimationSampler& rhs, const CopyOp& co
 {
 }
 
+int AnimationSampler::compare(const Object& rhs_object) const
+{
+    int result = Visitor::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(name, rhs.name);
+}
+
 void AnimationSampler::read(Input& input)
 {
     Object::read(input);
@@ -53,6 +62,20 @@ Animation::Animation(const Animation& rhs, const CopyOp& copyop) :
     startTime(rhs.startTime),
     samplers(copyop(rhs.samplers))
 {
+}
+
+int Animation::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(name, rhs.name)) != 0) return result;
+    if ((result = compare_value(mode, rhs.mode)) != 0) return result;
+    if ((result = compare_value(speed, rhs.speed)) != 0) return result;
+    if ((result = compare_value(startTime, rhs.startTime)) != 0) return result;
+
+    return compare_pointer_container(samplers, rhs.samplers);
 }
 
 void Animation::read(Input& input)

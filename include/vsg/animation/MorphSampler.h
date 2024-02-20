@@ -47,12 +47,17 @@ namespace vsg
     {
     public:
         MorphSampler();
+        MorphSampler(const MorphSampler& rhs, const CopyOp& copyop = {});
 
         ref_ptr<MorphKeyframes> keyframes;
         ref_ptr<Object> object;
 
         void update(double time) override;
         double maxTime() const override;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return MorphSampler::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

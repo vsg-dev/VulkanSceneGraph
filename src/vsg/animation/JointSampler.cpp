@@ -38,6 +38,17 @@ JointSampler::JointSampler(const JointSampler& rhs, const CopyOp& copyop) :
 {
 }
 
+int JointSampler::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_pointer(jointMatrices, rhs.jointMatrices)) != 0) return result;
+    if ((result = compare_value_container(offsetMatrices, rhs.offsetMatrices)) != 0) return result;
+    return compare_pointer(subgraph, rhs.subgraph);
+}
+
 void JointSampler::update(double)
 {
     if (!jointMatrices) return;

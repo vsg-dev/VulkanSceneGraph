@@ -28,6 +28,7 @@ namespace vsg
 
         Animations animations;
 
+    public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return AnimationGroup::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 

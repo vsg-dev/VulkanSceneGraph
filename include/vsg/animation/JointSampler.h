@@ -31,12 +31,13 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
+    public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return JointSampler::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-    protected:
         void apply(Node& node) override;
         void apply(Transform& transform) override;
         void apply(MatrixTransform& mt) override;
