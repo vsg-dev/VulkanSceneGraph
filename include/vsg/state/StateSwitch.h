@@ -21,7 +21,6 @@ namespace vsg
     class VSG_DECLSPEC StateSwitch : public Inherit<StateCommand, StateSwitch>
     {
     public:
-
         StateSwitch();
         StateSwitch(const StateSwitch& rhs, const CopyOp& copyop = {});
 
@@ -56,7 +55,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
     };
     VSG_type_name(vsg::StateSwitch);
 

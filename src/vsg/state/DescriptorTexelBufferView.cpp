@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DescriptorTexelBufferView::DescriptorTexelBufferView():
+DescriptorTexelBufferView::DescriptorTexelBufferView() :
     Inherit(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER)
 {
 }

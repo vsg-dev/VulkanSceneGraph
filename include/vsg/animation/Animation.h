@@ -79,7 +79,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
     };
     VSG_type_name(vsg::Animation);
 
