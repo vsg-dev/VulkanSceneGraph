@@ -38,10 +38,10 @@ namespace vsg
         SortOrder sortOrder = NO_SORT;
 
     public:
-        void traverse(RecordTraversal& visitor) const override;
-
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Bin::create(*this, copyop); }
         int compare(const Object& rhs) const override;
+
+        void traverse(RecordTraversal& visitor) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

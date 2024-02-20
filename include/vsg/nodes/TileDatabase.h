@@ -73,6 +73,9 @@ namespace vsg
         ref_ptr<Node> child;
 
     public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TileDatabase::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
         {
@@ -82,9 +85,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TileDatabase::create(*this, copyop); }
-        int compare(const Object& rhs) const override;
 
         // read/write of TileReader settings
         void read(Input& input) override;

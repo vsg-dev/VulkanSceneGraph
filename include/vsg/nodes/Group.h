@@ -41,6 +41,7 @@ namespace vsg
             children.push_back(child);
         }
 
+    public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Group::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 

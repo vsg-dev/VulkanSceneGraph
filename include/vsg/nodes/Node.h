@@ -24,7 +24,6 @@ namespace vsg
     {
     public:
         Node();
-
         Node(const Node& rhs, const CopyOp& copyop = {});
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Node::create(*this, copyop); }

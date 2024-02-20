@@ -33,6 +33,17 @@ namespace vsg
         ref_ptr<DescriptorSetLayout> setLayout;
         Descriptors descriptors;
 
+        // compile the Vulkan object, context parameter used for Device
+        void compile(Context& context);
+
+        // remove the local reference to the Vulkan implementation
+        void release(uint32_t deviceID);
+        void release();
+
+        /// get the Vulkan handle to the descriptor set for specified device
+        VkDescriptorSet vk(uint32_t deviceID) const;
+
+    public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorSet::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
@@ -49,15 +60,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        // compile the Vulkan object, context parameter used for Device
-        void compile(Context& context);
-
-        // remove the local reference to the Vulkan implementation
-        void release(uint32_t deviceID);
-        void release();
-
-        /// get the Vulkan handle to the descriptor set for specified device
-        VkDescriptorSet vk(uint32_t deviceID) const;
 
     public:
         /// Wrapper class for the management of the Vulkan VkDescriptorSet handle.

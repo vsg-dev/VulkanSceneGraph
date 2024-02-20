@@ -31,7 +31,9 @@ namespace vsg
         using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
+    public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Joint::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         template<class N, class V>
         static void t_traverse(N& node, V& visitor)
@@ -42,8 +44,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
-
-        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
