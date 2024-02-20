@@ -56,14 +56,20 @@ namespace vsg
         Mode mode = REPEAT;
         double speed = 1.0;
 
-        // start time point of animation to be used to calaculate the current time to use when looking up current values
-        double startTime = 0.0;
-
         using Samplers = std::vector<ref_ptr<AnimationSampler>>;
         Samplers samplers;
 
-        // update
+        /// initialize this animation start time
+        virtual bool start(double simulationTime);
+
+        /// update the samplers
         virtual bool update(double simulationTime);
+
+        /// signal that this animation is to stop
+        virtual bool stop(double simulationTime);
+
+        /// return true if this animation is being actively updated.
+        bool active() const { return _active; }
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Animation::create(*this, copyop); }
@@ -79,6 +85,13 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+    protected:
+
+        // start time point of animation to be used to calaculate the current time to use when looking up current values
+        bool _active = false;
+        double _startTime = 0.0;
+        double _maxTime = 0.0;
     };
     VSG_type_name(vsg::Animation);
 

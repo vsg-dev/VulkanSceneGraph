@@ -28,15 +28,17 @@ bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager play animation", COLOR_VIEWER);
 
-    if (std::find(animations.begin(), animations.end(), animation) != animations.end())
+    bool already_actrive = animation->active();
+    if (animation->start(_simulationTime))
+    {
+        if (!already_actrive) animations.push_back(animation);
+
+        return true;
+    }
+    else
     {
         return false;
     }
-
-    animation->startTime = _simulationTime;
-    animations.push_back(animation);
-
-    return true;
 }
 
 bool AnimationManager::stop(vsg::ref_ptr<vsg::Animation> animation)
@@ -46,6 +48,7 @@ bool AnimationManager::stop(vsg::ref_ptr<vsg::Animation> animation)
     auto itr = std::find(animations.begin(), animations.end(), animation);
     if (itr != animations.end())
     {
+        animation->stop(_simulationTime);
         animations.erase(itr);
         return true;
     }
@@ -59,6 +62,10 @@ bool AnimationManager::stop()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager stop all animation", COLOR_VIEWER);
 
+    for(auto& animation : animations)
+    {
+        animation->stop(_simulationTime);
+    }
     animations.clear();
     return true;
 }

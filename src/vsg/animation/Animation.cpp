@@ -59,8 +59,10 @@ Animation::Animation(const Animation& rhs, const CopyOp& copyop) :
     name(rhs.name),
     mode(rhs.mode),
     speed(rhs.speed),
-    startTime(rhs.startTime),
-    samplers(copyop(rhs.samplers))
+    samplers(copyop(rhs.samplers)),
+    _active(false),
+    _startTime(rhs._startTime),
+    _maxTime(rhs._maxTime)
 {
 }
 
@@ -73,7 +75,6 @@ int Animation::compare(const Object& rhs_object) const
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(mode, rhs.mode)) != 0) return result;
     if ((result = compare_value(speed, rhs.speed)) != 0) return result;
-    if ((result = compare_value(startTime, rhs.startTime)) != 0) return result;
 
     return compare_pointer_container(samplers, rhs.samplers);
 }
@@ -83,6 +84,8 @@ void Animation::read(Input& input)
     Object::read(input);
 
     input.read("name", name);
+    input.readValue<uint32_t>("mode", mode);
+    input.read("speed", speed);
     input.readObjects("samplers", samplers);
 }
 
@@ -91,31 +94,53 @@ void Animation::write(Output& output) const
     Object::write(output);
 
     output.write("name", name);
+    output.writeValue<uint32_t>("mode", mode);
+    output.write("speed", speed);
     output.writeObjects("samplers", samplers);
+}
+
+bool Animation::start(double simulationTime)
+{
+    _startTime = simulationTime;
+    _maxTime = 0.0;
+
+    if (samplers.empty())
+    {
+        _active = false;
+        return false;
+    }
+
+    for (auto sampler : samplers)
+    {
+        _maxTime = std::max(_maxTime, sampler->maxTime());
+    }
+
+    _active = true;
+    return _active;
 }
 
 bool Animation::update(double simulationTime)
 {
-    double maxTime = 0.0;
-    for (auto sampler : samplers)
-    {
-        maxTime = std::max(maxTime, sampler->maxTime());
-    }
+    if (!_active) return false;
 
     // TODO: need to use delta since last time update...
-    double time = (simulationTime - startTime) * speed;
+    double time = (simulationTime - _startTime) * speed;
     if (mode == REPEAT)
     {
-        time = std::fmod(time, maxTime);
+        time = std::fmod(time, _maxTime);
     }
     else if (mode == FORWARD_AND_BACK)
     {
-        time = std::fmod(time, 2.0 * maxTime);
-        if (time > maxTime) time = 2.0 * maxTime - time;
+        time = std::fmod(time, 2.0 * _maxTime);
+        if (time > _maxTime) time = 2.0 * _maxTime - time;
     }
     else
     {
-        if (time > maxTime) return false;
+        if (time > _maxTime)
+        {
+            _active = false;
+            return false;
+        }
     }
 
     for (auto sampler : samplers)
@@ -124,4 +149,12 @@ bool Animation::update(double simulationTime)
     }
 
     return true;
+}
+
+
+/// signal that the animation is to stop
+bool Animation::stop(double /*simulationTime*/)
+{
+    _active = false;
+    return false;
 }
