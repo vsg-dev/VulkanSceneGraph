@@ -60,7 +60,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-
     public:
         /// Wrapper class for the management of the Vulkan VkDescriptorSet handle.
         /// This is an internal implementation class that is only public to enable use within DescriptorPool and Context,

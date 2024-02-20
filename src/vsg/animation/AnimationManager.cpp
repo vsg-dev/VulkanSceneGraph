@@ -62,7 +62,7 @@ bool AnimationManager::stop()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager stop all animation", COLOR_VIEWER);
 
-    for(auto& animation : animations)
+    for (auto& animation : animations)
     {
         animation->stop(_simulationTime);
     }

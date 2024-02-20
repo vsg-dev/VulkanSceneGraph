@@ -124,7 +124,7 @@ bool sample(double time, const T& values, V& value)
     {
         using value_type = typename T::value_type;
 
-        pos_itr = std::lower_bound(values.begin(), values.end(), time, []( const value_type& elem, double t) -> bool { return elem.time < t; });
+        pos_itr = std::lower_bound(values.begin(), values.end(), time, [](const value_type& elem, double t) -> bool { return elem.time < t; });
 
         if (pos_itr == values.end())
         {

@@ -151,7 +151,6 @@ bool Animation::update(double simulationTime)
     return true;
 }
 
-
 /// signal that the animation is to stop
 bool Animation::stop(double /*simulationTime*/)
 {

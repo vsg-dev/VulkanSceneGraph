@@ -87,7 +87,6 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-
         // start time point of animation to be used to calaculate the current time to use when looking up current values
         bool _active = false;
         double _startTime = 0.0;
