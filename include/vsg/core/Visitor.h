@@ -434,6 +434,8 @@ namespace vsg
 
         // general classes
         virtual void apply(FrameStamp&);
+
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Visitor) == type || Object::is_compatible(type); }
     };
 
     // provide Value<>::accept() implementation
