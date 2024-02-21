@@ -403,6 +403,8 @@ namespace vsg
 
         // general classes
         virtual void apply(const FrameStamp&);
+
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(ConstVisitor) == type || Object::is_compatible(type); }
     };
 
     // provide Value<>::accept() implementation
