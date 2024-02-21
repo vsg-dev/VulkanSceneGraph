@@ -50,9 +50,6 @@ namespace vsg
         /// scale key frames
         std::vector<VectorKey> scales;
 
-        // assimp pre state ?
-        // assimp post state ?
-
         void read(Input& input) override;
         void write(Output& output) const override;
     };
