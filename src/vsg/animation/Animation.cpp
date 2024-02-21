@@ -138,7 +138,7 @@ bool Animation::update(double simulationTime)
     {
         if (time > _maxTime)
         {
-            _active = false;
+            stop(simulationTime);
             return false;
         }
     }
@@ -151,7 +151,6 @@ bool Animation::update(double simulationTime)
     return true;
 }
 
-/// signal that the animation is to stop
 bool Animation::stop(double /*simulationTime*/)
 {
     _active = false;
