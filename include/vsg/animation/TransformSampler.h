@@ -55,6 +55,7 @@ namespace vsg
     };
     VSG_type_name(vsg::TransformKeyframes);
 
+    /// Animation sampler for sampling position, rotation and scale keyframes for setting transforms/joints.
     class VSG_DECLSPEC TransformSampler : public Inherit<AnimationSampler, TransformSampler>
     {
     public:

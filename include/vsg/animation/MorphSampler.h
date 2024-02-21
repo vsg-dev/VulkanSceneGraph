@@ -43,6 +43,7 @@ namespace vsg
     };
     VSG_type_name(vsg::MorphKeyframes);
 
+    /// Animation sampler for morphing geometry, implementation not yet completed.
     class VSG_DECLSPEC MorphSampler : public Inherit<AnimationSampler, MorphSampler>
     {
     public:

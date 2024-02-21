@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Base class for animation samplers that sample animation data and set associated scene graph objects
     class VSG_DECLSPEC AnimationSampler : public Inherit<Visitor, AnimationSampler>
     {
     public:
@@ -38,6 +39,7 @@ namespace vsg
     };
     VSG_type_name(vsg::AnimationSampler);
 
+    /// Animation class that controls a single animation made up of one more samplers.
     class VSG_DECLSPEC Animation : public Inherit<Object, Animation>
     {
     public:
