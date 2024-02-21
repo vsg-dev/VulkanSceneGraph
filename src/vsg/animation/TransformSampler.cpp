@@ -123,8 +123,13 @@ bool sample(double time, const T& values, V& value)
     else
     {
         using value_type = typename T::value_type;
-
         pos_itr = std::lower_bound(values.begin(), values.end(), time, [](const value_type& elem, double t) -> bool { return elem.time < t; });
+
+        if (pos_itr == values.  begin())
+        {
+            value = values.front().value;
+            return true;
+        }
 
         if (pos_itr == values.end())
         {
@@ -132,17 +137,11 @@ bool sample(double time, const T& values, V& value)
             return true;
         }
 
-        auto after_pos_itr = pos_itr + 1;
-        if (after_pos_itr == values.end())
-        {
-            value = pos_itr->value;
-            return true;
-        }
+        auto before_pos_itr = pos_itr - 1;
+        double delta_time = (pos_itr->time - before_pos_itr->time);
+        double r = delta_time != 0.0 ? (time - before_pos_itr->time) / delta_time : 0.5;
 
-        double delta_time = (after_pos_itr->time - pos_itr->time);
-        double r = delta_time != 0.0 ? (time - pos_itr->time) / delta_time : 0.5;
-
-        value = mix(pos_itr->value, after_pos_itr->value, r);
+        value = mix(before_pos_itr->value, pos_itr->value, r);
 
         return true;
     }
