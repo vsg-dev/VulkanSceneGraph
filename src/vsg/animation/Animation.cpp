@@ -126,9 +126,8 @@ bool Animation::update(double simulationTime)
 {
     if (!_active) return false;
 
-    auto time_within_period = [](double x, double y) -> double
-    {
-        return x < 0.0 ? y + std::fmod(x,y) : std::fmod(x, y);
+    auto time_within_period = [](double x, double y) -> double {
+        return x < 0.0 ? y + std::fmod(x, y) : std::fmod(x, y);
     };
 
     double time = _previousTime + (simulationTime - _previousSimulationTime) * speed;
