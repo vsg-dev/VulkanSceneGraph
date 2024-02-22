@@ -62,7 +62,7 @@ int BufferInfo::compare(const Object& rhs_object) const
 
     if (data != rhs.data && data && rhs.data)
     {
-        if (data->properties.dataVariance!=STATIC_DATA || rhs.data->properties.dataVariance!=STATIC_DATA)
+        if (data->properties.dataVariance != STATIC_DATA || rhs.data->properties.dataVariance != STATIC_DATA)
         {
             if (data < rhs.data) return -1;
             if (data > rhs.data) return 1;
