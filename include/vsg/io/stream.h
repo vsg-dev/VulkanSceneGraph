@@ -32,6 +32,32 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// helper class for inserting indentation into streams useful for formatting output.
+    struct indentation
+    {
+        int indent = 0;
+
+        indentation& operator+=(int delta)
+        {
+            indent += delta;
+            return *this;
+        }
+        indentation& operator-=(int delta)
+        {
+            indent -= delta;
+            return *this;
+        }
+    };
+
+    inline indentation operator+(const indentation& lhs, const int rhs) { return indentation{lhs.indent + rhs}; }
+    inline indentation operator-(const indentation& lhs, const int rhs) { return indentation{lhs.indent - rhs}; }
+
+    inline std::ostream& operator<<(std::ostream& output, const indentation& in)
+    {
+        for (int i = 0; i < in.indent; ++i) output.put(' ');
+        return output;
+    }
+
     /// convenience function for writing/streaming values to a std::string
     template<typename... Args>
     std::string make_string(const Args&... args)

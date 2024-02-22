@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.1.1
+    VERSION 1.1.2
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
@@ -130,6 +130,14 @@ add_custom_target(build_ShaderSets
     COMMAND vsgshaderset --phong -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/phong_ShaderSet.cpp --binary
     COMMAND vsgshaderset --flat -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/flat_ShaderSet.cpp --binary
     COMMAND vsgshaderset --text -v "CPU_LAYOUT" -v "CPU_LAYOUT BILLBOARD" -v "GPU_LAYOUT" -v "GPU_LAYOUT BILLBOARD" -o src/vsg/text/shaders/text_ShaderSet.cpp  --binary
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "update built-in ShaderSets"
+)
+add_custom_target(build_simple_ShaderSets
+    COMMAND vsgshaderset --pbr -o src/vsg/utils/shaders/pbr_ShaderSet.cpp
+    COMMAND vsgshaderset --phong -o src/vsg/utils/shaders/phong_ShaderSet.cpp
+    COMMAND vsgshaderset --flat -o src/vsg/utils/shaders/flat_ShaderSet.cpp
+    COMMAND vsgshaderset --text -o src/vsg/text/shaders/text_ShaderSet.cpp
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "update built-in ShaderSets"
 )

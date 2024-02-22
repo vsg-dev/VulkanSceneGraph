@@ -165,6 +165,14 @@ void ConstVisitor::apply(const uivec4Value& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const mat4Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dmat4Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -637,9 +645,58 @@ void ConstVisitor::apply(const TextLayout& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Animation Objects/Nodes
+//
+void ConstVisitor::apply(const Animation& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const AnimationGroup& value)
+{
+    apply(static_cast<const Group&>(value));
+}
+void ConstVisitor::apply(const AnimationPath& animationPath)
+{
+    apply(static_cast<const Object&>(animationPath));
+}
+void ConstVisitor::apply(const AnimationSampler& sampler)
+{
+    apply(static_cast<const Object&>(sampler));
+}
+void ConstVisitor::apply(const JointSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const MorphSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const TransformSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const Joint& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Vulkan Objects
 //
 void ConstVisitor::apply(const BufferInfo& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ImageInfo& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const ImageView& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Image& value)
 {
     apply(static_cast<const Object&>(value));
 }
@@ -926,10 +983,6 @@ void ConstVisitor::apply(const FrameEvent& event)
 //
 // util classes
 //
-void ConstVisitor::apply(const AnimationPath& animationPath)
-{
-    apply(static_cast<const Object&>(animationPath));
-}
 void ConstVisitor::apply(const ShaderCompileSettings& shaderCompileSettings)
 {
     apply(static_cast<const Object&>(shaderCompileSettings));

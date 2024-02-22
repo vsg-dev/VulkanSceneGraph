@@ -30,6 +30,16 @@ BindDescriptorSets::BindDescriptorSets() :
 {
 }
 
+BindDescriptorSets::BindDescriptorSets(const BindDescriptorSets& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    pipelineBindPoint(rhs.pipelineBindPoint),
+    layout(copyop(rhs.layout)),
+    firstSet(rhs.firstSet),
+    descriptorSets(copyop(rhs.descriptorSets)),
+    dynamicOffsets(rhs.dynamicOffsets)
+{
+}
+
 int BindDescriptorSets::compare(const Object& rhs_object) const
 {
     int result = StateCommand::compare(rhs_object);
@@ -117,6 +127,16 @@ void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
 BindDescriptorSet::BindDescriptorSet() :
     pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS),
     firstSet(0)
+{
+}
+
+BindDescriptorSet::BindDescriptorSet(const BindDescriptorSet& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    pipelineBindPoint(rhs.pipelineBindPoint),
+    layout(copyop(rhs.layout)),
+    firstSet(rhs.firstSet),
+    descriptorSet(copyop(rhs.descriptorSet)),
+    dynamicOffsets(rhs.dynamicOffsets)
 {
 }
 

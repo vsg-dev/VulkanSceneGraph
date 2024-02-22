@@ -13,6 +13,7 @@ invalidPointerCast:*/include/vsg/core/Array3D.h
 invalidPointerCast:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate stl algorithm suggestions
+useStlAlgorithm:*/include/vsg/core/Object.h
 useStlAlgorithm:*/include/vsg/core/Value.h
 useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
@@ -24,8 +25,11 @@ useStlAlgorithm:*/src/vsg/io/VSG.cpp
 useStlAlgorithm:*/src/vsg/commands/BindVertexBuffers.cpp
 useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp
 useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
+useStlAlgorithm:*/src/vsg/nodes/Switch.cpp
+useStlAlgorithm:*/src/vsg/nodes/LOD.cpp
 useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
+useStlAlgorithm:*/src/vsg/state/StateSwitch.cpp
 useStlAlgorithm:*/src/vsg/state/ViewDependentState.cpp
 useStlAlgorithm:*/src/vsg/threading/Affinity.cpp
 useStlAlgorithm:*/src/vsg/utils/Intersector.cpp
@@ -50,7 +54,6 @@ useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
 useStlAlgorithm:*/src/vsg//utils/Builder.cpp
-
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*include/vsg/core/Inherit.h
@@ -133,6 +136,7 @@ duplicateConditionalAssign:*/src/vsg/core/MemorySlots.cpp
 // suppress unhelpful "can be declared with const"
 constParameter:*/src/vsg/state/QueryPool.cpp
 constParameter:*/src/vsg/commands/CopyAndReleaseImage.cpp
+constVariable:*/src/vsg/app/SecondaryCommandGraph.cpp
 
 // suppress inappropriate warning of returnTempReference
 returnTempReference:*/include/vsg/core/Inherit.h

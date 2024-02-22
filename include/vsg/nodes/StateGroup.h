@@ -32,6 +32,7 @@ namespace vsg
     {
     public:
         StateGroup();
+        StateGroup(const StateGroup& rhs, const CopyOp& copyop = {});
 
         StateCommands stateCommands;
 
@@ -58,12 +59,23 @@ namespace vsg
             }
         }
 
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return StateGroup::create(*this, copyop); }
         int compare(const Object& rhs) const override;
+
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            for (auto& sc : node.stateCommands) sc->accept(visitor);
+            for (auto& child : node.children) child->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        virtual void compile(Context& context);
 
     protected:
         virtual ~StateGroup();

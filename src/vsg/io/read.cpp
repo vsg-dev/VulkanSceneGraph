@@ -17,6 +17,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/tile.h>
 #include <vsg/io/txt.h>
 #include <vsg/threading/OperationThreads.h>
+#include <vsg/utils/FindDynamicObjects.h>
+#include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
@@ -71,7 +73,33 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
         options->sharedObjects->share(loadedObject, [&](auto load) {
             load->object = read_file();
+
+            if (load->object && options && options->findDynamicObjects && options->propagateDynamicObjects)
+            {
+                // invoke the find and propogate visitiors to collate all the dynamic objects that will need to be cloned.
+                options->findDynamicObjects->dynamicObjects.clear();
+                load->object->accept(*(options->findDynamicObjects));
+
+                options->propagateDynamicObjects->dynamicObjects.swap(options->findDynamicObjects->dynamicObjects);
+                load->object->accept(*(options->propagateDynamicObjects));
+
+                load->dynamicObjects.swap(options->propagateDynamicObjects->dynamicObjects);
+            }
         });
+
+        if (!loadedObject->dynamicObjects.empty())
+        {
+            vsg::CopyOp copyop;
+            auto duplicate = copyop.duplicate = new vsg::Duplicate;
+            for (auto& object : loadedObject->dynamicObjects)
+            {
+                duplicate->insert(object);
+            }
+
+            vsg::info("loaded filename = ", filename, ", object = ", loadedObject->object, ", dynamicObjects.size() = ", loadedObject->dynamicObjects.size());
+
+            return copyop(loadedObject->object);
+        }
 
         return loadedObject->object;
     }

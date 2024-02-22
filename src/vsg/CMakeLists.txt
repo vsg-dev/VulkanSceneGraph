@@ -181,6 +181,16 @@ set(SOURCES
     meshshaders/DrawMeshTasksIndirect.cpp
     meshshaders/DrawMeshTasksIndirectCount.cpp
 
+    animation/Animation.cpp
+    animation/AnimationGroup.cpp
+    animation/AnimationManager.cpp
+    animation/AnimationPath.cpp
+    animation/FindAnimations.cpp
+    animation/Joint.cpp
+    animation/JointSampler.cpp
+    animation/MorphSampler.cpp
+    animation/TransformSampler.cpp
+
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
     ui/KeyEvent.cpp
@@ -216,7 +226,6 @@ set(SOURCES
     vk/Swapchain.cpp
     vk/ResourceRequirements.cpp
 
-    utils/AnimationPath.cpp
     utils/CommandLine.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp
@@ -229,6 +238,8 @@ set(SOURCES
     utils/GpuAnnotation.cpp
     utils/LineSegmentIntersector.cpp
     utils/LoadPagedLOD.cpp
+    utils/FindDynamicObjects.cpp
+    utils/PropagateDynamicObjects.cpp
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})

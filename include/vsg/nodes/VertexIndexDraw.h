@@ -25,12 +25,7 @@ namespace vsg
     {
     public:
         VertexIndexDraw();
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
-        void compile(Context& context) override;
-        void record(CommandBuffer& commandBuffer) const override;
+        VertexIndexDraw(const VertexIndexDraw& rhs, const CopyOp& copyop = {});
 
         // vkCmdDrawIndexed settings
         // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
@@ -46,6 +41,16 @@ namespace vsg
 
         void assignArrays(const DataList& in_arrays);
         void assignIndices(ref_ptr<Data> in_indices);
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return VertexIndexDraw::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+        void compile(Context& context) override;
+        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~VertexIndexDraw();

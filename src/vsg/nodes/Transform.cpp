@@ -21,6 +21,12 @@ Transform::Transform()
 {
 }
 
+Transform::Transform(const Transform& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    subgraphRequiresLocalFrustum(rhs.subgraphRequiresLocalFrustum)
+{
+}
+
 int Transform::compare(const Object& rhs_object) const
 {
     int result = Group::compare(rhs_object);

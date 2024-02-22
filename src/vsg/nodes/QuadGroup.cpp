@@ -22,6 +22,15 @@ QuadGroup::QuadGroup()
 {
 }
 
+QuadGroup::QuadGroup(const QuadGroup& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+    children[0] = copyop(rhs.children[0]);
+    children[1] = copyop(rhs.children[1]);
+    children[2] = copyop(rhs.children[2]);
+    children[3] = copyop(rhs.children[3]);
+}
+
 QuadGroup::~QuadGroup()
 {
 }

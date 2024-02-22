@@ -43,8 +43,8 @@ namespace vsg
             _width(0),
             _height(0) {}
 
-        Array2D(const Array2D& rhs) :
-            Data(rhs.properties, sizeof(value_type)),
+        Array2D(const Array2D& rhs, const CopyOp copyop = {}) :
+            Data(rhs, copyop),
             _data(nullptr),
             _width(rhs._width),
             _height(rhs._height)
@@ -95,9 +95,9 @@ namespace vsg
             return ref_ptr<Array2D>(new Array2D(args...));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
-            return ref_ptr<Array2D>(new Array2D(*this));
+            return ref_ptr<Array2D>(new Array2D(*this, copyop));
         }
 
         size_t sizeofObject() const noexcept override { return sizeof(Array2D); }

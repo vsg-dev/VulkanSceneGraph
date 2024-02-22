@@ -24,6 +24,11 @@ void FrameStamp::read(Input& input)
     time = clock::time_point(clock::time_point::duration(time_since_epoch));
 
     input.read("frameCount", frameCount);
+
+    if (input.version_greater_equal(1, 1, 2))
+    {
+        input.read("simulationTime", simulationTime);
+    }
 }
 
 void FrameStamp::write(Output& output) const
@@ -34,6 +39,11 @@ void FrameStamp::write(Output& output) const
     output.writeValue<uint64_t>("time", time_since_epoch);
 
     output.write("frameCount", frameCount);
+
+    if (output.version_greater_equal(1, 1, 2))
+    {
+        output.write("simulationTime", simulationTime);
+    }
 }
 
 void FrameEvent::read(Input& input)

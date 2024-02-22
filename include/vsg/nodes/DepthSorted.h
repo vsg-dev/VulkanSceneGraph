@@ -27,8 +27,16 @@ namespace vsg
     {
     public:
         DepthSorted();
-
+        DepthSorted(const DepthSorted& rhs, const CopyOp& copyop = {});
         DepthSorted(int32_t in_binNumber, const dsphere& in_bound, ref_ptr<Node> in_child);
+
+        int32_t binNumber = 0;
+        dsphere bound;
+        ref_ptr<Node> child;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DepthSorted::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void traverse(Visitor& visitor) override { child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }
@@ -36,10 +44,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        int32_t binNumber = 0;
-        dsphere bound;
-        ref_ptr<Node> child;
 
     protected:
         virtual ~DepthSorted();

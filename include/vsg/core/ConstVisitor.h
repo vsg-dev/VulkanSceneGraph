@@ -55,8 +55,21 @@ namespace vsg
     class TextTechnique;
     class TextLayout;
 
+    // forward declare animation classes
+    class Animation;
+    class AnimationGroup;
+    class AnimationPath;
+    class AnimationSampler;
+    class JointSampler;
+    class MorphSampler;
+    class TransformSampler;
+    class Joint;
+
     // forward declare vulkan classes
     class BufferInfo;
+    class ImageInfo;
+    class ImageView;
+    class Image;
     class Compilable;
     class Command;
     class StateCommand;
@@ -131,7 +144,6 @@ namespace vsg
     class FrameEvent;
 
     // forward declare util classes
-    class AnimationPath;
     class ShaderCompileSettings;
 
     // forward declare viewer classes
@@ -150,6 +162,11 @@ namespace vsg
     {
     public:
         ConstVisitor();
+
+        ConstVisitor(const ConstVisitor& rhs, const CopyOp& copyop = {}) :
+            Object(rhs, copyop),
+            traversalMask(rhs.traversalMask),
+            overrideMask(rhs.overrideMask) {}
 
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
@@ -193,6 +210,8 @@ namespace vsg
         virtual void apply(const uivec2Value&);
         virtual void apply(const uivec3Value&);
         virtual void apply(const uivec4Value&);
+        virtual void apply(const mat4Value&);
+        virtual void apply(const dmat4Value&);
 
         // Arrays
         virtual void apply(const byteArray&);
@@ -315,8 +334,21 @@ namespace vsg
         virtual void apply(const TextTechnique&);
         virtual void apply(const TextLayout&);
 
+        // animation
+        virtual void apply(const Animation&);
+        virtual void apply(const AnimationGroup&);
+        virtual void apply(const AnimationPath&);
+        virtual void apply(const AnimationSampler&);
+        virtual void apply(const JointSampler&);
+        virtual void apply(const MorphSampler&);
+        virtual void apply(const TransformSampler&);
+        virtual void apply(const Joint&);
+
         // Vulkan nodes
         virtual void apply(const BufferInfo&);
+        virtual void apply(const ImageInfo&);
+        virtual void apply(const ImageView&);
+        virtual void apply(const Image&);
         virtual void apply(const Command&);
         virtual void apply(const StateCommand&);
         virtual void apply(const StateSwitch&);
@@ -390,7 +422,6 @@ namespace vsg
         virtual void apply(const FrameEvent&);
 
         // utils
-        virtual void apply(const AnimationPath&);
         virtual void apply(const ShaderCompileSettings&);
 
         // viewer

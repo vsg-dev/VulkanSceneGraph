@@ -22,6 +22,16 @@ Switch::Switch()
 {
 }
 
+Switch::Switch(const Switch& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+    children.reserve(rhs.children.size());
+    for (auto child : rhs.children)
+    {
+        children.push_back(Child{child.mask, copyop(child.node)});
+    }
+}
+
 Switch::~Switch()
 {
 }

@@ -28,8 +28,29 @@ Geometry::Geometry()
 {
 }
 
+Geometry::Geometry(const Geometry& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    firstBinding(rhs.firstBinding),
+    arrays(copyop(rhs.arrays)),
+    indices(copyop(rhs.indices)),
+    commands(copyop(rhs.commands))
+{
+}
+
 Geometry::~Geometry()
 {
+}
+
+int Geometry::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(firstBinding, rhs.firstBinding)) != 0) return result;
+    if ((result = compare_pointer_container(arrays, rhs.arrays)) != 0) return result;
+    if ((result = compare_pointer(indices, rhs.indices)) != 0) return result;
+    return compare_pointer_container(commands, rhs.commands);
 }
 
 void Geometry::assignArrays(const DataList& arrayData)

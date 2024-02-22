@@ -24,16 +24,19 @@ namespace vsg
     {
     public:
         MatrixTransform();
+        MatrixTransform(const MatrixTransform& rhs, const CopyOp& copyop = {});
         explicit MatrixTransform(const dmat4& in_matrix);
 
         dmat4 matrix;
 
+        dmat4 transform(const dmat4& mv) const override { return mv * matrix; }
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return MatrixTransform::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        dmat4 transform(const dmat4& mv) const override { return mv * matrix; }
 
     protected:
     };

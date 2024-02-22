@@ -20,6 +20,11 @@ Node::Node()
 {
 }
 
+Node::Node(const Node& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+}
+
 Node::~Node()
 {
 }

@@ -22,8 +22,34 @@ VertexDraw::VertexDraw()
 {
 }
 
+VertexDraw::VertexDraw(const VertexDraw& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    vertexCount(rhs.vertexCount),
+    instanceCount(rhs.instanceCount),
+    firstVertex(rhs.firstVertex),
+    firstInstance(rhs.firstInstance),
+    firstBinding(rhs.firstBinding),
+    arrays(copyop(rhs.arrays))
+
+{
+}
+
 VertexDraw::~VertexDraw()
 {
+}
+
+int VertexDraw::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(vertexCount, rhs.vertexCount)) != 0) return result;
+    if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
+    if ((result = compare_value(firstVertex, rhs.firstVertex)) != 0) return result;
+    if ((result = compare_value(firstInstance, rhs.firstInstance)) != 0) return result;
+    if ((result = compare_value(firstBinding, rhs.firstBinding)) != 0) return result;
+    return compare_pointer_container(arrays, rhs.arrays);
 }
 
 void VertexDraw::assignArrays(const DataList& arrayData)

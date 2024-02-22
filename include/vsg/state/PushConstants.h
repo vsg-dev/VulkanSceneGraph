@@ -30,10 +30,11 @@ namespace vsg
         uint32_t offset = 0;
         ref_ptr<Data> data;
 
+        void record(CommandBuffer& commandBuffer) const override;
+
+    public:
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        void record(CommandBuffer& commandBuffer) const override;
 
     protected:
         virtual ~PushConstants();

@@ -26,23 +26,23 @@ namespace vsg
     {
     public:
         Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType);
+        Descriptor(const Descriptor& rhs, const CopyOp& copyop = {});
 
         /// Common VkWriteDescriptorSet settings
         uint32_t dstBinding;
         uint32_t dstArrayElement;
         VkDescriptorType descriptorType;
 
+        // compile the Vulkan object, context parameter used for Device
+        virtual void compile(Context& /*context*/) {}
+        virtual void assignTo(Context& context, VkWriteDescriptorSet& wds) const;
+        virtual uint32_t getNumDescriptors() const { return 1; }
+
+    public:
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        // compile the Vulkan object, context parameter used for Device
-        virtual void compile(Context& /*context*/) {}
-
-        virtual void assignTo(Context& context, VkWriteDescriptorSet& wds) const;
-
-        virtual uint32_t getNumDescriptors() const { return 1; }
     };
     VSG_type_name(vsg::Descriptor);
 

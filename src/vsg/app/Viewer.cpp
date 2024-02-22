@@ -29,6 +29,7 @@ using namespace vsg;
 
 Viewer::Viewer() :
     updateOperations(UpdateOperations::create()),
+    animationManager(AnimationManager::create()),
     status(vsg::ActivityStatus::create()),
     _start_point(clock::now())
 {
@@ -168,13 +169,15 @@ bool Viewer::advanceToNextFrame()
     auto time = vsg::clock::now();
     if (!_frameStamp)
     {
+        _start_point = time;
+
         // first frame, initialize to frame count and indices to 0
-        _frameStamp = FrameStamp::create(time, 0);
+        _frameStamp = FrameStamp::create(time, 0, 0.0);
     }
     else
     {
         // after first frame so increment frame count and indices
-        _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1);
+        _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1, std::chrono::duration<double, std::chrono::seconds::period>(time - _start_point).count());
     }
 
     for (auto& task : recordAndSubmitTasks)
@@ -801,6 +804,7 @@ void Viewer::update()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer update", COLOR_UPDATE);
 
+    // merge any updates from the DatabasePager
     for (auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
@@ -811,7 +815,11 @@ void Viewer::update()
         }
     }
 
+    // run update operations
     updateOperations->run();
+
+    // run aniamtions
+    animationManager->run(_frameStamp);
 }
 
 void Viewer::recordAndSubmit()
@@ -875,6 +883,8 @@ void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
     }
 
     if (compileManager) compileManager->assignInstrumentation(instrumentation);
+
+    if (animationManager) animationManager->assignInstrumentation(instrumentation);
 
     if (previous_threading) setupThreading();
 }

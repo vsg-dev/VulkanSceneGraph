@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/animation/AnimationManager.h>
 #include <vsg/app/CompileManager.h>
 #include <vsg/app/Presentation.h>
 #include <vsg/app/RecordAndSubmitTask.h>
@@ -85,6 +86,9 @@ namespace vsg
         {
             updateOperations->add(op, runBehavior);
         }
+
+        /// manager for starting and running animations
+        ref_ptr<AnimationManager> animationManager;
 
         /// compile manager provides thread safe support for compiling subgraphs
         ref_ptr<CompileManager> compileManager;
