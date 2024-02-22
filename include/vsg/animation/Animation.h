@@ -91,7 +91,8 @@ namespace vsg
     protected:
         // start time point of animation to be used to calaculate the current time to use when looking up current values
         bool _active = false;
-        double _startTime = 0.0;
+        double _previousTime = 0.0;
+        double _previousSimulationTime = 0.0;
         double _maxTime = 0.0;
     };
     VSG_type_name(vsg::Animation);

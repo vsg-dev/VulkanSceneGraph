@@ -61,7 +61,8 @@ Animation::Animation(const Animation& rhs, const CopyOp& copyop) :
     speed(rhs.speed),
     samplers(copyop(rhs.samplers)),
     _active(false),
-    _startTime(rhs._startTime),
+    _previousTime(rhs._previousTime),
+    _previousSimulationTime(rhs._previousSimulationTime),
     _maxTime(rhs._maxTime)
 {
 }
@@ -101,7 +102,9 @@ void Animation::write(Output& output) const
 
 bool Animation::start(double simulationTime)
 {
-    _startTime = simulationTime;
+    _previousTime = 0.0;
+    _previousSimulationTime = simulationTime;
+
     _maxTime = 0.0;
 
     if (samplers.empty())
@@ -123,15 +126,22 @@ bool Animation::update(double simulationTime)
 {
     if (!_active) return false;
 
-    // TODO: need to use delta since last time update...
-    double time = (simulationTime - _startTime) * speed;
+    auto time_within_period = [](double x, double y) -> double
+    {
+        return x < 0.0 ? y + std::fmod(x,y) : std::fmod(x, y);
+    };
+
+    double time = _previousTime + (simulationTime - _previousSimulationTime) * speed;
+    _previousTime = time;
+    _previousSimulationTime = simulationTime;
+
     if (mode == REPEAT)
     {
-        time = std::fmod(time, _maxTime);
+        time = time_within_period(time, _maxTime);
     }
     else if (mode == FORWARD_AND_BACK)
     {
-        time = std::fmod(time, 2.0 * _maxTime);
+        time = time_within_period(time, 2.0 * _maxTime);
         if (time > _maxTime) time = 2.0 * _maxTime - time;
     }
     else
