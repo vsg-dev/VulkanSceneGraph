@@ -28,10 +28,10 @@ bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager play animation", COLOR_VIEWER);
 
-    bool already_actrive = animation->active();
+    bool already_active = animation->active();
     if (animation->start(_simulationTime))
     {
-        if (!already_actrive) animations.push_back(animation);
+        if (!already_active) animations.push_back(animation);
 
         return true;
     }
