@@ -42,6 +42,24 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
     }
 }
 
+DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
+{
+    if (sampler)
+    {
+        imageInfoList.push_back(ImageInfo::create(sampler, ref_ptr<ImageView>()));
+    }
+}
+
+DescriptorImage::DescriptorImage(ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
+    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
+{
+    if (data)
+    {
+        imageInfoList.push_back(ImageInfo::create(ref_ptr<Sampler>(), data));
+    }
+}
+
 DescriptorImage::DescriptorImage(ref_ptr<ImageInfo> imageInfo, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
