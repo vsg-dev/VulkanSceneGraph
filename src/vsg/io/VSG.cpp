@@ -93,6 +93,8 @@ void VSG::writeHeader(std::ostream& fout, const FormatInfo& formatInfo) const
 
 vsg::ref_ptr<vsg::Object> VSG::read(const vsg::Path& filename, ref_ptr<const Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "VSG read", COLOR_READ);
+
     if (!compatibleExtension(filename, options, ".vsgb", ".vsgt")) return {};
 
     vsg::Path filenameToUse = findFile(filename, options);
@@ -123,6 +125,8 @@ vsg::ref_ptr<vsg::Object> VSG::read(const vsg::Path& filename, ref_ptr<const Opt
 
 vsg::ref_ptr<vsg::Object> VSG::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "VSG read", COLOR_READ);
+
     if (options && !compatibleExtension(options, ".vsgb", ".vsgt")) return {};
 
     auto [type, version] = readHeader(fin);
@@ -144,6 +148,8 @@ vsg::ref_ptr<vsg::Object> VSG::read(std::istream& fin, vsg::ref_ptr<const vsg::O
 
 vsg::ref_ptr<vsg::Object> VSG::read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "VSG read", COLOR_READ);
+
     if (options && !compatibleExtension(options, ".vsgb", ".vsgt")) return {};
 
     mem_stream fin(ptr, size);
@@ -152,6 +158,8 @@ vsg::ref_ptr<vsg::Object> VSG::read(const uint8_t* ptr, size_t size, vsg::ref_pt
 
 bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<const Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "VSG write", COLOR_READ);
+
     auto version = vsgGetVersion();
 
     if (options)
@@ -192,6 +200,8 @@ bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<co
 
 bool VSG::write(const vsg::Object* object, std::ostream& fout, ref_ptr<const Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "VSG write", COLOR_WRITE);
+
     if (options && !compatibleExtension(options, ".vsgb", ".vsgt")) return {};
 
     auto version = vsgGetVersion();

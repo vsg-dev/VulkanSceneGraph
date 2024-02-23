@@ -22,10 +22,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
-#define VSG_array(N, T) \
-    using N = Array<T>; \
-    template<>          \
-    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; }
+#define VSG_array(N, T)                                                  \
+    using N = Array<T>;                                                  \
+    template<>                                                           \
+    constexpr const char* type_name<N>() noexcept { return "vsg::" #N; } \
+    template<>                                                           \
+    constexpr const char* type_name<const N>() noexcept { return "vsg::" #N; }
 
 namespace vsg
 {
@@ -42,8 +44,8 @@ namespace vsg
             _data(nullptr),
             _size(0) {}
 
-        Array(const Array& rhs) :
-            Data(rhs.properties, sizeof(value_type)),
+        Array(const Array& rhs, const CopyOp copyop = {}) :
+            Data(rhs, copyop),
             _data(nullptr),
             _size(rhs._size)
         {
@@ -123,9 +125,9 @@ namespace vsg
             return ref_ptr<Array>(new Array(data, offset, stride, l));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
-            return ref_ptr<Array>(new Array(*this));
+            return ref_ptr<Array>(new Array(*this, copyop));
         }
 
         size_t sizeofObject() const noexcept override { return sizeof(Array); }

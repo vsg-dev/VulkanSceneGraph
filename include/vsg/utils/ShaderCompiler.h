@@ -30,7 +30,6 @@ namespace vsg
         std::string combineSourceAndDefines(const std::string& source, const std::vector<std::string>& defines);
 
         void apply(Node& node) override;
-        void apply(StateGroup& stategroup) override;
         void apply(BindGraphicsPipeline& bgp) override;
         void apply(BindComputePipeline& bgp) override;
         void apply(BindRayTracingPipeline& bgp) override;

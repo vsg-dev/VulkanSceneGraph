@@ -22,6 +22,49 @@ using namespace vsg;
 //
 //  TileDatabaseSettings
 //
+TileDatabaseSettings::TileDatabaseSettings()
+{
+}
+
+TileDatabaseSettings::TileDatabaseSettings(const TileDatabaseSettings& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    extents(rhs.extents),
+    noX(rhs.noX),
+    noY(rhs.noY),
+    maxLevel(rhs.maxLevel),
+    originTopLeft(rhs.originTopLeft),
+    lodTransitionScreenHeightRatio(rhs.lodTransitionScreenHeightRatio),
+    projection(rhs.projection),
+    ellipsoidModel(copyop(ellipsoidModel)),
+    imageLayer(rhs.imageLayer),
+    terrainLayer(rhs.terrainLayer),
+    mipmapLevelsHint(rhs.mipmapLevelsHint),
+    lighting(rhs.lighting),
+    shaderSet(copyop(shaderSet))
+{
+}
+
+int TileDatabaseSettings::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(extents, rhs.extents)) != 0) return result;
+    if ((result = compare_value(noX, rhs.noX)) != 0) return result;
+    if ((result = compare_value(noY, rhs.noY)) != 0) return result;
+    if ((result = compare_value(maxLevel, rhs.maxLevel)) != 0) return result;
+    if ((result = compare_value(originTopLeft, rhs.originTopLeft)) != 0) return result;
+    if ((result = compare_value(lodTransitionScreenHeightRatio, rhs.lodTransitionScreenHeightRatio)) != 0) return result;
+    if ((result = compare_value(projection, rhs.projection)) != 0) return result;
+    if ((result = compare_pointer(ellipsoidModel, rhs.ellipsoidModel)) != 0) return result;
+    if ((result = compare_value(imageLayer, rhs.imageLayer)) != 0) return result;
+    if ((result = compare_value(terrainLayer, rhs.terrainLayer)) != 0) return result;
+    if ((result = compare_value(mipmapLevelsHint, rhs.mipmapLevelsHint)) != 0) return result;
+    if ((result = compare_value(lighting, rhs.lighting)) != 0) return result;
+    return compare_pointer(shaderSet, rhs.shaderSet);
+}
+
 void TileDatabaseSettings::read(vsg::Input& input)
 {
     input.read("extents", extents);
@@ -68,6 +111,27 @@ void TileDatabaseSettings::write(vsg::Output& output) const
 //
 //  TileDatabase
 //
+TileDatabase::TileDatabase()
+{
+}
+
+TileDatabase::TileDatabase(const TileDatabase& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    settings(copyop(settings)),
+    child(copyop(child))
+{
+}
+
+int TileDatabase::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_pointer(settings, rhs.settings)) != 0) return result;
+    return compare_pointer(child, rhs.child);
+}
+
 void TileDatabase::read(vsg::Input& input)
 {
     Node::read(input);

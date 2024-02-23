@@ -189,6 +189,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::SpotLight>();
     add<vsg::TileDatabase>();
     add<vsg::TileDatabaseSettings>();
+    add<vsg::InstrumentationNode>();
 
     // vulkan objects
     add<vsg::BindGraphicsPipeline>();
@@ -214,6 +215,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::BindDescriptorSets>();
     add<vsg::BindDescriptorSet>();
     add<vsg::BindVertexBuffers>();
+    add<vsg::DescriptorTexelBufferView>();
     add<vsg::BindIndexBuffer>();
     add<vsg::BindViewDescriptorSets>();
     add<vsg::DescriptorSet>();
@@ -239,6 +241,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::EndQuery>();
     add<vsg::ResetQueryPool>();
     add<vsg::CopyQueryPoolResults>();
+    add<vsg::SetPrimitiveTopology>();
 
     // text
     add<vsg::GlyphMetricsArray>();
@@ -281,6 +284,16 @@ ObjectFactory::ObjectFactory()
     add<vsg::DrawMeshTasks>();
     add<vsg::DrawMeshTasksIndirect>();
     add<vsg::DrawMeshTasksIndirectCount>();
+
+    // animation
+    add<vsg::TransformKeyframes>();
+    add<vsg::TransformSampler>();
+    add<vsg::MorphKeyframes>();
+    add<vsg::MorphSampler>();
+    add<vsg::JointSampler>();
+    add<vsg::Animation>();
+    add<vsg::AnimationGroup>();
+    add<vsg::Joint>();
 
     // io
     add<vsg::Options>();

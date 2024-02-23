@@ -76,6 +76,12 @@ namespace vsg
         /// device-level core functionality can be used if both VkInstance and VkPhysicalDevice support the Vulkan version that provides it.
         bool supportsApiVersion(uint32_t version) const;
 
+        /// list of enabled extensions when the Device was created
+        const Names enabledExtensions;
+
+        /// return true if Device was created with specified extension
+        bool supportsDeviceExtension(const char* extensionName) const;
+
     protected:
         virtual ~Device();
 

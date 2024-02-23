@@ -36,6 +36,11 @@ namespace vsg
     class DepthSorted;
     class Transform;
     class MatrixTransform;
+    class Joint;
+    class TileDatabase;
+    class VertexDraw;
+    class VertexIndexDraw;
+    class Geometry;
     class Command;
     class Commands;
     class CommandBuffer;
@@ -54,6 +59,7 @@ namespace vsg
     class SpotLight;
     class CommandGraph;
     class RecordedCommandBuffers;
+    class Instrumentation;
 
     #if VSG_virtual_RecordTraversal_apply
         // slower but enables subclassing of RecordTraversal to override apply methods.
@@ -86,6 +92,8 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 
+        ref_ptr<Instrumentation> instrumentation;
+
         /// Container for CommandBuffers that have been recorded in current frame
         ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
 
@@ -111,10 +119,16 @@ namespace vsg
         VSG_RecordTraversal_apply_prefix void apply(const QuadGroup& quadGroup);
         VSG_RecordTraversal_apply_prefix void apply(const LOD& lod);
         VSG_RecordTraversal_apply_prefix void apply(const PagedLOD& pagedLOD);
+        VSG_RecordTraversal_apply_prefix void apply(const TileDatabase& tileDatabase);
         VSG_RecordTraversal_apply_prefix void apply(const CullGroup& cullGroup);
         VSG_RecordTraversal_apply_prefix void apply(const CullNode& cullNode);
         VSG_RecordTraversal_apply_prefix void apply(const DepthSorted& depthSorted);
         VSG_RecordTraversal_apply_prefix void apply(const Switch& sw);
+
+        // leaf node
+        VSG_RecordTraversal_apply_prefix void apply(const VertexDraw& vid);
+        VSG_RecordTraversal_apply_prefix void apply(const VertexIndexDraw& vid);
+        VSG_RecordTraversal_apply_prefix void apply(const Geometry& vid);
 
         // positional state
         VSG_RecordTraversal_apply_prefix void apply(const Light& light);
@@ -123,14 +137,22 @@ namespace vsg
         VSG_RecordTraversal_apply_prefix void apply(const PointLight& light);
         VSG_RecordTraversal_apply_prefix void apply(const SpotLight& light);
 
-        // Vulkan nodes
+        // transform nodes
         VSG_RecordTraversal_apply_prefix void apply(const Transform& transform);
         VSG_RecordTraversal_apply_prefix void apply(const MatrixTransform& mt);
+
+        // Animation nodes
+        VSG_RecordTraversal_apply_prefix void apply(const Joint& joint);
+
+        // Vulkan nodes
         VSG_RecordTraversal_apply_prefix void apply(const StateGroup& object);
+
+        // Commands
         VSG_RecordTraversal_apply_prefix void apply(const Commands& commands);
         VSG_RecordTraversal_apply_prefix void apply(const Command& command);
 
         // Viewer level nodes
+        VSG_RecordTraversal_apply_prefix void apply(const Bin& bin);
         VSG_RecordTraversal_apply_prefix void apply(const View& view);
         VSG_RecordTraversal_apply_prefix void apply(const CommandGraph& commandGraph);
 

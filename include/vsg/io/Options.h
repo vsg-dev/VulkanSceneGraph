@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/maths/transform.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/utils/Instrumentation.h>
 
 namespace vsg
 {
@@ -26,6 +27,8 @@ namespace vsg
     class OperationThreads;
     class CommandLine;
     class ShaderSet;
+    class FindDynamicObjects;
+    class PropagateDynamicObjects;
 
     using ReaderWriters = std::vector<ref_ptr<ReaderWriter>>;
 
@@ -95,6 +98,15 @@ namespace vsg
         /// specification of any StateCommands that will be provided the parents of any newly created subgraphs
         /// scene graph creation routines can use the inherited state information to avoid setting state in the local subgraph.
         StateCommands inheritedState;
+
+        /// Hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
+
+        /// mechanism for finding dynamic objects in loaded scene graph
+        ref_ptr<FindDynamicObjects> findDynamicObjects;
+
+        /// mechanism for propogating dynamic objects classification up parental chain so that cloning is done on all dynamic objects to avoid sharing of dyanmic parts.
+        ref_ptr<PropagateDynamicObjects> propagateDynamicObjects;
 
     protected:
         virtual ~Options();

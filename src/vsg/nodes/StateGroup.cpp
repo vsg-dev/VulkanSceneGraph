@@ -22,6 +22,13 @@ StateGroup::StateGroup()
 {
 }
 
+StateGroup::StateGroup(const StateGroup& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    stateCommands(copyop(rhs.stateCommands)),
+    prototypeArrayState(rhs.prototypeArrayState)
+{
+}
+
 StateGroup::~StateGroup()
 {
 }
@@ -50,12 +57,4 @@ void StateGroup::write(Output& output) const
 
     output.writeObjects("stateCommands", stateCommands);
     output.write("prototypeArrayState", prototypeArrayState);
-}
-
-void StateGroup::compile(Context& context)
-{
-    for (auto& stateCommand : stateCommands)
-    {
-        stateCommand->compile(context);
-    }
 }

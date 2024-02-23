@@ -64,6 +64,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -76,6 +77,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Transform.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+
+// Animation header files
+#include <vsg/animation/Animation.h>
+#include <vsg/animation/AnimationGroup.h>
+#include <vsg/animation/AnimationManager.h>
+#include <vsg/animation/AnimationPath.h>
+#include <vsg/animation/FindAnimations.h>
+#include <vsg/animation/Joint.h>
+#include <vsg/animation/JointSampler.h>
+#include <vsg/animation/MorphSampler.h>
+#include <vsg/animation/TransformSampler.h>
 
 // Commands header files
 #include <vsg/commands/BeginQuery.h>
@@ -107,6 +119,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/ResolveImage.h>
 #include <vsg/commands/SetDepthBias.h>
 #include <vsg/commands/SetLineWidth.h>
+#include <vsg/commands/SetPrimitiveTopology.h>
 #include <vsg/commands/SetScissor.h>
 #include <vsg/commands/SetViewport.h>
 #include <vsg/commands/WriteTimestamp.h>
@@ -253,14 +266,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 
 // Utility header files
-#include <vsg/utils/AnimationPath.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/ComputeBounds.h>
+#include <vsg/utils/FindDynamicObjects.h>
+#include <vsg/utils/GpuAnnotation.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/LoadPagedLOD.h>
+#include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/ShaderCompiler.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/utils/SharedObjects.h>

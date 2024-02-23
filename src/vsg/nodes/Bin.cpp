@@ -23,6 +23,13 @@ Bin::Bin()
 {
 }
 
+Bin::Bin(const Bin& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    binNumber(rhs.binNumber),
+    sortOrder(rhs.sortOrder)
+{
+}
+
 Bin::Bin(int32_t in_binNumber, SortOrder in_sortOrder) :
     binNumber(in_binNumber),
     sortOrder(in_sortOrder)
@@ -31,6 +38,16 @@ Bin::Bin(int32_t in_binNumber, SortOrder in_sortOrder) :
 
 Bin::~Bin()
 {
+}
+
+int Bin::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(binNumber, rhs.binNumber)) != 0) return result;
+    return compare_value(sortOrder, rhs.sortOrder);
 }
 
 void Bin::clear()

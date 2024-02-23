@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/maths/color.h>
+#include <vsg/maths/vec4.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/SubmitCommands.h>
 
@@ -34,9 +36,14 @@ ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits>)
 Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
     _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()},
-    _clearColor{{0.2f, 0.2f, 0.4f, 1.0f}},
+    _clearColor{0.2f, 0.2f, 0.4f, 1.0f},
     _framebufferSamples(VK_SAMPLE_COUNT_1_BIT)
 {
+    if (_traits && (_traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8A8_SRGB || _traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8_SRGB))
+    {
+        _clearColor = linear_to_sRGB(_clearColor);
+        info("Selected sRGB window ", _clearColor);
+    }
 }
 
 Window::~Window()

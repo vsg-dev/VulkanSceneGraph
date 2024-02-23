@@ -24,6 +24,7 @@ namespace vsg
     {
     public:
         DescriptorImage();
+        DescriptorImage(const DescriptorImage& rhs, const CopyOp& copyop = {});
 
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
@@ -37,16 +38,16 @@ namespace vsg
         /// VkWriteDescriptorSet.pImageInfo settings
         ImageInfoList imageInfoList;
 
+        void compile(Context& context) override;
+        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
+        uint32_t getNumDescriptors() const override;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorImage::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        void compile(Context& context) override;
-
-        void assignTo(Context& context, VkWriteDescriptorSet& wds) const override;
-
-        uint32_t getNumDescriptors() const override;
 
     protected:
     };

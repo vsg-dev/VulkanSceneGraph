@@ -73,7 +73,7 @@ namespace vsg
         }
 
         /// Call vkEnumerateDeviceExtensionProperties to enumerate extension properties.
-        std::vector<VkExtensionProperties> enumerateDeviceExtensionProperties(const char* pLayerName = nullptr);
+        ExtensionProperties enumerateDeviceExtensionProperties(const char* pLayerName = nullptr);
 
         /// return true if the extension is supported by physicalDevice
         bool supportsDeviceExtension(const char* extensionName);

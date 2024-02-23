@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/TileDatabase.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DepthStencilState.h>
@@ -117,6 +118,8 @@ vsg::Path tile::getTilePath(const vsg::Path& src, uint32_t x, uint32_t y, uint32
 
 vsg::ref_ptr<vsg::Object> tile::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "tile read", COLOR_READ);
+
     auto extension = vsg::lowerCaseFileExtension(filename);
     if (extension != ".tile") return {};
 
@@ -140,6 +143,8 @@ vsg::ref_ptr<vsg::Object> tile::read(const vsg::Path& filename, vsg::ref_ptr<con
 
 vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> options) const
 {
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "tile read_root", COLOR_READ);
+
     auto group = createRoot();
 
     uint32_t lod = 0;
@@ -199,8 +204,9 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
 
 vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lod, vsg::ref_ptr<const vsg::Options> options) const
 {
-    // need to load subtile x y lod
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "tile read_subtile", COLOR_READ);
 
+    // need to load subtile x y lod
     vsg::time_point start_read = vsg::clock::now();
 
     auto group = vsg::Group::create();
@@ -294,6 +300,8 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
 void tile::init(vsg::ref_ptr<const vsg::Options> options)
 {
+    CPU_INSTRUMENTATION_L2_NC(options ? options->instrumentation.get() : nullptr, "tile init", COLOR_READ);
+
     if (settings->shaderSet)
     {
         _shaderSet = settings->shaderSet;
@@ -469,13 +477,13 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     }
 
     // setup geometry
-    auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild(vsg::BindVertexBuffers::create(0, vsg::DataList{vertices, normals, texcoords, colors}));
-    drawCommands->addChild(vsg::BindIndexBuffer::create(indices));
-    drawCommands->addChild(vsg::DrawIndexed::create(static_cast<uint32_t>(indices->size()), 1, 0, 0, 0));
+    auto vid = vsg::VertexIndexDraw::create();
+    vid->assignArrays(vsg::DataList{vertices, normals, texcoords, colors});
+    vid->assignIndices(indices);
+    vid->indexCount = static_cast<uint32_t>(indices->size());
+    vid->instanceCount = 1;
 
-    // add drawCommands to transform
-    transform->addChild(drawCommands);
+    transform->addChild(vid);
 
     return scenegraph;
 }

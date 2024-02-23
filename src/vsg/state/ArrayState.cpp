@@ -102,7 +102,7 @@ void ArrayState::applyArrays(uint32_t firstBinding, const DataList& in_arrays)
     std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
 
     // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()))
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && arrays[vertexAttribute.binding])
     {
         arrays[vertexAttribute.binding]->accept(*this);
     }
@@ -117,7 +117,7 @@ void ArrayState::applyArrays(uint32_t firstBinding, const BufferInfoList& in_arr
     }
 
     // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()))
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && arrays[vertexAttribute.binding])
     {
         arrays[vertexAttribute.binding]->accept(*this);
     }

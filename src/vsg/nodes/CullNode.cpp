@@ -20,6 +20,13 @@ CullNode::CullNode()
 {
 }
 
+CullNode::CullNode(const CullNode& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    bound(rhs.bound),
+    child(copyop(rhs.child))
+{
+}
+
 CullNode::CullNode(const dsphere& in_bound, Node* in_child) :
     bound(in_bound),
     child(in_child)
@@ -28,6 +35,16 @@ CullNode::CullNode(const dsphere& in_bound, Node* in_child) :
 
 CullNode::~CullNode()
 {
+}
+
+int CullNode::compare(const Object& rhs_object) const
+{
+    int result = Node::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(bound, rhs.bound)) != 0) return result;
+    return compare_pointer(child, rhs.child);
 }
 
 void CullNode::read(Input& input)

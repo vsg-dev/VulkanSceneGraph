@@ -20,7 +20,7 @@ using namespace vsg;
 
 int Data::Properties::compare(const Properties& rhs) const
 {
-    return compare_region(format, allocatorType, rhs.format);
+    return compare_memory(*this, rhs);
 }
 
 Data::Properties& Data::Properties::operator=(const Properties& rhs)

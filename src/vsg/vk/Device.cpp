@@ -52,6 +52,7 @@ static void releaseDeviceID(uint32_t deviceID)
 
 Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names layers, Names deviceExtensions, const DeviceFeatures* deviceFeatures, AllocationCallbacks* allocator) :
     deviceID(getUniqueDeviceID()),
+    enabledExtensions(deviceExtensions),
     _instance(physicalDevice->getInstance()),
     _physicalDevice(physicalDevice),
     _allocator(allocator)
@@ -196,4 +197,10 @@ ref_ptr<Queue> Device::getQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
 bool Device::supportsApiVersion(uint32_t version) const
 {
     return getInstance()->apiVersion >= version && _physicalDevice->getProperties().apiVersion >= version;
+}
+
+bool Device::supportsDeviceExtension(const char* extensionName) const
+{
+    auto compare = [&](const char* rhs) { return strcmp(extensionName, rhs) == 0; };
+    return (std::find_if(enabledExtensions.begin(), enabledExtensions.end(), compare) != enabledExtensions.end());
 }

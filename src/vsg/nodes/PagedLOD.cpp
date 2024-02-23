@@ -30,6 +30,17 @@ PagedLOD::PagedLOD()
     //    ++s_numPagedLODS;
 }
 
+PagedLOD::PagedLOD(const PagedLOD& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    filename(rhs.filename),
+    bound(rhs.bound)
+{
+    children[0].minimumScreenHeightRatio = rhs.children[0].minimumScreenHeightRatio;
+    children[0].node = copyop(rhs.children[0].node);
+    children[1].minimumScreenHeightRatio = rhs.children[1].minimumScreenHeightRatio;
+    children[1].node = copyop(rhs.children[1].node);
+}
+
 PagedLOD::~PagedLOD()
 {
     //    --s_numPagedLODS;

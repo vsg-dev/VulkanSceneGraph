@@ -35,11 +35,12 @@ namespace vsg
         /// apply GraphicsPipelineState when (mask & view.mask) is non zero
         Mask mask = MASK_ALL;
 
+        virtual void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
+
+    public:
         int compare(const Object& rhs) const override;
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        virtual void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
 
     protected:
         virtual ~GraphicsPipelineState() {}

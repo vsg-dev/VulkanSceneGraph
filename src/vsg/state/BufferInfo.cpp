@@ -45,12 +45,29 @@ BufferInfo::~BufferInfo()
     release();
 }
 
+ref_ptr<Object> BufferInfo::clone(const CopyOp& copyop) const
+{
+    auto new_data = copyop(data);
+    if (new_data == data) return ref_ptr<Object>(const_cast<BufferInfo*>(this));
+
+    return BufferInfo::create(new_data);
+}
+
 int BufferInfo::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    if (data != rhs.data && data && rhs.data)
+    {
+        if (data->properties.dataVariance != STATIC_DATA || rhs.data->properties.dataVariance != STATIC_DATA)
+        {
+            if (data < rhs.data) return -1;
+            if (data > rhs.data) return 1;
+        }
+    }
 
     if ((result = compare_pointer(data, rhs.data))) return result;
 

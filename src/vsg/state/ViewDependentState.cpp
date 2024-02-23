@@ -375,6 +375,8 @@ void ViewDependentState::update(ResourceRequirements& requirements)
 
 void ViewDependentState::compile(Context& context)
 {
+    CPU_INSTRUMENTATION_L1_NC(context.instrumentation, "ViewDependentState compile", COLOR_COMPILE);
+
     descriptorSet->compile(context);
 
     if ((view->features & RECORD_SHADOW_MAPS) != 0 && preRenderCommandGraph && !preRenderCommandGraph->device)
@@ -484,6 +486,9 @@ void ViewDependentState::clear()
 
 void ViewDependentState::traverse(RecordTraversal& rt) const
 {
+    //GPU_INSTRUMENTATION_L1_NC(rt.instrumentation, *rt.getCommandBuffer(), "ViewDependentState", COLOR_RECORD_L1);
+    CPU_INSTRUMENTATION_L1_NC(rt.instrumentation, "ViewDependentState", COLOR_RECORD_L1);
+
     if ((view->features & RECORD_SHADOW_MAPS) == 0) return;
 
     // useful reference : https://learn.microsoft.com/en-us/windows/win32/dxtecharts/cascaded-shadow-maps
@@ -702,6 +707,11 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
     {
+        if (rt.instrumentation && !preRenderCommandGraph->instrumentation)
+        {
+            preRenderCommandGraph->instrumentation = shareOrDuplicateForThreadSafety(rt.instrumentation);
+        }
+
         // info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
         preRenderCommandGraph->accept(rt);
     }

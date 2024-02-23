@@ -39,17 +39,18 @@ namespace vsg
         /// map the descriptor bindings to the descriptor pool sizes that will be required to represent them.
         void getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes);
 
-        int compare(const Object& rhs_object) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         // compile the Vulkan object, context parameter used for Device
         virtual void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
+
+    public:
+        int compare(const Object& rhs_object) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~DescriptorSetLayout();

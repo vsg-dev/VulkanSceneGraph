@@ -23,12 +23,14 @@ namespace vsg
     public:
         FrameStamp() {}
 
-        FrameStamp(time_point in_time, uint64_t in_frameCount) :
+        FrameStamp(time_point in_time, uint64_t in_frameCount, double in_simulationTime) :
             time(in_time),
-            frameCount(in_frameCount) {}
+            frameCount(in_frameCount),
+            simulationTime(in_simulationTime) {}
 
         time_point time = {};
         uint64_t frameCount = 0;
+        double simulationTime = 0.0;
 
         void read(Input& input) override;
         void write(Output& output) const override;

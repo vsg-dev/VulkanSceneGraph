@@ -16,6 +16,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+StateSwitch::StateSwitch()
+{
+}
+
+StateSwitch::StateSwitch(const StateSwitch& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+    children.reserve(rhs.children.size());
+    for (auto child : rhs.children)
+    {
+        children.push_back(Child{child.mask, copyop(child.stateCommand)});
+    }
+}
+
+int StateSwitch::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+
+    // compare the children vector
+    if (children.size() < rhs.children.size()) return -1;
+    if (children.size() > rhs.children.size()) return 1;
+    if (children.empty()) return 0;
+
+    auto rhs_itr = rhs.children.begin();
+    for (auto lhs_itr = children.begin(); lhs_itr != children.end(); ++lhs_itr, ++rhs_itr)
+    {
+        if ((result = compare_value(lhs_itr->mask, rhs_itr->mask)) != 0) return result;
+        if ((result = compare_pointer(lhs_itr->stateCommand, rhs_itr->stateCommand)) != 0) return result;
+    }
+    return 0;
+}
+
 void StateSwitch::compile(Context& context)
 {
     for (auto& child : children) child.stateCommand->compile(context);

@@ -25,6 +25,7 @@ namespace vsg
     {
     public:
         BindDescriptorSets();
+        BindDescriptorSets(const BindDescriptorSets& rhs, const CopyOp& copyop = {});
 
         BindDescriptorSets(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_layout, uint32_t in_firstSet, const DescriptorSets& in_descriptorSets) :
             Inherit(1 + in_firstSet),
@@ -51,6 +52,7 @@ namespace vsg
         DescriptorSets descriptorSets;
         std::vector<uint32_t> dynamicOffsets;
 
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return BindDescriptorSets::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         template<class N, class V>
@@ -90,6 +92,7 @@ namespace vsg
     {
     public:
         BindDescriptorSet();
+        BindDescriptorSet(const BindDescriptorSet& rhs, const CopyOp& copyop = {});
 
         BindDescriptorSet(VkPipelineBindPoint in_bindPoint, PipelineLayout* in_pipelineLayout, uint32_t in_firstSet, DescriptorSet* in_descriptorSet) :
             Inherit(1 + in_firstSet),
@@ -126,6 +129,7 @@ namespace vsg
         ref_ptr<DescriptorSet> descriptorSet;
         std::vector<uint32_t> dynamicOffsets;
 
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return BindDescriptorSet::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         template<class N, class V>

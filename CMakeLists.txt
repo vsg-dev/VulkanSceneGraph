@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.1.0
+    VERSION 1.1.2
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
 set(VSG_SOVERSION 14)
-SET(VSG_RELEASE_CANDIDATE 1)
+SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
@@ -36,6 +36,9 @@ endif()
 find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
 find_package(Threads REQUIRED)
+
+# Set the instrumentation level to compile into sources
+set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level to build into the VSG ibrary, 0 for off, 1 coarse grained, 2 medium, 3 fine grained." )
 
 # Enable/disable shader compilation support that pulls in glslang
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
@@ -129,6 +132,14 @@ add_custom_target(build_ShaderSets
     COMMAND vsgshaderset --phong -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/phong_ShaderSet.cpp --binary
     COMMAND vsgshaderset --flat -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/flat_ShaderSet.cpp --binary
     COMMAND vsgshaderset --text -v "CPU_LAYOUT" -v "CPU_LAYOUT BILLBOARD" -v "GPU_LAYOUT" -v "GPU_LAYOUT BILLBOARD" -o src/vsg/text/shaders/text_ShaderSet.cpp  --binary
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "update built-in ShaderSets"
+)
+add_custom_target(build_simple_ShaderSets
+    COMMAND vsgshaderset --pbr -o src/vsg/utils/shaders/pbr_ShaderSet.cpp
+    COMMAND vsgshaderset --phong -o src/vsg/utils/shaders/phong_ShaderSet.cpp
+    COMMAND vsgshaderset --flat -o src/vsg/utils/shaders/flat_ShaderSet.cpp
+    COMMAND vsgshaderset --text -o src/vsg/text/shaders/text_ShaderSet.cpp
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "update built-in ShaderSets"
 )

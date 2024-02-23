@@ -17,6 +17,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+DescriptorTexelBufferView::DescriptorTexelBufferView() :
+    Inherit(0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER)
+{
+}
+
+DescriptorTexelBufferView::DescriptorTexelBufferView(const DescriptorTexelBufferView& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    texelBufferViews(copyop(rhs.texelBufferViews))
+{
+}
+
 DescriptorTexelBufferView::DescriptorTexelBufferView(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType, const BufferViewList& in_texelBufferViews) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType),
     texelBufferViews(in_texelBufferViews)
@@ -30,6 +41,19 @@ int DescriptorTexelBufferView::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer_container(texelBufferViews, rhs.texelBufferViews);
+}
+void DescriptorTexelBufferView::read(Input& input)
+{
+    Descriptor::read(input);
+
+    input.readObjects("texelBufferViews", texelBufferViews);
+}
+
+void DescriptorTexelBufferView::write(Output& output) const
+{
+    Descriptor::write(output);
+
+    output.writeObjects("texelBufferViews", texelBufferViews);
 }
 
 void DescriptorTexelBufferView::compile(Context& context)

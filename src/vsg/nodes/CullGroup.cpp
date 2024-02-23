@@ -20,6 +20,12 @@ CullGroup::CullGroup()
 {
 }
 
+CullGroup::CullGroup(const CullGroup& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    bound(rhs.bound)
+{
+}
+
 CullGroup::CullGroup(const dsphere& in_bound) :
     bound(in_bound)
 {
@@ -27,6 +33,15 @@ CullGroup::CullGroup(const dsphere& in_bound) :
 
 CullGroup::~CullGroup()
 {
+}
+
+int CullGroup::compare(const Object& rhs_object) const
+{
+    int result = Group::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(bound, rhs.bound);
 }
 
 void CullGroup::read(Input& input)

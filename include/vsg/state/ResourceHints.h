@@ -37,6 +37,7 @@ namespace vsg
         uivec2 numShadowMapsRange = {0, 64};
         uivec2 shadowMapSize = {2048, 2028};
 
+    public:
         void read(Input& input) override;
         void write(Output& output) const override;
 

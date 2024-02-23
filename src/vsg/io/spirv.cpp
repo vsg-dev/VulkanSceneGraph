@@ -45,6 +45,8 @@ spirv::spirv()
 
 vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "spirv read", COLOR_READ);
+
     if (!compatibleExtension(filename, options, ".spv")) return {};
 
     vsg::Path found_filename = vsg::findFile(filename, options);
@@ -57,6 +59,8 @@ vsg::ref_ptr<vsg::Object> spirv::read(const vsg::Path& filename, vsg::ref_ptr<co
 
 ref_ptr<vsg::Object> spirv::read(std::istream& fin, ref_ptr<const Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "spirv read", COLOR_READ);
+
     if (!compatibleExtension(options, ".spv")) return {};
 
     fin.seekg(0, fin.end);
@@ -77,6 +81,8 @@ ref_ptr<vsg::Object> spirv::read(std::istream& fin, ref_ptr<const Options> optio
 
 ref_ptr<vsg::Object> spirv::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
 {
+    CPU_INSTRUMENTATION_L1(options ? options->instrumentation.get() : nullptr);
+
     if (!compatibleExtension(options, ".spv")) return {};
 
     using value_type = vsg::ShaderModule::SPIRV::value_type;
@@ -91,6 +97,8 @@ ref_ptr<vsg::Object> spirv::read(const uint8_t* ptr, size_t size, ref_ptr<const 
 
 bool spirv::write(const vsg::Object* object, const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
+    CPU_INSTRUMENTATION_L1_NC(options ? options->instrumentation.get() : nullptr, "spirv write", COLOR_WRITE);
+
     if (!compatibleExtension(filename, options, ".spv")) return false;
 
     const vsg::ShaderStage* ss = dynamic_cast<const vsg::ShaderStage*>(object);

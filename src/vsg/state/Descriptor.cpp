@@ -24,6 +24,14 @@ Descriptor::Descriptor(uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDe
 {
 }
 
+Descriptor::Descriptor(const Descriptor& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    dstBinding(rhs.dstBinding),
+    dstArrayElement(rhs.dstArrayElement),
+    descriptorType(rhs.descriptorType)
+{
+}
+
 int Descriptor::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);

@@ -43,8 +43,8 @@ namespace vsg
             _height(0),
             _depth(0) {}
 
-        Array3D(const Array3D& rhs) :
-            Data(rhs.properties, sizeof(value_type)),
+        Array3D(const Array3D& rhs, const CopyOp copyop = {}) :
+            Data(rhs, copyop),
             _data(nullptr),
             _width(rhs._width),
             _height(rhs._height),
@@ -103,9 +103,9 @@ namespace vsg
             return ref_ptr<Array3D>(new Array3D(args...));
         }
 
-        ref_ptr<Data> clone() const override
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
-            return ref_ptr<Array3D>(new Array3D(*this));
+            return ref_ptr<Array3D>(new Array3D(*this, copyop));
         }
 
         size_t sizeofObject() const noexcept override { return sizeof(Array3D); }

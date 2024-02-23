@@ -429,16 +429,6 @@ void ShaderCompiler::apply(Node& node)
     node.traverse(*this);
 }
 
-void ShaderCompiler::apply(StateGroup& stategroup)
-{
-    for (auto& stateCommand : stategroup.stateCommands)
-    {
-        stateCommand->accept(*this);
-    }
-
-    stategroup.traverse(*this);
-}
-
 void ShaderCompiler::apply(BindGraphicsPipeline& bgp)
 {
     auto pipeline = bgp.pipeline;

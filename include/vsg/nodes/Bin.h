@@ -31,7 +31,15 @@ namespace vsg
         };
 
         Bin();
+        Bin(const Bin& rhs, const CopyOp& copyop = {});
         Bin(int32_t in_binNumber, SortOrder in_sortOrder);
+
+        int32_t binNumber = 0;
+        SortOrder sortOrder = NO_SORT;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Bin::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void traverse(RecordTraversal& visitor) const override;
 
@@ -41,9 +49,6 @@ namespace vsg
         void clear();
 
         void add(State* state, double value, const Node* node);
-
-        int32_t binNumber = 0;
-        SortOrder sortOrder = NO_SORT;
 
     protected:
         virtual ~Bin();

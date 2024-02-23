@@ -88,6 +88,7 @@ namespace vsg
         Path filename;
         ref_ptr<Options> options;
         ref_ptr<Object> object;
+        std::set<const Object*> dynamicObjects;
 
         LoadedObject(const Path& in_filename, ref_ptr<const Options> in_options, ref_ptr<Object> in_object = {});
 

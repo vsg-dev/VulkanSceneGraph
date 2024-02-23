@@ -165,6 +165,14 @@ void Visitor::apply(uivec4Value& value)
 {
     apply(static_cast<Data&>(value));
 }
+void Visitor::apply(mat4Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
+void Visitor::apply(dmat4Value& value)
+{
+    apply(static_cast<Data&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -609,6 +617,10 @@ void Visitor::apply(SpotLight& value)
 {
     apply(static_cast<Light&>(value));
 }
+void Visitor::apply(InstrumentationNode& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -633,9 +645,58 @@ void Visitor::apply(TextLayout& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// Animation Objects/Nodes
+//
+void Visitor::apply(Animation& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(AnimationGroup& value)
+{
+    apply(static_cast<Group&>(value));
+}
+void Visitor::apply(AnimationPath& animationPath)
+{
+    apply(static_cast<Object&>(animationPath));
+}
+void Visitor::apply(AnimationSampler& sampler)
+{
+    apply(static_cast<Object&>(sampler));
+}
+void Visitor::apply(JointSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
+void Visitor::apply(MorphSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
+void Visitor::apply(TransformSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
+void Visitor::apply(Joint& value)
+{
+    apply(static_cast<Node&>(value));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // Vulkan Objects
 //
 void Visitor::apply(BufferInfo& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ImageInfo& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(ImageView& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Image& value)
 {
     apply(static_cast<Object&>(value));
 }
@@ -922,10 +983,6 @@ void Visitor::apply(FrameEvent& event)
 //
 // util classes
 //
-void Visitor::apply(AnimationPath& animationPath)
-{
-    apply(static_cast<Object&>(animationPath));
-}
 void Visitor::apply(ShaderCompileSettings& shaderCompileSettings)
 {
     apply(static_cast<Object&>(shaderCompileSettings));
@@ -942,6 +999,10 @@ void Visitor::apply(Camera& camera)
 void Visitor::apply(CommandGraph& cg)
 {
     apply(static_cast<Group&>(cg));
+}
+void Visitor::apply(SecondaryCommandGraph& cg)
+{
+    apply(static_cast<CommandGraph&>(cg));
 }
 void Visitor::apply(RenderGraph& rg)
 {

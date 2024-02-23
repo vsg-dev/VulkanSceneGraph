@@ -24,10 +24,17 @@ namespace vsg
     class VSG_DECLSPEC Light : public Inherit<Node, Light>
     {
     public:
+        Light();
+        Light(const Light& rhs, const CopyOp& copyop = {});
+
         std::string name;
         vec3 color = vec3(1.0f, 1.0f, 1.0f);
         float intensity = 1.0f;
         uint32_t shadowMaps = 0;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Light::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -41,6 +48,12 @@ namespace vsg
     class VSG_DECLSPEC AmbientLight : public Inherit<Light, AmbientLight>
     {
     public:
+        AmbientLight();
+        AmbientLight(const AmbientLight& rhs, const CopyOp& copyop = {});
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return AmbientLight::create(*this, copyop); }
+
         void read(Input& input) override;
         void write(Output& output) const override;
 
@@ -53,7 +66,14 @@ namespace vsg
     class VSG_DECLSPEC DirectionalLight : public Inherit<Light, DirectionalLight>
     {
     public:
+        DirectionalLight();
+        DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop = {});
+
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalLight::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -67,7 +87,14 @@ namespace vsg
     class VSG_DECLSPEC PointLight : public Inherit<Light, PointLight>
     {
     public:
+        PointLight();
+        PointLight(const PointLight& rhs, const CopyOp& copyop = {});
+
         dvec3 position = dvec3(0.0, 0.0, 0.0);
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return PointLight::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -81,10 +108,17 @@ namespace vsg
     class VSG_DECLSPEC SpotLight : public Inherit<Light, SpotLight>
     {
     public:
+        SpotLight();
+        SpotLight(const SpotLight& rhs, const CopyOp& copyop = {});
+
         dvec3 position = dvec3(0.0, 0.0, 0.0);
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
         double innerAngle = radians(30.0);
         double outerAngle = radians(45.0);
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return SpotLight::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -53,6 +53,7 @@ namespace vsg
 
         std::set<std::string> defines;
 
+    public:
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
@@ -81,17 +82,18 @@ namespace vsg
         /// Vulkan VkShaderModule handle
         VkShaderModule vk(uint32_t deviceID) const { return _implementation[deviceID]->_shaderModule; }
 
-        int compare(const Object& rhs_object) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
+
+    public:
+        int compare(const Object& rhs_object) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~ShaderModule();

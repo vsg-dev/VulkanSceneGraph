@@ -23,6 +23,13 @@ DescriptorSet::DescriptorSet()
 {
 }
 
+DescriptorSet::DescriptorSet(const DescriptorSet& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    setLayout(copyop(rhs.setLayout)),
+    descriptors(copyop(rhs.descriptors))
+{
+}
+
 DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout, const Descriptors& in_descriptors) :
     setLayout(in_descriptorSetLayout),
     descriptors(in_descriptors)

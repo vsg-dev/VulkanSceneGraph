@@ -128,24 +128,6 @@ void CollectResourceRequirements::apply(const Node& node)
     if (hasResourceHints) --_numResourceHintsAbove;
 }
 
-void CollectResourceRequirements::apply(const StateGroup& stategroup)
-{
-    bool hasResourceHints = checkForResourceHints(stategroup);
-    if (hasResourceHints) ++_numResourceHintsAbove;
-
-    if (_numResourceHintsAbove == 0)
-    {
-        for (auto& command : stategroup.stateCommands)
-        {
-            command->accept(*this);
-        }
-    }
-
-    stategroup.traverse(*this);
-
-    if (hasResourceHints) --_numResourceHintsAbove;
-}
-
 void CollectResourceRequirements::apply(const PagedLOD& plod)
 {
     bool hasResourceHints = checkForResourceHints(plod);

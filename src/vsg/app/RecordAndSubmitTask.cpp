@@ -21,6 +21,8 @@ using namespace vsg;
 RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers) :
     device(in_device)
 {
+    CPU_INSTRUMENTATION_L1(instrumentation);
+
     _currentFrameIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
@@ -42,6 +44,8 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
 
 void RecordAndSubmitTask::advance()
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask advance", COLOR_VIEWER);
+
     if (_currentFrameIndex >= _indices.size())
     {
         // first frame so set to 0
@@ -80,6 +84,8 @@ Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask submit", COLOR_RECORD);
+
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
     if (earlyTransferTask)
@@ -96,6 +102,8 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
 VkResult RecordAndSubmitTask::start()
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask start", COLOR_RECORD);
+
     if (earlyTransferTask) earlyTransferTask->currentTransferCompletedSemaphore = {};
     if (lateTransferTask) lateTransferTask->currentTransferCompletedSemaphore = {};
 
@@ -112,6 +120,8 @@ VkResult RecordAndSubmitTask::start()
 
 VkResult RecordAndSubmitTask::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask record", COLOR_RECORD);
+
     for (auto& commandGraph : commandGraphs)
     {
         commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
@@ -122,6 +132,8 @@ VkResult RecordAndSubmitTask::record(ref_ptr<RecordedCommandBuffers> recordedCom
 
 VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers)
 {
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask finish", COLOR_RECORD);
+
     if (lateTransferTask)
     {
         if (VkResult result = lateTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
@@ -207,6 +219,21 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
     return queue->submit(submitInfo, current_fence);
+}
+
+void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
+{
+    instrumentation = in_instrumentation;
+
+    if (databasePager) databasePager->assignInstrumentation(instrumentation);
+    if (earlyTransferTask) earlyTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+    if (lateTransferTask) lateTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+
+    for (auto cg : commandGraphs)
+    {
+        cg->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+        cg->getOrCreateRecordTraversal()->instrumentation = cg->instrumentation;
+    }
 }
 
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)

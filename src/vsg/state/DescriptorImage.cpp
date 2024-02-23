@@ -27,6 +27,12 @@ DescriptorImage::DescriptorImage() :
 {
 }
 
+DescriptorImage::DescriptorImage(const DescriptorImage& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    imageInfoList(copyop(rhs.imageInfoList))
+{
+}
+
 DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {

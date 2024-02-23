@@ -150,6 +150,17 @@ void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resou
     }
 }
 
+void CompileManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
+{
+    auto cts = takeCompileTraversals(numCompileTraversals);
+    for (auto& ct : cts)
+    {
+        ct->assignInstrumentation(in_instrumentation);
+
+        compileTraversals->add(ct);
+    }
+}
+
 CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
 {
     CollectResourceRequirements collectRequirements;

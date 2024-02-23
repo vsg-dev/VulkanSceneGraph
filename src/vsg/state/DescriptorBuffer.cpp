@@ -28,6 +28,12 @@ DescriptorBuffer::DescriptorBuffer() :
 {
 }
 
+DescriptorBuffer::DescriptorBuffer(const DescriptorBuffer& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    bufferInfoList(copyop(rhs.bufferInfoList))
+{
+}
+
 DescriptorBuffer::DescriptorBuffer(ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {

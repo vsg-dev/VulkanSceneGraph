@@ -36,11 +36,13 @@ namespace vsg
         float depthBiasSlopeFactor = 1.0f;
         float lineWidth = 1.0f;
 
+        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
+
+    public:
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
-        void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
         virtual ~RasterizationState();

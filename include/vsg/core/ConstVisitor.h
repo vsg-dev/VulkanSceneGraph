@@ -47,6 +47,7 @@ namespace vsg
     class DirectionalLight;
     class PointLight;
     class SpotLight;
+    class InstrumentationNode;
 
     // forward declare text classes
     class Text;
@@ -54,8 +55,21 @@ namespace vsg
     class TextTechnique;
     class TextLayout;
 
+    // forward declare animation classes
+    class Animation;
+    class AnimationGroup;
+    class AnimationPath;
+    class AnimationSampler;
+    class JointSampler;
+    class MorphSampler;
+    class TransformSampler;
+    class Joint;
+
     // forward declare vulkan classes
     class BufferInfo;
+    class ImageInfo;
+    class ImageView;
+    class Image;
     class Compilable;
     class Command;
     class StateCommand;
@@ -130,26 +144,34 @@ namespace vsg
     class FrameEvent;
 
     // forward declare util classes
-    class AnimationPath;
     class ShaderCompileSettings;
 
     // forward declare viewer classes
     class Camera;
     class CommandGraph;
+    class SecondaryCommandGraph;
     class RenderGraph;
     class View;
     class Viewer;
 
     // forward declare general classes
     class FrameStamp;
+    class Instrumentation;
 
     class VSG_DECLSPEC ConstVisitor : public Object
     {
     public:
         ConstVisitor();
 
+        ConstVisitor(const ConstVisitor& rhs, const CopyOp& copyop = {}) :
+            Object(rhs, copyop),
+            traversalMask(rhs.traversalMask),
+            overrideMask(rhs.overrideMask) {}
+
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
+
+        virtual Instrumentation* getInstrumentation() { return nullptr; }
 
         virtual void apply(const Object&);
         virtual void apply(const Objects&);
@@ -188,6 +210,8 @@ namespace vsg
         virtual void apply(const uivec2Value&);
         virtual void apply(const uivec3Value&);
         virtual void apply(const uivec4Value&);
+        virtual void apply(const mat4Value&);
+        virtual void apply(const dmat4Value&);
 
         // Arrays
         virtual void apply(const byteArray&);
@@ -302,6 +326,7 @@ namespace vsg
         virtual void apply(const DirectionalLight&);
         virtual void apply(const PointLight&);
         virtual void apply(const SpotLight&);
+        virtual void apply(const InstrumentationNode&);
 
         // text
         virtual void apply(const Text&);
@@ -309,8 +334,21 @@ namespace vsg
         virtual void apply(const TextTechnique&);
         virtual void apply(const TextLayout&);
 
+        // animation
+        virtual void apply(const Animation&);
+        virtual void apply(const AnimationGroup&);
+        virtual void apply(const AnimationPath&);
+        virtual void apply(const AnimationSampler&);
+        virtual void apply(const JointSampler&);
+        virtual void apply(const MorphSampler&);
+        virtual void apply(const TransformSampler&);
+        virtual void apply(const Joint&);
+
         // Vulkan nodes
         virtual void apply(const BufferInfo&);
+        virtual void apply(const ImageInfo&);
+        virtual void apply(const ImageView&);
+        virtual void apply(const Image&);
         virtual void apply(const Command&);
         virtual void apply(const StateCommand&);
         virtual void apply(const StateSwitch&);
@@ -384,18 +422,20 @@ namespace vsg
         virtual void apply(const FrameEvent&);
 
         // utils
-        virtual void apply(const AnimationPath&);
         virtual void apply(const ShaderCompileSettings&);
 
         // viewer
         virtual void apply(const Camera&);
         virtual void apply(const CommandGraph&);
+        virtual void apply(const SecondaryCommandGraph&);
         virtual void apply(const RenderGraph&);
         virtual void apply(const View&);
         virtual void apply(const Viewer&);
 
         // general classes
         virtual void apply(const FrameStamp&);
+
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(ConstVisitor) == type || Object::is_compatible(type); }
     };
 
     // provide Value<>::accept() implementation

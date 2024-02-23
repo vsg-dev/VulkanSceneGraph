@@ -112,7 +112,6 @@ namespace vsg
         void apply(const Object& object) override;
         void apply(const ResourceHints& resourceHints) override;
         void apply(const Node& node) override;
-        void apply(const StateGroup& stategroup) override;
         void apply(const StateCommand& stateCommand) override;
         void apply(const DescriptorSet& descriptorSet) override;
         void apply(const Descriptor& descriptor) override;

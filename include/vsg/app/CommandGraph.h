@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Export.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/CommandBuffer.h>
 
 namespace vsg
@@ -47,6 +48,9 @@ namespace vsg
         virtual VkCommandBufferLevel level() const;
         virtual void reset();
         virtual void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {});
+
+        /// hook for assigning Instrumentation to enable profiling of record traversal.
+        ref_ptr<Instrumentation> instrumentation;
 
     protected:
         virtual ~CommandGraph();

@@ -22,8 +22,36 @@ VertexIndexDraw::VertexIndexDraw()
 {
 }
 
+VertexIndexDraw::VertexIndexDraw(const VertexIndexDraw& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    indexCount(rhs.indexCount),
+    instanceCount(rhs.instanceCount),
+    firstIndex(rhs.firstIndex),
+    vertexOffset(rhs.vertexOffset),
+    firstInstance(rhs.firstInstance),
+    firstBinding(rhs.firstBinding),
+    arrays(copyop(rhs.arrays)),
+    indices(copyop(rhs.indices))
+{
+}
+
 VertexIndexDraw::~VertexIndexDraw()
 {
+}
+
+int VertexIndexDraw::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(indexCount, rhs.indexCount)) != 0) return result;
+    if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
+    if ((result = compare_value(firstIndex, rhs.firstIndex)) != 0) return result;
+    if ((result = compare_value(vertexOffset, rhs.vertexOffset)) != 0) return result;
+    if ((result = compare_value(firstBinding, rhs.firstBinding)) != 0) return result;
+    if ((result = compare_pointer_container(arrays, rhs.arrays)) != 0) return result;
+    return compare_pointer(indices, rhs.indices);
 }
 
 void VertexIndexDraw::assignArrays(const DataList& arrayData)

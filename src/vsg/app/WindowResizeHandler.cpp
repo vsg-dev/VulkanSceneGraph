@@ -50,17 +50,6 @@ void UpdateGraphicsPipelines::apply(vsg::BindGraphicsPipeline& bindPipeline)
     }
 }
 
-void UpdateGraphicsPipelines::apply(vsg::StateGroup& sg)
-{
-    if (!visit(&sg, context->viewID)) return;
-
-    for (auto& command : sg.stateCommands)
-    {
-        command->accept(*this);
-    }
-    sg.traverse(*this);
-}
-
 void UpdateGraphicsPipelines::apply(vsg::View& view)
 {
     if (!visit(&view, view.viewID)) return;
@@ -138,17 +127,6 @@ void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
 void WindowResizeHandler::apply(vsg::Object& object)
 {
     object.traverse(*this);
-}
-
-void WindowResizeHandler::apply(vsg::StateGroup& sg)
-{
-    if (!visit(&sg, context->viewID)) return;
-
-    for (auto& command : sg.stateCommands)
-    {
-        command->accept(*this);
-    }
-    sg.traverse(*this);
 }
 
 void WindowResizeHandler::apply(ClearAttachments& clearAttachments)

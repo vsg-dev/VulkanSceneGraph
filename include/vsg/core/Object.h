@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <atomic>
+#include <map>
 #include <string>
 #include <typeindex>
 #include <vector>
@@ -32,9 +33,26 @@ namespace vsg
     class Input;
     class Output;
     class Object;
+    class Duplicate;
 
     template<typename T>
     constexpr bool has_read_write() { return false; }
+
+    class CopyOp
+    {
+    public:
+        mutable ref_ptr<Duplicate> duplicate;
+
+        /// copy/clone pointer
+        template<class T>
+        inline ref_ptr<T> operator()(ref_ptr<T> ptr) const;
+
+        /// copy/clone container of pointers
+        template<class C>
+        inline C operator()(const C& src) const;
+
+        explicit operator bool() const noexcept { return duplicate.valid(); }
+    };
 
     VSG_type_name(vsg::Object);
 
@@ -43,7 +61,7 @@ namespace vsg
     public:
         Object();
 
-        Object(const Object&);
+        Object(const Object& object, const CopyOp& copyop = {});
         Object& operator=(const Object&);
 
         static ref_ptr<Object> create() { return ref_ptr<Object>(new Object); }
@@ -72,6 +90,10 @@ namespace vsg
 
         template<class T>
         const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
+
+        /// clone this object using CopyOp's duplicates map to decide whether to clone or to return the original object.
+        /// The default clone(CopyOp&) implementation simply returns ref_ptr<> to this object rather attempt to clone.
+        virtual ref_ptr<Object> clone(const CopyOp& copyop = {}) const;
 
         /// compare two objects, return -1 if this object is less than rhs, return 0 if it's equal, return 1 if rhs is greater,
         virtual int compare(const Object& rhs) const;
@@ -179,5 +201,64 @@ namespace vsg
 
     using RefObjectPath = std::vector<ref_ptr<Object>>;
     using ObjectPath = std::vector<Object*>;
+
+    class Duplicate : public Object
+    {
+    public:
+        using DuplicateMap = std::map<const Object*, ref_ptr<Object>>;
+        using iterator = DuplicateMap::iterator;
+        using key_type = DuplicateMap::key_type;
+        using mapped_type = DuplicateMap::mapped_type;
+
+        DuplicateMap duplicates;
+
+        inline iterator find(const key_type& key) { return duplicates.find(key); }
+        inline iterator begin() { return duplicates.begin(); }
+        inline iterator end() { return duplicates.end(); }
+        std::size_t size() const { return duplicates.size(); }
+        inline mapped_type& operator[](const Object* object) { return duplicates[object]; }
+
+        bool contains(const Object* object) const { return duplicates.count(object) != 0; }
+        void insert(const Object* first, ref_ptr<Object> second = {}) { duplicates[first] = second; }
+        void clear() { duplicates.clear(); }
+
+        void reset()
+        {
+            for (auto itr = duplicates.begin(); itr != duplicates.end(); ++itr)
+            {
+                itr->second.reset();
+            }
+        }
+    };
+
+    template<class T>
+    inline ref_ptr<T> CopyOp::operator()(ref_ptr<T> ptr) const
+    {
+        if (ptr && duplicate)
+        {
+            if (auto itr = duplicate->find(ptr); itr != duplicate->end())
+            {
+                if (!itr->second) itr->second = ptr->clone(*this);
+                if (itr->second) return itr->second.template cast<T>();
+
+                warn("Unable to clone ", ptr);
+            }
+        }
+        return ptr;
+    }
+
+    template<class C>
+    inline C CopyOp::operator()(const C& src) const
+    {
+        if (!duplicate) return src;
+
+        C dest;
+        dest.reserve(src.size());
+        for (auto& ptr : src)
+        {
+            dest.push_back(operator()(ptr));
+        }
+        return dest;
+    }
 
 } // namespace vsg
