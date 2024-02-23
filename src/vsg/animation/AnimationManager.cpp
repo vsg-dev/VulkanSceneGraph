@@ -24,12 +24,12 @@ void AnimationManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrum
     instrumentation = in_instrumentation;
 }
 
-bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation)
+bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation, double startTime)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager play animation", COLOR_VIEWER);
 
     bool already_active = animation->active();
-    if (animation->start(_simulationTime))
+    if (animation->start(_simulationTime, startTime))
     {
         if (!already_active) animations.push_back(animation);
 

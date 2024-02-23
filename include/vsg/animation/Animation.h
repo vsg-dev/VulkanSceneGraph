@@ -55,14 +55,21 @@ namespace vsg
             FORWARD_AND_BACK
         };
 
+        /// specify how time value outside the sampler maxTime period is managed
         Mode mode = REPEAT;
+
+        /// local animation time used to look up samplers, automatically updated by the Animation::update(..) method.
+        double time = 0.0;
+
+        /// speed multiplier for how quickly the Animation::time changes with changes in simulationTime
         double speed = 1.0;
 
+        /// Animation samplers provide the means for mapping the local animation time
         using Samplers = std::vector<ref_ptr<AnimationSampler>>;
         Samplers samplers;
 
         /// initialize this animation start time
-        virtual bool start(double simulationTime);
+        virtual bool start(double simulationTime, double startTime = 0.0);
 
         /// update the samplers
         virtual bool update(double simulationTime);
@@ -72,6 +79,9 @@ namespace vsg
 
         /// return true if this animation is being actively updated.
         bool active() const { return _active; }
+
+        /// compute the max time from the highest time keyframes in the available samplers
+        virtual double maxTime() const;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Animation::create(*this, copyop); }
@@ -91,7 +101,6 @@ namespace vsg
     protected:
         // start time point of animation to be used to calaculate the current time to use when looking up current values
         bool _active = false;
-        double _previousTime = 0.0;
         double _previousSimulationTime = 0.0;
         double _maxTime = 0.0;
     };

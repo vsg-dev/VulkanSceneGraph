@@ -58,10 +58,10 @@ Animation::Animation(const Animation& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     name(rhs.name),
     mode(rhs.mode),
+    time(rhs.time),
     speed(rhs.speed),
     samplers(copyop(rhs.samplers)),
     _active(false),
-    _previousTime(rhs._previousTime),
     _previousSimulationTime(rhs._previousSimulationTime),
     _maxTime(rhs._maxTime)
 {
@@ -100,12 +100,20 @@ void Animation::write(Output& output) const
     output.writeObjects("samplers", samplers);
 }
 
-bool Animation::start(double simulationTime)
+double Animation::maxTime() const
 {
-    _previousTime = 0.0;
-    _previousSimulationTime = simulationTime;
+    double mt = 0.0;
+    for (auto sampler : samplers)
+    {
+        mt = std::max(mt, sampler->maxTime());
+    }
+    return mt;
+}
 
-    _maxTime = 0.0;
+bool Animation::start(double simulationTime, double startTime)
+{
+    time = startTime;
+    _previousSimulationTime = simulationTime;
 
     if (samplers.empty())
     {
@@ -113,10 +121,8 @@ bool Animation::start(double simulationTime)
         return false;
     }
 
-    for (auto sampler : samplers)
-    {
-        _maxTime = std::max(_maxTime, sampler->maxTime());
-    }
+    // cache the maxTime so that update doesn't have to recompute it.
+    _maxTime = maxTime();
 
     _active = true;
     return _active;
@@ -130,8 +136,7 @@ bool Animation::update(double simulationTime)
         return x < 0.0 ? y + std::fmod(x, y) : std::fmod(x, y);
     };
 
-    double time = _previousTime + (simulationTime - _previousSimulationTime) * speed;
-    _previousTime = time;
+    time = time + (simulationTime - _previousSimulationTime) * speed;
     _previousSimulationTime = simulationTime;
 
     if (mode == REPEAT)

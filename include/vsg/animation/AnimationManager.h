@@ -34,7 +34,7 @@ namespace vsg
         virtual void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
         /// play animation
-        virtual bool play(vsg::ref_ptr<vsg::Animation> animation);
+        virtual bool play(vsg::ref_ptr<vsg::Animation> animation, double startTime = 0.0);
 
         /// stop animation
         virtual bool stop(vsg::ref_ptr<vsg::Animation> animation);
