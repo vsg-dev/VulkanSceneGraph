@@ -30,6 +30,19 @@ using namespace vsg;
 //
 // ArrayState
 //
+ArrayState::ArrayState(const ArrayState& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    localToWorldStack(rhs.localToWorldStack),
+    worldToLocalStack(rhs.worldToLocalStack),
+    topology(rhs.topology),
+    vertex_attribute_location(rhs.vertex_attribute_location),
+    vertexAttribute(rhs.vertexAttribute),
+    vertices(rhs.vertices),
+    proxy_vertices(rhs.proxy_vertices),
+    arrays(rhs.arrays)
+{
+}
+
 ref_ptr<const vec3Array> ArrayState::vertexArray(uint32_t /*instanceIndex*/)
 {
     return vertices;
