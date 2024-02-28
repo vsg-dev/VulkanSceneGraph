@@ -171,12 +171,10 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
 
             //debug("Loading new object ", className);
 
-            vsg::ref_ptr<vsg::Object> object;
-
             if (className != "nullptr")
             {
-                object = objectFactory->create(className.c_str());
-
+                auto object = objectFactory->create(className.c_str());
+                objectIDMap[id] = object;
                 if (object)
                 {
                     matchPropertyName("{");
@@ -189,14 +187,15 @@ vsg::ref_ptr<vsg::Object> AsciiInput::read()
                 }
                 else
                 {
-                    warn("Could not find means to create ", className);
+                    warn("Unable to create instance of class : ", className);
                 }
+                return object;
             }
-
-            objectIDMap[id] = object;
-
-            return object;
+            else
+            {
+                return objectIDMap[id] = {};
+            }
         }
     }
-    return vsg::ref_ptr<vsg::Object>();
+    return {};
 }

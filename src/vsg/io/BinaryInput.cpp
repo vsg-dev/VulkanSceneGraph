@@ -99,11 +99,10 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
     else
     {
         std::string className = readValue<std::string>(nullptr);
-
-        vsg::ref_ptr<vsg::Object> object;
         if (className != "nullptr")
         {
-            object = objectFactory->create(className.c_str());
+            auto object = objectFactory->create(className.c_str());
+            objectIDMap[id] = object;
             if (object)
             {
                 object->read(*this);
@@ -112,9 +111,11 @@ vsg::ref_ptr<vsg::Object> BinaryInput::read()
             {
                 warn("Unable to create instance of class : ", className);
             }
+            return object;
         }
-
-        objectIDMap[id] = object;
-        return object;
+        else
+        {
+            return objectIDMap[id] = {};
+        }
     }
 }
