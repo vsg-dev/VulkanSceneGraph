@@ -32,6 +32,15 @@ Object::Object() :
 Object::Object(const Object& rhs, const CopyOp& copyop) :
     Object()
 {
+    // assign this copy constructed object to copyop.duplicate so that it can be lated referenced.
+    if (copyop.duplicate)
+    {
+        if (auto itr = copyop.duplicate->find(&rhs); itr != copyop.duplicate->end())
+        {
+            itr->second = this;
+        }
+    }
+
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
     {
         // the rhs's auxiliary is uniquely attached to it, so we need to create our own and copy its ObjectMap across
