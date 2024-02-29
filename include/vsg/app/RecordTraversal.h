@@ -74,7 +74,7 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<RecordTraversal> create(Args&&... args)
         {
-            return ref_ptr<RecordTraversal>(new RecordTraversal(args...));
+            return ref_ptr<RecordTraversal>(new RecordTraversal(std::forward<Args>(args)...));
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
