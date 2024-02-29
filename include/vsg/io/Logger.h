@@ -247,7 +247,7 @@ namespace vsg
     template<typename... Args>
     void debug(Args&&... args)
     {
-        Logger::instance()->debug(args...);
+        Logger::instance()->debug(std::forward<Args>(args)...);
     }
 
     /// thread safe access to stream for writing debug output.
@@ -261,7 +261,7 @@ namespace vsg
     template<typename... Args>
     void info(Args&&... args)
     {
-        Logger::instance()->info(args...);
+        Logger::instance()->info(std::forward<Args>(args)...);
     }
 
     /// thread safe access to stream for writing info output.
@@ -274,7 +274,7 @@ namespace vsg
     template<typename... Args>
     void warn(Args&&... args)
     {
-        Logger::instance()->warn(args...);
+        Logger::instance()->warn(std::forward<Args>(args)...);
     }
 
     /// thread safe access to stream for writing warn output.
@@ -287,7 +287,7 @@ namespace vsg
     template<typename... Args>
     void error(Args&&... args)
     {
-        Logger::instance()->error(args...);
+        Logger::instance()->error(std::forward<Args>(args)...);
     }
 
     /// thread safe access to stream for writing error output.
@@ -300,7 +300,7 @@ namespace vsg
     template<typename... Args>
     void fatal(Args&&... args)
     {
-        Logger::instance()->fatal(args...);
+        Logger::instance()->fatal(std::forward<Args>(args)...);
     }
 
     /// thread safe access to stream for writing fatal output.
@@ -313,7 +313,7 @@ namespace vsg
     template<typename... Args>
     void log(Logger::Level msg_level, Args&&... args)
     {
-        Logger::instance()->log(msg_level, args...);
+        Logger::instance()->log(msg_level, std::forward<Args>(args)...);
     }
 
     /// thread safe access to stream for writing output for specified Logger level.

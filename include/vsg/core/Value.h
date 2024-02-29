@@ -49,12 +49,12 @@ namespace vsg
 
         template<typename... Args>
         explicit Value(Args&&... args) :
-            _value(args...) { dirty(); }
+            _value(std::forward<Args>(args)...) { dirty(); }
 
         template<typename... Args>
         static ref_ptr<Value> create(Args&&... args)
         {
-            return ref_ptr<Value>(new Value(args...));
+            return ref_ptr<Value>(new Value(std::forward<Args>(args)...));
         }
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override

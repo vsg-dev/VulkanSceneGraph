@@ -100,7 +100,7 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<Array3D> create(Args&&... args)
         {
-            return ref_ptr<Array3D>(new Array3D(args...));
+            return ref_ptr<Array3D>(new Array3D(std::forward<Args>(args)...));
         }
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override

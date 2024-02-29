@@ -112,7 +112,7 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<Array> create(Args&&... args)
         {
-            return ref_ptr<Array>(new Array(args...));
+            return ref_ptr<Array>(new Array(std::forward<Args>(args)...));
         }
 
         static ref_ptr<Array> create(std::initializer_list<value_type> l)
