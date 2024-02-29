@@ -27,8 +27,6 @@ namespace vsg
         DescriptorImage(const DescriptorImage& rhs, const CopyOp& copyop = {});
 
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-        DescriptorImage(ref_ptr<Sampler> sampler, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER);
-        DescriptorImage(ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0, VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 
         template<class T>
         DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<T> image, uint32_t in_dstBinding = 0, uint32_t in_dstArrayElement = 0, VkDescriptorType in_descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) :
@@ -55,4 +53,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorImage);
 
+    extern VSG_DECLSPEC ref_ptr<DescriptorImage> createSamplerDescriptor(ref_ptr<Sampler> sampler, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0);
+    extern VSG_DECLSPEC ref_ptr<DescriptorImage> createCombinedImageSamplerDescriptor(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0);
+    extern VSG_DECLSPEC ref_ptr<DescriptorImage> createSampedImageDescriptor(ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0);
 } // namespace vsg

@@ -42,24 +42,6 @@ DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, ref_ptr<Data> data, u
     }
 }
 
-DescriptorImage::DescriptorImage(ref_ptr<Sampler> sampler, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
-{
-    if (sampler)
-    {
-        imageInfoList.push_back(ImageInfo::create(sampler, ref_ptr<ImageView>()));
-    }
-}
-
-DescriptorImage::DescriptorImage(ref_ptr<Data> data, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
-    Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
-{
-    if (data)
-    {
-        imageInfoList.push_back(ImageInfo::create(ref_ptr<Sampler>(), data));
-    }
-}
-
 DescriptorImage::DescriptorImage(ref_ptr<ImageInfo> imageInfo, uint32_t in_dstBinding, uint32_t in_dstArrayElement, VkDescriptorType in_descriptorType) :
     Inherit(in_dstBinding, in_dstArrayElement, in_descriptorType)
 {
@@ -178,4 +160,22 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 uint32_t DescriptorImage::getNumDescriptors() const
 {
     return static_cast<uint32_t>(imageInfoList.size());
+}
+
+VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createSamplerDescriptor(ref_ptr<Sampler> sampler, uint32_t dstBinding, uint32_t dstArrayElement)
+{
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(sampler, ref_ptr<ImageView>(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_SAMPLER);
+}
+
+VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createCombinedImageSamplerDescriptor(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement)
+{
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(sampler, image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+}
+
+VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createSampedImageDescriptor(ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement)
+{
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(ref_ptr<Sampler>(), image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 }
