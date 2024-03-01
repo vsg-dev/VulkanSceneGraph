@@ -164,7 +164,7 @@ uint32_t DescriptorImage::getNumDescriptors() const
 
 VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createSamplerDescriptor(ref_ptr<Sampler> sampler, uint32_t dstBinding, uint32_t dstArrayElement)
 {
-    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(sampler, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(sampler, ref_ptr<ImageView>(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_SAMPLER);
 }
 
@@ -176,6 +176,6 @@ VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createCombinedImageSamplerDescriptor(
 
 VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createSampedImageDescriptor(ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement)
 {
-    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(nullptr, image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(ref_ptr<Sampler>(), image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 }

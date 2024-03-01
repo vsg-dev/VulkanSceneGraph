@@ -299,7 +299,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         depthImageView->subresourceRange.baseArrayLayer = 0;
         depthImageView->subresourceRange.layerCount = maxShadowMaps;
 
-        auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(vsg::ref_ptr<Sampler>(), depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
         shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
     }
@@ -323,7 +323,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         depthImageView->subresourceRange.baseArrayLayer = 0;
         depthImageView->subresourceRange.layerCount = 1;
 
-        auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(vsg::ref_ptr<Sampler>(), depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
         shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0 , VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
     }
