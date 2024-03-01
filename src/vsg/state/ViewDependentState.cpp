@@ -258,6 +258,15 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
 
     // set up ShadowMaps
+    auto shadowMapDirectSampler = Sampler::create();
+    shadowMapDirectSampler->minFilter = VK_FILTER_NEAREST;
+    shadowMapDirectSampler->magFilter = VK_FILTER_NEAREST;
+    shadowMapDirectSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    shadowMapDirectSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapDirectSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapDirectSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapDirectSamplerDescriptor = createSamplerDescriptor(shadowMapDirectSampler, 3);
+
     auto shadowMapSampler = Sampler::create();
 #define HARDWARE_PCF 1
 #if HARDWARE_PCF == 1
@@ -277,6 +286,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #endif
+    shadowMapShadowSamplerDescriptor = createSamplerDescriptor(shadowMapSampler, 4);
 
     if (maxShadowMaps > 0)
     {
@@ -289,9 +299,9 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         depthImageView->subresourceRange.baseArrayLayer = 0;
         depthImageView->subresourceRange.layerCount = maxShadowMaps;
 
-        auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(vsg::ref_ptr<Sampler>(), depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
     }
     else
     {
@@ -313,19 +323,21 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         depthImageView->subresourceRange.baseArrayLayer = 0;
         depthImageView->subresourceRange.layerCount = 1;
 
-        auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(vsg::ref_ptr<Sampler>(), depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0 , VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
     }
 
     DescriptorSetLayoutBindings descriptorBindings{
         VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
         VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
-        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                      // shadow map 2D texture array
+        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                               // shadow map 2D texture array
+        VkDescriptorSetLayoutBinding{3, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                                     // shadow map direct sampler
+        VkDescriptorSetLayoutBinding{4, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                                     // shadow map shadow sampler
     };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages, shadowMapDirectSamplerDescriptor, shadowMapShadowSamplerDescriptor});
 
     // if not active then don't enable shadow maps
     if (maxShadowMaps == 0) return;

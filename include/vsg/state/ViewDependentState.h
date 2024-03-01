@@ -141,6 +141,8 @@ namespace vsg
 
         ref_ptr<Image> shadowDepthImage;
         ref_ptr<DescriptorImage> shadowMapImages;
+        ref_ptr<DescriptorImage> shadowMapDirectSamplerDescriptor;
+        ref_ptr<DescriptorImage> shadowMapShadowSamplerDescriptor;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorBuffer> descriptor;
