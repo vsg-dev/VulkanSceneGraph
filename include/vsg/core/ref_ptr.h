@@ -60,9 +60,6 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
-        ref_ptr(std::nullptr_t) noexcept :
-            _ptr(nullptr) {}
-
         ~ref_ptr()
         {
             if (_ptr) _ptr->unref();
