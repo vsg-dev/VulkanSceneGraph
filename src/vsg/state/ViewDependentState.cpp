@@ -325,7 +325,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
         auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0 , VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
     }
 
     DescriptorSetLayoutBindings descriptorBindings{
