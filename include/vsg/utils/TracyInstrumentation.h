@@ -25,8 +25,8 @@ namespace vsg
     class TracySettings : public Inherit<Object, TracySettings>
     {
     public:
-        uint32_t cpu_instumentation_level = 3;
-        uint32_t gpu_instumentation_level = 3;
+        uint32_t cpu_instrumentation_level = 3;
+        uint32_t gpu_instrumentation_level = 3;
     };
     VSG_type_name(vsg::TracySettings);
 
@@ -135,9 +135,9 @@ namespace vsg
         void enter(const SourceLocation* slcloc, uint64_t& reference, const Object*) const override
         {
 #    ifdef TRACY_ON_DEMAND
-            if (!GetProfiler().IsConnected() || (slcloc->level > settings->cpu_instumentation_level))
+            if (!GetProfiler().IsConnected() || (slcloc->level > settings->cpu_instrumentation_level))
 #    else
-            if (slcloc->level > settings->cpu_instumentation_level)
+            if (slcloc->level > settings->cpu_instrumentation_level)
 #    endif
             {
                 reference = 0;
@@ -190,9 +190,9 @@ namespace vsg
         void enter(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& cmdbuf, const Object*) const override
         {
 #    ifdef TRACY_ON_DEMAND
-            if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > settings->gpu_instumentation_level))
+            if (!ctx || !GetProfiler().IsConnected() || (slcloc->level > settings->gpu_instrumentation_level))
 #    else
-            if (!ctx || slcloc->level > settings->gpu_instumentation_level)
+            if (!ctx || slcloc->level > settings->gpu_instrumentation_level)
 #    endif
             {
                 reference = 0;
