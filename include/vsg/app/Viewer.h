@@ -142,6 +142,7 @@ namespace vsg
         virtual void deviceWaitIdle() const;
 
         /// Hook for assigning Instrumentation to enable profiling of record traversal.
+        uint64_t frameReference = 0;
         ref_ptr<Instrumentation> instrumentation;
 
         /// Convenience method for assigning Instrumentation to the viewer and any associated objects.

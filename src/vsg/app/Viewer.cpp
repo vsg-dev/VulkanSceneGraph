@@ -153,12 +153,11 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
 bool Viewer::advanceToNextFrame(double simulationTime)
 {
     static constexpr SourceLocation s_frame_source_location{"Viewer advanceToNextFrame", VsgFunctionName, __FILE__, __LINE__, COLOR_VIEWER, 1};
-    uint64_t reference = 0;
 
     if (!active()) return false;
 
     // signal to instrumentation the end of the previous frame
-    if (instrumentation && _frameStamp) instrumentation->leaveFrame(&s_frame_source_location, reference, *_frameStamp);
+    if (instrumentation && _frameStamp) instrumentation->leaveFrame(&s_frame_source_location, frameReference, *_frameStamp);
 
     // poll all the windows for events.
     pollEvents(true);
@@ -193,7 +192,7 @@ bool Viewer::advanceToNextFrame(double simulationTime)
     }
 
     // signal to instrumentation the start of frame
-    if (instrumentation) instrumentation->enterFrame(&s_frame_source_location, reference, *_frameStamp);
+    if (instrumentation) instrumentation->enterFrame(&s_frame_source_location, frameReference, *_frameStamp);
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));
