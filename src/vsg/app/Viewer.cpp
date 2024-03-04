@@ -186,13 +186,13 @@ bool Viewer::advanceToNextFrame(double simulationTime)
         _frameStamp = FrameStamp::create(time, _frameStamp->frameCount + 1, simulationTime);
     }
 
+    // signal to instrumentation the start of frame
+    if (instrumentation) instrumentation->enterFrame(&s_frame_source_location, frameReference, *_frameStamp);
+
     for (auto& task : recordAndSubmitTasks)
     {
         task->advance();
     }
-
-    // signal to instrumentation the start of frame
-    if (instrumentation) instrumentation->enterFrame(&s_frame_source_location, frameReference, *_frameStamp);
 
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));
