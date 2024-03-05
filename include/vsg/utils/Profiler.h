@@ -152,7 +152,7 @@ namespace vsg
         void enter(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/, const Object* /*object*/ = nullptr) const override;
         void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/, const Object* /*object*/ = nullptr) const override;
 
-        void finish();
+        void finish() const override;
     };
     VSG_type_name(Profiler)
 } // namespace vsg

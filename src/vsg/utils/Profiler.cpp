@@ -331,7 +331,7 @@ void Profiler::leave(const SourceLocation* sl, uint64_t& reference, CommandBuffe
     }
 }
 
-void Profiler::finish()
+void Profiler::finish() const
 {
     for (auto& gpuStats : perFrameGPUStats)
     {
