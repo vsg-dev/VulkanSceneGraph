@@ -92,7 +92,8 @@ DirectionalLight::DirectionalLight()
 
 DirectionalLight::DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    direction(rhs.direction)
+    direction(rhs.direction),
+    angleSubtended(rhs.angleSubtended)
 {
 }
 
@@ -102,7 +103,8 @@ int DirectionalLight::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_value(direction, rhs.direction);
+    if ((result = compare_value(direction, rhs.direction)) != 0) return result;
+    return compare_value(angleSubtended, rhs.angleSubtended);
 }
 
 void DirectionalLight::read(Input& input)
@@ -110,6 +112,7 @@ void DirectionalLight::read(Input& input)
     Light::read(input);
 
     input.read("direction", direction);
+    input.read("angleSubtended", angleSubtended);
 }
 
 void DirectionalLight::write(Output& output) const
@@ -117,6 +120,7 @@ void DirectionalLight::write(Output& output) const
     Light::write(output);
 
     output.write("direction", direction);
+    output.write("angleSubtended", angleSubtended);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

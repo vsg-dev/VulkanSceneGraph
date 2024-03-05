@@ -70,6 +70,7 @@ namespace vsg
         DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop = {});
 
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
+        float angleSubtended = 0.0090f;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalLight::create(*this, copyop); }
