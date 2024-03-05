@@ -10,12 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/ui/FrameStamp.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/vk/CommandBuffer.h>
 #include <vsg/state/QueryPool.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/utils/Profiler.h>
+#include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
 
@@ -23,7 +23,8 @@ using namespace vsg;
 //
 // ProfileLog
 //
-ProfileLog::ProfileLog(size_t size) :  // TODO make user definable
+ProfileLog::ProfileLog(size_t size) :
+    // TODO make user definable
     entries(size)
 {
 }
@@ -40,19 +41,19 @@ void ProfileLog::write(Output& output) const
 
 void ProfileLog::report(std::ostream& out)
 {
-    out<<"frames "<<frameIndices.size()<<std::endl;
-    for(auto frameIndex : frameIndices)
+    out << "frames " << frameIndices.size() << std::endl;
+    for (auto frameIndex : frameIndices)
     {
         report(out, frameIndex);
-        out<<std::endl;
+        out << std::endl;
     }
 }
 
 uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
 {
     indentation indent;
-    out<<"ProfileLog::report("<<reference<<")"<<std::endl;
-    out<<"{"<<std::endl;
+    out << "ProfileLog::report(" << reference << ")" << std::endl;
+    out << "{" << std::endl;
     uint32_t tab = 1;
     indent += tab;
 
@@ -61,8 +62,7 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
         "FRAME",
         "CPU",
         "COMMAND_BUFFER",
-        "GPU"
-    };
+        "GPU"};
 
     uint64_t startReference = reference;
     uint64_t endReference = entry(reference).reference;
@@ -72,7 +72,7 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
         std::swap(startReference, endReference);
     }
 
-    for(uint64_t i = startReference; i <= endReference; ++i)
+    for (uint64_t i = startReference; i <= endReference; ++i)
     {
         auto& first = entry(i);
         auto& second = entry(first.reference);
@@ -84,36 +84,37 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
             gpu_duration = static_cast<double>((first.gpuTime < second.gpuTime) ? (second.gpuTime - first.gpuTime) : (first.gpuTime - second.gpuTime)) * timestampScaleToMilliseconds;
         }
 
-        if (first.enter && first.reference == i+1)
+        if (first.enter && first.reference == i + 1)
         {
             ++i;
 
-            out<<indent<<"{ "<<typeNames[first.type]<<", cpu_duration = "<<cpu_duration<<"ms, ";
-            if (gpu_duration != 0.0) out<<", gpu_duration = "<<gpu_duration<<"ms, ";
+            out << indent << "{ " << typeNames[first.type] << ", cpu_duration = " << cpu_duration << "ms, ";
+            if (gpu_duration != 0.0) out << ", gpu_duration = " << gpu_duration << "ms, ";
 
             auto itr = threadNames.find(first.thread_id);
-            if (itr != threadNames.end()) out<<", thread = "<<itr->second;
+            if (itr != threadNames.end()) out << ", thread = " << itr->second;
 
-            if (first.sourceLocation) out/*<<", file="<<first.sourceLocation->file*/<<", func="<<first.sourceLocation->function<<", line="<<first.sourceLocation->line;
+            if (first.sourceLocation) out /*<<", file="<<first.sourceLocation->file*/ << ", func=" << first.sourceLocation->function << ", line=" << first.sourceLocation->line;
             // if (first.object) out<<", "<<first.object->className();
-            out<<" }"<<std::endl;
+            out << " }" << std::endl;
         }
         else
         {
-            if (first.enter) out<<indent<<"{ ";
+            if (first.enter)
+                out << indent << "{ ";
             else
             {
                 indent -= tab;
-                out<<indent<<"} ";
+                out << indent << "} ";
             }
 
-            out<<typeNames[first.type]<<", cpu_duration = "<<cpu_duration<<"ms, ";
-            if (gpu_duration != 0.0) out<<", gpu_duration = "<<gpu_duration<<"ms, ";
+            out << typeNames[first.type] << ", cpu_duration = " << cpu_duration << "ms, ";
+            if (gpu_duration != 0.0) out << ", gpu_duration = " << gpu_duration << "ms, ";
 
             auto itr = threadNames.find(first.thread_id);
-            if (itr != threadNames.end()) out<<", thread = "<<itr->second;
+            if (itr != threadNames.end()) out << ", thread = " << itr->second;
 
-            if (first.sourceLocation) out/*<<", file="<<first.sourceLocation->file*/<<", func="<<first.sourceLocation->function<<", line="<<first.sourceLocation->line;
+            if (first.sourceLocation) out /*<<", file="<<first.sourceLocation->file*/ << ", func=" << first.sourceLocation->function << ", line=" << first.sourceLocation->line;
             // if (first.object) out<<", "<<first.object->className();
 
             out << std::endl;
@@ -122,11 +123,10 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
         }
     }
 
-    out<<"}"<<std::endl;
+    out << "}" << std::endl;
 
-    return endReference+1;
+    return endReference + 1;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -156,7 +156,7 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
 {
     VkResult result = VK_SUCCESS;
 
-    for(auto& gpuStats : frameStats.perDeviceGpuStats)
+    for (auto& gpuStats : frameStats.perDeviceGpuStats)
     {
         if (gpuStats && gpuStats->timestamps.size() > 0)
         {
@@ -165,7 +165,7 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
             result = vkGetQueryPoolResults(gpuStats->device->vk(), gpuStats->queryPool->vk(), 0, count, count * sizeof(uint64_t), gpuStats->timestamps.data(), sizeof(uint64_t), resultsFlags);
             if (result == VK_SUCCESS)
             {
-                for(uint32_t i = 0; i < count; ++i)
+                for (uint32_t i = 0; i < count; ++i)
                 {
                     auto& gpu_entry = log->entry(gpuStats->references[i]);
                     gpu_entry.gpuTime = gpuStats->timestamps[i];
@@ -208,7 +208,7 @@ void Profiler::leaveFrame(const SourceLocation* sl, uint64_t& reference, FrameSt
     {
         uint32_t safeReference = endReference - log->entries.size();
         size_t i = 0;
-        for(; i<log->frameIndices.size(); ++i)
+        for (; i < log->frameIndices.size(); ++i)
         {
             if (log->frameIndices[i] > safeReference)
             {
@@ -286,7 +286,6 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
                 warn("Timestamps not supported by device.");
             }
         }
-
 
         auto& entry = log->enter(reference, ProfileLog::COMMAND_BUFFER);
         entry.sourceLocation = sl;

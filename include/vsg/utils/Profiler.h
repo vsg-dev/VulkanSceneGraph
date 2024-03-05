@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #pragma once
 
-#include <vsg/utils/Instrumentation.h>
-#include <vsg/ui/FrameStamp.h>
 #include <vsg/io/stream.h>
+#include <vsg/ui/FrameStamp.h>
+#include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/Device.h>
 
 namespace vsg
@@ -22,7 +22,6 @@ namespace vsg
     class VSG_DECLSPEC ProfileLog : public Inherit<Object, ProfileLog>
     {
     public:
-
         ProfileLog(size_t size = 16384);
 
         enum Type : uint8_t
@@ -51,7 +50,6 @@ namespace vsg
         std::atomic_uint64_t index = 0;
         std::vector<uint64_t> frameIndices;
         double timestampScaleToMilliseconds = 1e-6;
-
 
         Entry& enter(uint64_t& reference, Type type)
         {
@@ -98,10 +96,9 @@ namespace vsg
     };
     VSG_type_name(ProfileLog)
 
-    class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
+        class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
     {
     public:
-
         struct Settings : public Inherit<Object, Settings>
         {
             unsigned int cpu_instrumentation_level = 1;
@@ -128,7 +125,8 @@ namespace vsg
         /// resources for collecting GPU stats for all devices for a single frame
         struct FrameStatsCollection
         {
-            FrameStatsCollection() : perDeviceGpuStats(VSG_MAX_DEVICES) {}
+            FrameStatsCollection() :
+                perDeviceGpuStats(VSG_MAX_DEVICES) {}
 
             std::vector<ref_ptr<GPUStatsCollection>> perDeviceGpuStats;
         };
@@ -157,4 +155,4 @@ namespace vsg
         void finish();
     };
     VSG_type_name(Profiler)
-}
+} // namespace vsg
