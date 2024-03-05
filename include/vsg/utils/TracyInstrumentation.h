@@ -151,7 +151,7 @@ namespace vsg
 #    endif
 
             TracyQueuePrepare(QueueType::ZoneBegin);
-            MemWrite(&item->zoneBegin.time, Profiler::GetTime());
+            MemWrite(&item->zoneBegin.time, tracy::Profiler::GetTime());
             MemWrite(&item->zoneBegin.srcloc, (uint64_t)slcloc);
             TracyQueueCommit(zoneBeginThread);
         }
@@ -165,7 +165,7 @@ namespace vsg
 #    endif
 
             TracyQueuePrepare(QueueType::ZoneEnd);
-            MemWrite(&item->zoneEnd.time, Profiler::GetTime());
+            MemWrite(&item->zoneEnd.time, tracy::Profiler::GetTime());
             TracyQueueCommit(zoneEndThread);
         }
 
@@ -208,14 +208,14 @@ namespace vsg
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
 
-            auto item = Profiler::QueueSerial();
+            auto item = tracy::Profiler::QueueSerial();
             MemWrite(&item->hdr.type, QueueType::GpuZoneBeginSerial);
-            MemWrite(&item->gpuZoneBegin.cpuTime, Profiler::GetTime());
+            MemWrite(&item->gpuZoneBegin.cpuTime, tracy::Profiler::GetTime());
             MemWrite(&item->gpuZoneBegin.srcloc, (uint64_t)slcloc);
             MemWrite(&item->gpuZoneBegin.thread, GetThreadHandle());
             MemWrite(&item->gpuZoneBegin.queryId, uint16_t(queryId));
             MemWrite(&item->gpuZoneBegin.context, ctx->GetId());
-            Profiler::QueueSerialFinish();
+            tracy::Profiler::QueueSerialFinish();
         }
 
         void leave(const SourceLocation*, uint64_t& reference, CommandBuffer& cmdbuf, const Object*) const override
@@ -229,13 +229,13 @@ namespace vsg
             const auto queryId = ctx->NextQueryId();
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
 
-            auto item = Profiler::QueueSerial();
+            auto item = tracy::Profiler::QueueSerial();
             MemWrite(&item->hdr.type, QueueType::GpuZoneEndSerial);
-            MemWrite(&item->gpuZoneEnd.cpuTime, Profiler::GetTime());
+            MemWrite(&item->gpuZoneEnd.cpuTime, tracy::Profiler::GetTime());
             MemWrite(&item->gpuZoneEnd.thread, GetThreadHandle());
             MemWrite(&item->gpuZoneEnd.queryId, uint16_t(queryId));
             MemWrite(&item->gpuZoneEnd.context, ctx->GetId());
-            Profiler::QueueSerialFinish();
+            tracy::Profiler::QueueSerialFinish();
         }
     };
     VSG_type_name(vsg::TracyInstrumentation);
