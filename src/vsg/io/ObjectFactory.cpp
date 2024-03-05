@@ -312,6 +312,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::PositionArrayState>();
     add<vsg::BillboardArrayState>();
     add<vsg::SharedObjects>();
+    add<vsg::ProfileLog>();
 
     // application
     add<vsg::EllipsoidModel>();
