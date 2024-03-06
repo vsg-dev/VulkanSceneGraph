@@ -240,6 +240,7 @@ set(SOURCES
     utils/LoadPagedLOD.cpp
     utils/FindDynamicObjects.cpp
     utils/PropagateDynamicObjects.cpp
+    utils/Profiler.cpp
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})
