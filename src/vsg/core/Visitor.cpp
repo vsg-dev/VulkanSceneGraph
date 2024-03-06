@@ -1016,6 +1016,42 @@ void Visitor::apply(Viewer& viewer)
 {
     apply(static_cast<Object&>(viewer));
 }
+void Visitor::apply(ViewMatrix& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(LookAt& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(RelativeViewMatrix& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(TrackingViewMatrix& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(ProjectionMatrix& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Perspective& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
+void Visitor::apply(Orthographic& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
+void Visitor::apply(RelativeProjection& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
+void Visitor::apply(EllipsoidPerspective& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

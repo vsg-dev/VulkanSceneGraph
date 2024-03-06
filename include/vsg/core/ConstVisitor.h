@@ -153,6 +153,15 @@ namespace vsg
     class RenderGraph;
     class View;
     class Viewer;
+    class ViewMatrix;
+    class LookAt;
+    class RelativeViewMatrix;
+    class TrackingViewMatrix;
+    class ProjectionMatrix;
+    class Perspective;
+    class Orthographic;
+    class RelativeProjection;
+    class EllipsoidPerspective;
 
     // forward declare general classes
     class FrameStamp;
@@ -431,6 +440,15 @@ namespace vsg
         virtual void apply(const RenderGraph&);
         virtual void apply(const View&);
         virtual void apply(const Viewer&);
+        virtual void apply(const ViewMatrix&);
+        virtual void apply(const LookAt&);
+        virtual void apply(const RelativeViewMatrix&);
+        virtual void apply(const TrackingViewMatrix&);
+        virtual void apply(const ProjectionMatrix&);
+        virtual void apply(const Perspective&);
+        virtual void apply(const Orthographic&);
+        virtual void apply(const RelativeProjection&);
+        virtual void apply(const EllipsoidPerspective&);
 
         // general classes
         virtual void apply(const FrameStamp&);
