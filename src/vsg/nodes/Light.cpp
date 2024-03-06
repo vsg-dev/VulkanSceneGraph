@@ -112,7 +112,11 @@ void DirectionalLight::read(Input& input)
     Light::read(input);
 
     input.read("direction", direction);
-    input.read("angleSubtended", angleSubtended);
+
+    if (input.version_greater_equal(1, 1, 2))
+    {
+        input.read("angleSubtended", angleSubtended);
+    }
 }
 
 void DirectionalLight::write(Output& output) const
@@ -120,7 +124,11 @@ void DirectionalLight::write(Output& output) const
     Light::write(output);
 
     output.write("direction", direction);
-    output.write("angleSubtended", angleSubtended);
+
+    if (output.version_greater_equal(1, 1, 2))
+    {
+        output.write("angleSubtended", angleSubtended);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
