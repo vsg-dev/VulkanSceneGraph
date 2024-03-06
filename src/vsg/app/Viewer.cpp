@@ -159,7 +159,6 @@ bool Viewer::advanceToNextFrame(double simulationTime)
 
     if (!active())
     {
-        if (instrumentation) instrumentation->finish();
         return false;
     }
 
