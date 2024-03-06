@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/app/Camera.h>
 
 using namespace vsg;
 
@@ -208,22 +209,35 @@ double TransformSampler::maxTime() const
 
 void TransformSampler::apply(mat4Value& matrix)
 {
-    matrix.set(mat4(translate(position) * vsg::rotate(rotation) * vsg::scale(scale)));
+    matrix.set(mat4(transform()));
 }
 
 void TransformSampler::apply(dmat4Value& matrix)
 {
-    matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
+    matrix.set(transform());
 }
 
 void TransformSampler::apply(MatrixTransform& mt)
 {
-    mt.matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
+    mt.matrix.set(transform());
 }
 
 void TransformSampler::apply(Joint& joint)
 {
-    joint.matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
+    joint.matrix.set(transform());
+}
+
+void TransformSampler::apply(LookAt& lookAt)
+{
+    lookAt.set(transform());
+}
+
+void TransformSampler::apply(Camera& camera)
+{
+    if (camera.viewMatrix)
+    {
+        camera.viewMatrix->accept(*this);
+    }
 }
 
 void TransformSampler::read(Input& input)
