@@ -20,11 +20,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// event handling for controlling the playing and recording of animation paths
-    class VSG_DECLSPEC AnimationHandler : public Inherit<Visitor, AnimationHandler>
+    /// event handling for controlling the playing and recording of camera animation paths
+    class VSG_DECLSPEC CameraAnimation : public Inherit<Visitor, CameraAnimation>
     {
     public:
-        explicit AnimationHandler(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        explicit CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
 
         /// object to track/modify
         ref_ptr<Object> object;
@@ -44,7 +44,6 @@ namespace vsg
 
         bool recording = false;
         bool playing = false;
-        bool printFrameStatsToConsole = false;
         double simulationTime = 0.0;
         double startTime = 0.0;
 
@@ -61,7 +60,7 @@ namespace vsg
 
     protected:
     };
-    VSG_type_name(vsg::AnimationHandler);
+    VSG_type_name(vsg::CameraAnimation);
 
 
 } // namespace vsg

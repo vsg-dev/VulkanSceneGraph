@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/AnimationHandler.h>
+#include <vsg/animation/CameraAnimation.h>
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 
-AnimationHandler::AnimationHandler(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
+CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
     options(in_options)
@@ -65,7 +65,7 @@ AnimationHandler::AnimationHandler(ref_ptr<Object> in_object, const Path& in_fil
     }
 }
 
-void AnimationHandler::apply(Camera& camera)
+void CameraAnimation::apply(Camera& camera)
 {
     if (transformSampler)
     {
@@ -82,7 +82,7 @@ void AnimationHandler::apply(Camera& camera)
     }
 }
 
-void AnimationHandler::apply(MatrixTransform& transform)
+void CameraAnimation::apply(MatrixTransform& transform)
 {
     if (transformSampler)
     {
@@ -98,7 +98,7 @@ void AnimationHandler::apply(MatrixTransform& transform)
     }
 }
 
-void AnimationHandler::play()
+void CameraAnimation::play()
 {
     if (playing) return;
 
@@ -106,7 +106,7 @@ void AnimationHandler::play()
     if (playing) info("Starting playback.");
 }
 
-void AnimationHandler::record()
+void CameraAnimation::record()
 {
     if (recording) return;
 
@@ -136,7 +136,7 @@ void AnimationHandler::record()
     }
 }
 
-void AnimationHandler::stop()
+void CameraAnimation::stop()
 {
     if (playing)
     {
@@ -160,7 +160,7 @@ void AnimationHandler::stop()
     }
 }
 
-void AnimationHandler::apply(KeyPressEvent& keyPress)
+void CameraAnimation::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.keyModified == togglePlaybackKey)
     {
@@ -190,7 +190,7 @@ void AnimationHandler::apply(KeyPressEvent& keyPress)
     }
 }
 
-void AnimationHandler::apply(FrameEvent& frame)
+void CameraAnimation::apply(FrameEvent& frame)
 {
     simulationTime = frame.frameStamp->simulationTime;
 
