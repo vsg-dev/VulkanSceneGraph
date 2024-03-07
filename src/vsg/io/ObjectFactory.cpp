@@ -304,7 +304,6 @@ ObjectFactory::ObjectFactory()
     add<vsg::NullArrayState>();
 
     // utils
-    add<vsg::AnimationPath>();
     add<vsg::ShaderSet>();
     add<vsg::ViewDependentStateBinding>();
     add<vsg::PositionAndDisplacementMapArrayState>();

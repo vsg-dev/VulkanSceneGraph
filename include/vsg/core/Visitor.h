@@ -58,7 +58,6 @@ namespace vsg
     // forward declare animation classes
     class Animation;
     class AnimationGroup;
-    class AnimationPath;
     class AnimationSampler;
     class TransformSampler;
     class MorphSampler;
@@ -153,6 +152,15 @@ namespace vsg
     class RenderGraph;
     class View;
     class Viewer;
+    class ViewMatrix;
+    class LookAt;
+    class RelativeViewMatrix;
+    class TrackingViewMatrix;
+    class ProjectionMatrix;
+    class Perspective;
+    class Orthographic;
+    class RelativeProjection;
+    class EllipsoidPerspective;
 
     // forward declare general classes
     class FrameStamp;
@@ -337,7 +345,6 @@ namespace vsg
         // animation
         virtual void apply(Animation&);
         virtual void apply(AnimationGroup&);
-        virtual void apply(AnimationPath&);
         virtual void apply(AnimationSampler&);
         virtual void apply(JointSampler&);
         virtual void apply(MorphSampler&);
@@ -424,13 +431,22 @@ namespace vsg
         // utils
         virtual void apply(ShaderCompileSettings&);
 
-        // viewer
+        // app
         virtual void apply(Camera&);
         virtual void apply(CommandGraph&);
         virtual void apply(SecondaryCommandGraph&);
         virtual void apply(RenderGraph&);
         virtual void apply(View&);
         virtual void apply(Viewer&);
+        virtual void apply(ViewMatrix&);
+        virtual void apply(LookAt&);
+        virtual void apply(RelativeViewMatrix&);
+        virtual void apply(TrackingViewMatrix&);
+        virtual void apply(ProjectionMatrix&);
+        virtual void apply(Perspective&);
+        virtual void apply(Orthographic&);
+        virtual void apply(RelativeProjection&);
+        virtual void apply(EllipsoidPerspective&);
 
         // general classes
         virtual void apply(FrameStamp&);
