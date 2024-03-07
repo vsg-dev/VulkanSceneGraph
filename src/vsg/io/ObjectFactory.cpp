@@ -279,6 +279,9 @@ ObjectFactory::ObjectFactory()
     add<vsg::Camera>();
     add<vsg::LookAt>();
     add<vsg::Perspective>();
+    add<vsg::EllipsoidPerspective>();
+    add<vsg::EllipsoidModel>();
+    add<vsg::Orthographic>();
 
     // mesh shading
     add<vsg::DrawMeshTasks>();

@@ -66,13 +66,14 @@ namespace vsg
             aspectRatio *= (newRatio / oldRatio);
         }
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         double fieldOfViewY;
         double aspectRatio;
         double nearDistance;
         double farDistance;
+
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::Perspective);
 
@@ -116,6 +117,10 @@ namespace vsg
         double top;
         double nearDistance;
         double farDistance;
+
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::Orthographic);
 
@@ -151,13 +156,11 @@ namespace vsg
     class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {
     public:
+        EllipsoidPerspective() {}
+
         EllipsoidPerspective(ref_ptr<LookAt> la, ref_ptr<EllipsoidModel> em) :
             lookAt(la),
-            ellipsoidModel(em),
-            fieldOfViewY(60.0),
-            aspectRatio(1.0),
-            nearFarRatio(0.0001),
-            horizonMountainHeight(1000.0)
+            ellipsoidModel(em)
         {
         }
 
@@ -207,11 +210,14 @@ namespace vsg
 
         ref_ptr<LookAt> lookAt;
         ref_ptr<EllipsoidModel> ellipsoidModel;
+        double fieldOfViewY = 60.0;
+        double aspectRatio = 1.0;
+        double nearFarRatio = 0.0001;
+        double horizonMountainHeight = 1000.0;
 
-        double fieldOfViewY;
-        double aspectRatio;
-        double nearFarRatio;
-        double horizonMountainHeight;
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::EllipsoidPerspective);
 

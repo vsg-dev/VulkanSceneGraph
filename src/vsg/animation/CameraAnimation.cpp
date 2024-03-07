@@ -67,9 +67,9 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
 
 CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
-    animation(in_animation),
     filename(in_filename),
-    options(in_options)
+    options(in_options),
+    animation(in_animation)
 {
     if (animation)
     {
