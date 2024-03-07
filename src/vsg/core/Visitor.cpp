@@ -655,10 +655,6 @@ void Visitor::apply(AnimationGroup& value)
 {
     apply(static_cast<Group&>(value));
 }
-void Visitor::apply(AnimationPath& animationPath)
-{
-    apply(static_cast<Object&>(animationPath));
-}
 void Visitor::apply(AnimationSampler& sampler)
 {
     apply(static_cast<Object&>(sampler));

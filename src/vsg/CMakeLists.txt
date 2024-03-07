@@ -184,7 +184,6 @@ set(SOURCES
     animation/Animation.cpp
     animation/AnimationGroup.cpp
     animation/AnimationManager.cpp
-    animation/AnimationPath.cpp
     animation/CameraAnimation.cpp
     animation/FindAnimations.cpp
     animation/Joint.cpp

@@ -20,11 +20,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// event handling for controlling the playing and recording of camera animation paths
+    /// event handler for controlling the playing and recording of camera animation paths
     class VSG_DECLSPEC CameraAnimation : public Inherit<Visitor, CameraAnimation>
     {
     public:
         explicit CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
 
         /// object to track/modify
         ref_ptr<Object> object;

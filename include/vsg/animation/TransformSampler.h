@@ -59,6 +59,12 @@ namespace vsg
             scales.clear();
         }
 
+        void add(double time, const dvec3& position, const dquat& rotation)
+        {
+            positions.push_back(VectorKey{time, position});
+            rotations.push_back(QuatKey{time, rotation});
+        }
+
         void add(double time, const dvec3& position, const dquat& rotation, const dvec3& scale)
         {
             positions.push_back(VectorKey{time, position});

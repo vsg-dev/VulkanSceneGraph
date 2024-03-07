@@ -58,7 +58,6 @@ namespace vsg
     // forward declare animation classes
     class Animation;
     class AnimationGroup;
-    class AnimationPath;
     class AnimationSampler;
     class JointSampler;
     class MorphSampler;
@@ -346,7 +345,6 @@ namespace vsg
         // animation
         virtual void apply(const Animation&);
         virtual void apply(const AnimationGroup&);
-        virtual void apply(const AnimationPath&);
         virtual void apply(const AnimationSampler&);
         virtual void apply(const JointSampler&);
         virtual void apply(const MorphSampler&);

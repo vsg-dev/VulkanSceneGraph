@@ -655,10 +655,6 @@ void ConstVisitor::apply(const AnimationGroup& value)
 {
     apply(static_cast<const Group&>(value));
 }
-void ConstVisitor::apply(const AnimationPath& animationPath)
-{
-    apply(static_cast<const Object&>(animationPath));
-}
 void ConstVisitor::apply(const AnimationSampler& sampler)
 {
     apply(static_cast<const Object&>(sampler));
