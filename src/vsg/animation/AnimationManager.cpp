@@ -26,7 +26,7 @@ void AnimationManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrum
 
 bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation, double startTime)
 {
-    CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager play animation", COLOR_VIEWER);
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "AnimationManager play animation", COLOR_VIEWER);
 
     bool already_active = animation->active();
     if (animation->start(_simulationTime, startTime))
@@ -43,7 +43,7 @@ bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation, double start
 
 bool AnimationManager::stop(vsg::ref_ptr<vsg::Animation> animation)
 {
-    CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager stop animation", COLOR_VIEWER);
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "AnimationManager stop animation", COLOR_VIEWER);
 
     auto itr = std::find(animations.begin(), animations.end(), animation);
     if (itr != animations.end())
@@ -72,7 +72,7 @@ bool AnimationManager::stop()
 
 bool AnimationManager::update(vsg::Animation& animation)
 {
-    CPU_INSTRUMENTATION_L1_NC(instrumentation, "AnimationManager update animation", COLOR_VIEWER);
+    CPU_INSTRUMENTATION_L2_NC(instrumentation, "AnimationManager update animation", COLOR_VIEWER);
     return animation.update(_simulationTime);
 }
 
