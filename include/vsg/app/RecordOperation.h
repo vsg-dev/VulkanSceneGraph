@@ -12,11 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Logger.h>
-#include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/OperationQueue.h>
-
-#include <list>
+#include <vsg/app/CommandGraph.h>
+#include <vsg/io/DatabasePager.h>
 
 namespace vsg
 {
