@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
+#include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/Switch.h>
@@ -111,6 +112,7 @@ namespace vsg
         {
             node.descriptorSet->accept(visitor);
             if (node.preRenderCommandGraph) node.preRenderCommandGraph->accept(visitor);
+            for(auto sm : node.shadowMaps) if (sm.commandGraph) sm.commandGraph->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
@@ -152,15 +154,26 @@ namespace vsg
         double maxShadowDistance = 1e8;
         double shadowMapBias = 0.005;
         double lambda = 0.5;
+        uint32_t numThreads = 4;
 
-        // Shadow backend.
+        bool compiled = false;
+
+        // single threaded shadow backend.
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
+
+        // multi-threaded shadow backend.
+        ref_ptr<Latch> recordCompletedLatch;
+        ref_ptr<OperationThreads> threads;
 
         struct ShadowMap
         {
             ref_ptr<RenderGraph> renderGraph;
             ref_ptr<View> view;
+
+            // threading support
+            ref_ptr<RecordOperation> recordOperation;
+            ref_ptr<CommandGraph> commandGraph;
         };
 
         mutable std::vector<ShadowMap> shadowMaps;

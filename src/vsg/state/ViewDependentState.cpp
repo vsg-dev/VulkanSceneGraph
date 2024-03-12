@@ -16,9 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/write.h>
+#include <vsg/io/DatabasePager.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/Context.h>
+#include <vsg/threading/OperationThreads.h>
 
 using namespace vsg;
 
@@ -342,16 +345,26 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     // if not active then don't enable shadow maps
     if (maxShadowMaps == 0) return;
 
-    // create a switch to toggle on/off the render to texture subgraphs for each shadowmap layer
-    preRenderSwitch = Switch::create();
-
-    preRenderCommandGraph = CommandGraph::create();
-    preRenderCommandGraph->submitOrder = -1;
-    preRenderCommandGraph->addChild(preRenderSwitch);
 
     auto tcon = TraverseChildrenOfNode::create(view);
 
     Mask shadowMask = 0x1; // TODO: do we inherit from main scene? how?
+
+    if (numThreads > 0)
+    {
+        threads = OperationThreads::create(numThreads);
+        recordCompletedLatch = Latch::create(0);
+        //info("Allocated ", numThreads, "threads.");
+    }
+    else
+    {
+        // create a switch to toggle on/off the render to texture subgraphs for each shadowmap layer
+        preRenderSwitch = Switch::create();
+
+        preRenderCommandGraph = CommandGraph::create();
+        preRenderCommandGraph->submitOrder = -1;
+        preRenderCommandGraph->addChild(preRenderSwitch);
+    }
 
     ref_ptr<View> first_view;
     shadowMaps.resize(maxShadowMaps);
@@ -373,8 +386,22 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
         shadowMap.renderGraph = RenderGraph::create();
         shadowMap.renderGraph->addChild(shadowMap.view);
-        preRenderSwitch->addChild(MASK_ALL, shadowMap.renderGraph);
+
+        if (numThreads > 0)
+        {
+            shadowMap.commandGraph = CommandGraph::create();
+            shadowMap.commandGraph->submitOrder = -1;
+            shadowMap.commandGraph->addChild(shadowMap.renderGraph);
+
+            shadowMap.recordOperation = RecordOperation::create();
+            shadowMap.recordOperation->commandGraph = shadowMap.commandGraph;
+        }
+        else
+        {
+            preRenderSwitch->addChild(MASK_ALL, shadowMap.renderGraph);
+        }
     }
+
 }
 
 void ViewDependentState::update(ResourceRequirements& requirements)
@@ -389,14 +416,19 @@ void ViewDependentState::compile(Context& context)
 {
     CPU_INSTRUMENTATION_L1_NC(context.instrumentation, "ViewDependentState compile", COLOR_COMPILE);
 
+    if (compiled) return;
+
+    compiled = true;
+
     descriptorSet->compile(context);
 
-    if ((view->features & RECORD_SHADOW_MAPS) != 0 && preRenderCommandGraph && !preRenderCommandGraph->device)
+    if ((view->features & RECORD_SHADOW_MAPS) != 0)
     {
-        preRenderCommandGraph->device = context.device;
-
-        // TODO
-        preRenderCommandGraph->queueFamily = 0;
+        if (preRenderCommandGraph)
+        {
+            preRenderCommandGraph->device = context.device;
+            preRenderCommandGraph->queueFamily = 0; // TODO
+        }
 
         auto extent = shadowDepthImage->extent;
 
@@ -405,6 +437,12 @@ void ViewDependentState::compile(Context& context)
         uint32_t layer = 0;
         for (auto& shadowMap : shadowMaps)
         {
+            if (shadowMap.commandGraph)
+            {
+                shadowMap.commandGraph->device = context.device;
+                shadowMap.commandGraph->queueFamily = 0; // TODO
+            }
+
             // create depth buffer
             auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
             depthImageView->viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
@@ -523,8 +561,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     uint32_t numShadowMaps = static_cast<uint32_t>(shadowMaps.size());
     if (preRenderSwitch)
         preRenderSwitch->setAllChildren(false);
-    else
-        numShadowMaps = 0;
 
     auto computeFrustumBounds = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
         dbox bounds;
@@ -618,7 +654,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
             const auto& shadowMap = shadowMaps[shadowMapIndex];
-            preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
 
             const auto& camera = shadowMap.view->camera;
             auto lookAt = camera->viewMatrix.cast<LookAt>();
@@ -656,6 +691,28 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             (*light_itr++) = m[3];
 
             // info("m = ", m);
+
+            if (preRenderSwitch)
+            {
+                preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
+            }
+            else
+            {
+                if (rt.instrumentation && !shadowMap.commandGraph->instrumentation)
+                {
+                    shadowMap.commandGraph->instrumentation = shareOrDuplicateForThreadSafety(rt.instrumentation);
+                }
+
+                shadowMap.recordOperation->frameStamp = rt.getFrameStamp();
+                shadowMap.recordOperation->databasePager = rt.getDatabasePager();
+                shadowMap.recordOperation->recordedCommandBuffers = rt.recordedCommandBuffers;
+                shadowMap.recordOperation->latch = recordCompletedLatch;
+                recordCompletedLatch->count_up();
+
+                //info("Adding ", shadowMap.recordOperation);
+
+                threads->add(shadowMap.recordOperation);
+            }
 
             // advance to the next shadowMap
             shadowMapIndex++;
@@ -717,15 +774,23 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
     }
 
-    if (requiresPerRenderShadowMaps && preRenderCommandGraph)
+    if (requiresPerRenderShadowMaps)
     {
-        if (rt.instrumentation && !preRenderCommandGraph->instrumentation)
+        if (preRenderCommandGraph)
         {
-            preRenderCommandGraph->instrumentation = shareOrDuplicateForThreadSafety(rt.instrumentation);
-        }
+            if (rt.instrumentation && !preRenderCommandGraph->instrumentation)
+            {
+                preRenderCommandGraph->instrumentation = shareOrDuplicateForThreadSafety(rt.instrumentation);
+            }
 
-        // info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
-        preRenderCommandGraph->accept(rt);
+            // info("ViewDependentState::traverse(RecordTraversal&) doing pre render command graph. shadowMapIndex = ", shadowMapIndex);
+            preRenderCommandGraph->accept(rt);
+        }
+        else
+        {
+            //info("Waiting for latch");
+            recordCompletedLatch->wait();
+        }
     }
 }
 

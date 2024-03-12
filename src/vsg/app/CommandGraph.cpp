@@ -147,3 +147,13 @@ ref_ptr<CommandGraph> vsg::createCommandGraphForView(ref_ptr<Window> window, ref
 
     return commandGraph;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// RecordOperation
+//
+void RecordOperation::run()
+{
+    commandGraph->record(recordedCommandBuffers, frameStamp, databasePager);
+    latch->count_down();
+}
