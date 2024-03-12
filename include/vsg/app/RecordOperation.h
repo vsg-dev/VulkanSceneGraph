@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/CommandGraph.h>
 #include <vsg/io/DatabasePager.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/threading/OperationQueue.h>
 
 namespace vsg
