@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/CommandGraph.h>
-#include <vsg/app/RenderGraph.h>
 #include <vsg/app/RecordOperation.h>
+#include <vsg/app/RenderGraph.h>
 #include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/Light.h>
@@ -113,7 +113,8 @@ namespace vsg
         {
             node.descriptorSet->accept(visitor);
             if (node.preRenderCommandGraph) node.preRenderCommandGraph->accept(visitor);
-            for(auto sm : node.shadowMaps) if (sm.commandGraph) sm.commandGraph->accept(visitor);
+            for (auto sm : node.shadowMaps)
+                if (sm.commandGraph) sm.commandGraph->accept(visitor);
         }
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }

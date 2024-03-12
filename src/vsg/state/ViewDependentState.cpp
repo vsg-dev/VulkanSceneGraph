@@ -13,15 +13,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/core/compare.h>
+#include <vsg/io/DatabasePager.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/write.h>
-#include <vsg/io/DatabasePager.h>
-#include <vsg/ui/FrameStamp.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
-#include <vsg/vk/Context.h>
 #include <vsg/threading/OperationThreads.h>
+#include <vsg/ui/FrameStamp.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -345,7 +345,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     // if not active then don't enable shadow maps
     if (maxShadowMaps == 0) return;
 
-
     auto tcon = TraverseChildrenOfNode::create(view);
 
     Mask shadowMask = 0x1; // TODO: do we inherit from main scene? how?
@@ -401,7 +400,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
             preRenderSwitch->addChild(MASK_ALL, shadowMap.renderGraph);
         }
     }
-
 }
 
 void ViewDependentState::update(ResourceRequirements& requirements)
