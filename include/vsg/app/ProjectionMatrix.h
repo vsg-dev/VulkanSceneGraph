@@ -78,7 +78,7 @@ namespace vsg
     VSG_type_name(vsg::Perspective);
 
     /// Orthographic is a ProjectionMatrix that implements the glOrtho model for setting the projection matrix.
-    class Orthographic : public Inherit<ProjectionMatrix, Orthographic>
+    class VSG_DECLSPEC Orthographic : public Inherit<ProjectionMatrix, Orthographic>
     {
     public:
         Orthographic() :
@@ -153,7 +153,7 @@ namespace vsg
 
     /// EllipsoidPerspective is a ProjectionMatrix that implements the gluPerspective model for setting the projection matrix,
     /// with automatic clamping of the near/far values to an ellipsoidModel, typically used for rendering whole earth models.
-    class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
+    class VSG_DECLSPEC EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {
     public:
         EllipsoidPerspective() {}
