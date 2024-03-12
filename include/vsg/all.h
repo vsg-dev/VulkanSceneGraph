@@ -168,6 +168,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/Barrier.h>
 #include <vsg/threading/FrameBlock.h>
 #include <vsg/threading/Latch.h>
+#include <vsg/threading/Operation.h>
 #include <vsg/threading/OperationQueue.h>
 #include <vsg/threading/OperationThreads.h>
 #include <vsg/threading/atomics.h>
@@ -198,6 +199,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Presentation.h>
 #include <vsg/app/ProjectionMatrix.h>
 #include <vsg/app/RecordAndSubmitTask.h>
+#include <vsg/app/RecordOperation.h>
 #include <vsg/app/RecordTraversal.h>
 #include <vsg/app/RenderGraph.h>
 #include <vsg/app/SecondaryCommandGraph.h>

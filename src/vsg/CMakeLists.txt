@@ -165,6 +165,7 @@ set(SOURCES
     app/ProjectionMatrix.cpp
     app/UpdateOperations.cpp
     app/RecordTraversal.cpp
+    app/RecordOperation.cpp
     app/CompileTraversal.cpp
 
     raytracing/AccelerationGeometry.cpp

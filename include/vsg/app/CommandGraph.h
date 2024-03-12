@@ -66,18 +66,4 @@ namespace vsg
     /// convenience function that sets up RenderGraph inside primary CommandGraph to render the specified scene graph from the specified Camera view
     extern VSG_DECLSPEC ref_ptr<CommandGraph> createCommandGraphForView(ref_ptr<Window> window, ref_ptr<Camera> camera, ref_ptr<Node> scenegraph, VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE, bool assignHeadlight = true);
 
-    /// Operation that traverses a command graph to record a command buffer then decrements a latch.
-    struct VSG_DECLSPEC RecordOperation : public Inherit<Operation, RecordOperation>
-    {
-        ref_ptr<CommandGraph> commandGraph;
-        ref_ptr<FrameStamp> frameStamp;
-        ref_ptr<DatabasePager> databasePager;
-        ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
-        ref_ptr<Latch> latch;
-
-        void run() override;
-    };
-    VSG_type_name(vsg::RecordOperation);
-
-
 } // namespace vsg

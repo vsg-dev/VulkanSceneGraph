@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
+#include <vsg/app/RecordOperation.h>
 #include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
 #include <vsg/nodes/Light.h>

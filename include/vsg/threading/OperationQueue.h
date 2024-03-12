@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Latch.h>
+#include <vsg/threading/Operation.h>
 
 #include <list>
 
@@ -127,16 +128,6 @@ namespace vsg
         container_type _queue;
         ref_ptr<ActivityStatus> _status;
     };
-
-    // clang-format screws up handling of VSG_type_name macro so have to switch it off.
-    // clang-format off
-
-    /// Operation base class
-    struct Operation : public Object
-    {
-        virtual void run() = 0;
-    };
-    VSG_type_name(vsg::Operation)
 
     /// OperationQueue is a thread safe queue of vsg::Operation
     using OperationQueue = ThreadSafeQueue<ref_ptr<Operation>>;
