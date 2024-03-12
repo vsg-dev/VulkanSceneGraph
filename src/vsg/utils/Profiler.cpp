@@ -206,7 +206,7 @@ void Profiler::leaveFrame(const SourceLocation* sl, uint64_t& reference, FrameSt
 
     if (endReference >= static_cast<uint64_t>(log->entries.size()))
     {
-        uint32_t safeReference = endReference - log->entries.size();
+        uint64_t safeReference = endReference - static_cast<uint64_t>(log->entries.size());
         size_t i = 0;
         for (; i < log->frameIndices.size(); ++i)
         {
