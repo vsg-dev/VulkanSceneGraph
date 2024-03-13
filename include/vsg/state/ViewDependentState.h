@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/threading/OperationThreads.h>
+#include <vsg/threading/Affinity.h>
 
 namespace vsg
 {
@@ -168,6 +169,7 @@ namespace vsg
         // multi-threaded shadow backend.
         ref_ptr<Latch> recordCompletedLatch;
         ref_ptr<OperationThreads> threads;
+        Affinity affinity;
 
         struct ShadowMap
         {

@@ -352,6 +352,30 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     if (numThreads > 0)
     {
         threads = OperationThreads::create(numThreads);
+        if (affinity)
+        {
+            uint32_t numCpus = static_cast<uint32_t>(affinity.cpus.size());
+            if (numCpus < numThreads)
+            {
+                // share the same affinity across all threads.
+                info("Setting thread affinity to share the same affinity");
+                for(auto& thread : threads->threads)
+                {
+                    setAffinity(thread, affinity);
+                }
+            }
+            else
+            {
+                auto cpu_itr = affinity.cpus.begin();
+                for(auto& thread : threads->threads)
+                {
+                    info("Setting thread affinity to ",*cpu_itr);
+                    setAffinity(thread, Affinity(*(cpu_itr++)));
+                }
+            }
+
+        }
+
         recordCompletedLatch = Latch::create(0);
         //info("Allocated ", numThreads, "threads.");
     }
