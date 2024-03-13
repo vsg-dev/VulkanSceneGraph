@@ -249,7 +249,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
             else
             {
                 // unable to compute bound so do not decorate with a CullNode.
-                return node;
+                return subgraph;
             }
         }
         else
