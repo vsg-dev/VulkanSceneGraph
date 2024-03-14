@@ -387,6 +387,9 @@ void ViewDependentState::update(ResourceRequirements& requirements)
 
 void ViewDependentState::compile(Context& context)
 {
+    if (compiled) return;
+    compiled = true;
+
     CPU_INSTRUMENTATION_L1_NC(context.instrumentation, "ViewDependentState compile", COLOR_COMPILE);
 
     descriptorSet->compile(context);

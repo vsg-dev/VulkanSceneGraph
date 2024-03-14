@@ -154,6 +154,7 @@ namespace vsg
         double lambda = 0.5;
 
         // Shadow backend.
+        bool compiled = false;
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
 
