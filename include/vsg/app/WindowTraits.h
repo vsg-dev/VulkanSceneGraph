@@ -94,6 +94,9 @@ namespace vsg
         std::any nativeWindow;
         std::any systemConnection;
 
+        // If true, then install an event filter for an existing Win32 window
+        bool installEventHandler = false;
+
     protected:
         virtual ~WindowTraits() {}
     };
