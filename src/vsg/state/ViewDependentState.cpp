@@ -660,6 +660,13 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             // info("m = ", m);
 
+            m = inverse(m);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
+
             // advance to the next shadowMap
             shadowMapIndex++;
         };
