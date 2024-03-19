@@ -93,7 +93,8 @@ DirectionalLight::DirectionalLight()
 DirectionalLight::DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     direction(rhs.direction),
-    angleSubtended(rhs.angleSubtended)
+    angleSubtended(rhs.angleSubtended),
+    fixedPcfRadius(rhs.fixedPcfRadius)
 {
 }
 
@@ -104,7 +105,8 @@ int DirectionalLight::compare(const Object& rhs_object) const
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(direction, rhs.direction)) != 0) return result;
-    return compare_value(angleSubtended, rhs.angleSubtended);
+    if ((result = compare_value(angleSubtended, rhs.angleSubtended)) != 0) return result;
+    return compare_value(fixedPcfRadius, rhs.fixedPcfRadius);
 }
 
 void DirectionalLight::read(Input& input)
@@ -116,6 +118,7 @@ void DirectionalLight::read(Input& input)
     if (input.version_greater_equal(1, 1, 2))
     {
         input.read("angleSubtended", angleSubtended);
+        input.read("fixedPcfRadius", fixedPcfRadius);
     }
 }
 
@@ -128,6 +131,7 @@ void DirectionalLight::write(Output& output) const
     if (output.version_greater_equal(1, 1, 2))
     {
         output.write("angleSubtended", angleSubtended);
+        output.write("fixedPcfRadius", fixedPcfRadius);
     }
 }
 

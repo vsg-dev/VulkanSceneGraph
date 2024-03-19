@@ -569,7 +569,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
         uint32_t activeNumShadowMaps = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), std::tan(light->angleSubtended / 2), 0.0f, 0.0f); // shadow map setting
+        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), std::tan(light->angleSubtended / 2), 0.0f, light->fixedPcfRadius); // shadow map setting
 
         if (activeNumShadowMaps == 0) continue;
 

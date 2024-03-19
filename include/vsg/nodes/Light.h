@@ -71,6 +71,7 @@ namespace vsg
 
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
         float angleSubtended = 0.0090f;
+        float fixedPcfRadius = 0.05f;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalLight::create(*this, copyop); }
