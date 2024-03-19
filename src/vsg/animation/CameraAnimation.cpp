@@ -22,7 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
@@ -34,7 +33,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
         {
             if (animation = read_object.cast<Animation>())
             {
-                for(auto sampler : animation->samplers)
+                for (auto sampler : animation->samplers)
                 {
                     if (auto ts = sampler.cast<TransformSampler>())
                     {
@@ -73,7 +72,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> i
 {
     if (animation)
     {
-        for(auto& sampler : animation->samplers)
+        for (auto& sampler : animation->samplers)
         {
             if (auto ts = sampler.cast<TransformSampler>())
             {

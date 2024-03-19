@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Animation.h>
-#include <vsg/maths/transform.h>
 #include <vsg/app/ViewMatrix.h>
+#include <vsg/maths/transform.h>
 
 namespace vsg
 {

@@ -12,10 +12,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/animation/TransformSampler.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/maths/quat.h>
 #include <vsg/ui/KeyEvent.h>
-#include <vsg/animation/TransformSampler.h>
 
 namespace vsg
 {
@@ -62,6 +62,5 @@ namespace vsg
     protected:
     };
     VSG_type_name(vsg::CameraAnimation);
-
 
 } // namespace vsg
