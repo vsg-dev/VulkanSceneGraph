@@ -37,6 +37,10 @@ namespace vsg
         int32_t binNumber = 0;
         SortOrder sortOrder = NO_SORT;
 
+        void clear();
+
+        void add(State* state, double value, const Node* node);
+
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Bin::create(*this, copyop); }
         int compare(const Object& rhs) const override;
@@ -45,10 +49,6 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
-
-        void clear();
-
-        void add(State* state, double value, const Node* node);
 
     protected:
         virtual ~Bin();

@@ -298,7 +298,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
         auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
+        addToBin(depthSorted.binNumber, distance, depthSorted.child);
     }
 }
 
@@ -586,4 +586,9 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     {
         commandGraph.traverse(*this);
     }
+}
+
+void RecordTraversal::addToBin(unsigned int binNumber, double value, const Node* node)
+{
+    _bins[binNumber - _minimumBinNumber]->add(_state, value, node);
 }

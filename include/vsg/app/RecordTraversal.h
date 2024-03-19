@@ -147,6 +147,8 @@ namespace vsg
         void apply(const View& view);
         void apply(const CommandGraph& commandGraph);
 
+        void addToBin(unsigned int binNumber, double value, const Node* node);
+
         // clear the bins to record a new frame.
         void clearBins();
 
