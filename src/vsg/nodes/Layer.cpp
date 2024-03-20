@@ -22,6 +22,7 @@ Layer::Layer()
 
 Layer::Layer(const Layer& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
+    mask(rhs.mask),
     binNumber(rhs.binNumber),
     value(rhs.value),
     child(copyop(rhs.child))
@@ -45,6 +46,7 @@ int Layer::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(mask, rhs.mask)) != 0) return result;
     if ((result = compare_value(binNumber, rhs.binNumber)) != 0) return result;
     if ((result = compare_value(value, rhs.value)) != 0) return result;
     return compare_pointer(child, rhs.child);
@@ -54,6 +56,7 @@ void Layer::read(Input& input)
 {
     Node::read(input);
 
+    input.read("mask", mask);
     input.read("binNumber", binNumber);
     input.read("value", value);
     input.readObject("child", child);
@@ -63,6 +66,7 @@ void Layer::write(Output& output) const
 {
     Node::write(output);
 
+    output.write("mask", mask);
     output.write("binNumber", binNumber);
     output.write("value", value);
     output.writeObject("child", child.get());

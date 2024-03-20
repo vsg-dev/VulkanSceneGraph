@@ -306,8 +306,10 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 void RecordTraversal::apply(const Layer& layer)
 {
     CPU_INSTRUMENTATION_L2_NCO(instrumentation, "Layer", COLOR_RECORD_L2, &layer);
-
-    addToBin(layer.binNumber, layer.value, layer.child);
+    if ((traversalMask & (overrideMask | layer.mask)) != MASK_OFF)
+    {
+        addToBin(layer.binNumber, layer.value, layer.child);
+    }
 }
 
 void RecordTraversal::apply(const VertexDraw& vd)

@@ -26,6 +26,7 @@ namespace vsg
         Layer(const Layer& rhs, const CopyOp& copyop = {});
         Layer(int32_t in_binNumber, double value, ref_ptr<Node> in_child);
 
+        Mask mask = MASK_ALL;
         int32_t binNumber = 0;
         double value = 0.0;
         ref_ptr<Node> child;
@@ -34,9 +35,9 @@ namespace vsg
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Layer::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
-        void traverse(Visitor& visitor) override { child->accept(visitor); }
-        void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }
-        void traverse(RecordTraversal& visitor) const override { child->accept(visitor); }
+        void traverse(Visitor& visitor) override { if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor); }
+        void traverse(ConstVisitor& visitor) const override { if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor); }
+        void traverse(RecordTraversal& visitor) const override { if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
