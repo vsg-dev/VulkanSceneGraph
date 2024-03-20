@@ -510,7 +510,7 @@ void RecordTraversal::apply(const View& view)
     _bins.resize(max_binNumber - min_binNumber + 1);
     for (auto& bin : view.bins)
     {
-        _bins[bin->binNumber] = bin;
+        _bins[bin->binNumber - min_binNumber] = bin;
         bin->clear();
     }
 
