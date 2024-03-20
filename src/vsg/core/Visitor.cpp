@@ -589,6 +589,10 @@ void Visitor::apply(DepthSorted& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(Layer& value)
+{
+    apply(static_cast<Node&>(value));
+}
 void Visitor::apply(Bin& value)
 {
     apply(static_cast<Node&>(value));

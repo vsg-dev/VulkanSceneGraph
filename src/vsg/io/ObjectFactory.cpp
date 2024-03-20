@@ -181,6 +181,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::VertexIndexDraw>();
     add<vsg::Bin>();
     add<vsg::DepthSorted>();
+    add<vsg::Layer>();
     add<vsg::Switch>();
     add<vsg::Light>();
     add<vsg::AmbientLight>();

@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/Layer.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
@@ -300,6 +301,13 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
 
         addToBin(depthSorted.binNumber, distance, depthSorted.child);
     }
+}
+
+void RecordTraversal::apply(const Layer& layer)
+{
+    CPU_INSTRUMENTATION_L2_NCO(instrumentation, "Layer", COLOR_RECORD_L2, &layer);
+
+    addToBin(layer.binNumber, layer.value, layer.child);
 }
 
 void RecordTraversal::apply(const VertexDraw& vd)

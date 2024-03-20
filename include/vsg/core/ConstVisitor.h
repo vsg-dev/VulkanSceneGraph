@@ -40,6 +40,7 @@ namespace vsg
     class VertexDraw;
     class VertexIndexDraw;
     class DepthSorted;
+    class Layer;
     class Bin;
     class Switch;
     class Light;
@@ -327,6 +328,7 @@ namespace vsg
         virtual void apply(const VertexDraw&);
         virtual void apply(const VertexIndexDraw&);
         virtual void apply(const DepthSorted&);
+        virtual void apply(const Layer&);
         virtual void apply(const Bin&);
         virtual void apply(const Switch&);
         virtual void apply(const Light&);

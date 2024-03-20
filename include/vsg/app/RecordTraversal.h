@@ -33,6 +33,7 @@ namespace vsg
     class CullGroup;
     class CullNode;
     class DepthSorted;
+    class Layer;
     class Transform;
     class MatrixTransform;
     class Joint;
@@ -114,6 +115,7 @@ namespace vsg
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
         void apply(const DepthSorted& depthSorted);
+        void apply(const Layer& layer);
         void apply(const Switch& sw);
 
         // leaf node

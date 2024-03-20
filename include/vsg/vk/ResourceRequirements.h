@@ -121,6 +121,7 @@ namespace vsg
         void apply(const Light& light) override;
         void apply(const View& view) override;
         void apply(const DepthSorted& depthSorted) override;
+        void apply(const Layer& layer) override;
         void apply(const Bin& bin) override;
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;
