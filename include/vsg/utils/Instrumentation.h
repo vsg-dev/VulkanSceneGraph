@@ -69,6 +69,7 @@ namespace vsg
         virtual void leave(const SourceLocation* /*sl*/, uint64_t& /*reference*/, CommandBuffer& /*commandBuffer*/, const Object* /*object*/ = nullptr) const {};
 
         virtual void finish() const {};
+
     protected:
         virtual ~Instrumentation();
     };
