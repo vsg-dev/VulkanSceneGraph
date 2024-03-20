@@ -596,7 +596,7 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     }
 }
 
-void RecordTraversal::addToBin(unsigned int binNumber, double value, const Node* node)
+void RecordTraversal::addToBin(int32_t binNumber, double value, const Node* node)
 {
     _bins[binNumber - _minimumBinNumber]->add(_state, value, node);
 }
