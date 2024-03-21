@@ -243,6 +243,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::ResetQueryPool>();
     add<vsg::CopyQueryPoolResults>();
     add<vsg::SetPrimitiveTopology>();
+    add<vsg::ClearAttachments>();
 
     // text
     add<vsg::GlyphMetricsArray>();
