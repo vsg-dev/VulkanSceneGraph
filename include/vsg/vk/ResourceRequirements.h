@@ -44,6 +44,13 @@ namespace vsg
             std::set<int32_t> indices;
             std::set<const Bin*> bins;
             std::set<const Light*> lights;
+
+            void add(ViewDetails& vd)
+            {
+                indices.insert(vd.indices.begin(), vd.indices.end());
+                bins.insert(vd.bins.begin(), vd.bins.end());
+                lights.insert(vd.lights.begin(), vd.lights.end());
+            }
         };
 
         using Descriptors = std::set<const Descriptor*>;
