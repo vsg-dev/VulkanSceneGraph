@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
+#include <vsg/nodes/Layer.h>
 #include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
@@ -298,7 +299,16 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
         auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
+        addToBin(depthSorted.binNumber, distance, depthSorted.child);
+    }
+}
+
+void RecordTraversal::apply(const Layer& layer)
+{
+    CPU_INSTRUMENTATION_L2_NCO(instrumentation, "Layer", COLOR_RECORD_L2, &layer);
+    if ((traversalMask & (overrideMask | layer.mask)) != MASK_OFF)
+    {
+        addToBin(layer.binNumber, layer.value, layer.child);
     }
 }
 
@@ -500,7 +510,7 @@ void RecordTraversal::apply(const View& view)
     _bins.resize(max_binNumber - min_binNumber + 1);
     for (auto& bin : view.bins)
     {
-        _bins[bin->binNumber] = bin;
+        _bins[bin->binNumber - min_binNumber] = bin;
         bin->clear();
     }
 
@@ -586,4 +596,9 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     {
         commandGraph.traverse(*this);
     }
+}
+
+void RecordTraversal::addToBin(int32_t binNumber, double value, const Node* node)
+{
+    _bins[binNumber - _minimumBinNumber]->add(_state, value, node);
 }

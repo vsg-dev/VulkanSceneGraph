@@ -33,6 +33,7 @@ namespace vsg
     class CullGroup;
     class CullNode;
     class DepthSorted;
+    class Layer;
     class Transform;
     class MatrixTransform;
     class Joint;
@@ -114,6 +115,7 @@ namespace vsg
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
         void apply(const DepthSorted& depthSorted);
+        void apply(const Layer& layer);
         void apply(const Switch& sw);
 
         // leaf node
@@ -146,6 +148,8 @@ namespace vsg
         void apply(const Bin& bin);
         void apply(const View& view);
         void apply(const CommandGraph& commandGraph);
+
+        void addToBin(int32_t binNumber, double value, const Node* node);
 
         // clear the bins to record a new frame.
         void clearBins();

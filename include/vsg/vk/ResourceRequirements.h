@@ -44,6 +44,13 @@ namespace vsg
             std::set<int32_t> indices;
             std::set<const Bin*> bins;
             std::set<const Light*> lights;
+
+            void add(ViewDetails& vd)
+            {
+                indices.insert(vd.indices.begin(), vd.indices.end());
+                bins.insert(vd.bins.begin(), vd.bins.end());
+                lights.insert(vd.lights.begin(), vd.lights.end());
+            }
         };
 
         using Descriptors = std::set<const Descriptor*>;
@@ -121,6 +128,7 @@ namespace vsg
         void apply(const Light& light) override;
         void apply(const View& view) override;
         void apply(const DepthSorted& depthSorted) override;
+        void apply(const Layer& layer) override;
         void apply(const Bin& bin) override;
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;

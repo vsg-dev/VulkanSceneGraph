@@ -181,6 +181,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::VertexIndexDraw>();
     add<vsg::Bin>();
     add<vsg::DepthSorted>();
+    add<vsg::Layer>();
     add<vsg::Switch>();
     add<vsg::Light>();
     add<vsg::AmbientLight>();
@@ -242,6 +243,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::ResetQueryPool>();
     add<vsg::CopyQueryPoolResults>();
     add<vsg::SetPrimitiveTopology>();
+    add<vsg::ClearAttachments>();
 
     // text
     add<vsg::GlyphMetricsArray>();

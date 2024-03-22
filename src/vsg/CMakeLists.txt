@@ -37,6 +37,7 @@ set(SOURCES
     nodes/VertexDraw.cpp
     nodes/VertexIndexDraw.cpp
     nodes/DepthSorted.cpp
+    nodes/Layer.cpp
     nodes/Bin.cpp
     nodes/Switch.cpp
     nodes/StateGroup.cpp
