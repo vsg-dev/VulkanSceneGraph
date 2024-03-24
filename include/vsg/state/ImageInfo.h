@@ -99,6 +99,18 @@ namespace vsg
     extern VSG_DECLSPEC FormatTraits getFormatTraits(VkFormat format, bool default_one = true);
 
     /// return the number of mip map levels specified by Data/Sampler.
-    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler);
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const Data* data, const Sampler* sampler); // deprecated
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(uint32_t w, uint32_t h, uint32_t d, const Sampler* sampler);
+    /// return the size of a full mipmap chain for dimensions.
+    /// equivalent to: log2(max(w,h,d))+1
+    /// See Vulkan spec 12.3.2 "Image Miplevel Sizing"
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(uint32_t w, uint32_t h, uint32_t d);
+
+    /// return the number of mipLevels that can be read from vsg::Data for this vsg::Image.
+    extern VSG_DECLSPEC uint32_t computeNumMipMapLevels(const vsg::Data::Properties& properties, const Image* image);
+
+    /// return the number of Data values required for Image including mipmaps
+    /// Note, Data::valueCount() doesn't support layers correctly
+    extern VSG_DECLSPEC size_t computeValueCount(const vsg::Data::Properties& properties, const Image* image);
 
 } // namespace vsg
