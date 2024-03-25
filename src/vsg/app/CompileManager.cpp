@@ -193,7 +193,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
                     result.views[view].add(viewDetailsStack.top());
                     if (view->viewDependentState)
                     {
-                        for(auto& sm : view->viewDependentState->shadowMaps)
+                        for (auto& sm : view->viewDependentState->shadowMaps)
                         {
                             if (sm.view)
                             {
