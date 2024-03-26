@@ -30,7 +30,8 @@ namespace vsg
         std::string name;
         vec3 color = vec3(1.0f, 1.0f, 1.0f);
         float intensity = 1.0f;
-        uint32_t shadowMaps = 0;
+
+        virtual uint32_t shadowMapCount() const { return 0; }
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Light::create(*this, copyop); }
@@ -62,6 +63,84 @@ namespace vsg
     };
     VSG_type_name(vsg::AmbientLight);
 
+    class VSG_DECLSPEC DirectionalShadowSettings : public Inherit<Object, DirectionalShadowSettings>
+    {
+    public:
+        DirectionalShadowSettings();
+        DirectionalShadowSettings(const DirectionalShadowSettings& rhs, const CopyOp& copyop = {});
+
+        virtual uint32_t shadowMapCount() const = 0;
+    };
+    //VSG_type_name(vsg::DirectionalShadowSettings);
+
+    class VSG_DECLSPEC DirectionalPCSSShadows : public Inherit<DirectionalShadowSettings, DirectionalPCSSShadows>
+    {
+    public:
+        DirectionalPCSSShadows();
+        DirectionalPCSSShadows(const DirectionalPCSSShadows& rhs, const CopyOp& copyop = {});
+
+        uint32_t numShadowMaps;
+        float angleSubtended = 0.0090f;
+
+        uint32_t shadowMapCount() const override { return numShadowMaps; }
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalPCSSShadows::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+    protected:
+        virtual ~DirectionalPCSSShadows() {}
+    };
+    VSG_type_name(vsg::DirectionalPCSSShadows);
+
+    class VSG_DECLSPEC DirectionalPCFShadows : public Inherit<DirectionalShadowSettings, DirectionalPCFShadows>
+    {
+    public:
+        DirectionalPCFShadows();
+        DirectionalPCFShadows(const DirectionalPCFShadows& rhs, const CopyOp& copyop = {});
+
+        uint32_t numShadowMaps;
+        float penumbraRadius = 0.05f;
+
+        uint32_t shadowMapCount() const override { return numShadowMaps; }
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalPCFShadows::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+    protected:
+        virtual ~DirectionalPCFShadows() {}
+    };
+    VSG_type_name(vsg::DirectionalPCFShadows);
+
+    class VSG_DECLSPEC DirectionalHardShadows : public Inherit<DirectionalShadowSettings, DirectionalHardShadows>
+    {
+    public:
+        DirectionalHardShadows();
+        DirectionalHardShadows(const DirectionalHardShadows& rhs, const CopyOp& copyop = {});
+
+        uint32_t numShadowMaps;
+
+        uint32_t shadowMapCount() const override { return numShadowMaps; }
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalHardShadows::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+    protected:
+        virtual ~DirectionalHardShadows() {}
+    };
+    VSG_type_name(vsg::DirectionalHardShadows);
+
     /// DirectionalLight represents a directional light source - used for light sources that are treated as if at infinite distance, like sun/moon.
     class VSG_DECLSPEC DirectionalLight : public Inherit<Light, DirectionalLight>
     {
@@ -70,8 +149,9 @@ namespace vsg
         DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop = {});
 
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
-        float angleSubtended = 0.0090f;
-        float fixedPcfRadius = 0.05f;
+        vsg::ref_ptr<DirectionalShadowSettings> shadowSettings;
+
+        uint32_t shadowMapCount() const override { return shadowSettings ? shadowSettings->shadowMapCount() : 0; }
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DirectionalLight::create(*this, copyop); }

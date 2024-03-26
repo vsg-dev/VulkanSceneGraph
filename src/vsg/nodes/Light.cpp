@@ -28,8 +28,7 @@ Light::Light(const Light& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     name(rhs.name),
     color(rhs.color),
-    intensity(rhs.intensity),
-    shadowMaps(rhs.shadowMaps)
+    intensity(rhs.intensity)
 {
 }
 
@@ -41,8 +40,7 @@ int Light::compare(const Object& rhs_object) const
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(color, rhs.color)) != 0) return result;
-    if ((result = compare_value(intensity, rhs.intensity)) != 0) return result;
-    return compare_value(shadowMaps, rhs.shadowMaps);
+    return compare_value(intensity, rhs.intensity);
 }
 
 void Light::read(Input& input)
@@ -86,15 +84,132 @@ void AmbientLight::write(Output& output) const
 //
 // DirectionalLight
 //
+vsg::DirectionalShadowSettings::DirectionalShadowSettings()
+{
+}
+
+vsg::DirectionalShadowSettings::DirectionalShadowSettings(const DirectionalShadowSettings& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+}
+
+vsg::DirectionalPCSSShadows::DirectionalPCSSShadows() :
+    numShadowMaps(0)
+{
+}
+
+vsg::DirectionalPCSSShadows::DirectionalPCSSShadows(const DirectionalPCSSShadows& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    numShadowMaps(rhs.numShadowMaps),
+    angleSubtended(rhs.angleSubtended)
+{
+}
+
+int vsg::DirectionalPCSSShadows::compare(const Object& rhs_object) const
+{
+    int result = DirectionalShadowSettings::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(numShadowMaps, rhs.numShadowMaps)) != 0) return result;
+    return compare_value(angleSubtended, rhs.angleSubtended);
+}
+
+void vsg::DirectionalPCSSShadows::read(Input& input)
+{
+    DirectionalShadowSettings::read(input);
+
+    input.read("numShadowMaps", numShadowMaps);
+    input.read("angleSubtended", angleSubtended);
+}
+
+void vsg::DirectionalPCSSShadows::write(Output& output) const
+{
+    DirectionalShadowSettings::write(output);
+
+    output.write("numShadowMaps", numShadowMaps);
+    output.write("angleSubtended", angleSubtended);
+}
+
+vsg::DirectionalPCFShadows::DirectionalPCFShadows() :
+    numShadowMaps(0)
+{
+}
+
+vsg::DirectionalPCFShadows::DirectionalPCFShadows(const DirectionalPCFShadows& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    numShadowMaps(rhs.numShadowMaps),
+    penumbraRadius(rhs.penumbraRadius)
+{
+}
+
+int vsg::DirectionalPCFShadows::compare(const Object& rhs_object) const
+{
+    int result = DirectionalShadowSettings::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(numShadowMaps, rhs.numShadowMaps)) != 0) return result;
+    return compare_value(penumbraRadius, rhs.penumbraRadius);
+}
+
+void vsg::DirectionalPCFShadows::read(Input& input)
+{
+    DirectionalShadowSettings::read(input);
+
+    input.read("numShadowMaps", numShadowMaps);
+    input.read("penumbraRadius", penumbraRadius);
+}
+
+void vsg::DirectionalPCFShadows::write(Output& output) const
+{
+    DirectionalShadowSettings::write(output);
+
+    output.write("numShadowMaps", numShadowMaps);
+    output.write("penumbraRadius", penumbraRadius);
+}
+
+vsg::DirectionalHardShadows::DirectionalHardShadows() :
+    numShadowMaps(0)
+{
+}
+
+vsg::DirectionalHardShadows::DirectionalHardShadows(const DirectionalHardShadows& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    numShadowMaps(rhs.numShadowMaps)
+{
+}
+
+int vsg::DirectionalHardShadows::compare(const Object& rhs_object) const
+{
+    int result = DirectionalShadowSettings::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(numShadowMaps, rhs.numShadowMaps);
+}
+
+void vsg::DirectionalHardShadows::read(Input& input)
+{
+    DirectionalShadowSettings::read(input);
+
+    input.read("numShadowMaps", numShadowMaps);
+}
+
+void vsg::DirectionalHardShadows::write(Output& output) const
+{
+    DirectionalShadowSettings::write(output);
+
+    output.write("numShadowMaps", numShadowMaps);
+}
+
 DirectionalLight::DirectionalLight()
 {
 }
 
 DirectionalLight::DirectionalLight(const DirectionalLight& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    direction(rhs.direction),
-    angleSubtended(rhs.angleSubtended),
-    fixedPcfRadius(rhs.fixedPcfRadius)
+    direction(rhs.direction)
 {
 }
 
@@ -104,9 +219,7 @@ int DirectionalLight::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    if ((result = compare_value(direction, rhs.direction)) != 0) return result;
-    if ((result = compare_value(angleSubtended, rhs.angleSubtended)) != 0) return result;
-    return compare_value(fixedPcfRadius, rhs.fixedPcfRadius);
+    return compare_value(direction, rhs.direction);
 }
 
 void DirectionalLight::read(Input& input)
@@ -117,8 +230,7 @@ void DirectionalLight::read(Input& input)
 
     if (input.version_greater_equal(1, 1, 2))
     {
-        input.read("angleSubtended", angleSubtended);
-        input.read("fixedPcfRadius", fixedPcfRadius);
+        input.read("shadowSettings", shadowSettings);
     }
 }
 
@@ -130,8 +242,7 @@ void DirectionalLight::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 2))
     {
-        output.write("angleSubtended", angleSubtended);
-        output.write("fixedPcfRadius", fixedPcfRadius);
+        output.write("shadowSettings", shadowSettings);
     }
 }
 

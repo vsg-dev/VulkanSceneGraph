@@ -200,7 +200,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
-            numShadowMaps += light->shadowMaps;
+            numShadowMaps += light->shadowMapCount();
         }
 
         if (numLights < requirements.numLightsRange[0])
@@ -568,8 +568,30 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
-        uint32_t activeNumShadowMaps = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), std::tan(light->angleSubtended / 2), 0.0f, light->fixedPcfRadius); // shadow map setting
+        uint32_t activeNumShadowMaps = std::min(light->shadowMapCount(), numShadowMaps - shadowMapIndex);
+        bool inverseMatrixRequired = false;
+        
+        if (light->shadowSettings)
+        {
+            if (light->shadowSettings->type_info() == typeid(DirectionalHardShadows))
+            {
+                const DirectionalHardShadows& hardShadowSettings = static_cast<const DirectionalHardShadows&>(*light->shadowSettings);
+                (*light_itr++).set(static_cast<float>(hardShadowSettings.numShadowMaps), -1.0f, -1.0f, 0.0f);
+            }
+            else if (light->shadowSettings->type_info() == typeid(DirectionalPCFShadows))
+            {
+                const DirectionalPCFShadows& pcfShadowSettings = static_cast<const DirectionalPCFShadows&>(*light->shadowSettings);
+                (*light_itr++).set(static_cast<float>(pcfShadowSettings.numShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+            }
+            else if (light->shadowSettings->type_info() == typeid(DirectionalPCSSShadows))
+            {
+                const DirectionalPCSSShadows& pcssShadowSettings = static_cast<const DirectionalPCSSShadows&>(*light->shadowSettings);
+                (*light_itr++).set(static_cast<float>(pcssShadowSettings.numShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(pcssShadowSettings.angleSubtended / 2), 0.0f);
+                inverseMatrixRequired = true;
+            }
+        }
+        else
+            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (activeNumShadowMaps == 0) continue;
 
@@ -657,12 +679,15 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             // info("m = ", m);
 
-            m = inverse(m);
+            if (inverseMatrixRequired)
+            {
+                m = inverse(m);
 
-            (*light_itr++) = m[0];
-            (*light_itr++) = m[1];
-            (*light_itr++) = m[2];
-            (*light_itr++) = m[3];
+                (*light_itr++) = m[0];
+                (*light_itr++) = m[1];
+                (*light_itr++) = m[2];
+                (*light_itr++) = m[3];
+            }
 
             // advance to the next shadowMap
             shadowMapIndex++;

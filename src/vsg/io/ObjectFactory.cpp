@@ -184,6 +184,9 @@ ObjectFactory::ObjectFactory()
     add<vsg::Switch>();
     add<vsg::Light>();
     add<vsg::AmbientLight>();
+    add<vsg::DirectionalPCSSShadows>();
+    add<vsg::DirectionalPCFShadows>();
+    add<vsg::DirectionalHardShadows>();
     add<vsg::DirectionalLight>();
     add<vsg::PointLight>();
     add<vsg::SpotLight>();
