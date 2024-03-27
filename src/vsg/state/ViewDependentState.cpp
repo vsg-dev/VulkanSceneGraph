@@ -572,7 +572,26 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
         uint32_t activeNumShadowMaps = light->shadowSettings ? std::min(light->shadowSettings->shadowMaps, numShadowMaps - shadowMapIndex) : 0;
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), std::tan(light->angleSubtended / 2), 0.0f, 0.0f); // shadow map setting
+        bool inverseMatrixRequired = false;
+        if (light->shadowSettings)
+        {
+            if (light->shadowSettings->type_info() == typeid(HardShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+            }
+            else if (light->shadowSettings->type_info() == typeid(SoftShadows))
+            {
+                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*light->shadowSettings);
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+            }
+            else if (light->shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(light->angleSubtended / 2), 0.0f);
+                inverseMatrixRequired = true;
+            }
+        }
+        else
+            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (activeNumShadowMaps == 0) continue;
 
@@ -660,12 +679,15 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             // info("m = ", m);
 
-            m = inverse(m);
+            if (inverseMatrixRequired)
+            {
+                m = inverse(m);
 
-            (*light_itr++) = m[0];
-            (*light_itr++) = m[1];
-            (*light_itr++) = m[2];
-            (*light_itr++) = m[3];
+                (*light_itr++) = m[0];
+                (*light_itr++) = m[1];
+                (*light_itr++) = m[2];
+                (*light_itr++) = m[3];
+            }
 
             // advance to the next shadowMap
             shadowMapIndex++;

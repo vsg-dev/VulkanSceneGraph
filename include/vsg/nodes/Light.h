@@ -38,6 +38,21 @@ namespace vsg
     };
     VSG_type_name(vsg::ShadowSettings);
 
+    class VSG_DECLSPEC HardShadows : public Inherit<ShadowSettings, HardShadows>
+    {
+    public:
+    };
+
+    class VSG_DECLSPEC SoftShadows : public Inherit<ShadowSettings, SoftShadows>
+    {
+    public:
+        float penumbraRadius = 0.05f;
+    };
+
+    class VSG_DECLSPEC PercentageCloserSoftShadows : public Inherit<ShadowSettings, PercentageCloserSoftShadows>
+    {
+    public:
+    };
 
     /// Light is a base node class for different light types - AmbientLight, DirectionalLight, PointLight and SpotLight.
     /// Used by the RecordTraversal to represent a light source that is placed in the LightData uniform used by the shaders when implementing lighting.
