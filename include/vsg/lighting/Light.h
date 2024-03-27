@@ -21,10 +21,10 @@ namespace vsg
     class VSG_DECLSPEC ShadowSettings : public Inherit<Object, ShadowSettings>
     {
     public:
-        explicit ShadowSettings(uint32_t shadowMaps = 0);
+        explicit ShadowSettings(uint32_t shadowMaps = 1);
         ShadowSettings(const ShadowSettings& rhs, const CopyOp& copyop = {});
 
-        uint32_t shadowMaps = 0;
+        uint32_t shadowMaps = 1;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShadowSettings::create(*this, copyop); }
@@ -41,17 +41,21 @@ namespace vsg
     class VSG_DECLSPEC HardShadows : public Inherit<ShadowSettings, HardShadows>
     {
     public:
+        explicit HardShadows(uint32_t in_shadowMaps = 1);
     };
 
     class VSG_DECLSPEC SoftShadows : public Inherit<ShadowSettings, SoftShadows>
     {
     public:
+        explicit SoftShadows(uint32_t in_shadowMaps = 1, float in_penumbraRadius = 0.05f);
+
         float penumbraRadius = 0.05f;
     };
 
     class VSG_DECLSPEC PercentageCloserSoftShadows : public Inherit<ShadowSettings, PercentageCloserSoftShadows>
     {
     public:
+        explicit PercentageCloserSoftShadows(uint32_t in_shadowMaps = 1);
     };
 
     /// Light is a base node class for different light types - AmbientLight, DirectionalLight, PointLight and SpotLight.

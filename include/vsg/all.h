@@ -67,7 +67,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
-#include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/PagedLOD.h>

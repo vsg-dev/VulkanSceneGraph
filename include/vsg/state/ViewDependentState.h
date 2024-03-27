@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
 #include <vsg/io/Logger.h>
-#include <vsg/nodes/Light.h>
+#include <vsg/lighting/Light.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>

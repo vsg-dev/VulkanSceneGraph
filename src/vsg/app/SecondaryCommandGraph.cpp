@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/commands/ExecuteCommands.h>
 #include <vsg/io/DatabasePager.h>
-#include <vsg/nodes/Light.h>
+#include <vsg/lighting/Light.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/vk/State.h>
 
