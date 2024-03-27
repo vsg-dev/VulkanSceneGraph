@@ -141,7 +141,8 @@ PointLight::PointLight()
 
 PointLight::PointLight(const PointLight& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    position(rhs.position)
+    position(rhs.position),
+    radius(rhs.radius)
 {
 }
 
@@ -151,7 +152,8 @@ int PointLight::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_value(position, rhs.position);
+    if ((result = compare_value(position, rhs.position)) != 0) return result;
+    return compare_value(radius, rhs.radius);
 }
 
 void PointLight::read(Input& input)
@@ -159,6 +161,10 @@ void PointLight::read(Input& input)
     Light::read(input);
 
     input.read("position", position);
+    if (input.version_greater_equal(1, 1, 3))
+    {
+        input.read("radius", radius);
+    }
 }
 
 void PointLight::write(Output& output) const
@@ -166,6 +172,10 @@ void PointLight::write(Output& output) const
     Light::write(output);
 
     output.write("position", position);
+    if (output.version_greater_equal(1, 1, 3))
+    {
+        output.read("radius", radius);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +191,8 @@ SpotLight::SpotLight(const SpotLight& rhs, const CopyOp& copyop) :
     position(rhs.position),
     direction(rhs.direction),
     innerAngle(rhs.innerAngle),
-    outerAngle(rhs.outerAngle)
+    outerAngle(rhs.outerAngle),
+    radius(rhs.radius)
 {
 }
 
@@ -194,7 +205,8 @@ int SpotLight::compare(const Object& rhs_object) const
     if ((result = compare_value(position, rhs.position)) != 0) return result;
     if ((result = compare_value(direction, rhs.direction)) != 0) return result;
     if ((result = compare_value(innerAngle, rhs.innerAngle)) != 0) return result;
-    return compare_value(outerAngle, rhs.outerAngle);
+    if ((result = compare_value(outerAngle, rhs.outerAngle)) != 0) return result;
+    return compare_value(radius, rhs.radius);
 }
 
 void SpotLight::read(Input& input)
@@ -205,6 +217,11 @@ void SpotLight::read(Input& input)
     input.read("direction", direction);
     input.read("innerAngle", innerAngle);
     input.read("outerAngle", outerAngle);
+
+    if (input.version_greater_equal(1, 1, 3))
+    {
+        input.read("radius", radius);
+    }
 }
 
 void SpotLight::write(Output& output) const
@@ -215,6 +232,11 @@ void SpotLight::write(Output& output) const
     output.write("direction", direction);
     output.write("innerAngle", innerAngle);
     output.write("outerAngle", outerAngle);
+
+    if (output.version_greater_equal(1, 1, 3))
+    {
+        output.read("radius", radius);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

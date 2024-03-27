@@ -92,6 +92,7 @@ namespace vsg
         PointLight(const PointLight& rhs, const CopyOp& copyop = {});
 
         dvec3 position = dvec3(0.0, 0.0, 0.0);
+        double radius = 0.0f;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return PointLight::create(*this, copyop); }
@@ -116,6 +117,7 @@ namespace vsg
         dvec3 direction = dvec3(0.0, 0.0, -1.0);
         double innerAngle = radians(30.0);
         double outerAngle = radians(45.0);
+        double radius = 0.0f;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return SpotLight::create(*this, copyop); }
