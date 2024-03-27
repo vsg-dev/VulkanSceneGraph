@@ -89,6 +89,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/MorphSampler.h>
 #include <vsg/animation/TransformSampler.h>
 
+// Lighting header files
+#include <vsg/lighting/Light.h>
+
 // Commands header files
 #include <vsg/commands/BeginQuery.h>
 #include <vsg/commands/BindIndexBuffer.h>
