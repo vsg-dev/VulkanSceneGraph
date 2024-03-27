@@ -141,8 +141,8 @@ Profiler::Profiler(ref_ptr<Settings> in_settings) :
 
 void Profiler::writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage) const
 {
-    auto& frameStats = perFrameGPUStats[frameIndex];
-    auto& gpuStats = frameStats.perDeviceGpuStats[commandBuffer.deviceID];
+    const auto& frameStats = perFrameGPUStats[frameIndex];
+    const auto& gpuStats = frameStats.perDeviceGpuStats[commandBuffer.deviceID];
     auto index = gpuStats->queryIndex.fetch_add(1);
     if (index < gpuStats->timestamps.size())
     {

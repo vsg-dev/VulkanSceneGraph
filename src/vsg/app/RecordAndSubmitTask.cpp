@@ -293,10 +293,10 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     }
 
     /// handle any new Bin needs
-    for (auto& [const_view, binDetails] : compileResult.views)
+    for (auto& [const_view, viewDetails] : compileResult.views)
     {
         auto view = const_cast<View*>(const_view);
-        for (auto& binNumber : binDetails.indices)
+        for (auto& binNumber : viewDetails.indices)
         {
             bool binNumberMatched = false;
             for (auto& bin : view->bins)

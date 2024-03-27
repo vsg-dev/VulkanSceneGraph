@@ -94,5 +94,3 @@ void EllipsoidPerspective::write(Output& output) const
     output.write("nearFarRatio", nearFarRatio);
     output.write("horizonMountainHeight", horizonMountainHeight);
 }
-
-

@@ -190,16 +190,15 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
                 if (view)
                 {
+                    result.views[view].add(viewDetailsStack.top());
                     if (view->viewDependentState)
                     {
-                        view->viewDependentState->update(requirements);
-                    }
-
-                    if (!viewDetailsStack.empty())
-                    {
-                        if (auto itr = result.views.find(view.get()); itr == result.views.end())
+                        for (auto& sm : view->viewDependentState->shadowMaps)
                         {
-                            result.views[view] = viewDetailsStack.top();
+                            if (sm.view)
+                            {
+                                result.views[sm.view].add(requirements.viewDetailsStack.top());
+                            }
                         }
                     }
                 }

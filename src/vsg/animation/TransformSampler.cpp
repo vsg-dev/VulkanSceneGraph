@@ -13,12 +13,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/TransformSampler.h>
+#include <vsg/app/Camera.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/nodes/MatrixTransform.h>
-#include <vsg/app/Camera.h>
 
 using namespace vsg;
 

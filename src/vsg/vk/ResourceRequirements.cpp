@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/Layer.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
@@ -239,6 +240,13 @@ void CollectResourceRequirements::apply(const DepthSorted& depthSorted)
     requirements.viewDetailsStack.top().indices.insert(depthSorted.binNumber);
 
     depthSorted.traverse(*this);
+}
+
+void CollectResourceRequirements::apply(const Layer& layer)
+{
+    requirements.viewDetailsStack.top().indices.insert(layer.binNumber);
+
+    layer.traverse(*this);
 }
 
 void CollectResourceRequirements::apply(const Bin& bin)

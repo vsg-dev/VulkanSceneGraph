@@ -30,6 +30,10 @@ namespace vsg
         Attachments attachments;
         Rects rects;
 
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
         void record(CommandBuffer& commandBuffer) const override;
     };
     VSG_type_name(vsg::ClearAttachments);

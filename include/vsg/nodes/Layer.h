@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2024 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -18,57 +18,42 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Bin node is used internally by RecordTraversal/View to collect and then sort command nodes assigned to the bin,
-    /// then recorded to the command buffer in the sorted order.
-    class VSG_DECLSPEC Bin : public Inherit<Node, Bin>
+    /// Layer node is used to control which bin to place the subgraph in and what sort value to assign
+    class VSG_DECLSPEC Layer : public Inherit<Node, Layer>
     {
     public:
-        enum SortOrder
-        {
-            NO_SORT,
-            ASCENDING,
-            DESCENDING
-        };
+        Layer();
+        Layer(const Layer& rhs, const CopyOp& copyop = {});
+        Layer(int32_t in_binNumber, double value, ref_ptr<Node> in_child);
 
-        Bin();
-        Bin(const Bin& rhs, const CopyOp& copyop = {});
-        Bin(int32_t in_binNumber, SortOrder in_sortOrder);
-
+        Mask mask = MASK_ALL;
         int32_t binNumber = 0;
-        SortOrder sortOrder = NO_SORT;
-
-        void clear();
-
-        void add(State* state, double value, const Node* node);
+        double value = 0.0;
+        ref_ptr<Node> child;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Bin::create(*this, copyop); }
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Layer::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
-        void traverse(RecordTraversal& visitor) const override;
+        void traverse(Visitor& visitor) override
+        {
+            if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor);
+        }
+        void traverse(ConstVisitor& visitor) const override
+        {
+            if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor);
+        }
+        void traverse(RecordTraversal& visitor) const override
+        {
+            if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor);
+        }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
     protected:
-        virtual ~Bin();
-
-        std::vector<dmat4> _matrices;
-        std::vector<const StateCommand*> _stateCommands;
-
-        struct Element
-        {
-            uint32_t matrixIndex = 0;
-            uint32_t stateCommandIndex = 0;
-            uint32_t stateCommandCount = 0;
-            const Node* child = nullptr;
-        };
-
-        std::vector<Element> _elements;
-
-        using KeyIndex = std::pair<float, uint32_t>;
-        mutable std::vector<KeyIndex> _binElements;
+        virtual ~Layer();
     };
-    VSG_type_name(vsg::Bin);
+    VSG_type_name(vsg::Layer);
 
 } // namespace vsg
