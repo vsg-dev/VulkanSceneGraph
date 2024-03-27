@@ -21,7 +21,6 @@ SoftShadows::SoftShadows(uint32_t in_shadowMaps, float in_penumbraRadius) :
 {
 }
 
-
 SoftShadows::SoftShadows(const SoftShadows& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     penumbraRadius(rhs.penumbraRadius)

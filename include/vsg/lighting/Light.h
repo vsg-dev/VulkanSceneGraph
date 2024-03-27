@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/lighting/ShadowSettings.h>
 #include <vsg/maths/common.h>
 #include <vsg/nodes/Node.h>
-#include <vsg/lighting/ShadowSettings.h>
 
 namespace vsg
 {

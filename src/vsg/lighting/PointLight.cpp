@@ -57,4 +57,3 @@ void PointLight::write(Output& output) const
         output.write("radius", radius);
     }
 }
-

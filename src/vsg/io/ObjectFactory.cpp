@@ -198,7 +198,6 @@ ObjectFactory::ObjectFactory()
     add<vsg::SoftShadows>();
     add<vsg::PercentageCloserSoftShadows>();
 
-
     // vulkan objects
     add<vsg::BindGraphicsPipeline>();
     add<vsg::PipelineLayout>();
