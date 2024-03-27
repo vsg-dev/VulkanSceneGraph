@@ -92,9 +92,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 // Lighting header files
 #include <vsg/lighting/AmbientLight.h>
 #include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/HardShadows.h>
 #include <vsg/lighting/Light.h>
+#include <vsg/lighting/PercentageCloserSoftShadows.h>
 #include <vsg/lighting/PointLight.h>
 #include <vsg/lighting/ShadowSettings.h>
+#include <vsg/lighting/SoftShadows.h>
 #include <vsg/lighting/SpotLight.h>
 
 // Commands header files

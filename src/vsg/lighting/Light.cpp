@@ -11,15 +11,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/lighting/Light.h>
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
 #include <vsg/nodes/AbsoluteTransform.h>
 
 using namespace vsg;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Light
-//
 Light::Light()
 {
 }

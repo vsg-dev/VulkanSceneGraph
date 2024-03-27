@@ -11,25 +11,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/SoftShadows.h>
 
 using namespace vsg;
 
-AmbientLight::AmbientLight()
+SoftShadows::SoftShadows(uint32_t in_shadowMaps, float in_penumbraRadius) :
+    Inherit(in_shadowMaps),
+    penumbraRadius(in_penumbraRadius)
 {
-}
-
-AmbientLight::AmbientLight(const AmbientLight& rhs, const CopyOp& copyop) :
-    Inherit(rhs, copyop)
-{
-}
-
-void AmbientLight::read(Input& input)
-{
-    Light::read(input);
-}
-
-void AmbientLight::write(Output& output) const
-{
-    Light::write(output);
 }

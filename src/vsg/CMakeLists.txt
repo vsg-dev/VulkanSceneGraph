@@ -50,6 +50,9 @@ set(SOURCES
     lighting/PointLight.cpp
     lighting/SpotLight.cpp
     lighting/ShadowSettings.cpp
+    lighting/HardShadows.cpp
+    lighting/SoftShadows.cpp
+    lighting/PercentageCloserSoftShadows.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp

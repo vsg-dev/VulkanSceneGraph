@@ -16,10 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// ShadowSettings
-//
 ShadowSettings::ShadowSettings(uint32_t in_shadowMaps) :
     shadowMaps(in_shadowMaps)
 {
@@ -48,20 +44,4 @@ void ShadowSettings::read(Input& input)
 void ShadowSettings::write(Output& output) const
 {
     output.write("shadowMaps", shadowMaps);
-}
-
-HardShadows::HardShadows(uint32_t in_shadowMaps) :
-    Inherit(in_shadowMaps)
-{
-}
-
-SoftShadows::SoftShadows(uint32_t in_shadowMaps, float in_penumbraRadius) :
-    Inherit(in_shadowMaps),
-    penumbraRadius(in_penumbraRadius)
-{
-}
-
-PercentageCloserSoftShadows::PercentageCloserSoftShadows(uint32_t in_shadowMaps) :
-    Inherit(in_shadowMaps)
-{
 }

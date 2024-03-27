@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2022 Robert Osfield
+Copyright(c) 2024 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,8 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/maths/common.h>
-#include <vsg/nodes/Node.h>
+#include <vsg/core/Inherit.h>
 
 namespace vsg
 {
@@ -37,25 +36,5 @@ namespace vsg
         virtual ~ShadowSettings() {}
     };
     VSG_type_name(vsg::ShadowSettings);
-
-    class VSG_DECLSPEC HardShadows : public Inherit<ShadowSettings, HardShadows>
-    {
-    public:
-        explicit HardShadows(uint32_t in_shadowMaps = 1);
-    };
-
-    class VSG_DECLSPEC SoftShadows : public Inherit<ShadowSettings, SoftShadows>
-    {
-    public:
-        explicit SoftShadows(uint32_t in_shadowMaps = 1, float in_penumbraRadius = 0.05f);
-
-        float penumbraRadius = 0.05f;
-    };
-
-    class VSG_DECLSPEC PercentageCloserSoftShadows : public Inherit<ShadowSettings, PercentageCloserSoftShadows>
-    {
-    public:
-        explicit PercentageCloserSoftShadows(uint32_t in_shadowMaps = 1);
-    };
 
 } // namespace vsg

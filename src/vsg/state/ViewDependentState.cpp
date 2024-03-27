@@ -18,6 +18,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/write.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/PointLight.h>
+#include <vsg/lighting/SpotLight.h>
+#include <vsg/lighting/HardShadows.h>
+#include <vsg/lighting/SoftShadows.h>
+#include <vsg/lighting/PercentageCloserSoftShadows.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
