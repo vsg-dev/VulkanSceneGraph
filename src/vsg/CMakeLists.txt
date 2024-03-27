@@ -45,6 +45,7 @@ set(SOURCES
     nodes/InstrumentationNode.cpp
 
     lighting/Light.cpp
+    lighting/ShadowSettings.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp

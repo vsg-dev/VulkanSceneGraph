@@ -18,56 +18,6 @@ using namespace vsg;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ShadowSettings
-//
-ShadowSettings::ShadowSettings(uint32_t in_shadowMaps) :
-    shadowMaps(in_shadowMaps)
-{
-}
-
-ShadowSettings::ShadowSettings(const ShadowSettings& rhs, const CopyOp& copyop) :
-    Inherit(rhs, copyop),
-    shadowMaps(rhs.shadowMaps)
-{
-}
-
-int ShadowSettings::compare(const Object& rhs_object) const
-{
-    int result = Object::compare(rhs_object);
-    if (result != 0) return result;
-
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_value(shadowMaps, rhs.shadowMaps);
-}
-
-void ShadowSettings::read(Input& input)
-{
-    input.read("shadowMaps", shadowMaps);
-}
-
-void ShadowSettings::write(Output& output) const
-{
-    output.write("shadowMaps", shadowMaps);
-}
-
-HardShadows::HardShadows(uint32_t in_shadowMaps) :
-    Inherit(in_shadowMaps)
-{
-}
-
-SoftShadows::SoftShadows(uint32_t in_shadowMaps, float in_penumbraRadius) :
-    Inherit(in_shadowMaps),
-    penumbraRadius(in_penumbraRadius)
-{
-}
-
-PercentageCloserSoftShadows::PercentageCloserSoftShadows(uint32_t in_shadowMaps) :
-    Inherit(in_shadowMaps)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 // Light
 //
 Light::Light()
