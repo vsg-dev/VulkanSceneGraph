@@ -200,7 +200,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
-            numShadowMaps += light->shadowMaps;
+            if (light->shadowSettings) numShadowMaps += light->shadowSettings->shadowMaps;
         }
 
         if (numLights < requirements.numLightsRange[0])
@@ -571,7 +571,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
-        uint32_t activeNumShadowMaps = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
+        uint32_t activeNumShadowMaps = light->shadowSettings ? std::min(light->shadowSettings->shadowMaps, numShadowMaps - shadowMapIndex) : 0;
         (*light_itr++).set(static_cast<float>(activeNumShadowMaps), std::tan(light->angleSubtended / 2), 0.0f, 0.0f); // shadow map setting
 
         if (activeNumShadowMaps == 0) continue;

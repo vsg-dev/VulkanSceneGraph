@@ -18,6 +18,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    class VSG_DECLSPEC ShadowSettings : public Inherit<Object, ShadowSettings>
+    {
+    public:
+        explicit ShadowSettings(uint32_t shadowMaps = 0);
+        ShadowSettings(const ShadowSettings& rhs, const CopyOp& copyop = {});
+
+        uint32_t shadowMaps = 0;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShadowSettings::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
+
+    protected:
+        virtual ~ShadowSettings() {}
+    };
+    VSG_type_name(vsg::ShadowSettings);
+
+
     /// Light is a base node class for different light types - AmbientLight, DirectionalLight, PointLight and SpotLight.
     /// Used by the RecordTraversal to represent a light source that is placed in the LightData uniform used by the shaders when implementing lighting.
     /// Provides name, color and intensity settings common to all Light types.
@@ -30,7 +51,7 @@ namespace vsg
         std::string name;
         vec3 color = vec3(1.0f, 1.0f, 1.0f);
         float intensity = 1.0f;
-        uint32_t shadowMaps = 0;
+        ref_ptr<ShadowSettings> shadowSettings;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Light::create(*this, copyop); }

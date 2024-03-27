@@ -18,6 +18,40 @@ using namespace vsg;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// ShadowSettings
+//
+ShadowSettings::ShadowSettings(uint32_t in_shadowMaps) :
+    shadowMaps(in_shadowMaps)
+{
+}
+
+ShadowSettings::ShadowSettings(const ShadowSettings& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    shadowMaps(rhs.shadowMaps)
+{
+}
+
+int ShadowSettings::compare(const Object& rhs_object) const
+{
+    int result = Object::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(shadowMaps, rhs.shadowMaps);
+}
+
+void ShadowSettings::read(Input& input)
+{
+    input.read("shadowMaps", shadowMaps);
+}
+
+void ShadowSettings::write(Output& output) const
+{
+    output.write("shadowMaps", shadowMaps);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Light
 //
 Light::Light()
@@ -29,7 +63,7 @@ Light::Light(const Light& rhs, const CopyOp& copyop) :
     name(rhs.name),
     color(rhs.color),
     intensity(rhs.intensity),
-    shadowMaps(rhs.shadowMaps)
+    shadowSettings(rhs.shadowSettings)
 {
 }
 
@@ -42,7 +76,7 @@ int Light::compare(const Object& rhs_object) const
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(color, rhs.color)) != 0) return result;
     if ((result = compare_value(intensity, rhs.intensity)) != 0) return result;
-    return compare_value(shadowMaps, rhs.shadowMaps);
+    return compare_pointer(shadowSettings, rhs.shadowSettings);
 }
 
 void Light::read(Input& input)
@@ -50,6 +84,11 @@ void Light::read(Input& input)
     input.read("name", name);
     input.read("color", color);
     input.read("intensity", intensity);
+
+    if (input.version_greater_equal(1, 1, 3))
+    {
+        input.read("shadowSettings", shadowSettings);
+    }
 }
 
 void Light::write(Output& output) const
@@ -57,6 +96,11 @@ void Light::write(Output& output) const
     output.write("name", name);
     output.write("color", color);
     output.write("intensity", intensity);
+
+    if (output.version_greater_equal(1, 1, 3))
+    {
+        output.write("shadowSettings", shadowSettings);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +218,7 @@ void PointLight::write(Output& output) const
     output.write("position", position);
     if (output.version_greater_equal(1, 1, 3))
     {
-        output.read("radius", radius);
+        output.write("radius", radius);
     }
 }
 
@@ -235,7 +279,7 @@ void SpotLight::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 3))
     {
-        output.read("radius", radius);
+        output.write("radius", radius);
     }
 }
 
