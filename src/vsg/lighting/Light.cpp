@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/lighting/Light.h>
+#include <vsg/nodes/AbsoluteTransform.h>
 
 using namespace vsg;
 
@@ -50,10 +50,8 @@ void ShadowSettings::write(Output& output) const
     output.write("shadowMaps", shadowMaps);
 }
 
-
-
 HardShadows::HardShadows(uint32_t in_shadowMaps) :
-   Inherit(in_shadowMaps)
+    Inherit(in_shadowMaps)
 {
 }
 
@@ -64,10 +62,9 @@ SoftShadows::SoftShadows(uint32_t in_shadowMaps, float in_penumbraRadius) :
 }
 
 PercentageCloserSoftShadows::PercentageCloserSoftShadows(uint32_t in_shadowMaps) :
-   Inherit(in_shadowMaps)
+    Inherit(in_shadowMaps)
 {
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
