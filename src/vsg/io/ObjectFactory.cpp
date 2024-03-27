@@ -183,14 +183,21 @@ ObjectFactory::ObjectFactory()
     add<vsg::DepthSorted>();
     add<vsg::Layer>();
     add<vsg::Switch>();
+    add<vsg::TileDatabase>();
+    add<vsg::TileDatabaseSettings>();
+    add<vsg::InstrumentationNode>();
+
+    // lighting
     add<vsg::Light>();
     add<vsg::AmbientLight>();
     add<vsg::DirectionalLight>();
     add<vsg::PointLight>();
     add<vsg::SpotLight>();
-    add<vsg::TileDatabase>();
-    add<vsg::TileDatabaseSettings>();
-    add<vsg::InstrumentationNode>();
+    add<vsg::ShadowSettings>();
+    add<vsg::HardShadows>();
+    add<vsg::SoftShadows>();
+    add<vsg::PercentageCloserSoftShadows>();
+
 
     // vulkan objects
     add<vsg::BindGraphicsPipeline>();

@@ -21,6 +21,14 @@ namespace vsg
     {
     public:
         explicit PercentageCloserSoftShadows(uint32_t in_shadowMaps = 1);
+        PercentageCloserSoftShadows(const PercentageCloserSoftShadows& rhs, const CopyOp& copyop = {});
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return PercentageCloserSoftShadows::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::PercentageCloserSoftShadows);
 

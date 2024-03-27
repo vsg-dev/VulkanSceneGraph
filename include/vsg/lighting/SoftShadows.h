@@ -21,8 +21,16 @@ namespace vsg
     {
     public:
         explicit SoftShadows(uint32_t in_shadowMaps = 1, float in_penumbraRadius = 0.05f);
+        SoftShadows(const SoftShadows& rhs, const CopyOp& copyop = {});
 
         float penumbraRadius = 0.05f;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return SoftShadows::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::SoftShadows);
 

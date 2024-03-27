@@ -19,3 +19,23 @@ PercentageCloserSoftShadows::PercentageCloserSoftShadows(uint32_t in_shadowMaps)
     Inherit(in_shadowMaps)
 {
 }
+
+PercentageCloserSoftShadows::PercentageCloserSoftShadows(const PercentageCloserSoftShadows& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+}
+
+int PercentageCloserSoftShadows::compare(const Object& rhs_object) const
+{
+    return ShadowSettings::compare(rhs_object);
+}
+
+void PercentageCloserSoftShadows::read(Input& input)
+{
+    ShadowSettings::read(input);
+}
+
+void PercentageCloserSoftShadows::write(Output& output) const
+{
+    ShadowSettings::write(output);
+}

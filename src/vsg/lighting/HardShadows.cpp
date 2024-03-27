@@ -19,3 +19,23 @@ HardShadows::HardShadows(uint32_t in_shadowMaps) :
     Inherit(in_shadowMaps)
 {
 }
+
+HardShadows::HardShadows(const HardShadows& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
+{
+}
+
+int HardShadows::compare(const Object& rhs_object) const
+{
+    return ShadowSettings::compare(rhs_object);
+}
+
+void HardShadows::read(Input& input)
+{
+    ShadowSettings::read(input);
+}
+
+void HardShadows::write(Output& output) const
+{
+    ShadowSettings::write(output);
+}

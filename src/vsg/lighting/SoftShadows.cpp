@@ -20,3 +20,33 @@ SoftShadows::SoftShadows(uint32_t in_shadowMaps, float in_penumbraRadius) :
     penumbraRadius(in_penumbraRadius)
 {
 }
+
+
+SoftShadows::SoftShadows(const SoftShadows& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    penumbraRadius(rhs.penumbraRadius)
+{
+}
+
+int SoftShadows::compare(const Object& rhs_object) const
+{
+    int result = ShadowSettings::compare(rhs_object);
+    if (result != 0) return result;
+
+    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    return compare_value(penumbraRadius, rhs.penumbraRadius);
+}
+
+void SoftShadows::read(Input& input)
+{
+    ShadowSettings::read(input);
+
+    input.read("penumbraRadius", penumbraRadius);
+}
+
+void SoftShadows::write(Output& output) const
+{
+    ShadowSettings::write(output);
+
+    output.write("penumbraRadius", penumbraRadius);
+}
