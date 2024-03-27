@@ -198,6 +198,7 @@ namespace vsgWin32
 
         HWND _window;
         bool _windowMapped = false;
+        WNDPROC _windowProcedure;
 
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };

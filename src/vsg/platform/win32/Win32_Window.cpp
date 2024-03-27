@@ -299,7 +299,8 @@ KeyboardMap::KeyboardMap()
 
 Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     Inherit(traits),
-    _window(nullptr)
+    _window(nullptr),
+    _windowProcedure(nullptr)
 {
     _keyboard = new KeyboardMap;
 
@@ -322,6 +323,11 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         {
             _window = nativeWindow;
             createWindow = false;
+        }
+        if(_window && traits->installEventHandler)
+        {
+            _windowProcedure = (WNDPROC)SetWindowLongPtr(_window, GWLP_WNDPROC, LONG_PTR(Win32WindowProc));
+            SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
         }
     }
 
@@ -650,5 +656,6 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     default:
         break;
     }
-    return ::DefWindowProc(_window, msg, wParam, lParam);
+    return _windowProcedure==0 ? ::DefWindowProc(_window, msg, wParam, lParam) :
+                                 ::CallWindowProc(_windowProcedure, _window, msg, wParam, lParam);
 }
