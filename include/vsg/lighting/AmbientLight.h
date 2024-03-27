@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2022 Robert Osfield
+Copyright(c) 2024 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -14,38 +14,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/common.h>
 #include <vsg/nodes/Node.h>
-#include <vsg/lighting/ShadowSettings.h>
+#include <vsg/lighting/Light.h>
 
 namespace vsg
 {
 
-    /// Light is a base node class for different light types - AmbientLight, DirectionalLight, PointLight and SpotLight.
-    /// Used by the RecordTraversal to represent a light source that is placed in the LightData uniform used by the shaders when implementing lighting.
-    /// Provides name, color and intensity settings common to all Light types.
-    class VSG_DECLSPEC Light : public Inherit<Node, Light>
+    /// AmbientLight represents an ambient light source
+    class VSG_DECLSPEC AmbientLight : public Inherit<Light, AmbientLight>
     {
     public:
-        Light();
-        Light(const Light& rhs, const CopyOp& copyop = {});
-
-        std::string name;
-        vec3 color = vec3(1.0f, 1.0f, 1.0f);
-        float intensity = 1.0f;
-        ref_ptr<ShadowSettings> shadowSettings;
+        AmbientLight();
+        AmbientLight(const AmbientLight& rhs, const CopyOp& copyop = {});
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Light::create(*this, copyop); }
-        int compare(const Object& rhs) const override;
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return AmbientLight::create(*this, copyop); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
     protected:
-        virtual ~Light() {}
+        virtual ~AmbientLight() {}
     };
-    VSG_type_name(vsg::Light);
-
-    /// convenience method for creating a subgraph with a headlight illumination using a white AmbientLight and DirectionalLight with intensity of 0.05 and 0.95 respectively.
-    extern VSG_DECLSPEC ref_ptr<vsg::Node> createHeadlight();
+    VSG_type_name(vsg::AmbientLight);
 
 } // namespace vsg

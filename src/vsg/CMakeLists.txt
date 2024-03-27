@@ -45,6 +45,10 @@ set(SOURCES
     nodes/InstrumentationNode.cpp
 
     lighting/Light.cpp
+    lighting/AmbientLight.cpp
+    lighting/DirectionalLight.cpp
+    lighting/PointLight.cpp
+    lighting/SpotLight.cpp
     lighting/ShadowSettings.cpp
 
     commands/BindIndexBuffer.cpp
