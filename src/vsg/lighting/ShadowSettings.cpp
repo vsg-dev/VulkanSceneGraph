@@ -16,14 +16,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-ShadowSettings::ShadowSettings(uint32_t in_shadowMaps) :
-    shadowMaps(in_shadowMaps)
+ShadowSettings::ShadowSettings(uint32_t in_shadowMapCount) :
+    shadowMapCount(in_shadowMapCount)
 {
 }
 
 ShadowSettings::ShadowSettings(const ShadowSettings& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    shadowMaps(rhs.shadowMaps)
+    shadowMapCount(rhs.shadowMapCount)
 {
 }
 
@@ -33,15 +33,15 @@ int ShadowSettings::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_value(shadowMaps, rhs.shadowMaps);
+    return compare_value(shadowMapCount, rhs.shadowMapCount);
 }
 
 void ShadowSettings::read(Input& input)
 {
-    input.read("shadowMaps", shadowMaps);
+    input.read("shadowMapCount", shadowMapCount);
 }
 
 void ShadowSettings::write(Output& output) const
 {
-    output.write("shadowMaps", shadowMaps);
+    output.write("shadowMapCount", shadowMapCount);
 }

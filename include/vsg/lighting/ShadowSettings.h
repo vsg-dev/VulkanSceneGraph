@@ -23,7 +23,7 @@ namespace vsg
         explicit ShadowSettings(uint32_t shadowMaps = 1);
         ShadowSettings(const ShadowSettings& rhs, const CopyOp& copyop = {});
 
-        uint32_t shadowMaps = 1;
+        uint32_t shadowMapCount = 1;
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShadowSettings::create(*this, copyop); }

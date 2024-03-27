@@ -207,7 +207,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
-            if (light->shadowSettings) numShadowMaps += light->shadowSettings->shadowMaps;
+            if (light->shadowSettings) numShadowMaps += light->shadowSettings->shadowMapCount;
         }
 
         if (numLights < requirements.numLightsRange[0])
@@ -571,14 +571,14 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     for (auto& [mv, light] : directionalLights)
     {
-        // info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
+        // info("   light ", light->className(), ", light->shadowMapCount = ", light->shadowMapCount);
 
         // assign basic direction light settings to light data
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
-        uint32_t activeNumShadowMaps = light->shadowSettings ? std::min(light->shadowSettings->shadowMaps, numShadowMaps - shadowMapIndex) : 0;
+        uint32_t activeNumShadowMaps = light->shadowSettings ? std::min(light->shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
         bool inverseMatrixRequired = false;
         if (light->shadowSettings)
         {
@@ -617,7 +617,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
 #if 0
-        info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
+        info("   directional light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
         info("      light->direction in model = ", light->direction);
         info("      view_direction in world = ", view_direction);
         info("      view_up in world = ", view_up);
