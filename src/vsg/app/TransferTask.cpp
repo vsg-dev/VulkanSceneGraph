@@ -249,8 +249,6 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
             {
                 ++imageInfo_itr;
             }
-
-            ++imageInfo_itr;
         }
     }
 }
