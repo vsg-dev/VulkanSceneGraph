@@ -52,6 +52,9 @@ namespace vsg
         /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
 
+        /// control for the level of debug infomation emitted by the TransferTask
+        Logger::Level level = Logger::LOGGER_DEBUG;
+
     protected:
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;

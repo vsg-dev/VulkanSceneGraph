@@ -30,6 +30,8 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     }
 
     _frames.resize(numBuffers);
+
+    //level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
@@ -107,9 +109,6 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
-    Logger::Level level = Logger::LOGGER_DEBUG;
-    //level = Logger::LOGGER_INFO;
-
     auto deviceID = device->deviceID;
     auto& staging = frame.staging;
     auto& copyRegions = frame.copyRegions;
@@ -151,7 +150,16 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
                     VkDeviceSize endOfEntry = offset + bufferInfo->range;
                     offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
                 }
-                ++bufferInfo_itr;
+
+                if (bufferInfo->data->properties.dataVariance == STATIC_DATA)
+                {
+                    log(level, "       removing copied static data: ", bufferInfo, ", ", bufferInfo->data);
+                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
+                }
+                else
+                {
+                    ++bufferInfo_itr;
+                }
             }
         }
 
@@ -182,9 +190,6 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 void TransferTask::assign(const ImageInfoList& imageInfoList)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
-
-    Logger::Level level = Logger::LOGGER_DEBUG;
-    //level = Logger::LOGGER_INFO;
 
     log(level, "TransferTask::assign(imageInfoList) ", imageInfoList.size());
     for (auto& imageInfo : imageInfoList)
@@ -217,9 +222,6 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
-    Logger::Level level = Logger::LOGGER_DEBUG;
-    //level = Logger::LOGGER_INFO;
-
     auto deviceID = device->deviceID;
 
     // transfer any modified ImageInfo
@@ -238,7 +240,15 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
                 _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
             }
 
-            ++imageInfo_itr;
+            if (imageInfo->imageView->image->data->properties.dataVariance == STATIC_DATA)
+            {
+                log(level, "       removing copied static image data: ", imageInfo, ", ", imageInfo->imageView->image->data);
+                imageInfo_itr = _dynamicImageInfoSet.erase(imageInfo_itr);
+            }
+            else
+            {
+                ++imageInfo_itr;
+            }
         }
     }
 }
@@ -246,9 +256,6 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
 void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
-
-    Logger::Level level = Logger::LOGGER_DEBUG;
-    //level = Logger::LOGGER_INFO;
 
     auto& imageStagingBuffer = frame.staging;
     auto& buffer_data = frame.buffer_data;
@@ -332,9 +339,6 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
 VkResult TransferTask::transferDynamicData()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferDynamicData", COLOR_RECORD);
-
-    Logger::Level level = Logger::LOGGER_DEBUG;
-    //level = Logger::LOGGER_INFO;
 
     size_t frameIndex = index(0);
     if (frameIndex > _frames.size()) return VK_SUCCESS;

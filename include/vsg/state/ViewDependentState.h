@@ -135,9 +135,11 @@ namespace vsg
 
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
+        ref_ptr<DescriptorBuffer> lightDataDescriptor;
 
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
+        ref_ptr<DescriptorBuffer> viewportDescriptor;
 
         ref_ptr<Image> shadowDepthImage;
         ref_ptr<DescriptorImage> shadowMapImages;
@@ -145,7 +147,6 @@ namespace vsg
         ref_ptr<DescriptorImage> shadowMapShadowSamplerDescriptor;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-        ref_ptr<DescriptorBuffer> descriptor;
         ref_ptr<DescriptorSet> descriptorSet;
 
         // shadow map hints
