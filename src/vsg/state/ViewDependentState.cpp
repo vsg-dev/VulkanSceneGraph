@@ -251,11 +251,13 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
 
+    lightDataDescriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo}, 0, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // hardwired position for now
+
     viewportData = vec4Array::create(maxViewports);
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
 
-    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
+    viewportDescriptor = DescriptorBuffer::create(BufferInfoList{viewportDataBufferInfo}, 1, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // hardwired position for now
 
     // set up ShadowMaps
     auto shadowMapDirectSampler = Sampler::create();
@@ -329,15 +331,15 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     }
 
     DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
-        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
+        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
+        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
         VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                               // shadow map 2D texture array
         VkDescriptorSetLayoutBinding{3, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                                     // shadow map direct sampler
         VkDescriptorSetLayoutBinding{4, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                                     // shadow map shadow sampler
     };
 
     descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages, shadowMapDirectSamplerDescriptor, shadowMapShadowSamplerDescriptor});
+    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{lightDataDescriptor, viewportDescriptor, shadowMapImages, shadowMapDirectSamplerDescriptor, shadowMapShadowSamplerDescriptor});
 
     // if not active then don't enable shadow maps
     if (maxShadowMaps == 0) return;
