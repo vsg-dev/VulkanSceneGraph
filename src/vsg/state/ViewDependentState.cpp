@@ -187,6 +187,25 @@ ref_ptr<Image> createShadowImage(uint32_t width, uint32_t height, uint32_t level
     return image;
 }
 
+ref_ptr<ShadowSettings> ViewDependentState::getActiveShadowSettings(const Light* light) const
+{
+    // find an exact match
+    auto itr = shadowSettingsOverride.find(ref_ptr<const Light>(light));
+    if (itr != shadowSettingsOverride.end())
+    {
+        return itr->second;
+    }
+
+    // if null entry exists then use it to override all unmatched Lights.
+    itr = shadowSettingsOverride.find({});
+    if (itr != shadowSettingsOverride.end())
+    {
+        return itr->second;
+    }
+
+    return light->shadowSettings;
+}
+
 void ViewDependentState::init(ResourceRequirements& requirements)
 {
     // check if ViewDependentState has already been initialized
@@ -207,7 +226,10 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
-            if (light->shadowSettings) numShadowMaps += light->shadowSettings->shadowMapCount;
+            if (auto shadowSettings = getActiveShadowSettings(light))
+            {
+                numShadowMaps += shadowSettings->shadowMapCount;
+            }
         }
 
         if (numLights < requirements.numLightsRange[0])
@@ -580,19 +602,20 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
-        uint32_t activeNumShadowMaps = light->shadowSettings ? std::min(light->shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
-        if (light->shadowSettings)
+        auto shadowSettings = getActiveShadowSettings(light);
+        uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
+        if (shadowSettings)
         {
-            if (light->shadowSettings->type_info() == typeid(HardShadows))
+            if (shadowSettings->type_info() == typeid(HardShadows))
             {
                 (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
             }
-            else if (light->shadowSettings->type_info() == typeid(SoftShadows))
+            else if (shadowSettings->type_info() == typeid(SoftShadows))
             {
-                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*light->shadowSettings);
+                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
                 (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
             }
-            else if (light->shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
+            else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
             {
                 (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(light->angleSubtended / 2), 0.0f);
             }
