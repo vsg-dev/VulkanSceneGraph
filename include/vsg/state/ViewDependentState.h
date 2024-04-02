@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
 #include <vsg/io/Logger.h>
-#include <vsg/nodes/Light.h>
+#include <vsg/lighting/Light.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
@@ -153,6 +153,12 @@ namespace vsg
         double maxShadowDistance = 1e8;
         double shadowMapBias = 0.005;
         double lambda = 0.5;
+
+        // map of Light's that we wish to override their ShadowSettings,
+        // assigning shadowSettingsOverride[{}] = shadowSettings will override all Light not otherwise explictly matched.
+        std::map<ref_ptr<const Light>, ref_ptr<ShadowSettings>> shadowSettingsOverride;
+
+        virtual ref_ptr<ShadowSettings> getActiveShadowSettings(const Light* light) const;
 
         // Shadow backend.
         bool compiled = false;

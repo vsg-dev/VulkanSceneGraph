@@ -67,7 +67,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
-#include <vsg/nodes/Light.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/PagedLOD.h>
@@ -89,6 +88,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/JointSampler.h>
 #include <vsg/animation/MorphSampler.h>
 #include <vsg/animation/TransformSampler.h>
+
+// Lighting header files
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/HardShadows.h>
+#include <vsg/lighting/Light.h>
+#include <vsg/lighting/PercentageCloserSoftShadows.h>
+#include <vsg/lighting/PointLight.h>
+#include <vsg/lighting/ShadowSettings.h>
+#include <vsg/lighting/SoftShadows.h>
+#include <vsg/lighting/SpotLight.h>
 
 // Commands header files
 #include <vsg/commands/BeginQuery.h>

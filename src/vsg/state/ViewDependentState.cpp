@@ -16,6 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/write.h>
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/HardShadows.h>
+#include <vsg/lighting/PercentageCloserSoftShadows.h>
+#include <vsg/lighting/PointLight.h>
+#include <vsg/lighting/SoftShadows.h>
+#include <vsg/lighting/SpotLight.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/Context.h>
@@ -180,6 +187,25 @@ ref_ptr<Image> createShadowImage(uint32_t width, uint32_t height, uint32_t level
     return image;
 }
 
+ref_ptr<ShadowSettings> ViewDependentState::getActiveShadowSettings(const Light* light) const
+{
+    // find an exact match
+    auto itr = shadowSettingsOverride.find(ref_ptr<const Light>(light));
+    if (itr != shadowSettingsOverride.end())
+    {
+        return itr->second;
+    }
+
+    // if null entry exists then use it to override all unmatched Lights.
+    itr = shadowSettingsOverride.find({});
+    if (itr != shadowSettingsOverride.end())
+    {
+        return itr->second;
+    }
+
+    return light->shadowSettings;
+}
+
 void ViewDependentState::init(ResourceRequirements& requirements)
 {
     // check if ViewDependentState has already been initialized
@@ -200,7 +226,10 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
-            numShadowMaps += light->shadowMaps;
+            if (auto shadowSettings = getActiveShadowSettings(light))
+            {
+                numShadowMaps += shadowSettings->shadowMapCount;
+            }
         }
 
         if (numLights < requirements.numLightsRange[0])
@@ -566,15 +595,33 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     for (auto& [mv, light] : directionalLights)
     {
-        // info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
+        // info("   light ", light->className(), ", light->shadowMapCount = ", light->shadowMapCount);
 
         // assign basic direction light settings to light data
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
-        uint32_t activeNumShadowMaps = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), std::tan(light->angleSubtended / 2), 0.0f, 0.0f); // shadow map setting
+        auto shadowSettings = getActiveShadowSettings(light);
+        uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
+        if (shadowSettings)
+        {
+            if (shadowSettings->type_info() == typeid(HardShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(SoftShadows))
+            {
+                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(light->angleSubtended / 2), 0.0f);
+            }
+        }
+        else
+            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (activeNumShadowMaps == 0) continue;
 
@@ -593,7 +640,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
 #if 0
-        info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
+        info("   directional light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
         info("      light->direction in model = ", light->direction);
         info("      view_direction in world = ", view_direction);
         info("      view_up in world = ", view_up);
@@ -661,6 +708,13 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             (*light_itr++) = m[3];
 
             // info("m = ", m);
+
+            m = inverse(m);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
 
             // advance to the next shadowMap
             shadowMapIndex++;

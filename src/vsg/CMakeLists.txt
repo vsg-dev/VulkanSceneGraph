@@ -41,9 +41,18 @@ set(SOURCES
     nodes/Bin.cpp
     nodes/Switch.cpp
     nodes/StateGroup.cpp
-    nodes/Light.cpp
     nodes/TileDatabase.cpp
     nodes/InstrumentationNode.cpp
+
+    lighting/Light.cpp
+    lighting/AmbientLight.cpp
+    lighting/DirectionalLight.cpp
+    lighting/PointLight.cpp
+    lighting/SpotLight.cpp
+    lighting/ShadowSettings.cpp
+    lighting/HardShadows.cpp
+    lighting/SoftShadows.cpp
+    lighting/PercentageCloserSoftShadows.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
