@@ -625,6 +625,10 @@ void Visitor::apply(InstrumentationNode& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(RegionOfInterest& value)
+{
+    apply(static_cast<Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

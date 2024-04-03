@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/lighting/PointLight.h>
 #include <vsg/lighting/SoftShadows.h>
 #include <vsg/lighting/SpotLight.h>
+#include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/Context.h>
@@ -576,6 +577,38 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
 
+    // cache general view parameters
+    auto projectionMatrix = view->camera->projectionMatrix->transform();
+    auto viewMatrix = view->camera->viewMatrix->transform();
+    auto inverse_viewMatrix = inverse(viewMatrix);
+    auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
+    auto view_up = normalize(dvec3(0.0, -1.0, 0.0) * (projectionMatrix * viewMatrix));
+
+    auto clipToEye = inverse(projectionMatrix);
+    auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
+    auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
+
+    // if regions of interest have been found in the scene graph use them to clamp the near/far values.
+    if (!rt.regionsOfInterest.empty())
+    {
+        dbox eyeSpaceRegionBounds;
+        for (auto& [mv, regionOfInterest] : rt.regionsOfInterest)
+        {
+            for (auto& v : regionOfInterest->points)
+            {
+                eyeSpaceRegionBounds.add(mv * v);
+            }
+        }
+
+        if (eyeSpaceRegionBounds)
+        {
+            double regionNear = -eyeSpaceRegionBounds.max.z;
+            double regionFar = -eyeSpaceRegionBounds.min.z;
+            if (regionNear > n) { n = regionNear; }
+            if (regionFar < f) { f = regionFar; }
+        }
+    }
+
     // set up the light data
     auto light_itr = lightData->begin();
     lightData->dirty();
@@ -629,14 +662,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         requiresPerRenderShadowMaps = true;
 
         // compute directional light space
-        auto projectionMatrix = view->camera->projectionMatrix->transform();
-        auto viewMatrix = view->camera->viewMatrix->transform();
-        auto inverse_viewMatrix = inverse(viewMatrix);
-
-        // view direction in world coords
-        auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
-        auto view_up = normalize(dvec3(0.0, -1.0, 0.0) * (projectionMatrix * viewMatrix));
-
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
 #if 0
@@ -651,11 +676,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto light_x = (length(light_x_direction) > length(light_x_up)) ? normalize(light_x_direction) : normalize(light_x_up);
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
-
-        auto clipToEye = inverse(projectionMatrix);
-
-        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
-        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
         // clamp the near and far values
         if (n > maxShadowDistance)

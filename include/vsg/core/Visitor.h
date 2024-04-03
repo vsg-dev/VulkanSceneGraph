@@ -49,6 +49,7 @@ namespace vsg
     class PointLight;
     class SpotLight;
     class InstrumentationNode;
+    class RegionOfInterest;
 
     // forward declare text classes
     class Text;
@@ -337,6 +338,7 @@ namespace vsg
         virtual void apply(PointLight&);
         virtual void apply(SpotLight&);
         virtual void apply(InstrumentationNode&);
+        virtual void apply(RegionOfInterest&);
 
         // text
         virtual void apply(Text&);
