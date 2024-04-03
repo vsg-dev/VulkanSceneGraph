@@ -23,9 +23,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/lighting/PointLight.h>
 #include <vsg/lighting/SoftShadows.h>
 #include <vsg/lighting/SpotLight.h>
+#include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
-#include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -592,9 +592,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     if (!rt.regionsOfInterest.empty())
     {
         dbox eyeSpaceRegionBounds;
-        for(auto& [mv, regionOfInterest] : rt.regionsOfInterest)
+        for (auto& [mv, regionOfInterest] : rt.regionsOfInterest)
         {
-            for(auto& v : regionOfInterest->points)
+            for (auto& v : regionOfInterest->points)
             {
                 eyeSpaceRegionBounds.add(mv * v);
             }

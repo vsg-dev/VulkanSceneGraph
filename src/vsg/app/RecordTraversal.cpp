@@ -296,7 +296,6 @@ void RecordTraversal::apply(const RegionOfInterest& roi)
     regionsOfInterest.emplace_back(_state->modelviewMatrixStack.top(), &roi);
 }
 
-
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
     CPU_INSTRUMENTATION_L2_NCO(instrumentation, "DepthSorted", COLOR_RECORD_L2, &depthSorted);
