@@ -51,6 +51,7 @@ namespace vsg
     class View;
     class Bin;
     class Switch;
+    class RegionOfInterest;
     class ViewDependentState;
     class Light;
     class AmbientLight;
@@ -117,6 +118,7 @@ namespace vsg
         void apply(const DepthSorted& depthSorted);
         void apply(const Layer& layer);
         void apply(const Switch& sw);
+        void apply(const RegionOfInterest& roi);
 
         // leaf node
         void apply(const VertexDraw& vid);
@@ -153,6 +155,9 @@ namespace vsg
 
         // clear the bins to record a new frame.
         void clearBins();
+
+        // list of pairs of modelview matrix & region of interest
+        std::vector<std::pair<dmat4, const RegionOfInterest*>> regionsOfInterest;
 
     protected:
         virtual ~RecordTraversal();

@@ -289,6 +289,14 @@ void RecordTraversal::apply(const Switch& sw)
     }
 }
 
+void RecordTraversal::apply(const RegionOfInterest& roi)
+{
+    CPU_INSTRUMENTATION_L2_NCO(instrumentation, "RegionOfInterest", COLOR_RECORD_L2, &roi);
+
+    regionsOfInterest.emplace_back(_state->modelviewMatrixStack.top(), &roi);
+}
+
+
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
     CPU_INSTRUMENTATION_L2_NCO(instrumentation, "DepthSorted", COLOR_RECORD_L2, &depthSorted);
@@ -497,6 +505,9 @@ void RecordTraversal::apply(const View& view)
     cached_bins.swap(_bins);
     auto cached_viewDependentState = _viewDependentState;
 
+    decltype(regionsOfInterest) cached_regionsOfInterest;
+    cached_regionsOfInterest.swap(regionsOfInterest);
+
     // assign and clear the View's bins
     int32_t min_binNumber = 0;
     int32_t max_binNumber = 0;
@@ -566,6 +577,7 @@ void RecordTraversal::apply(const View& view)
     // swap back previous bin setup.
     _minimumBinNumber = cached_minimumBinNumber;
     cached_bins.swap(_bins);
+    cached_regionsOfInterest.swap(regionsOfInterest);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
     _viewDependentState = cached_viewDependentState;
 }
