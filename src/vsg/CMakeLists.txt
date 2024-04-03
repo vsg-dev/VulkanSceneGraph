@@ -43,6 +43,7 @@ set(SOURCES
     nodes/StateGroup.cpp
     nodes/TileDatabase.cpp
     nodes/InstrumentationNode.cpp
+    nodes/RegionOfInterest.cpp
 
     lighting/Light.cpp
     lighting/AmbientLight.cpp
