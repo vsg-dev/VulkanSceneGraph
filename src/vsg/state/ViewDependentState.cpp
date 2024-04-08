@@ -871,12 +871,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             perspective->aspectRatio = 1.0;
             perspective->fieldOfViewY = 2.0 * degrees(light->outerAngle);
-            perspective->nearDistance = 1.0;
             perspective->farDistance = sqrt(light->intensity / 0.001);
+            perspective->nearDistance = perspective->farDistance / 10000.0;
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
 
-            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, shadowMapBias) * shadowMapProjView * inverse_viewMatrix;
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
