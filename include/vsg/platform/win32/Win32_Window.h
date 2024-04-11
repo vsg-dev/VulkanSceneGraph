@@ -29,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsgWin32
 {
-    class KeyboardMap : public vsg::Object
+    class VSG_DECLSPEC KeyboardMap : public vsg::Object
     {
     public:
         KeyboardMap();
@@ -167,7 +167,7 @@ namespace vsgWin32
     }
 
     /// Win32_Window implements Win32 specific window creation, event handling and vulkan Surface setup.
-    class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
+    class VSG_DECLSPEC Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
     public:
         Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
@@ -189,7 +189,8 @@ namespace vsgWin32
 
         operator HWND() const { return _window; }
 
-        LRESULT handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
+        /// handle Win32 event messages, return true if handled.
+        virtual bool handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
 
     protected:
         virtual ~Win32_Window();

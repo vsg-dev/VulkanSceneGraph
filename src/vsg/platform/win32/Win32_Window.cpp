@@ -55,7 +55,12 @@ namespace vsgWin32
     LRESULT CALLBACK Win32WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         Win32_Window* win = reinterpret_cast<Win32_Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-        if (win != nullptr) return win->handleWin32Messages(msg, wParam, lParam);
+        if (win != nullptr)
+        {
+            win->handleWin32Messages(msg, wParam, lParam);
+            // should we return 0 here if handleWin32Messages returns true and not call ::DefWindowProc(..);
+            // for now will keep the original behavior and always call ::DefWindowProc(..);
+        }
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
@@ -531,7 +536,7 @@ void Win32_Window::resize()
     buildSwapchain();
 }
 
-LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
+bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     vsg::clock::time_point event_time = vsg::clock::now();
 
@@ -549,21 +554,22 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
     case WM_CLOSE:
         vsg::debug("close window");
         bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
-        break;
+        return true;
     case WM_SHOWWINDOW:
         bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, winx, winy, winw, winh));
-        break;
+        return true;
     case WM_DESTROY:
         _windowMapped = false;
-        break;
+        return true;
     case WM_PAINT:
         ValidateRect(_window, NULL);
-        break;
+        return true;
     case WM_MOUSEMOVE: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
         bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, mx, my, getButtonMask(wParam)));
+        return true;
     }
     break;
     case WM_LBUTTONDOWN:
@@ -578,8 +584,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         int32_t my = GET_Y_LPARAM(lParam);
 
         bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg, HIWORD(wParam))));
-
         //::SetCapture(_window);
+        return true;
     }
     break;
     case WM_LBUTTONUP:
@@ -590,18 +596,17 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         int32_t my = GET_Y_LPARAM(lParam);
 
         bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg, HIWORD(wParam))));
-
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
-        break;
+        return true;
     }
     break;
     case WM_MOUSEWHEEL: {
         bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam) < 0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
-        break;
+        return true;
     }
     case WM_MOVE: {
         bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
-        break;
+        return true;
     }
     case WM_SIZE: {
         if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
@@ -613,7 +618,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
             _windowMapped = true;
             bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         }
-        break;
+        return true;
     }
     case WM_EXITSIZEMOVE:
         break;
@@ -626,7 +631,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
             int32_t repeatCount = (lParam & 0xffff);
             bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
         }
-        break;
+        return true;
     }
     case WM_KEYUP:
     case WM_SYSKEYUP: {
@@ -636,19 +641,18 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         {
             bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
         }
-
-        break;
+        return true;
     }
     case WM_SETFOCUS: {
         bufferedEvents.emplace_back(vsg::FocusInEvent::create(this, event_time));
-        break;
+        return true;
     }
     case WM_KILLFOCUS: {
         bufferedEvents.emplace_back(vsg::FocusOutEvent::create(this, event_time));
-        break;
+        return true;
     }
     default:
         break;
     }
-    return ::DefWindowProc(_window, msg, wParam, lParam);
+    return false;
 }
