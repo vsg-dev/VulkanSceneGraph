@@ -28,8 +28,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/Context.h>
 
-#include <filesystem>
-
 using namespace vsg;
 
 //////////////////////////////////////
@@ -631,55 +629,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             }
         }
         return bounds;
-        };
-
-    auto dumpFrustum = [](double n, double f, const dmat4& clipToWorld, int& baseIndex) -> std::string {
-        std::stringstream obj;
-
-        dvec3 corner;
-        corner = clipToWorld * dvec3(-1.0, -1.0, n);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(-1.0, 1.0, n);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(1.0, -1.0, n);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(1.0, 1.0, n);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(-1.0, -1.0, f);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(-1.0, 1.0, f);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(1.0, -1.0, f);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-        corner = clipToWorld * dvec3(1.0, 1.0, f);
-        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
-
-        obj << "l " << baseIndex + 0 << " " << baseIndex + 1 << " " << baseIndex + 3 << " " << baseIndex + 2 << " " << baseIndex + 0 << " " << baseIndex + 4 << " " << baseIndex + 5 << " " << baseIndex + 7 << " " << baseIndex + 6 << " " << baseIndex + 4 << std::endl;
-        obj << "l " << baseIndex + 1 << " " << baseIndex + 5 << std::endl;
-        obj << "l " << baseIndex + 2 << " " << baseIndex + 6 << std::endl;
-        obj << "l " << baseIndex + 3 << " " << baseIndex + 7 << std::endl;
-
-        baseIndex += 8;
-
-        return obj.str();
-        };
-
-    auto dumpDbox = [](dbox box, int& baseIndex) -> std::string {
-        std::stringstream obj;
-
-        for (size_t i = 0; i < 8; ++i)
-            obj << "v " << box[(i & 1) * 3 + 0] << " " << box[((i & 2)/2) * 3 + 1] << " " << box[((i & 4) / 4) * 3 + 2] << std::endl;
-
-        obj << "f " << baseIndex + 0 << " " << baseIndex + 1 << " " << baseIndex + 3 << " " << baseIndex + 2 << std::endl;
-        obj << "f " << baseIndex + 0 << " " << baseIndex + 1 << " " << baseIndex + 5 << " " << baseIndex + 4 << std::endl;
-        obj << "f " << baseIndex + 1 << " " << baseIndex + 3 << " " << baseIndex + 7 << " " << baseIndex + 5 << std::endl;
-        obj << "f " << baseIndex + 3 << " " << baseIndex + 2 << " " << baseIndex + 6 << " " << baseIndex + 7 << std::endl;
-        obj << "f " << baseIndex + 2 << " " << baseIndex + 0 << " " << baseIndex + 4 << " " << baseIndex + 6 << std::endl;
-        obj << "f " << baseIndex + 4 << " " << baseIndex + 6 << " " << baseIndex + 7 << " " << baseIndex + 5 << std::endl;
-
-        baseIndex += 8;
-
-        return obj.str();
     };
 
     // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
@@ -969,14 +918,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             auto perspective = relativeProjection->projectionMatrix.cast<Perspective>();
 
-            //auto ws_bounds = computeFrustumBounds(clip_near_z, clip_far_z, clipToWorld);
-            //auto sm_eye = (ws_bounds.min + ws_bounds.max) * 0.5 - light_z * (0.5 * length(ws_bounds.max - ws_bounds.min));
-
             lookAt->eye = light_position;
             lookAt->center = light_position + light_z;
             lookAt->up = light_y;
-
-            //auto ls_bounds = computeFrustumBounds(clip_near_z, clip_far_z, lookAt->transform() * clipToWorld);
 
             perspective->aspectRatio = 1.0;
             perspective->fieldOfViewY = 2.0 * degrees(light->outerAngle);
@@ -985,47 +929,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             dmat4 intermediateProjView = perspective->transform() * camera->viewMatrix->transform();
 
-            std::filesystem::path dir{ "C:\\Users\\krizd\\Documents" };
-
-            int worldIndex = 1;
-            std::stringstream world;
-            world << "o View Frustum" << std::endl;
-            world << dumpFrustum(clip_near_z, clip_far_z, clipToWorld, worldIndex);
-            world << "o Light space" << std::endl;
-            world << dumpFrustum(1.0, 0.0, inverse(intermediateProjView), worldIndex);
-
-            if (std::filesystem::exists(dir / "dump.txt"))
-            {
-                std::ofstream worldObj(dir / "world.obj");
-                worldObj << world.str();
-            }
-
-            int preCropIndex = 1;
-            std::stringstream preCrop;
-
             auto ls_bounds = computeFrustumBoundsClipped(clip_near_z, clip_far_z, intermediateProjView * clipToWorld);
-            preCrop << "mtllib vsgshadow-reexported.mtl" << std::endl;
-            preCrop << "o View Frustum" << std::endl;
-            preCrop << dumpFrustum(clip_near_z, clip_far_z, intermediateProjView * clipToWorld, preCropIndex);
-            preCrop << "o Uncropped light space" << std::endl;
-            preCrop << dumpFrustum(1.0, 0.0, dmat4(), preCropIndex);
-            preCrop << "o Original bounds" << std::endl;
-            preCrop << "usemtl Material.003" << std::endl;
-            preCrop << dumpDbox(ls_bounds, preCropIndex);
-            info("\u001b[2J\u001b[Horiginal bounds: ", ls_bounds);
             ls_bounds.min = dvec3(std::max(-1.0, ls_bounds.min.x), std::max(-1.0, ls_bounds.min.y), std::max(0.0, ls_bounds.min.z));
             ls_bounds.max = dvec3(std::min(1.0, ls_bounds.max.x), std::min(1.0, ls_bounds.max.y), std::min(1.0, ls_bounds.max.z));
-            preCrop << "o Cropped bounds" << std::endl;
-            preCrop << "usemtl Material.003" << std::endl;
-            preCrop << dumpDbox(ls_bounds, preCropIndex);
-            info("cropped bounds:  ", ls_bounds);
-
-            if (std::filesystem::exists(dir / "dump.txt"))
-            {
-                std::ofstream preCropObj(dir / "precrop.obj");
-                preCropObj << preCrop.str();
-                std::filesystem::rename(dir / "dump.txt", dir / "dontdump.txt");
-            }
 
             // we need to use the reverse Z depth range without actually reversing depth, as the previous matrix already does that
             auto tweakedOrthographic = [](double left, double right, double bottom, double top, double zNear, double zFar)
@@ -1037,13 +943,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
                 };
 
             relativeProjection->matrix = tweakedOrthographic(ls_bounds.min.x, ls_bounds.max.x, ls_bounds.min.y, ls_bounds.max.y, ls_bounds.min.z, ls_bounds.max.z);
-            //relativeProjection->matrix = tweakedOrthographic(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);;
-            info("relative matrix: ", relativeProjection->matrix);
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
-
-            ls_bounds = computeFrustumBoundsClipped(clip_near_z, clip_far_z, shadowMapProjView * clipToWorld);
-            info("final bounds:    ", ls_bounds);
 
             dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
