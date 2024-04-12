@@ -92,7 +92,7 @@ Names vsg::validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
-static VkBool32 debugUtilsMessengerCallback(
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
