@@ -92,6 +92,24 @@ Names vsg::validateInstancelayerNames(const Names& names)
     return validatedNames;
 }
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* /*pUserData*/)
+{
+    vsg::Logger::Level level = vsg::Logger::LOGGER_INFO;
+    if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0) level = vsg::Logger::LOGGER_ERROR;
+    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0) level = vsg::Logger::LOGGER_WARN;
+    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) != 0) level = vsg::Logger::LOGGER_INFO;
+    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) != 0) level = vsg::Logger::LOGGER_DEBUG;
+
+    vsg::log(level, "[Vulkan] ", pCallbackData->pMessage);
+
+    return VK_FALSE;
+}
+
+
 Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
     apiVersion(vulkanApiVersion)
 {
@@ -145,6 +163,16 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     }
 
     _extensions = InstanceExtensions::create(this);
+
+    if (isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) && _extensions->vkCreateDebugUtilsMessengerEXT)
+    {
+        VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo{};
+        debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debugUtilsMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+        debugUtilsMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugUtilsMessengerCreateInfo.pfnUserCallback = debugUtilsMessengerCallback;
+        result = _extensions->vkCreateDebugUtilsMessengerEXT(instance, &debugUtilsMessengerCreateInfo, nullptr, &_debugUtilsMessenger);
+    }
 }
 
 Instance::~Instance()
@@ -153,6 +181,11 @@ Instance::~Instance()
 
     if (_instance)
     {
+        if (_debugUtilsMessenger != VK_NULL_HANDLE && _extensions->vkDestroyDebugUtilsMessengerEXT)
+        {
+            _extensions->vkDestroyDebugUtilsMessengerEXT(_instance, _debugUtilsMessenger, nullptr);
+        }
+
         vkDestroyInstance(_instance, _allocator);
     }
 }
