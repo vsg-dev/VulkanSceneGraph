@@ -575,6 +575,62 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         return bounds;
     };
 
+    // clip against near plane
+    // Converting between homogeneous coordinates and Cartesian coordinates can turn internal line segements
+    // (the section of the line between two points) into external line segments (the line except the part
+    // between the points). In particular, this happens for ones that cross the near plane of a perspective
+    // projection. This function therefore excludes the section of the frustum on the wrong side of the near
+    // plane, sidestepping the problem, and avoiding giving infinite bounds for infinite external line segments.
+    auto computeFrustumBoundsClipped = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
+        std::array<dvec4, 8> corners{
+            clipToWorld * dvec4(-1.0, -1.0, n, 1.0),
+            clipToWorld * dvec4(-1.0, 1.0, n, 1.0),
+            clipToWorld * dvec4(1.0, -1.0, n, 1.0),
+            clipToWorld * dvec4(1.0, 1.0, n, 1.0),
+            clipToWorld * dvec4(-1.0, -1.0, f, 1.0),
+            clipToWorld * dvec4(-1.0, 1.0, f, 1.0),
+            clipToWorld * dvec4(1.0, -1.0, f, 1.0),
+            clipToWorld * dvec4(1.0, 1.0, f, 1.0),
+        };
+        std::array<std::pair<int, int>, 12> edges{ {
+            {0,1},
+            {1,3},
+            {3,2},
+            {2,0},
+            {0,4},
+            {1,5},
+            {2,6},
+            {3,7},
+            {4,5},
+            {5,7},
+            {7,6},
+            {6,4},
+        } };
+
+        dbox bounds;
+
+        std::array<bool, 8> clipped;
+        for (unsigned int i = 0; i < corners.size(); ++i)
+        {
+            clipped[i] = corners[i].w < corners[i].z;
+            if (!clipped[i])
+                bounds.add(corners[i].xyz / corners[i].w);
+        }
+        for (const auto& [start, end] : edges)
+        {
+            if (clipped[start] != clipped[end])
+            {
+                // add the point where z=w on the line
+                const auto& p1 = corners[start];
+                const auto& p2 = corners[end];
+                double a = (p1.z - p1.w) / (p1.z - p2.z - p1.w + p2.w);
+                dvec4 p = p1 * (1.0 - a) + p2 * a;
+                bounds.add(p.xyz / p.w);
+            }
+        }
+        return bounds;
+    };
+
     // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
 
     // cache general view parameters
@@ -794,6 +850,164 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
+
+        auto shadowSettings = getActiveShadowSettings(light);
+        uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
+        if (shadowSettings)
+        {
+            if (shadowSettings->type_info() == typeid(HardShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(SoftShadows))
+            {
+                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, static_cast<float>(light->radius), 0.0f);
+            }
+        }
+        else
+            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if (activeNumShadowMaps == 0) continue;
+
+        // set up shadow map rendering backend
+        requiresPerRenderShadowMaps = true;
+
+        // compute spot light space
+        // light direction in world coords
+        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
+        auto light_position = inverse_viewMatrix * mv * light->position;
+#if 0
+        info("   spot light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
+        info("      light->direction in model = ", light->direction);
+        info("      view_direction in world = ", view_direction);
+        info("      view_up in world = ", view_up);
+#endif
+        auto light_x_direction = cross(light_direction, view_direction);
+        auto light_x_up = cross(light_direction, view_up);
+
+        auto light_x = (length(light_x_direction) > length(light_x_up)) ? normalize(light_x_direction) : normalize(light_x_up);
+        auto light_y = cross(light_x, light_direction);
+        auto light_z = light_direction;
+
+        // clamp the near and far values
+        if (n > maxShadowDistance)
+        {
+            // near plane further than maximum shadow distance so no need to generate shadow maps
+            continue;
+        }
+        if (f > maxShadowDistance)
+        {
+            f = maxShadowDistance;
+        }
+
+        auto light_outerAngle = light->outerAngle;
+        auto light_intensity = light->intensity;
+
+        auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
+            const auto& shadowMap = shadowMaps[shadowMapIndex];
+            preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
+
+            const auto& camera = shadowMap.view->camera;
+            auto lookAt = camera->viewMatrix.cast<LookAt>();
+            auto relativeProjection = camera->projectionMatrix.cast<RelativeProjection>();
+
+            if (!lookAt) camera->viewMatrix = lookAt = LookAt::create();
+            if (!relativeProjection) camera->projectionMatrix = relativeProjection = RelativeProjection::create(dmat4{}, Perspective::create());
+
+            auto perspective = relativeProjection->projectionMatrix.cast<Perspective>();
+
+            lookAt->eye = light_position;
+            lookAt->center = light_position + light_z;
+            lookAt->up = light_y;
+
+            perspective->aspectRatio = 1.0;
+            perspective->fieldOfViewY = 2.0 * degrees(light_outerAngle);
+            perspective->farDistance = sqrt(light_intensity / 0.001);
+            perspective->nearDistance = perspective->farDistance / 10000.0;
+
+            dmat4 intermediateProjView = perspective->transform() * camera->viewMatrix->transform();
+
+            auto ls_bounds = computeFrustumBoundsClipped(clip_near_z, clip_far_z, intermediateProjView * clipToWorld);
+            ls_bounds.min = dvec3(std::max(-1.0, ls_bounds.min.x), std::max(-1.0, ls_bounds.min.y), std::max(0.0, ls_bounds.min.z));
+            ls_bounds.max = dvec3(std::min(1.0, ls_bounds.max.x), std::min(1.0, ls_bounds.max.y), std::min(1.0, ls_bounds.max.z));
+
+            // we need to use the reverse Z depth range without actually reversing depth, as the previous matrix already does that
+            auto tweakedOrthographic = [](double left, double right, double bottom, double top, double zNear, double zFar)
+                {
+                    return dmat4(2.0 / (right - left), 0.0, 0.0, 0.0,
+                        0.0, 2.0 / (top - bottom), 0.0, 0.0,
+                        0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
+                        -(right + left) / (right - left), -(top + bottom) / (top - bottom), -zNear / (zFar - zNear), 1.0);
+                };
+
+            relativeProjection->matrix = tweakedOrthographic(ls_bounds.min.x, ls_bounds.max.x, ls_bounds.min.y, ls_bounds.max.y, ls_bounds.min.z, ls_bounds.max.z);
+
+            dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
+
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
+
+            // convert tex gen matrix to float matrix and assign to light data
+            mat4 m(shadowMapTM);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
+
+            // info("m = ", m);
+
+            m = inverse(m);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
+
+            // advance to the next shadowMap
+            shadowMapIndex++;
+            };
+
+#if 0
+        info("     light_x = ", light_x);
+        info("     light_y = ", light_y);
+        info("     light_z = ", light_z);
+#endif
+
+#if 0
+        double range = f - n;
+        info("    n = ", n, ", f = ", f, ", range = ", range);
+#endif
+        auto clipToWorld = inverse(projectionMatrix * viewMatrix);
+
+        if (activeNumShadowMaps > 1)
+        {
+            double m = static_cast<double>(activeNumShadowMaps);
+            for (double i = 0; i < m; i += 1.0)
+            {
+                dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
+                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i + 1.0, m, lambda));
+
+                auto clip_near = projectionMatrix * eye_near;
+                auto clip_far = projectionMatrix * eye_far;
+
+                updateCamera(clip_near.z, clip_far.z, clipToWorld);
+            }
+        }
+        else
+        {
+            dvec3 eye_near(0.0, 0.0, -n);
+            dvec3 eye_far(0.0, 0.0, -f);
+
+            auto clip_near = projectionMatrix * eye_near;
+            auto clip_far = projectionMatrix * eye_far;
+
+            updateCamera(clip_near.z, clip_far.z, clipToWorld);
+        }
     }
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
