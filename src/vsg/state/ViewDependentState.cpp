@@ -582,7 +582,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // projection. This function therefore excludes the section of the frustum on the wrong side of the near
     // plane, sidestepping the problem, and avoiding giving infinite bounds for infinite external line segments.
     auto computeFrustumBoundsClipped = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
-        std::array<dvec4, 8> corners{
+        std::array<dvec4, 8> corners{ {
             clipToWorld * dvec4(-1.0, -1.0, n, 1.0),
             clipToWorld * dvec4(-1.0, 1.0, n, 1.0),
             clipToWorld * dvec4(1.0, -1.0, n, 1.0),
@@ -591,7 +591,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             clipToWorld * dvec4(-1.0, 1.0, f, 1.0),
             clipToWorld * dvec4(1.0, -1.0, f, 1.0),
             clipToWorld * dvec4(1.0, 1.0, f, 1.0),
-        };
+        } };
         std::array<std::pair<int, int>, 12> edges{ {
             {0,1},
             {1,3},
