@@ -610,7 +610,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         dbox bounds;
 
         std::array<bool, 8> clipped;
-        for (int i = 0; i < corners.size(); ++i)
+        for (unsigned int i = 0; i < corners.size(); ++i)
         {
             clipped[i] = corners[i].w < corners[i].z;
             if (!clipped[i])
@@ -905,6 +905,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             f = maxShadowDistance;
         }
 
+        auto light_outerAngle = light->outerAngle;
+        auto light_intensity = light->intensity;
+
         auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
             const auto& shadowMap = shadowMaps[shadowMapIndex];
             preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
@@ -923,8 +926,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             lookAt->up = light_y;
 
             perspective->aspectRatio = 1.0;
-            perspective->fieldOfViewY = 2.0 * degrees(light->outerAngle);
-            perspective->farDistance = sqrt(light->intensity / 0.001);
+            perspective->fieldOfViewY = 2.0 * degrees(light_outerAngle);
+            perspective->farDistance = sqrt(light_intensity / 0.001);
             perspective->nearDistance = perspective->farDistance / 10000.0;
 
             dmat4 intermediateProjView = perspective->transform() * camera->viewMatrix->transform();
