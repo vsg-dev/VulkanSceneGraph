@@ -28,6 +28,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/Context.h>
 
+#include <filesystem>
+
 using namespace vsg;
 
 //////////////////////////////////////
@@ -575,6 +577,111 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         return bounds;
     };
 
+    // clip against near plane
+    // Converting between homogeneous coordinates and Cartesian coordinates can turn internal line segements
+    // (the section of the line between two points) into external line segments (the line except the part
+    // between the points). In particular, this happens for ones that cross the near plane of a perspective
+    // projection. This function therefore excludes the section of the frustum on the wrong side of the near
+    // plane, sidestepping the problem, and avoiding giving infinite bounds for infinite external line segments.
+    auto computeFrustumBoundsClipped = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
+        std::array<dvec4, 8> corners{
+            clipToWorld * dvec4(-1.0, -1.0, n, 1.0),
+            clipToWorld * dvec4(-1.0, 1.0, n, 1.0),
+            clipToWorld * dvec4(1.0, -1.0, n, 1.0),
+            clipToWorld * dvec4(1.0, 1.0, n, 1.0),
+            clipToWorld * dvec4(-1.0, -1.0, f, 1.0),
+            clipToWorld * dvec4(-1.0, 1.0, f, 1.0),
+            clipToWorld * dvec4(1.0, -1.0, f, 1.0),
+            clipToWorld * dvec4(1.0, 1.0, f, 1.0),
+        };
+        std::array<std::pair<int, int>, 12> edges{ {
+            {0,1},
+            {1,3},
+            {3,2},
+            {2,0},
+            {0,4},
+            {1,5},
+            {2,6},
+            {3,7},
+            {4,5},
+            {5,7},
+            {7,6},
+            {6,4},
+        } };
+
+        dbox bounds;
+
+        std::array<bool, 8> clipped;
+        for (int i = 0; i < corners.size(); ++i)
+        {
+            clipped[i] = corners[i].w < corners[i].z;
+            if (!clipped[i])
+                bounds.add(corners[i].xyz / corners[i].w);
+        }
+        for (const auto& [start, end] : edges)
+        {
+            if (clipped[start] != clipped[end])
+            {
+                // add the point where z=w on the line
+                const auto& p1 = corners[start];
+                const auto& p2 = corners[end];
+                double a = (p1.z - p1.w) / (p1.z - p2.z - p1.w + p2.w);
+                dvec4 p = p1 * (1.0 - a) + p2 * a;
+                bounds.add(p.xyz / p.w);
+            }
+        }
+        return bounds;
+        };
+
+    auto dumpFrustum = [](double n, double f, const dmat4& clipToWorld, int& baseIndex) -> std::string {
+        std::stringstream obj;
+
+        dvec3 corner;
+        corner = clipToWorld * dvec3(-1.0, -1.0, n);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(-1.0, 1.0, n);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(1.0, -1.0, n);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(1.0, 1.0, n);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(-1.0, -1.0, f);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(-1.0, 1.0, f);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(1.0, -1.0, f);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+        corner = clipToWorld * dvec3(1.0, 1.0, f);
+        obj << "v " << corner.x << " " << corner.y << " " << corner.z << std::endl;
+
+        obj << "l " << baseIndex + 0 << " " << baseIndex + 1 << " " << baseIndex + 3 << " " << baseIndex + 2 << " " << baseIndex + 0 << " " << baseIndex + 4 << " " << baseIndex + 5 << " " << baseIndex + 7 << " " << baseIndex + 6 << " " << baseIndex + 4 << std::endl;
+        obj << "l " << baseIndex + 1 << " " << baseIndex + 5 << std::endl;
+        obj << "l " << baseIndex + 2 << " " << baseIndex + 6 << std::endl;
+        obj << "l " << baseIndex + 3 << " " << baseIndex + 7 << std::endl;
+
+        baseIndex += 8;
+
+        return obj.str();
+        };
+
+    auto dumpDbox = [](dbox box, int& baseIndex) -> std::string {
+        std::stringstream obj;
+
+        for (size_t i = 0; i < 8; ++i)
+            obj << "v " << box[(i & 1) * 3 + 0] << " " << box[((i & 2)/2) * 3 + 1] << " " << box[((i & 4) / 4) * 3 + 2] << std::endl;
+
+        obj << "f " << baseIndex + 0 << " " << baseIndex + 1 << " " << baseIndex + 3 << " " << baseIndex + 2 << std::endl;
+        obj << "f " << baseIndex + 0 << " " << baseIndex + 1 << " " << baseIndex + 5 << " " << baseIndex + 4 << std::endl;
+        obj << "f " << baseIndex + 1 << " " << baseIndex + 3 << " " << baseIndex + 7 << " " << baseIndex + 5 << std::endl;
+        obj << "f " << baseIndex + 3 << " " << baseIndex + 2 << " " << baseIndex + 6 << " " << baseIndex + 7 << std::endl;
+        obj << "f " << baseIndex + 2 << " " << baseIndex + 0 << " " << baseIndex + 4 << " " << baseIndex + 6 << std::endl;
+        obj << "f " << baseIndex + 4 << " " << baseIndex + 6 << " " << baseIndex + 7 << " " << baseIndex + 5 << std::endl;
+
+        baseIndex += 8;
+
+        return obj.str();
+    };
+
     // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
 
     // cache general view parameters
@@ -855,10 +962,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             const auto& camera = shadowMap.view->camera;
             auto lookAt = camera->viewMatrix.cast<LookAt>();
-            auto perspective = camera->projectionMatrix.cast<Perspective>();
+            auto relativeProjection = camera->projectionMatrix.cast<RelativeProjection>();
 
             if (!lookAt) camera->viewMatrix = lookAt = LookAt::create();
-            if (!perspective) camera->projectionMatrix = perspective = Perspective::create();
+            if (!relativeProjection) camera->projectionMatrix = relativeProjection = RelativeProjection::create(dmat4{}, Perspective::create());
+
+            auto perspective = relativeProjection->projectionMatrix.cast<Perspective>();
 
             //auto ws_bounds = computeFrustumBounds(clip_near_z, clip_far_z, clipToWorld);
             //auto sm_eye = (ws_bounds.min + ws_bounds.max) * 0.5 - light_z * (0.5 * length(ws_bounds.max - ws_bounds.min));
@@ -874,7 +983,67 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             perspective->farDistance = sqrt(light->intensity / 0.001);
             perspective->nearDistance = perspective->farDistance / 10000.0;
 
+            dmat4 intermediateProjView = perspective->transform() * camera->viewMatrix->transform();
+
+            std::filesystem::path dir{ "C:\\Users\\krizd\\Documents" };
+
+            int worldIndex = 1;
+            std::stringstream world;
+            world << "o View Frustum" << std::endl;
+            world << dumpFrustum(clip_near_z, clip_far_z, clipToWorld, worldIndex);
+            world << "o Light space" << std::endl;
+            world << dumpFrustum(1.0, 0.0, inverse(intermediateProjView), worldIndex);
+
+            if (std::filesystem::exists(dir / "dump.txt"))
+            {
+                std::ofstream worldObj(dir / "world.obj");
+                worldObj << world.str();
+            }
+
+            int preCropIndex = 1;
+            std::stringstream preCrop;
+
+            auto ls_bounds = computeFrustumBoundsClipped(clip_near_z, clip_far_z, intermediateProjView * clipToWorld);
+            preCrop << "mtllib vsgshadow-reexported.mtl" << std::endl;
+            preCrop << "o View Frustum" << std::endl;
+            preCrop << dumpFrustum(clip_near_z, clip_far_z, intermediateProjView * clipToWorld, preCropIndex);
+            preCrop << "o Uncropped light space" << std::endl;
+            preCrop << dumpFrustum(1.0, 0.0, dmat4(), preCropIndex);
+            preCrop << "o Original bounds" << std::endl;
+            preCrop << "usemtl Material.003" << std::endl;
+            preCrop << dumpDbox(ls_bounds, preCropIndex);
+            info("\u001b[2J\u001b[Horiginal bounds: ", ls_bounds);
+            ls_bounds.min = dvec3(std::max(-1.0, ls_bounds.min.x), std::max(-1.0, ls_bounds.min.y), std::max(0.0, ls_bounds.min.z));
+            ls_bounds.max = dvec3(std::min(1.0, ls_bounds.max.x), std::min(1.0, ls_bounds.max.y), std::min(1.0, ls_bounds.max.z));
+            preCrop << "o Cropped bounds" << std::endl;
+            preCrop << "usemtl Material.003" << std::endl;
+            preCrop << dumpDbox(ls_bounds, preCropIndex);
+            info("cropped bounds:  ", ls_bounds);
+
+            if (std::filesystem::exists(dir / "dump.txt"))
+            {
+                std::ofstream preCropObj(dir / "precrop.obj");
+                preCropObj << preCrop.str();
+                std::filesystem::rename(dir / "dump.txt", dir / "dontdump.txt");
+            }
+
+            // we need to use the reverse Z depth range without actually reversing depth, as the previous matrix already does that
+            auto tweakedOrthographic = [](double left, double right, double bottom, double top, double zNear, double zFar)
+                {
+                    return dmat4(2.0 / (right - left), 0.0, 0.0, 0.0,
+                        0.0, 2.0 / (top - bottom), 0.0, 0.0,
+                        0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
+                        -(right + left) / (right - left), -(top + bottom) / (top - bottom), -zNear / (zFar - zNear), 1.0);
+                };
+
+            relativeProjection->matrix = tweakedOrthographic(ls_bounds.min.x, ls_bounds.max.x, ls_bounds.min.y, ls_bounds.max.y, ls_bounds.min.z, ls_bounds.max.z);
+            //relativeProjection->matrix = tweakedOrthographic(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);;
+            info("relative matrix: ", relativeProjection->matrix);
+
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
+
+            ls_bounds = computeFrustumBoundsClipped(clip_near_z, clip_far_z, shadowMapProjView * clipToWorld);
+            info("final bounds:    ", ls_bounds);
 
             dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
