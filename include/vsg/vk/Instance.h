@@ -95,6 +95,8 @@ namespace vsg
         PhysicalDevices _physicalDevices;
 
         ref_ptr<InstanceExtensions> _extensions;
+
+        VkDebugUtilsMessengerEXT _debugUtilsMessenger = VK_NULL_HANDLE;
     };
     VSG_type_name(vsg::Instance);
 
