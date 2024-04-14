@@ -99,16 +99,19 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
     void* /*pUserData*/)
 {
     vsg::Logger::Level level = vsg::Logger::LOGGER_INFO;
-    if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0) level = vsg::Logger::LOGGER_ERROR;
-    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0) level = vsg::Logger::LOGGER_WARN;
-    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) != 0) level = vsg::Logger::LOGGER_INFO;
-    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) != 0) level = vsg::Logger::LOGGER_DEBUG;
+    if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0)
+        level = vsg::Logger::LOGGER_ERROR;
+    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0)
+        level = vsg::Logger::LOGGER_WARN;
+    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) != 0)
+        level = vsg::Logger::LOGGER_INFO;
+    else if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) != 0)
+        level = vsg::Logger::LOGGER_DEBUG;
 
     vsg::log(level, "[Vulkan] ", pCallbackData->pMessage);
 
     return VK_FALSE;
 }
-
 
 Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
     apiVersion(vulkanApiVersion)

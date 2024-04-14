@@ -582,7 +582,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     // projection. This function therefore excludes the section of the frustum on the wrong side of the near
     // plane, sidestepping the problem, and avoiding giving infinite bounds for infinite external line segments.
     auto computeFrustumBoundsClipped = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
-        std::array<dvec4, 8> corners{ {
+        std::array<dvec4, 8> corners{{
             clipToWorld * dvec4(-1.0, -1.0, n, 1.0),
             clipToWorld * dvec4(-1.0, 1.0, n, 1.0),
             clipToWorld * dvec4(1.0, -1.0, n, 1.0),
@@ -591,21 +591,21 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             clipToWorld * dvec4(-1.0, 1.0, f, 1.0),
             clipToWorld * dvec4(1.0, -1.0, f, 1.0),
             clipToWorld * dvec4(1.0, 1.0, f, 1.0),
-        } };
-        std::array<std::pair<int, int>, 12> edges{ {
-            {0,1},
-            {1,3},
-            {3,2},
-            {2,0},
-            {0,4},
-            {1,5},
-            {2,6},
-            {3,7},
-            {4,5},
-            {5,7},
-            {7,6},
-            {6,4},
-        } };
+        }};
+        std::array<std::pair<int, int>, 12> edges{{
+            {0, 1},
+            {1, 3},
+            {3, 2},
+            {2, 0},
+            {0, 4},
+            {1, 5},
+            {2, 6},
+            {3, 7},
+            {4, 5},
+            {5, 7},
+            {7, 6},
+            {6, 4},
+        }};
 
         dbox bounds;
 
@@ -937,13 +937,12 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             ls_bounds.max = dvec3(std::min(1.0, ls_bounds.max.x), std::min(1.0, ls_bounds.max.y), std::min(1.0, ls_bounds.max.z));
 
             // we need to use the reverse Z depth range without actually reversing depth, as the previous matrix already does that
-            auto tweakedOrthographic = [](double left, double right, double bottom, double top, double zNear, double zFar)
-                {
-                    return dmat4(2.0 / (right - left), 0.0, 0.0, 0.0,
-                        0.0, 2.0 / (top - bottom), 0.0, 0.0,
-                        0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
-                        -(right + left) / (right - left), -(top + bottom) / (top - bottom), -zNear / (zFar - zNear), 1.0);
-                };
+            auto tweakedOrthographic = [](double left, double right, double bottom, double top, double zNear, double zFar) {
+                return dmat4(2.0 / (right - left), 0.0, 0.0, 0.0,
+                             0.0, 2.0 / (top - bottom), 0.0, 0.0,
+                             0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
+                             -(right + left) / (right - left), -(top + bottom) / (top - bottom), -zNear / (zFar - zNear), 1.0);
+            };
 
             relativeProjection->matrix = tweakedOrthographic(ls_bounds.min.x, ls_bounds.max.x, ls_bounds.min.y, ls_bounds.max.y, ls_bounds.min.z, ls_bounds.max.z);
 
@@ -970,7 +969,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             // advance to the next shadowMap
             shadowMapIndex++;
-            };
+        };
 
 #if 0
         info("     light_x = ", light_x);
