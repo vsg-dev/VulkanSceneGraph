@@ -30,6 +30,11 @@ CMakeScripts
 Makefile
 cmake_install.cmake
 install_manifest.txt
+*.ninja
+.ninja_log
+.ninja_deps
+.cmake/
+compile_commands.json
 
 
 # Compiled Object files
