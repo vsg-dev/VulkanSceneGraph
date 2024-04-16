@@ -80,7 +80,10 @@ namespace vsg
         void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
-        void release(uint32_t viewID) { _implementation[viewID] = {}; }
+        void release(uint32_t viewID)
+        {
+            if (viewID < static_cast<uint32_t>(_implementation.size())) _implementation[viewID] = {};
+        }
         void release() { _implementation.clear(); }
 
     protected:
