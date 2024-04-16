@@ -48,7 +48,7 @@ namespace vsg
         std::streambuf::int_type overflow(std::streambuf::int_type c) override
         {
             std::scoped_lock<std::mutex> lock(_mutex);
-            if (c=='\n')
+            if (c == '\n')
             {
                 logger->log(level, _line);
                 _line.clear();
@@ -282,8 +282,8 @@ void ThreadLogger::print_id(FILE* out, std::thread::id id)
         // no name string for this thread yet, so create one using the Logger::_stream and then assign to _threadPrefixes for future use
         _stream.str({});
         _stream.clear();
-        _stream << "thread::id = "<<id<< " | ";
-        auto& str =  _threadPrefixes[id] = _stream.str();
+        _stream << "thread::id = " << id << " | ";
+        auto& str = _threadPrefixes[id] = _stream.str();
         fprintf(out, "%s", str.c_str());
     }
 }
