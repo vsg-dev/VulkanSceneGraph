@@ -38,20 +38,26 @@ public:
 
     Logger* logger = nullptr;
     Logger::Level level = Logger::LOGGER_INFO;
-    std::string line;
+
+    std::streamsize xsputn(const char_type* s, std::streamsize n) override
+    {
+        std::scoped_lock<std::mutex> lock(_mutex);
+        _line.append(s, static_cast<std::size_t>(n));
+        return n;
+    }
+
     std::streambuf::int_type overflow (std::streambuf::int_type c) override
     {
-        if (c=='\n')
-        {
-            logger->log(level, line);
-            line.clear();
-        }
-        else
-        {
-            line.push_back(static_cast<char>(c));
-        }
+        std::scoped_lock<std::mutex> lock(_mutex);
+        logger->log(level, _line);
+        _line.clear();
         return c;
     }
+
+protected:
+
+    std::string _line;
+    std::mutex _mutex;
 };
 
 }
