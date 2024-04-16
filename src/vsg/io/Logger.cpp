@@ -214,41 +214,33 @@ StdLogger::StdLogger()
 
 void StdLogger::flush()
 {
-    if (_override_cout) fflush(stdout);
-    else std::cout.flush();
-
-    if (_override_cerr) fflush(stderr);
-    else std::cerr.flush();
+    fflush(stdout);
+    fflush(stderr);
 }
 
 void StdLogger::debug_implementation(const std::string_view& message)
 {
-    if (_override_cout) fprintf(stdout, "%s%.*s\n", debugPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    else std::cout << debugPrefix << message << std::endl;
+    fprintf(stdout, "%s%.*s\n", debugPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::info_implementation(const std::string_view& message)
 {
-    if (_override_cout) fprintf(stdout, "%s%.*s\n", infoPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    else std::cout << infoPrefix << message << std::endl;
+    fprintf(stdout, "%s%.*s\n", infoPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::warn_implementation(const std::string_view& message)
 {
-    if (_override_cerr) fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    else std::cerr << warnPrefix << message << std::endl;
+fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::error_implementation(const std::string_view& message)
 {
-    if (_override_cerr) fprintf(stderr, "%s%.*s\n", errorPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    else std::cerr << errorPrefix << message << std::endl;
+    fprintf(stderr, "%s%.*s\n", errorPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::fatal_implementation(const std::string_view& message)
 {
-    if (_override_cerr) fprintf(stderr, "%s%.*s\n", fatalPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    else std::cerr << fatalPrefix << message << std::endl;
+    fprintf(stderr, "%s%.*s\n", fatalPrefix.c_str(), static_cast<int>(message.length()), message.data());
     throw vsg::Exception{std::string(message)};
 }
 
@@ -262,11 +254,8 @@ ThreadLogger::ThreadLogger()
 
 void ThreadLogger::flush()
 {
-    if (_override_cout) fflush(stdout);
-    else std::cout.flush();
-
-    if (_override_cerr) fflush(stderr);
-    else std::cerr.flush();
+    fflush(stdout);
+    fflush(stderr);
 }
 
 void ThreadLogger::setThreadPrefix(std::thread::id id, const std::string& str)
@@ -275,17 +264,6 @@ void ThreadLogger::setThreadPrefix(std::thread::id id, const std::string& str)
     _threadPrefixes[id] = str;
 }
 
-void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
-{
-    if (auto itr = _threadPrefixes.find(id); itr != _threadPrefixes.end())
-    {
-        out << itr->second;
-    }
-    else
-    {
-        out << "thread::id = " << id << " | ";
-    }
-}
 void ThreadLogger::print_id(FILE* out, std::thread::id id)
 {
     if (auto itr = _threadPrefixes.find(id); itr != _threadPrefixes.end())
@@ -300,73 +278,32 @@ void ThreadLogger::print_id(FILE* out, std::thread::id id)
 
 void ThreadLogger::debug_implementation(const std::string_view& message)
 {
-    if (_override_cout)
-    {
-        print_id(stdout, std::this_thread::get_id());
-        fprintf(stdout, "%s%.*s\n", debugPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    }
-    else
-    {
-        print_id(std::cout, std::this_thread::get_id());
-        std::cout << debugPrefix << message << std::endl;
-    }
+    print_id(stdout, std::this_thread::get_id());
+    fprintf(stdout, "%s%.*s\n", debugPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::info_implementation(const std::string_view& message)
 {
-    if (_override_cout)
-    {
-        print_id(stdout, std::this_thread::get_id());
-        fprintf(stdout, "%s%.*s\n", infoPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    }
-    else
-    {
-        print_id(std::cout, std::this_thread::get_id());
-        std::cout << infoPrefix << message << std::endl;
-    }
+    print_id(stdout, std::this_thread::get_id());
+    fprintf(stdout, "%s%.*s\n", infoPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::warn_implementation(const std::string_view& message)
 {
-    if (_override_cerr)
-    {
-        print_id(stderr, std::this_thread::get_id());
-        fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    }
-    else
-    {
-        print_id(std::cerr, std::this_thread::get_id());
-        std::cerr << warnPrefix << message << std::endl;
-    }
+    print_id(stderr, std::this_thread::get_id());
+    fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::error_implementation(const std::string_view& message)
 {
-    if (_override_cerr)
-    {
-        print_id(stderr, std::this_thread::get_id());
-        fprintf(stderr, "%s%.*s\n", errorPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    }
-    else
-    {
-        print_id(std::cerr, std::this_thread::get_id());
-        std::cerr << errorPrefix << message << std::endl;
-    }
+    print_id(stderr, std::this_thread::get_id());
+    fprintf(stderr, "%s%.*s\n", errorPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::fatal_implementation(const std::string_view& message)
 {
-    if (_override_cout)
-    {
-        print_id(stderr, std::this_thread::get_id());
-        fprintf(stderr, "%s%.*s\n", fatalPrefix.c_str(), static_cast<int>(message.length()), message.data());
-    }
-    else
-    {
-        print_id(std::cerr, std::this_thread::get_id());
-        std::cerr << fatalPrefix << message << std::endl;
-    }
-    throw vsg::Exception{std::string(message)};
+    print_id(stderr, std::this_thread::get_id());
+    fprintf(stderr, "%s%.*s\n", fatalPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

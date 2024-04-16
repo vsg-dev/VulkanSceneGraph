@@ -373,7 +373,6 @@ namespace vsg
         void flush() override;
 
     protected:
-        void print_id(std::ostream& out, std::thread::id id);
         void print_id(FILE* out, std::thread::id id);
 
         void debug_implementation(const std::string_view& message) override;
