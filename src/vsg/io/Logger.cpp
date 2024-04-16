@@ -18,49 +18,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 namespace vsg
 {
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// intercept_streambuf takes std::cout/cerr output and redirects it the Logger
-//
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // intercept_streambuf takes std::cout/cerr output and redirects it the Logger
+    //
 
-class intercept_streambuf : public std::streambuf{
-public:
-
-    explicit intercept_streambuf(Logger* in_logger, Logger::Level in_level) :
-        logger(in_logger),
-        level(in_level)
+    class intercept_streambuf : public std::streambuf
     {
-    }
+    public:
+        explicit intercept_streambuf(Logger* in_logger, Logger::Level in_level) :
+            logger(in_logger),
+            level(in_level)
+        {
+        }
 
-    Logger* logger = nullptr;
-    Logger::Level level = Logger::LOGGER_INFO;
+        Logger* logger = nullptr;
+        Logger::Level level = Logger::LOGGER_INFO;
 
-    std::streamsize xsputn(const char_type* s, std::streamsize n) override
-    {
-        std::scoped_lock<std::mutex> lock(_mutex);
-        _line.append(s, static_cast<std::size_t>(n));
-        return n;
-    }
+        std::streamsize xsputn(const char_type* s, std::streamsize n) override
+        {
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _line.append(s, static_cast<std::size_t>(n));
+            return n;
+        }
 
-    std::streambuf::int_type overflow (std::streambuf::int_type c) override
-    {
-        std::scoped_lock<std::mutex> lock(_mutex);
-        logger->log(level, _line);
-        _line.clear();
-        return c;
-    }
+        std::streambuf::int_type overflow(std::streambuf::int_type c) override
+        {
+            std::scoped_lock<std::mutex> lock(_mutex);
+            logger->log(level, _line);
+            _line.clear();
+            return c;
+        }
 
-protected:
+    protected:
+        std::string _line;
+        std::mutex _mutex;
+    };
 
-    std::string _line;
-    std::mutex _mutex;
-};
-
-}
+} // namespace vsg
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -75,7 +73,6 @@ Logger::Logger()
     // level = LOGGER_ERROR; // print error and above messages
     // level = LOGGER_FATAL; // print error and above messages
 }
-
 
 Logger::Logger(const Logger& rhs) :
     Logger()
@@ -106,7 +103,6 @@ void Logger::redirect_std()
     _override_cerr.reset(new intercept_streambuf(this, LOGGER_ERROR));
     _original_cerr = std::cerr.rdbuf(_override_cerr.get());
 }
-
 
 void Logger::debug_stream(PrintToStreamFunction print)
 {
@@ -236,7 +232,7 @@ void StdLogger::info_implementation(const std::string_view& message)
 
 void StdLogger::warn_implementation(const std::string_view& message)
 {
-fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
+    fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::error_implementation(const std::string_view& message)
