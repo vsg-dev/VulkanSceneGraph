@@ -46,6 +46,9 @@ namespace vsg
         /// Logger singleton, defaults to using vsg::StdLogger
         static ref_ptr<Logger>& instance();
 
+        /// redirect std::cout and std::cerr output to vsg::Logger at level LOGGER_INFO and LOGGER_ERROR respectively.
+        virtual void redirect_std();
+
         virtual void flush() {}
 
         inline void debug(char* message) { debug(std::string_view(message)); }
@@ -234,6 +237,11 @@ namespace vsg
         std::mutex _mutex;
         std::ostringstream _stream;
 
+        std::unique_ptr<std::streambuf> _override_cout;
+        std::unique_ptr<std::streambuf> _override_cerr;
+        std::streambuf* _original_cout = nullptr;
+        std::streambuf* _original_cerr = nullptr;
+
         virtual void debug_implementation(const std::string_view& message) = 0;
         virtual void info_implementation(const std::string_view& message) = 0;
         virtual void warn_implementation(const std::string_view& message) = 0;
@@ -365,7 +373,7 @@ namespace vsg
         void flush() override;
 
     protected:
-        void print_id(std::ostream& out, std::thread::id id);
+        void print_id(FILE* out, std::thread::id id);
 
         void debug_implementation(const std::string_view& message) override;
         void info_implementation(const std::string_view& message) override;
