@@ -89,8 +89,6 @@ Logger::Logger(const Logger& rhs) :
 
 Logger::~Logger()
 {
-    flush();
-
     if (_original_cout) std::cout.rdbuf(_original_cout);
     if (_original_cerr) std::cerr.rdbuf(_original_cerr);
 }
@@ -281,7 +279,12 @@ void ThreadLogger::print_id(FILE* out, std::thread::id id)
     }
     else
     {
-        fprintf(out, "thread::id = %s | ", itr->second.c_str());
+        // no name string for this thread yet, so create one using the Logger::_stream and then assign to _threadPrefixes for future use
+        _stream.str({});
+        _stream.clear();
+        _stream << "thread::id = "<<id<< " | ";
+        auto& str =  _threadPrefixes[id] = _stream.str();
+        fprintf(out, "%s", str.c_str());
     }
 }
 
