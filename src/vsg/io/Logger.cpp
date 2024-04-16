@@ -48,8 +48,15 @@ namespace vsg
         std::streambuf::int_type overflow(std::streambuf::int_type c) override
         {
             std::scoped_lock<std::mutex> lock(_mutex);
-            logger->log(level, _line);
-            _line.clear();
+            if (c=='\n')
+            {
+                logger->log(level, _line);
+                _line.clear();
+            }
+            else
+            {
+                _line.push_back(static_cast<char>(c));
+            }
             return c;
         }
 
