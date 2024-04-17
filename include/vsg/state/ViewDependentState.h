@@ -133,18 +133,16 @@ namespace vsg
 
         View* view = nullptr;
 
+        // ShaderSet to guide the set up of lightData, viewportData and shadowMap Descriptors & DescriptorSet(s).
+        ref_ptr<ShaderSet> shaderSet;
+
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
-        ref_ptr<DescriptorBuffer> lightDataDescriptor;
 
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
-        ref_ptr<DescriptorBuffer> viewportDescriptor;
 
         ref_ptr<Image> shadowDepthImage;
-        ref_ptr<DescriptorImage> shadowMapImages;
-        ref_ptr<DescriptorImage> shadowMapDirectSamplerDescriptor;
-        ref_ptr<DescriptorImage> shadowMapShadowSamplerDescriptor;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorSet> descriptorSet;
