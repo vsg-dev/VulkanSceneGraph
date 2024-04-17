@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
