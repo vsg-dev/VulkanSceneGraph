@@ -325,6 +325,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
 
         deviceResources.compile = CompileTraversal::create(device, resourceRequirements);
+        if (instrumentation) deviceResources.compile->assignInstrumentation(instrumentation);
 
         for (auto& context : deviceResources.compile->contexts)
         {
@@ -402,7 +403,11 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 
     // set up the CompileManager
-    if (!compileManager) compileManager = CompileManager::create(*this, hints);
+    if (!compileManager)
+    {
+        compileManager = CompileManager::create(*this, hints);
+        if (instrumentation) compileManager->assignInstrumentation(instrumentation);
+    }
 
     // assign CompileManager to DatabasePager
     if (databasePager && !databasePager->compileManager)
