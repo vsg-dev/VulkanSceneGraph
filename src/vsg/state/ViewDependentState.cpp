@@ -26,6 +26,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/utils/GraphicsPipelineConfigurator.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -212,6 +214,14 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     // check if ViewDependentState has already been initialized
     if (lightData) return;
 
+    if (!shaderSet)
+    {
+        // fallback to using the standard PBR ShaderSet
+        shaderSet = vsg::createPhysicsBasedRenderingShaderSet();
+    }
+
+    auto descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
+
     uint32_t maxNumberLights = 64;
     uint32_t maxViewports = 1;
 
@@ -280,14 +290,12 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     lightData = vec4Array::create(lightDataSize);
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
-
-    lightDataDescriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo}, 0, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // hardwired position for now
+    descriptorConfigurator->assignDescriptor("lightData", BufferInfoList{lightDataBufferInfo});
 
     viewportData = vec4Array::create(maxViewports);
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
-
-    viewportDescriptor = DescriptorBuffer::create(BufferInfoList{viewportDataBufferInfo}, 1, 0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER); // hardwired position for now
+    descriptorConfigurator->assignDescriptor("viewportData", BufferInfoList{viewportDataBufferInfo});
 
     // set up ShadowMaps
     auto shadowMapDirectSampler = Sampler::create();
@@ -297,29 +305,23 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     shadowMapDirectSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapDirectSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapDirectSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapDirectSamplerDescriptor = createSamplerDescriptor(shadowMapDirectSampler, 3);
 
     auto shadowMapSampler = Sampler::create();
+    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #define HARDWARE_PCF 1
 #if HARDWARE_PCF == 1
     shadowMapSampler->minFilter = VK_FILTER_LINEAR;
     shadowMapSampler->magFilter = VK_FILTER_LINEAR;
     shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapSampler->compareEnable = VK_TRUE;
     shadowMapSampler->compareOp = VK_COMPARE_OP_LESS;
 #else
     shadowMapSampler->minFilter = VK_FILTER_NEAREST;
     shadowMapSampler->magFilter = VK_FILTER_NEAREST;
     shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #endif
-    shadowMapShadowSamplerDescriptor = createSamplerDescriptor(shadowMapSampler, 4);
-
     if (maxShadowMaps > 0)
     {
         shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
@@ -333,7 +335,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
         auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+        descriptorConfigurator->assignTexture("shadowMaps", ImageInfoList{depthImageInfo});
     }
     else
     {
@@ -357,19 +359,24 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
         auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2, 0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+        descriptorConfigurator->assignTexture("shadowMaps", ImageInfoList{depthImageInfo});
     }
 
-    DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
-        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
-        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                               // shadow map 2D texture array
-        VkDescriptorSetLayoutBinding{3, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                                     // shadow map direct sampler
-        VkDescriptorSetLayoutBinding{4, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                                     // shadow map shadow sampler
-    };
+    auto shadowMapDirectSamplerInfo = ImageInfo::create(shadowMapDirectSampler, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    auto shadowMapSamplerInfo = ImageInfo::create(shadowMapSampler, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{lightDataDescriptor, viewportDescriptor, shadowMapImages, shadowMapDirectSamplerDescriptor, shadowMapShadowSamplerDescriptor});
+    descriptorConfigurator->assignTexture("shadowMapDirectSampler", ImageInfoList{shadowMapDirectSamplerInfo});
+    descriptorConfigurator->assignTexture("shadowMapShadowSampler", ImageInfoList{shadowMapSamplerInfo});
+
+    // assign the DescriptorSet and layout created by the descriptorConfigurator
+    for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
+    {
+        if (auto ds = descriptorConfigurator->descriptorSets[set])
+        {
+            descriptorSet = ds;
+            descriptorSetLayout = ds->setLayout;
+        }
+    }
 
     // if not active then don't enable shadow maps
     if (maxShadowMaps == 0) return;
