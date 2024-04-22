@@ -22,8 +22,8 @@ WindowTraits::WindowTraits()
     defaults();
 }
 
-WindowTraits::WindowTraits(const WindowTraits& traits) :
-    Inherit(traits),
+WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
+    Inherit(traits, copyop),
     x(traits.x),
     y(traits.y),
     width(traits.width),
