@@ -266,7 +266,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         maxShadowMaps = 0;
     }
 
-    uint32_t lightDataSize = 4 + maxNumberLights * 16 + maxShadowMaps * 16;
+    uint32_t lightDataSize = 1 + maxNumberLights * 4 + maxShadowMaps * 8;
 
 #if 0
     if (active)
@@ -1015,6 +1015,11 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             updateCamera(clip_near.z, clip_far.z, clipToWorld);
         }
     }
+
+    size_t numLightData = 0;
+    for(auto itr = lightData->begin(); itr != light_itr; ++itr) ++numLightData;
+
+    vsg::info("used numLightData = ", numLightData, " lightData->size() = ", lightData->size());
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
     {
