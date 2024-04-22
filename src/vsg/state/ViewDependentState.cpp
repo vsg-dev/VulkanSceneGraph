@@ -266,7 +266,8 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         maxShadowMaps = 0;
     }
 
-    uint32_t lightDataSize = 4 + maxNumberLights * 16 + maxShadowMaps * 16;
+    // 1 vec3 is used for specifying the number of lights, lagest lightData entries are for spot light with 4 vec4s per light, and each shadowmap takes 8 vec4s.
+    uint32_t lightDataSize = 1 + maxNumberLights * 4 + maxShadowMaps * 8;
 
 #if 0
     if (active)
