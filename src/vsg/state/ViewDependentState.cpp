@@ -266,6 +266,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         maxShadowMaps = 0;
     }
 
+    // 1 vec3 is used for specifying the number of lights, lagest lightData entries are for spot light with 4 vec4s per light, and each shadowmap takes 8 vec4s.
     uint32_t lightDataSize = 1 + maxNumberLights * 4 + maxShadowMaps * 8;
 
 #if 0
@@ -1015,11 +1016,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             updateCamera(clip_near.z, clip_far.z, clipToWorld);
         }
     }
-
-    size_t numLightData = 0;
-    for(auto itr = lightData->begin(); itr != light_itr; ++itr) ++numLightData;
-
-    vsg::info("used numLightData = ", numLightData, " lightData->size() = ", lightData->size());
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
     {
