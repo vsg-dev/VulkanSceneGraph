@@ -485,6 +485,13 @@ void RecordTraversal::apply(const Command& command)
     command.record(*(_state->_commandBuffer));
 }
 
+void RecordTraversal::apply(const StateCommand&)
+{
+    // do nothing.
+    // _state stack is populated in RecordTraversal::apply(StateGroup)
+    // and _state->record() is called as needed for all other Commands.
+}
+
 void RecordTraversal::apply(const Bin& bin)
 {
     GPU_INSTRUMENTATION_L1_NCO(instrumentation, *getCommandBuffer(), "Bin", COLOR_RECORD_L1, &bin);

@@ -42,6 +42,7 @@ namespace vsg
     class VertexIndexDraw;
     class Geometry;
     class Command;
+    class StateCommand;
     class Commands;
     class CommandBuffer;
     class State;
@@ -145,6 +146,7 @@ namespace vsg
         // Commands
         void apply(const Commands& commands);
         void apply(const Command& command);
+        void apply(const StateCommand&);
 
         // Viewer level nodes
         void apply(const Bin& bin);
