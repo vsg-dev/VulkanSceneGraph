@@ -74,7 +74,7 @@ namespace vsg
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override
         {
-            for (auto& child : node.children) child->accept(visitor);
+            for (auto& child : children) child->accept(visitor);
         }
 
         void read(Input& input) override;
