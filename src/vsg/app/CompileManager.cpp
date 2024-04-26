@@ -33,7 +33,11 @@ void CompileResult::reset()
 
 void CompileResult::add(const CompileResult& cr)
 {
-    if (result == VK_INCOMPLETE) result = cr.result;
+    if (result == VK_INCOMPLETE || result == VK_SUCCESS)
+    {
+        result = cr.result;
+    }
+
     if (cr.maxSlot > maxSlot) maxSlot = cr.maxSlot;
     if (!containsPagedLOD) containsPagedLOD = cr.containsPagedLOD;
 
