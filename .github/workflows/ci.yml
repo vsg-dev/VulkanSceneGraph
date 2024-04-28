@@ -44,7 +44,7 @@ jobs:
               make -j 3 && sudo make install
          elif [ "$RUNNER_OS" == "macOS" ]; then
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
-              make -j 4 && make install
+              make -j 4 && sudo make install
          else
               echo "$RUNNER_OS not supported"
               exit 1
