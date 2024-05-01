@@ -296,7 +296,11 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, Alloca
     }
     else
     {
+#if defined(_MSC_VER)
+        memory = static_cast<uint8_t*>(_aligned_malloc(alignment, blockSize));
+#else
         memory = static_cast<uint8_t*>(std::aligned_alloc(alignment, blockSize));
+#endif
     }
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
@@ -318,7 +322,11 @@ Allocator::MemoryBlock::~MemoryBlock()
     }
     else
     {
+#if defined(_MSC_VER)
+        _aligned_free(memory)
+#else
         std::free(memory);
+#endif
     }
 }
 
