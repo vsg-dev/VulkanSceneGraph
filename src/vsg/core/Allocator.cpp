@@ -34,10 +34,10 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
     size_t Megabyte = 1024 * 1024;
-
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(16 * Megabyte)));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte)));
+    size_t alignment = 4;
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte), alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(16 * Megabyte), alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte), alignment));
 }
 
 Allocator::~Allocator()
@@ -96,11 +96,11 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
     {
-        return operator new(size);
+        return operator new(size); // new(size, alignment)
     }
     else if (allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
     {
-        return std::malloc(size);
+        return std::malloc(size); // std::aligned_alloc(alignment, size)
     }
 
     // create a MemoryBlocks entry if one doesn't already exist
@@ -284,17 +284,18 @@ void Allocator::setMemoryTracking(int mt)
 //
 // vsg::Allocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType) :
+Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType, size_t in_alignment) :
     memorySlots(blockSize, memoryTracking),
-    allocatorType(in_allocatorType)
+    allocatorType(in_allocatorType),
+    alignment(in_alignment)
 {
     if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
     {
-        memory = static_cast<uint8_t*>(operator new(blockSize));
+        memory = static_cast<uint8_t*>(operator new(blockSize,  std::align_val_t{alignment}));
     }
     else
     {
-        memory = static_cast<uint8_t*>(std::malloc(blockSize));
+        memory = static_cast<uint8_t*>(std::aligned_alloc(alignment, blockSize));
     }
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
@@ -322,7 +323,7 @@ Allocator::MemoryBlock::~MemoryBlock()
 
 void* Allocator::MemoryBlock::allocate(std::size_t size)
 {
-    auto [allocated, offset] = memorySlots.reserve(size, 4);
+    auto [allocated, offset] = memorySlots.reserve(size, alignment);
     if (allocated)
         return memory + offset;
     else
@@ -350,10 +351,11 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
 //
 // vsg::Allocator::MemoryBlocks
 //
-Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize) :
+Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment) :
     parent(in_parent),
     name(in_name),
-    blockSize(in_blockSize)
+    blockSize(in_blockSize),
+    alignment(in_alignment)
 {
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -390,7 +392,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     size_t new_blockSize = std::max(size, blockSize);
 
-    auto block = std::make_shared<MemoryBlock>(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType);
+    auto block = std::make_shared<MemoryBlock>(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType, alignment);
     latestMemoryBlock = block;
 
     auto ptr = block->allocate(size);

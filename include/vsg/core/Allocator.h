@@ -77,7 +77,7 @@ namespace vsg
 
         struct MemoryBlock
         {
-            MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType);
+            MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType, size_t in_alignment);
             virtual ~MemoryBlock();
 
             void* allocate(std::size_t size);
@@ -85,6 +85,7 @@ namespace vsg
 
             vsg::MemorySlots memorySlots;
             const AllocatorType allocatorType;
+            size_t alignment = 4;
             uint8_t* memory = nullptr;
         };
 
@@ -93,10 +94,11 @@ namespace vsg
             Allocator* parent = nullptr;
             std::string name;
             size_t blockSize = 0;
+            size_t alignment = 4;
             std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
             std::shared_ptr<MemoryBlock> latestMemoryBlock;
 
-            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize);
+            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment = 4);
             virtual ~MemoryBlocks();
 
             void* allocate(std::size_t size);
