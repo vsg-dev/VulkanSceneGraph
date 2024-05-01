@@ -323,7 +323,7 @@ Allocator::MemoryBlock::~MemoryBlock()
     else
     {
 #if defined(_MSC_VER)
-        _aligned_free(memory)
+        _aligned_free(memory);
 #else
         std::free(memory);
 #endif
