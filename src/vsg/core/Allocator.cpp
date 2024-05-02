@@ -15,9 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
-#include <cstddef>
 #include <algorithm>
-#include <iostream>
 
 using namespace vsg;
 
@@ -28,8 +26,6 @@ using namespace vsg;
 Allocator::Allocator(size_t in_default_alignment) :
     default_alignment(in_default_alignment)
 {
-    std::cout<<"Allocator::Allocator alignof(std::max_align_t) = "<<alignof(std::max_align_t)<<std::endl;
-
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
     size_t Megabyte = 1024 * 1024;
