@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 
 #include <algorithm>
+#include <iostream>
 
 using namespace vsg;
 
@@ -26,10 +27,7 @@ using namespace vsg;
 Allocator::Allocator(size_t in_default_alignment) :
     default_alignment(in_default_alignment)
 {
-    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
-    {
-        info("Allocator()", this);
-    }
+    std::cout<<"Allocator::Allocator alignof(std::max_align_t) = "<<alignof(std::max_align_t)<<std::endl;
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
@@ -48,10 +46,6 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_de
 
 Allocator::~Allocator()
 {
-    if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
-    {
-        info("~Allocator() ", this);
-    }
 }
 
 std::unique_ptr<Allocator>& Allocator::instance()
