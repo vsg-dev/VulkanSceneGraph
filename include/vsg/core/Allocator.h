@@ -40,7 +40,8 @@ namespace vsg
     class VSG_DECLSPEC Allocator
     {
     public:
-        Allocator(std::unique_ptr<Allocator> in_nestedAllocator = {});
+        explicit Allocator(size_t in_default_alignment = 4);
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4);
 
         virtual ~Allocator();
 
@@ -68,7 +69,7 @@ namespace vsg
         /// report stats about blocks of memory allocated.
         virtual void report(std::ostream& out) const;
 
-        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;          // use MemoryBlocks by default
+        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR; // use MemoryBlocks by default
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
         /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
@@ -96,7 +97,7 @@ namespace vsg
             std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
             std::shared_ptr<MemoryBlock> latestMemoryBlock;
 
-            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment = 4);
+            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment);
             virtual ~MemoryBlocks();
 
             void* allocate(std::size_t size);
@@ -110,11 +111,13 @@ namespace vsg
 
         MemoryBlocks* getMemoryBlocks(AllocatorAffinity allocatorAffinity);
 
-        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize);
+        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t in_alignment = 4);
 
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
 
         mutable std::mutex mutex;
+
+        size_t default_alignment = 4;
 
         double allocationTime = 0.0;
         double deallocationTime = 0.0;

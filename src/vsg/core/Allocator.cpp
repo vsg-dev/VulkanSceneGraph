@@ -23,8 +23,8 @@ using namespace vsg;
 //
 // vsg::Allocator
 //
-Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
-    nestedAllocator(std::move(in_nestedAllocator))
+Allocator::Allocator(size_t in_default_alignment) :
+    default_alignment(in_default_alignment)
 {
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -34,10 +34,15 @@ Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
     size_t Megabyte = 1024 * 1024;
-    size_t alignment = 4;
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte), alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(16 * Megabyte), alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte), alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte), default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(16 * Megabyte), default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte), default_alignment));
+}
+
+Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment) :
+    Allocator(in_default_alignment)
+{
+    nestedAllocator = std::move(in_nestedAllocator);
 }
 
 Allocator::~Allocator()
@@ -106,7 +111,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
         size_t blockSize = 1024 * 1024; // Megabyte
 
         allocatorMemoryBlocks.resize(allocatorAffinity + 1);
-        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize, default_alignment));
     }
 
     auto& memoryBlocks = allocatorMemoryBlocks[allocatorAffinity];
@@ -222,7 +227,7 @@ Allocator::MemoryBlocks* Allocator::getMemoryBlocks(AllocatorAffinity allocatorA
     return {};
 }
 
-Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize)
+Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t alignment)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -230,11 +235,12 @@ Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity al
     {
         allocatorMemoryBlocks[allocatorAffinity]->name = name;
         allocatorMemoryBlocks[allocatorAffinity]->blockSize = blockSize;
+        allocatorMemoryBlocks[allocatorAffinity]->alignment = alignment;
     }
     else
     {
         allocatorMemoryBlocks.resize(allocatorAffinity + 1);
-        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize, alignment));
     }
     return allocatorMemoryBlocks[allocatorAffinity].get();
 }
@@ -252,7 +258,7 @@ void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSi
         auto name = make_string("MemoryBlocks_", allocatorAffinity);
 
         allocatorMemoryBlocks.resize(allocatorAffinity + 1);
-        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize));
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize, default_alignment));
     }
 }
 
@@ -279,7 +285,7 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, size_t
     memorySlots(blockSize, memoryTracking),
     alignment(in_alignment)
 {
-    memory = static_cast<uint8_t*>(operator new(blockSize,  std::align_val_t{alignment}));
+    memory = static_cast<uint8_t*>(operator new (blockSize, std::align_val_t{alignment}));
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
