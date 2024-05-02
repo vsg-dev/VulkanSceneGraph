@@ -34,7 +34,7 @@ namespace vsg
         ALLOCATOR_AFFINITY_DATA,
         ALLOCATOR_AFFINITY_NODES,
         ALLOCATOR_AFFINITY_PHYSICS,
-        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_NODES + 1
+        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_PHYSICS + 1
     };
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
