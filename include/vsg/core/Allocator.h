@@ -33,14 +33,16 @@ namespace vsg
         ALLOCATOR_AFFINITY_OBJECTS,
         ALLOCATOR_AFFINITY_DATA,
         ALLOCATOR_AFFINITY_NODES,
-        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_NODES + 1
+        ALLOCATOR_AFFINITY_PHYSICS,
+        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_PHYSICS + 1
     };
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
     class VSG_DECLSPEC Allocator
     {
     public:
-        Allocator(std::unique_ptr<Allocator> in_nestedAllocator = {});
+        explicit Allocator(size_t in_default_alignment = 4);
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4);
 
         virtual ~Allocator();
 
@@ -68,8 +70,7 @@ namespace vsg
         /// report stats about blocks of memory allocated.
         virtual void report(std::ostream& out) const;
 
-        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;          // use MemoryBlocks by default
-        AllocatorType memoryBlocksAllocatorType = ALLOCATOR_TYPE_NEW_DELETE; // Use new/delete within MemoryBlocks by default
+        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR; // use MemoryBlocks by default
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
         /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
@@ -77,14 +78,14 @@ namespace vsg
 
         struct MemoryBlock
         {
-            MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType);
+            MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment);
             virtual ~MemoryBlock();
 
             void* allocate(std::size_t size);
             bool deallocate(void* ptr, std::size_t size);
 
             vsg::MemorySlots memorySlots;
-            const AllocatorType allocatorType;
+            size_t alignment = 4;
             uint8_t* memory = nullptr;
         };
 
@@ -93,10 +94,11 @@ namespace vsg
             Allocator* parent = nullptr;
             std::string name;
             size_t blockSize = 0;
+            size_t alignment = 4;
             std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
             std::shared_ptr<MemoryBlock> latestMemoryBlock;
 
-            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize);
+            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment);
             virtual ~MemoryBlocks();
 
             void* allocate(std::size_t size);
@@ -110,11 +112,13 @@ namespace vsg
 
         MemoryBlocks* getMemoryBlocks(AllocatorAffinity allocatorAffinity);
 
-        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize);
+        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t in_alignment = 4);
 
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
 
         mutable std::mutex mutex;
+
+        size_t default_alignment = 4;
 
         double allocationTime = 0.0;
         double deallocationTime = 0.0;

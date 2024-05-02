@@ -86,7 +86,7 @@ namespace vsg
         const Object* object;
 
         inline CpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, const Object* in_object) :
-            instr(in_instr), sl(in_sl), object(in_object)
+            instr(in_instr), sl(in_sl), reference(0), object(in_object)
         {
             if (instr) instr->enter(sl, reference, object);
         }
@@ -105,7 +105,7 @@ namespace vsg
         const Object* object;
 
         inline GpuInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer, const Object* in_object) :
-            instr(in_instr), sl(in_sl), commandBuffer(in_commandBuffer), object(in_object)
+            instr(in_instr), sl(in_sl), reference(0), commandBuffer(in_commandBuffer), object(in_object)
         {
             if (instr) instr->enter(sl, reference, commandBuffer, object);
         }
@@ -123,7 +123,7 @@ namespace vsg
         CommandBuffer& commandBuffer;
 
         inline CommandBufferInstrumentation(const Instrumentation* in_instr, const SourceLocation* in_sl, CommandBuffer& in_commandBuffer) :
-            instr(in_instr), sl(in_sl), commandBuffer(in_commandBuffer)
+            instr(in_instr), sl(in_sl), reference(0), commandBuffer(in_commandBuffer)
         {
             if (instr) instr->enterCommandBuffer(sl, reference, commandBuffer);
         }

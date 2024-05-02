@@ -49,20 +49,24 @@ namespace vsg
             _width(rhs._width),
             _height(rhs._height)
         {
-            if (_width != 0 && _height != 0)
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height));
+            if (_data)
             {
-                _data = _allocate(_width * _height);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
+                dirty();
             }
-            dirty();
         }
 
         Array2D(uint32_t width, uint32_t height, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
-            _data(_allocate(width * height)),
+            _data(nullptr),
             _width(width),
-            _height(height) { dirty(); }
+            _height(height)
+        {
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height));
+            dirty();
+        }
 
         Array2D(uint32_t width, uint32_t height, value_type* data, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
@@ -72,12 +76,17 @@ namespace vsg
 
         Array2D(uint32_t width, uint32_t height, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
-            _data(_allocate(width * height)),
+            _data(nullptr),
             _width(width),
             _height(height)
         {
-            for (auto& v : *this) v = value;
-            dirty();
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height));
+            if (_data)
+            {
+                auto dest_v = _data;
+                for (auto& v : *this) v = value;
+                dirty();
+            }
         }
 
         Array2D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, Properties in_properties = {}) :
@@ -173,7 +182,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        size_t size() const { return (properties.maxNumMipmaps <= 1) ? static_cast<size_t>(_width * _height) : computeValueCountIncludingMipmaps(_width, _height, 1, properties.maxNumMipmaps); }
+        size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<size_t>(_width) * static_cast<size_t>(_height)) : computeValueCountIncludingMipmaps(_width, _height, 1, properties.maxNumMipmaps); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }
@@ -198,9 +207,9 @@ namespace vsg
             _width = rhs._width;
             _height = rhs._height;
 
-            if (_width != 0 && _height != 0)
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height));
+            if (_data)
             {
-                _data = _allocate(_width * _height);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
@@ -285,10 +294,10 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * properties.stride); }
-        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * properties.stride); }
+        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * static_cast<size_t>(properties.stride)); }
+        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * static_cast<size_t>(properties.stride)); }
 
-        size_t index(uint32_t i, uint32_t j) const noexcept { return static_cast<size_t>(j) * _width + i; }
+        size_t index(uint32_t i, uint32_t j) const noexcept { return static_cast<size_t>(j) * static_cast<size_t>(_width) + static_cast<size_t>(i); }
 
         value_type& operator[](size_t i) { return *data(i); }
         const value_type& operator[](size_t i) const { return *data(i); }

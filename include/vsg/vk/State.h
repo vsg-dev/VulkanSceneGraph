@@ -229,7 +229,7 @@ namespace vsg
     public:
         explicit State(uint32_t maxSlot) :
             dirty(false),
-            stateStacks(maxSlot + 1)
+            stateStacks(static_cast<size_t>(maxSlot) + 1)
         {
         }
 
