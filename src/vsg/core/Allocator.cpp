@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
+#include <cstddef>
 #include <algorithm>
 
 using namespace vsg;
@@ -277,7 +278,10 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, size_t
     memorySlots(blockSize, memoryTracking),
     alignment(in_alignment)
 {
-    memory = static_cast<uint8_t*>(operator new (blockSize, std::align_val_t{alignment}));
+    block_alignment = std::max(alignment, alignof(std::max_align_t));
+    block_alignment = std::max(block_alignment, size_t{16});
+
+    memory = static_cast<uint8_t*>(operator new (blockSize, std::align_val_t{block_alignment}));
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -292,7 +296,7 @@ Allocator::MemoryBlock::~MemoryBlock()
         info("MemoryBlock::~MemoryBlock(", memorySlots.totalMemorySize(), ") freed memory");
     }
 
-    operator delete(memory, std::align_val_t{alignment});
+    operator delete(memory, std::align_val_t{block_alignment});
 }
 
 void* Allocator::MemoryBlock::allocate(std::size_t size)

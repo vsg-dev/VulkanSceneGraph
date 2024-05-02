@@ -86,6 +86,7 @@ namespace vsg
 
             vsg::MemorySlots memorySlots;
             size_t alignment = 4;
+            size_t block_alignment = 16;
             uint8_t* memory = nullptr;
         };
 
