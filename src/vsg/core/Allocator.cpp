@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 
 #include <algorithm>
-#include <cstdlib>
 
 using namespace vsg;
 
@@ -94,15 +93,6 @@ void Allocator::report(std::ostream& out) const
 void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
     std::scoped_lock<std::mutex> lock(mutex);
-
-    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
-    {
-        return operator new(size); // new(size, alignment)
-    }
-    else if (allocatorType == ALLOCATOR_TYPE_MALLOC_FREE)
-    {
-        return std::malloc(size); // std::aligned_alloc(alignment, size)
-    }
 
     // create a MemoryBlocks entry if one doesn't already exist
     if (allocatorAffinity > allocatorMemoryBlocks.size())
@@ -285,23 +275,11 @@ void Allocator::setMemoryTracking(int mt)
 //
 // vsg::Allocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType, size_t in_alignment) :
+Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment) :
     memorySlots(blockSize, memoryTracking),
-    allocatorType(in_allocatorType),
     alignment(in_alignment)
 {
-    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
-    {
-        memory = static_cast<uint8_t*>(operator new(blockSize,  std::align_val_t{alignment}));
-    }
-    else
-    {
-#if defined(_MSC_VER)
-        memory = static_cast<uint8_t*>(_aligned_malloc(alignment, blockSize));
-#else
-        memory = static_cast<uint8_t*>(std::aligned_alloc(alignment, blockSize));
-#endif
-    }
+    memory = static_cast<uint8_t*>(operator new(blockSize,  std::align_val_t{alignment}));
 
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -316,18 +294,7 @@ Allocator::MemoryBlock::~MemoryBlock()
         info("MemoryBlock::~MemoryBlock(", memorySlots.totalMemorySize(), ") freed memory");
     }
 
-    if (allocatorType == ALLOCATOR_TYPE_NEW_DELETE)
-    {
-        operator delete(memory);
-    }
-    else
-    {
-#if defined(_MSC_VER)
-        _aligned_free(memory);
-#else
-        std::free(memory);
-#endif
-    }
+    operator delete(memory);
 }
 
 void* Allocator::MemoryBlock::allocate(std::size_t size)
@@ -401,7 +368,7 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     size_t new_blockSize = std::max(size, blockSize);
 
-    auto block = std::make_shared<MemoryBlock>(new_blockSize, parent->memoryTracking, parent->memoryBlocksAllocatorType, alignment);
+    auto block = std::make_shared<MemoryBlock>(new_blockSize, parent->memoryTracking, alignment);
     latestMemoryBlock = block;
 
     auto ptr = block->allocate(size);

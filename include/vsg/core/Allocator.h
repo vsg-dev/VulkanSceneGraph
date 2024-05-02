@@ -69,7 +69,6 @@ namespace vsg
         virtual void report(std::ostream& out) const;
 
         AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;          // use MemoryBlocks by default
-        AllocatorType memoryBlocksAllocatorType = ALLOCATOR_TYPE_NEW_DELETE; // Use new/delete within MemoryBlocks by default
         int memoryTracking = MEMORY_TRACKING_DEFAULT;
 
         /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
@@ -77,14 +76,13 @@ namespace vsg
 
         struct MemoryBlock
         {
-            MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType, size_t in_alignment);
+            MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment);
             virtual ~MemoryBlock();
 
             void* allocate(std::size_t size);
             bool deallocate(void* ptr, std::size_t size);
 
             vsg::MemorySlots memorySlots;
-            const AllocatorType allocatorType;
             size_t alignment = 4;
             uint8_t* memory = nullptr;
         };
