@@ -50,22 +50,23 @@ namespace vsg
             _height(rhs._height),
             _depth(rhs._depth)
         {
-            if (_width != 0 && _height != 0 && _depth != 0)
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
+            if (_data)
             {
-                _data = _allocate(_width * _height * _depth);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
+                dirty();
             }
-            dirty();
         }
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
-            _data(_allocate(width * height * depth)),
+            _data(nullptr),
             _width(width),
             _height(height),
             _depth(depth)
         {
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
             dirty();
         }
 
@@ -78,13 +79,17 @@ namespace vsg
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
-            _data(_allocate(width * height * depth)),
+            _data(nullptr),
             _width(width),
             _height(height),
             _depth(depth)
         {
-            for (auto& v : *this) v = value;
-            dirty();
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
+            if (_data)
+            {
+                for (auto& v : *this) v = value;
+                dirty();
+            }
         }
 
         Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
@@ -211,9 +216,9 @@ namespace vsg
             _height = rhs._height;
             _depth = rhs._depth;
 
-            if (_width != 0 && _height != 0 && _depth != 0)
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
+            if (_data)
             {
-                _data = _allocate(_width * _height * _depth);
                 auto dest_v = _data;
                 for (auto& v : rhs) *(dest_v++) = v;
             }
@@ -303,10 +308,10 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * properties.stride); }
-        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * properties.stride); }
+        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * static_cast<size_t>(properties.stride)); }
+        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * static_cast<size_t>(properties.stride)); }
 
-        size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<size_t>(k * _width * _height + j * _width + i); }
+        size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<size_t>(static_cast<size_t>(k) * static_cast<size_t>(_width) * static_cast<size_t>(_height) + static_cast<size_t>(j) * static_cast<size_t>(_width) + static_cast<size_t>(i)); }
 
         value_type& operator[](size_t i) { return *data(i); }
         const value_type& operator[](size_t i) const { return *data(i); }

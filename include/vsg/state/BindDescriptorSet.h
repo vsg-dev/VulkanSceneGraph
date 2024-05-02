@@ -156,7 +156,7 @@ namespace vsg
         struct VulkanData
         {
             VkPipelineLayout _vkPipelineLayout = 0;
-            VkDescriptorSet _vkDescriptorSet;
+            VkDescriptorSet _vkDescriptorSet = VK_NULL_HANDLE;
         };
 
         vk_buffer<VulkanData> _vulkanData;
