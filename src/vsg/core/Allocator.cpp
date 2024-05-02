@@ -37,6 +37,7 @@ Allocator::Allocator(size_t in_default_alignment) :
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "MemoryBlocks_OBJECTS", size_t(Megabyte), default_alignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "MemoryBlocks_DATA", size_t(16 * Megabyte), default_alignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "MemoryBlocks_NODES", size_t(Megabyte), default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHSYICS].reset(new MemoryBlocks(this, "MemoryBlocks_PHYSICS", size_t(Megabyte), 16));
 }
 
 Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment) :
