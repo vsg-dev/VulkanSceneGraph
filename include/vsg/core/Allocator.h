@@ -136,19 +136,25 @@ namespace vsg
     /// deallocate memory using vsg::Allocator::instance() if available, otherwise use std::free(ptr)
     extern VSG_DECLSPEC void deallocate(void* ptr, std::size_t size = 0);
 
-    /// std container adapter for allocating with MEMORY_AFFINITY_NODES
-    template<typename T>
-    struct allocator_affinity_nodes
+    /// std container adapter for allocating with specific affinity
+    template<typename T, vsg::AllocatorAffinity A>
+    struct allocator_affinity_adapter
     {
         using value_type = T;
 
-        allocator_affinity_nodes() = default;
+        allocator_affinity_adapter() = default;
         template<class U>
-        explicit constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
+        explicit constexpr allocator_affinity_adapter(const allocator_affinity_adapter<U, A>&) noexcept {}
+
+        template<class U>
+        struct rebind
+        {
+            using other = allocator_affinity_adapter<U, A>;
+        };
 
         value_type* allocate(std::size_t n)
         {
-            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::ALLOCATOR_AFFINITY_NODES));
+            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), A));
         }
 
         void deallocate(value_type* ptr, std::size_t n)
@@ -157,10 +163,19 @@ namespace vsg
         }
     };
 
-    template<class T, class U>
-    bool operator==(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return true; }
+    template<class T, class U, vsg::AllocatorAffinity A>
+    bool operator==(const allocator_affinity_adapter<T, A>&, const allocator_affinity_adapter<U, A>&) { return true; }
 
-    template<class T, class U>
-    bool operator!=(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return false; }
+    template<class T, class U, vsg::AllocatorAffinity A>
+    bool operator!=(const allocator_affinity_adapter<T, A>&, const allocator_affinity_adapter<U, A>&) { return false; }
+
+    template<typename T>
+    using allocator_affinity_objects = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_OBJECTS>;
+    template<typename T>
+    using allocator_affinity_data = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_DATA>;
+    template<typename T>
+    using allocator_affinity_nodes = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_NODES>;
+    template<typename T>
+    using allocator_affinity_physics = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_PHYSICS>;
 
 } // namespace vsg
