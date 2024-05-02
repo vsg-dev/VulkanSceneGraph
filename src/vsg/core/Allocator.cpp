@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
+#include <cstddef>
 #include <algorithm>
 #include <iostream>
 
