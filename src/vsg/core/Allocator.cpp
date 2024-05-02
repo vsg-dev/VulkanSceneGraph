@@ -301,7 +301,7 @@ Allocator::MemoryBlock::~MemoryBlock()
         info("MemoryBlock::~MemoryBlock(", memorySlots.totalMemorySize(), ") freed memory");
     }
 
-    operator delete(memory);
+    operator delete(memory, std::align_val_t{alignment});
 }
 
 void* Allocator::MemoryBlock::allocate(std::size_t size)
