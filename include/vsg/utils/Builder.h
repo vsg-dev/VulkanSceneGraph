@@ -36,6 +36,16 @@ namespace vsg
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
         ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
+
+        bool operator<(const StateInfo& rhs) const
+        {
+            int result = compare_region(lighting, billboard, rhs.lighting);
+            if (result) return result < 0;
+
+            if ((result = compare_pointer(image, rhs.image))) return result < 0;
+            if ((result = compare_pointer(displacementMap, rhs.displacementMap))) return result < 0;
+            return compare_pointer(viewDescriptorSetLayout, rhs.viewDescriptorSetLayout) < 0;
+        }
     };
     VSG_type_name(vsg::StateInfo);
 
@@ -131,7 +141,7 @@ namespace vsg
         ref_ptr<ShaderSet> _flatShadedShaderSet;
         ref_ptr<ShaderSet> _phongShaderSet;
 
-        using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;
+        using GeometryMap = std::map<std::pair<GeometryInfo, StateInfo>, ref_ptr<Node>>;
         GeometryMap _boxes;
         GeometryMap _capsules;
         GeometryMap _cones;
