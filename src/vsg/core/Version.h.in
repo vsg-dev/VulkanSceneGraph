@@ -27,6 +27,9 @@ extern "C"
     #define VSG_VERSION_STRING   "@VSG_VERSION_MAJOR@.@VSG_VERSION_MINOR@.@VSG_VERSION_PATCH@"
     #define VSG_SOVERSION_STRING "@VSG_SOVERSION@"
 
+    #define VSG_API_VERSION_LESS(major, minor, patch) ((VSG_VERSION_MAJOR < major) || ((VSG_VERSION_MAJOR == major) && ((VSG_VERSION_MINOR < minor) || ((VSG_VERSION_MINOR==minor) && VSG_VERSION_PATCH < patch))))
+    #define VSG_API_VERSION_GREATER_EQUAL(major, minor, patch) ((VSG_VERSION_MAJOR > major) || ((VSG_VERSION_MAJOR == major) && ((VSG_VERSION_MINOR > minor) || ((VSG_VERSION_MINOR==minor) && VSG_VERSION_PATCH >= patch))))
+
     /// maximum number of logical vkDevice supported
     #define VSG_MAX_DEVICES @VSG_MAX_DEVICES@
 
