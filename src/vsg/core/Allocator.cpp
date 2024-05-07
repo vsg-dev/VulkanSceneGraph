@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
-#include <cstddef>
 #include <algorithm>
+#include <cstddef>
 
 using namespace vsg;
 
@@ -296,7 +296,7 @@ Allocator::MemoryBlock::~MemoryBlock()
         info("MemoryBlock::~MemoryBlock(", memorySlots.totalMemorySize(), ") freed memory");
     }
 
-    operator delete(memory, std::align_val_t{block_alignment});
+    operator delete (memory, std::align_val_t{block_alignment});
 }
 
 void* Allocator::MemoryBlock::allocate(std::size_t size)
