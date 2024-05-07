@@ -268,7 +268,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
 
 ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _boxes[info];
+    auto& subgraph = _boxes[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -395,12 +395,13 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _capsules[info];
+    auto& subgraph = _capsules[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -616,12 +617,13 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cones[info];
+    auto& subgraph = _cones[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -818,12 +820,13 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cylinders[info];
+    auto& subgraph = _cylinders[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1057,12 +1060,13 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cylinders[info];
+    auto& subgraph = _cylinders[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1152,12 +1156,13 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _boxes[info];
+    auto& subgraph = _boxes[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1226,12 +1231,13 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _spheres[info];
+    auto& subgraph = _spheres[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1327,12 +1333,13 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _heightfields[info];
+    auto& subgraph = _heightfields[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1452,5 +1459,6 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
