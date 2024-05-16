@@ -28,6 +28,7 @@ PipelineLayout::PipelineLayout() :
 }
 
 PipelineLayout::PipelineLayout(const PipelineLayout& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
     flags(rhs.flags),
     setLayouts(rhs.setLayouts),
     pushConstantRanges(rhs.pushConstantRanges)

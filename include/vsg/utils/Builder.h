@@ -109,7 +109,6 @@ namespace vsg
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:
-
         Builder();
 
         bool verbose = false;
