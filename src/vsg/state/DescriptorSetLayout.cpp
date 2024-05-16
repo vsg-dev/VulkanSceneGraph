@@ -27,6 +27,12 @@ DescriptorSetLayout::DescriptorSetLayout()
 {
 }
 
+DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayout& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    bindings(rhs.bindings)
+{
+}
+
 DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings) :
     bindings(descriptorSetLayoutBindings)
 {

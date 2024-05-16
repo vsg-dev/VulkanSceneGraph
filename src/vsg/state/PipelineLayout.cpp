@@ -27,6 +27,13 @@ PipelineLayout::PipelineLayout() :
 {
 }
 
+PipelineLayout::PipelineLayout(const PipelineLayout& rhs, const CopyOp& copyop) :
+    flags(rhs.flags),
+    setLayouts(rhs.setLayouts),
+    pushConstantRanges(rhs.pushConstantRanges)
+{
+}
+
 PipelineLayout::PipelineLayout(const DescriptorSetLayouts& in_setLayouts, const PushConstantRanges& in_pushConstantRanges, VkPipelineLayoutCreateFlags in_flags) :
     flags(in_flags),
     setLayouts(in_setLayouts),
