@@ -109,6 +109,9 @@ namespace vsg
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:
+
+        Builder();
+
         bool verbose = false;
         ref_ptr<Options> options;
         ref_ptr<SharedObjects> sharedObjects;

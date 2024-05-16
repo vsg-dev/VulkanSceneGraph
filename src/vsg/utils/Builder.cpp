@@ -21,6 +21,10 @@
 
 using namespace vsg;
 
+Builder::Builder()
+{
+}
+
 void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct)
 {
     compileTraversal = ct;
