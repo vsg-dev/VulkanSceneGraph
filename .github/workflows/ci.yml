@@ -18,7 +18,7 @@ jobs:
             os: windows-latest
             vulkan-version: 1.3.224.1
     continue-on-error: ${{ matrix.vulkan-version == 'latest' }}
-          
+
     steps:
     - uses: actions/checkout@v2
     - name: Setup cmake
@@ -31,7 +31,7 @@ jobs:
         version: ${{ matrix.vulkan-version }}
         cache: true
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
       if: startsWith(matrix.os, 'windows')
     - name: Build and Install VSG
       shell: bash
@@ -48,4 +48,4 @@ jobs:
          else
               echo "$RUNNER_OS not supported"
               exit 1
-         fi     
+         fi
