@@ -25,6 +25,8 @@ Builder::Builder()
 {
 }
 
+Builder::~Builder() = default;
+
 void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct)
 {
     compileTraversal = ct;
