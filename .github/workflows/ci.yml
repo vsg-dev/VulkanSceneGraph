@@ -36,7 +36,7 @@ jobs:
     - name: Build and Install VSG
       shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
+         if [ "$RUNNER_OS" == "Windows" ]; then
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
               msbuild INSTALL.vcxproj -p:Configuration=Release
          elif [ "$RUNNER_OS" == "Linux" ]; then
