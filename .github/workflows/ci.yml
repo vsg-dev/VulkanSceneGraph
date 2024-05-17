@@ -10,12 +10,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-2019]
         vulkan-version: [1.3.224.1]
         build-shared: [OFF]
         include:
           - build-shared: ON
-            os: windows-latest
+            os: windows-2019
             vulkan-version: 1.3.224.1
     continue-on-error: ${{ matrix.vulkan-version == 'latest' }}
 
@@ -38,7 +38,7 @@ jobs:
       run: |
          if [ "$RUNNER_OS" == "Windows" ]; then
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
-              msbuild INSTALL.vcxproj -p:Configuration=Release
+              cmake --build .
          elif [ "$RUNNER_OS" == "Linux" ]; then
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
               make -j 3 && sudo make install

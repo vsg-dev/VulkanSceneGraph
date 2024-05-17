@@ -35,12 +35,12 @@ TileDatabaseSettings::TileDatabaseSettings(const TileDatabaseSettings& rhs, cons
     originTopLeft(rhs.originTopLeft),
     lodTransitionScreenHeightRatio(rhs.lodTransitionScreenHeightRatio),
     projection(rhs.projection),
-    ellipsoidModel(copyop(ellipsoidModel)),
+    ellipsoidModel(copyop(rhs.ellipsoidModel)),
     imageLayer(rhs.imageLayer),
     terrainLayer(rhs.terrainLayer),
     mipmapLevelsHint(rhs.mipmapLevelsHint),
     lighting(rhs.lighting),
-    shaderSet(copyop(shaderSet))
+    shaderSet(copyop(rhs.shaderSet))
 {
 }
 
@@ -117,8 +117,8 @@ TileDatabase::TileDatabase()
 
 TileDatabase::TileDatabase(const TileDatabase& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    settings(copyop(settings)),
-    child(copyop(child))
+    settings(copyop(rhs.settings)),
+    child(copyop(rhs.child))
 {
 }
 

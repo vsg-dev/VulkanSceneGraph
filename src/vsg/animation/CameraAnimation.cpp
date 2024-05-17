@@ -31,7 +31,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
     {
         if (auto read_object = vsg::read(filename, options))
         {
-            if (animation = read_object.cast<Animation>())
+            if ((animation = read_object.cast<Animation>()))
             {
                 for (auto sampler : animation->samplers)
                 {
@@ -42,7 +42,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
                     }
                 }
             }
-            else if (transformSampler = read_object.cast<TransformSampler>())
+            else if ((transformSampler = read_object.cast<TransformSampler>()))
             {
                 animation = Animation::create();
                 animation->samplers.push_back(transformSampler);
