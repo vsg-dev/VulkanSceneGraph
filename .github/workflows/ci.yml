@@ -38,7 +38,7 @@ jobs:
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
-              MSBuild.exe INSTALL.vcxproj -p:Configuration=Release
+              msbuild INSTALL.vcxproj -p:Configuration=Release
          elif [ "$RUNNER_OS" == "Linux" ]; then
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
               make -j 3 && sudo make install
