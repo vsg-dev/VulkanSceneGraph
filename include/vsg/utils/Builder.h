@@ -114,6 +114,8 @@ namespace vsg
         Builder(const Builder& rhs) = delete;
         Builder& operator = (const Builder& rhs) = delete;
 
+        ~Builder();
+
         bool verbose = false;
         ref_ptr<Options> options;
         ref_ptr<SharedObjects> sharedObjects;
@@ -136,8 +138,6 @@ namespace vsg
         ref_ptr<CompileTraversal> compileTraversal;
 
     protected:
-        ~Builder();
-
         void transform(const mat4& matrix, ref_ptr<vec3Array> vertices, ref_ptr<vec3Array> normals);
         ref_ptr<Data> instancePositions(const GeometryInfo& info, uint32_t& instanceCount);
         ref_ptr<Data> instanceColors(const GeometryInfo& info, uint32_t instanceCount);
