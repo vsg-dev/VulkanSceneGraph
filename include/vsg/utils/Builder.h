@@ -111,7 +111,7 @@ namespace vsg
     public:
         Builder();
         Builder(const Builder& rhs) = delete;
-        Builder& operator = (const Builder& rhs) = delete;
+        Builder& operator=(const Builder& rhs) = delete;
 
         ~Builder();
 
