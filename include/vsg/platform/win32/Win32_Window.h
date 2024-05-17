@@ -132,9 +132,13 @@ namespace vsgWin32
     {
         switch (buttonMsg)
         {
+        case WM_LBUTTONDBLCLK:
         case WM_LBUTTONDOWN: return 1;
+        case WM_MBUTTONDBLCLK:
         case WM_MBUTTONDOWN: return 2;
+        case WM_RBUTTONDBLCLK:
         case WM_RBUTTONDOWN: return 3;
+        case WM_XBUTTONDBLCLK:
         case WM_XBUTTONDOWN:
             if (wParamHi == XBUTTON1)
                 return 4;
