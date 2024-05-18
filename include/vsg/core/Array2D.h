@@ -83,7 +83,6 @@ namespace vsg
             _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height));
             if (_data)
             {
-                auto dest_v = _data;
                 for (auto& v : *this) v = value;
                 dirty();
             }
