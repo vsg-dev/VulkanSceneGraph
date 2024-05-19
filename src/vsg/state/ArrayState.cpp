@@ -179,13 +179,13 @@ NullArrayState::NullArrayState(const ArrayState& as) :
     vertices = {};
 }
 
-ref_ptr<ArrayState> NullArrayState::clone()
+ref_ptr<ArrayState> NullArrayState::cloneArrayState()
 {
     return NullArrayState::create(*this);
 }
 
 // clone the specified ArrayState
-ref_ptr<ArrayState> NullArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> NullArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return NullArrayState::create(*arrayState);
 }
@@ -220,12 +220,12 @@ PositionArrayState::PositionArrayState(const ArrayState& rhs) :
 {
 }
 
-ref_ptr<ArrayState> PositionArrayState::clone()
+ref_ptr<ArrayState> PositionArrayState::cloneArrayState()
 {
     return PositionArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> PositionArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return PositionArrayState::create(*arrayState);
 }
@@ -273,12 +273,12 @@ DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs) :
 {
 }
 
-ref_ptr<ArrayState> DisplacementMapArrayState::clone()
+ref_ptr<ArrayState> DisplacementMapArrayState::cloneArrayState()
 {
     return DisplacementMapArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> DisplacementMapArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> DisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return DisplacementMapArrayState::create(*arrayState);
 }
@@ -380,12 +380,12 @@ PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const
 {
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::clone()
+ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState()
 {
     return PositionAndDisplacementMapArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return PositionAndDisplacementMapArrayState::create(*arrayState);
 }
@@ -457,12 +457,12 @@ BillboardArrayState::BillboardArrayState(const ArrayState& rhs) :
 {
 }
 
-ref_ptr<ArrayState> BillboardArrayState::clone()
+ref_ptr<ArrayState> BillboardArrayState::cloneArrayState()
 {
     return BillboardArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> BillboardArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> BillboardArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return BillboardArrayState::create(*arrayState);
 }

@@ -31,13 +31,13 @@ namespace vsg
         ArrayState(const ArrayState& rhs, const CopyOp& copyop = {});
 
         /// clone self
-        virtual ref_ptr<ArrayState> clone()
+        virtual ref_ptr<ArrayState> cloneArrayState()
         {
             return ArrayState::create(*this);
         }
 
         // clone the specified ArrayState
-        virtual ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState)
+        virtual ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState)
         {
             return ArrayState::create(*arrayState);
         }
@@ -99,8 +99,8 @@ namespace vsg
         NullArrayState();
         explicit NullArrayState(const ArrayState& as);
 
-        ref_ptr<ArrayState> clone() override;
-        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         using ArrayState::apply;
 
@@ -117,8 +117,8 @@ namespace vsg
         PositionArrayState(const PositionArrayState& rhs);
         explicit PositionArrayState(const ArrayState& rhs);
 
-        ref_ptr<ArrayState> clone() override;
-        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t position_attribute_location = 4;
         AttributeDetails positionAttribute;
@@ -138,8 +138,8 @@ namespace vsg
         DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
         explicit DisplacementMapArrayState(const ArrayState& rhs);
 
-        ref_ptr<ArrayState> clone() override;
-        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         // binding of displacement map
         uint32_t normal_attribute_location = 1;
@@ -175,8 +175,8 @@ namespace vsg
         uint32_t position_attribute_location = 4;
         AttributeDetails positionAttribute;
 
-        ref_ptr<ArrayState> clone() override;
-        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
@@ -191,8 +191,8 @@ namespace vsg
         BillboardArrayState(const BillboardArrayState& rhs);
         explicit BillboardArrayState(const ArrayState& rhs);
 
-        ref_ptr<ArrayState> clone() override;
-        ref_ptr<ArrayState> clone(ref_ptr<ArrayState> arrayState) override;
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t position_attribute_location = 4;
         AttributeDetails positionAttribute;

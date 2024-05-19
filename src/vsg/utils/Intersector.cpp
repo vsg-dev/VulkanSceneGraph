@@ -57,7 +57,7 @@ void Intersector::apply(const StateGroup& stategroup)
 {
     PushPopNode ppn(_nodePath, &stategroup);
 
-    auto arrayState = stategroup.prototypeArrayState ? stategroup.prototypeArrayState->clone(arrayStateStack.back()) : arrayStateStack.back()->clone();
+    auto arrayState = stategroup.prototypeArrayState ? stategroup.prototypeArrayState->cloneArrayState(arrayStateStack.back()) : arrayStateStack.back()->cloneArrayState();
 
     for (auto& statecommand : stategroup.stateCommands)
     {
