@@ -35,7 +35,6 @@ endif()
 
 find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
-
 find_package(Threads REQUIRED)
 
 # Set the instrumentation level to compile into sources
@@ -45,7 +44,7 @@ set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level 
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
 if (VSG_SUPPORTS_ShaderCompiler)
     set(GLSLANG_MIN_VERSION "14" CACHE STRING "glslang 14 is the earliest version that we think installs itself properly on all platforms. Other platforms may be able to use an earlier version")
-    find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)
+    find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG)
 
     if (glslang_FOUND)
         set(FIND_DEPENDENCY_glslang "find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)")
