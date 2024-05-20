@@ -35,6 +35,7 @@ endif()
 
 find_package(Vulkan ${Vulkan_MIN_VERSION} REQUIRED)
 
+
 find_package(Threads REQUIRED)
 
 # Set the instrumentation level to compile into sources
@@ -43,26 +44,18 @@ set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level 
 # Enable/disable shader compilation support that pulls in glslang
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
 if (VSG_SUPPORTS_ShaderCompiler)
-    if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
+    set(GLSLANG_MIN_VERSION "14" CACHE STRING "glslang 14 is the earliest version that we think installs itself properly on all platforms. Other platforms may be able to use an earlier version")
+    find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)
 
-        if (Git_FOUND)
-
-            set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repository")
-            set(glslang_branch "VSG-1.0.x" CACHE STRING "branch/tag of the glslang git repository")
-
-            execute_process(COMMAND ${GIT_EXECUTABLE} clone --depth 1 --branch ${glslang_branch} ${glslang_URL}
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-                            RESULT_VARIABLE GIT_SUBMOD_RESULT)
-
-            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
-                set(VSG_SUPPORTS_ShaderCompiler 0)
-            endif()
-        else()
-                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
-                set(VSG_SUPPORTS_ShaderCompiler 0)
-        endif()
+    if (glslang_FOUND)
+        set(FIND_DEPENDENCY_glslang "find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)")
+    else()
+        message(WARNING "glslang not found. ShaderCompile support disabled.")
+        set(VSG_SUPPORTS_ShaderCompiler 0)
+        set(FIND_DEPENDENCY_glslang "")
     endif()
+else()
+    set(FIND_DEPENDENCY_glslang "")
 endif()
 
 set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )

@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/ShaderCompiler.h>
 
 #if VSG_SUPPORTS_ShaderCompiler
-#    include <SPIRV/GlslangToSpv.h>
+#    include <glslang/SPIRV/GlslangToSpv.h>
 #    include <glslang/Public/ResourceLimits.h>
 #    include <glslang/Public/ShaderLang.h>
 #endif
