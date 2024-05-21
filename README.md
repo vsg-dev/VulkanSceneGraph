@@ -38,9 +38,10 @@ Community projects:
 ## Quick Guide to building the VSG
 
 ### Prerequisites:
-* C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
-* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
-* [CMake](https://www.cmake.org) 3.7 or later.
+* Required: C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
+* Required: [CMake](https://www.cmake.org) 3.7 or later.
+* Required: [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
+* Optional : [glslang](https://github.com/KhronosGroup/glslang) 14.0 or later. Only required if shader compilation at runtime is needed.
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
