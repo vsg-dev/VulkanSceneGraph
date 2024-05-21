@@ -28,10 +28,10 @@
 
 ### Installing dependencies
 
-* Ubuntu:  
-	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev`
+* Ubuntu:
+	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev glslang-dev glslang-tools
 
-* Gentoo:  
+* Gentoo:
 	`emerge dev-util/vulkan-tools`
 
 ### Build
@@ -207,7 +207,7 @@ For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targe
 
 ### Using VSG provided cmake macro to generate cmake support files
 
-Projects that install a library must generate some cmake-related files so that the library can be found by ```find_package()```. To simplify the generation of these files, the cmake macro ```vsg_add_cmake_support_files()``` has been added. 
+Projects that install a library must generate some cmake-related files so that the library can be found by ```find_package()```. To simplify the generation of these files, the cmake macro ```vsg_add_cmake_support_files()``` has been added.
 
 In addition to calling the macro, it requires a template for creating the xxxConfig.cmake file, as given in the following example:
 
@@ -323,7 +323,7 @@ So now we're ready to build VSG. With the SDK installed this is very similar to 
 	git clone https://github.com/vsg-dev/VulkanSceneGraph.git
 	cd VulkanSceneGraph
 	cmake . -G "Xcode"
-	
+
 Once CMake has finished you can open the generated Xcode project and build the 'install' target. This will build VSG and install the headers and generated library onto your machine.
 
 Again, as with other platforms it's useful to now set your CMAKE_PREFIX_PATH to point to the VSG library we have just installed. If you've installed to the default location you can add the following to your .bash_profile file.
