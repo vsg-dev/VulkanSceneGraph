@@ -10,6 +10,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <algorithm>
+#include <cassert>
+
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/CopyAndReleaseImage.h>
@@ -96,7 +99,7 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     //semaphore = vsg::Semaphore::create(device);
     scratchMemory = ScratchMemory::create(4096);
 
-    minimum_maxSets = in_resourceRequirements.computeNumDescriptorSets();
+    minimum_maxSets = std::max(1u, in_resourceRequirements.computeNumDescriptorSets());
     minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
 }
 
@@ -255,7 +258,8 @@ void Context::reserve(const ResourceRequirements& requirements)
     if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
     {
         getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
-        if (required_maxSets > 0 && !required_descriptorPoolSizes.empty())
+        assert(required_maxSets >= minimum_maxSets);
+        if (!required_descriptorPoolSizes.empty())
         {
             descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
         }
