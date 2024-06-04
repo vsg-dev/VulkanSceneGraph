@@ -115,7 +115,7 @@ namespace vsg
 
         MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t in_alignment = 4);
 
-        void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
+        virtual void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
 
         mutable std::mutex mutex;
 
