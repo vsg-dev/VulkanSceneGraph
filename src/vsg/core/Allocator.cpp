@@ -55,6 +55,7 @@ std::unique_ptr<Allocator>& Allocator::instance()
 void Allocator::report(std::ostream& out) const
 {
     out << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
+    out << "allocatorType = " << allocatorType << std::endl;
     out << "totalAvailableSize = " << totalAvailableSize() << ", totalReservedSize = " << totalReservedSize() << ", totalMemorySize = " << totalMemorySize() << std::endl;
     double totalReserved = static_cast<double>(totalReservedSize());
 
