@@ -20,12 +20,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+std::unique_ptr<Allocator>& Allocator::instance()
+{
+    static std::unique_ptr<Allocator> s_allocator(new OriginalBlockAllocator());
+    return s_allocator;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::Allocator
+// vsg::OriginalBlockAllocator
 //
-Allocator::Allocator(size_t in_default_alignment) :
-    default_alignment(in_default_alignment)
+OriginalBlockAllocator::OriginalBlockAllocator(size_t in_default_alignment) :
+    Allocator(in_default_alignment)
 {
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
 
@@ -36,25 +42,19 @@ Allocator::Allocator(size_t in_default_alignment) :
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "MemoryBlocks_PHYSICS", size_t(Megabyte), 16));
 }
 
-Allocator::Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment) :
-    Allocator(in_default_alignment)
-{
-    nestedAllocator = std::move(in_nestedAllocator);
-}
-
-Allocator::~Allocator()
+OriginalBlockAllocator::OriginalBlockAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment) :
+    Allocator(std::move(in_nestedAllocator), in_default_alignment)
 {
 }
 
-std::unique_ptr<Allocator>& Allocator::instance()
+OriginalBlockAllocator::~OriginalBlockAllocator()
 {
-    static std::unique_ptr<Allocator> s_allocator(new Allocator());
-    return s_allocator;
 }
 
-void Allocator::report(std::ostream& out) const
+
+void OriginalBlockAllocator::report(std::ostream& out) const
 {
-    out << "Allocator::report() " << allocatorMemoryBlocks.size() << std::endl;
+    out << "OriginalBlockAllocator::report() " << allocatorMemoryBlocks.size() << std::endl;
     out << "allocatorType = " << allocatorType << std::endl;
     out << "totalAvailableSize = " << totalAvailableSize() << ", totalReservedSize = " << totalReservedSize() << ", totalMemorySize = " << totalMemorySize() << std::endl;
     double totalReserved = static_cast<double>(totalReservedSize());
@@ -89,7 +89,7 @@ void Allocator::report(std::ostream& out) const
     }
 }
 
-void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
+void* OriginalBlockAllocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -98,7 +98,7 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
     {
         if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
         {
-            info("Allocator::allocate(", size, ", ", allocatorAffinity, ") out of bounds allocating new MemoryBlock");
+            info("OriginalBlockAllocator::allocate(", size, ", ", allocatorAffinity, ") out of bounds allocating new MemoryBlock");
         }
 
         auto name = make_string("MemoryBlocks_", allocatorAffinity);
@@ -122,15 +122,15 @@ void* Allocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
         }
     }
 
-    void* ptr = Allocator::allocate(size, allocatorAffinity);
+    void* ptr = OriginalBlockAllocator::allocate(size, allocatorAffinity);
     if (memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        info("Allocator::allocate(", size, ", ", int(allocatorAffinity), ") ptr = ", ptr);
+        info("OriginalBlockAllocator::allocate(", size, ", ", int(allocatorAffinity), ") ptr = ", ptr);
     }
     return ptr;
 }
 
-bool Allocator::deallocate(void* ptr, std::size_t size)
+bool OriginalBlockAllocator::deallocate(void* ptr, std::size_t size)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -165,7 +165,7 @@ bool Allocator::deallocate(void* ptr, std::size_t size)
     return false;
 }
 
-size_t Allocator::deleteEmptyMemoryBlocks()
+size_t OriginalBlockAllocator::deleteEmptyMemoryBlocks()
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -177,7 +177,7 @@ size_t Allocator::deleteEmptyMemoryBlocks()
     return memoryDeleted;
 }
 
-size_t Allocator::totalAvailableSize() const
+size_t OriginalBlockAllocator::totalAvailableSize() const
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -189,7 +189,7 @@ size_t Allocator::totalAvailableSize() const
     return size;
 }
 
-size_t Allocator::totalReservedSize() const
+size_t OriginalBlockAllocator::totalReservedSize() const
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -201,7 +201,7 @@ size_t Allocator::totalReservedSize() const
     return size;
 }
 
-size_t Allocator::totalMemorySize() const
+size_t OriginalBlockAllocator::totalMemorySize() const
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -213,7 +213,7 @@ size_t Allocator::totalMemorySize() const
     return size;
 }
 
-Allocator::MemoryBlocks* Allocator::getMemoryBlocks(AllocatorAffinity allocatorAffinity)
+OriginalBlockAllocator::MemoryBlocks* OriginalBlockAllocator::getMemoryBlocks(AllocatorAffinity allocatorAffinity)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -221,7 +221,7 @@ Allocator::MemoryBlocks* Allocator::getMemoryBlocks(AllocatorAffinity allocatorA
     return {};
 }
 
-Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t alignment)
+OriginalBlockAllocator::MemoryBlocks* OriginalBlockAllocator::getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t alignment)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -239,7 +239,7 @@ Allocator::MemoryBlocks* Allocator::getOrCreateMemoryBlocks(AllocatorAffinity al
     return allocatorMemoryBlocks[allocatorAffinity].get();
 }
 
-void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
+void OriginalBlockAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
@@ -256,7 +256,7 @@ void Allocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSi
     }
 }
 
-void Allocator::setMemoryTracking(int mt)
+void OriginalBlockAllocator::setMemoryTracking(int mt)
 {
     memoryTracking = mt;
     for (auto& amb : allocatorMemoryBlocks)
@@ -273,9 +273,9 @@ void Allocator::setMemoryTracking(int mt)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::Allocator::MemoryBlock
+// vsg::OriginalBlockAllocator::MemoryBlock
 //
-Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment) :
+OriginalBlockAllocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment) :
     memorySlots(blockSize, memoryTracking),
     alignment(in_alignment)
 {
@@ -290,7 +290,7 @@ Allocator::MemoryBlock::MemoryBlock(size_t blockSize, int memoryTracking, size_t
     }
 }
 
-Allocator::MemoryBlock::~MemoryBlock()
+OriginalBlockAllocator::MemoryBlock::~MemoryBlock()
 {
     if (memorySlots.memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -300,7 +300,7 @@ Allocator::MemoryBlock::~MemoryBlock()
     operator delete (memory, std::align_val_t{block_alignment});
 }
 
-void* Allocator::MemoryBlock::allocate(std::size_t size)
+void* OriginalBlockAllocator::MemoryBlock::allocate(std::size_t size)
 {
     auto [allocated, offset] = memorySlots.reserve(size, alignment);
     if (allocated)
@@ -309,7 +309,7 @@ void* Allocator::MemoryBlock::allocate(std::size_t size)
         return nullptr;
 }
 
-bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
+bool OriginalBlockAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
 {
     if (ptr >= memory)
     {
@@ -318,7 +318,7 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         {
             if (!memorySlots.release(offset, size))
             {
-                warn("Allocator::MemoryBlock::deallocate(", ptr, ") problem - couldn't release");
+                warn("OriginalBlockAllocator::MemoryBlock::deallocate(", ptr, ") problem - couldn't release");
             }
             return true;
         }
@@ -328,9 +328,9 @@ bool Allocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::Allocator::MemoryBlocks
+// vsg::OriginalBlockAllocator::MemoryBlocks
 //
-Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment) :
+OriginalBlockAllocator::MemoryBlocks::MemoryBlocks(OriginalBlockAllocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment) :
     parent(in_parent),
     name(in_name),
     blockSize(in_blockSize),
@@ -338,11 +338,11 @@ Allocator::MemoryBlocks::MemoryBlocks(Allocator* in_parent, const std::string& i
 {
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        info("Allocator::MemoryBlocks::MemoryBlocks(", parent, ", ", name, ", ", blockSize, ")");
+        info("OriginalBlockAllocator::MemoryBlocks::MemoryBlocks(", parent, ", ", name, ", ", blockSize, ")");
     }
 }
 
-Allocator::MemoryBlocks::~MemoryBlocks()
+OriginalBlockAllocator::MemoryBlocks::~MemoryBlocks()
 {
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
@@ -350,7 +350,7 @@ Allocator::MemoryBlocks::~MemoryBlocks()
     }
 }
 
-void* Allocator::MemoryBlocks::allocate(std::size_t size)
+void* OriginalBlockAllocator::MemoryBlocks::allocate(std::size_t size)
 {
     if (latestMemoryBlock)
     {
@@ -380,13 +380,13 @@ void* Allocator::MemoryBlocks::allocate(std::size_t size)
 
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
     {
-        info("Allocator::MemoryBlocks::allocate(", size, ") MemoryBlocks.name = ", name, ", allocated in new MemoryBlock ", parent->memoryTracking);
+        info("OriginalBlockAllocator::MemoryBlocks::allocate(", size, ") MemoryBlocks.name = ", name, ", allocated in new MemoryBlock ", parent->memoryTracking);
     }
 
     return ptr;
 }
 
-bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
+bool OriginalBlockAllocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
 {
     if (memoryBlocks.empty()) return false;
 
@@ -418,7 +418,7 @@ bool Allocator::MemoryBlocks::deallocate(void* ptr, std::size_t size)
     return false;
 }
 
-size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
+size_t OriginalBlockAllocator::MemoryBlocks::deleteEmptyMemoryBlocks()
 {
     size_t memoryDeleted = 0;
     if (parent->memoryTracking & MEMORY_TRACKING_REPORT_ACTIONS)
@@ -448,7 +448,7 @@ size_t Allocator::MemoryBlocks::deleteEmptyMemoryBlocks()
     return memoryDeleted;
 }
 
-size_t Allocator::MemoryBlocks::totalAvailableSize() const
+size_t OriginalBlockAllocator::MemoryBlocks::totalAvailableSize() const
 {
     size_t size = 0;
     for (auto& value : memoryBlocks)
@@ -458,7 +458,7 @@ size_t Allocator::MemoryBlocks::totalAvailableSize() const
     return size;
 }
 
-size_t Allocator::MemoryBlocks::totalReservedSize() const
+size_t OriginalBlockAllocator::MemoryBlocks::totalReservedSize() const
 {
     size_t size = 0;
     for (auto& value : memoryBlocks)
@@ -468,7 +468,7 @@ size_t Allocator::MemoryBlocks::totalReservedSize() const
     return size;
 }
 
-size_t Allocator::MemoryBlocks::totalMemorySize() const
+size_t OriginalBlockAllocator::MemoryBlocks::totalMemorySize() const
 {
     size_t size = 0;
     for (auto& value : memoryBlocks)
@@ -480,14 +480,14 @@ size_t Allocator::MemoryBlocks::totalMemorySize() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// vsg::allocate and vsg::deallocate convenience functions that map to using the Allocator singleton.
+// vsg::allocate and vsg::deallocate convenience functions that map to using the OriginalBlockAllocator singleton.
 //
 void* vsg::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
-    return Allocator::instance()->allocate(size, allocatorAffinity);
+    return OriginalBlockAllocator::instance()->allocate(size, allocatorAffinity);
 }
 
 void vsg::deallocate(void* ptr, std::size_t size)
 {
-    Allocator::instance()->deallocate(ptr, size);
+    OriginalBlockAllocator::instance()->deallocate(ptr, size);
 }
