@@ -28,20 +28,25 @@
 
 ### Installing dependencies
 
-* Ubuntu:
-	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev glslang-dev glslang-tools
+VulkanSceneGraph build requires C++ 17, CMake and vulkan as a required dependency, and has an optional dependency of glslang 14.0 or later which is used for applications that required runtime shader compilation. Latest Linux releases, such as Ubuntu 24.04, have a modern enough version of glslang out of the box so the following instructions will work out of the box, but wiht older distributions the glslang version will predate 14 and is not supported by the VulkanSceneGraph, so if you require runtime shader compilation you will need to either use the version provided by a recent [VulkanSDK](https://vulkan.lunarg.com/) distribution or compile and install [glslang](https://github.com/KhronosGroup/glslang) from source.
+
+* Ubuntu family:
+	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev glslang-dev glslang-tools`
+
+* Fedora:
+	`dnf install git cmake ninja-build gcc-c++ libxcb-devel vulkan-loader-devel glslc glslang-devel`
 
 * Gentoo:
 	`emerge dev-util/vulkan-tools`
+
 
 ### Build
 Command line instructions for default build of static library (.a) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
-    cmake .
-    make -j 8
-    make install
+    cmake .c
+    cmake --build . -j 16 -t install
 
 Command line instructions for building shared library (.so) out of source:
 
@@ -49,8 +54,7 @@ Command line instructions for building shared library (.so) out of source:
     mkdir vsg-shared-build
     cd vsg-shared-build
     cmake ../VulkanSceneGraph -DBUILD_SHARED_LIBS=ON
-    make -j 8
-    make install
+    cmake --build . -j 16 -t install
 
 ---
 
