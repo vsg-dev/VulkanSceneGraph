@@ -38,22 +38,14 @@ Community projects:
 ## Quick Guide to building the VSG
 
 ### Prerequisites:
-* C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
-* [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
-* [CMake](https://www.cmake.org) 3.7 or later.
+* Required: C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
+* Required: [CMake](https://www.cmake.org) 3.7 or later.
+* Required: [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.
+* Optional : [glslang](https://github.com/KhronosGroup/glslang) 14.0 or later. Only required if shader compilation at runtime is needed.
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
-Download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into local directory and set VULKAN_SDK environment variable to the include/lib directory within it. For Linux it would typically be along the lines of:
-
-    export VULKAN_SDK_VERSION=1.2.162.1
-    export VULKAN_SDK=${PWD}/VulkanSDK/${VULKAN_SDK_VERSION}/x86_64
-
-    mkdir VulkanSDK
-    wget https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz -O VulkanSDK/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz
-    tar zxf VulkanSDK/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz -C VulkanSDK/
-
-Once you've downloaded and unpacked the VulkanSDK you'll want to put VULKAN_SDK into your user environment variable setup so that CMake's find_package(Vulkan) can find the VulkanSDK's location.
+While you can install Vulkan and glslang development libraries and headers from 3rd party repositoriesm these may be older, so for the latest versions you can also use the VulkanSDK provided by LunarG.  Your can download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into a local directory and set VULKAN_SDK environment variable to the include/lib directory within it.
 
 ### Command line build instructions:
 
@@ -62,7 +54,6 @@ To build and install the static libvsg library (.a/.lib) in source:
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
     cmake .
-    make -j 8
-    sudo make install
+    cmake --build . -j 16 -t install
 
 Full details on how to build the VSG (Unix/Windows/Android/macOS) can be found in the [INSTALL.md](INSTALL.md) file.
