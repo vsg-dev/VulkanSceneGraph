@@ -172,6 +172,7 @@ namespace vsg
 
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) override;
 
+    protected:
         struct MemoryBlock
         {
             MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment);
