@@ -92,15 +92,27 @@ More detailed Android platform instructions can be found [below](#detailed-instr
 
 ---
 
-## Quick build instructions for macOS using Xcode 9
+## Quick build instructions for macOS using standard Makefiles
 
-Command line instructions for default build of static library (.lib) in source:
+On the Mac you must install Xcode from the Apple App Store. It contains C++-17 as well 
+as tools like make and git. Don't use Xcode directly for building
+VSG, since the new code signing settings mess up all executables and
+shared libraries.
+
+Command line instructions for default build of static library (.a) in source:
+Be sure to have the required software packages installed (see Linux). Get the
+Vulkan SDK from https://vulkan.lunarg.com. You also need glslang. The easiest way 
+to get it is installation via the **homebrew** package manager (https://brew.sh).
+After installation of **homebrew** call:
+
+	brew cmake
+	brew glslang
+	brew clang-format
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
-    cmake . -G "Xcode"
-
-After running cmake open the generated VSG.xcodeproj file and build the All target. Once built you can run the install target. Please note that for release builds you currently need to use the Archive option in xcode. This will rebuild every time so you can just select the install target and run Archive which will also build the All target.
+    cmake .
+    cmake --build . -j 8
 
 ---
 
