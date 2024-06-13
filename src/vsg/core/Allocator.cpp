@@ -17,12 +17,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 
 using namespace vsg;
 
+vsg::Allocator* createAllocator(const char* env)
+{
+    const char* result = getenv(env);
+    if (result && strcmp(result, "NEW")==0) return new IntrusiveAllocator();
+    else return new OriginalBlockAllocator();
+}
+
 std::unique_ptr<Allocator>& Allocator::instance()
 {
-    static std::unique_ptr<Allocator> s_allocator(new OriginalBlockAllocator());
+    static std::unique_ptr<Allocator> s_allocator(createAllocator("VSG_ALLOCATOR"));
     return s_allocator;
 }
 
@@ -567,6 +575,8 @@ bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 
 void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 {
+    if (!validate()) std::cout<<"ERROR detected before IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<std::endl;
+
     for(auto& freeList : freeLists)
     {
         // check if freeList has available slots and maximum_size is big enough
@@ -585,6 +595,11 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
             size_t nextFreePosition = memory[freePosition+2].index;
 
             size_t slotSpace = static_cast<size_t>(slot.next);
+            if (slot.next==0)
+            {
+                std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::allocate("<<size<<") slot = { "<<static_cast<uint16_t>(slot.previous)<<", "<<static_cast<uint16_t>(slot.next)<<", "<<static_cast<uint16_t>(slot.status)<<" }"<<std::endl;
+            }
+
             size_t nextPosition = freePosition + slotSpace;
             size_t slotSize = sizeof(Element) * (slotSpace - 1);
             size_t minimumNumElementsInSlot = 1 + freeList.minimum_size / sizeof(Element);
@@ -665,6 +680,9 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
                 // vsg::debug("IntrusiveAllocator::MemoryBlock::allocate(", size, ") slot used = ", freePosition, ", ", &memory[freePosition+1]);
 
+                if (validate()) std::cout<<"IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<" allocated = "<<&memory[freePosition+1]<<std::endl;
+                else std::cout<<"ERROR detected after IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<" allocated = "<<&memory[freePosition+1]<<std::endl;
+
                 return &memory[freePosition+1];
             }
 
@@ -678,10 +696,19 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
     return nullptr;
 }
 
-bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/)
+bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
 {
     if (within(ptr))
     {
+        if (validate())
+        {
+            std::cout<<"IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+        }
+        else
+        {
+            std::cout<<"ERROR detected befpre IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+        }
+
         auto& freeList = freeLists.front();
         size_t maxSize = 1 + freeList.maximum_size / sizeof(Element);
 
@@ -699,9 +726,16 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 
         // vsg::debug("IntrusiveAllocator::MemoryBlock::deallocate((", ptr, ", ", size, ") C =  ", C, ", slot = { ", static_cast<uint16_t>(slot.previous), " , ", static_cast<uint16_t>(slot.next), ", ", static_cast<uint8_t>(slot.status), "}");
 
+        if (slot.next==0)
+        {
+            std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<") C = "<<C<<", slot = { "<<slot.previous<<", "<<slot.next<<", "<<slot.status<<" }"<<std::endl;
+            throw "slot.ext == 0";
+        }
+
         if (slot.status != 0)
         {
-            throw "Attempt to deallocatoe already available slot";
+            std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<") C = "<<C<<", Attempt to deallocate already available slot : slot = { "<<slot.previous<<", "<<slot.next<<", "<<slot.status<<" }"<<std::endl;
+            throw "Attempt to deallocate already available slot";
         }
 
         // make slot as available
@@ -777,6 +811,11 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 
             // N slot is nolonger a seperate free slot so decrement free count
             --freeList.count;
+
+            if (!validate())
+            {
+                std::cout<<"ERROR detected after mergePCN() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+            }
         };
 
         // 2 way merge of P and C
@@ -789,6 +828,11 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
             if (N != 0) memory[N].previous = memory[P].next;
 
             // freeList linked list entries will not need updating.
+
+            if (!validate())
+            {
+                std::cout<<"ERROR detected after mergePC() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+            }
         };
 
         // 2 way merge of C and N
@@ -808,6 +852,11 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 
             // if N was the head then change head to C
             if (freeList.head == N) freeList.head = C;
+
+            if (!validate())
+            {
+                std::cout<<"ERROR detected after mergeCN() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+            }
         };
 
         // standalone insertion of C into head of freeList
@@ -827,6 +876,11 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 
             // Inserted new free slot so increment free count
             ++freeList.count;
+
+            if (!validate())
+            {
+                std::cout<<"ERROR detected after standalone() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+            }
         };
 
         if (P != 0 && memory[P].status != 0)
@@ -855,7 +909,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         return true;
     }
 
-    // vsg::debug("IntrusiveAllocator::MemoryBlock::deallocate((", ptr, ", ", size, ") OUTWITH block : ", this);
+    std::cout<<"IntrusiveAllocator::MemoryBlock::deallocate(("<<ptr<<", "<<size<<") OUTWITH block : "<<this<<std::endl;
 
     return false;
 }
@@ -905,13 +959,13 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
 bool IntrusiveAllocator::MemoryBlock::validate() const
 {
     size_t previous = 0;
-    size_t position = 0;
+    size_t position = 1;
     while(position < capacity)
     {
         auto& slot = memory[position];
         if (slot.previous > capacity || slot.next > capacity)
         {
-            vsg::warn("slot.corrupted invalid position = ", position, ", slot = {", static_cast<uint16_t>(slot.previous), ", ", static_cast<uint16_t>(slot.next), ", ", static_cast<uint8_t>(slot.status), "}");
+            std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" slot.corrupted invalid position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<int(slot.status)<<"}"<<std::endl;
             return false;
         }
 
@@ -919,20 +973,25 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
         {
             if (slot.previous > position)
             {
-                vsg::warn("slot.previous invalid position = ", position, ", slot = {", static_cast<uint16_t>(slot.previous), ", ", static_cast<uint16_t>(slot.next), ", ", static_cast<uint8_t>(slot.status), "}");
+                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" slot.previous invalid position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<< int(slot.status)<<"}"<<std::endl;
                 return false;
             }
             size_t previous_position = position - slot.previous;
             if (previous_position != previous)
             {
-                vsg::warn("previous slot = ", previous, " doesn't match slot.previous, position = ", position, ", slot = {", static_cast<uint16_t>(slot.previous), ", ", static_cast<uint16_t>(slot.next), ", ", static_cast<uint8_t>(slot.status), "}");
+                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed : previous slot = "<<previous<<" doesn't match slot.previous, position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<< int(slot.status)<<"}"<<std::endl;
                 return false;
             }
         }
 
+        if (slot.next == 0)
+        {
+            std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed: position = "<<position<<" slot = {"<<static_cast<uint16_t>(slot.previous)<<", "<<static_cast<uint16_t>(slot.next)<<", "<<static_cast<uint8_t>(slot.status)<<"}"<<std::endl;
+            return false;
+        }
+
         previous = position;
         position += slot.next;
-        if (slot.next == 0) break;
     }
 
     // std::cout<<"No invalid entries found"<<std::endl;
@@ -1027,7 +1086,7 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", new_blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", new_blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * new_blockSize, default_alignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", new_blockSize, default_alignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_PHYSICS", new_blockSize, 16));
 
