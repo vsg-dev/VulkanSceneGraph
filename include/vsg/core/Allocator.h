@@ -268,6 +268,9 @@ namespace vsg
                     next(in_next),
                     status(in_status) {}
 
+                Element() = default;
+                Element(const Element&) = default;
+
                 union
                 {
                     uint32_t index;
@@ -306,6 +309,29 @@ namespace vsg
             bool freeSlotsAvaible(size_t size) const;
 
             inline bool within(void* ptr) const { return memory <= ptr && ptr < memory_end; }
+
+            struct SlotTester
+            {
+                SlotTester(Element* in_mem, size_t in_head) : mem(in_mem), head(in_head) {};
+
+                const Element* mem = nullptr;
+                size_t head = 0;
+
+                struct Entry
+                {
+                    std::string name;
+                    size_t position;
+                    Element slot;
+                    size_t previousFree;
+                    size_t nextFree;
+                };
+
+                std::list<Entry> elements;
+
+                void slot(size_t position, const std::string& name);
+
+                void report(std::ostream& out);
+            };
 
         };
 
