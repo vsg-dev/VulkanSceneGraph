@@ -505,6 +505,8 @@ void vsg::deallocate(void* ptr, std::size_t size)
 // vsg::InstrusiveAllocator
 //
 
+#define DEBUG_ALLOCATOR 0
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // MemoryBlock
@@ -575,7 +577,9 @@ bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 
 void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 {
+#if DEBUG_ALLOCATOR
     if (!validate()) std::cout<<"ERROR detected before IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<std::endl;
+#endif
 
     for(auto& freeList : freeLists)
     {
@@ -678,10 +682,10 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
                 slot.status = 0; // mark slot as allocated
 
-                // vsg::debug("IntrusiveAllocator::MemoryBlock::allocate(", size, ") slot used = ", freePosition, ", ", &memory[freePosition+1]);
-
+#if DEBUG_ALLOCATOR
                 if (validate()) std::cout<<"IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<" allocated = "<<&memory[freePosition+1]<<" freePosition = "<<freePosition<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint32_t>(slot.status)<<std::endl;
                 else std::cout<<"ERROR detected after IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<" allocated = "<<&memory[freePosition+1]<<std::endl;
+#endif
 
                 return &memory[freePosition+1];
             }
@@ -714,7 +718,7 @@ void IntrusiveAllocator::MemoryBlock::SlotTester::report(std::ostream& out)
     }
 }
 
-bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
+bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/)
 {
     if (within(ptr))
     {
@@ -733,6 +737,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         size_t C = static_cast<size_t>(static_cast<Element*>(ptr) - memory) - 1;
         auto& slot = memory[C];
 
+#if DEBUG_ALLOCATOR
         if (validate())
         {
             std::cout<<"IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<" C = "<<C<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint32_t>(slot.status)<<std::endl;
@@ -741,8 +746,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         {
             std::cout<<"ERROR detected befpre IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
         }
-
-        // vsg::debug("IntrusiveAllocator::MemoryBlock::deallocate((", ptr, ", ", size, ") C =  ", C, ", slot = { ", static_cast<uint16_t>(slot.previous), " , ", static_cast<uint16_t>(slot.next), ", ", static_cast<uint8_t>(slot.status), "}");
+#endif
 
         if (slot.next==0)
         {
@@ -792,8 +796,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         // 3 way merge of P, C and C
         auto mergePCN = [&]() -> void
         {
-            // vsg::debug("   mergePCN(), P = ", P, ", C = ", C, ", N = ", N);
-
+#if DEBUG_ALLOCATOR
             SlotTester before(memory, freeList.head);
             before.slot(P, "P");
             before.slot(C, "C");
@@ -802,7 +805,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
             before.slot(PNF, "PNF");
             before.slot(NPF, "NPF");
             before.slot(NNF, "NNF");
-
+#endif
             // update slots for the merge
             memory[P].next += memory[C].next + memory[N].next;
             if (NN != 0) memory[NN].previous = memory[P].next;
@@ -812,16 +815,18 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
             if (PNF == N) // also implies NPF == P
             {
                 // case 1. in order sequential
+#if DEBUG_ALLOCATOR
                 std::cout<<"       case 1. in order sequential"<<std::endl;
-
+#endif
                 memory[P + 2].index = NNF;
                 if (NNF != 0) memory[NNF + 1].index = P;
             }
             else if (PPF == N) // also implies NNF == P
             {
                 // case 2. reverse sequential
+#if DEBUG_ALLOCATOR
                 std::cout<<"       case 2. reverse sequential"<<std::endl;
-
+#endif
                 if (freeList.head == N)
                 {
                     freeList.head = P;
@@ -836,7 +841,9 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
             else // P and N aren't directly connected within the freeList
             {
                 // case 3. disconnected
+#if DEBUG_ALLOCATOR
                 std::cout<<"       case 3. disconnected"<<std::endl;
+#endif
                 if (NPF != 0) memory[NPF + 2].index = NNF;
                 if (NNF != 0) memory[NNF + 1].index = NPF;
 
@@ -849,6 +856,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
             // N slot is nolonger a seperate free slot so decrement free count
             --freeList.count;
 
+#if DEBUG_ALLOCATOR
             if (!validate())
             {
                 SlotTester after(memory, freeList.head);
@@ -864,6 +872,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
                 std::cout<<"After: "; after.report(std::cout);
 
             }
+#endif
         };
 
         // 2 way merge of P and C
@@ -877,10 +886,12 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
 
             // freeList linked list entries will not need updating.
 
+#if DEBUG_ALLOCATOR
             if (!validate())
             {
                 std::cout<<"ERROR detected after mergePC() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
             }
+#endif
         };
 
         // 2 way merge of C and N
@@ -902,10 +913,12 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
             // if N was the head then change head to C
             if (freeList.head == N) freeList.head = C;
 
+#if DEBUG_ALLOCATOR
             if (!validate())
             {
                 std::cout<<"ERROR detected after mergeCN() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
             }
+#endif
         };
 
         // standalone insertion of C into head of freeList
@@ -927,10 +940,12 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
             // Inserted new free slot so increment free count
             ++freeList.count;
 
+#if DEBUG_ALLOCATOR
             if (!validate())
             {
                 std::cout<<"ERROR detected after standalone() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<" C = "<<C<<", memory[C + 2].index = "<<memory[C + 2].index<<std::endl;
             }
+#endif
         };
 
         if (P != 0 && memory[P].status != 0)
@@ -959,7 +974,9 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t size)
         return true;
     }
 
+#if DEBUG_ALLOCATOR
     std::cout<<"IntrusiveAllocator::MemoryBlock::deallocate(("<<ptr<<", "<<size<<") OUTWITH block : "<<this<<std::endl;
+#endif
 
     return false;
 }
