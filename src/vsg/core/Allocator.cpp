@@ -540,8 +540,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     freeList.minimumSize = 2 * sizeof(Element);
     freeList.count = 0;
     freeList.head = ((1 + elementAlignment)/elementAlignment) * elementAlignment - 1; // start at position 1 so that position 0 can be used to mark beginning or end of free lists
-    maximumSize = freeList.maximumSize = (num_elements - freeList.head) * sizeof(Element);
-
+    maximumAllocationSize = freeList.maximumAllocationSize = std::min(num_elements - freeList.head, (max_slot_size-1)) * sizeof(Element);
 
     // mark the first element as 0.
     memory[0].index = 0;
@@ -585,7 +584,7 @@ bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 {
     for(auto& freeList : freeLists)
     {
-        if (freeList.maximumSize >= size && freeList.count > 0) return true;
+        if (freeList.maximumAllocationSize >= size && freeList.count > 0) return true;
     }
     return false;
 }
@@ -600,8 +599,8 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
     for(auto& freeList : freeLists)
     {
-        // check if freeList has available slots and maximumSize is big enough
-        if (freeList.count == 0 || size > freeList.maximumSize) continue;
+        // check if freeList has available slots and maximumAllocationSize is big enough
+        if (freeList.count == 0 || size > freeList.maximumAllocationSize) continue;
 
         size_t freePosition = freeList.head;
         while (freePosition != 0)
@@ -743,7 +742,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
     if (within(ptr))
     {
         auto& freeList = freeLists.front();
-        size_t maxSize = 1 + freeList.maximumSize / sizeof(Element);
+        size_t maxSize = 1 + freeList.maximumAllocationSize / sizeof(Element);
 
         //
         // sequential slots around the slot to be deallocated are named:
@@ -1001,6 +1000,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     out << "    alignment = "<<alignment<<std::endl;
     out << "    blockAlignment = "<<blockAlignment<<std::endl;
     out << "    blockSize = "<<blockSize<<", memory = "<<static_cast<void*>(memory)<<std::endl;
+    out << "    maximumAllocationSize = "<<maximumAllocationSize<<std::endl;
 
     size_t position = 1;
     while(position < capacity)
@@ -1022,7 +1022,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     out<<"   freeList.size() = "<<freeLists.size()<<" { "<<std::endl;
     for(auto& freeList : freeLists)
     {
-        out<<"   FreeList ( minimum_size = "<<freeList.minimumSize<<", maximumSize = "<<freeList.maximumSize<<", count = "<<freeList.count<<" , head = "<<freeList.head<<" ) {"<<std::endl;
+        out<<"   FreeList ( minimum_size = "<<freeList.minimumSize<<", maximumAllocationSize = "<<freeList.maximumAllocationSize<<", count = "<<freeList.count<<" , head = "<<freeList.head<<" ) {"<<std::endl;
 
         size_t freePosition = freeList.head;
         while(freePosition !=0 && freePosition < capacity)
@@ -1141,6 +1141,7 @@ IntrusiveAllocator::MemoryBlocks::MemoryBlocks(IntrusiveAllocator* in_parent, co
     alignment(in_alignment),
     blockSize(in_blockSize)
 {
+    maximumAllocationSize = blockSize - 2*alignment;
 }
 
 IntrusiveAllocator::MemoryBlocks::~MemoryBlocks()
@@ -1166,12 +1167,12 @@ void* IntrusiveAllocator::MemoryBlocks::allocate(std::size_t size)
     }
 
     auto new_block = std::make_shared<MemoryBlock>(name, new_blockSize, alignment);
-
     if (parent)
     {
         parent->memoryBlocks[new_block->memory] = new_block;
     }
 
+    maximumAllocationSize = new_block->maximumAllocationSize;
     memoryBlockWithSpace = new_block;
     memoryBlocks.push_back(new_block);
 

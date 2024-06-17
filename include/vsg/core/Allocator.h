@@ -287,7 +287,7 @@ namespace vsg
             struct FreeList
             {
                 size_t minimumSize = 0;
-                size_t maximumSize = 0;
+                size_t maximumAllocationSize = 0;
                 size_t count = 0;
                 size_t head = 0;
             };
@@ -301,7 +301,7 @@ namespace vsg
             size_t elementAlignment = 1;
             size_t blockAlignment = 16;
             size_t blockSize = 0;
-            size_t maximumSize = 0;
+            size_t maximumAllocationSize = 0;
 
             std::vector<FreeList> freeLists;
 
@@ -345,7 +345,8 @@ namespace vsg
             IntrusiveAllocator* parent = nullptr;
             std::string name;
             size_t alignment = 4;
-            size_t blockSize;
+            size_t blockSize = 0;
+            size_t maximumAllocationSize = 0;
             std::vector<std::shared_ptr<MemoryBlock>> memoryBlocks;
             std::shared_ptr<MemoryBlock> memoryBlockWithSpace;
 
