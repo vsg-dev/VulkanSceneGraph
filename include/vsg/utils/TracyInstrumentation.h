@@ -103,6 +103,7 @@ namespace vsg
         }
 
         TracyInstrumentation(TracyInstrumentation& parent) :
+            Instrumentation(),
             settings(parent.settings),
             contexts(parent.contexts)
         {
@@ -171,7 +172,7 @@ namespace vsg
 
         void enterCommandBuffer(const SourceLocation* slcloc, uint64_t& reference, CommandBuffer& commandBuffer) const override
         {
-            if (ctx = contexts->getOrCreateContext(commandBuffer))
+            if ((ctx = contexts->getOrCreateContext(commandBuffer)))
             {
                 enter(slcloc, reference, commandBuffer, nullptr);
             }
