@@ -286,21 +286,22 @@ namespace vsg
 
             struct FreeList
             {
-                size_t minimum_size = 0;
-                size_t maximum_size = 0;
+                size_t minimumSize = 0;
+                size_t maximumSize = 0;
                 size_t count = 0;
                 size_t head = 0;
             };
 
             using Offset = uint16_t;
-            using value_type = Element;
-            value_type* memory = nullptr;
-            value_type* memory_end = nullptr;
+            Element* memory = nullptr;
+            Element* memoryEnd = nullptr;
             size_t capacity = 0;
 
-            size_t alignment = 4; // min aligment is 4.
-            size_t block_alignment = 16;
+            size_t alignment = 4; // min aligment is 4 { sizeof(Element) }
+            size_t elementAlignment = 1;
+            size_t blockAlignment = 16;
             size_t blockSize = 0;
+            size_t maximumSize = 0;
 
             std::vector<FreeList> freeLists;
 
@@ -308,7 +309,7 @@ namespace vsg
 
             bool freeSlotsAvaible(size_t size) const;
 
-            inline bool within(void* ptr) const { return memory <= ptr && ptr < memory_end; }
+            inline bool within(void* ptr) const { return memory <= ptr && ptr < memoryEnd; }
 
             struct SlotTester
             {

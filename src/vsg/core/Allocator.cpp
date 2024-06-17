@@ -516,31 +516,32 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     alignment(in_alignment),
     blockSize(in_blockSize)
 {
-    // // vsg::debug("IntrusiveAllocator::MemoryBlock::MemoryBlock(", in_blockSize, ", ", in_alignment, ")");
+    alignment = std::max(alignment, sizeof(Element)); // we need to be a multiple of sizeof(value_type)
+    elementAlignment = alignment / sizeof(Element);
 
-    alignment = std::max(alignment, sizeof(value_type)); // we need to be a multiple of sizeof(value_type)
-    block_alignment = std::max(alignment, alignof(std::max_align_t));
-    block_alignment = std::max(block_alignment, size_t{16});
+    blockAlignment = std::max(alignment, alignof(std::max_align_t));
+    blockAlignment = std::max(blockAlignment, size_t{16});
 
     // round blockSize up to nearest aligned size
     blockSize = ((blockSize+alignment-1) / alignment) * alignment;
 
-    //memory = static_cast<uint8_t*>(operator new (blockSize, std::align_val_t{block_alignment}));
-    memory = static_cast<value_type*>(operator new (blockSize));
-    memory_end = memory + blockSize / sizeof(value_type);
+    memory = static_cast<Element*>(operator new (blockSize, std::align_val_t{blockAlignment}));
+    memoryEnd = memory + blockSize / sizeof(Element);
     capacity = blockSize / alignment;
 
-    size_t max_slot_size = (1 << 15) - 1;
+    size_t num_elements = blockSize / sizeof(Element);
+    size_t max_slot_size = (1 << 15);
 
     // // vsg::debug("    capacity = ", capacity, ", max_slot_size = ", max_slot_size);
 
     // set up the free tracking to encompass the whole buffer
     freeLists.emplace_back();
     FreeList& freeList = freeLists.front();
-    freeList.minimum_size = 2 * sizeof(Element);
-    freeList.maximum_size = (max_slot_size - 1) * sizeof(Element);
-    freeList.head = 1; // start at position 1 so that position 0 can be used to mark beginning or end of free lists
+    freeList.minimumSize = 2 * sizeof(Element);
     freeList.count = 0;
+    freeList.head = ((1 + elementAlignment)/elementAlignment) * elementAlignment - 1; // start at position 1 so that position 0 can be used to mark beginning or end of free lists
+    maximumSize = freeList.maximumSize = (num_elements - freeList.head) * sizeof(Element);
+
 
     // mark the first element as 0.
     memory[0].index = 0;
@@ -549,7 +550,8 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     size_t position = freeList.head;
     for(; position < capacity;)
     {
-        size_t next_position = std::min(position + max_slot_size, capacity);
+        size_t aligned_start = ((position + max_slot_size) / elementAlignment) * elementAlignment;
+        size_t next_position = std::min(aligned_start-1, capacity);
 
         memory[position] = Element{ (previous_position == 0) ? 0 : (position - previous_position), next_position - position, 1 };
         memory[position+1].index = previous_position;
@@ -558,6 +560,19 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
         position = next_position;
         ++freeList.count;
     }
+
+#if DEBUG_ALLOCATOR
+    std::cout<<"IntrusiveAllocator::MemoryBlock::MemoryBlock("<<in_blockSize<< ", "<<in_alignment<<")"<<std::endl;
+
+    std::cout<<"blockSize = "<<blockSize<<std::endl;
+    std::cout<<"capacity = "<<capacity<<std::endl;
+
+    std::cout<<"alignment = "<<alignment<<std::endl;
+    std::cout<<"elementAlignment = "<<elementAlignment<<std::endl;
+    std::cout<<"freeList.head = "<<freeList.head<<std::endl;
+
+    report(std::cout);
+#endif
 }
 
 IntrusiveAllocator::MemoryBlock::~MemoryBlock()
@@ -570,7 +585,7 @@ bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 {
     for(auto& freeList : freeLists)
     {
-        if (freeList.maximum_size >= size && freeList.count > 0) return true;
+        if (freeList.maximumSize >= size && freeList.count > 0) return true;
     }
     return false;
 }
@@ -581,10 +596,12 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
     if (!validate()) std::cout<<"ERROR detected before IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<std::endl;
 #endif
 
+    const size_t minimumNumElementsInSlot = 3;
+
     for(auto& freeList : freeLists)
     {
-        // check if freeList has available slots and maximum_size is big enough
-        if (freeList.count == 0 || size > freeList.maximum_size) continue;
+        // check if freeList has available slots and maximumSize is big enough
+        if (freeList.count == 0 || size > freeList.maximumSize) continue;
 
         size_t freePosition = freeList.head;
         while (freePosition != 0)
@@ -609,14 +626,24 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
             if (size <= slotSize)
             {
                 // we can us slot for memory;
-                size_t minimumNumElementsInSlot = 1 + freeList.minimum_size / sizeof(Element);
+
                 size_t numElementsToBeUsed = std::max((size + sizeof(Element) - 1) / sizeof(Element), minimumNumElementsInSlot);
-                if ((numElementsToBeUsed + minimumNumElementsInSlot) < slotSpace)
+
+                size_t nextAlignedStart = ((freePosition + 1 + numElementsToBeUsed + elementAlignment) / elementAlignment) * elementAlignment;
+                size_t minimumAlignedEnd = nextAlignedStart + minimumNumElementsInSlot;
+#if DEBUG_ALLOCATOR
+                std::cout<<"allocating, size = "<<size<<", numElementsToBeUsed = "<<numElementsToBeUsed<<", freePosition = "<<freePosition<<", nextPosition = "<<nextPosition<<", nextAlignedStart = "<<nextAlignedStart<<", minimumAlignedEnd = "<<minimumAlignedEnd<<std::endl;
+#endif
+                if (minimumAlignedEnd < nextPosition)
                 {
+
                     // enough space in slot to split, so adjust
-                    size_t newSlotPosition = freePosition + 1 + numElementsToBeUsed;
+                    size_t newSlotPosition = nextAlignedStart-1;
                     slot.next = static_cast<Offset>(newSlotPosition - freePosition);
 
+#if DEBUG_ALLOCATOR
+                    std::cout<<"splitting slot newSlotPosition = "<<newSlotPosition<<std::endl;
+#endif
                     // set up the new slot as a free slot
                     auto& newSlot = memory[newSlotPosition] = Element(slot.next, static_cast<Offset>(nextPosition - newSlotPosition), 1);
                     memory[newSlotPosition+1] = previousFreePosition;
@@ -645,7 +672,6 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                         // slot was at head of freeList so move it to the new slot position
                         freeList.head = newSlotPosition;
                     }
-                    //std::cout<<"split slot "<<freePosition<<", "<<slotSize<<", "<<std::endl;
                 }
                 else
                 {
@@ -674,10 +700,6 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
                     // one list free slot availalbe
                     --freeList.count;
-
-                    //std::cout<<"not enough space to split slot "<<freePosition<<std::endl;
-
-
                 }
 
                 slot.status = 0; // mark slot as allocated
@@ -689,8 +711,6 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
                 return &memory[freePosition+1];
             }
-
-            //std::cout<<"Moving to next free slot "<<nextFreePosition<<std::endl;
 
             freePosition = nextFreePosition;
         }
@@ -723,7 +743,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
     if (within(ptr))
     {
         auto& freeList = freeLists.front();
-        size_t maxSize = 1 + freeList.maximum_size / sizeof(Element);
+        size_t maxSize = 1 + freeList.maximumSize / sizeof(Element);
 
         //
         // sequential slots around the slot to be deallocated are named:
@@ -732,7 +752,6 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         // the FreeList linked list entries of interest are named:
         //    PPF (Previous' Previous Free), PNF (Previous's Next Free), NPF (Next's Previous Free), NNF (Next's Next Free)
         //
-
 
         size_t C = static_cast<size_t>(static_cast<Element*>(ptr) - memory) - 1;
         auto& slot = memory[C];
@@ -878,8 +897,6 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         // 2 way merge of P and C
         auto mergePC = [&]() -> void
         {
-            // vsg::debug("    mergePC(), P = ", P, ", C = ", C, ", N = ", N);
-
             // update slots for the merge
             memory[P].next += memory[C].next;
             if (N != 0) memory[N].previous = memory[P].next;
@@ -897,8 +914,6 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         // 2 way merge of C and N
         auto mergeCN = [&]() -> void
         {
-            // vsg::debug("    mergeCN(), P = ", P, ", C = ", C, ", N = ", N, ", NN = ", NN, ", NPF =", NPF, ", NNF = ", NNF);
-
             // update slots for merge
             memory[C].status = 1;
             memory[C].next += memory[N].next;
@@ -924,7 +939,6 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         // standalone insertion of C into head of freeList
         auto standalone = [&]() -> void
         {
-            // vsg::debug("    standalone(), P = ", P, ", C = ", C, ", N = ", N);
             memory[C].status = 1;
             memory[C + 1].index = 0;
             memory[C + 2].index = freeList.head;
@@ -985,7 +999,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
 {
     out << "MemoryBlock "<<this<<" "<<name<<std::endl;
     out << "    alignment = "<<alignment<<std::endl;
-    out << "    block_alignment = "<<block_alignment<<std::endl;
+    out << "    blockAlignment = "<<blockAlignment<<std::endl;
     out << "    blockSize = "<<blockSize<<", memory = "<<static_cast<void*>(memory)<<std::endl;
 
     size_t position = 1;
@@ -1008,7 +1022,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     out<<"   freeList.size() = "<<freeLists.size()<<" { "<<std::endl;
     for(auto& freeList : freeLists)
     {
-        out<<"   FreeList ( minimum_size = "<<freeList.minimum_size<<", maximum_size = "<<freeList.maximum_size<<", count = "<<freeList.count<<" , head = "<<freeList.head<<" ) {"<<std::endl;
+        out<<"   FreeList ( minimum_size = "<<freeList.minimumSize<<", maximumSize = "<<freeList.maximumSize<<", count = "<<freeList.count<<" , head = "<<freeList.head<<" ) {"<<std::endl;
 
         size_t freePosition = freeList.head;
         while(freePosition !=0 && freePosition < capacity)
@@ -1195,19 +1209,13 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
     default_alignment = 4;
 
     size_t Megabyte = size_t(1024) * size_t(1024);
-#if 0
-    size_t new_blockSize = size_t(1024) * Megabyte;
-#else
-    size_t new_blockSize = size_t(1) * Megabyte;
-#endif
+    size_t blockSize = size_t(1) * Megabyte;
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", new_blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * new_blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", new_blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_PHYSICS", new_blockSize, 16));
-
-    //// vsg::debug("IntrusiveAllocator()", this);
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_PHYSICS", blockSize, 16));
 }
 
 IntrusiveAllocator::~IntrusiveAllocator()
