@@ -103,7 +103,7 @@ namespace vsg
         }
 
         TracyInstrumentation(TracyInstrumentation& parent) :
-            Instrumentation(),
+            Inherit(),
             settings(parent.settings),
             contexts(parent.contexts)
         {
