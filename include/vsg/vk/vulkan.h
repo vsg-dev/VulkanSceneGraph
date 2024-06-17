@@ -805,7 +805,7 @@ typedef VkDeviceAddress(VKAPI_PTR* PFN_vkGetBufferDeviceAddressKHR_Compatibility
 //
 //  Definitions not provided prior to 1.3.211
 //
-#if VK_HEADER_VERSION < 211
+#if VK_HEADER_VERSION < 204
 typedef enum VkInstanceCreateFlagBits {
     VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR = 0x00000001,
     VK_INSTANCE_CREATE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
