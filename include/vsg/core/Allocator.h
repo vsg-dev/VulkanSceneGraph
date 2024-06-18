@@ -286,8 +286,6 @@ namespace vsg
 
             struct FreeList
             {
-                size_t minimumSize = 0;
-                size_t maximumAllocationSize = 0;
                 size_t count = 0;
                 size_t head = 0;
             };
@@ -334,6 +332,10 @@ namespace vsg
                 void report(std::ostream& out);
             };
 
+            static inline size_t computeMaxiumAllocationSize(size_t blockSize, size_t alignment)
+            {
+                return std::min(blockSize - alignment, size_t((1<<15)-1) * sizeof(Element));
+            }
         };
 
         class MemoryBlocks
