@@ -334,7 +334,7 @@ namespace vsg
 
             static inline size_t computeMaxiumAllocationSize(size_t blockSize, size_t alignment)
             {
-                return std::min(blockSize - alignment, size_t((1<<15)-1) * sizeof(Element));
+                return std::min(blockSize - alignment, size_t((1<<15)-2) * sizeof(Element));
             }
         };
 
@@ -359,6 +359,7 @@ namespace vsg
 
         std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
         std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
+        std::map<void*, size_t> largeAllocations;
     };
 
 

@@ -622,6 +622,7 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
             size_t nextPosition = freePosition + slotSpace;
             size_t slotSize = sizeof(Element) * (slotSpace - 1);
+
             if (size <= slotSize)
             {
                 // we can us slot for memory;
@@ -713,8 +714,11 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
             freePosition = nextFreePosition;
         }
-
     }
+
+#if DEBUG_ALLOCATOR
+    std::cout<<"IntrusiveAllocator::MemoryBlock::allocator("<<size<<") "<<this<<" No space found"<<std::endl;
+#endif
 
     return nullptr;
 }
@@ -1211,6 +1215,8 @@ bool IntrusiveAllocator::MemoryBlocks::validate() const
 IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     Allocator(std::move(in_nestedAllocator))
 {
+    std::cout<<"IntrusiveAllocator::IntrusiveAllocator()"<<std::endl;
+
     default_alignment = 4;
 
     size_t Megabyte = size_t(1024) * size_t(1024);
@@ -1225,7 +1231,7 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 
 IntrusiveAllocator::~IntrusiveAllocator()
 {
-    //// vsg::debug("~IntrusiveAllocator() ", this);
+    std::cout<<"IntrusiveAllocator::~IntrusiveAllocator() largeAllocations.size() = "<<largeAllocations.size()<<std::endl;
 }
 
 void IntrusiveAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
@@ -1269,36 +1275,37 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
         allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, "MemoryBlockAffinity", blockSize, default_alignment));
     }
 
-    auto& memoryBlock = allocatorMemoryBlocks[allocatorAffinity];
-    if (memoryBlock)
+    void* ptr = nullptr;
+
+    auto& blocks = allocatorMemoryBlocks[allocatorAffinity];
+    if (blocks)
     {
-        auto mem_ptr = memoryBlock->allocate(size);
-        if (mem_ptr)
+        if (size <= blocks->maximumAllocationSize)
         {
-            // vsg::debug("1 IntrusiveAllocator::allocate(", size, ", ", allocatorAffinity, ") ptr = ", mem_ptr);
-            return mem_ptr;
+            ptr = blocks->allocate(size);
+            if (ptr) return ptr;
+            std::cout<<"IntrusiveAllocator::allocate() Failed to allocator memory from memoryBlocks "<<blocks.get()<<std::endl;
+
         }
+
+        ptr = operator new (size, std::align_val_t{blocks->alignment});
+        if (ptr) largeAllocations[ptr] = size;
+        std::cout<<"IntrusiveAllocator::allocate() MemoryBlocks aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<blocks->alignment<<" blocks->maximumAllocationSize = "<<blocks->maximumAllocationSize<<std::endl;
+        return ptr;
     }
 
-    // vsg::debug("2 Fall through IntrusiveAllocator::allocate(", size, ", ", allocatorAffinity, ")");
+    ptr = operator new (size, std::align_val_t{default_alignment});
+    if (ptr) largeAllocations[ptr] = size;
 
-    return operator new (size); //, std::align_val_t{default_alignment});
+    std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<default_alignment<<std::endl;
+
+    return ptr;
 }
 
 bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
-#if 0
-
-    for (auto& memoryBlocks : allocatorMemoryBlocks)
-    {
-        if (memoryBlocks && memoryBlocks->deallocate(ptr, size))
-        {
-            return true;
-        }
-    }
-#else
     if (memoryBlocks.empty()) return false;
 
     auto itr = memoryBlocks.upper_bound(ptr);
@@ -1346,20 +1353,22 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
         }
     }
 
-
-#endif
-
-
-    if (nestedAllocator && nestedAllocator->deallocate(ptr, size))
+    auto la_itr = largeAllocations.find(ptr);
+    if (la_itr != largeAllocations.end())
     {
-        // vsg::debug("G Fall through nestedAllocator->deallocate(", ptr, ", ", size, ")");
+        // large allocation;
+        std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
+        operator delete (ptr);
+        largeAllocations.erase(la_itr);
         return true;
     }
 
-    // vsg::debug("H Fall through");
+    if (nestedAllocator && nestedAllocator->deallocate(ptr, size))
+    {
+        return true;
+    }
 
-    operator delete (ptr);
-    return true;
+    return false;
 }
 
 bool IntrusiveAllocator::validate() const
