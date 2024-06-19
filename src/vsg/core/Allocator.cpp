@@ -639,13 +639,13 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
                     // enough space in slot to split, so adjust
                     size_t newSlotPosition = nextAlignedStart-1;
-                    slot.next = static_cast<Offset>(newSlotPosition - freePosition);
+                    slot.next = static_cast<Element::Offset>(newSlotPosition - freePosition);
 
 #if DEBUG_ALLOCATOR
                     std::cout<<"splitting slot newSlotPosition = "<<newSlotPosition<<std::endl;
 #endif
                     // set up the new slot as a free slot
-                    auto& newSlot = memory[newSlotPosition] = Element(slot.next, static_cast<Offset>(nextPosition - newSlotPosition), 1);
+                    auto& newSlot = memory[newSlotPosition] = Element(slot.next, static_cast<Element::Offset>(nextPosition - newSlotPosition), 1);
                     memory[newSlotPosition+1] = previousFreePosition;
                     memory[newSlotPosition+2] = nextFreePosition;
 
