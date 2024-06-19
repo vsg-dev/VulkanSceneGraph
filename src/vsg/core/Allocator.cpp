@@ -551,8 +551,8 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
         size_t next_position = std::min(aligned_start-1, capacity);
 
         memory[position] = Element{ (previous_position == 0) ? 0 : (position - previous_position), next_position - position, 1 };
-        memory[position+1].index = previous_position;
-        memory[position+2].index = (next_position < capacity) ? next_position : 0;
+        memory[position+1].index = static_cast<Element::Index>(previous_position);
+        memory[position+2].index = static_cast<Element::Index>((next_position < capacity) ? next_position : 0);
         previous_position = position;
         position = next_position;
         ++freeList.count;
@@ -595,12 +595,15 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
     if (!validate()) std::cout<<"ERROR detected before IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<std::endl;
 #endif
 
+    // check if maximumAllocationSize is big enough
+    if (size > maximumAllocationSize) return nullptr;
+
     const size_t minimumNumElementsInSlot = 3;
 
     for(auto& freeList : freeLists)
     {
-        // check if freeList has available slots and maximumAllocationSize is big enough
-        if (freeList.count == 0 || size > maximumAllocationSize) continue;
+        // check if freeList has available slots
+        if (freeList.count == 0) continue;
 
         size_t freePosition = freeList.head;
         while (freePosition != 0)
@@ -611,8 +614,8 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 throw "Warning: allocated slot found in freeList";
             }
 
-            size_t previousFreePosition = memory[freePosition+1].index;
-            size_t nextFreePosition = memory[freePosition+2].index;
+            Element::Index previousFreePosition = memory[freePosition+1].index;
+            Element::Index nextFreePosition = memory[freePosition+2].index;
 
             size_t slotSpace = static_cast<size_t>(slot.next);
             if (slot.next==0)
@@ -620,17 +623,16 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::allocate("<<size<<") slot = { "<<static_cast<uint16_t>(slot.previous)<<", "<<static_cast<uint16_t>(slot.next)<<", "<<static_cast<uint16_t>(slot.status)<<" }"<<std::endl;
             }
 
-            size_t nextPosition = freePosition + slotSpace;
+            Element::Index nextPosition = freePosition + slotSpace;
             size_t slotSize = sizeof(Element) * (slotSpace - 1);
 
             if (size <= slotSize)
             {
                 // we can us slot for memory;
 
-                size_t numElementsToBeUsed = std::max((size + sizeof(Element) - 1) / sizeof(Element), minimumNumElementsInSlot);
-
-                size_t nextAlignedStart = ((freePosition + 1 + numElementsToBeUsed + elementAlignment) / elementAlignment) * elementAlignment;
-                size_t minimumAlignedEnd = nextAlignedStart + minimumNumElementsInSlot;
+                Element::Index numElementsToBeUsed = static_cast<Element::Index>(std::max((size + sizeof(Element) - 1) / sizeof(Element), minimumNumElementsInSlot));
+                Element::Index nextAlignedStart = ((freePosition + 1 + numElementsToBeUsed + elementAlignment) / elementAlignment) * elementAlignment;
+                Element::Index minimumAlignedEnd = nextAlignedStart + minimumNumElementsInSlot;
 #if DEBUG_ALLOCATOR
                 std::cout<<"allocating, size = "<<size<<", numElementsToBeUsed = "<<numElementsToBeUsed<<", freePosition = "<<freePosition<<", nextPosition = "<<nextPosition<<", nextAlignedStart = "<<nextAlignedStart<<", minimumAlignedEnd = "<<minimumAlignedEnd<<std::endl;
 #endif
@@ -638,7 +640,7 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 {
 
                     // enough space in slot to split, so adjust
-                    size_t newSlotPosition = nextAlignedStart-1;
+                    Element::Index newSlotPosition = nextAlignedStart-1;
                     slot.next = static_cast<Element::Offset>(newSlotPosition - freePosition);
 
 #if DEBUG_ALLOCATOR
@@ -646,8 +648,8 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 #endif
                     // set up the new slot as a free slot
                     auto& newSlot = memory[newSlotPosition] = Element(slot.next, static_cast<Element::Offset>(nextPosition - newSlotPosition), 1);
-                    memory[newSlotPosition+1] = previousFreePosition;
-                    memory[newSlotPosition+2] = nextFreePosition;
+                    memory[newSlotPosition+1].index = previousFreePosition;
+                    memory[newSlotPosition+2].index = nextFreePosition;
 
                     if (previousFreePosition != 0)
                     {
@@ -756,7 +758,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         //    PPF (Previous' Previous Free), PNF (Previous's Next Free), NPF (Next's Previous Free), NNF (Next's Next Free)
         //
 
-        size_t C = static_cast<size_t>(static_cast<Element*>(ptr) - memory) - 1;
+        Element::Index C = static_cast<Element::Index>(static_cast<Element*>(ptr) - memory) - 1;
         auto& slot = memory[C];
 
 #if DEBUG_ALLOCATOR
@@ -783,13 +785,13 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         }
 
         // set up the indices for the previous and next slots
-        size_t P = (slot.previous > 0) ? (C - static_cast<size_t>(slot.previous)) : 0;
-        size_t N = C + static_cast<size_t>(slot.next);
+        Element::Index P = (slot.previous > 0) ? (C - static_cast<Element::Index>(slot.previous)) : 0;
+        Element::Index N = C + static_cast<Element::Index>(slot.next);
         if (N >= capacity) N = 0;
 
         // set up the indices for the previous free entry
-        size_t PPF = 0;
-        size_t PNF = 0;
+        Element::Index PPF = 0;
+        Element::Index PNF = 0;
         if (P != 0)
         {
             if (memory[P].status != 0)
@@ -800,12 +802,12 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         }
 
         // set up the indices for the next free entries
-        size_t NN = 0;
-        size_t NPF = 0;
-        size_t NNF = 0;
+        Element::Index NN = 0;
+        Element::Index NPF = 0;
+        Element::Index NNF = 0;
         if (N != 0)
         {
-            NN = N + static_cast<size_t>(memory[N].next);
+            NN = N + static_cast<Element::Index>(memory[N].next);
             if (NN >= capacity) NN = 0;
 
             if (memory[N].status != 0)

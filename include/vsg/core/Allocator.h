@@ -272,6 +272,8 @@ namespace vsg
                 };
 
                 using Offset = decltype(previous);
+                using Status = decltype(status);
+                using Index = decltype(index);
 
                 Element(size_t in_index) :
                     index(static_cast<Offset>(in_index)) {}
