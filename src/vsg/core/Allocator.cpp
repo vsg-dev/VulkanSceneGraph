@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/FileSystem.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -23,8 +24,7 @@ using namespace vsg;
 
 vsg::Allocator* createAllocator(const char* env)
 {
-    const char* result = getenv(env);
-    if (result && strcmp(result, "NEW")==0) return new IntrusiveAllocator();
+    if (vsg::getEnv(env)=="NEW") return new IntrusiveAllocator();
     else return new OriginalBlockAllocator();
 }
 
