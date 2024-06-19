@@ -534,10 +534,11 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     // // vsg::debug("    capacity = ", capacity, ", max_slot_size = ", max_slot_size);
 
     // set up the free tracking to encompass the whole buffer
+    // start at element before the first aligned element so that position 0 can be used to mark beginning or end of free lists
     freeLists.emplace_back();
     FreeList& freeList = freeLists.front();
     freeList.count = 0;
-    freeList.head = ((1 + elementAlignment)/elementAlignment) * elementAlignment - 1; // start at position 1 so that position 0 can be used to mark beginning or end of free lists
+    freeList.head = static_cast<Element::Index>(((1 + elementAlignment)/elementAlignment) * elementAlignment - 1);
     maximumAllocationSize = computeMaxiumAllocationSize(blockSize, alignment);
 
     // mark the first element as 0.
@@ -605,7 +606,7 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
         // check if freeList has available slots
         if (freeList.count == 0) continue;
 
-        size_t freePosition = freeList.head;
+        Element::Index freePosition = freeList.head;
         while (freePosition != 0)
         {
             auto& slot = memory[freePosition];
