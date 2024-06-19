@@ -1284,21 +1284,18 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
         {
             ptr = blocks->allocate(size);
             if (ptr) return ptr;
-            std::cout<<"IntrusiveAllocator::allocate() Failed to allocator memory from memoryBlocks "<<blocks.get()<<std::endl;
-
+            //std::cout<<"IntrusiveAllocator::allocate() Failed to allocator memory from memoryBlocks "<<blocks.get()<<std::endl;
         }
 
         ptr = operator new (size, std::align_val_t{blocks->alignment});
         if (ptr) largeAllocations[ptr] = size;
-        std::cout<<"IntrusiveAllocator::allocate() MemoryBlocks aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<blocks->alignment<<" blocks->maximumAllocationSize = "<<blocks->maximumAllocationSize<<std::endl;
+        //std::cout<<"IntrusiveAllocator::allocate() MemoryBlocks aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<blocks->alignment<<" blocks->maximumAllocationSize = "<<blocks->maximumAllocationSize<<std::endl;
         return ptr;
     }
 
     ptr = operator new (size, std::align_val_t{default_alignment});
     if (ptr) largeAllocations[ptr] = size;
-
-    std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<default_alignment<<std::endl;
-
+    //std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<default_alignment<<std::endl;
     return ptr;
 }
 
@@ -1317,12 +1314,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
             auto& block = itr->second;
             if (block->deallocate(ptr, size))
             {
-                // vsg::debug("A Allocator::deallocate(", ptr, ", ", size, ") memory = ", itr->first);
                 return true;
-            }
-            else
-            {
-                // vsg::debug("B failed Allocator::deallocate(", ptr, ", ", size, ") memory = ", itr->first);
             }
         }
         else
@@ -1330,12 +1322,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
             auto& block = itr->second;
             if (block->deallocate(ptr, size))
             {
-                // vsg::debug("C Allocator::deallocate(", ptr, ", ", size, ") memory = ", itr->first);
                 return true;
-            }
-            else
-            {
-                // vsg::debug("D failed Allocator::deallocate(", ptr, ", ", size, ") memory = ", itr->first);
             }
         }
     }
@@ -1344,12 +1331,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
         auto& block = memoryBlocks.rbegin()->second;
         if (block->deallocate(ptr, size))
         {
-            // vsg::debug("E Allocator::deallocate(", ptr, ", ", size, ") memoryBlocks.rbegin()->first = ", memoryBlocks.rbegin()->first);
             return true;
-        }
-        else
-        {
-            // vsg::debug("F failed Allocator::deallocate(", ptr, ", ", size, ") memoryBlocks.rbegin()->first = ", memoryBlocks.rbegin()->first);
         }
     }
 
@@ -1357,7 +1339,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
     if (la_itr != largeAllocations.end())
     {
         // large allocation;
-        std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
+        // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
         operator delete (ptr);
         largeAllocations.erase(la_itr);
         return true;
