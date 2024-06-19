@@ -259,18 +259,6 @@ namespace vsg
             // bitfield packing of doubly-linked with status field into a 4 byte word
             struct Element
             {
-
-                Element(size_t in_index) :
-                    index(in_index) {}
-
-                Element(size_t in_previous, size_t in_next, unsigned int in_status) :
-                    previous(in_previous),
-                    next(in_next),
-                    status(in_status) {}
-
-                Element() = default;
-                Element(const Element&) = default;
-
                 union
                 {
                     uint32_t index;
@@ -282,6 +270,20 @@ namespace vsg
                         unsigned int status : 2;
                     };
                 };
+
+                using Offset = decltype(previous);
+
+                Element(size_t in_index) :
+                    index(static_cast<Offset>(in_index)) {}
+
+                Element(size_t in_previous, size_t in_next, unsigned int in_status) :
+                    previous(static_cast<Offset>(in_previous)),
+                    next(static_cast<Offset>(in_next)),
+                    status(in_status) {}
+
+                Element() = default;
+                Element(const Element&) = default;
+
             };
 
             struct FreeList
@@ -290,7 +292,6 @@ namespace vsg
                 size_t head = 0;
             };
 
-            using Offset = uint16_t;
             Element* memory = nullptr;
             Element* memoryEnd = nullptr;
             size_t capacity = 0;
