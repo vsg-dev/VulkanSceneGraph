@@ -623,16 +623,16 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::allocate("<<size<<") slot = { "<<static_cast<uint16_t>(slot.previous)<<", "<<static_cast<uint16_t>(slot.next)<<", "<<static_cast<uint16_t>(slot.status)<<" }"<<std::endl;
             }
 
-            Element::Index nextPosition = freePosition + slotSpace;
+            Element::Index nextPosition = freePosition + static_cast<Element::Index>(slotSpace);
             size_t slotSize = sizeof(Element) * (slotSpace - 1);
 
             if (size <= slotSize)
             {
                 // we can us slot for memory;
 
-                Element::Index numElementsToBeUsed = static_cast<Element::Index>(std::max((size + sizeof(Element) - 1) / sizeof(Element), minimumNumElementsInSlot));
-                Element::Index nextAlignedStart = ((freePosition + 1 + numElementsToBeUsed + elementAlignment) / elementAlignment) * elementAlignment;
-                Element::Index minimumAlignedEnd = nextAlignedStart + minimumNumElementsInSlot;
+                size_t numElementsToBeUsed = std::max((size + sizeof(Element) - 1) / sizeof(Element), minimumNumElementsInSlot);
+                Element::Index nextAlignedStart = static_cast<Element::Index>(((freePosition + 1 + numElementsToBeUsed + elementAlignment) / elementAlignment) * elementAlignment);
+                Element::Index minimumAlignedEnd = nextAlignedStart + static_cast<Element::Index>(minimumNumElementsInSlot);
 #if DEBUG_ALLOCATOR
                 std::cout<<"allocating, size = "<<size<<", numElementsToBeUsed = "<<numElementsToBeUsed<<", freePosition = "<<freePosition<<", nextPosition = "<<nextPosition<<", nextAlignedStart = "<<nextAlignedStart<<", minimumAlignedEnd = "<<minimumAlignedEnd<<std::endl;
 #endif

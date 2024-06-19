@@ -290,8 +290,8 @@ namespace vsg
 
             struct FreeList
             {
-                size_t count = 0;
-                size_t head = 0;
+                Element::Index count = 0;
+                Element::Index head = 0;
             };
 
             Element* memory = nullptr;
