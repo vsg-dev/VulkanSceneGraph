@@ -24,10 +24,10 @@ using namespace vsg;
 
 vsg::Allocator* createAllocator(const char* env)
 {
-    if (vsg::getEnv(env) == "NEW")
-        return new IntrusiveAllocator();
-    else
+    if (vsg::getEnv(env) == "OLD")
         return new OriginalBlockAllocator();
+    else
+        return new IntrusiveAllocator();
 }
 
 std::unique_ptr<Allocator>& Allocator::instance()
