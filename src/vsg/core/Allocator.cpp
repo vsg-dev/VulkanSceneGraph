@@ -769,15 +769,15 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 {
     std::cout << "IntrusiveAllocator::IntrusiveAllocator()" << std::endl;
 
-    default_alignment = 4;
+    defaultAlignment = 4;
 
     size_t Megabyte = size_t(1024) * size_t(1024);
     size_t blockSize = size_t(1) * Megabyte;
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, defaultAlignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, defaultAlignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, defaultAlignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_PHYSICS", blockSize, 16));
 }
 
@@ -799,7 +799,7 @@ void IntrusiveAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_
         auto name = vsg::make_string("MemoryBlocks_", allocatorAffinity);
 
         allocatorMemoryBlocks.resize(allocatorAffinity + 1);
-        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize, default_alignment));
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, name, blockSize, defaultAlignment));
     }
 }
 
@@ -824,7 +824,7 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
     {
         size_t blockSize = 1024 * 1024; // Megabyte
         allocatorMemoryBlocks.resize(allocatorAffinity + 1);
-        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, "MemoryBlockAffinity", blockSize, default_alignment));
+        allocatorMemoryBlocks[allocatorAffinity].reset(new MemoryBlocks(this, "MemoryBlockAffinity", blockSize, defaultAlignment));
     }
 
     void* ptr = nullptr;
@@ -845,9 +845,9 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
         return ptr;
     }
 
-    ptr = operator new (size, std::align_val_t{default_alignment});
-    if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(default_alignment, size);
-    //std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<default_alignment<<std::endl;
+    ptr = operator new (size, std::align_val_t{defaultAlignment});
+    if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(defaultAlignment, size);
+    //std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<defaultAlignment<<std::endl;
     return ptr;
 }
 
@@ -935,4 +935,3 @@ size_t IntrusiveAllocator::totalMemorySize() const
     vsg::info("IntrusiveAllocator::totalMemorySize(..) TODO");
     return 0;
 }
-void IntrusiveAllocator::setMemoryTracking(int) { vsg::info("IntrusiveAllocator::setMemoryTracking(..) TODO"); }

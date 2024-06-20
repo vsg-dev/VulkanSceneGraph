@@ -41,10 +41,10 @@ namespace vsg
     class VSG_DECLSPEC Allocator
     {
     public:
-        explicit Allocator(size_t in_default_alignment = 4) :
-            default_alignment(in_default_alignment) {}
-        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4) :
-            default_alignment(in_default_alignment), nestedAllocator(std::move(in_nestedAllocator)) {}
+        explicit Allocator(size_t in_defaultAlignment = 4) :
+            defaultAlignment(in_defaultAlignment) {}
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 4) :
+            defaultAlignment(in_defaultAlignment), nestedAllocator(std::move(in_nestedAllocator)) {}
         virtual ~Allocator() {}
 
         /// Allocator singleton
@@ -69,10 +69,6 @@ namespace vsg
         virtual size_t totalMemorySize() const = 0;
 
         AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR; // use MemoryBlocks by default
-        int memoryTracking = MEMORY_TRACKING_DEFAULT;
-
-        /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
-        virtual void setMemoryTracking(int mt) = 0;
 
         virtual void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) = 0;
 
@@ -80,9 +76,7 @@ namespace vsg
         virtual void report(std::ostream& out) const = 0;
 
         mutable std::mutex mutex;
-        size_t default_alignment = 4;
-        double allocationTime = 0.0;
-        double deallocationTime = 0.0;
+        size_t defaultAlignment = 4;
 
     protected:
         // if you are assigning a custom allocator you must retain the old allocator to manage the memory it allocated and needs to delete
@@ -178,7 +172,6 @@ namespace vsg
         size_t totalAvailableSize() const override;
         size_t totalReservedSize() const override;
         size_t totalMemorySize() const override;
-        void setMemoryTracking(int mt) override;
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) override;
 
     protected:
