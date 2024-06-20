@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Exception.h>
+#include <vsg/io/FileSystem.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
-#include <vsg/io/FileSystem.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -24,8 +24,10 @@ using namespace vsg;
 
 vsg::Allocator* createAllocator(const char* env)
 {
-    if (vsg::getEnv(env)=="NEW") return new IntrusiveAllocator();
-    else return new OriginalBlockAllocator();
+    if (vsg::getEnv(env) == "NEW")
+        return new IntrusiveAllocator();
+    else
+        return new OriginalBlockAllocator();
 }
 
 std::unique_ptr<Allocator>& Allocator::instance()
@@ -58,7 +60,6 @@ OriginalBlockAllocator::OriginalBlockAllocator(std::unique_ptr<Allocator> in_nes
 OriginalBlockAllocator::~OriginalBlockAllocator()
 {
 }
-
 
 void OriginalBlockAllocator::report(std::ostream& out) const
 {
@@ -523,7 +524,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     blockAlignment = std::max(blockAlignment, size_t{16});
 
     // round blockSize up to nearest aligned size
-    blockSize = ((blockSize+alignment-1) / alignment) * alignment;
+    blockSize = ((blockSize + alignment - 1) / alignment) * alignment;
 
     memory = static_cast<Element*>(operator new (blockSize, std::align_val_t{blockAlignment}));
     memoryEnd = memory + blockSize / sizeof(Element);
@@ -538,7 +539,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     freeLists.emplace_back();
     FreeList& freeList = freeLists.front();
     freeList.count = 0;
-    freeList.head = static_cast<Element::Index>(((1 + elementAlignment)/elementAlignment) * elementAlignment - 1);
+    freeList.head = static_cast<Element::Index>(((1 + elementAlignment) / elementAlignment) * elementAlignment - 1);
     maximumAllocationSize = computeMaxiumAllocationSize(blockSize, alignment);
 
     // mark the first element as 0.
@@ -546,28 +547,28 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
     size_t previous_position = 0; // 0 marks the beginning of the free list
     size_t position = freeList.head;
-    for(; position < capacity;)
+    for (; position < capacity;)
     {
         size_t aligned_start = ((position + max_slot_size) / elementAlignment) * elementAlignment;
-        size_t next_position = std::min(aligned_start-1, capacity);
+        size_t next_position = std::min(aligned_start - 1, capacity);
 
-        memory[position] = Element{ (previous_position == 0) ? 0 : (position - previous_position), next_position - position, 1 };
-        memory[position+1].index = static_cast<Element::Index>(previous_position);
-        memory[position+2].index = static_cast<Element::Index>((next_position < capacity) ? next_position : 0);
+        memory[position] = Element{(previous_position == 0) ? 0 : (position - previous_position), next_position - position, 1};
+        memory[position + 1].index = static_cast<Element::Index>(previous_position);
+        memory[position + 2].index = static_cast<Element::Index>((next_position < capacity) ? next_position : 0);
         previous_position = position;
         position = next_position;
         ++freeList.count;
     }
 
 #if DEBUG_ALLOCATOR
-    std::cout<<"IntrusiveAllocator::MemoryBlock::MemoryBlock("<<in_blockSize<< ", "<<in_alignment<<")"<<std::endl;
+    std::cout << "IntrusiveAllocator::MemoryBlock::MemoryBlock(" << in_blockSize << ", " << in_alignment << ")" << std::endl;
 
-    std::cout<<"blockSize = "<<blockSize<<std::endl;
-    std::cout<<"capacity = "<<capacity<<std::endl;
+    std::cout << "blockSize = " << blockSize << std::endl;
+    std::cout << "capacity = " << capacity << std::endl;
 
-    std::cout<<"alignment = "<<alignment<<std::endl;
-    std::cout<<"elementAlignment = "<<elementAlignment<<std::endl;
-    std::cout<<"freeList.head = "<<freeList.head<<std::endl;
+    std::cout << "alignment = " << alignment << std::endl;
+    std::cout << "elementAlignment = " << elementAlignment << std::endl;
+    std::cout << "freeList.head = " << freeList.head << std::endl;
 
     report(std::cout);
 #endif
@@ -575,14 +576,14 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
 IntrusiveAllocator::MemoryBlock::~MemoryBlock()
 {
-    operator delete(memory, std::align_val_t{blockAlignment});
+    operator delete (memory, std::align_val_t{blockAlignment});
 }
 
 bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 {
     if (size > maximumAllocationSize) return false;
 
-    for(auto& freeList : freeLists)
+    for (auto& freeList : freeLists)
     {
         if (freeList.count > 0) return true;
     }
@@ -592,7 +593,7 @@ bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 {
 #if DEBUG_ALLOCATOR
-    if (!validate()) std::cout<<"ERROR detected before IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<std::endl;
+    if (!validate()) std::cout << "ERROR detected before IntrusiveAllocator::MemoryBlock::allocate(" << size << ") " << this << std::endl;
 #endif
 
     // check if maximumAllocationSize is big enough
@@ -600,7 +601,7 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
     const size_t minimumNumElementsInSlot = 3;
 
-    for(auto& freeList : freeLists)
+    for (auto& freeList : freeLists)
     {
         // check if freeList has available slots
         if (freeList.count == 0) continue;
@@ -614,13 +615,13 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 throw "Warning: allocated slot found in freeList";
             }
 
-            Element::Index previousFreePosition = memory[freePosition+1].index;
-            Element::Index nextFreePosition = memory[freePosition+2].index;
+            Element::Index previousFreePosition = memory[freePosition + 1].index;
+            Element::Index nextFreePosition = memory[freePosition + 2].index;
 
             size_t slotSpace = static_cast<size_t>(slot.next);
-            if (slot.next==0)
+            if (slot.next == 0)
             {
-                std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::allocate("<<size<<") slot = { "<<static_cast<uint16_t>(slot.previous)<<", "<<static_cast<uint16_t>(slot.next)<<", "<<static_cast<uint16_t>(slot.status)<<" }"<<std::endl;
+                std::cerr << "Warn: IntrusiveAllocator::MemoryBlock::allocate(" << size << ") slot = { " << static_cast<uint16_t>(slot.previous) << ", " << static_cast<uint16_t>(slot.next) << ", " << static_cast<uint16_t>(slot.status) << " }" << std::endl;
             }
 
             Element::Index nextPosition = freePosition + static_cast<Element::Index>(slotSpace);
@@ -634,33 +635,33 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 Element::Index nextAlignedStart = static_cast<Element::Index>(((freePosition + 1 + numElementsToBeUsed + elementAlignment) / elementAlignment) * elementAlignment);
                 Element::Index minimumAlignedEnd = nextAlignedStart + static_cast<Element::Index>(minimumNumElementsInSlot);
 #if DEBUG_ALLOCATOR
-                std::cout<<"allocating, size = "<<size<<", numElementsToBeUsed = "<<numElementsToBeUsed<<", freePosition = "<<freePosition<<", nextPosition = "<<nextPosition<<", nextAlignedStart = "<<nextAlignedStart<<", minimumAlignedEnd = "<<minimumAlignedEnd<<std::endl;
+                std::cout << "allocating, size = " << size << ", numElementsToBeUsed = " << numElementsToBeUsed << ", freePosition = " << freePosition << ", nextPosition = " << nextPosition << ", nextAlignedStart = " << nextAlignedStart << ", minimumAlignedEnd = " << minimumAlignedEnd << std::endl;
 #endif
                 if (minimumAlignedEnd < nextPosition)
                 {
 
                     // enough space in slot to split, so adjust
-                    Element::Index newSlotPosition = nextAlignedStart-1;
+                    Element::Index newSlotPosition = nextAlignedStart - 1;
                     slot.next = static_cast<Element::Offset>(newSlotPosition - freePosition);
 
 #if DEBUG_ALLOCATOR
-                    std::cout<<"splitting slot newSlotPosition = "<<newSlotPosition<<std::endl;
+                    std::cout << "splitting slot newSlotPosition = " << newSlotPosition << std::endl;
 #endif
                     // set up the new slot as a free slot
                     auto& newSlot = memory[newSlotPosition] = Element(slot.next, static_cast<Element::Offset>(nextPosition - newSlotPosition), 1);
-                    memory[newSlotPosition+1].index = previousFreePosition;
-                    memory[newSlotPosition+2].index = nextFreePosition;
+                    memory[newSlotPosition + 1].index = previousFreePosition;
+                    memory[newSlotPosition + 2].index = nextFreePosition;
 
                     if (previousFreePosition != 0)
                     {
                         // need to update the previous slot in the free list
-                        memory[previousFreePosition+2].index = newSlotPosition; // set previous free slots next index to the newly created slot
+                        memory[previousFreePosition + 2].index = newSlotPosition; // set previous free slots next index to the newly created slot
                     }
 
                     if (nextFreePosition != 0)
                     {
                         // need to update the previous slot in the free list
-                        memory[nextFreePosition+1].index = newSlotPosition; // set next free slots previous index to the newly created slot
+                        memory[nextFreePosition + 1].index = newSlotPosition; // set next free slots previous index to the newly created slot
                     }
 
                     if (nextPosition < capacity)
@@ -684,14 +685,13 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                     if (previousFreePosition != 0)
                     {
                         // need to update the previous slot in the free list
-                        memory[previousFreePosition+2].index = nextFreePosition;
+                        memory[previousFreePosition + 2].index = nextFreePosition;
                     }
-
 
                     if (nextFreePosition != 0)
                     {
                         // need to update the previous slot in the free list
-                        memory[nextFreePosition+1].index = previousFreePosition;
+                        memory[nextFreePosition + 1].index = previousFreePosition;
                     }
 
                     if (freePosition == freeList.head)
@@ -707,11 +707,13 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                 slot.status = 0; // mark slot as allocated
 
 #if DEBUG_ALLOCATOR
-                if (validate()) std::cout<<"IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<" allocated = "<<&memory[freePosition+1]<<" freePosition = "<<freePosition<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint32_t>(slot.status)<<std::endl;
-                else std::cout<<"ERROR detected after IntrusiveAllocator::MemoryBlock::allocate("<<size<<") "<<this<<" allocated = "<<&memory[freePosition+1]<<std::endl;
+                if (validate())
+                    std::cout << "IntrusiveAllocator::MemoryBlock::allocate(" << size << ") " << this << " allocated = " << &memory[freePosition + 1] << " freePosition = " << freePosition << ", slot = {" << slot.previous << ", " << slot.next << ", " << static_cast<uint32_t>(slot.status) << std::endl;
+                else
+                    std::cout << "ERROR detected after IntrusiveAllocator::MemoryBlock::allocate(" << size << ") " << this << " allocated = " << &memory[freePosition + 1] << std::endl;
 #endif
 
-                return &memory[freePosition+1];
+                return &memory[freePosition + 1];
             }
 
             freePosition = nextFreePosition;
@@ -719,7 +721,7 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
     }
 
 #if DEBUG_ALLOCATOR
-    std::cout<<"IntrusiveAllocator::MemoryBlock::allocator("<<size<<") "<<this<<" No space found"<<std::endl;
+    std::cout << "IntrusiveAllocator::MemoryBlock::allocator(" << size << ") " << this << " No space found" << std::endl;
 #endif
 
     return nullptr;
@@ -727,19 +729,22 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
 
 void IntrusiveAllocator::MemoryBlock::SlotTester::slot(size_t position, const std::string& name)
 {
-    if (mem[position].status == 0) elements.push_back(Entry{name, position, mem[position], 0, 0});
-    else elements.push_back(Entry{name, position, mem[position], mem[position+1].index, mem[position+2].index});
+    if (mem[position].status == 0)
+        elements.push_back(Entry{name, position, mem[position], 0, 0});
+    else
+        elements.push_back(Entry{name, position, mem[position], mem[position + 1].index, mem[position + 2].index});
 }
-
 
 void IntrusiveAllocator::MemoryBlock::SlotTester::report(std::ostream& out)
 {
-    out<<"head = "<<head<<std::endl;
-    for(auto& entry : elements)
+    out << "head = " << head << std::endl;
+    for (auto& entry : elements)
     {
-        out<<"    "<<entry.name<<", pos = "<<entry.position<<" slot { "<<entry.slot.previous<<", "<<entry.slot.next<<", "<<static_cast<uint16_t>(entry.slot.status)<<" } ";
-        if (entry.slot.status != 0) out<<" previous free = "<<entry.previousFree<<",  next free = "<<entry.nextFree<<std::endl;
-        else out<<std::endl;
+        out << "    " << entry.name << ", pos = " << entry.position << " slot { " << entry.slot.previous << ", " << entry.slot.next << ", " << static_cast<uint16_t>(entry.slot.status) << " } ";
+        if (entry.slot.status != 0)
+            out << " previous free = " << entry.previousFree << ",  next free = " << entry.nextFree << std::endl;
+        else
+            out << std::endl;
     }
 }
 
@@ -764,23 +769,23 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 #if DEBUG_ALLOCATOR
         if (validate())
         {
-            std::cout<<"IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<" C = "<<C<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint32_t>(slot.status)<<std::endl;
+            std::cout << "IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ", " << size << ") " << this << " C = " << C << ", slot = {" << slot.previous << ", " << slot.next << ", " << static_cast<uint32_t>(slot.status) << std::endl;
         }
         else
         {
-            std::cout<<"ERROR detected befpre IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+            std::cout << "ERROR detected befpre IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ", " << size << ") " << this << std::endl;
         }
 #endif
 
-        if (slot.next==0)
+        if (slot.next == 0)
         {
-            std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<") C = "<<C<<", slot = { "<<slot.previous<<", "<<slot.next<<", "<<slot.status<<" }"<<std::endl;
+            std::cerr << "Warn: IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ") C = " << C << ", slot = { " << slot.previous << ", " << slot.next << ", " << slot.status << " }" << std::endl;
             throw "slot.ext == 0";
         }
 
         if (slot.status != 0)
         {
-            std::cerr<<"Warn: IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<") C = "<<C<<", Attempt to deallocate already available slot : slot = { "<<slot.previous<<", "<<slot.next<<", "<<slot.status<<" }"<<std::endl;
+            std::cerr << "Warn: IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ") C = " << C << ", Attempt to deallocate already available slot : slot = { " << slot.previous << ", " << slot.next << ", " << slot.status << " }" << std::endl;
             throw "Attempt to deallocate already available slot";
         }
 
@@ -796,8 +801,8 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         {
             if (memory[P].status != 0)
             {
-                PPF = memory[P+1].index;
-                PNF = memory[P+2].index;
+                PPF = memory[P + 1].index;
+                PNF = memory[P + 2].index;
             }
         }
 
@@ -818,8 +823,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         }
 
         // 3 way merge of P, C and C
-        auto mergePCN = [&]() -> void
-        {
+        auto mergePCN = [&]() -> void {
 #if DEBUG_ALLOCATOR
             SlotTester before(memory, freeList.head);
             before.slot(P, "P");
@@ -834,13 +838,12 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
             memory[P].next += memory[C].next + memory[N].next;
             if (NN != 0) memory[NN].previous = memory[P].next;
 
-
             // update freeList linked list entries
             if (PNF == N) // also implies NPF == P
             {
                 // case 1. in order sequential
 #if DEBUG_ALLOCATOR
-                std::cout<<"       case 1. in order sequential"<<std::endl;
+                std::cout << "       case 1. in order sequential" << std::endl;
 #endif
                 memory[P + 2].index = NNF;
                 if (NNF != 0) memory[NNF + 1].index = P;
@@ -849,7 +852,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
             {
                 // case 2. reverse sequential
 #if DEBUG_ALLOCATOR
-                std::cout<<"       case 2. reverse sequential"<<std::endl;
+                std::cout << "       case 2. reverse sequential" << std::endl;
 #endif
                 if (freeList.head == N)
                 {
@@ -866,7 +869,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
             {
                 // case 3. disconnected
 #if DEBUG_ALLOCATOR
-                std::cout<<"       case 3. disconnected"<<std::endl;
+                std::cout << "       case 3. disconnected" << std::endl;
 #endif
                 if (NPF != 0) memory[NPF + 2].index = NNF;
                 if (NNF != 0) memory[NNF + 1].index = NPF;
@@ -890,35 +893,34 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
                 after.slot(NPF, "NPF");
                 after.slot(NNF, "NNF");
 
-                std::cout<<"ERROR detected after mergePCN() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+                std::cout << "ERROR detected after mergePCN() IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ", " << size << ") " << this << std::endl;
 
-                std::cout<<"Before: "; before.report(std::cout);
-                std::cout<<"After: "; after.report(std::cout);
-
+                std::cout << "Before: ";
+                before.report(std::cout);
+                std::cout << "After: ";
+                after.report(std::cout);
             }
 #endif
         };
 
         // 2 way merge of P and C
-        auto mergePC = [&]() -> void
-        {
+        auto mergePC = [&]() -> void {
             // update slots for the merge
             memory[P].next += memory[C].next;
             if (N != 0) memory[N].previous = memory[P].next;
 
-            // freeList linked list entries will not need updating.
+                // freeList linked list entries will not need updating.
 
 #if DEBUG_ALLOCATOR
             if (!validate())
             {
-                std::cout<<"ERROR detected after mergePC() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+                std::cout << "ERROR detected after mergePC() IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ", " << size << ") " << this << std::endl;
             }
 #endif
         };
 
         // 2 way merge of C and N
-        auto mergeCN = [&]() -> void
-        {
+        auto mergeCN = [&]() -> void {
             // update slots for merge
             memory[C].status = 1;
             memory[C].next += memory[N].next;
@@ -936,21 +938,20 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 #if DEBUG_ALLOCATOR
             if (!validate())
             {
-                std::cout<<"ERROR detected after mergeCN() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<std::endl;
+                std::cout << "ERROR detected after mergeCN() IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ", " << size << ") " << this << std::endl;
             }
 #endif
         };
 
         // standalone insertion of C into head of freeList
-        auto standalone = [&]() -> void
-        {
+        auto standalone = [&]() -> void {
             memory[C].status = 1;
             memory[C + 1].index = 0;
             memory[C + 2].index = freeList.head;
 
             if (freeList.head != 0)
             {
-                memory[freeList.head + 1] = C;  // set previous heads previousFree to C.
+                memory[freeList.head + 1] = C; // set previous heads previousFree to C.
             }
 
             // set the head to C.
@@ -962,7 +963,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 #if DEBUG_ALLOCATOR
             if (!validate())
             {
-                std::cout<<"ERROR detected after standalone() IntrusiveAllocator::MemoryBlock::deallocate("<<ptr<<", "<<size<<") "<<this<<" C = "<<C<<", memory[C + 2].index = "<<memory[C + 2].index<<std::endl;
+                std::cout << "ERROR detected after standalone() IntrusiveAllocator::MemoryBlock::deallocate(" << ptr << ", " << size << ") " << this << " C = " << C << ", memory[C + 2].index = " << memory[C + 2].index << std::endl;
             }
 #endif
         };
@@ -971,18 +972,26 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         {
             if (N != 0 && memory[N].status != 0)
             {
-                if ((static_cast<size_t>(memory[P].next) + static_cast<size_t>(memory[C].next) + static_cast<size_t>(memory[N].next)) <= maxSize) mergePCN();
-                else if ((static_cast<size_t>(memory[P].next) + static_cast<size_t>(memory[C].next)) <= maxSize) mergePC(); // merge P and C
-                else if ((static_cast<size_t>(memory[C].next) + static_cast<size_t>(memory[N].next)) <= maxSize) mergeCN(); // merge C and N
-                else standalone(); // C is standalone
+                if ((static_cast<size_t>(memory[P].next) + static_cast<size_t>(memory[C].next) + static_cast<size_t>(memory[N].next)) <= maxSize)
+                    mergePCN();
+                else if ((static_cast<size_t>(memory[P].next) + static_cast<size_t>(memory[C].next)) <= maxSize)
+                    mergePC(); // merge P and C
+                else if ((static_cast<size_t>(memory[C].next) + static_cast<size_t>(memory[N].next)) <= maxSize)
+                    mergeCN(); // merge C and N
+                else
+                    standalone(); // C is standalone
             }
-            else if ((static_cast<size_t>(memory[P].next) + static_cast<size_t>(memory[C].next)) <= maxSize) mergePC(); // merge P and C
-            else standalone(); // C is standalone
+            else if ((static_cast<size_t>(memory[P].next) + static_cast<size_t>(memory[C].next)) <= maxSize)
+                mergePC(); // merge P and C
+            else
+                standalone(); // C is standalone
         }
         else if (N != 0 && memory[N].status != 0)
         {
-            if (static_cast<size_t>(memory[C].next) + static_cast<size_t>(memory[N].next) <= maxSize) mergeCN(); // merge C and N
-            else standalone(); // standalone
+            if (static_cast<size_t>(memory[C].next) + static_cast<size_t>(memory[N].next) <= maxSize)
+                mergeCN(); // merge C and N
+            else
+                standalone(); // standalone
         }
         else
         {
@@ -994,7 +1003,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
     }
 
 #if DEBUG_ALLOCATOR
-    std::cout<<"IntrusiveAllocator::MemoryBlock::deallocate(("<<ptr<<", "<<size<<") OUTWITH block : "<<this<<std::endl;
+    std::cout << "IntrusiveAllocator::MemoryBlock::deallocate((" << ptr << ", " << size << ") OUTWITH block : " << this << std::endl;
 #endif
 
     return false;
@@ -1002,44 +1011,44 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 
 void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
 {
-    out << "MemoryBlock "<<this<<" "<<name<<std::endl;
-    out << "    alignment = "<<alignment<<std::endl;
-    out << "    blockAlignment = "<<blockAlignment<<std::endl;
-    out << "    blockSize = "<<blockSize<<", memory = "<<static_cast<void*>(memory)<<std::endl;
-    out << "    maximumAllocationSize = "<<maximumAllocationSize<<std::endl;
+    out << "MemoryBlock " << this << " " << name << std::endl;
+    out << "    alignment = " << alignment << std::endl;
+    out << "    blockAlignment = " << blockAlignment << std::endl;
+    out << "    blockSize = " << blockSize << ", memory = " << static_cast<void*>(memory) << std::endl;
+    out << "    maximumAllocationSize = " << maximumAllocationSize << std::endl;
 
     size_t position = 1;
-    while(position < capacity)
+    while (position < capacity)
     {
         auto& slot = memory[position];
         if (slot.status == 1)
         {
-            out<<"   memory["<<position<<"] slot { "<<slot.previous<<", "<<slot.next<<", "<<slot.status<<"}, "<<memory[position+1].index<<", "<<memory[position+2].index<<std::endl;
+            out << "   memory[" << position << "] slot { " << slot.previous << ", " << slot.next << ", " << slot.status << "}, " << memory[position + 1].index << ", " << memory[position + 2].index << std::endl;
         }
         else
         {
-            out<<"   memory["<<position<<"] slot { "<<slot.previous<<", "<<slot.next<<", "<<slot.status<<"} "<<std::endl;
+            out << "   memory[" << position << "] slot { " << slot.previous << ", " << slot.next << ", " << slot.status << "} " << std::endl;
         }
 
         position += slot.next;
         if (slot.next == 0) break;
     }
 
-    out<<"   freeList.size() = "<<freeLists.size()<<" { "<<std::endl;
-    for(auto& freeList : freeLists)
+    out << "   freeList.size() = " << freeLists.size() << " { " << std::endl;
+    for (auto& freeList : freeLists)
     {
-        out<<"   FreeList ( count = "<<freeList.count<<" , head = "<<freeList.head<<" ) {"<<std::endl;
+        out << "   FreeList ( count = " << freeList.count << " , head = " << freeList.head << " ) {" << std::endl;
 
         size_t freePosition = freeList.head;
-        while(freePosition !=0 && freePosition < capacity)
+        while (freePosition != 0 && freePosition < capacity)
         {
             auto& slot = memory[freePosition];
-            out<<"      slot "<<freePosition<<" { "<<slot.previous<<", "<<slot.next<<", "<<slot.status
-                     <<" } previous = "<<memory[freePosition+1].index<<", next = "<<memory[freePosition+2].index<<std::endl;
-            freePosition = memory[freePosition+2].index;
+            out << "      slot " << freePosition << " { " << slot.previous << ", " << slot.next << ", " << slot.status
+                << " } previous = " << memory[freePosition + 1].index << ", next = " << memory[freePosition + 2].index << std::endl;
+            freePosition = memory[freePosition + 2].index;
         }
 
-        out<<"   }"<<std::endl;
+        out << "   }" << std::endl;
     }
 }
 
@@ -1051,44 +1060,46 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
     std::set<size_t> allocated;
     std::set<size_t> available;
 
-    while(position < capacity)
+    while (position < capacity)
     {
         auto& slot = memory[position];
         if (slot.previous > capacity || slot.next > capacity)
         {
-            std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" slot.corrupted invalid position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<int(slot.status)<<"}"<<std::endl;
+            std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " slot.corrupted invalid position = " << position << ", slot = {" << slot.previous << ", " << slot.next << ", " << int(slot.status) << "}" << std::endl;
             return false;
         }
 
-        if (slot.status==0) allocated.insert(position);
-        else available.insert(position);
+        if (slot.status == 0)
+            allocated.insert(position);
+        else
+            available.insert(position);
 
         if (slot.previous != 0)
         {
             if (slot.previous > position)
             {
-                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" slot.previous invalid position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<< int(slot.status)<<"}"<<std::endl;
+                std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " slot.previous invalid position = " << position << ", slot = {" << slot.previous << ", " << slot.next << ", " << int(slot.status) << "}" << std::endl;
                 return false;
             }
             size_t previous_position = position - slot.previous;
             if (previous_position != previous)
             {
-                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed : previous slot = "<<previous<<" doesn't match slot.previous, position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<< int(slot.status)<<"}"<<std::endl;
+                std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " validation failed : previous slot = " << previous << " doesn't match slot.previous, position = " << position << ", slot = {" << slot.previous << ", " << slot.next << ", " << int(slot.status) << "}" << std::endl;
                 return false;
             }
 
-            size_t previousFree = memory[position+1].index;
-            size_t nextFree = memory[position+2].index;
+            size_t previousFree = memory[position + 1].index;
+            size_t nextFree = memory[position + 2].index;
             if (previousFree == position || nextFree == position)
             {
-                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed : slot's previous/nextFree points back to itself, position = "<<position<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<< int(slot.status)<<"} previousFree = "<<previousFree<<", nextFree = "<<nextFree<<std::endl;
+                std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " validation failed : slot's previous/nextFree points back to itself, position = " << position << ", slot = {" << slot.previous << ", " << slot.next << ", " << int(slot.status) << "} previousFree = " << previousFree << ", nextFree = " << nextFree << std::endl;
                 return false;
             }
         }
 
         if (slot.next == 0)
         {
-            std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed: position = "<<position<<" slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint8_t>(slot.status)<<"}"<<std::endl;
+            std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " validation failed: position = " << position << " slot = {" << slot.previous << ", " << slot.next << ", " << static_cast<uint8_t>(slot.status) << "}" << std::endl;
             return false;
         }
 
@@ -1099,11 +1110,11 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
     std::set<size_t> inFreeList;
 
     // std::cout<<"No invalid entries found"<<std::endl;
-    for(auto& freeList : freeLists)
+    for (auto& freeList : freeLists)
     {
         size_t previousPosition = 0;
         size_t freePosition = freeList.head;
-        while(freePosition !=0 && freePosition < capacity)
+        while (freePosition != 0 && freePosition < capacity)
         {
             auto& slot = memory[freePosition];
 
@@ -1111,31 +1122,29 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
 
             if (slot.status != 1)
             {
-                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed, non available slot in freeList, freePosition = "<<freePosition<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint8_t>(slot.status)<<"}"<<std::endl;
+                std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " validation failed, non available slot in freeList, freePosition = " << freePosition << ", slot = {" << slot.previous << ", " << slot.next << ", " << static_cast<uint8_t>(slot.status) << "}" << std::endl;
                 return false;
             }
 
-            if (memory[freePosition+1].index != previousPosition || memory[freePosition+1].index == freePosition)
+            if (memory[freePosition + 1].index != previousPosition || memory[freePosition + 1].index == freePosition)
             {
-                std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed, free list inconsisntent, head = "<<freeList.head<<", previousPosition = "<<previousPosition<<", freePosition = "<<freePosition<<", slot = {"<<slot.previous<<", "<<slot.next<<", "<<static_cast<uint8_t>(slot.status)<<"} previousFree = "<<memory[freePosition+1].index<<", nextFree = "<<memory[freePosition+2].index<<std::endl;
+                std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " validation failed, free list inconsisntent, head = " << freeList.head << ", previousPosition = " << previousPosition << ", freePosition = " << freePosition << ", slot = {" << slot.previous << ", " << slot.next << ", " << static_cast<uint8_t>(slot.status) << "} previousFree = " << memory[freePosition + 1].index << ", nextFree = " << memory[freePosition + 2].index << std::endl;
                 return false;
             }
 
             previousPosition = freePosition;
-            freePosition = memory[freePosition+2].index;
+            freePosition = memory[freePosition + 2].index;
         }
     }
 
-
     if (available.size() != inFreeList.size())
     {
-        std::cerr<<"IntrusiveAllocator::MemoryBlock::validate() "<<this<<" validation failed, Different number of entries in available and in freeList:  available.size() = "<<available.size()<<", inFreeList.size() = "<<inFreeList.size()<<std::endl;
+        std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " validation failed, Different number of entries in available and in freeList:  available.size() = " << available.size() << ", inFreeList.size() = " << inFreeList.size() << std::endl;
         return false;
     }
 
     return true;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1193,8 +1202,8 @@ void* IntrusiveAllocator::MemoryBlocks::allocate(std::size_t size)
 
 void IntrusiveAllocator::MemoryBlocks::report(std::ostream& out) const
 {
-    out<<"IntrusiveAllocator::MemoryBlocks::report() memoryBlocks.size() = "<<memoryBlocks.size()<<std::endl;
-    for(auto& memoryBlock : memoryBlocks)
+    out << "IntrusiveAllocator::MemoryBlocks::report() memoryBlocks.size() = " << memoryBlocks.size() << std::endl;
+    for (auto& memoryBlock : memoryBlocks)
     {
         memoryBlock->report(out);
     }
@@ -1203,9 +1212,9 @@ void IntrusiveAllocator::MemoryBlocks::report(std::ostream& out) const
 bool IntrusiveAllocator::MemoryBlocks::validate() const
 {
     bool valid = true;
-    for(auto& memoryBlock : memoryBlocks)
+    for (auto& memoryBlock : memoryBlocks)
     {
-        valid = memoryBlock->validate() && valid ;
+        valid = memoryBlock->validate() && valid;
     }
     return valid;
 }
@@ -1217,7 +1226,7 @@ bool IntrusiveAllocator::MemoryBlocks::validate() const
 IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator) :
     Allocator(std::move(in_nestedAllocator))
 {
-    std::cout<<"IntrusiveAllocator::IntrusiveAllocator()"<<std::endl;
+    std::cout << "IntrusiveAllocator::IntrusiveAllocator()" << std::endl;
 
     default_alignment = 4;
 
@@ -1233,12 +1242,12 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 
 IntrusiveAllocator::~IntrusiveAllocator()
 {
-    std::cout<<"IntrusiveAllocator::~IntrusiveAllocator() largeAllocations.size() = "<<largeAllocations.size()<<std::endl;
+    std::cout << "IntrusiveAllocator::~IntrusiveAllocator() largeAllocations.size() = " << largeAllocations.size() << std::endl;
 }
 
 void IntrusiveAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
 {
-   std::scoped_lock<std::mutex> lock(mutex);
+    std::scoped_lock<std::mutex> lock(mutex);
 
     if (size_t(allocatorAffinity) < allocatorMemoryBlocks.size())
     {
@@ -1342,7 +1351,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
     {
         // large allocation;
         // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
-        operator delete(ptr, std::align_val_t{la_itr->second.first});
+        operator delete (ptr, std::align_val_t{la_itr->second.first});
         largeAllocations.erase(la_itr);
         return true;
     }
@@ -1358,16 +1367,31 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
 bool IntrusiveAllocator::validate() const
 {
     bool valid = true;
-    for(auto& memoryBlock : allocatorMemoryBlocks)
+    for (auto& memoryBlock : allocatorMemoryBlocks)
     {
-        valid = memoryBlock->validate() && valid ;
+        valid = memoryBlock->validate() && valid;
     }
     return valid;
 }
 
-
-size_t IntrusiveAllocator::deleteEmptyMemoryBlocks() { vsg::info("IntrusiveAllocator::deleteEmptyMemoryBlocks(..) TODO"); return 0; }
-size_t IntrusiveAllocator::totalAvailableSize() const { vsg::info("IntrusiveAllocator::totalAvailableSize(..) TODO"); return 0; }
-size_t IntrusiveAllocator::totalReservedSize() const { vsg::info("IntrusiveAllocator::totalReservedSize(..) TODO"); return 0; }
-size_t IntrusiveAllocator::totalMemorySize() const { vsg::info("IntrusiveAllocator::totalMemorySize(..) TODO");   return 0; }
+size_t IntrusiveAllocator::deleteEmptyMemoryBlocks()
+{
+    vsg::info("IntrusiveAllocator::deleteEmptyMemoryBlocks(..) TODO");
+    return 0;
+}
+size_t IntrusiveAllocator::totalAvailableSize() const
+{
+    vsg::info("IntrusiveAllocator::totalAvailableSize(..) TODO");
+    return 0;
+}
+size_t IntrusiveAllocator::totalReservedSize() const
+{
+    vsg::info("IntrusiveAllocator::totalReservedSize(..) TODO");
+    return 0;
+}
+size_t IntrusiveAllocator::totalMemorySize() const
+{
+    vsg::info("IntrusiveAllocator::totalMemorySize(..) TODO");
+    return 0;
+}
 void IntrusiveAllocator::setMemoryTracking(int) { vsg::info("IntrusiveAllocator::setMemoryTracking(..) TODO"); }

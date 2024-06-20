@@ -41,8 +41,10 @@ namespace vsg
     class VSG_DECLSPEC Allocator
     {
     public:
-        explicit Allocator(size_t in_default_alignment = 4) : default_alignment(in_default_alignment) {}
-        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4) : default_alignment(in_default_alignment), nestedAllocator(std::move(in_nestedAllocator)) {}
+        explicit Allocator(size_t in_default_alignment = 4) :
+            default_alignment(in_default_alignment) {}
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4) :
+            default_alignment(in_default_alignment), nestedAllocator(std::move(in_nestedAllocator)) {}
         virtual ~Allocator() {}
 
         /// Allocator singleton
@@ -83,7 +85,6 @@ namespace vsg
         double deallocationTime = 0.0;
 
     protected:
-
         // if you are assigning a custom allocator you must retain the old allocator to manage the memory it allocated and needs to delete
         std::unique_ptr<Allocator> nestedAllocator;
     };
@@ -216,7 +217,6 @@ namespace vsg
         double deallocationTime = 0.0;
 
     protected:
-
         std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
     };
 
@@ -243,7 +243,6 @@ namespace vsg
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) override;
 
     protected:
-
         struct MemoryBlock
         {
             MemoryBlock(const std::string& in_name, size_t in_blockSize, size_t in_alignment);
@@ -285,7 +284,6 @@ namespace vsg
 
                 Element() = default;
                 Element(const Element&) = default;
-
             };
 
             struct FreeList
@@ -314,7 +312,8 @@ namespace vsg
 
             struct SlotTester
             {
-                SlotTester(Element* in_mem, size_t in_head) : mem(in_mem), head(in_head) {};
+                SlotTester(Element* in_mem, size_t in_head) :
+                    mem(in_mem), head(in_head){};
 
                 const Element* mem = nullptr;
                 size_t head = 0;
@@ -337,7 +336,7 @@ namespace vsg
 
             static inline size_t computeMaxiumAllocationSize(size_t blockSize, size_t alignment)
             {
-                return std::min(blockSize - alignment, size_t((1<<15)-2) * sizeof(Element));
+                return std::min(blockSize - alignment, size_t((1 << 15) - 2) * sizeof(Element));
             }
         };
 
@@ -364,7 +363,5 @@ namespace vsg
         std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
         std::map<void*, std::pair<size_t, size_t>> largeAllocations;
     };
-
-
 
 } // namespace vsg
