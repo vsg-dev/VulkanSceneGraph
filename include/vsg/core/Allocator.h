@@ -137,89 +137,28 @@ namespace vsg
     template<typename T>
     using allocator_affinity_physics = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_PHYSICS>;
 
-    /////
-
-    class VSG_DECLSPEC OriginalBlockAllocator : public Allocator
-    {
-    public:
-        explicit OriginalBlockAllocator(size_t in_default_alignment = 4);
-        explicit OriginalBlockAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4);
-
-        virtual ~OriginalBlockAllocator();
-
-        /// allocate from the pool of memory blocks, or allocate from a new memory block
-        void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS) override;
-
-        /// deallocate, returning data to pool.
-        bool deallocate(void* ptr, std::size_t size) override;
-
-        /// delete any MemoryBlock that are empty
-        size_t deleteEmptyMemoryBlocks() override;
-
-        /// return the total available size of allocated MemoryBlocks
-        size_t totalAvailableSize() const override;
-
-        /// return the total reserved size of allocated MemoryBlocks
-        size_t totalReservedSize() const override;
-
-        /// return the total memory size of allocated MemoryBlocks
-        size_t totalMemorySize() const override;
-
-        /// report stats about blocks of memory allocated.
-        void report(std::ostream& out) const override;
-
-        /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
-        void setMemoryTracking(int mt) override;
-
-        void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) override;
-
-    protected:
-        struct MemoryBlock
-        {
-            MemoryBlock(size_t blockSize, int memoryTracking, size_t in_alignment);
-            virtual ~MemoryBlock();
-
-            void* allocate(std::size_t size);
-            bool deallocate(void* ptr, std::size_t size);
-
-            vsg::MemorySlots memorySlots;
-            size_t alignment = 4;
-            size_t block_alignment = 16;
-            uint8_t* memory = nullptr;
-        };
-
-        struct MemoryBlocks
-        {
-            OriginalBlockAllocator* parent = nullptr;
-            std::string name;
-            size_t blockSize = 0;
-            size_t alignment = 4;
-            std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
-            std::shared_ptr<MemoryBlock> latestMemoryBlock;
-
-            MemoryBlocks(OriginalBlockAllocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment);
-            virtual ~MemoryBlocks();
-
-            void* allocate(std::size_t size);
-            bool deallocate(void* ptr, std::size_t size);
-
-            size_t deleteEmptyMemoryBlocks();
-            size_t totalAvailableSize() const;
-            size_t totalReservedSize() const;
-            size_t totalMemorySize() const;
-        };
-
-        MemoryBlocks* getMemoryBlocks(AllocatorAffinity allocatorAffinity);
-
-        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize, size_t in_alignment = 4);
-
-        double allocationTime = 0.0;
-        double deallocationTime = 0.0;
-
-    protected:
-        std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
-    };
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // InstrusiveAllocator is the default Allocator implenentation
+    //
+    // Memory is allocated for fixed sized blocks, with indexing of allocated and available slots of memory
+    // are stored within the same memory block that user memory allocation are made from.  The memory block
+    // is created a contiguous block of 4 bytes Elements, where the Element is a union of bitfield linked list
+    // market the beginning of the previous slot or the begging of the next, the status of whether the slot is
+    // allocated or available, or an index when used as part of doubling linked list of free slots.
+    //
+    // The block allocation is done based on the type of object so all nodes, data or general objects are
+    // allocated within the blocks containing objects of similar type.  This form of block allocation helps
+    // scene graph traversal speeds by improving cache coherency/reducing cache missing as it ensures that
+    // nodes etc. are packed in adjacent memory.
+    //
+    // The instrusive indexing means there is only a 4 byte panalty for each memory allocation, and a minimum
+    // memory use per allocation of 12 bytes (3 Elements - 1 for the slot{previous, next, status} and 2 for the
+    // previous and next free list indices.
+    //
+    // The maximum size of allocations within the block allocation is (2^15-2) * 4, allocations larger than this
+    // are allocated using aligned versions of std::new and std::delete.
+    //
     class VSG_DECLSPEC IntrusiveAllocator : public Allocator
     {
     public:
