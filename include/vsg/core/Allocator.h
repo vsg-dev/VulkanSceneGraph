@@ -362,7 +362,7 @@ namespace vsg
 
         std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
         std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
-        std::map<void*, size_t> largeAllocations;
+        std::map<void*, std::pair<size_t, size_t>> largeAllocations;
     };
 
 

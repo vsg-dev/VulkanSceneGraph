@@ -575,8 +575,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
 IntrusiveAllocator::MemoryBlock::~MemoryBlock()
 {
-    //operator delete (memory, std::align_val_t{block_alignment});
-    operator delete (memory);
+    operator delete(memory, std::align_val_t{blockAlignment});
 }
 
 bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
@@ -1291,13 +1290,13 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
         }
 
         ptr = operator new (size, std::align_val_t{blocks->alignment});
-        if (ptr) largeAllocations[ptr] = size;
+        if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(blocks->alignment, size);
         //std::cout<<"IntrusiveAllocator::allocate() MemoryBlocks aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<blocks->alignment<<" blocks->maximumAllocationSize = "<<blocks->maximumAllocationSize<<std::endl;
         return ptr;
     }
 
     ptr = operator new (size, std::align_val_t{default_alignment});
-    if (ptr) largeAllocations[ptr] = size;
+    if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(default_alignment, size);
     //std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<default_alignment<<std::endl;
     return ptr;
 }
@@ -1343,7 +1342,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
     {
         // large allocation;
         // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
-        operator delete (ptr);
+        operator delete(ptr, std::align_val_t{la_itr->second.first});
         largeAllocations.erase(la_itr);
         return true;
     }
