@@ -783,7 +783,7 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 
 IntrusiveAllocator::~IntrusiveAllocator()
 {
-    std::cout << "IntrusiveAllocator::~IntrusiveAllocator() largeAllocations.size() = " << largeAllocations.size() << std::endl;
+    std::cout << "IntrusiveAllocator::~IntrusiveAllocator()" << std::endl;
 }
 
 void IntrusiveAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
