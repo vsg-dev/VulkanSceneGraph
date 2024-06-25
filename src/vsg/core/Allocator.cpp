@@ -764,21 +764,21 @@ bool IntrusiveAllocator::MemoryBlocks::validate() const
 //
 // IntrusiveAllocator
 //
-IntrusiveAllocator::IntrusiveAllocator(size_t in_default_alignment) :
-    Allocator(in_default_alignment)
+IntrusiveAllocator::IntrusiveAllocator(size_t in_defaultAlignment) :
+    Allocator(in_defaultAlignment)
 {
     size_t Megabyte = size_t(1024) * size_t(1024);
     size_t blockSize = size_t(1) * Megabyte;
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, defaultAlignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, defaultAlignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, defaultAlignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_PHYSICS", blockSize, 16));
 }
 
-IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment) :
-    Allocator(std::move(in_nestedAllocator), in_default_alignment)
+IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment) :
+    Allocator(std::move(in_nestedAllocator), in_defaultAlignment)
 {
     std::cout << "IntrusiveAllocator::IntrusiveAllocator()" << std::endl;
 
@@ -786,9 +786,9 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
     size_t blockSize = size_t(1) * Megabyte;
 
     allocatorMemoryBlocks.resize(vsg::ALLOCATOR_AFFINITY_LAST);
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, default_alignment));
-    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, default_alignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_OBJECTS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_OBJECTS", blockSize, defaultAlignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_DATA].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_DATA", size_t(16) * blockSize, defaultAlignment));
+    allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_NODES].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_NODES", blockSize, defaultAlignment));
     allocatorMemoryBlocks[vsg::ALLOCATOR_AFFINITY_PHYSICS].reset(new MemoryBlocks(this, "ALLOCATOR_AFFINITY_PHYSICS", blockSize, 16));
 }
 

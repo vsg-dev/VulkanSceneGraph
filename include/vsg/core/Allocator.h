@@ -156,8 +156,8 @@ namespace vsg
     class VSG_DECLSPEC IntrusiveAllocator : public Allocator
     {
     public:
-        explicit IntrusiveAllocator(size_t in_default_alignment = 4);
-        explicit IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_default_alignment = 4);
+        explicit IntrusiveAllocator(size_t in_defaultAlignment = 4);
+        explicit IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 4);
 
         ~IntrusiveAllocator();
 
