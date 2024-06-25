@@ -780,8 +780,6 @@ IntrusiveAllocator::IntrusiveAllocator(size_t in_defaultAlignment) :
 IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment) :
     Allocator(std::move(in_nestedAllocator), in_defaultAlignment)
 {
-    std::cout << "IntrusiveAllocator::IntrusiveAllocator()" << std::endl;
-
     size_t Megabyte = size_t(1024) * size_t(1024);
     size_t blockSize = size_t(1) * Megabyte;
 
@@ -794,7 +792,6 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 
 IntrusiveAllocator::~IntrusiveAllocator()
 {
-    std::cout << "IntrusiveAllocator::~IntrusiveAllocator()" << std::endl;
 }
 
 void IntrusiveAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
