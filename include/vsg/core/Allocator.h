@@ -234,6 +234,7 @@ namespace vsg
             size_t blockAlignment = 16;
             size_t blockSize = 0;
             size_t maximumAllocationSize = 0;
+            size_t firstSlot = 1;
 
             std::vector<FreeList> freeLists;
 
@@ -242,6 +243,10 @@ namespace vsg
             bool freeSlotsAvaible(size_t size) const;
 
             inline bool within(void* ptr) const { return memory <= ptr && ptr < memoryEnd; }
+
+            size_t totalAvailableSize() const;
+            size_t totalReservedSize() const;
+            size_t totalMemorySize() const;
 
             struct SlotTester
             {
@@ -290,6 +295,11 @@ namespace vsg
             void* allocate(std::size_t size);
             void report(std::ostream& out) const;
             bool validate() const;
+
+            size_t deleteEmptyMemoryBlocks();
+            size_t totalAvailableSize() const;
+            size_t totalReservedSize() const;
+            size_t totalMemorySize() const;
         };
 
         std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;

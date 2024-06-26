@@ -70,6 +70,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     memory = static_cast<Element*>(operator new (blockSize, std::align_val_t{blockAlignment}));
     memoryEnd = memory + blockSize / sizeof(Element);
     capacity = blockSize / alignment;
+    firstSlot = static_cast<Element::Index>(((1 + elementAlignment) / elementAlignment) * elementAlignment - 1);
 
     size_t max_slot_size = (1 << 15);
 
@@ -80,14 +81,14 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     freeLists.emplace_back();
     FreeList& freeList = freeLists.front();
     freeList.count = 0;
-    freeList.head = static_cast<Element::Index>(((1 + elementAlignment) / elementAlignment) * elementAlignment - 1);
+    freeList.head = firstSlot;
     maximumAllocationSize = computeMaxiumAllocationSize(blockSize, alignment);
 
     // mark the first element as 0.
     memory[0].index = 0;
 
     size_t previous_position = 0; // 0 marks the beginning of the free list
-    size_t position = freeList.head;
+    size_t position = firstSlot;
     for (; position < capacity;)
     {
         size_t aligned_start = ((position + max_slot_size) / elementAlignment) * elementAlignment;
@@ -106,7 +107,8 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
     std::cout << "blockSize = " << blockSize << std::endl;
     std::cout << "capacity = " << capacity << std::endl;
-
+    std::cout << "totalReservedSize = " << totalReservedSize() << std::endl;
+    std::cout << "totalAvailableSize = " << totalAvailableSize() << std::endl;
     std::cout << "alignment = " << alignment << std::endl;
     std::cout << "elementAlignment = " << elementAlignment << std::endl;
     std::cout << "freeList.head = " << freeList.head << std::endl;
@@ -557,8 +559,11 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     out << "    blockAlignment = " << blockAlignment << std::endl;
     out << "    blockSize = " << blockSize << ", memory = " << static_cast<void*>(memory) << std::endl;
     out << "    maximumAllocationSize = " << maximumAllocationSize << std::endl;
+    out << "    firstSlot = "<< firstSlot<<std::endl;
+    out << "    totalAvailableSize = " << totalAvailableSize() << std::endl;
+    out << "    totalReservedSize = " << totalReservedSize() << std::endl;
 
-    size_t position = 1;
+    size_t position = firstSlot;
     while (position < capacity)
     {
         auto& slot = memory[position];
@@ -596,7 +601,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
 bool IntrusiveAllocator::MemoryBlock::validate() const
 {
     size_t previous = 0;
-    size_t position = 1;
+    size_t position = firstSlot;
 
     std::set<size_t> allocated;
     std::set<size_t> available;
@@ -687,6 +692,48 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
     return true;
 }
 
+size_t IntrusiveAllocator::MemoryBlock::totalAvailableSize() const
+{
+    size_t count = 0;
+    size_t position = firstSlot;
+    while (position < capacity)
+    {
+        auto& slot = memory[position];
+        position += slot.next;
+        if (slot.status != 0) count += slot.next - 1;
+    }
+
+    return count * sizeof(Element);
+}
+
+size_t IntrusiveAllocator::MemoryBlock::totalReservedSize() const
+{
+    size_t count = 0;
+    size_t position = firstSlot;
+    while (position < capacity)
+    {
+        auto& slot = memory[position];
+        position += slot.next;
+        if (slot.status == 0) count += slot.next - 1;
+    }
+
+    return count * sizeof(Element);
+}
+
+size_t IntrusiveAllocator::MemoryBlock::totalMemorySize() const
+{
+    size_t count = 0;
+    size_t position = firstSlot;
+    while (position < capacity)
+    {
+        auto& slot = memory[position];
+        position += slot.next;
+        count += slot.next - 1;
+    }
+
+    return count * sizeof(Element);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // MemoryBlocks
@@ -758,6 +805,56 @@ bool IntrusiveAllocator::MemoryBlocks::validate() const
         valid = memoryBlock->validate() && valid;
     }
     return valid;
+}
+
+size_t IntrusiveAllocator::MemoryBlocks::deleteEmptyMemoryBlocks()
+{
+    size_t count = 0;
+    decltype(memoryBlocks) remainingBlocks;
+    for(auto& memoryBlock : memoryBlocks)
+    {
+        if (memoryBlock->totalReservedSize() == 0)
+        {
+            count += memoryBlock->totalAvailableSize();
+        }
+        else
+        {
+            remainingBlocks.push_back(memoryBlock);
+        }
+    }
+    memoryBlocks.swap(remainingBlocks);
+
+    return count;
+}
+
+size_t IntrusiveAllocator::MemoryBlocks::totalAvailableSize() const
+{
+    size_t count = 0;
+    for(auto& memoryBlock : memoryBlocks)
+    {
+        count += memoryBlock->totalAvailableSize();
+    }
+    return count;
+}
+
+size_t IntrusiveAllocator::MemoryBlocks::totalReservedSize() const
+{
+    size_t count = 0;
+    for(auto& memoryBlock : memoryBlocks)
+    {
+        count += memoryBlock->totalReservedSize();
+    }
+    return count;
+}
+
+size_t IntrusiveAllocator::MemoryBlocks::totalMemorySize() const
+{
+    size_t count = 0;
+    for(auto& memoryBlock : memoryBlocks)
+    {
+        count += memoryBlock->totalMemorySize();
+    }
+    return count;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -925,21 +1022,40 @@ bool IntrusiveAllocator::validate() const
 
 size_t IntrusiveAllocator::deleteEmptyMemoryBlocks()
 {
-    vsg::info("IntrusiveAllocator::deleteEmptyMemoryBlocks(..) TODO");
-    return 0;
+    size_t count = 0;
+    for(auto& blocks : allocatorMemoryBlocks)
+    {
+        count += blocks->deleteEmptyMemoryBlocks();
+    }
+    return count;
 }
+
 size_t IntrusiveAllocator::totalAvailableSize() const
 {
-    vsg::info("IntrusiveAllocator::totalAvailableSize(..) TODO");
-    return 0;
+    size_t count = 0;
+    for(auto& blocks : allocatorMemoryBlocks)
+    {
+        count += blocks->totalAvailableSize();
+    }
+    return count;
 }
+
 size_t IntrusiveAllocator::totalReservedSize() const
 {
-    vsg::info("IntrusiveAllocator::totalReservedSize(..) TODO");
-    return 0;
+    size_t count = 0;
+    for(auto& blocks : allocatorMemoryBlocks)
+    {
+        count += blocks->totalReservedSize();
+    }
+    return count;
 }
+
 size_t IntrusiveAllocator::totalMemorySize() const
 {
-    vsg::info("IntrusiveAllocator::totalMemorySize(..) TODO");
-    return 0;
+    size_t count = 0;
+    for(auto& blocks : allocatorMemoryBlocks)
+    {
+        count += blocks->totalMemorySize();
+    }
+    return count;
 }
