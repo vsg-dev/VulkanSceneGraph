@@ -23,6 +23,7 @@ namespace vsg
 
     // forward declare
     class WindowTraits;
+    class MemoryBufferPools;
 
     struct QueueSetting
     {
@@ -81,6 +82,10 @@ namespace vsg
 
         /// return true if Device was created with specified extension
         bool supportsDeviceExtension(const char* extensionName) const;
+
+        // provide observer_ptr to memory buffer pools so that these can be accessed when required
+        observer_ptr<MemoryBufferPools> deviceMemoryBufferPools;
+        observer_ptr<MemoryBufferPools> stagingMemoryBufferPools;
 
     protected:
         virtual ~Device();
