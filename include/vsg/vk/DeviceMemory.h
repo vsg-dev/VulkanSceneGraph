@@ -68,7 +68,7 @@ namespace vsg
     VSG_type_name(vsg::DeviceMemory);
 
     using DeviceMemoryList = std::list<ref_ptr<DeviceMemory>>;
-    extern VSG_DECLSPEC DeviceMemoryList getActiveDeviceMemoryList(VkMemoryPropertyFlagBits properyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    extern VSG_DECLSPEC DeviceMemoryList getActiveDeviceMemoryList(VkMemoryPropertyFlagBits propertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     template<class T>
     class MappedData : public T

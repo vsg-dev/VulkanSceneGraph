@@ -24,7 +24,7 @@ using namespace vsg;
 static std::mutex s_DeviceMemoryListMutex;
 static std::list<vsg::observer_ptr<DeviceMemory>> s_DeviceMemoryList;
 
-DeviceMemoryList vsg::getActiveDeviceMemoryList(VkMemoryPropertyFlagBits properyFlags)
+DeviceMemoryList vsg::getActiveDeviceMemoryList(VkMemoryPropertyFlagBits propertyFlags)
 {
     std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
     DeviceMemoryList dml;
