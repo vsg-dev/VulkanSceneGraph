@@ -89,8 +89,6 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     deviceID(in_device->deviceID),
     device(in_device),
     resourceRequirements(in_resourceRequirements),
-    deviceMemoryBufferPools(MemoryBufferPools::create("Device_MemoryBufferPool", device, in_resourceRequirements)),
-    stagingMemoryBufferPools(MemoryBufferPools::create("Staging_MemoryBufferPool", device, in_resourceRequirements)),
     scratchBufferSize(0)
 {
     //semaphore = vsg::Semaphore::create(device);
@@ -98,6 +96,29 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
 
     minimum_maxSets = in_resourceRequirements.computeNumDescriptorSets();
     minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
+
+    deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
+    stagingMemoryBufferPools = device->stagingMemoryBufferPools.ref_ptr();
+
+    if (!deviceMemoryBufferPools)
+    {
+        device->deviceMemoryBufferPools = deviceMemoryBufferPools = MemoryBufferPools::create("Device_MemoryBufferPool", device, in_resourceRequirements);
+        vsg::info("Context::Context() creating new deviceMemoryBufferPools = ", deviceMemoryBufferPools);
+    }
+    else
+    {
+        vsg::info("Context::Context() reusing deviceMemoryBufferPools = ", deviceMemoryBufferPools);
+    }
+
+    if (!stagingMemoryBufferPools)
+    {
+        device->stagingMemoryBufferPools = stagingMemoryBufferPools = MemoryBufferPools::create("Staging_MemoryBufferPool", device, in_resourceRequirements);
+        vsg::info("Context::Context() creating new stagingMemoryBufferPools = ", stagingMemoryBufferPools);
+    }
+    else
+    {
+        vsg::info("Context::Context() reusing stagingMemoryBufferPools = ", stagingMemoryBufferPools);
+    }
 }
 
 Context::Context(const Context& context) :
