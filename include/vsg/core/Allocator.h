@@ -227,14 +227,14 @@ namespace vsg
 
             Element* memory = nullptr;
             Element* memoryEnd = nullptr;
-            size_t capacity = 0;
 
             size_t alignment = 4; // min aligment is 4 { sizeof(Element) }
-            size_t elementAlignment = 1;
             size_t blockAlignment = 16;
             size_t blockSize = 0;
             size_t maximumAllocationSize = 0;
-            size_t firstSlot = 1;
+            Element::Index elementAlignment = 1;
+            Element::Index firstSlot = 1;
+            Element::Index capacity = 0;
 
             std::vector<FreeList> freeLists;
 

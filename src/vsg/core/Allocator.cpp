@@ -59,7 +59,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     blockSize(in_blockSize)
 {
     alignment = std::max(alignment, sizeof(Element)); // we need to be a multiple of sizeof(value_type)
-    elementAlignment = alignment / sizeof(Element);
+    elementAlignment = static_cast<Element::Index>(alignment / sizeof(Element));
 
     blockAlignment = std::max(alignment, alignof(std::max_align_t));
     blockAlignment = std::max(blockAlignment, size_t{16});
@@ -69,12 +69,13 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
     memory = static_cast<Element*>(operator new (blockSize, std::align_val_t{blockAlignment}));
     memoryEnd = memory + blockSize / sizeof(Element);
-    capacity = blockSize / alignment;
+    capacity = static_cast<Element::Index>(blockSize / alignment);
     firstSlot = static_cast<Element::Index>(((1 + elementAlignment) / elementAlignment) * elementAlignment - 1);
 
-    size_t max_slot_size = (1 << 15);
+    Element::Index max_slot_size = (1 << 15);
 
     // // vsg::debug("    capacity = ", capacity, ", max_slot_size = ", max_slot_size);
+
 
     // set up the free tracking to encompass the whole buffer
     // start at element before the first aligned element so that position 0 can be used to mark beginning or end of free lists
@@ -87,12 +88,12 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     // mark the first element as 0.
     memory[0].index = 0;
 
-    size_t previous_position = 0; // 0 marks the beginning of the free list
-    size_t position = firstSlot;
+    Element::Index previous_position = 0; // 0 marks the beginning of the free list
+    Element::Index position = firstSlot;
     for (; position < capacity;)
     {
-        size_t aligned_start = ((position + max_slot_size) / elementAlignment) * elementAlignment;
-        size_t next_position = std::min(aligned_start - 1, capacity);
+        Element::Index aligned_start = ((position + max_slot_size) / elementAlignment) * elementAlignment;
+        Element::Index next_position = std::min(aligned_start - 1, capacity);
 
         memory[position] = Element{(previous_position == 0) ? 0 : (position - previous_position), next_position - position, 1};
         memory[position + 1].index = static_cast<Element::Index>(previous_position);
