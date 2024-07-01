@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/core/Exception.h>
+#include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -55,7 +55,6 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     Element::Index max_slot_size = (1 << 15);
 
     // // vsg::debug("    capacity = ", capacity, ", max_slot_size = ", max_slot_size);
-
 
     // set up the free tracking to encompass the whole buffer
     // start at element before the first aligned element so that position 0 can be used to mark beginning or end of free lists
@@ -540,7 +539,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     out << "    blockAlignment = " << blockAlignment << std::endl;
     out << "    blockSize = " << blockSize << ", memory = " << static_cast<void*>(memory) << std::endl;
     out << "    maximumAllocationSize = " << maximumAllocationSize << std::endl;
-    out << "    firstSlot = "<< firstSlot<<std::endl;
+    out << "    firstSlot = " << firstSlot << std::endl;
     out << "    totalAvailableSize = " << totalAvailableSize() << std::endl;
     out << "    totalReservedSize = " << totalReservedSize() << std::endl;
 
@@ -792,7 +791,7 @@ size_t IntrusiveAllocator::MemoryBlocks::deleteEmptyMemoryBlocks()
 {
     size_t count = 0;
     decltype(memoryBlocks) remainingBlocks;
-    for(auto& memoryBlock : memoryBlocks)
+    for (auto& memoryBlock : memoryBlocks)
     {
         if (memoryBlock->totalReservedSize() == 0)
         {
@@ -811,7 +810,7 @@ size_t IntrusiveAllocator::MemoryBlocks::deleteEmptyMemoryBlocks()
 size_t IntrusiveAllocator::MemoryBlocks::totalAvailableSize() const
 {
     size_t count = 0;
-    for(auto& memoryBlock : memoryBlocks)
+    for (auto& memoryBlock : memoryBlocks)
     {
         count += memoryBlock->totalAvailableSize();
     }
@@ -821,7 +820,7 @@ size_t IntrusiveAllocator::MemoryBlocks::totalAvailableSize() const
 size_t IntrusiveAllocator::MemoryBlocks::totalReservedSize() const
 {
     size_t count = 0;
-    for(auto& memoryBlock : memoryBlocks)
+    for (auto& memoryBlock : memoryBlocks)
     {
         count += memoryBlock->totalReservedSize();
     }
@@ -831,7 +830,7 @@ size_t IntrusiveAllocator::MemoryBlocks::totalReservedSize() const
 size_t IntrusiveAllocator::MemoryBlocks::totalMemorySize() const
 {
     size_t count = 0;
-    for(auto& memoryBlock : memoryBlocks)
+    for (auto& memoryBlock : memoryBlocks)
     {
         count += memoryBlock->totalMemorySize();
     }
@@ -1004,7 +1003,7 @@ bool IntrusiveAllocator::validate() const
 size_t IntrusiveAllocator::deleteEmptyMemoryBlocks()
 {
     size_t count = 0;
-    for(auto& blocks : allocatorMemoryBlocks)
+    for (auto& blocks : allocatorMemoryBlocks)
     {
         count += blocks->deleteEmptyMemoryBlocks();
     }
@@ -1014,7 +1013,7 @@ size_t IntrusiveAllocator::deleteEmptyMemoryBlocks()
 size_t IntrusiveAllocator::totalAvailableSize() const
 {
     size_t count = 0;
-    for(auto& blocks : allocatorMemoryBlocks)
+    for (auto& blocks : allocatorMemoryBlocks)
     {
         count += blocks->totalAvailableSize();
     }
@@ -1024,7 +1023,7 @@ size_t IntrusiveAllocator::totalAvailableSize() const
 size_t IntrusiveAllocator::totalReservedSize() const
 {
     size_t count = 0;
-    for(auto& blocks : allocatorMemoryBlocks)
+    for (auto& blocks : allocatorMemoryBlocks)
     {
         count += blocks->totalReservedSize();
     }
@@ -1034,7 +1033,7 @@ size_t IntrusiveAllocator::totalReservedSize() const
 size_t IntrusiveAllocator::totalMemorySize() const
 {
     size_t count = 0;
-    for(auto& blocks : allocatorMemoryBlocks)
+    for (auto& blocks : allocatorMemoryBlocks)
     {
         count += blocks->totalMemorySize();
     }

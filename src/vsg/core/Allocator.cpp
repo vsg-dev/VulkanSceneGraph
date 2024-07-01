@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/core/Exception.h>
+#include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>

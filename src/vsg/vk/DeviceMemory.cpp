@@ -28,7 +28,7 @@ DeviceMemoryList vsg::getActiveDeviceMemoryList(VkMemoryPropertyFlagBits propert
 {
     std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
     DeviceMemoryList dml;
-    for(auto& dm : s_DeviceMemoryList)
+    for (auto& dm : s_DeviceMemoryList)
     {
         auto dm_ref_ptr = dm.ref_ptr();
         if ((dm_ref_ptr->getMemoryPropertyFlags() & propertyFlags) != 0)
@@ -191,4 +191,3 @@ size_t DeviceMemory::totalMemorySize() const
 {
     return _memorySlots.totalMemorySize();
 }
-

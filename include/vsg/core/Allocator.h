@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Object.h>
 
-#include <mutex>
 #include <memory>
+#include <mutex>
 
 namespace vsg
 {
@@ -129,6 +129,5 @@ namespace vsg
     using allocator_affinity_nodes = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_NODES>;
     template<typename T>
     using allocator_affinity_physics = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_PHYSICS>;
-
 
 } // namespace vsg
