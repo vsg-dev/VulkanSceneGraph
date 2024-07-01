@@ -176,7 +176,7 @@ namespace vsg
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) override;
 
     protected:
-        struct MemoryBlock
+        struct VSG_DECLSPEC MemoryBlock
         {
             MemoryBlock(const std::string& in_name, size_t in_blockSize, size_t in_alignment);
             virtual ~MemoryBlock();
@@ -248,7 +248,7 @@ namespace vsg
             size_t totalReservedSize() const;
             size_t totalMemorySize() const;
 
-            struct SlotTester
+            struct VSG_DECLSPEC SlotTester
             {
                 SlotTester(Element* in_mem, size_t in_head) :
                     mem(in_mem), head(in_head){};
@@ -278,7 +278,7 @@ namespace vsg
             }
         };
 
-        class MemoryBlocks
+        class VSG_DECLSPEC MemoryBlocks
         {
         public:
             MemoryBlocks(IntrusiveAllocator* in_parent, const std::string& in_name, size_t in_blockSize, size_t in_alignment);
