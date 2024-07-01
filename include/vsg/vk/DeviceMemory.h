@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Array.h>
+#include <vsg/core/MemorySlots.h>
 #include <vsg/vk/Device.h>
 
 #include <map>
