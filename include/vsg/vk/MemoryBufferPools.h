@@ -54,5 +54,6 @@ namespace vsg
         using BufferPools = std::vector<ref_ptr<Buffer>>;
         BufferPools bufferPools;
     };
+    VSG_type_name(vsg::MemoryBufferPools);
 
 } // namespace vsg

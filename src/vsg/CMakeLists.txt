@@ -11,6 +11,7 @@ endif()
 set(SOURCES
 
     core/Allocator.cpp
+    core/IntrusiveAllocator.cpp
     core/Auxiliary.cpp
     core/ConstVisitor.cpp
     core/Data.cpp

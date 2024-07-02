@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Array.h>
+#include <vsg/core/MemorySlots.h>
 #include <vsg/vk/Device.h>
 
 #include <map>
@@ -49,6 +50,7 @@ namespace vsg
         VkDeviceSize maximumAvailableSpace() const;
         size_t totalAvailableSize() const;
         size_t totalReservedSize() const;
+        size_t totalMemorySize() const;
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
@@ -65,6 +67,9 @@ namespace vsg
         MemorySlots _memorySlots;
     };
     VSG_type_name(vsg::DeviceMemory);
+
+    using DeviceMemoryList = std::list<ref_ptr<DeviceMemory>>;
+    extern VSG_DECLSPEC DeviceMemoryList getActiveDeviceMemoryList(VkMemoryPropertyFlagBits propertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     template<class T>
     class MappedData : public T

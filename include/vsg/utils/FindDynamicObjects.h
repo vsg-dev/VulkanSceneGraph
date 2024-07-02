@@ -24,7 +24,6 @@ namespace vsg
     class VSG_DECLSPEC FindDynamicObjects : public Inherit<ConstVisitor, FindDynamicObjects>
     {
     public:
-
         std::mutex mutex;
         std::set<const Object*> dynamicObjects;
 
