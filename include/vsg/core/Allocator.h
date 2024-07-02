@@ -12,8 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Object.h>
+#include <vsg/core/Export.h>
 
+#include <map>
 #include <memory>
 #include <mutex>
 

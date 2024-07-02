@@ -94,7 +94,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     {
         std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
         s_DeviceMemoryList.emplace_back(this);
-        vsg::info("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+        vsg::debug("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
     }
 }
 
@@ -115,7 +115,7 @@ DeviceMemory::~DeviceMemory()
         if (itr != s_DeviceMemoryList.end())
         {
             s_DeviceMemoryList.erase(itr);
-            vsg::info("DeviceMemory::~DeviceMemory() removed from s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+            vsg::debug("DeviceMemory::~DeviceMemory() removed from s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
         }
         else
         {
