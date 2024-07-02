@@ -380,12 +380,12 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
                 if (freeList.head == N)
                 {
                     freeList.head = P;
-                    memory[P + 1] = 0;
+                    memory[P + 1].index = 0;
                 }
                 else
                 {
                     memory[P + 1].index = NPF;
-                    if (NPF != 0) memory[NPF + 2] = P;
+                    if (NPF != 0) memory[NPF + 2].index = P;
                 }
             }
             else // P and N aren't directly connected within the freeList
@@ -474,7 +474,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
 
             if (freeList.head != 0)
             {
-                memory[freeList.head + 1] = C; // set previous heads previousFree to C.
+                memory[freeList.head + 1].index = C; // set previous heads previousFree to C.
             }
 
             // set the head to C.

@@ -95,7 +95,7 @@ namespace vsg
                 using Status = decltype(status);
                 using Index = decltype(index);
 
-                Element(size_t in_index) :
+                explicit Element(size_t in_index) :
                     index(static_cast<Offset>(in_index)) {}
 
                 Element(size_t in_previous, size_t in_next, unsigned int in_status) :
@@ -130,7 +130,7 @@ namespace vsg
 
             bool freeSlotsAvaible(size_t size) const;
 
-            inline bool within(void* ptr) const { return memory <= ptr && ptr < memoryEnd; }
+            inline bool within(const void* ptr) const { return memory <= ptr && ptr < memoryEnd; }
 
             size_t totalAvailableSize() const;
             size_t totalReservedSize() const;
