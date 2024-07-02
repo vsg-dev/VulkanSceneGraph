@@ -95,10 +95,10 @@ namespace vsg
                 using Status = decltype(status);
                 using Index = decltype(index);
 
-                explicit Element(size_t in_index) :
+                explicit Element(Index in_index) :
                     index(static_cast<Offset>(in_index)) {}
 
-                Element(size_t in_previous, size_t in_next, unsigned int in_status) :
+                Element(Offset in_previous, Offset in_next, Status in_status) :
                     previous(static_cast<Offset>(in_previous)),
                     next(static_cast<Offset>(in_next)),
                     status(in_status) {}
@@ -136,6 +136,7 @@ namespace vsg
             size_t totalReservedSize() const;
             size_t totalMemorySize() const;
 
+            // used for debugging only.
             struct VSG_DECLSPEC SlotTester
             {
                 SlotTester(Element* in_mem, size_t in_head) :
