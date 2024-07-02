@@ -48,6 +48,7 @@ useStlAlgorithm:*/src/vsg/vk/Instance.cpp
 useStlAlgorithm:*/src/vsg/vk/RenderPass.cpp
 useStlAlgorithm:*/src/vsg/core/Allocator.cpp
 useStlAlgorithm:*/src/vsg/core/MemorySlots.cpp
+useStlAlgorithm:*/src/vsg/core/IntrusiveAllocator.cpp
 useStlAlgorithm:*/src/vsg/state/ArrayState.cpp
 useStlAlgorithm:*/src/vsg/app/CompileTraversal.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
@@ -74,6 +75,7 @@ syntaxError:*include/vsg/core/Data.h:51
 unusedStructMember:*include/vsg/core/Data.h
 unusedStructMember:*include/vsg/core/Exception.h
 unusedStructMember:*include/vsg/core/Version.h
+unusedStructMember:*include/vsg/core/IntrusiveAllocator.h
 unusedStructMember:*include/vsg/io/ObjectCache.h
 unusedStructMember:*include/vsg/nodes/Bin.h
 unusedStructMember:*include/vsg/nodes/LOD.h
@@ -145,6 +147,8 @@ returnTempReference:*/include/vsg/core/Inherit.h
 variableScope:*/include/vsg/utils/SharedObjects.h
 variableScope:*/src/vsg/utils/SharedObjects.cpp
 variableScope:*/src/vsg/app/CompileManager.cpp
+variableScope:*/src/vsg/core/IntrusiveAllocator.cpp
 
 // suppress really stupid warning of pointerLessThanZero
 pointerLessThanZero:*/src/vsg/app/Viewer.cpp
+
