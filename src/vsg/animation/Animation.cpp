@@ -136,17 +136,18 @@ bool Animation::update(double simulationTime)
         return x < 0.0 ? y + std::fmod(x, y) : std::fmod(x, y);
     };
 
-    time = time + (simulationTime - _previousSimulationTime) * speed;
+    auto samplerTime = time = time + (simulationTime - _previousSimulationTime) * speed;
+
     _previousSimulationTime = simulationTime;
 
     if (mode == REPEAT)
     {
-        time = time_within_period(time, _maxTime);
+        samplerTime = time = time_within_period(time, _maxTime);
     }
     else if (mode == FORWARD_AND_BACK)
     {
-        time = time_within_period(time, 2.0 * _maxTime);
-        if (time > _maxTime) time = 2.0 * _maxTime - time;
+        samplerTime = time = time_within_period(time, 2.0 * _maxTime);
+        if (time > _maxTime) samplerTime = 2.0 * _maxTime - time;
     }
     else
     {
@@ -159,7 +160,7 @@ bool Animation::update(double simulationTime)
 
     for (auto sampler : samplers)
     {
-        sampler->update(time);
+        sampler->update(samplerTime);
     }
 
     return true;
