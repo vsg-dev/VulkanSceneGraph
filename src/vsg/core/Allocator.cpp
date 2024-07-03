@@ -22,9 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-static std::unique_ptr<Allocator> s_allocator(new IntrusiveAllocator());
 std::unique_ptr<Allocator>& Allocator::instance()
 {
+    static std::unique_ptr<Allocator> s_allocator(new IntrusiveAllocator());
     return s_allocator;
 }
 
