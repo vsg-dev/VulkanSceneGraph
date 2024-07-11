@@ -23,7 +23,7 @@ DescriptorPools::DescriptorPools(ref_ptr<Device> in_device, const ResourceRequir
 {
     vsg::info("DescriptorPools::DescriptorPools() ", this);
 
-    minimum_maxSets = in_resourceRequirements.computeNumDescriptorSets();
+    minimum_maxSets = std::max(1u, in_resourceRequirements.computeNumDescriptorSets());
     minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
 
     vsg::info("    minimum_maxSets = ", minimum_maxSets);
@@ -38,16 +38,12 @@ DescriptorPools::~DescriptorPools()
 
 void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
 {
-    vsg::info("descriptorPools::getDescriptorPoolSizesToUse(", maxSets, ", ", descriptorPoolSizes.size(), ") in ");
+    vsg::info("DescriptorPools::getDescriptorPoolSizesToUse(", maxSets, ", ", descriptorPoolSizes.size(), ") in ");
 
     if (minimum_maxSets > maxSets)
     {
         maxSets = minimum_maxSets;
     }
-
-#if ROLAND_HILL_FIX
-    maxSets = std::max(1u, maxSets);
-#endif
 
     for (auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
     {
@@ -65,6 +61,12 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
         {
             descriptorPoolSizes.push_back(VkDescriptorPoolSize{minimum_type, minimum_descriptorCount});
         }
+    }
+
+    vsg::info("    maxSets = ", maxSets);
+    for(const auto& dps : descriptorPoolSizes)
+    {
+        vsg::info("    { ", dps.type, ", ", dps.descriptorCount, " }");
     }
 }
 
@@ -107,32 +109,30 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
             required_descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, adjustedDescriptorCount});
     }
 
-    if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
+    // check if all the requirements have been met by exisiting availability
+    if (required_maxSets==0 && required_descriptorPoolSizes.empty())
     {
-        getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
-#if ROLAND_HILL_FIX
-        if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
-#else
-        if (required_maxSets > 0 && !required_descriptorPoolSizes.empty())
-#endif
-        {
-            descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
-        }
-        else
-        {
-            warn("Context::reserve(const ResourceRequirements& requirements) invalid combination of required_maxSets (", required_maxSets, ") & required_descriptorPoolSizes (", required_descriptorPoolSizes.size(), ") unable to allocate DescriptorPool.");
-        }
+        vsg::info("DescriptorPools::reserve(const ResourceRequirements& requirements) enought resource in existing DescriptorPools");
+        return;
     }
+
+    // not enough descriptor resources available so allocator new DescriptorPool.
+    getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
+    descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
 }
 
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
+    vsg::info("DescriptorPools::allocateDescriptorSet( ", descriptorSetLayout, " ) ", this, ", descriptorPools.size() = ", descriptorPools.size());
     for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
     {
         auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
+        vsg::info("    DescriptorPool::allocateDescriptorSet( ", descriptorSetLayout, " ) dsi = ", dsi);
         if (dsi) return dsi;
     }
+
+    vsg::info("    Falling back to creating new DescriptorPool");
 
     DescriptorPoolSizes descriptorPoolSizes;
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);

@@ -29,16 +29,15 @@ namespace vsg
         DescriptorPoolSizes minimum_descriptorPoolSizes;
         std::list<ref_ptr<DescriptorPool>> descriptorPools;
 
-        /// get the maxSets and descriptorPoolSizes to use
-        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
-
         void reserve(const ResourceRequirements& requirements);
 
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
-
     protected:
         virtual ~DescriptorPools();
+
+        /// get the maxSets and descriptorPoolSizes to use
+        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
     };
     VSG_type_name(vsg::DescriptorPools);
 

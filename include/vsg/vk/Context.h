@@ -90,8 +90,6 @@ namespace vsg
         /// reserve resources that may be needed during compile traversal.
         void reserve(const ResourceRequirements& requirements);
 
-        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
-
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         // used by GraphicsPipeline.cpp

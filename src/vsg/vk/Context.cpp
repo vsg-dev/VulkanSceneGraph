@@ -98,9 +98,6 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     vsg::info("Context::Context() ", this);
 
     deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
-    stagingMemoryBufferPools = device->stagingMemoryBufferPools.ref_ptr();
-    descriptorPools = device->descriptorPools.ref_ptr();
-
     if (!deviceMemoryBufferPools)
     {
         device->deviceMemoryBufferPools = deviceMemoryBufferPools = MemoryBufferPools::create("Device_MemoryBufferPool", device, in_resourceRequirements);
@@ -111,6 +108,7 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
         vsg::debug("Context::Context() reusing deviceMemoryBufferPools = ", deviceMemoryBufferPools);
     }
 
+    stagingMemoryBufferPools = device->stagingMemoryBufferPools.ref_ptr();
     if (!stagingMemoryBufferPools)
     {
         device->stagingMemoryBufferPools = stagingMemoryBufferPools = MemoryBufferPools::create("Staging_MemoryBufferPool", device, in_resourceRequirements);
@@ -121,6 +119,7 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
         vsg::debug("Context::Context() reusing stagingMemoryBufferPools = ", stagingMemoryBufferPools);
     }
 
+    descriptorPools = device->descriptorPools.ref_ptr();
     if (!descriptorPools)
     {
         device->descriptorPools = descriptorPools = DescriptorPools::create(device, in_resourceRequirements);
@@ -195,11 +194,6 @@ void Context::reserve(const ResourceRequirements& requirements)
     }
 
     descriptorPools->reserve(requirements);
-}
-
-void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
-{
-    return descriptorPools->getDescriptorPoolSizesToUse(maxSets, descriptorPoolSizes);
 }
 
 ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
