@@ -21,6 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+static size_t s_numDescriptorPools = 0;
+
 DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes) :
     _device(device),
     _availableDescriptorSet(maxSets),
@@ -38,6 +40,13 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const Descripto
     {
         throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
+
+    ++s_numDescriptorPools;
+    vsg::info("DescriptorPool::DescriptorPool( ", this, ", maxSets = ", maxSets, ", descriptorPoolSizes.size() = ", descriptorPoolSizes.size(), " ) s_numDescriptorPools = ", s_numDescriptorPools);
+    for(const auto& dps : descriptorPoolSizes)
+    {
+        vsg::info("    { ", dps.type, ", ", dps.descriptorCount, " }");
+    }
 }
 
 DescriptorPool::~DescriptorPool()
@@ -46,6 +55,9 @@ DescriptorPool::~DescriptorPool()
     {
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
+
+    --s_numDescriptorPools;
+    vsg::info("DescriptorPool::~DescriptorPool( ", this, " ) s_numDescriptorPools = ", s_numDescriptorPools);
 }
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
@@ -57,6 +69,18 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         return {};
     }
 
+    // debug code
+    {
+        vsg::info("DescriptorPool::allocateDescriptorSet( ", descriptorSetLayout, ") ");
+
+        DescriptorPoolSizes descriptorPoolSizes;
+        descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+        for(const auto& dps : descriptorPoolSizes)
+        {
+            vsg::info("    { ", dps.type, ", ", dps.descriptorCount, " }");
+        }
+    }
+
     for (auto itr = _recyclingList.begin(); itr != _recyclingList.end(); ++itr)
     {
         auto dsi = *itr;
@@ -65,14 +89,14 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
             dsi->_descriptorPool = this;
             _recyclingList.erase(itr);
             --_availableDescriptorSet;
-            // debug("DescriptorPool::allocateDescriptorSet(..) reusing ", dsi)   ;
+            vsg::info("DescriptorPool::allocateDescriptorSet(..) reusing ", dsi)   ;
             return dsi;
         }
     }
 
     if (_availableDescriptorSet == _recyclingList.size())
     {
-        //debug("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
+        vsg::info("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};
     }
 
@@ -102,7 +126,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     --_availableDescriptorSet;
 
     auto dsi = DescriptorSet::Implementation::create(this, descriptorSetLayout);
-    //debug("DescriptorPool::allocateDescriptorSet(..) allocated ", dsi);
+    vsg::info("DescriptorPool::allocateDescriptorSet(..) allocated new ", dsi);
     return dsi;
 }
 

@@ -86,17 +86,13 @@ namespace vsg
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
-        uint32_t minimum_maxSets = 0;
-        DescriptorPoolSizes minimum_descriptorPoolSizes;
-
-        /// get the maxSets and descriptorPoolSizes to use
-        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
-
-        /// allocate or reuse a DescriptorSet::Implementation from the available DescriptorPool
-        ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         /// reserve resources that may be needed during compile traversal.
         void reserve(const ResourceRequirements& requirements);
+
+        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
+
+        ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
@@ -114,7 +110,7 @@ namespace vsg
         GraphicsPipelineStates overridePipelineStates;
 
         // DescriptorPool
-        std::list<ref_ptr<DescriptorPool>> descriptorPools;
+        ref_ptr<DescriptorPools> descriptorPools;
 
         // ShaderCompiler
         ref_ptr<ShaderCompiler> shaderCompiler;

@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
@@ -94,11 +95,11 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     //semaphore = vsg::Semaphore::create(device);
     scratchMemory = ScratchMemory::create(4096);
 
-    minimum_maxSets = in_resourceRequirements.computeNumDescriptorSets();
-    minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
+    vsg::info("Context::Context() ", this);
 
     deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
     stagingMemoryBufferPools = device->stagingMemoryBufferPools.ref_ptr();
+    descriptorPools = device->descriptorPools.ref_ptr();
 
     if (!deviceMemoryBufferPools)
     {
@@ -119,6 +120,16 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     {
         vsg::debug("Context::Context() reusing stagingMemoryBufferPools = ", stagingMemoryBufferPools);
     }
+
+    if (!descriptorPools)
+    {
+        device->descriptorPools = descriptorPools = DescriptorPools::create(device, in_resourceRequirements);
+        vsg::info("Context::Context() creating new descriptorPools = ", descriptorPools);
+    }
+    else
+    {
+        vsg::info("Context::Context() reusing descriptorPools = ", descriptorPools);
+    }
 }
 
 Context::Context(const Context& context) :
@@ -129,8 +140,6 @@ Context::Context(const Context& context) :
     viewID(context.viewID),
     mask(context.mask),
     viewDependentState(context.viewDependentState),
-    minimum_maxSets(context.minimum_maxSets),
-    minimum_descriptorPoolSizes(context.minimum_descriptorPoolSizes),
     renderPass(context.renderPass),
     defaultPipelineStates(context.defaultPipelineStates),
     overridePipelineStates(context.overridePipelineStates),
@@ -176,57 +185,6 @@ ShaderCompiler* Context::getOrCreateShaderCompiler()
     return shaderCompiler;
 }
 
-void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
-{
-    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context getDescriptorPoolSizesToUse", COLOR_COMPILE)
-
-    if (minimum_maxSets > maxSets)
-    {
-        maxSets = minimum_maxSets;
-    }
-
-    for (auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
-    {
-        auto itr = descriptorPoolSizes.begin();
-        for (; itr != descriptorPoolSizes.end(); ++itr)
-        {
-            if (itr->type == minimum_type)
-            {
-                if (minimum_descriptorCount > itr->descriptorCount)
-                    itr->descriptorCount = minimum_descriptorCount;
-                break;
-            }
-        }
-        if (itr == descriptorPoolSizes.end())
-        {
-            descriptorPoolSizes.push_back(VkDescriptorPoolSize{minimum_type, minimum_descriptorCount});
-        }
-    }
-}
-
-ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
-{
-    CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context allocateDescriptorSet", COLOR_COMPILE)
-
-    for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
-    {
-        auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
-        if (dsi) return dsi;
-    }
-
-    DescriptorPoolSizes descriptorPoolSizes;
-    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
-
-    uint32_t maxSets = 1;
-    getDescriptorPoolSizesToUse(maxSets, descriptorPoolSizes);
-
-    auto descriptorPool = vsg::DescriptorPool::create(device, maxSets, descriptorPoolSizes);
-    auto dsi = descriptorPool->allocateDescriptorSet(descriptorSetLayout);
-
-    descriptorPools.push_back(descriptorPool);
-    return dsi;
-}
-
 void Context::reserve(const ResourceRequirements& requirements)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context reserve", COLOR_COMPILE)
@@ -236,55 +194,17 @@ void Context::reserve(const ResourceRequirements& requirements)
         resourceRequirements.maxSlot = requirements.maxSlot;
     }
 
-    auto maxSets = requirements.computeNumDescriptorSets();
-    auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
+    descriptorPools->reserve(requirements);
+}
 
-    uint32_t available_maxSets = 0;
-    DescriptorPoolSizes available_descriptorPoolSizes;
-    for (auto& descriptorPool : descriptorPools)
-    {
-        descriptorPool->getAvailability(available_maxSets, available_descriptorPoolSizes);
-    }
+void Context::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
+{
+    return descriptorPools->getDescriptorPoolSizesToUse(maxSets, descriptorPoolSizes);
+}
 
-    auto required_maxSets = maxSets;
-    if (available_maxSets < required_maxSets)
-        required_maxSets -= available_maxSets;
-    else
-        required_maxSets = 0;
-
-    DescriptorPoolSizes required_descriptorPoolSizes;
-    for (const auto& [type, descriptorCount] : descriptorPoolSizes)
-    {
-        uint32_t adjustedDescriptorCount = descriptorCount;
-        for (auto itr = available_descriptorPoolSizes.begin(); itr != available_descriptorPoolSizes.end(); ++itr)
-        {
-            if (itr->type == type)
-            {
-                if (itr->descriptorCount < adjustedDescriptorCount)
-                    adjustedDescriptorCount -= itr->descriptorCount;
-                else
-                {
-                    adjustedDescriptorCount = 0;
-                    break;
-                }
-            }
-        }
-        if (adjustedDescriptorCount > 0)
-            required_descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, adjustedDescriptorCount});
-    }
-
-    if (required_maxSets > 0 || !required_descriptorPoolSizes.empty())
-    {
-        getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
-        if (required_maxSets > 0 && !required_descriptorPoolSizes.empty())
-        {
-            descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
-        }
-        else
-        {
-            warn("Context::reserve(const ResourceRequirements& requirements) invalid combination of required_maxSets (", required_maxSets, ") & required_descriptorPoolSizes (", required_descriptorPoolSizes.size(), ") unable to allocate DescriptorPool.");
-        }
-    }
+ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
+{
+     return descriptorPools->allocateDescriptorSet(descriptorSetLayout);
 }
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
