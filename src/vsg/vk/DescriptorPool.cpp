@@ -86,6 +86,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         auto dsi = *itr;
         if (dsi->_descriptorSetLayout.get() == descriptorSetLayout || compare_value_container(dsi->_descriptorSetLayout->bindings, descriptorSetLayout->bindings) == 0)
         {
+            // swap ownership so that DescriptorSet::Implementation now "has a" reference to this DescriptorPool
             dsi->_descriptorPool = this;
             _recyclingList.erase(itr);
             --_availableDescriptorSet;
@@ -132,12 +133,10 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
-    {
-        std::scoped_lock<std::mutex> lock(mutex);
-        _recyclingList.push_back(dsi);
-        ++_availableDescriptorSet;
-    }
-
+    // swap ownership so that DescriptorSet::Implementation' reference is reset to null and while this DescriptorPool takes a refernece to it.
+    std::scoped_lock<std::mutex> lock(mutex);
+    _recyclingList.push_back(dsi);
+    ++_availableDescriptorSet;
     dsi->_descriptorPool = {};
 }
 
