@@ -107,7 +107,7 @@ namespace vsg
         // the scene graph .
         GraphicsPipelineStates overridePipelineStates;
 
-        // DescriptorPool
+        // DescriptorPools
         ref_ptr<DescriptorPools> descriptorPools;
 
         // ShaderCompiler
