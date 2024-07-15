@@ -153,48 +153,48 @@ bool DescriptorPool::getAvailability(uint32_t& maxSets, DescriptorPoolSizes& des
 
 void DescriptorPool::report(std::ostream& out, indentation indent) const
 {
-    out<<indent<<"DescriptorPool "<<this<<" {"<<std::endl;
+    out << indent << "DescriptorPool " << this << " {" << std::endl;
     indent += 4;
 
-    out<<indent<<"maxSets = "<<maxSets<<std::endl;
-    out<<indent<<"descriptorPoolSizes = "<<descriptorPoolSizes.size()<<" {"<<std::endl;
+    out << indent << "maxSets = " << maxSets << std::endl;
+    out << indent << "descriptorPoolSizes = " << descriptorPoolSizes.size() << " {" << std::endl;
     indent += 4;
-    for(auto& dps : descriptorPoolSizes)
+    for (auto& dps : descriptorPoolSizes)
     {
-        out<<indent<<"VkDescriptorPoolSize { "<<dps.type<<", "<<dps.descriptorCount<<" }"<<std::endl;
+        out << indent << "VkDescriptorPoolSize { " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
     }
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 
-    out<<indent<<"_availableDescriptorSet = "<<_availableDescriptorSet<<std::endl;
-    out<<indent<<"_availableDescriptorPoolSizes = "<<_availableDescriptorPoolSizes.size()<<" {"<<std::endl;
+    out << indent << "_availableDescriptorSet = " << _availableDescriptorSet << std::endl;
+    out << indent << "_availableDescriptorPoolSizes = " << _availableDescriptorPoolSizes.size() << " {" << std::endl;
     indent += 4;
-    for(auto& dps : _availableDescriptorPoolSizes)
+    for (auto& dps : _availableDescriptorPoolSizes)
     {
-        out<<indent<<"VkDescriptorPoolSize { "<<dps.type<<", "<<dps.descriptorCount<<" }"<<std::endl;
+        out << indent << "VkDescriptorPoolSize { " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
     }
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 
-    out<<indent<<"_recyclingList "<<_recyclingList.size()<<" {"<<std::endl;
+    out << indent << "_recyclingList " << _recyclingList.size() << " {" << std::endl;
     indent += 4;
-    for(auto& dsi : _recyclingList)
+    for (auto& dsi : _recyclingList)
     {
-        out<<indent<<"DescriptorSet::Implementation "<< dsi<<", descriptorSetLayout =  "<<dsi->_descriptorSetLayout<<" {"<<std::endl;
+        out << indent << "DescriptorSet::Implementation " << dsi << ", descriptorSetLayout =  " << dsi->_descriptorSetLayout << " {" << std::endl;
         indent += 4;
         if (dsi->_descriptorSetLayout)
         {
-            for(auto& binding : dsi->_descriptorSetLayout->bindings)
+            for (auto& binding : dsi->_descriptorSetLayout->bindings)
             {
-                out<<indent<<"VkDescriptorSetLayoutBinding { "<<binding.binding<<", "<<binding.descriptorType<<", "<<binding.stageFlags<<", "<<binding.pImmutableSamplers<<" }"<<std::endl;
+                out << indent << "VkDescriptorSetLayoutBinding { " << binding.binding << ", " << binding.descriptorType << ", " << binding.stageFlags << ", " << binding.pImmutableSamplers << " }" << std::endl;
             }
         }
         indent -= 4;
-        out<<indent<<" }"<<std::endl;
+        out << indent << " }" << std::endl;
     }
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 }

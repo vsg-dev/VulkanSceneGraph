@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/state/DescriptorSet.h>
 #include <vsg/io/stream.h>
+#include <vsg/state/DescriptorSet.h>
 
 namespace vsg
 {

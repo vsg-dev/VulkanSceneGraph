@@ -24,8 +24,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/vk/CommandBuffer.h>
-#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/Context.h>
+#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
 
@@ -198,7 +198,7 @@ void Context::reserve(const ResourceRequirements& requirements)
 
 ref_ptr<DescriptorSet::Implementation> Context::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
-     return descriptorPools->allocateDescriptorSet(descriptorSetLayout);
+    return descriptorPools->allocateDescriptorSet(descriptorSetLayout);
 }
 
 void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)

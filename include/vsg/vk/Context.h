@@ -86,7 +86,6 @@ namespace vsg
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
-
         /// reserve resources that may be needed during compile traversal.
         void reserve(const ResourceRequirements& requirements);
 

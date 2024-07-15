@@ -30,7 +30,6 @@ DescriptorPools::~DescriptorPools()
     //report(std::cout);
 }
 
-
 void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
 {
     if (minimum_maxSets > maxSets)
@@ -97,7 +96,7 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
     }
 
     // check if all the requirements have been met by exisiting availability
-    if (required_maxSets==0 && required_descriptorPoolSizes.empty())
+    if (required_maxSets == 0 && required_descriptorPoolSizes.empty())
     {
         vsg::debug("DescriptorPools::reserve(const ResourceRequirements& requirements) enought resource in existing DescriptorPools");
         return;
@@ -107,7 +106,6 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
     getDescriptorPoolSizesToUse(required_maxSets, required_descriptorPoolSizes);
     descriptorPools.push_back(vsg::DescriptorPool::create(device, required_maxSets, required_descriptorPoolSizes));
 }
-
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
@@ -132,28 +130,28 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(De
 
 void DescriptorPools::report(std::ostream& out, indentation indent) const
 {
-    out<<"DescriptorPools::report(..) "<<this<<" {"<<std::endl;
+    out << "DescriptorPools::report(..) " << this << " {" << std::endl;
     indent += 4;
 
-    out<<indent<<"minimum_maxSets = "<<minimum_maxSets<<std::endl;
-    out<<indent<<"minimum_descriptorPoolSizes "<<minimum_descriptorPoolSizes.size()<<" {"<<std::endl;
+    out << indent << "minimum_maxSets = " << minimum_maxSets << std::endl;
+    out << indent << "minimum_descriptorPoolSizes " << minimum_descriptorPoolSizes.size() << " {" << std::endl;
     indent += 4;
-    for(auto& dps : minimum_descriptorPoolSizes)
+    for (auto& dps : minimum_descriptorPoolSizes)
     {
-        out<<indent<<"{ "<<dps.type<<", "<<dps.descriptorCount<<" }"<<std::endl;
+        out << indent << "{ " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
     }
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 
-    out<<indent<<"descriptorPools "<<descriptorPools.size()<<" {"<<std::endl;
+    out << indent << "descriptorPools " << descriptorPools.size() << " {" << std::endl;
     indent += 4;
-    for(auto& dp : descriptorPools)
+    for (auto& dp : descriptorPools)
     {
         dp->report(out, indent);
     }
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 
     indent -= 4;
-    out<<indent<<"}"<<std::endl;
+    out << indent << "}" << std::endl;
 }

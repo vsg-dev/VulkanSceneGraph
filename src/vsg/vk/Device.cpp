@@ -14,9 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/MemoryBufferPools.h>
-#include <vsg/vk/DescriptorPools.h>
 
 #include <cstring>
 #include <set>
