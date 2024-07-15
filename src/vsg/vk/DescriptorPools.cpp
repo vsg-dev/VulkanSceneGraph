@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define ROLAND_HILL_FIX 0
-
 DescriptorPools::DescriptorPools(ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements) :
     device(in_device)
 {
