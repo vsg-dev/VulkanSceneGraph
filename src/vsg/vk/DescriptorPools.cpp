@@ -14,30 +14,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/vk/DescriptorPools.h>
 
+#include <iostream>
+
 using namespace vsg;
 
 DescriptorPools::DescriptorPools(ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements) :
     device(in_device)
 {
-    vsg::info("DescriptorPools::DescriptorPools() ", this);
-
     minimum_maxSets = std::max(1u, in_resourceRequirements.computeNumDescriptorSets());
     minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
-
-    vsg::info("    minimum_maxSets = ", minimum_maxSets);
-    vsg::info("    minimum_descriptorPoolSizes.size() = ", minimum_descriptorPoolSizes.size());
 }
 
 DescriptorPools::~DescriptorPools()
 {
-    vsg::info("DescriptorPools::~DescriptorPools() ", this);
+    //report(std::cout);
 }
 
 
 void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
 {
-    vsg::info("DescriptorPools::getDescriptorPoolSizesToUse(", maxSets, ", ", descriptorPoolSizes.size(), ") in ");
-
     if (minimum_maxSets > maxSets)
     {
         maxSets = minimum_maxSets;
@@ -59,12 +54,6 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
         {
             descriptorPoolSizes.push_back(VkDescriptorPoolSize{minimum_type, minimum_descriptorCount});
         }
-    }
-
-    vsg::info("    maxSets = ", maxSets);
-    for(const auto& dps : descriptorPoolSizes)
-    {
-        vsg::info("    { ", dps.type, ", ", dps.descriptorCount, " }");
     }
 }
 
@@ -110,7 +99,7 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
     // check if all the requirements have been met by exisiting availability
     if (required_maxSets==0 && required_descriptorPoolSizes.empty())
     {
-        vsg::info("DescriptorPools::reserve(const ResourceRequirements& requirements) enought resource in existing DescriptorPools");
+        vsg::debug("DescriptorPools::reserve(const ResourceRequirements& requirements) enought resource in existing DescriptorPools");
         return;
     }
 
@@ -122,15 +111,11 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
 {
-    vsg::info("DescriptorPools::allocateDescriptorSet( ", descriptorSetLayout, " ) ", this, ", descriptorPools.size() = ", descriptorPools.size());
     for (auto itr = descriptorPools.rbegin(); itr != descriptorPools.rend(); ++itr)
     {
         auto dsi = (*itr)->allocateDescriptorSet(descriptorSetLayout);
-        vsg::info("    DescriptorPool::allocateDescriptorSet( ", descriptorSetLayout, " ) dsi = ", dsi);
         if (dsi) return dsi;
     }
-
-    vsg::info("    Falling back to creating new DescriptorPool");
 
     DescriptorPoolSizes descriptorPoolSizes;
     descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
@@ -145,4 +130,30 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(De
     return dsi;
 }
 
+void DescriptorPools::report(std::ostream& out, indentation indent) const
+{
+    out<<"DescriptorPools::report(..) "<<this<<" {"<<std::endl;
+    indent += 4;
 
+    out<<indent<<"minimum_maxSets = "<<minimum_maxSets<<std::endl;
+    out<<indent<<"minimum_descriptorPoolSizes "<<minimum_descriptorPoolSizes.size()<<" {"<<std::endl;
+    indent += 4;
+    for(auto& dps : minimum_descriptorPoolSizes)
+    {
+        out<<indent<<"{ "<<dps.type<<", "<<dps.descriptorCount<<" }"<<std::endl;
+    }
+    indent -= 4;
+    out<<indent<<"}"<<std::endl;
+
+    out<<indent<<"descriptorPools "<<descriptorPools.size()<<" {"<<std::endl;
+    indent += 4;
+    for(auto& dp : descriptorPools)
+    {
+        dp->report(out, indent);
+    }
+    indent -= 4;
+    out<<indent<<"}"<<std::endl;
+
+    indent -= 4;
+    out<<indent<<"}"<<std::endl;
+}

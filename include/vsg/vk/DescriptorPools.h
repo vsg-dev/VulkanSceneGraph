@@ -33,6 +33,8 @@ namespace vsg
 
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
+        void report(std::ostream& out, indentation indent = {}) const;
+
     protected:
         virtual ~DescriptorPools();
 

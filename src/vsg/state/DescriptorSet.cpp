@@ -19,8 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-static size_t s_numDescriptorSets = 0;
-
 DescriptorSet::DescriptorSet()
 {
 }
@@ -124,20 +122,15 @@ DescriptorSet::Implementation::Implementation(DescriptorPool* descriptorPool, De
     {
         throw Exception{"Error: Failed to create DescriptorSet.", result};
     }
-
-    ++s_numDescriptorSets;
-    vsg::info("DescriptorSet::Implementation::Implementation() ", this, ", descriptorPool = ", descriptorPool, " s_numDescriptorSets = ", s_numDescriptorSets);
 }
 
 DescriptorSet::Implementation::~Implementation()
 {
-    --s_numDescriptorSets;
     if (_descriptorPool && _descriptorSet)
     {
         std::scoped_lock<std::mutex> lock(_descriptorPool->mutex);
         vkFreeDescriptorSets(*(_descriptorPool->getDevice()), *_descriptorPool, 1, &_descriptorSet);
     }
-    vsg::info("DescriptorSet::Implementation::~Implementation() ", this, ", _descriptorPool = ", _descriptorPool, " s_numDescriptorSets = ", s_numDescriptorSets);
 }
 
 void DescriptorSet::Implementation::assign(Context& context, const Descriptors& in_descriptors)

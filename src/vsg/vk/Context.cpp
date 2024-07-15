@@ -95,7 +95,7 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     //semaphore = vsg::Semaphore::create(device);
     scratchMemory = ScratchMemory::create(4096);
 
-    vsg::info("Context::Context() ", this);
+    vsg::debug("Context::Context() ", this);
 
     deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
     if (!deviceMemoryBufferPools)
@@ -123,11 +123,11 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     if (!descriptorPools)
     {
         device->descriptorPools = descriptorPools = DescriptorPools::create(device, in_resourceRequirements);
-        vsg::info("Context::Context() creating new descriptorPools = ", descriptorPools);
+        vsg::debug("Context::Context() creating new descriptorPools = ", descriptorPools);
     }
     else
     {
-        vsg::info("Context::Context() reusing descriptorPools = ", descriptorPools);
+        vsg::debug("Context::Context() reusing descriptorPools = ", descriptorPools);
     }
 }
 

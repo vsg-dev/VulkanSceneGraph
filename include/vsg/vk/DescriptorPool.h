@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/state/DescriptorSet.h>
+#include <vsg/io/stream.h>
 
 namespace vsg
 {
@@ -21,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC DescriptorPool : public Inherit<Object, DescriptorPool>
     {
     public:
-        DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes);
+        DescriptorPool(Device* device, uint32_t in_maxSets, const DescriptorPoolSizes& in_descriptorPoolSizes);
 
         operator VkDescriptorPool() const { return _descriptorPool; }
         VkDescriptorPool vk() const { return _descriptorPool; }
@@ -37,6 +38,12 @@ namespace vsg
 
         /// get the stats of the available DescriptorSets/Descriptors
         bool getAvailability(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const;
+
+        /// write the internal details to stream.
+        void report(std::ostream& out, indentation indent = {}) const;
+
+        const uint32_t maxSets = 0;
+        const DescriptorPoolSizes descriptorPoolSizes;
 
         /// mutex used to ensure thread safe access of DescriptorPool resources.
         /// Locked automatically by allocateDescriptorSet(..), freeDescriptorSet(), getAvailability() and DescriptorSet:::Implementation
