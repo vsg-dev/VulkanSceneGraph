@@ -125,16 +125,16 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
 
     numSets += _availableDescriptorSet;
 
-    for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+    for (auto& dps : descriptorPoolSizes)
     {
-        if (availableCount > 0)
+        if (dps.descriptorCount > 0)
         {
             // increment any entries that are already in the descriptorPoolSizes vector
-            auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&availableType](const VkDescriptorPoolSize& value) { return value.type == availableType; });
+            auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
             if (itr != availableDescriptorPoolSizes.end())
-                itr->descriptorCount += availableCount;
+                itr->descriptorCount += dps.descriptorCount;
             else
-                availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+                availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{dps.type, dps.descriptorCount});
         }
     }
 
