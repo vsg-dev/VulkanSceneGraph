@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC DescriptorPools : public Inherit<Object, DescriptorPools>
     {
     public:
-        DescriptorPools(ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements = {});
+        explicit DescriptorPools(ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements = {});
 
         ref_ptr<Device> device;
         uint32_t minimum_maxSets = 0;
