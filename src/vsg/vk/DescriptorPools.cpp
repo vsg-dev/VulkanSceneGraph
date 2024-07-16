@@ -37,21 +37,21 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
         maxSets = minimum_maxSets;
     }
 
-    for (auto& [minimum_type, minimum_descriptorCount] : minimum_descriptorPoolSizes)
+    for (auto& [type, descriptorCount] : minimum_descriptorPoolSizes)
     {
         auto itr = descriptorPoolSizes.begin();
         for (; itr != descriptorPoolSizes.end(); ++itr)
         {
-            if (itr->type == minimum_type)
+            if (itr->type == type)
             {
-                if (minimum_descriptorCount > itr->descriptorCount)
-                    itr->descriptorCount = minimum_descriptorCount;
+                if (descriptorCount > itr->descriptorCount)
+                    itr->descriptorCount = descriptorCount;
                 break;
             }
         }
         if (itr == descriptorPoolSizes.end())
         {
-            descriptorPoolSizes.push_back(VkDescriptorPoolSize{minimum_type, minimum_descriptorCount});
+            descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, descriptorCount});
         }
     }
 }
@@ -130,7 +130,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(De
 
 void DescriptorPools::report(std::ostream& out, indentation indent) const
 {
-    auto print = [&out, &indent](std::string_view name, uint32_t numSets, const DescriptorPoolSizes& descriptorPoolSizes) {
+    auto print = [&out, &indent](const std::string_view& name, uint32_t numSets, const DescriptorPoolSizes& descriptorPoolSizes) {
         out << indent << name << " {" << std::endl;
         indent += 4;
         out << indent << "numSets " << numSets << std::endl;
