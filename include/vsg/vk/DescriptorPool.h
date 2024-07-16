@@ -37,7 +37,10 @@ namespace vsg
         void freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi);
 
         /// get the stats of the available DescriptorSets/Descriptors
-        bool getAvailability(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const;
+        bool available(uint32_t& numSets, DescriptorPoolSizes& descriptorPoolSizes) const;
+
+        /// compute the number of sets and descriptors used.
+        bool used(uint32_t& numSets, DescriptorPoolSizes& usedDescriptorPoolSizes) const;
 
         /// write the internal details to stream.
         void report(std::ostream& out, indentation indent = {}) const;

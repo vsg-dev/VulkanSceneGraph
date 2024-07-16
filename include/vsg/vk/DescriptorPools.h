@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Container for DescriptorPools.
     class VSG_DECLSPEC DescriptorPools : public Inherit<Object, DescriptorPools>
     {
     public:
@@ -29,11 +30,23 @@ namespace vsg
         DescriptorPoolSizes minimum_descriptorPoolSizes;
         std::list<ref_ptr<DescriptorPool>> descriptorPools;
 
+        /// check if there are enough Descriptorsets/Descrioptors, if not allocated a new DescriptorPool for these resources
         void reserve(const ResourceRequirements& requirements);
 
+        // allocate vkDescriptorSet
         ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
+        /// write the internal details to stream.
         void report(std::ostream& out, indentation indent = {}) const;
+
+        /// compute the number of sets and descriptors available.
+        bool available(uint32_t& numSets, DescriptorPoolSizes& availableDescriptorPoolSizes) const;
+
+        /// compute the number of sets and descriptors used.
+        bool used(uint32_t& numSets, DescriptorPoolSizes& descriptorPoolSizes) const;
+
+        /// compute the number of sets and descriptors allocated.
+        bool allocated(uint32_t& numSets, DescriptorPoolSizes& descriptorPoolSizes) const;
 
     protected:
         virtual ~DescriptorPools();

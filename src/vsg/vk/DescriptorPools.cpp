@@ -27,7 +27,7 @@ DescriptorPools::DescriptorPools(ref_ptr<Device> in_device, const ResourceRequir
 
 DescriptorPools::~DescriptorPools()
 {
-    //report(std::cout);
+    //    report(std::cout);
 }
 
 void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
@@ -65,7 +65,7 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
     DescriptorPoolSizes available_descriptorPoolSizes;
     for (auto& descriptorPool : descriptorPools)
     {
-        descriptorPool->getAvailability(available_maxSets, available_descriptorPoolSizes);
+        descriptorPool->available(available_maxSets, available_descriptorPoolSizes);
     }
 
     auto required_maxSets = maxSets;
@@ -130,6 +130,23 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPools::allocateDescriptorSet(De
 
 void DescriptorPools::report(std::ostream& out, indentation indent) const
 {
+    auto print = [&out, &indent](std::string_view name, uint32_t numSets, const DescriptorPoolSizes& descriptorPoolSizes) {
+        out << indent << name << " {" << std::endl;
+        indent += 4;
+        out << indent << "numSets " << numSets << std::endl;
+        out << indent << "descriptorPoolSizes " << descriptorPoolSizes.size() << " {" << std::endl;
+        indent += 4;
+        for (auto& dps : descriptorPoolSizes)
+        {
+            out << indent << "VkDescriptorPoolSize{ " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
+        }
+        indent -= 4;
+        out << indent << "}" << std::endl;
+
+        indent -= 4;
+        out << indent << "}" << std::endl;
+    };
+
     out << "DescriptorPools::report(..) " << this << " {" << std::endl;
     indent += 4;
 
@@ -138,11 +155,14 @@ void DescriptorPools::report(std::ostream& out, indentation indent) const
     indent += 4;
     for (auto& dps : minimum_descriptorPoolSizes)
     {
-        out << indent << "{ " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
+        out << indent << "VkDescriptorPoolSize{ " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
     }
     indent -= 4;
     out << indent << "}" << std::endl;
 
+#if 1
+    out << indent << "descriptorPools " << descriptorPools.size() << std::endl;
+#else
     out << indent << "descriptorPools " << descriptorPools.size() << " {" << std::endl;
     indent += 4;
     for (auto& dp : descriptorPools)
@@ -151,7 +171,63 @@ void DescriptorPools::report(std::ostream& out, indentation indent) const
     }
     indent -= 4;
     out << indent << "}" << std::endl;
+#endif
+
+    uint32_t numSets = 0;
+    DescriptorPoolSizes descriptorPoolSizes;
+
+    allocated(numSets, descriptorPoolSizes);
+    print("DescriptorPools::allocated()", numSets, descriptorPoolSizes);
+
+    numSets = 0;
+    descriptorPoolSizes.clear();
+    used(numSets, descriptorPoolSizes);
+    print("DescriptorPools::used()", numSets, descriptorPoolSizes);
+
+    numSets = 0;
+    descriptorPoolSizes.clear();
+    available(numSets, descriptorPoolSizes);
+    print("DescriptorPools::available()", numSets, descriptorPoolSizes);
 
     indent -= 4;
     out << indent << "}" << std::endl;
+}
+
+bool DescriptorPools::available(uint32_t& numSets, DescriptorPoolSizes& availableDescriptorPoolSizes) const
+{
+    bool result = false;
+    for (auto& dp : descriptorPools)
+    {
+        result = dp->available(numSets, availableDescriptorPoolSizes) | result;
+    }
+    return result;
+}
+
+bool DescriptorPools::used(uint32_t& numSets, DescriptorPoolSizes& descriptorPoolSizes) const
+{
+    bool result = false;
+    for (auto& dp : descriptorPools)
+    {
+        result = dp->used(numSets, descriptorPoolSizes) | result;
+    }
+    return result;
+}
+
+bool DescriptorPools::allocated(uint32_t& numSets, DescriptorPoolSizes& descriptorPoolSizes) const
+{
+    if (descriptorPools.empty()) return false;
+
+    for (auto& dp : descriptorPools)
+    {
+        numSets += dp->maxSets;
+        for (auto& dps : dp->descriptorPoolSizes)
+        {
+            auto itr = std::find_if(descriptorPoolSizes.begin(), descriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
+            if (itr != descriptorPoolSizes.end())
+                itr->descriptorCount += dps.descriptorCount;
+            else
+                descriptorPoolSizes.push_back(dps);
+        }
+    }
+    return true;
 }
