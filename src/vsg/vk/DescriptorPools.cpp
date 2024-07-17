@@ -32,13 +32,49 @@ DescriptorPools::~DescriptorPools()
 
 void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes)
 {
-    vsg::info("DescriptorPools::getDescriptorPoolSizesToUse() reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
+    vsg::info("DescriptorPools::getDescriptorPoolSizesToUse()  descriptorPools.size() = ", descriptorPools.size() , ", reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
     for (auto& dps : reserve_descriptorPoolSizes)
     {
         vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "} average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
     }
     vsg::info("}");
+#if 1
+    if (target_maxSets > reserve_maxSets)
+    {
+        vsg::info("    Scaling maxSets  to ", target_maxSets);
+        for (auto& dps : reserve_descriptorPoolSizes)
+        {
+            dps.descriptorCount = static_cast<uint32_t>(std::ceil(static_cast<double>(dps.descriptorCount) * static_cast<double>(target_maxSets) / static_cast<double>(reserve_maxSets)));
+            vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "}");
+        }
+        reserve_maxSets = target_maxSets;
+    }
 
+    if (target_maxSets > maxSets)
+    {
+        maxSets = target_maxSets;
+    }
+#endif
+    for (auto& [type, descriptorCount] : reserve_descriptorPoolSizes)
+    {
+        auto itr = descriptorPoolSizes.begin();
+        for (; itr != descriptorPoolSizes.end(); ++itr)
+        {
+            if (itr->type == type)
+            {
+                if (descriptorCount > itr->descriptorCount)
+                    itr->descriptorCount = descriptorCount;
+                break;
+            }
+        }
+        if (itr == descriptorPoolSizes.end())
+        {
+            descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, descriptorCount});
+        }
+    }
+
+
+    // add to minimum sizes if required.
     if (minimum_maxSets > maxSets)
     {
         maxSets = minimum_maxSets;

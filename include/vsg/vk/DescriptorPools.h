@@ -31,6 +31,7 @@ namespace vsg
         std::list<ref_ptr<DescriptorPool>> descriptorPools;
 
         // totals of all the calls to reserve, used to guide allocation of new DescritproPool
+        uint32_t target_maxSets = 4096;
         uint32_t reserve_count = 0;
         uint32_t reserve_maxSets = 0;
         DescriptorPoolSizes reserve_descriptorPoolSizes;
