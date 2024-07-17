@@ -18,11 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DescriptorPools::DescriptorPools(ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements) :
+DescriptorPools::DescriptorPools(ref_ptr<Device> in_device) :
     device(in_device)
 {
-    minimum_maxSets = std::max(1u, in_resourceRequirements.computeNumDescriptorSets());
-    minimum_descriptorPoolSizes = in_resourceRequirements.computeDescriptorPoolSizes();
 }
 
 DescriptorPools::~DescriptorPools()
@@ -36,7 +34,7 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
         vsg::info("DescriptorPools::getDescriptorPoolSizesToUse()  descriptorPools.size() = ", descriptorPools.size(), ", reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
         for (auto& dps : reserve_descriptorPoolSizes)
         {
-            vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "} average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
+            vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " } average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
         }
         vsg::info("}");
 
@@ -46,7 +44,7 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
             for (auto& dps : reserve_descriptorPoolSizes)
             {
                 dps.descriptorCount = static_cast<uint32_t>(std::ceil(static_cast<double>(dps.descriptorCount) * static_cast<double>(target_maxSets) / static_cast<double>(reserve_maxSets)));
-                vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "}");
+                vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " }");
             }
             reserve_maxSets = target_maxSets;
         }
@@ -75,30 +73,6 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
         }
     }
 
-    // add to minimum sizes if required.
-    if (minimum_maxSets > maxSets)
-    {
-        maxSets = minimum_maxSets;
-    }
-
-    for (auto& [type, descriptorCount] : minimum_descriptorPoolSizes)
-    {
-        auto itr = descriptorPoolSizes.begin();
-        for (; itr != descriptorPoolSizes.end(); ++itr)
-        {
-            if (itr->type == type)
-            {
-                if (descriptorCount > itr->descriptorCount)
-                    itr->descriptorCount = descriptorCount;
-                break;
-            }
-        }
-        if (itr == descriptorPoolSizes.end())
-        {
-            descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, descriptorCount});
-        }
-    }
-
     reserve_count = 0;
     reserve_maxSets = 0;
     reserve_descriptorPoolSizes.clear();
@@ -120,14 +94,7 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
         else
             reserve_descriptorPoolSizes.push_back(dps);
     }
-#if 0
-    vsg::info("DescriptorPools::reserve() reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
-    for (auto& dps : reserve_descriptorPoolSizes)
-    {
-        vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "} average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
-    }
-    vsg::info("}");
-#endif
+
     // compute the total available resources
     uint32_t available_maxSets = 0;
     DescriptorPoolSizes available_descriptorPoolSizes;
@@ -218,16 +185,6 @@ void DescriptorPools::report(std::ostream& out, indentation indent) const
 
     out << "DescriptorPools::report(..) " << this << " {" << std::endl;
     indent += 4;
-
-    out << indent << "minimum_maxSets = " << minimum_maxSets << std::endl;
-    out << indent << "minimum_descriptorPoolSizes " << minimum_descriptorPoolSizes.size() << " {" << std::endl;
-    indent += 4;
-    for (auto& dps : minimum_descriptorPoolSizes)
-    {
-        out << indent << "VkDescriptorPoolSize{ " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
-    }
-    indent -= 4;
-    out << indent << "}" << std::endl;
 
 #if 1
     out << indent << "descriptorPools " << descriptorPools.size() << std::endl;

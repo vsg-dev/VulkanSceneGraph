@@ -40,7 +40,13 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const Descri
     {
         throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
-}
+
+    vsg::info("DescriptorPool::DescriptorPool() ", this, ", maxSets = ", maxSets, " {");
+    for (auto& dps : descriptorPoolSizes)
+    {
+        vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " }");
+    }
+    vsg::info("}");}
 
 DescriptorPool::~DescriptorPool()
 {

@@ -122,7 +122,7 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     descriptorPools = device->descriptorPools.ref_ptr();
     if (!descriptorPools)
     {
-        device->descriptorPools = descriptorPools = DescriptorPools::create(device, in_resourceRequirements);
+        device->descriptorPools = descriptorPools = DescriptorPools::create(device);
         vsg::debug("Context::Context() creating new descriptorPools = ", descriptorPools);
     }
     else

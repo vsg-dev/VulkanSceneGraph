@@ -23,15 +23,13 @@ namespace vsg
     class VSG_DECLSPEC DescriptorPools : public Inherit<Object, DescriptorPools>
     {
     public:
-        explicit DescriptorPools(ref_ptr<Device> in_device, const ResourceRequirements& in_resourceRequirements = {});
+        explicit DescriptorPools(ref_ptr<Device> in_device);
 
         ref_ptr<Device> device;
-        uint32_t minimum_maxSets = 0;
-        DescriptorPoolSizes minimum_descriptorPoolSizes;
         std::list<ref_ptr<DescriptorPool>> descriptorPools;
 
         // totals of all the calls to reserve, used to guide allocation of new DescritproPool
-        uint32_t target_maxSets = 4096;
+        uint32_t target_maxSets = 2048;
         uint32_t reserve_count = 0;
         uint32_t reserve_maxSets = 0;
         DescriptorPoolSizes reserve_descriptorPoolSizes;
