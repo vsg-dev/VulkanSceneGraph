@@ -31,20 +31,11 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
 {
     if (reserve_count > 0)
     {
-        vsg::info("DescriptorPools::getDescriptorPoolSizesToUse()  descriptorPools.size() = ", descriptorPools.size(), ", reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
-        for (auto& dps : reserve_descriptorPoolSizes)
-        {
-            vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " } average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
-        }
-        vsg::info("}");
-
         if (minimum_maxSets > reserve_maxSets)
         {
-            vsg::info("    Scaling maxSets  to ", minimum_maxSets);
             for (auto& dps : reserve_descriptorPoolSizes)
             {
                 dps.descriptorCount = static_cast<uint32_t>(std::ceil(static_cast<double>(dps.descriptorCount) * static_cast<double>(minimum_maxSets) / static_cast<double>(reserve_maxSets)));
-                vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " }");
             }
             reserve_maxSets = minimum_maxSets;
         }
@@ -74,8 +65,6 @@ void DescriptorPools::getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorP
     }
 
     minimum_maxSets = std::min(maximum_maxSets, static_cast<uint32_t>(static_cast<double>(maxSets) * scale_maxSets));
-
-    vsg::info("   new minimum_maxSets = ", minimum_maxSets);
 
     reserve_count = 0;
     reserve_maxSets = 0;
