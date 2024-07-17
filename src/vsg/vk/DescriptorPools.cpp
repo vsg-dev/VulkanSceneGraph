@@ -61,6 +61,26 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
     auto maxSets = requirements.computeNumDescriptorSets();
     auto descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
 
+    // update the variables tracing all reserve calls.
+    ++reserve_count;
+    reserve_maxSets += maxSets;
+    for (auto& dps : descriptorPoolSizes)
+    {
+        auto itr = std::find_if(reserve_descriptorPoolSizes.begin(), reserve_descriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
+        if (itr != reserve_descriptorPoolSizes.end())
+            itr->descriptorCount += dps.descriptorCount;
+        else
+            reserve_descriptorPoolSizes.push_back(dps);
+    }
+
+    vsg::info("DescriptorPools::reserve() reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
+    for(auto& dps : reserve_descriptorPoolSizes)
+    {
+        vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "} average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
+    }
+    vsg::info("}");
+
+    // compute the total available resources
     uint32_t available_maxSets = 0;
     DescriptorPoolSizes available_descriptorPoolSizes;
     for (auto& descriptorPool : descriptorPools)
@@ -68,6 +88,7 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
         descriptorPool->available(available_maxSets, available_descriptorPoolSizes);
     }
 
+    // compute the additional required resources
     auto required_maxSets = maxSets;
     if (available_maxSets < required_maxSets)
         required_maxSets -= available_maxSets;
