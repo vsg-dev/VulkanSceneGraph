@@ -28,8 +28,11 @@ namespace vsg
         ref_ptr<Device> device;
         std::list<ref_ptr<DescriptorPool>> descriptorPools;
 
+        uint32_t maximum_maxSets = 2048; // hardware dependent?
+        uint32_t minimum_maxSets = 0; // default
+        double scale_maxSets = 2.0; // how to scale minimum_maxSets on each successive DescriptorPool allocation.
+
         // totals of all the calls to reserve, used to guide allocation of new DescritproPool
-        uint32_t target_maxSets = 2048;
         uint32_t reserve_count = 0;
         uint32_t reserve_maxSets = 0;
         DescriptorPoolSizes reserve_descriptorPoolSizes;
