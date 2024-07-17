@@ -74,7 +74,7 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
     }
 
     vsg::info("DescriptorPools::reserve() reserve_maxSets = ", reserve_maxSets, " average = ", static_cast<double>(reserve_maxSets) / static_cast<double>(reserve_count), " {");
-    for(auto& dps : reserve_descriptorPoolSizes)
+    for (auto& dps : reserve_descriptorPoolSizes)
     {
         vsg::info("   { ", dps.type, ", ", dps.descriptorCount, "} average ", static_cast<double>(dps.descriptorCount) / static_cast<double>(reserve_count));
     }
