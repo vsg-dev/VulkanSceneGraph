@@ -46,7 +46,8 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const Descri
     {
         vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " }");
     }
-    vsg::info("}");}
+    vsg::info("}");
+}
 
 DescriptorPool::~DescriptorPool()
 {
