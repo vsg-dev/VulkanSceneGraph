@@ -221,6 +221,7 @@ set(SOURCES
     vk/CommandPool.cpp
     vk/Context.cpp
     vk/DescriptorPool.cpp
+    vk/DescriptorPools.cpp
     vk/Device.cpp
     vk/DeviceFeatures.cpp
     vk/DeviceMemory.cpp

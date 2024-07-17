@@ -109,6 +109,7 @@ unassignedVariable:*src/vsg/core/MemorySlots.cpp
 unassignedVariable:*src/vsg/vk/Context.cpp
 unassignedVariable:*src/vsg/app/CompileManager.cpp
 unassignedVariable:*src/vsg/app/RecordAndSubmitTask.cpp
+unassignedVariable:*src/vsg/vk/DescriptorPools.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
 unreadVariable:*/src/vsg/state/DescriptorTexelBufferView.cpp
