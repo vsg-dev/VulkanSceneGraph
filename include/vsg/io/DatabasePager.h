@@ -79,7 +79,7 @@ namespace vsg
     VSG_type_name(vsg::DatabaseQueue);
 
     /// Multi-threaded database pager for reading, compiling loaded PagedLOD subgraphs and updating the scene graph
-    /// with newly loaded subgraphs and pruning expired PageLOD subgraphs
+    /// with newly loaded subgraphs and pruning expired PagedLOD subgraphs
     class VSG_DECLSPEC DatabasePager : public Inherit<Object, DatabasePager>
     {
     public:
