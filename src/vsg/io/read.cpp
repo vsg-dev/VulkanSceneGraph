@@ -76,7 +76,7 @@ ref_ptr<Object> vsg::read(const Path& filename, ref_ptr<const Options> options)
 
             if (load->object && options && options->findDynamicObjects && options->propagateDynamicObjects)
             {
-                // invoke the find and propogate visitiors to collate all the dynamic objects that will need to be cloned.
+                // invoke the find and propagate visitors to collate all the dynamic objects that will need to be cloned.
 
                 std::scoped_lock<std::mutex> fdo_lock(options->findDynamicObjects->mutex);
 
