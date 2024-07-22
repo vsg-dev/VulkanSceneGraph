@@ -153,11 +153,13 @@ namespace vsg
 
         bool _close = false;
 
-        ref_ptr<FrameStamp> _frameStamp;
 
         Windows _windows;
 
+        bool _firstFrame = true;
         clock::time_point _start_point;
+        ref_ptr<FrameStamp> _frameStamp;
+
         UIEvents _events;
         EventHandlers _eventHandlers;
 

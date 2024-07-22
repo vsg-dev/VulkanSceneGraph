@@ -31,7 +31,9 @@ Viewer::Viewer() :
     updateOperations(UpdateOperations::create()),
     animationManager(AnimationManager::create()),
     status(vsg::ActivityStatus::create()),
-    _start_point(clock::now())
+    _firstFrame(true),
+    _start_point(clock::now()),
+    _frameStamp(FrameStamp::create(_start_point, 0, 0.0))
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer costructor", COLOR_VIEWER);
 }
@@ -169,9 +171,9 @@ bool Viewer::advanceToNextFrame(double simulationTime)
 
     // create FrameStamp for frame
     auto time = vsg::clock::now();
-    if (!_frameStamp)
+    if (_firstFrame)
     {
-        _start_point = time;
+        _firstFrame = false;
 
         if (simulationTime == UseTimeSinceStartPoint) simulationTime = 0.0;
 
