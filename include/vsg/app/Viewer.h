@@ -153,7 +153,6 @@ namespace vsg
 
         bool _close = false;
 
-
         Windows _windows;
 
         bool _firstFrame = true;
