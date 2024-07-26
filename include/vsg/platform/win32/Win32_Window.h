@@ -39,7 +39,17 @@ namespace vsgWin32
         bool getKeySymbol(WPARAM wParam, LPARAM lParam, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
         {
             uint16_t modifierMask = 0;
-            uint32_t virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
+            
+            // see https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
+            WORD vkCode = LOWORD(wParam);                                 // virtual-key code
+            WORD keyFlags = HIWORD(lParam);
+            WORD scanCode = LOBYTE(keyFlags);                             // scan code
+            BOOL isExtendedKey = (keyFlags & KF_EXTENDED) == KF_EXTENDED; // extended-key flag, 1 if scancode has 0xE0 prefix
+    
+            if (isExtendedKey)
+                scanCode = MAKEWORD(scanCode, 0xE0);
+
+            uint32_t virtualKey = ::MapVirtualKeyEx(scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
             auto itr = _vk2vsg.find(virtualKey);
 
             if (itr == _vk2vsg.end())
@@ -80,7 +90,7 @@ namespace vsgWin32
                 break;
 
             default:
-                virtualKey = static_cast<int>(wParam);
+                virtualKey = static_cast<uint32_t>(wParam);
                 break;
             }
 
@@ -102,7 +112,7 @@ namespace vsgWin32
 
             // The actual keystroke is what we get after the ::ToAscii call
             char asciiKey[2];
-            int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam >> 16) & 0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
+            int32_t numChars = ::ToAsciiEx(static_cast<UINT>(wParam), scanCode, keyState, reinterpret_cast<WORD*>(asciiKey), 0, ::GetKeyboardLayout(0));
             if (numChars == 1)
             {
                 // it is indeed an ascii character. 0-127
