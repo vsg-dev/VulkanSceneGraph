@@ -231,6 +231,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/DeviceExtensions.h>
 #include <vsg/vk/DeviceFeatures.h>
