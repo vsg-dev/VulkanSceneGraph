@@ -75,7 +75,7 @@ namespace vsg
     };
     VSG_type_name(vsg::Instrumentation);
 
-    /// convinience static method for sharing or duplicating Instrumentation if a valid Instrumentation object is provided
+    /// convenience static method for sharing or duplicating Instrumentation if a valid Instrumentation object is provided
     extern ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety(ref_ptr<Instrumentation> instrumentation);
 
     struct CpuInstrumentation
