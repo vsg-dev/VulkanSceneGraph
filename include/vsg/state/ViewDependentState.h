@@ -154,7 +154,7 @@ namespace vsg
         double lambda = 0.5;
 
         // map of Light's that we wish to override their ShadowSettings,
-        // assigning shadowSettingsOverride[{}] = shadowSettings will override all Light not otherwise explictly matched.
+        // assigning shadowSettingsOverride[{}] = shadowSettings will override all Light not otherwise explicitly matched.
         std::map<ref_ptr<const Light>, ref_ptr<ShadowSettings>> shadowSettingsOverride;
 
         virtual ref_ptr<ShadowSettings> getActiveShadowSettings(const Light* light) const;
