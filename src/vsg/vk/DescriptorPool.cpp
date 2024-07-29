@@ -119,7 +119,7 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
 {
     {
         // swap ownership so that DescriptorSet::Implementation' reference is reset to null and while this DescriptorPool takes a reference to it.
-        // aquire lock within local scope so that subsequent dsi->_descriptorPool = {} call doesn't unref and deleting this DescriptorPool while local till held.
+        // aquire lock within local scope so that subsequent dsi->_descriptorPool = {} call doesn't unref and (possibly) delete this DescriptorPool while lock still held.
         std::scoped_lock<std::mutex> lock(mutex);
         _recyclingList.push_back(dsi);
         ++_availableDescriptorSet;
