@@ -49,7 +49,7 @@ namespace vsg
         const DescriptorPoolSizes descriptorPoolSizes;
 
         /// mutex used to ensure thread safe access of DescriptorPool resources.
-        /// Locked automatically by allocateDescriptorSet(..), freeDescriptorSet(), getAvailability() and DescriptorSet:::Implementation
+        /// Locked automatically by allocateDescriptorSet(..), freeDescriptorSet(), available() and DescriptorSet:::Implementation
         /// to ensure thread safe operation. Normal VulkanSceneGraph usage will not require users to lock this mutex so treat as an internal implementation detail.
         mutable std::mutex mutex;
 
