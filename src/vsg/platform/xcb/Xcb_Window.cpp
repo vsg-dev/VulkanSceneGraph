@@ -348,6 +348,9 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
             }
         }
 
+        // ensure that the Alt Gr key gets mapped to KEY_Alt_R to be consistent with other platforms.
+        _keyboard->add(108, 0, vsg::KEY_Alt_R);
+
         free(keyboard_mapping_reply);
     }
 
