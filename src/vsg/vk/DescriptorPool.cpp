@@ -117,7 +117,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
-    // swap ownership so that DescriptorSet::Implementation' reference is reset to null and while this DescriptorPool takes a refernece to it.
+    // swap ownership so that DescriptorSet::Implementation' reference is reset to null and while this DescriptorPool takes a reference to it.
     std::scoped_lock<std::mutex> lock(mutex);
     _recyclingList.push_back(dsi);
     ++_availableDescriptorSet;
