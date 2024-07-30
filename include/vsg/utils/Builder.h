@@ -152,6 +152,7 @@ namespace vsg
         GeometryMap _capsules;
         GeometryMap _cones;
         GeometryMap _cylinders;
+        GeometryMap _disks;
         GeometryMap _quads;
         GeometryMap _spheres;
         GeometryMap _heightfields;

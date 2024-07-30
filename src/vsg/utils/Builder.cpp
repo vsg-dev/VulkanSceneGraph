@@ -1074,7 +1074,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
 
 ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cylinders[std::make_pair(info, stateInfo)];
+    auto& subgraph = _disks[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1170,7 +1170,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
 
 ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _boxes[std::make_pair(info, stateInfo)];
+    auto& subgraph = _quads[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
