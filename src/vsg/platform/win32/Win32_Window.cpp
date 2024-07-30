@@ -19,6 +19,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 using namespace vsgWin32;
 
+namespace
+{
+    void reportWin32Error()
+    {
+        DWORD errorCode = GetLastError();
+        if (errorCode == NOERROR)
+            return;
+        // Hopefully the error will be representable with the current eight-bit code page as Exception doesn't support wide strings
+        LPSTR buffer;
+        // Ignore the dodgy cast from pointer-to-pointer to pointer
+        // the argument should really be a union of those types as it's interpreted differently depending on the flags passed
+        std::size_t length = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, nullptr);
+
+        std::string message(buffer, length);
+        LocalFree(buffer);
+
+        throw Exception{ std::move(message), static_cast<int>(errorCode) };
+    }
+}
+
 namespace vsg
 {
     // Provide the Window::create(...) implementation that automatically maps to a Win32_Window
@@ -428,10 +449,12 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-        SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+        if (!SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)))
+            reportWin32Error();
 
         // reposition once the window has been created to account for borders etc
-        ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
+        if (!::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0))
+            reportWin32Error();
 
         traits->x = windowRect.left;
         traits->y = windowRect.top;
@@ -439,12 +462,14 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         ShowWindow(_window, SW_SHOW);
         SetForegroundWindow(_window);
-        SetFocus(_window);
+        if (!SetFocus(_window))
+            reportWin32Error();
     }
 
     // get client rect to find final width and height of the view
     RECT clientRect;
-    ::GetClientRect(_window, &clientRect);
+    if (!::GetClientRect(_window, &clientRect))
+        reportWin32Error();
 
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
@@ -478,10 +503,12 @@ Win32_Window::~Win32_Window()
         GetClassName(_window, className, MAX_PATH);
 
         ::DestroyWindow(_window);
+        // don't reportWin32Error - https://github.com/vsg-dev/VulkanSceneGraph/issues/1254
         _window = nullptr;
 
         // when should we unregister??
         ::UnregisterClass(className, ::GetModuleHandle(NULL));
+        // don't reportWin32Error - this will fail if another Win32_Window is still using the class
     }
 }
 
@@ -528,7 +555,8 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
 void Win32_Window::resize()
 {
     RECT windowRect;
-    GetClientRect(_window, &windowRect);
+    if (!GetClientRect(_window, &windowRect))
+        reportWin32Error();
 
     _extent2D.width = windowRect.right - windowRect.left;
     _extent2D.height = windowRect.bottom - windowRect.top;
@@ -542,7 +570,8 @@ bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
 
     // get the current window rect
     RECT windowRect;
-    GetClientRect(_window, &windowRect);
+    if (!GetClientRect(_window, &windowRect))
+        reportWin32Error();
 
     int32_t winx = windowRect.left;
     int32_t winy = windowRect.top;
