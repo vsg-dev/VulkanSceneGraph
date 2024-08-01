@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/platform/win32/Win32_Window.h>
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 
 using namespace vsg;
@@ -57,9 +58,12 @@ namespace vsgWin32
         Win32_Window* win = reinterpret_cast<Win32_Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         if (win != nullptr)
         {
+#if 1
+            // return if vsg::Win32_Window is able to handle it, otherwise fallback to the ::DefWindowProc(..) below
+            if (win->handleWin32Messages(msg, wParam, lParam)) return 0;
+#else
             win->handleWin32Messages(msg, wParam, lParam);
-            // should we return 0 here if handleWin32Messages returns true and not call ::DefWindowProc(..);
-            // for now will keep the original behavior and always call ::DefWindowProc(..);
+#endif
         }
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -466,6 +470,8 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     _windowMapped = true;
 }
 
+#include <iostream>
+
 Win32_Window::~Win32_Window()
 {
     clear();
@@ -477,7 +483,11 @@ Win32_Window::~Win32_Window()
         TCHAR className[MAX_PATH];
         GetClassName(_window, className, MAX_PATH);
 
-        ::DestroyWindow(_window);
+        if (::DestroyWindow(_window) == 0)
+        {
+            vsg::warn("Win32_Window::~Win32_Window() ::DestroyWindow(_window) failed");
+        }
+
         _window = nullptr;
 
         // when should we unregister??
@@ -528,12 +538,17 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
 void Win32_Window::resize()
 {
     RECT windowRect;
-    GetClientRect(_window, &windowRect);
+    if (GetClientRect(_window, &windowRect))
+    {
+        _extent2D.width = windowRect.right - windowRect.left;
+        _extent2D.height = windowRect.bottom - windowRect.top;
 
-    _extent2D.width = windowRect.right - windowRect.left;
-    _extent2D.height = windowRect.bottom - windowRect.top;
-
-    buildSwapchain();
+        buildSwapchain();
+    }
+    else
+    {
+        vsg::warn("Win32_Window::resize() GetClientRect(..) call failed unable to rebuild swapchain.");
+    }
 }
 
 bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
@@ -541,24 +556,34 @@ bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
     vsg::clock::time_point event_time = vsg::clock::now();
 
     // get the current window rect
-    RECT windowRect;
-    GetClientRect(_window, &windowRect);
+    auto getWindowExtents = [](HWND window, int32_t& x, int32_t& y, int32_t& width, int32_t& height) -> bool
+    {
+        RECT windowRect;
+        if (GetClientRect(window, &windowRect) == 0) return false;
 
-    int32_t winx = windowRect.left;
-    int32_t winy = windowRect.top;
-    int32_t winw = windowRect.right - windowRect.left;
-    int32_t winh = windowRect.bottom - windowRect.top;
+        x = windowRect.left;
+        y = windowRect.top;
+        width = windowRect.right - windowRect.left;
+        height = windowRect.bottom - windowRect.top;
+        return true;
+    };
 
     switch (msg)
     {
     case WM_CLOSE:
-        vsg::debug("close window");
         bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
         return true;
     case WM_SHOWWINDOW:
-        bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, winx, winy, winw, winh));
+    {
+        int32_t winx, winy, winw, winh;
+        if (getWindowExtents(_window, winx, winy, winw, winh))
+        {
+            bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, winx, winy, winw, winh));
+        }
         return true;
+    }
     case WM_DESTROY:
+        bufferedEvents.emplace_back(vsg::TerminateEvent::create(event_time));
         _windowMapped = false;
         return true;
     case WM_PAINT:
@@ -605,18 +630,26 @@ bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
         return true;
     }
     case WM_MOVE: {
-        bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
+        int32_t winx, winy, winw, winh;
+        if (getWindowExtents(_window, winx, winy, winw, winh))
+        {
+            bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
+        }
         return true;
     }
     case WM_SIZE: {
-        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
+        int32_t winx, winy, winw, winh;
+        if (getWindowExtents(_window, winx, winy, winw, winh))
         {
-            _windowMapped = false;
-        }
-        else
-        {
-            _windowMapped = true;
-            bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
+            if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
+            {
+                _windowMapped = false;
+            }
+            else
+            {
+                _windowMapped = true;
+                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
+            }
         }
         return true;
     }
