@@ -71,10 +71,10 @@ namespace vsgWin32
 } // namespace vsgWin32
 
 
-vsg::Exception vsgWin32::getLastErrorAsException()
+vsg::Exception vsgWin32::getLastErrorAsException(const std::string_view& prefix)
 {
     DWORD errorCode = GetLastError();
-    if (errorCode == NOERROR) return {};
+    if (errorCode == NOERROR) return Exception{ std::string(prefix), 0};
 
     // Hopefully the error will be representable with the current eight-bit code page as Exception doesn't support wide strings
     LPSTR buffer;
@@ -86,7 +86,8 @@ vsg::Exception vsgWin32::getLastErrorAsException()
     std::string message(buffer, length);
     LocalFree(buffer);
 
-    return Exception{ std::move(message), static_cast<int>(errorCode) };
+    if (!prefix.empty()) message.insert(message.begin(), prefix.begin(), prefix.end());
+    return Exception{ message, static_cast<int>(errorCode) };
 }
 
 KeyboardMap::KeyboardMap()
@@ -373,7 +374,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (::RegisterClassEx(&wc) == 0)
         {
             auto lastError = ::GetLastError();
-            if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED};
+            if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class :");
         }
 
         // fetch screen display information
@@ -392,13 +393,13 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         // assume a traits->screenNum of < 0 will default to screen 0
         int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
-        if (screenNum >= static_cast<int32_t>(displayDevices.size())) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (screenNum >= static_cast<int32_t>(displayDevices.size())) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range : ");
 
         DEVMODE deviceMode;
         deviceMode.dmSize = sizeof(deviceMode);
         deviceMode.dmDriverExtra = 0;
 
-        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings : ");
 
         // setup window rect and style
         int32_t screenx = 0;
@@ -429,7 +430,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
                                  WS_EX_LTRREADING;
 
                 // if decorated call adjust to account for borders etc
-                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed : ");
             }
         }
         else
@@ -448,7 +449,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
                                    windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                                    NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
-        if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (_window == nullptr) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle : ");
 
         // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
         SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
@@ -500,7 +501,7 @@ Win32_Window::~Win32_Window()
 
         if (!::DestroyWindow(_window))
         {
-            vsg::warn("Win32_Window::~Win32_Window() ::DestroyWindow(_window) failed : ", getLastErrorAsException());
+            vsg::warn(getLastErrorAsException("Win32_Window::~Win32_Window() ::DestroyWindow(_window) failed : "));
         }
 
         _window = nullptr;

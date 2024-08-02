@@ -218,7 +218,7 @@ namespace vsgWin32
     };
 
     /// Use GetLastError() and FormatMessageA(..) to get the error number and error message and store them in a vsg::Exception.
-    extern VSG_DECLSPEC vsg::Exception getLastErrorAsException();
+    extern VSG_DECLSPEC vsg::Exception getLastErrorAsException(const std::string_view& prefix = {});
 
 } // namespace vsgWin32
 
