@@ -217,6 +217,9 @@ namespace vsgWin32
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
 
+    /// Use GetLastError() and FormatMessageA(..) to get the error number and error message and store them in a vsg::Exception.
+    extern VSG_DECLSPEC vsg::Exception getLastErrorAsException();
+
 } // namespace vsgWin32
 
 EVSG_type_name(vsgWin32::Win32_Window);

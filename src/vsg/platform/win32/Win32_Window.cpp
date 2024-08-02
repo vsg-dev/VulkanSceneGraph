@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/platform/win32/Win32_Window.h>
@@ -32,6 +31,7 @@ namespace vsg
 
 namespace vsgWin32
 {
+
     class VSG_DECLSPEC Win32Surface : public vsg::Surface
     {
     public:
@@ -69,6 +69,25 @@ namespace vsgWin32
     }
 
 } // namespace vsgWin32
+
+
+vsg::Exception vsgWin32::getLastErrorAsException()
+{
+    DWORD errorCode = GetLastError();
+    if (errorCode == NOERROR) return {};
+
+    // Hopefully the error will be representable with the current eight-bit code page as Exception doesn't support wide strings
+    LPSTR buffer;
+    // Ignore the dodgy cast from pointer-to-pointer to pointer
+    // the argument should really be a union of those types as it's interpreted differently depending on the flags passed
+    std::size_t length = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, nullptr);
+
+    std::string message(buffer, length);
+    LocalFree(buffer);
+
+    return Exception{ std::move(message), static_cast<int>(errorCode) };
+}
 
 KeyboardMap::KeyboardMap()
 {
@@ -470,22 +489,18 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
     _windowMapped = true;
 }
 
-#include <iostream>
-
 Win32_Window::~Win32_Window()
 {
     clear();
 
     if (_window != nullptr)
     {
-        vsg::debug("Calling DestroyWindow(_window);");
-
         TCHAR className[MAX_PATH];
         GetClassName(_window, className, MAX_PATH);
 
-        if (::DestroyWindow(_window) == 0)
+        if (!::DestroyWindow(_window))
         {
-            vsg::warn("Win32_Window::~Win32_Window() ::DestroyWindow(_window) failed");
+            vsg::warn("Win32_Window::~Win32_Window() ::DestroyWindow(_window) failed : ", getLastErrorAsException());
         }
 
         _window = nullptr;
