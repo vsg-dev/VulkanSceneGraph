@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/app/CommandGraph.h>
-#include <vsg/app/Window.h>
-#include <vsg/io/DatabasePager.h>
-#include <vsg/nodes/Group.h>
+#include <vsg/io/Logger.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/ResourceRequirements.h>
+#include <vsg/vk/Semaphore.h>
 
 namespace vsg
 {
