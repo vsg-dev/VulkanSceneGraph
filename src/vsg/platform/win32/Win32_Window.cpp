@@ -454,7 +454,11 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (_window == nullptr) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle : ");
 
         // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-        if (!SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this))) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetWindowLongPtr(..) failed : ");
+        // this function lies about failing so we must jump through some hoops
+        // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptra#return-value
+        SetLastError(NOERROR);
+        if (!SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)) && GetLastError() != NOERROR)
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetWindowLongPtr(..) failed : ");
 
         // reposition once the window has been created to account for borders etc
         if (!::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0))
