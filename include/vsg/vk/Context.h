@@ -30,6 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/MemoryBufferPools.h>
 #include <vsg/vk/ResourceRequirements.h>
+#include <vsg/app/TransferTask.h>
 
 namespace vsg
 {
@@ -143,6 +144,8 @@ namespace vsg
         // RTX ray tracing
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
+
+        ref_ptr<TransferTask> transferTask;
     };
     VSG_type_name(vsg::Context);
 

@@ -205,6 +205,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
 
+    vsg::info("Context::copy(", data, ", ", dest, ") ", this, ", ", transferTask);
+
     if (!copyImageCmd)
     {
         copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
@@ -218,6 +220,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipM
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
 
+    vsg::info("Context::copy(", data, ", ", dest, ", ", numMipMapLevels, ") ", this, ", ", transferTask);
+
     if (!copyImageCmd)
     {
         copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
@@ -230,6 +234,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipM
 void Context::copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
+
+    vsg::info("Context::copy(", src, ", ", dest, ") ", this, ", ", transferTask);
 
     if (!copyBufferCmd)
     {

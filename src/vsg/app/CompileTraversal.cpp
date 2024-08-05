@@ -61,18 +61,28 @@ CompileTraversal::~CompileTraversal()
 {
 }
 
-void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
+    vsg::info("CompileTraversal::add(", device, ", ", transferTask,", ...)");
+
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->instrumentation = instrumentation;
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
+    context->transferTask = transferTask;
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
 {
+    add(device, nullptr, resourceRequirements);
+}
+
+void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+{
+    vsg::info("CompileTraversal::add(", &window, ", ", transferTask, ", ", viewport, "...)");
+
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
@@ -81,6 +91,7 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
     context->renderPass = renderPass;
     context->commandPool = CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
+    context->transferTask = transferTask;
 
     if (viewport)
         context->defaultPipelineStates.emplace_back(viewport);
@@ -92,8 +103,15 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
+    add(window, nullptr, viewport, resourceRequirements);
+}
+
+void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
+    vsg::info("CompileTraversal::add(",&window, ", ", transferTask, ", ", view, "..");
+
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
@@ -102,6 +120,7 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
     context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
+    context->transferTask = transferTask;
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
@@ -121,8 +140,15 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
     if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), resourceRequirements);
 }
 
-void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
+    add(window, nullptr, view, resourceRequirements);
+}
+
+void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
+    vsg::info("CompileTraversal::add(",&framebuffer, ", ", transferTask, ", ", view, "..)");
+
     auto device = framebuffer.getDevice();
     auto renderPass = framebuffer.getRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
@@ -131,6 +157,7 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     context->renderPass = renderPass;
     context->commandPool = vsg::CommandPool::create(device, queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
+    context->transferTask = transferTask;
 
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
@@ -150,14 +177,23 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
     if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), resourceRequirements);
 }
 
+void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
+    add(framebuffer, nullptr, view, resourceRequirements);
+}
+
 void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
+    vsg::info("CompileTraversal::add(Viewer&>)");
+
     if (viewer.instrumentation) instrumentation = viewer.instrumentation;
 
     struct AddViews : public Visitor
     {
         CompileTraversal* ct = nullptr;
         const ResourceRequirements& resourceRequirements;
+        ref_ptr<TransferTask> transferTask;
+
         AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) :
             ct(in_ct), resourceRequirements(in_rr){};
 
@@ -188,9 +224,9 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
             {
                 auto obj = objectStack.top();
                 if (auto window = obj.cast<Window>())
-                    ct->add(*window, ref_ptr<View>(&view), resourceRequirements);
+                    ct->add(*window, transferTask, ref_ptr<View>(&view), resourceRequirements);
                 else if (auto framebuffer = obj.cast<Framebuffer>())
-                    ct->add(*framebuffer, ref_ptr<View>(&view), resourceRequirements);
+                    ct->add(*framebuffer, transferTask, ref_ptr<View>(&view), resourceRequirements);
 
                 if (view.viewDependentState) ct->addViewDependentState(*view.viewDependentState, resourceRequirements);
             }
@@ -199,6 +235,9 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
 
     for (auto& task : viewer.recordAndSubmitTasks)
     {
+        vsg::info("     ", task, " has earlyTransferTask = ", task->earlyTransferTask);
+        vsg::info("     ", task, " has lateTransferTask = ", task->lateTransferTask);
+        addViews.transferTask = task->earlyTransferTask;
         for (auto& cg : task->commandGraphs)
         {
             cg->accept(addViews);

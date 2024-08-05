@@ -284,6 +284,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         return;
     }
 
+    vsg::info("Viewer::compile()");
+
     auto start_tick = clock::now();
 
     bool containsPagedLOD = false;
@@ -440,7 +442,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
     auto end_tick = clock::now();
     auto compile_time = std::chrono::duration<double, std::chrono::milliseconds::period>(end_tick - start_tick).count();
-    debug("Viewer::compile() ", compile_time, "ms");
+    info("Viewer::compile() ", compile_time, "ms");
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)

@@ -168,6 +168,8 @@ void CompileManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumen
 
 CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
 {
+    vsg::info("CompileManager::compile(", object, ", ..)");
+
     CollectResourceRequirements collectRequirements;
     object->accept(collectRequirements);
 
