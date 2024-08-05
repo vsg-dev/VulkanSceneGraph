@@ -393,13 +393,15 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         // assume a traits->screenNum of < 0 will default to screen 0
         int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
-        if (screenNum >= static_cast<int32_t>(displayDevices.size())) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range : ");
+        if (screenNum >= static_cast<int32_t>(displayDevices.size()))
+            throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         DEVMODE deviceMode;
         deviceMode.dmSize = sizeof(deviceMode);
         deviceMode.dmDriverExtra = 0;
 
-        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings : ");
+        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode))
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings : ");
 
         // setup window rect and style
         int32_t screenx = 0;
@@ -430,7 +432,8 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
                                  WS_EX_LTRREADING;
 
                 // if decorated call adjust to account for borders etc
-                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed : ");
+                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle))
+                    throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed : ");
             }
         }
         else
@@ -452,10 +455,11 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (_window == nullptr) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle : ");
 
         // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-        SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+        if (!SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this))) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetWindowLongPtr(..) failed : ");
 
         // reposition once the window has been created to account for borders etc
-        ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
+        if (!::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0))
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetWindowPos(..) failed : ");
 
         traits->x = windowRect.left;
         traits->y = windowRect.top;
@@ -463,12 +467,14 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         ShowWindow(_window, SW_SHOW);
         SetForegroundWindow(_window);
-        SetFocus(_window);
+        if (!SetFocus(_window))
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetFocus(..) failed : ");
     }
 
     // get client rect to find final width and height of the view
     RECT clientRect;
-    ::GetClientRect(_window, &clientRect);
+    if (!::GetClientRect(_window, &clientRect))
+        throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) GetClientRect(..) failed : ");
 
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
