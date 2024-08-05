@@ -284,5 +284,4 @@ namespace vsg
         return output;
     }
 
-
 } // namespace vsg

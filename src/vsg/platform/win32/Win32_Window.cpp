@@ -70,24 +70,23 @@ namespace vsgWin32
 
 } // namespace vsgWin32
 
-
 vsg::Exception vsgWin32::getLastErrorAsException(const std::string_view& prefix)
 {
     DWORD errorCode = GetLastError();
-    if (errorCode == NOERROR) return Exception{ std::string(prefix), 0};
+    if (errorCode == NOERROR) return Exception{std::string(prefix), 0};
 
     // Hopefully the error will be representable with the current eight-bit code page as Exception doesn't support wide strings
     LPSTR buffer;
     // Ignore the dodgy cast from pointer-to-pointer to pointer
     // the argument should really be a union of those types as it's interpreted differently depending on the flags passed
     std::size_t length = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, nullptr);
+                                        nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, nullptr);
 
     std::string message(buffer, length);
     LocalFree(buffer);
 
     if (!prefix.empty()) message.insert(message.begin(), prefix.begin(), prefix.end());
-    return Exception{ message, static_cast<int>(errorCode) };
+    return Exception{message, static_cast<int>(errorCode)};
 }
 
 KeyboardMap::KeyboardMap()
@@ -578,8 +577,7 @@ bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
     vsg::clock::time_point event_time = vsg::clock::now();
 
     // get the current window rect
-    auto getWindowExtents = [](HWND window, int32_t& x, int32_t& y, int32_t& width, int32_t& height) -> bool
-    {
+    auto getWindowExtents = [](HWND window, int32_t& x, int32_t& y, int32_t& width, int32_t& height) -> bool {
         RECT windowRect;
         if (GetClientRect(window, &windowRect) == 0) return false;
 
@@ -595,8 +593,7 @@ bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
         bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
         return true;
-    case WM_SHOWWINDOW:
-    {
+    case WM_SHOWWINDOW: {
         int32_t winx, winy, winw, winh;
         if (getWindowExtents(_window, winx, winy, winw, winh))
         {
