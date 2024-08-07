@@ -39,13 +39,13 @@ namespace vsgWin32
         bool getKeySymbol(WPARAM wParam, LPARAM lParam, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
         {
             uint16_t modifierMask = 0;
-            
+
             // see https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
-            WORD vkCode = LOWORD(wParam);                                 // virtual-key code
+            WORD vkCode = LOWORD(wParam); // virtual-key code
             WORD keyFlags = HIWORD(lParam);
             WORD scanCode = LOBYTE(keyFlags);                             // scan code
             BOOL isExtendedKey = (keyFlags & KF_EXTENDED) == KF_EXTENDED; // extended-key flag, 1 if scancode has 0xE0 prefix
-    
+
             if (isExtendedKey)
                 scanCode = MAKEWORD(scanCode, 0xE0);
 
@@ -216,6 +216,9 @@ namespace vsgWin32
 
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
+
+    /// Use GetLastError() and FormatMessageA(..) to get the error number and error message and store them in a vsg::Exception.
+    extern VSG_DECLSPEC vsg::Exception getLastErrorAsException(const std::string_view& prefix = {});
 
 } // namespace vsgWin32
 
