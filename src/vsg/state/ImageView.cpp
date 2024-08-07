@@ -200,7 +200,7 @@ ref_ptr<ImageView> vsg::createImageView(Device* device, ref_ptr<Image> image, Vk
     return imageView;
 }
 
-void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, const Data::MipmapOffsets& mipmapOffsets, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
+void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, const Data::Properties& properties, uint32_t width, uint32_t height, uint32_t depth, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
 {
     ref_ptr<Image> textureImage(imageView->image);
     auto aspectMask = imageView->subresourceRange.aspectMask;
@@ -240,8 +240,9 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     const auto valueSize = properties.stride; // data->valueSize();
 
-    bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
-    bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+    uint32_t mipLevels = imageView->image->mipLevels;
+    bool useDataMipmaps = (mipLevels > 1) && (properties.maxNumMipmaps > 1);
+    bool generateMipmaps = (mipLevels > 1) && (properties.maxNumMipmaps <= 1);
 
     auto vk_textureImage = textureImage->vk(device->deviceID);
 
