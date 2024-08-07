@@ -33,12 +33,13 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 
     _frames.resize(numBuffers);
 
-    //level = Logger::LOGGER_INFO;
+    level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
+    std::scoped_lock<std::mutex> lock(_mutex);
 
     if (_currentFrameIndex >= _indices.size())
     {
@@ -68,6 +69,7 @@ size_t TransferTask::index(size_t relativeFrameIndex) const
 
 bool TransferTask::containsDataToTransfer() const
 {
+    std::scoped_lock<std::mutex> lock(_mutex);
     return !_dynamicDataMap.empty() || !_dynamicImageInfoSet.empty();
 }
 
@@ -83,8 +85,13 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    log(level, "TransferTask::assign(BufferInfoList) ", this, ", ", bufferInfoList.size());
+
     for (auto& bufferInfo : bufferInfoList)
     {
+        log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
         _dynamicDataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
     }
 
@@ -122,23 +129,26 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
     copyRegions.resize(_dynamicDataTotalRegions);
     VkBufferCopy* pRegions = copyRegions.data();
 
+    log(level, "  TransferTask::_transferBufferInfos(..) ", this);
+
     // copy any modified BufferInfo
     for (auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
     {
         auto& bufferInfos = buffer_itr->second;
 
         uint32_t regionCount = 0;
+        log(level, "    copying bufferInfos.size() = ", bufferInfos.size(), "{");
         for (auto bufferInfo_itr = bufferInfos.begin(); bufferInfo_itr != bufferInfos.end();)
         {
             auto& bufferInfo = bufferInfo_itr->second;
             if (bufferInfo->referenceCount() == 1)
             {
-                log(level, "BufferInfo only ref left ", bufferInfo, ", ", bufferInfo->referenceCount());
+                log(level, "    BufferInfo only ref left ", bufferInfo, ", ", bufferInfo->referenceCount());
                 bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
             }
             else
             {
-                if (bufferInfo->syncModifiedCounts(deviceID))
+                if (true)//bufferInfo->syncModifiedCounts(deviceID))
                 {
                     // copy data to staging buffer memory
                     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
@@ -152,6 +162,10 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
                     VkDeviceSize endOfEntry = offset + bufferInfo->range;
                     offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
                 }
+                else
+                {
+                    log(level, "       no need to copy ", bufferInfo);
+                }
 
                 if (bufferInfo->data->properties.dataVariance == STATIC_DATA)
                 {
@@ -164,6 +178,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
                 }
             }
         }
+        log(level, "    } bufferInfos.size() = ", bufferInfos.size(), "{");
 
         if (regionCount > 0)
         {
@@ -179,7 +194,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 
         if (bufferInfos.empty())
         {
-            log(level, "bufferInfos.empty()");
+            log(level, "    bufferInfos.empty()");
             buffer_itr = _dynamicDataMap.erase(buffer_itr);
         }
         else
@@ -193,7 +208,9 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
-    log(level, "TransferTask::assign(imageInfoList) ", imageInfoList.size());
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    log(level, "TransferTask::assign(imageInfoList) ", this, ", ", imageInfoList.size());
     for (auto& imageInfo : imageInfoList)
     {
         log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
@@ -211,6 +228,8 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
         VkFormat targetFormat = imageInfo->imageView->format;
         auto targetTraits = getFormatTraits(targetFormat);
         VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+
+        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
 
         VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
@@ -237,9 +256,13 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
         }
         else
         {
-            if (imageInfo->syncModifiedCounts(deviceID))
+            if (true)//imageInfo->syncModifiedCounts(deviceID))
             {
                 _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
+            }
+            else
+            {
+                log(level, "    no need to copy ", imageInfo);
             }
 
             if (imageInfo->imageView->image->data->properties.dataVariance == STATIC_DATA)
@@ -273,7 +296,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
 
     auto source_offset = offset;
 
-    log(level, "ImageInfo needs copying ", data, ", mipLevels = ", mipLevels);
+    log(level, "  TransferTask::_transferImageInfo(..) ", this, ",ImageInfo needs copying ", data, ", mipLevels = ", mipLevels);
 
     // copy data.
     VkFormat sourceFormat = data->properties.format;
@@ -342,6 +365,8 @@ VkResult TransferTask::transferDynamicData()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferDynamicData", COLOR_RECORD);
 
+    std::scoped_lock<std::mutex> lock(_mutex);
+
     size_t frameIndex = index(0);
     if (frameIndex > _frames.size()) return VK_SUCCESS;
 
@@ -356,7 +381,7 @@ VkResult TransferTask::transferDynamicData()
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
-    log(level, "TransferTask::record() ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
+    log(level, "\nTransferTask::transferDynamicData() ", this, ", _currentFrameIndex = ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
     log(level, "   transferQueue = ", transferQueue);
     log(level, "   staging = ", staging);
     log(level, "   copyRegions.size() = ", copyRegions.size());
@@ -388,6 +413,10 @@ VkResult TransferTask::transferDynamicData()
         auto stagingMemory = staging->getDeviceMemory(deviceID);
         buffer_data = nullptr;
         result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
+
+        log(level, "   allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
+
+
         if (result != VK_SUCCESS) return result;
     }
 

@@ -28,6 +28,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
+#include <vsg/ui/UIEvent.h>
 
 using namespace vsg;
 
@@ -328,8 +329,12 @@ void Context::waitForCompletion()
 
     if (commands.empty() && buildAccelerationStructureCommands.empty())
     {
+        vsg::info("Context::waitForCompletion() no commands assigned, returning immediatly.");
+
         return;
     }
+
+    auto start_point = vsg::clock::now();
 
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
     uint64_t timeout = 1000000000;
@@ -344,6 +349,8 @@ void Context::waitForCompletion()
     {
         info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
     }
+
+    vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
 
     commands.clear();
     copyImageCmd = nullptr;

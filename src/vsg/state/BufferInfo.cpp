@@ -178,6 +178,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     if (bufferInfoList.empty()) return false;
 
     auto deviceID = context.deviceID;
+    auto transferTask = context.transferTask.get();
 
     ref_ptr<BufferInfo> deviceBufferInfo;
     size_t numBuffersRequired = 0;
@@ -274,6 +275,12 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         bufferInfo->buffer = deviceBufferInfo->buffer;
         bufferInfo->offset += deviceBufferInfo->offset;
+    }
+
+    if (transferTask)
+    {
+        transferTask->assign(bufferInfoList);
+        return true;
     }
 
     auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

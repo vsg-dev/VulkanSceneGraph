@@ -108,6 +108,9 @@ void DescriptorImage::compile(Context& context)
 {
     if (imageInfoList.empty()) return;
 
+    auto transferTask = context.transferTask.get();
+    transferTask = nullptr;
+
     for (auto& imageInfo : imageInfoList)
     {
         if (imageInfo->sampler) imageInfo->sampler->compile(context);
@@ -121,13 +124,15 @@ void DescriptorImage::compile(Context& context)
             auto& imageView = *imageInfo->imageView;
             imageView.compile(context);
 
-            if (imageView.image && imageView.image->syncModifiedCount(context.deviceID))
+            if (!transferTask && imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
                 auto& image = *imageView.image;
                 context.copy(image.data, imageInfo, image.mipLevels);
             }
         }
     }
+
+    if (transferTask) transferTask->assign(imageInfoList);
 }
 
 void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) const

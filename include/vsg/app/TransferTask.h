@@ -61,6 +61,8 @@ namespace vsg
 
         size_t index(size_t relativeFrameIndex = 0) const;
 
+        mutable std::mutex _mutex;
+
         VkDeviceSize _dynamicDataTotalRegions = 0;
         VkDeviceSize _dynamicDataTotalSize = 0;
         VkDeviceSize _dynamicImageTotalSize = 0;

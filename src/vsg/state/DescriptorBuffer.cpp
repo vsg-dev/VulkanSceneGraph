@@ -103,6 +103,11 @@ void DescriptorBuffer::write(Output& output) const
 
 void DescriptorBuffer::compile(Context& context)
 {
+    if (bufferInfoList.empty()) return;
+
+    auto transferTask = context.transferTask.get();
+    transferTask = nullptr;
+
     VkBufferUsageFlags bufferUsageFlags = 0;
     switch (descriptorType)
     {
@@ -197,12 +202,14 @@ void DescriptorBuffer::compile(Context& context)
                 }
             }
 
-            if (bufferInfo->data && bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            if (!transferTask && bufferInfo->data && bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
             {
                 bufferInfo->copyDataToBuffer(context.deviceID);
             }
         }
     }
+
+    if (transferTask) transferTask->assign(bufferInfoList);
 }
 
 void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) const
