@@ -179,6 +179,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     auto deviceID = context.deviceID;
     auto transferTask = context.transferTask.get();
+    transferTask = nullptr;
 
     ref_ptr<BufferInfo> deviceBufferInfo;
     size_t numBuffersRequired = 0;
