@@ -148,7 +148,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
             }
             else
             {
-                if (true)//bufferInfo->syncModifiedCounts(deviceID))
+                if (bufferInfo->syncModifiedCounts(deviceID))
                 {
                     // copy data to staging buffer memory
                     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
@@ -256,7 +256,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
         }
         else
         {
-            if (true)//imageInfo->syncModifiedCounts(deviceID))
+            if (imageInfo->syncModifiedCounts(deviceID))
             {
                 _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
             }
