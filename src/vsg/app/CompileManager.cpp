@@ -216,8 +216,11 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
             //debug("Finished compile traversal ", object);
 
-            compileTraversal->record(); // records and submits to queue
-            compileTraversal->waitForCompletion();
+            // if required records and submits to queue
+            if (compileTraversal->record())
+            {
+                compileTraversal->waitForCompletion();
+            }
         }
         catch (const vsg::Exception& ve)
         {

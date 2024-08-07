@@ -33,7 +33,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 
     _frames.resize(numBuffers);
 
-    level = Logger::LOGGER_INFO;
+    // level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()

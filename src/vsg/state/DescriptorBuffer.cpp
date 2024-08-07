@@ -106,7 +106,7 @@ void DescriptorBuffer::compile(Context& context)
     if (bufferInfoList.empty()) return;
 
     auto transferTask = context.transferTask.get();
-    transferTask = nullptr;
+    //transferTask = nullptr;
 
     VkBufferUsageFlags bufferUsageFlags = 0;
     switch (descriptorType)
