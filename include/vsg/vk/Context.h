@@ -123,6 +123,7 @@ namespace vsg
         ref_ptr<Fence> fence;
         ref_ptr<Semaphore> semaphore;
         ref_ptr<ScratchMemory> scratchMemory;
+        bool requiresWaitForCompletion = false;
 
         std::vector<ref_ptr<Command>> commands;
 

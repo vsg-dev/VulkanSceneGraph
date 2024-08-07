@@ -155,7 +155,10 @@ Context::Context(const Context& context) :
 
 Context::~Context()
 {
-    waitForCompletion();
+    if (requiresWaitForCompletion)
+    {
+        waitForCompletion();
+    }
 }
 
 ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
@@ -303,6 +306,8 @@ bool Context::record()
     submitInfo.pCommandBuffers = commandBuffer->data();
     if (semaphore)
     {
+        vsg::info("Context::record() semaphore assigned to submitInfo ", semaphore);
+
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = semaphore->data();
         submitInfo.pWaitDstStageMask = &waitDstStageMask;
@@ -315,6 +320,8 @@ bool Context::record()
 
     graphicsQueue->submit(submitInfo, fence);
 
+    requiresWaitForCompletion = true;
+
     return true;
 }
 
@@ -322,15 +329,8 @@ void Context::waitForCompletion()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context waitForCompletion", COLOR_COMPILE)
 
-    if (!commandBuffer || !fence)
+    if (!requiresWaitForCompletion || !commandBuffer || !fence)
     {
-        return;
-    }
-
-    if (commands.empty() && buildAccelerationStructureCommands.empty())
-    {
-        vsg::info("Context::waitForCompletion() no commands assigned, returning immediatly.");
-
         return;
     }
 
@@ -352,6 +352,7 @@ void Context::waitForCompletion()
 
     vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
 
+    requiresWaitForCompletion = false;
     commands.clear();
     copyImageCmd = nullptr;
     copyBufferCmd = nullptr;
