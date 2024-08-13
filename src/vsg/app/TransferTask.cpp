@@ -382,8 +382,10 @@ VkResult TransferTask::transferDynamicData()
     auto& buffer_data = frame.buffer_data;
 
     log(level, "\nTransferTask::transferDynamicData() ", this, ", _currentFrameIndex = ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
+    log(level, "   frameIndex = ", frameIndex);
     log(level, "   transferQueue = ", transferQueue);
     log(level, "   staging = ", staging);
+    log(level, "   semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
     log(level, "   copyRegions.size() = ", copyRegions.size());
 
     if (!commandBuffer)
@@ -400,6 +402,7 @@ VkResult TransferTask::transferDynamicData()
     {
         // signal transfer submission has completed
         semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        log(level, "   Semaphore created ", semaphore, ", ", semaphore->vk());
     }
 
     VkResult result = VK_SUCCESS;

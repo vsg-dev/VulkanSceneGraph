@@ -106,7 +106,7 @@ void DescriptorBuffer::compile(Context& context)
     if (bufferInfoList.empty()) return;
 
     auto transferTask = context.transferTask.get();
-    transferTask = nullptr;
+    //transferTask = nullptr;
 
     VkBufferUsageFlags bufferUsageFlags = 0;
     switch (descriptorType)
@@ -151,7 +151,7 @@ void DescriptorBuffer::compile(Context& context)
                 {
                     totalSize = offset + bufferInfo->data->dataSize();
                     offset = (alignment == 1 || (totalSize % alignment) == 0) ? totalSize : ((totalSize / alignment) + 1) * alignment;
-                    if (bufferInfo->data->dynamic()) bufferUsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+                    if (bufferInfo->data->dynamic() || transferTask) bufferUsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
                 }
             }
         }
