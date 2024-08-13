@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/State.h>
 
+#define SINGLE_ACCUMULATION_OF_SIZE 1
+
 using namespace vsg;
 
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
@@ -95,6 +97,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
         _dynamicDataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
     }
 
+#if SINGLE_ACCUMULATION_OF_SIZE == 0
     // compute total data size
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
@@ -112,6 +115,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
         }
     }
     _dynamicDataTotalSize = offset;
+#endif
 }
 
 void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
@@ -217,6 +221,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
         _dynamicImageInfoSet.insert(imageInfo);
     }
 
+#if SINGLE_ACCUMULATION_OF_SIZE == 0
     // compute total data size
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
@@ -237,6 +242,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
     _dynamicImageTotalSize = offset;
 
     log(level, "    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
+#endif
 }
 
 void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset)
@@ -369,6 +375,44 @@ VkResult TransferTask::transferDynamicData()
 
     size_t frameIndex = index(0);
     if (frameIndex > _frames.size()) return VK_SUCCESS;
+
+#if SINGLE_ACCUMULATION_OF_SIZE != 0
+    // compute total data size
+    VkDeviceSize offset = 0;
+    VkDeviceSize alignment = 4;
+
+    for (auto& imageInfo : _dynamicImageInfoSet)
+    {
+        auto data = imageInfo->imageView->image->data;
+
+        VkFormat targetFormat = imageInfo->imageView->format;
+        auto targetTraits = getFormatTraits(targetFormat);
+        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+
+        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
+
+        VkDeviceSize endOfEntry = offset + imageTotalSize;
+        offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+    }
+    _dynamicImageTotalSize = offset;
+
+    log(level, "    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
+
+    _dynamicDataTotalRegions = 0;
+    for (auto& entry : _dynamicDataMap)
+    {
+        auto& bufferInfos = entry.second;
+        for (auto& offset_bufferInfo : bufferInfos)
+        {
+            auto& bufferInfo = offset_bufferInfo.second;
+            VkDeviceSize endOfEntry = offset + bufferInfo->range;
+            offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+            ++_dynamicDataTotalRegions;
+        }
+    }
+    _dynamicDataTotalSize = offset;
+    log(level, "    _dynamicDataTotalSize = ", _dynamicDataTotalSize);
+#endif
 
     VkDeviceSize totalSize = _dynamicDataTotalSize + _dynamicImageTotalSize;
     if (totalSize == 0) return VK_SUCCESS;
