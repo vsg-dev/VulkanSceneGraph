@@ -419,7 +419,6 @@ VkResult TransferTask::transferDynamicData()
 
         log(level, "   allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
-
         if (result != VK_SUCCESS) return result;
     }
 

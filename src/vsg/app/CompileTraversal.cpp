@@ -63,7 +63,7 @@ CompileTraversal::~CompileTraversal()
 
 void CompileTraversal::add(ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(", device, ", ", transferTask,", ...)");
+    vsg::info("CompileTraversal::add(", device, ", ", transferTask, ", ...)");
 
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
@@ -110,7 +110,7 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(",&window, ", ", transferTask, ", ", view, "..");
+    vsg::info("CompileTraversal::add(", &window, ", ", transferTask, ", ", view, "..");
 
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
@@ -147,7 +147,7 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(",&framebuffer, ", ", transferTask, ", ", view, "..)");
+    vsg::info("CompileTraversal::add(", &framebuffer, ", ", transferTask, ", ", view, "..)");
 
     auto device = framebuffer.getDevice();
     auto renderPass = framebuffer.getRenderPass();

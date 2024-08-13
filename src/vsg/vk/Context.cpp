@@ -23,12 +23,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorSet.h>
+#include <vsg/ui/UIEvent.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/State.h>
-#include <vsg/ui/UIEvent.h>
 
 using namespace vsg;
 

@@ -220,7 +220,6 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         return false;
     }
 
-
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
     for (auto& bufferInfo : bufferInfoList)
@@ -282,7 +281,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         vsg::debug("vsg::createBufferAndTransferData(..)");
 
-        for(auto& bufferInfo : bufferInfoList)
+        for (auto& bufferInfo : bufferInfoList)
         {
             vsg::debug("    ", bufferInfo, ", ", bufferInfo->data, ", ", bufferInfo->buffer, ", ", bufferInfo->offset);
             bufferInfo->data->dirty();
