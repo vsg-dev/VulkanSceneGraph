@@ -398,6 +398,7 @@ VkResult TransferTask::transferDynamicData()
 
     log(level, "    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
 
+    offset = 0;
     _dynamicDataTotalRegions = 0;
     for (auto& entry : _dynamicDataMap)
     {
@@ -412,6 +413,10 @@ VkResult TransferTask::transferDynamicData()
     }
     _dynamicDataTotalSize = offset;
     log(level, "    _dynamicDataTotalSize = ", _dynamicDataTotalSize);
+
+    offset = 0;
+#else
+    VkDeviceSize offset = 0;
 #endif
 
     VkDeviceSize totalSize = _dynamicDataTotalSize + _dynamicImageTotalSize;
@@ -476,7 +481,6 @@ VkResult TransferTask::transferDynamicData()
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
-    VkDeviceSize offset = 0;
     {
         COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "transferDynamicData", COLOR_GPU)
 
