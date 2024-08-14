@@ -77,7 +77,7 @@ bool TransferTask::containsDataToTransfer() const
 
 void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L2(instrumentation);
 
     assign(dynamicData.bufferInfos);
     assign(dynamicData.imageInfos);
@@ -85,7 +85,7 @@ void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
 
 void TransferTask::assign(const BufferInfoList& bufferInfoList)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L2(instrumentation);
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
@@ -210,7 +210,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
 
 void TransferTask::assign(const ImageInfoList& imageInfoList)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L2(instrumentation);
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
@@ -286,7 +286,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
 
 void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo)
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
+    CPU_INSTRUMENTATION_L2(instrumentation);
 
     auto& imageStagingBuffer = frame.staging;
     auto& buffer_data = frame.buffer_data;
