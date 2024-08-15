@@ -459,6 +459,8 @@ VkResult TransferTask::transferData()
     // allocate staging buffer if required
     if (!staging || staging->size < totalSize)
     {
+        VkDeviceSize previousSize = staging ? staging->size : 0;
+
         VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
         staging = vsg::createBufferAndMemory(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
 
@@ -466,7 +468,8 @@ VkResult TransferTask::transferData()
         buffer_data = nullptr;
         result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
 
-        log(level, "   allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
+        //log(level, "   allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
+        info("TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
         if (result != VK_SUCCESS) return result;
     }
