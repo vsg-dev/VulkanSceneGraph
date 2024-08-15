@@ -775,7 +775,7 @@ void Viewer::setupThreading()
 
                     //vsg::info("run_transfer");
 
-                    /*VkResult result =*/transferTask->transferDynamicData();
+                    /*VkResult result =*/transferTask->transferData();
 
                     data->recordCompletedBarrier->arrive_and_wait();
                 }

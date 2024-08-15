@@ -90,7 +90,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     if (earlyTransferTask)
     {
-        if (VkResult result = earlyTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
+        if (VkResult result = earlyTransferTask->transferData(); result != VK_SUCCESS) return result;
     }
 
     auto recordedCommandBuffers = RecordedCommandBuffers::create();
@@ -136,7 +136,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (lateTransferTask)
     {
-        if (VkResult result = lateTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
+        if (VkResult result = lateTransferTask->transferData(); result != VK_SUCCESS) return result;
     }
 
     if (recordedCommandBuffers->empty())
