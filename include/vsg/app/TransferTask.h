@@ -49,6 +49,9 @@ namespace vsg
         ref_ptr<Queue> transferQueue;
         ref_ptr<Semaphore> currentTransferCompletedSemaphore;
 
+        /// minimum size to use when allocating staging buffers.
+        VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
+
         /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
 

@@ -459,6 +459,12 @@ VkResult TransferTask::transferData()
     // allocate staging buffer if required
     if (!staging || staging->size < totalSize)
     {
+        if (totalSize < minimumStagingBufferSize)
+        {
+            totalSize = minimumStagingBufferSize;
+            vsg::info("Clamping totalSize to ", minimumStagingBufferSize);
+        }
+
         VkDeviceSize previousSize = staging ? staging->size : 0;
 
         VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
