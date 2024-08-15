@@ -137,7 +137,7 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
 
     contexts.push_back(context);
 
-    if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), resourceRequirements);
+    if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), transferTask, resourceRequirements);
 }
 
 void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -174,7 +174,7 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<TransferTask> trans
 
     contexts.push_back(context);
 
-    if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), resourceRequirements);
+    if (view->viewDependentState) addViewDependentState(*(view->viewDependentState), transferTask, resourceRequirements);
 }
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -228,7 +228,7 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
                 else if (auto framebuffer = obj.cast<Framebuffer>())
                     ct->add(*framebuffer, transferTask, ref_ptr<View>(&view), resourceRequirements);
 
-                if (view.viewDependentState) ct->addViewDependentState(*view.viewDependentState, resourceRequirements);
+                //if (view.viewDependentState) ct->addViewDependentState(*view.viewDependentState, transferTask, resourceRequirements);
             }
         }
     } addViews(this, resourceRequirements);
@@ -245,13 +245,13 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
     }
 }
 
-void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentState, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentState, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
     if (viewDependentState.shadowMaps.size() > 0)
     {
         auto nested_view = viewDependentState.shadowMaps.front().view;
         auto nested_framebuffer = viewDependentState.shadowMaps.front().renderGraph->framebuffer;
-        add(*nested_framebuffer, nested_view, resourceRequirements);
+        add(*nested_framebuffer, transferTask, nested_view, resourceRequirements);
     }
 }
 

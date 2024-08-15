@@ -105,7 +105,7 @@ namespace vsg
     protected:
         ~CompileTraversal();
 
-        void addViewDependentState(ViewDependentState& viewDependentState, const ResourceRequirements& resourceRequirements);
+        void addViewDependentState(ViewDependentState& viewDependentState, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements);
     };
     VSG_type_name(vsg::CompileTraversal);
 
