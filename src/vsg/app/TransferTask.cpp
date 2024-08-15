@@ -72,7 +72,7 @@ size_t TransferTask::index(size_t relativeFrameIndex) const
 bool TransferTask::containsDataToTransfer() const
 {
     std::scoped_lock<std::mutex> lock(_mutex);
-    return !_dynamicDataMap.empty() || !_dynamicImageInfoSet.empty();
+    return !_dataMap.empty() || !_imageInfoSet.empty();
 }
 
 void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
@@ -94,7 +94,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
     for (auto& bufferInfo : bufferInfoList)
     {
         log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
-        _dynamicDataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+        _dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
     }
 
 #if SINGLE_ACCUMULATION_OF_SIZE == 0
@@ -102,8 +102,8 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    _dynamicDataTotalRegions = 0;
-    for (auto& entry : _dynamicDataMap)
+    _dataTotalRegions = 0;
+    for (auto& entry : _dataMap)
     {
         auto& bufferInfos = entry.second;
         for (auto& offset_bufferInfo : bufferInfos)
@@ -111,10 +111,10 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
             auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            ++_dynamicDataTotalRegions;
+            ++_dataTotalRegions;
         }
     }
-    _dynamicDataTotalSize = offset;
+    _dataTotalSize = offset;
 #endif
 }
 
@@ -130,13 +130,13 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
     VkDeviceSize alignment = 4;
 
     copyRegions.clear();
-    copyRegions.resize(_dynamicDataTotalRegions);
+    copyRegions.resize(_dataTotalRegions);
     VkBufferCopy* pRegions = copyRegions.data();
 
     log(level, "  TransferTask::_transferBufferInfos(..) ", this);
 
     // copy any modified BufferInfo
-    for (auto buffer_itr = _dynamicDataMap.begin(); buffer_itr != _dynamicDataMap.end();)
+    for (auto buffer_itr = _dataMap.begin(); buffer_itr != _dataMap.end();)
     {
         auto& bufferInfos = buffer_itr->second;
 
@@ -199,7 +199,7 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
         if (bufferInfos.empty())
         {
             log(level, "    bufferInfos.empty()");
-            buffer_itr = _dynamicDataMap.erase(buffer_itr);
+            buffer_itr = _dataMap.erase(buffer_itr);
         }
         else
         {
@@ -218,7 +218,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
     for (auto& imageInfo : imageInfoList)
     {
         log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
-        _dynamicImageInfoSet.insert(imageInfo);
+        _imageInfoSet.insert(imageInfo);
     }
 
 #if SINGLE_ACCUMULATION_OF_SIZE == 0
@@ -226,7 +226,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    for (auto& imageInfo : _dynamicImageInfoSet)
+    for (auto& imageInfo : _imageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
 
@@ -239,9 +239,9 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
         VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
-    _dynamicImageTotalSize = offset;
+    _imageTotalSize = offset;
 
-    log(level, "    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
+    log(level, "    _imageTotalSize = ", _imageTotalSize);
 #endif
 }
 
@@ -252,13 +252,13 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
     auto deviceID = device->deviceID;
 
     // transfer any modified ImageInfo
-    for (auto imageInfo_itr = _dynamicImageInfoSet.begin(); imageInfo_itr != _dynamicImageInfoSet.end();)
+    for (auto imageInfo_itr = _imageInfoSet.begin(); imageInfo_itr != _imageInfoSet.end();)
     {
         auto& imageInfo = *imageInfo_itr;
         if (imageInfo->referenceCount() == 1)
         {
             log(level, "ImageInfo only ref left ", imageInfo, ", ", imageInfo->referenceCount());
-            imageInfo_itr = _dynamicImageInfoSet.erase(imageInfo_itr);
+            imageInfo_itr = _imageInfoSet.erase(imageInfo_itr);
         }
         else
         {
@@ -274,7 +274,7 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
             if (imageInfo->imageView->image->data->properties.dataVariance == STATIC_DATA)
             {
                 log(level, "       removing copied static image data: ", imageInfo, ", ", imageInfo->imageView->image->data);
-                imageInfo_itr = _dynamicImageInfoSet.erase(imageInfo_itr);
+                imageInfo_itr = _imageInfoSet.erase(imageInfo_itr);
             }
             else
             {
@@ -367,9 +367,9 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& f
     transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
-VkResult TransferTask::transferDynamicData()
+VkResult TransferTask::transferData()
 {
-    CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferDynamicData", COLOR_RECORD);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferData", COLOR_RECORD);
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
@@ -381,7 +381,7 @@ VkResult TransferTask::transferDynamicData()
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    for (auto& imageInfo : _dynamicImageInfoSet)
+    for (auto& imageInfo : _imageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
 
@@ -394,13 +394,13 @@ VkResult TransferTask::transferDynamicData()
         VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
-    _dynamicImageTotalSize = offset;
+    _imageTotalSize = offset;
 
-    log(level, "    _dynamicImageTotalSize = ", _dynamicImageTotalSize);
+    log(level, "    _imageTotalSize = ", _imageTotalSize);
 
     offset = 0;
-    _dynamicDataTotalRegions = 0;
-    for (auto& entry : _dynamicDataMap)
+    _dataTotalRegions = 0;
+    for (auto& entry : _dataMap)
     {
         auto& bufferInfos = entry.second;
         for (auto& offset_bufferInfo : bufferInfos)
@@ -408,18 +408,18 @@ VkResult TransferTask::transferDynamicData()
             auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            ++_dynamicDataTotalRegions;
+            ++_dataTotalRegions;
         }
     }
-    _dynamicDataTotalSize = offset;
-    log(level, "    _dynamicDataTotalSize = ", _dynamicDataTotalSize);
+    _dataTotalSize = offset;
+    log(level, "    _dataTotalSize = ", _dataTotalSize);
 
     offset = 0;
 #else
     VkDeviceSize offset = 0;
 #endif
 
-    VkDeviceSize totalSize = _dynamicDataTotalSize + _dynamicImageTotalSize;
+    VkDeviceSize totalSize = _dataTotalSize + _imageTotalSize;
     if (totalSize == 0) return VK_SUCCESS;
 
     uint32_t deviceID = device->deviceID;
@@ -430,7 +430,7 @@ VkResult TransferTask::transferDynamicData()
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
-    log(level, "\nTransferTask::transferDynamicData() ", this, ", _currentFrameIndex = ", _currentFrameIndex, ", _dynamicDataMap.size() ", _dynamicDataMap.size());
+    log(level, "\nTransferTask::transferData() ", this, ", _currentFrameIndex = ", _currentFrameIndex, ", _dataMap.size() ", _dataMap.size());
     log(level, "   frameIndex = ", frameIndex);
     log(level, "   transferQueue = ", transferQueue);
     log(level, "   staging = ", staging);
@@ -482,7 +482,7 @@ VkResult TransferTask::transferDynamicData()
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     {
-        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "transferDynamicData", COLOR_GPU)
+        COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "transferData", COLOR_GPU)
 
         // transfer the modified BufferInfo and ImageInfo
         _transferBufferInfos(vk_commandBuffer, frame, offset);
@@ -506,7 +506,7 @@ VkResult TransferTask::transferDynamicData()
             submitInfo.waitSemaphoreCount = 0;
             submitInfo.pWaitSemaphores = nullptr;
             submitInfo.pWaitDstStageMask = nullptr;
-            // info("TransferTask::transferDynamicData() ", this, ", _currentFrameIndex = ", _currentFrameIndex);
+            // info("TransferTask::transferData() ", this, ", _currentFrameIndex = ", _currentFrameIndex);
         }
         else
         {

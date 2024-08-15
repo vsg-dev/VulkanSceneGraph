@@ -31,7 +31,7 @@ namespace vsg
         explicit TransferTask(Device* in_device, uint32_t numBuffers = 3);
 
         /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
-        virtual VkResult transferDynamicData();
+        virtual VkResult transferData();
 
         virtual bool containsDataToTransfer() const;
 
@@ -63,11 +63,11 @@ namespace vsg
 
         mutable std::mutex _mutex;
 
-        VkDeviceSize _dynamicDataTotalRegions = 0;
-        VkDeviceSize _dynamicDataTotalSize = 0;
-        VkDeviceSize _dynamicImageTotalSize = 0;
-        BufferMap _dynamicDataMap;
-        std::set<ref_ptr<ImageInfo>> _dynamicImageInfoSet;
+        VkDeviceSize _dataTotalRegions = 0;
+        VkDeviceSize _dataTotalSize = 0;
+        VkDeviceSize _imageTotalSize = 0;
+        BufferMap _dataMap;
+        std::set<ref_ptr<ImageInfo>> _imageInfoSet;
 
         size_t _currentFrameIndex;
         std::vector<size_t> _indices;
