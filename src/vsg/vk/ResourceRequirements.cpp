@@ -71,9 +71,13 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
         }
     }
 
-    numLightsRange = resourceHints.numLightsRange;
-    numShadowMapsRange = resourceHints.numShadowMapsRange;
-    shadowMapSize = resourceHints.shadowMapSize;
+    minimumBufferSize = std::max(minimumBufferSize, resourceHints.minimumBufferSize);
+    minimumDeviceMemorySize = std::max(minimumDeviceMemorySize, resourceHints.minimumDeviceMemorySize);
+    minimumStagingBufferSize = std::max(minimumStagingBufferSize, resourceHints.minimumStagingBufferSize);
+
+    numLightsRange = std::max(numLightsRange, resourceHints.numLightsRange);
+    numShadowMapsRange = std::max(numShadowMapsRange, resourceHints.numShadowMapsRange);
+    shadowMapSize = std::max(shadowMapSize, resourceHints.shadowMapSize);
 }
 
 //////////////////////////////////////////////////////////////////////

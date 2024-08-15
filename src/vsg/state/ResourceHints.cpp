@@ -44,6 +44,11 @@ void ResourceHints::read(Input& input)
     input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
     input.readValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
 
+    if (input.version_greater_equal(1, 1, 8))
+    {
+        input.readValue<uint64_t>("minimumStagingBufferSize", minimumStagingBufferSize);
+    }
+
     if (input.version_greater_equal(1, 0, 10))
     {
         input.read("numLightsRange", numLightsRange);
@@ -72,6 +77,11 @@ void ResourceHints::write(Output& output) const
 
     output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
     output.writeValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
+
+    if (output.version_greater_equal(1, 1, 8))
+    {
+        output.writeValue<uint64_t>("minimumStagingBufferSize", minimumStagingBufferSize);
+    }
 
     if (output.version_greater_equal(1, 0, 10))
     {

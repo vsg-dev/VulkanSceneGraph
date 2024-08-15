@@ -33,6 +33,8 @@ namespace vsg
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
 
+        VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
+
         uivec2 numLightsRange = {8, 1024};
         uivec2 numShadowMapsRange = {0, 64};
         uivec2 shadowMapSize = {2048, 2028};
