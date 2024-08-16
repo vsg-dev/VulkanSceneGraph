@@ -303,12 +303,16 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     for (auto& task : recordAndSubmitTasks)
     {
         auto& collectResources = deviceResourceMap[task->device].collectResources;
+        auto& resourceRequirements = collectResources.requirements;
         if (hints) hints->accept(collectResources);
 
         for (auto& commandGraph : task->commandGraphs)
         {
             commandGraph->accept(collectResources);
         }
+
+        task->earlyTransferTask->minimumStagingBufferSize = resourceRequirements.minimumStagingBufferSize;
+        task->lateTransferTask->minimumStagingBufferSize = resourceRequirements.minimumStagingBufferSize;
 
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
