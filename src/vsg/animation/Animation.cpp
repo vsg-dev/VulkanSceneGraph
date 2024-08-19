@@ -132,6 +132,8 @@ bool Animation::update(double simulationTime)
 {
     if (!_active) return false;
 
+    bool finished = false;
+
     auto time_within_period = [](double x, double y) -> double {
         return x < 0.0 ? y + std::fmod(x, y) : std::fmod(x, y);
     };
@@ -153,14 +155,20 @@ bool Animation::update(double simulationTime)
     {
         if (time > _maxTime)
         {
-            stop(simulationTime);
-            return false;
+            finished = true;
+            samplerTime = time = _maxTime;
         }
     }
 
     for (auto sampler : samplers)
     {
         sampler->update(samplerTime);
+    }
+
+    if(finished)
+    {
+        stop(simulationTime);
+        return false;
     }
 
     return true;
