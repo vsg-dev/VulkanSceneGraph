@@ -36,9 +36,11 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
     }
 
     earlyTransferTask = TransferTask::create(in_device, numBuffers);
+    earlyTransferTask->setValue("name", "earlyTransferTask");
     earlyTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
 
     lateTransferTask = TransferTask::create(in_device, numBuffers);
+    lateTransferTask->setValue("name", "lateTransferTask");
     lateTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
 }
 
@@ -241,6 +243,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) compileResult.maxSlot = ", compileResult.maxSlot);
     if (compileResult.earlyDynamicData || compileResult.lateDynamicData)
     {
+#if 0
         for (auto& task : tasks)
         {
             if (task->earlyTransferTask && compileResult.earlyDynamicData)
@@ -253,6 +256,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
                 task->lateTransferTask->assign(compileResult.lateDynamicData);
             }
         }
+#endif
     }
 
     // increase maxSlot if required

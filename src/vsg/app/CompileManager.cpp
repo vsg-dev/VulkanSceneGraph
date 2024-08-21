@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
+#include <vsg/app/RecordAndSubmitTask.h>
 
 using namespace vsg;
 
@@ -264,4 +265,26 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     compileTraversals->add(compileTraversal);
 
     return result;
+}
+
+CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
+{
+    vsg::info("CompileManager::compile(", task, ") {");
+
+    auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+
+    for(auto& context : compileTraversal->contexts)
+    {
+        context->transferTask = task->earlyTransferTask;
+        vsg::info("   assigned  ", context->transferTask);
+    }
+
+    for(auto& cg : task->commandGraphs)
+    {
+        vsg::info("   doing traversal  of ", cg);
+        cg->accept(*compileTraversal);
+    }
+
+    vsg::info("} completed ", task);
+    return {};
 }

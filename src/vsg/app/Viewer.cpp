@@ -275,6 +275,8 @@ void Viewer::handleEvents()
     }
 }
 
+#define USE_COMPILE_MANAGER 0
+
 void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer compile", COLOR_COMPILE);
@@ -294,7 +296,9 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     struct DeviceResources
     {
         CollectResourceRequirements collectResources;
+#if USE_COMPILE_MANAGER==0
         vsg::ref_ptr<vsg::CompileTraversal> compile;
+#endif
     };
 
     // find which devices are available and the resources required for them
@@ -328,6 +332,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         if (resourceRequirements.containsPagedLOD) containsPagedLOD = true;
 
+#if USE_COMPILE_MANAGER==0
         auto physicalDevice = device->getPhysicalDevice();
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
@@ -342,6 +347,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
             context->reserve(resourceRequirements);
         }
+#endif
     }
 
     // assign the viewID's to each View
@@ -372,6 +378,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         if (instrumentation) databasePager->assignInstrumentation(instrumentation);
     }
 
+#if USE_COMPILE_MANAGER==0
     // create the Vulkan objects
     for (auto& task : recordAndSubmitTasks)
     {
@@ -393,6 +400,31 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             if (!task->databasePager) task->databasePager = databasePager;
         }
     }
+#else
+    // create the Vulkan objects
+    for (auto& task : recordAndSubmitTasks)
+    {
+        auto& deviceResource = deviceResourceMap[task->device];
+        auto& resourceRequirements = deviceResource.collectResources.requirements;
+
+        bool task_containsPagedLOD = false;
+
+        for (auto& commandGraph : task->commandGraphs)
+        {
+            commandGraph->maxSlot = resourceRequirements.maxSlot;
+            if (resourceRequirements.containsPagedLOD) task_containsPagedLOD = true;
+        }
+
+        if (task_containsPagedLOD)
+        {
+            if (!task->databasePager) task->databasePager = databasePager;
+        }
+    }
+#endif
+
+#if 1
+
+    vsg::info("Viewer::compile() before earlyTransferTask & lateTransferTask assigned");
 
     // assign dynamic data to transfer tasks
     for (auto& task : recordAndSubmitTasks)
@@ -410,6 +442,9 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         }
     }
 
+    vsg::info("Viewer::compile() after earlyTransferTask & lateTransferTask assigned");
+
+#endif
     // set up the CompileManager
     if (!compileManager)
     {
@@ -423,6 +458,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         databasePager->compileManager = compileManager;
     }
 
+#if USE_COMPILE_MANAGER == 0
     // record any transfer commands
     for (auto& dp : deviceResourceMap)
     {
@@ -434,7 +470,16 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     {
         dp.second.compile->waitForCompletion();
     }
+#else
 
+    for (auto& task : recordAndSubmitTasks)
+    {
+        auto& deviceResource = deviceResourceMap[task->device];
+        auto& resourceRequirements = deviceResource.collectResources.requirements;
+        compileManager->compileTask(task, resourceRequirements);
+    }
+
+#endif
     // start any DatabasePagers
     for (auto& task : recordAndSubmitTasks)
     {

@@ -35,7 +35,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 
     _frames.resize(numBuffers);
 
-    // level = Logger::LOGGER_INFO;
+    level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
@@ -89,12 +89,29 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    log(level, "TransferTask::assign(BufferInfoList) ", this, ", ", bufferInfoList.size());
+    if (std::string name; getValue("name", name))
+    {
+        log(level, "TransferTask::assign(BufferInfoList) ", this, ", name = ", name, ", bufferInfoList.size() = ", bufferInfoList.size());
+    }
+    else
+    {
+        log(level, "TransferTask::assign(BufferInfoList) ", this, ", bufferInfoList.size() = ", bufferInfoList.size());
+    }
 
     for (auto& bufferInfo : bufferInfoList)
     {
-        log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
-        _dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+        std::string str;
+        if (bufferInfo->data->getValue("name", str))
+        {
+            log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "} name = ", str);
+        }
+        else
+        {
+            log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
+        }
+
+        if (bufferInfo->buffer) _dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+        //else throw "Problem";
     }
 
 #if SINGLE_ACCUMULATION_OF_SIZE == 0
@@ -214,11 +231,22 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    log(level, "TransferTask::assign(imageInfoList) ", this, ", ", imageInfoList.size());
+    if (std::string name; getValue("name", name))
+    {
+        log(level, "TransferTask::assign(ImageInfoList) ", this, ", name = ", name, ", imageInfoList.size() = ", imageInfoList.size());
+    }
+    else
+    {
+        log(level, "TransferTask::assign(ImageInfoList) ", this, ", imageInfoList.size() = ", imageInfoList.size());
+    }
+
     for (auto& imageInfo : imageInfoList)
     {
-        log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
-        _imageInfoSet.insert(imageInfo);
+        if (imageInfo->imageView && imageInfo->imageView && imageInfo->imageView->image->data)
+        {
+            log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
+            _imageInfoSet.insert(imageInfo);
+        }
     }
 
 #if SINGLE_ACCUMULATION_OF_SIZE == 0
@@ -373,6 +401,13 @@ VkResult TransferTask::transferData()
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
+    if (level > Logger::LOGGER_DEBUG)
+    {
+        std::string name;
+        getValue("name", name);
+        log(level, "\nTransferTask::transferData() ", this, ", name = ", name, ", _currentFrameIndex = ", _currentFrameIndex, ", _dataMap.size() ", _dataMap.size());
+    }
+
     size_t frameIndex = index(0);
     if (frameIndex > _frames.size()) return VK_SUCCESS;
 
@@ -430,7 +465,6 @@ VkResult TransferTask::transferData()
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
-    log(level, "\nTransferTask::transferData() ", this, ", _currentFrameIndex = ", _currentFrameIndex, ", _dataMap.size() ", _dataMap.size());
     log(level, "   frameIndex = ", frameIndex);
     log(level, "   transferQueue = ", transferQueue);
     log(level, "   staging = ", staging);
