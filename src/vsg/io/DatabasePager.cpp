@@ -133,8 +133,6 @@ void DatabasePager::assignInstrumentation(ref_ptr<Instrumentation> in_instrument
 
 void DatabasePager::start()
 {
-    int numReadThreads = 4;
-
     //
     // set up read thread(s)
     //

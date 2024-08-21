@@ -99,6 +99,8 @@ namespace vsg
         std::atomic_uint numActiveRequests{0};
         std::atomic_uint64_t frameCount;
 
+        int numReadThreads{4};
+
         ref_ptr<CulledPagedLODs> culledPagedLODs;
 
         /// for systems with smaller GPU memory limits you may need to reduce the targetMaxNumPagedLODWithHighResSubgraphs to keep memory usage within available limits.
