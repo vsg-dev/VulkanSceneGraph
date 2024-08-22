@@ -39,7 +39,7 @@ namespace vsg
         Semaphores waitSemaphores;
         Semaphores signalSemaphores;
 
-        /// advance the currentFrameIndex
+        /// advance the currentTransferBlockIndex
         void advance();
 
         void assign(const ResourceRequirements::DynamicData& dynamicData);
@@ -62,20 +62,11 @@ namespace vsg
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
-        size_t index(size_t relativeFrameIndex = 0) const;
+        size_t index(size_t relativeTransferBlockIndex = 0) const;
 
         mutable std::mutex _mutex;
 
-        VkDeviceSize _dataTotalRegions = 0;
-        VkDeviceSize _dataTotalSize = 0;
-        VkDeviceSize _imageTotalSize = 0;
-        BufferMap _dataMap;
-        std::set<ref_ptr<ImageInfo>> _imageInfoSet;
-
-        size_t _currentFrameIndex;
-        std::vector<size_t> _indices;
-
-        struct Frame
+        struct TransferBlock : public Inherit<Object, TransferBlock>
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
             ref_ptr<Semaphore> transferCompleteSemaphore;
@@ -84,12 +75,33 @@ namespace vsg
             std::vector<VkBufferCopy> copyRegions;
         };
 
-        std::vector<Frame> _frames;
+        struct DataToCopy
+        {
+            BufferMap dataMap;
+            std::set<ref_ptr<ImageInfo>> imageInfoSet;
 
-        void _transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
+            bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
+        };
 
-        void _transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
-        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
+        VkDeviceSize _dataTotalRegions = 0;
+        VkDeviceSize _dataTotalSize = 0;
+        VkDeviceSize _imageTotalSize = 0;
+
+        DataToCopy _earlyDataToCopy;
+        DataToCopy _lateDataToCopy;
+
+        size_t _currentTransferBlockIndex;
+        std::vector<size_t> _indices;
+
+
+        std::vector<ref_ptr<TransferBlock>> _frames;
+
+        VkResult _transferData(DataToCopy& dataToCopy);
+
+        void _transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
+
+        void _transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
+        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
     };
     VSG_type_name(vsg::TransferTask);
 
