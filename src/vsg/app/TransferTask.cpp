@@ -31,7 +31,8 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
         _indices.emplace_back(numBuffers); // numBuffers is used to signify unset value
-        _frames.emplace_back(TransferBlock::create());
+        _earlyDataToCopy.frames.emplace_back(TransferBlock::create());
+        _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
     level = Logger::LOGGER_INFO;
@@ -146,7 +147,7 @@ void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer 
     VkDeviceSize alignment = 4;
 
     copyRegions.clear();
-    copyRegions.resize(_dataTotalRegions);
+    copyRegions.resize(dataToCopy.dataTotalRegions);
     VkBufferCopy* pRegions = copyRegions.data();
 
     log(level, "  TransferTask::_transferBufferInfos(..) ", this);
@@ -413,7 +414,7 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
     }
 
     size_t frameIndex = index(0);
-    if (frameIndex > _frames.size()) return VK_SUCCESS;
+    if (frameIndex > dataToCopy.frames.size()) return VK_SUCCESS;
 
 #if SINGLE_ACCUMULATION_OF_SIZE != 0
     // compute total data size
@@ -433,12 +434,12 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
         VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
-    _imageTotalSize = offset;
+    dataToCopy.imageTotalSize = offset;
 
-    log(level, "    _imageTotalSize = ", _imageTotalSize);
+    log(level, "    dataToCopy.imageTotalSize = ", dataToCopy.imageTotalSize);
 
     offset = 0;
-    _dataTotalRegions = 0;
+    dataToCopy.dataTotalRegions = 0;
     for (auto& entry : dataToCopy.dataMap)
     {
         auto& bufferInfos = entry.second;
@@ -447,22 +448,22 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
             auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            ++_dataTotalRegions;
+            ++dataToCopy.dataTotalRegions;
         }
     }
-    _dataTotalSize = offset;
-    log(level, "    _dataTotalSize = ", _dataTotalSize);
+    dataToCopy.dataTotalSize = offset;
+    log(level, "    dataToCopy.dataTotalSize = ", dataToCopy.dataTotalSize);
 
     offset = 0;
 #else
     VkDeviceSize offset = 0;
 #endif
 
-    VkDeviceSize totalSize = _dataTotalSize + _imageTotalSize;
+    VkDeviceSize totalSize = dataToCopy.dataTotalSize + dataToCopy.imageTotalSize;
     if (totalSize == 0) return VK_SUCCESS;
 
     uint32_t deviceID = device->deviceID;
-    auto& frame = *(_frames[frameIndex]);
+    auto& frame = *(dataToCopy.frames[frameIndex]);
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
     auto& semaphore = frame.transferCompleteSemaphore;

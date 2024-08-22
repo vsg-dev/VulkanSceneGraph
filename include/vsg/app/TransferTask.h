@@ -79,22 +79,21 @@ namespace vsg
         {
             BufferMap dataMap;
             std::set<ref_ptr<ImageInfo>> imageInfoSet;
+            std::vector<ref_ptr<TransferBlock>> frames;
+
+            VkDeviceSize dataTotalRegions = 0;
+            VkDeviceSize dataTotalSize = 0;
+            VkDeviceSize imageTotalSize = 0;
 
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
-        };
 
-        VkDeviceSize _dataTotalRegions = 0;
-        VkDeviceSize _dataTotalSize = 0;
-        VkDeviceSize _imageTotalSize = 0;
+        };
 
         DataToCopy _earlyDataToCopy;
         DataToCopy _lateDataToCopy;
 
         size_t _currentTransferBlockIndex;
         std::vector<size_t> _indices;
-
-
-        std::vector<ref_ptr<TransferBlock>> _frames;
 
         VkResult _transferData(DataToCopy& dataToCopy);
 
