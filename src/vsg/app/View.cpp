@@ -22,6 +22,8 @@ using namespace vsg;
 // thread safe container for managing the deviceID for each vsg::View
 static std::mutex s_ViewCountMutex;
 static std::vector<uint32_t> s_ActiveViews;
+// these must not be reset to zero when a view ID is reused
+static std::vector<ModifiedCount> s_ViewIDModifiedCounts;
 
 static uint32_t getUniqueViewID()
 {
@@ -38,6 +40,7 @@ static uint32_t getUniqueViewID()
     }
 
     s_ActiveViews.push_back(1);
+    s_ViewIDModifiedCounts.emplace_back();
 
     return viewID;
 }
@@ -62,6 +65,12 @@ static void releaseViewID(uint32_t viewID)
 {
     std::scoped_lock<std::mutex> guard(s_ViewCountMutex);
     --s_ActiveViews[viewID];
+    ++s_ViewIDModifiedCounts[viewID];
+}
+
+ModifiedCount vsg::View::modifiedCount(uint32_t viewID)
+{
+    return s_ViewIDModifiedCounts[viewID];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,4 +133,14 @@ void View::share(const View& view)
         if (!camera) camera = vsg::Camera::create();
         camera->viewportState = view.camera->viewportState;
     }
+}
+
+ModifiedCount vsg::View::modifiedCount()
+{
+    return s_ViewIDModifiedCounts[viewID];
+}
+
+void vsg::View::modified()
+{
+    ++s_ViewIDModifiedCounts[viewID];
 }

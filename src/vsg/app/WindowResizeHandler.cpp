@@ -45,7 +45,6 @@ void UpdateGraphicsPipelines::apply(vsg::BindGraphicsPipeline& bindPipeline)
     auto pipeline = bindPipeline.pipeline;
     if (pipeline)
     {
-        pipeline->release(context->viewID);
         pipeline->compile(*context);
     }
 }
@@ -118,7 +117,6 @@ void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
         bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
         if (needToRegenerateGraphicsPipeline)
         {
-            graphicsPipeline->release(context->viewID);
             graphicsPipeline->compile(*context);
         }
     }
@@ -179,6 +177,8 @@ void WindowResizeHandler::apply(vsg::View& view)
             renderArea = scissor;
         }
     }
+
+    view.modified();
 
     context->defaultPipelineStates.emplace_back(viewportState);
 

@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/app/View.h>
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
@@ -138,7 +139,7 @@ void GraphicsPipeline::compile(Context& context)
         _implementation.resize(viewID + 1);
     }
 
-    if (!_implementation[viewID])
+    if (!_implementation[viewID] || _implementation[viewID]->viewModifiedCount != View::modifiedCount(context.viewID))
     {
         // compile shaders if required
         bool requiresShaderCompiler = false;
@@ -189,6 +190,7 @@ void GraphicsPipeline::compile(Context& context)
 // GraphicsPipeline::Implementation
 //
 GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, const RenderPass* renderPass, const PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
+    viewModifiedCount(View::modifiedCount(context.viewID)),
     _device(device)
 {
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
