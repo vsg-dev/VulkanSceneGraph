@@ -144,11 +144,13 @@ void WindowResizeHandler::apply(vsg::View& view)
 {
     if (!visit(&view)) return;
 
+    auto previous_viewID = context->viewID;
     context->viewID = view.viewID;
 
     if (!view.camera)
     {
         view.traverse(*this);
+        context->viewID = previous_viewID;
         return;
     }
 
@@ -183,4 +185,5 @@ void WindowResizeHandler::apply(vsg::View& view)
     view.traverse(*this);
 
     context->defaultPipelineStates.pop_back();
+    context->viewID = previous_viewID;
 }
