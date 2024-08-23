@@ -35,7 +35,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
-    level = Logger::LOGGER_INFO;
+    //level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
@@ -119,8 +119,8 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    _dataTotalRegions = 0;
-    for (auto& entry : _earlyDataToCopy._dataMap)
+    _earlyDataToCopy.dataTotalRegions = 0;
+    for (auto& entry : _earlyDataToCopy.dataMap)
     {
         auto& bufferInfos = entry.second;
         for (auto& offset_bufferInfo : bufferInfos)
@@ -128,10 +128,10 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
             auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            ++_dataTotalRegions;
+            ++_earlyDataToCopy.dataTotalRegions;
         }
     }
-    _dataTotalSize = offset;
+    _earlyDataToCopy.dataTotalSize = offset;
 #endif
 }
 
@@ -267,9 +267,9 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
         VkDeviceSize endOfEntry = offset + imageTotalSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
-    _imageTotalSize = offset;
+    _earlyDataToCopy.imageTotalSize = offset;
 
-    log(level, "    _imageTotalSize = ", _imageTotalSize);
+    log(level, "    _imageTotalSize = ", _earlyDataToCopy.imageTotalSize);
 #endif
 }
 
@@ -501,7 +501,7 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
         if (totalSize < minimumStagingBufferSize)
         {
             totalSize = minimumStagingBufferSize;
-            vsg::info("Clamping totalSize to ", minimumStagingBufferSize);
+            log(level, "Clamping totalSize to ", minimumStagingBufferSize);
         }
 
         VkDeviceSize previousSize = staging ? staging->size : 0;
@@ -513,8 +513,7 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
         buffer_data = nullptr;
         result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
 
-        //log(level, "   allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
-        info("TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
+        log(level, "TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
         if (result != VK_SUCCESS) return result;
     }

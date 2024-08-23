@@ -37,11 +37,9 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
 
     earlyTransferTask = TransferTask::create(in_device, numBuffers);
     earlyTransferTask->setValue("name", "earlyTransferTask");
-    earlyTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
 
     lateTransferTask = TransferTask::create(in_device, numBuffers);
     lateTransferTask->setValue("name", "lateTransferTask");
-    lateTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
 }
 
 void RecordAndSubmitTask::advance()
@@ -171,18 +169,12 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     {
         vk_waitSemaphores.emplace_back(*earlyTransferTask->currentTransferCompletedSemaphore);
         vk_waitStages.emplace_back(earlyTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
-
-        earlyTransferTask->waitSemaphores.push_back(earlyTransferTaskConsumerCompletedSemaphore);
-        vk_signalSemaphores.emplace_back(*earlyTransferTaskConsumerCompletedSemaphore);
     }
 
     if (lateTransferTask && lateTransferTask->currentTransferCompletedSemaphore)
     {
         vk_waitSemaphores.emplace_back(*lateTransferTask->currentTransferCompletedSemaphore);
         vk_waitStages.emplace_back(lateTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
-
-        lateTransferTask->waitSemaphores.push_back(lateTransferTaskConsumerCompletedSemaphore);
-        vk_signalSemaphores.emplace_back(*lateTransferTaskConsumerCompletedSemaphore);
     }
 
     for (auto& window : windows)
