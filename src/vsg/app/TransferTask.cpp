@@ -545,36 +545,9 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        // set up the vulkan wait sempahore
-        std::vector<VkSemaphore> vk_waitSemaphores;
-        std::vector<VkPipelineStageFlags> vk_waitStages;
-        if (waitSemaphores.empty())
-        {
-            submitInfo.waitSemaphoreCount = 0;
-            submitInfo.pWaitSemaphores = nullptr;
-            submitInfo.pWaitDstStageMask = nullptr;
-            // info("TransferTask::transferData() ", this, ", _currentTransferBlockIndex = ", _currentTransferBlockIndex);
-        }
-        else
-        {
-            for (auto& waitSemaphore : waitSemaphores)
-            {
-                vk_waitSemaphores.emplace_back(*(waitSemaphore));
-                vk_waitStages.emplace_back(waitSemaphore->pipelineStageFlags());
-            }
-
-            submitInfo.waitSemaphoreCount = static_cast<uint32_t>(vk_waitSemaphores.size());
-            submitInfo.pWaitSemaphores = vk_waitSemaphores.data();
-            submitInfo.pWaitDstStageMask = vk_waitStages.data();
-        }
-
         // set up the vulkan signal sempahore
         std::vector<VkSemaphore> vk_signalSemaphores;
         vk_signalSemaphores.push_back(*semaphore);
-        for (auto& ss : signalSemaphores)
-        {
-            vk_signalSemaphores.push_back(*ss);
-        }
 
         submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
         submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
@@ -584,8 +557,6 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         result = transferQueue->submit(submitInfo);
 
-        waitSemaphores.clear();
-
         if (result != VK_SUCCESS) return result;
 
         currentTransferCompletedSemaphore = semaphore;
@@ -593,8 +564,6 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
     else
     {
         log(level, "Nothing to submit");
-
-        waitSemaphores.clear();
     }
 
     return VK_SUCCESS;

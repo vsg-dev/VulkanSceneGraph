@@ -36,8 +36,6 @@ namespace vsg
         virtual bool containsDataToTransfer() const;
 
         ref_ptr<Device> device;
-        Semaphores waitSemaphores;
-        Semaphores signalSemaphores;
 
         /// advance the currentTransferBlockIndex
         void advance();
