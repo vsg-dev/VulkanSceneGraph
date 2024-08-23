@@ -296,7 +296,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     struct DeviceResources
     {
         CollectResourceRequirements collectResources;
-#if USE_COMPILE_MANAGER==0
+#if USE_COMPILE_MANAGER == 0
         vsg::ref_ptr<vsg::CompileTraversal> compile;
 #endif
     };
@@ -332,7 +332,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         if (resourceRequirements.containsPagedLOD) containsPagedLOD = true;
 
-#if USE_COMPILE_MANAGER==0
+#if USE_COMPILE_MANAGER == 0
         auto physicalDevice = device->getPhysicalDevice();
 
         auto queueFamily = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT); // TODO : could we just use transfer bit?
@@ -378,7 +378,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         if (instrumentation) databasePager->assignInstrumentation(instrumentation);
     }
 
-#if USE_COMPILE_MANAGER==0
+#if USE_COMPILE_MANAGER == 0
     // create the Vulkan objects
     for (auto& task : recordAndSubmitTasks)
     {

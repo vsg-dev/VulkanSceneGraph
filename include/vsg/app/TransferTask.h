@@ -84,7 +84,6 @@ namespace vsg
             VkDeviceSize imageTotalSize = 0;
 
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
-
         };
 
         DataToCopy _earlyDataToCopy;

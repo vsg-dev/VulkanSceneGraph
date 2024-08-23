@@ -141,7 +141,6 @@ void DescriptorBuffer::compile(Context& context)
         }
     }
 
-
     auto deviceID = context.deviceID;
 
     if (requiresAssignmentOfBuffers)
