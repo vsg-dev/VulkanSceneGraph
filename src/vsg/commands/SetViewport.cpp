@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/SetViewport.h>
 #include <vsg/io/Options.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
@@ -30,4 +31,6 @@ SetViewport::SetViewport(uint32_t in_firstViewport, const Viewports& in_viewport
 void SetViewport::record(CommandBuffer& commandBuffer) const
 {
     vkCmdSetViewport(commandBuffer, firstViewport, static_cast<uint32_t>(viewports.size()), viewports.data());
+    if (commandBuffer.viewDependentState)
+        commandBuffer.viewDependentState->viewportsDirty = true;
 }

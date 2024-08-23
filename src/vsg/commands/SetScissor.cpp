@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/SetScissor.h>
 #include <vsg/io/Options.h>
+#include <vsg/state/ViewDependentState.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
@@ -30,4 +31,6 @@ SetScissor::SetScissor(uint32_t in_firstScissor, const Scissors& in_scissors) :
 void SetScissor::record(CommandBuffer& commandBuffer) const
 {
     vkCmdSetScissor(commandBuffer, firstScissor, static_cast<uint32_t>(scissors.size()), scissors.data());
+    if (commandBuffer.viewDependentState)
+        commandBuffer.viewDependentState->scissorsDirty = true;
 }

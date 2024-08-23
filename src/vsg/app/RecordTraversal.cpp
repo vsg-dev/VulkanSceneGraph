@@ -541,22 +541,30 @@ void RecordTraversal::apply(const View& view)
         _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
         _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
-        if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
+        if (_viewDependentState && view.camera->viewportState)
         {
             auto& viewportData = _viewDependentState->viewportData;
             auto& viewports = view.camera->viewportState->viewports;
 
-            auto dest_itr = viewportData->begin();
-            for (auto src_itr = viewports.begin();
-                 dest_itr != viewportData->end() && src_itr != viewports.end();
-                 ++dest_itr, ++src_itr)
+            _viewDependentState->viewports = viewports;
+            _viewDependentState->viewportsDirty = true;
+            _viewDependentState->scissors = view.camera->viewportState->scissors;
+            _viewDependentState->scissorsDirty = true;
+
+            if (viewportData)
             {
-                auto& dest_viewport = *dest_itr;
-                vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
-                if (dest_viewport != src_viewport)
+                auto dest_itr = viewportData->begin();
+                for (auto src_itr = viewports.begin();
+                     dest_itr != viewportData->end() && src_itr != viewports.end();
+                     ++dest_itr, ++src_itr)
                 {
-                    dest_viewport = src_viewport;
-                    viewportData->dirty();
+                    auto& dest_viewport = *dest_itr;
+                    vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
+                    if (dest_viewport != src_viewport)
+                    {
+                        dest_viewport = src_viewport;
+                        viewportData->dirty();
+                    }
                 }
             }
         }

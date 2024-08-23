@@ -293,6 +293,9 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     lightDataBufferInfo = BufferInfo::create(lightData.get());
     descriptorConfigurator->assignDescriptor("lightData", BufferInfoList{lightDataBufferInfo});
 
+    viewportsDirty = true;
+    scissorsDirty = true;
+
     viewportData = vec4Array::create(maxViewports);
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
@@ -1033,4 +1036,14 @@ void ViewDependentState::bindDescriptorSets(CommandBuffer& commandBuffer, VkPipe
 {
     auto vk = descriptorSet->vk(commandBuffer.deviceID);
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, 1, &vk, 0, nullptr);
+    if (viewportsDirty)
+    {
+        vkCmdSetViewport(commandBuffer, 0, static_cast<uint32_t>(viewports.size()), viewports.data());
+        viewportsDirty = false;
+    }
+    if (scissorsDirty)
+    {
+        vkCmdSetScissor(commandBuffer, 0, static_cast<uint32_t>(scissors.size()), scissors.data());
+        scissorsDirty = false;
+    }
 }
