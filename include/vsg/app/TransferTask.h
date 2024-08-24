@@ -38,8 +38,8 @@ namespace vsg
 
         enum TransferMask
         {
-            TRANSFER_BEFORE_RECORD_TRAVERSAL = 1<<0,
-            TRANSFER_AFTER_RECORD_TRAVERSAL = 1<<1,
+            TRANSFER_BEFORE_RECORD_TRAVERSAL = 1 << 0,
+            TRANSFER_AFTER_RECORD_TRAVERSAL = 1 << 1,
             TRANSFER_ALL = TRANSFER_BEFORE_RECORD_TRAVERSAL | TRANSFER_AFTER_RECORD_TRAVERSAL
         };
 
@@ -104,7 +104,7 @@ namespace vsg
         size_t _currentTransferBlockIndex;
         std::vector<size_t> _indices;
 
-        TransferResult  _transferData(DataToCopy& dataToCopy);
+        TransferResult _transferData(DataToCopy& dataToCopy);
 
         void _transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
 

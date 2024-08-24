@@ -88,11 +88,11 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
     {
         if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
         {
-             if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
+            if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
         }
         else
         {
-             return transfer.result;
+            return transfer.result;
         }
     }
 
@@ -172,7 +172,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     current_fence->dependentSemaphores() = signalSemaphores;
 
-    for(auto& semaphore : transientWaitSemaphores)
+    for (auto& semaphore : transientWaitSemaphores)
     {
         vk_waitSemaphores.emplace_back(*semaphore);
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());

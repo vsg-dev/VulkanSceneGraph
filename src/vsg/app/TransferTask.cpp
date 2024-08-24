@@ -575,5 +575,4 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         log(level, "Nothing to submit");
         return TransferResult{VK_SUCCESS, {}};
     }
-
 }

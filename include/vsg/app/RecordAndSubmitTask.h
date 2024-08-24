@@ -37,7 +37,7 @@ namespace vsg
 
         ref_ptr<Device> device;
         Windows windows;
-        Semaphores waitSemaphores; // assign in application setup
+        Semaphores waitSemaphores;   // assign in application setup
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
