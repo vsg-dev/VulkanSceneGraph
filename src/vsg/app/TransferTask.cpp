@@ -69,10 +69,11 @@ size_t TransferTask::index(size_t relativeTransferBlockIndex) const
     return relativeTransferBlockIndex < _indices.size() ? _indices[relativeTransferBlockIndex] : _indices.size();
 }
 
-bool TransferTask::containsDataToTransfer() const
+bool TransferTask::containsDataToTransfer(TransferMask transferMask) const
 {
     std::scoped_lock<std::mutex> lock(_mutex);
-    return _earlyDataToCopy.containsDataToTransfer() || _lateDataToCopy.containsDataToTransfer();
+    return (((transferMask & TRANSFER_BEFORE_RECORD_TRAVERSAL) != 0) && _earlyDataToCopy.containsDataToTransfer()) ||
+           (((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) && _lateDataToCopy.containsDataToTransfer());
 }
 
 void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
@@ -110,7 +111,11 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
             log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
         }
 
-        if (bufferInfo->buffer) _earlyDataToCopy.dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+        if (bufferInfo->buffer)
+        {
+            DataToCopy& dataToCopy = (bufferInfo->data->properties.dataVariance >= DYNAMIC_DATA_TRANSFER_AFTER_RECORD) ? _lateDataToCopy : _earlyDataToCopy;
+            dataToCopy.dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
+        }
         //else throw "Problem";
     }
 
@@ -245,7 +250,8 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
         if (imageInfo->imageView && imageInfo->imageView && imageInfo->imageView->image->data)
         {
             log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
-            _earlyDataToCopy.imageInfoSet.insert(imageInfo);
+            DataToCopy& dataToCopy = (imageInfo->imageView->image->data->properties.dataVariance >= DYNAMIC_DATA_TRANSFER_AFTER_RECORD) ? _lateDataToCopy : _earlyDataToCopy;
+            dataToCopy.imageInfoSet.insert(imageInfo);
         }
     }
 
@@ -395,9 +401,12 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
-TransferTask::TransferResult TransferTask::transferData()
+TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
 {
-    return _transferData(_earlyDataToCopy);
+    TransferTask::TransferResult result;
+    if ((transferMask & TRANSFER_BEFORE_RECORD_TRAVERSAL) != 0) result = _transferData(_earlyDataToCopy);
+    if ((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) result = _transferData(_lateDataToCopy);
+    return result;
 }
 
 TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)

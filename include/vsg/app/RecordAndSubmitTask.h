@@ -43,9 +43,7 @@ namespace vsg
 
         Semaphores transientWaitSemaphores; // assign per frame and then cleared by finsih(), assumed reference to semaphores assigned are retained elsewhere to pevert deletion while still in use.
 
-        ref_ptr<TransferTask> earlyTransferTask; // data is updated prior to record traversal so can be transferred before/in parallel to record traversal
-
-        ref_ptr<TransferTask> lateTransferTask; // data is updated during the record traversal so has to be transferred after record traversal
+        ref_ptr<TransferTask> transferTask; // data is transferred for this frame
 
         /// advance the currentFrameIndex
         void advance();

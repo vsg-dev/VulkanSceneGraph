@@ -36,10 +36,17 @@ namespace vsg
             ref_ptr<Semaphore> semaphore;
         };
 
-        /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
-        virtual TransferResult transferData();
+        enum TransferMask
+        {
+            TRANSFER_BEFORE_RECORD_TRAVERSAL = 1<<0,
+            TRANSFER_AFTER_RECORD_TRAVERSAL = 1<<1,
+            TRANSFER_ALL = TRANSFER_BEFORE_RECORD_TRAVERSAL | TRANSFER_AFTER_RECORD_TRAVERSAL
+        };
 
-        virtual bool containsDataToTransfer() const;
+        /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
+        virtual TransferResult transferData(TransferMask transferMask = TRANSFER_ALL);
+
+        virtual bool containsDataToTransfer(TransferMask transferMask = TRANSFER_ALL) const;
 
         ref_ptr<Device> device;
 

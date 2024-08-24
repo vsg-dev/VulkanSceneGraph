@@ -35,11 +35,8 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
         _fences[i] = Fence::create(device);
     }
 
-    earlyTransferTask = TransferTask::create(in_device, numBuffers);
-    earlyTransferTask->setValue("name", "earlyTransferTask");
-
-    lateTransferTask = TransferTask::create(in_device, numBuffers);
-    lateTransferTask->setValue("name", "lateTransferTask");
+    transferTask = TransferTask::create(in_device, numBuffers);
+    transferTask->setValue("name", "transferTask");
 }
 
 void RecordAndSubmitTask::advance()
@@ -66,8 +63,7 @@ void RecordAndSubmitTask::advance()
     // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
 
-    if (earlyTransferTask) earlyTransferTask->advance();
-    if (lateTransferTask) lateTransferTask->advance();
+    if (transferTask) transferTask->advance();
 }
 
 size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
@@ -88,12 +84,11 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
-    if (earlyTransferTask)
+    if (transferTask)
     {
-        if (auto transfer = earlyTransferTask->transferData(); transfer.result == VK_SUCCESS)
+        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
         {
              if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
-             else info("RecordAndSubmitTask::submit() earlyTransferTask FAIL transfer.semaphore = ", transfer.semaphore);
         }
         else
         {
@@ -139,9 +134,9 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask finish", COLOR_RECORD);
 
-    if (lateTransferTask)
+    if (transferTask)
     {
-        if (auto transfer = lateTransferTask->transferData(); transfer.result == VK_SUCCESS)
+        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
         {
             if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
         }
@@ -227,8 +222,7 @@ void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_inst
     instrumentation = in_instrumentation;
 
     if (databasePager) databasePager->assignInstrumentation(instrumentation);
-    if (earlyTransferTask) earlyTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
-    if (lateTransferTask) lateTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+    if (transferTask) transferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
 
     for (auto cg : commandGraphs)
     {

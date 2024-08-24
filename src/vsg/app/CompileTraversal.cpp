@@ -233,9 +233,8 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
 
     for (auto& task : viewer.recordAndSubmitTasks)
     {
-        vsg::info("     ", task, " has earlyTransferTask = ", task->earlyTransferTask);
-        vsg::info("     ", task, " has lateTransferTask = ", task->lateTransferTask);
-        addViews.transferTask = task->earlyTransferTask;
+        vsg::info("     ", task, " has transferTask = ", task->transferTask);
+        addViews.transferTask = task->transferTask;
         for (auto& cg : task->commandGraphs)
         {
             cg->accept(addViews);

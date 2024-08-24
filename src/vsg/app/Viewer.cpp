@@ -275,7 +275,7 @@ void Viewer::handleEvents()
     }
 }
 
-#define USE_COMPILE_MANAGER 0
+#define USE_COMPILE_MANAGER 1
 
 void Viewer::compile(ref_ptr<ResourceHints> hints)
 {
@@ -315,8 +315,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             commandGraph->accept(collectResources);
         }
 
-        task->earlyTransferTask->minimumStagingBufferSize = resourceRequirements.minimumStagingBufferSize;
-        task->lateTransferTask->minimumStagingBufferSize = resourceRequirements.minimumStagingBufferSize;
+        task->transferTask->minimumStagingBufferSize = resourceRequirements.minimumStagingBufferSize;
 
         if (task->databasePager && !databasePager) databasePager = task->databasePager;
     }
@@ -424,7 +423,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
 #if 1
 
-    vsg::info("Viewer::compile() before earlyTransferTask & lateTransferTask assigned");
+    vsg::info("Viewer::compile() transferTask & lateTransferTask assigned");
 
     // assign dynamic data to transfer tasks
     for (auto& task : recordAndSubmitTasks)
@@ -432,13 +431,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         auto& deviceResource = deviceResourceMap[task->device];
         auto& resourceRequirements = deviceResource.collectResources.requirements;
 
-        if (task->earlyTransferTask)
+        if (task->transferTask)
         {
-            task->earlyTransferTask->assign(resourceRequirements.earlyDynamicData);
-        }
-        if (task->lateTransferTask)
-        {
-            task->lateTransferTask->assign(resourceRequirements.lateDynamicData);
+            task->transferTask->assign(resourceRequirements.earlyDynamicData);
+            task->transferTask->assign(resourceRequirements.lateDynamicData);
         }
     }
 
@@ -624,8 +620,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
-            recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
-            recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
+            recordAndSubmitTask->transferTask->transferQueue = transferQueue;
 
             // assign instrumentation
             if (instrumentation) recordAndSubmitTask->assignInstrumentation(instrumentation);
@@ -646,8 +641,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
-            recordAndSubmitTask->earlyTransferTask->transferQueue = transferQueue;
-            recordAndSubmitTask->lateTransferTask->transferQueue = transferQueue;
+            recordAndSubmitTask->transferTask->transferQueue = transferQueue;
 
             // assign instrumentation
             if (instrumentation) recordAndSubmitTask->assignInstrumentation(instrumentation);
@@ -706,7 +700,7 @@ void Viewer::setupThreading()
     // set up required threads for each task
     for (auto& task : recordAndSubmitTasks)
     {
-        if (task->commandGraphs.size() == 1 && !task->earlyTransferTask)
+        if (task->commandGraphs.size() == 1 && !task->transferTask)
         {
             // task only contains a single CommandGraph so keep thread simple
             auto run = [](ref_ptr<RecordAndSubmitTask> viewer_task, ref_ptr<FrameBlock> viewer_frameBlock, ref_ptr<Barrier> submissionCompleted, const std::string& threadName) {
@@ -755,7 +749,7 @@ void Viewer::setupThreading()
             };
 
             uint32_t numThreads = static_cast<uint32_t>(task->commandGraphs.size());
-            if (task->earlyTransferTask) ++numThreads;
+            if (task->transferTask) ++numThreads;
 
             ref_ptr<SharedData> sharedData = SharedData::create(task, _frameBlock, _submissionCompleted, numThreads);
 
@@ -809,7 +803,7 @@ void Viewer::setupThreading()
                 }
             };
 
-            auto run_transfer = [](ref_ptr<SharedData> data, ref_ptr<TransferTask> transferTask, const std::string& threadName) {
+            auto run_transfer = [](ref_ptr<SharedData> data, ref_ptr<TransferTask> transferTask, TransferTask::TransferMask transferMask, const std::string& threadName) {
                 auto local_instrumentation = shareOrDuplicateForThreadSafety(data->task->instrumentation);
                 if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
@@ -824,7 +818,7 @@ void Viewer::setupThreading()
 
                     //vsg::info("run_transfer");
 
-                    if (auto transfer = transferTask->transferData(); transfer.result == VK_SUCCESS && transfer.semaphore)
+                    if (auto transfer = transferTask->transferData(transferMask); transfer.result == VK_SUCCESS && transfer.semaphore)
                     {
                         data->task->transientWaitSemaphores.push_back(transfer.semaphore);
                     }
@@ -841,9 +835,9 @@ void Viewer::setupThreading()
                     threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i], make_string("Viewer seconary thread ", i));
             }
 
-            if (task->earlyTransferTask)
+            if (task->transferTask)
             {
-                threads.emplace_back(run_transfer, sharedData, task->earlyTransferTask, make_string("Viewer earlyDynamicData thread"));
+                threads.emplace_back(run_transfer, sharedData, task->transferTask, TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, make_string("Viewer early transferTask thread"));
             }
         }
     }

@@ -275,7 +275,7 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, con
 
     for (auto& context : compileTraversal->contexts)
     {
-        context->transferTask = task->earlyTransferTask;
+        context->transferTask = task->transferTask;
         vsg::info("   assigned  ", context->transferTask);
     }
 
