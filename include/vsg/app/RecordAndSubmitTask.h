@@ -37,9 +37,11 @@ namespace vsg
 
         ref_ptr<Device> device;
         Windows windows;
-        Semaphores waitSemaphores;
+        Semaphores waitSemaphores; // assign in application setup
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
+
+        Semaphores transientWaitSemaphores; // assign per frame and then cleared by finsih(), assumed reference to semaphores assigned are retained elsewhere to pevert deletion while still in use.
 
         ref_ptr<TransferTask> earlyTransferTask; // data is updated prior to record traversal so can be transferred before/in parallel to record traversal
 

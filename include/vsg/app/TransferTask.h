@@ -30,8 +30,14 @@ namespace vsg
     public:
         explicit TransferTask(Device* in_device, uint32_t numBuffers = 3);
 
+        struct TransferResult
+        {
+            VkResult result = VK_SUCCESS;
+            ref_ptr<Semaphore> semaphore;
+        };
+
         /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
-        virtual VkResult transferData();
+        virtual TransferResult transferData();
 
         virtual bool containsDataToTransfer() const;
 
@@ -45,7 +51,6 @@ namespace vsg
         void assign(const ImageInfoList& imageInfoList);
 
         ref_ptr<Queue> transferQueue;
-        ref_ptr<Semaphore> currentTransferCompletedSemaphore;
 
         /// minimum size to use when allocating staging buffers.
         VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
@@ -92,7 +97,7 @@ namespace vsg
         size_t _currentTransferBlockIndex;
         std::vector<size_t> _indices;
 
-        VkResult _transferData(DataToCopy& dataToCopy);
+        TransferResult  _transferData(DataToCopy& dataToCopy);
 
         void _transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
 

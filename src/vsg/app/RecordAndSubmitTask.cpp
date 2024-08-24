@@ -90,7 +90,15 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     if (earlyTransferTask)
     {
-        if (VkResult result = earlyTransferTask->transferData(); result != VK_SUCCESS) return result;
+        if (auto transfer = earlyTransferTask->transferData(); transfer.result == VK_SUCCESS)
+        {
+             if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
+             else info("RecordAndSubmitTask::submit() earlyTransferTask FAIL transfer.semaphore = ", transfer.semaphore);
+        }
+        else
+        {
+             return transfer.result;
+        }
     }
 
     auto recordedCommandBuffers = RecordedCommandBuffers::create();
@@ -103,9 +111,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 VkResult RecordAndSubmitTask::start()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask start", COLOR_RECORD);
-
-    if (earlyTransferTask) earlyTransferTask->currentTransferCompletedSemaphore = {};
-    if (lateTransferTask) lateTransferTask->currentTransferCompletedSemaphore = {};
 
     auto current_fence = fence();
     if (current_fence->hasDependencies())
@@ -136,7 +141,14 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (lateTransferTask)
     {
-        if (VkResult result = lateTransferTask->transferData(); result != VK_SUCCESS) return result;
+        if (auto transfer = lateTransferTask->transferData(); transfer.result == VK_SUCCESS)
+        {
+            if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
+        }
+        else
+        {
+            return transfer.result;
+        }
     }
 
     if (recordedCommandBuffers->empty())
@@ -165,17 +177,12 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     current_fence->dependentSemaphores() = signalSemaphores;
 
-    if (earlyTransferTask && earlyTransferTask->currentTransferCompletedSemaphore)
+    for(auto& semaphore : transientWaitSemaphores)
     {
-        vk_waitSemaphores.emplace_back(*earlyTransferTask->currentTransferCompletedSemaphore);
-        vk_waitStages.emplace_back(earlyTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
+        vk_waitSemaphores.emplace_back(*semaphore);
+        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
-
-    if (lateTransferTask && lateTransferTask->currentTransferCompletedSemaphore)
-    {
-        vk_waitSemaphores.emplace_back(*lateTransferTask->currentTransferCompletedSemaphore);
-        vk_waitStages.emplace_back(lateTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
-    }
+    transientWaitSemaphores.clear();
 
     for (auto& window : windows)
     {

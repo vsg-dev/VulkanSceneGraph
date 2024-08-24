@@ -395,12 +395,12 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
-VkResult TransferTask::transferData()
+TransferTask::TransferResult TransferTask::transferData()
 {
     return _transferData(_earlyDataToCopy);
 }
 
-VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
+TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferData", COLOR_RECORD);
 
@@ -414,7 +414,7 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
     }
 
     size_t frameIndex = index(0);
-    if (frameIndex > dataToCopy.frames.size()) return VK_SUCCESS;
+    if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
 
 #if SINGLE_ACCUMULATION_OF_SIZE != 0
     // compute total data size
@@ -460,7 +460,7 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
 #endif
 
     VkDeviceSize totalSize = dataToCopy.dataTotalSize + dataToCopy.imageTotalSize;
-    if (totalSize == 0) return VK_SUCCESS;
+    if (totalSize == 0) return TransferResult{VK_SUCCESS, {}};
 
     uint32_t deviceID = device->deviceID;
     auto& frame = *(dataToCopy.frames[frameIndex]);
@@ -515,7 +515,7 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         log(level, "TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
-        if (result != VK_SUCCESS) return result;
+        if (result != VK_SUCCESS) return TransferResult{VK_SUCCESS, {}};
     }
 
     log(level, "   totalSize = ", totalSize);
@@ -557,14 +557,14 @@ VkResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         result = transferQueue->submit(submitInfo);
 
-        if (result != VK_SUCCESS) return result;
+        if (result != VK_SUCCESS) return TransferResult{result, {}};
 
-        currentTransferCompletedSemaphore = semaphore;
+        return TransferResult{VK_SUCCESS, semaphore};
     }
     else
     {
         log(level, "Nothing to submit");
+        return TransferResult{VK_SUCCESS, {}};
     }
 
-    return VK_SUCCESS;
 }
