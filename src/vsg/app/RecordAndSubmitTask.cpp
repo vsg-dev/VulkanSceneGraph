@@ -234,22 +234,15 @@ void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_inst
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) compileResult.maxSlot = ", compileResult.maxSlot);
-    if (compileResult.earlyDynamicData || compileResult.lateDynamicData)
+    if (compileResult.dynamicData)
     {
-#if 0
         for (auto& task : tasks)
         {
-            if (task->earlyTransferTask && compileResult.earlyDynamicData)
+            if (task->transferTask)
             {
-                task->earlyTransferTask->assign(compileResult.earlyDynamicData);
-            }
-
-            if (task->lateTransferTask && compileResult.lateDynamicData)
-            {
-                task->lateTransferTask->assign(compileResult.lateDynamicData);
+                task->transferTask->assign(compileResult.dynamicData);
             }
         }
-#endif
     }
 
     // increase maxSlot if required

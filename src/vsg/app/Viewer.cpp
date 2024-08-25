@@ -433,8 +433,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         if (task->transferTask)
         {
-            task->transferTask->assign(resourceRequirements.earlyDynamicData);
-            task->transferTask->assign(resourceRequirements.lateDynamicData);
+            task->transferTask->assign(resourceRequirements.dynamicData);
         }
     }
 

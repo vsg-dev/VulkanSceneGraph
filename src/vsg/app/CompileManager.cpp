@@ -28,8 +28,7 @@ void CompileResult::reset()
     maxSlot = 0;
     containsPagedLOD = false;
     views.clear();
-    earlyDynamicData.clear();
-    lateDynamicData.clear();
+    dynamicData.clear();
 }
 
 void CompileResult::add(const CompileResult& cr)
@@ -51,15 +50,14 @@ void CompileResult::add(const CompileResult& cr)
         binDetails.bins.insert(src_binDetails.bins.begin(), src_binDetails.bins.end());
     }
 
-    earlyDynamicData.add(cr.earlyDynamicData);
-    lateDynamicData.add(cr.lateDynamicData);
+    dynamicData.add(dynamicData);
 }
 
 bool CompileResult::requiresViewerUpdate() const
 {
     if (result == VK_INCOMPLETE) return false;
 
-    if (earlyDynamicData || lateDynamicData) return true;
+    if (dynamicData) return true;
 
     for (auto& [view, binDetails] : views)
     {
@@ -181,8 +179,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.maxSlot = requirements.maxSlot;
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
-    result.earlyDynamicData = requirements.earlyDynamicData;
-    result.lateDynamicData = requirements.lateDynamicData;
+    result.dynamicData = requirements.dynamicData;
 
     auto compileTraversal = compileTraversals->take_when_available();
 
