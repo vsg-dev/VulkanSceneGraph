@@ -90,14 +90,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    if (std::string name; getValue("name", name))
-    {
-        log(level, "TransferTask::assign(BufferInfoList) ", this, ", name = ", name, ", bufferInfoList.size() = ", bufferInfoList.size());
-    }
-    else
-    {
-        log(level, "TransferTask::assign(BufferInfoList) ", this, ", bufferInfoList.size() = ", bufferInfoList.size());
-    }
+    log(level, "TransferTask::assign(BufferInfoList) ", this, ", bufferInfoList.size() = ", bufferInfoList.size());
 
     for (auto& bufferInfo : bufferInfoList)
     {
@@ -236,14 +229,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    if (std::string name; getValue("name", name))
-    {
-        log(level, "TransferTask::assign(ImageInfoList) ", this, ", name = ", name, ", imageInfoList.size() = ", imageInfoList.size());
-    }
-    else
-    {
-        log(level, "TransferTask::assign(ImageInfoList) ", this, ", imageInfoList.size() = ", imageInfoList.size());
-    }
+    log(level, "TransferTask::assign(ImageInfoList) ", this, ", imageInfoList.size() = ", imageInfoList.size());
 
     for (auto& imageInfo : imageInfoList)
     {
@@ -414,13 +400,6 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "transferData", COLOR_RECORD);
 
     std::scoped_lock<std::mutex> lock(_mutex);
-
-    if (level > Logger::LOGGER_DEBUG)
-    {
-        std::string name;
-        getValue("name", name);
-        log(level, "\nTransferTask::transferData() ", this, ", name = ", name, ", _currentTransferBlockIndex = ", _currentTransferBlockIndex, ", _dataMap.size() ", dataToCopy.dataMap.size());
-    }
 
     size_t frameIndex = index(0);
     if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};

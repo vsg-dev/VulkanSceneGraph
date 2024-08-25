@@ -286,10 +286,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         return;
     }
 
-    vsg::info("Viewer::compile()");
-
-    auto start_tick = clock::now();
-
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
 
@@ -421,10 +417,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 #endif
 
-#if 1
-
-    vsg::info("Viewer::compile() transferTask & lateTransferTask assigned");
-
     // assign dynamic data to transfer tasks
     for (auto& task : recordAndSubmitTasks)
     {
@@ -437,9 +429,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         }
     }
 
-    vsg::info("Viewer::compile() after earlyTransferTask & lateTransferTask assigned");
-
-#endif
     // set up the CompileManager
     if (!compileManager)
     {
@@ -483,10 +472,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
             task->databasePager->start();
         }
     }
-
-    auto end_tick = clock::now();
-    auto compile_time = std::chrono::duration<double, std::chrono::milliseconds::period>(end_tick - start_tick).count();
-    info("Viewer::compile() ", compile_time, "ms");
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)

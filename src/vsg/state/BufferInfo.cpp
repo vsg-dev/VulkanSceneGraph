@@ -195,12 +195,6 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         if (bufferInfo->data)
         {
-            std::string str;
-            if (bufferInfo->data->getValue("name", str))
-            {
-                vsg::info("vsg::createBufferAndTransferData() .. data: ", bufferInfo->data, ", ", str);
-            }
-
             if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
             {
                 ++numBuffersRequired;

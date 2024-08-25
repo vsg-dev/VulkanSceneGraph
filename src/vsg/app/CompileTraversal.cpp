@@ -63,8 +63,6 @@ CompileTraversal::~CompileTraversal()
 
 void CompileTraversal::add(ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(", device, ", ", transferTask, ", ...)");
-
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->instrumentation = instrumentation;
@@ -81,8 +79,6 @@ void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& r
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(", &window, ", ", transferTask, ", ", viewport, "...)");
-
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
@@ -110,8 +106,6 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(", &window, ", ", transferTask, ", ", view, "..");
-
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
@@ -147,8 +141,6 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(", &framebuffer, ", ", transferTask, ", ", view, "..)");
-
     ref_ptr<Device> device(framebuffer.getDevice());
     auto renderPass = framebuffer.getRenderPass();
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
@@ -184,8 +176,6 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
 
 void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileTraversal::add(Viewer&>)");
-
     if (viewer.instrumentation) instrumentation = viewer.instrumentation;
 
     struct AddViews : public Visitor
@@ -233,7 +223,6 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
 
     for (auto& task : viewer.recordAndSubmitTasks)
     {
-        vsg::info("     ", task, " has transferTask = ", task->transferTask);
         addViews.transferTask = task->transferTask;
         for (auto& cg : task->commandGraphs)
         {
@@ -248,16 +237,9 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
     {
         auto nested_view = viewDependentState.shadowMaps.front().view;
 
-        vsg::info("CompileTraversal::addViewDependentState(.., ", device, ", ", transferTask, "..)  renderGraph = ", viewDependentState.shadowMaps.front().renderGraph);
-
         auto nested_framebuffer = viewDependentState.shadowMaps.front().renderGraph->framebuffer;
         if (nested_framebuffer)
         {
-            if (!nested_framebuffer->getDevice())
-            {
-                vsg::info("CompileTraversal::addViewDependentState(.., ", device, ", ", transferTask, "..) need to apply device.");
-            }
-
             add(*nested_framebuffer, transferTask, nested_view, resourceRequirements);
         }
         else

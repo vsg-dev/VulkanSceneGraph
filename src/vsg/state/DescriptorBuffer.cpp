@@ -129,18 +129,6 @@ void DescriptorBuffer::compile(Context& context)
         if (bufferInfo->buffer == nullptr) requiresAssignmentOfBuffers = true;
     }
 
-    for (auto& bufferInfo : bufferInfoList)
-    {
-        if (bufferInfo->data)
-        {
-            std::string str;
-            if (bufferInfo->data->getValue("name", str))
-            {
-                vsg::info("DescriptorBuffer::compile() ", bufferInfo->data, ", name = ", str);
-            }
-        }
-    }
-
     auto deviceID = context.deviceID;
 
     if (requiresAssignmentOfBuffers)

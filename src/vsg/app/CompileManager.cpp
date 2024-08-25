@@ -266,22 +266,17 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
 CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
 {
-    vsg::info("CompileManager::compile(", task, ") {");
-
     auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
 
     for (auto& context : compileTraversal->contexts)
     {
         context->transferTask = task->transferTask;
-        vsg::info("   assigned  ", context->transferTask);
     }
 
     for (auto& cg : task->commandGraphs)
     {
-        vsg::info("   doing traversal  of ", cg);
         cg->accept(*compileTraversal);
     }
 
-    vsg::info("} completed ", task);
     return {};
 }
