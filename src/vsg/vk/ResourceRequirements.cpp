@@ -290,14 +290,7 @@ void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo)
 {
     if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
     {
-        if (bufferInfo->data->properties.dataVariance == DYNAMIC_DATA)
-        {
-            requirements.earlyDynamicData.bufferInfos.push_back(bufferInfo);
-        }
-        else // DYNAMIC_DATA_TRANSFER_AFTER_RECORD)
-        {
-            requirements.lateDynamicData.bufferInfos.push_back(bufferInfo);
-        }
+        requirements.dynamicData.bufferInfos.push_back(bufferInfo);
     }
 }
 
@@ -309,14 +302,7 @@ void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
         auto& data = imageInfo->imageView->image->data;
         if (data && data->dynamic())
         {
-            if (data->properties.dataVariance == DYNAMIC_DATA)
-            {
-                requirements.earlyDynamicData.imageInfos.push_back(imageInfo);
-            }
-            else // DYNAMIC_DATA_TRANSFER_AFTER_RECORD)
-            {
-                requirements.lateDynamicData.imageInfos.push_back(imageInfo);
-            }
+            requirements.dynamicData.imageInfos.push_back(imageInfo);
         }
     }
 }

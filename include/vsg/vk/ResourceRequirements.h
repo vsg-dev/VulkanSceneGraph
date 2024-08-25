@@ -79,8 +79,7 @@ namespace vsg
             }
         };
 
-        DynamicData earlyDynamicData;
-        DynamicData lateDynamicData;
+        DynamicData dynamicData;
 
         Descriptors descriptors;
         DescriptorSets descriptorSets;
