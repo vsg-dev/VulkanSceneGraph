@@ -286,7 +286,7 @@ void TransferTask::_transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer v
     auto deviceID = device->deviceID;
 
     // transfer any modified ImageInfo
-    for (auto imageInfo_itr = _earlyDataToCopy.imageInfoSet.begin(); imageInfo_itr != _earlyDataToCopy.imageInfoSet.end();)
+    for (auto imageInfo_itr = dataToCopy.imageInfoSet.begin(); imageInfo_itr != dataToCopy.imageInfoSet.end();)
     {
         auto& imageInfo = *imageInfo_itr;
         if (imageInfo->referenceCount() == 1)
