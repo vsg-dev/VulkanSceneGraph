@@ -18,8 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/State.h>
 
-#define SINGLE_ACCUMULATION_OF_SIZE 1
-
 using namespace vsg;
 
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
@@ -111,26 +109,6 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
         }
         //else throw "Problem";
     }
-
-#if SINGLE_ACCUMULATION_OF_SIZE == 0
-    // compute total data size
-    VkDeviceSize offset = 0;
-    VkDeviceSize alignment = 4;
-
-    _earlyDataToCopy.dataTotalRegions = 0;
-    for (auto& entry : _earlyDataToCopy.dataMap)
-    {
-        auto& bufferInfos = entry.second;
-        for (auto& offset_bufferInfo : bufferInfos)
-        {
-            auto& bufferInfo = offset_bufferInfo.second;
-            VkDeviceSize endOfEntry = offset + bufferInfo->range;
-            offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            ++_earlyDataToCopy.dataTotalRegions;
-        }
-    }
-    _earlyDataToCopy.dataTotalSize = offset;
-#endif
 }
 
 void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset)
@@ -240,29 +218,6 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
             dataToCopy.imageInfoSet.insert(imageInfo);
         }
     }
-
-#if SINGLE_ACCUMULATION_OF_SIZE == 0
-    // compute total data size
-    VkDeviceSize offset = 0;
-    VkDeviceSize alignment = 4;
-
-    for (auto& imageInfo : _earlyDataToCopy.imageInfoSet)
-    {
-        auto data = imageInfo->imageView->image->data;
-
-        VkFormat targetFormat = imageInfo->imageView->format;
-        auto targetTraits = getFormatTraits(targetFormat);
-        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
-
-        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
-
-        VkDeviceSize endOfEntry = offset + imageTotalSize;
-        offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-    }
-    _earlyDataToCopy.imageTotalSize = offset;
-
-    log(level, "    _imageTotalSize = ", _earlyDataToCopy.imageTotalSize);
-#endif
 }
 
 void TransferTask::_transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset)
@@ -404,8 +359,9 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     size_t frameIndex = index(0);
     if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
 
-#if SINGLE_ACCUMULATION_OF_SIZE != 0
-    // compute total data size
+    //
+    // begin compute total data size
+    //
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
@@ -443,9 +399,9 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    dataToCopy.dataTotalSize = ", dataToCopy.dataTotalSize);
 
     offset = 0;
-#else
-    VkDeviceSize offset = 0;
-#endif
+    //
+    // end of compute size
+    //
 
     VkDeviceSize totalSize = dataToCopy.dataTotalSize + dataToCopy.imageTotalSize;
     if (totalSize == 0) return TransferResult{VK_SUCCESS, {}};
