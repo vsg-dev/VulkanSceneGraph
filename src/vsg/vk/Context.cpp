@@ -328,7 +328,7 @@ void Context::waitForCompletion()
         return;
     }
 
-    auto start_point = vsg::clock::now();
+    // auto start_point = vsg::clock::now();
 
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
     uint64_t timeout = 1000000000;
@@ -344,7 +344,7 @@ void Context::waitForCompletion()
         info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
     }
 
-    vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
+    //vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
 
     requiresWaitForCompletion = false;
     commands.clear();
