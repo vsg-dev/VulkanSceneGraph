@@ -156,6 +156,7 @@ set(SOURCES
 
     threading/Affinity.cpp
     threading/OperationThreads.cpp
+    threading/DeleteQueue.cpp
 
     app/Camera.cpp
     app/CompileManager.cpp
