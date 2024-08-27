@@ -88,7 +88,7 @@ namespace vsg
         DatabasePager(const DatabasePager&) = delete;
         DatabasePager& operator=(const DatabasePager& rhs) = delete;
 
-        virtual void start();
+        virtual void start(uint32_t numReadThreads = 4);
 
         virtual void request(ref_ptr<PagedLOD> plod);
 
@@ -114,6 +114,9 @@ namespace vsg
         /// assign Instrumentation to all CompileTraversal and their associated Context
         void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
+        /// read and delete threads created by start()
+        std::list<std::thread> threads;
+
     protected:
         virtual ~DatabasePager();
 
@@ -125,7 +128,6 @@ namespace vsg
         ref_ptr<DatabaseQueue> _toMergeQueue;
         ref_ptr<DeleteQueue> _deleteQueue;
 
-        std::list<std::thread> _threads;
     };
     VSG_type_name(vsg::DatabasePager);
 

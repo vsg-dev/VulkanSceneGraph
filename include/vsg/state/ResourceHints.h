@@ -39,6 +39,8 @@ namespace vsg
         uivec2 numShadowMapsRange = {0, 64};
         uivec2 shadowMapSize = {2048, 2048};
 
+        uint32_t numDatabasePagerReadThreads = 4;
+
     public:
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -121,7 +121,7 @@ DatabasePager::~DatabasePager()
 
     _status->set(false);
 
-    for (auto& thread : _threads)
+    for (auto& thread : threads)
     {
         thread.join();
     }
@@ -132,9 +132,9 @@ void DatabasePager::assignInstrumentation(ref_ptr<Instrumentation> in_instrument
     instrumentation = in_instrumentation;
 }
 
-void DatabasePager::start()
+void DatabasePager::start(uint32_t numReadThreads)
 {
-    int numReadThreads = 4;
+    vsg::debug("DatabasePager::start(", numReadThreads, ")");
 
     //
     // set up read thread(s)
@@ -212,12 +212,12 @@ void DatabasePager::start()
     };
 
 
-    for (int i = 0; i < numReadThreads; ++i)
+    for (uint32_t i = 0; i < numReadThreads; ++i)
     {
-        _threads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager read thread ", i));
+        threads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager read thread ", i));
     }
 
-    _threads.emplace_back(deleteThread, std::ref(_deleteQueue), std::ref(_status), std::ref(*this), "DatabasePager delete thread ");
+    threads.emplace_back(deleteThread, std::ref(_deleteQueue), std::ref(_status), std::ref(*this), "DatabasePager delete thread ");
 }
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
