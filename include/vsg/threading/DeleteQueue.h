@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    /// Thread safe queue deleting nodes/subgraphs as batches, typically done from a background thread.
     class VSG_DECLSPEC DeleteQueue : public Inherit<Object, DeleteQueue>
     {
     public:
