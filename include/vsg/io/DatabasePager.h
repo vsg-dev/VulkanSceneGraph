@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/PagedLOD.h>
-#include <vsg/threading/ActivityStatus.h>
+#include <vsg/threading/DeleteQueue.h>
 #include <vsg/utils/Instrumentation.h>
 
 #include <condition_variable>
@@ -123,8 +123,9 @@ namespace vsg
 
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;
+        ref_ptr<DeleteQueue> _deleteQueue;
 
-        std::list<std::thread> _readThreads;
+        std::list<std::thread> _threads;
     };
     VSG_type_name(vsg::DatabasePager);
 
