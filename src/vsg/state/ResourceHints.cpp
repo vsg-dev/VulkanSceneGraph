@@ -59,6 +59,7 @@ void ResourceHints::read(Input& input)
     if (input.version_greater_equal(1, 1, 8))
     {
         input.read("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
+        input.readValue<uint32_t>("dataTransferHint", dataTransferHint);
     }
 }
 
@@ -98,5 +99,6 @@ void ResourceHints::write(Output& output) const
     if (output.version_greater_equal(1, 1, 8))
     {
         output.write("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
+        output.writeValue<uint32_t>("dataTransferHint", dataTransferHint);
     }
 }

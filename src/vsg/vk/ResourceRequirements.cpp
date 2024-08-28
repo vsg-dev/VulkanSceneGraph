@@ -78,6 +78,8 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
     numLightsRange = std::max(numLightsRange, resourceHints.numLightsRange);
     numShadowMapsRange = std::max(numShadowMapsRange, resourceHints.numShadowMapsRange);
     shadowMapSize = std::max(shadowMapSize, resourceHints.shadowMapSize);
+
+    dataTransferHint = resourceHints.dataTransferHint;
 }
 
 //////////////////////////////////////////////////////////////////////

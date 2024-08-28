@@ -18,6 +18,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    enum DataTransferHint
+    {
+        COMPILE_TRAVERSAL_TRANSFER_DATA_AND_WAIT,
+        COMPILE_TRAVERSAL_USE_TRANSFER_TASK
+    };
+
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
     class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {
@@ -40,6 +46,8 @@ namespace vsg
         uivec2 shadowMapSize = {2048, 2048};
 
         uint32_t numDatabasePagerReadThreads = 4;
+
+        DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
 
     public:
         void read(Input& input) override;

@@ -223,9 +223,11 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
 
     for (auto& task : viewer.recordAndSubmitTasks)
     {
-#if 1
-        addViews.transferTask = task->transferTask;
-#endif
+        if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
+        {
+            addViews.transferTask = task->transferTask;
+        }
+
         for (auto& cg : task->commandGraphs)
         {
             cg->accept(addViews);
