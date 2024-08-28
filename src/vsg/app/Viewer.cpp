@@ -469,8 +469,10 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     {
         if (task->databasePager)
         {
-            if (hints) task->databasePager->start(hints->numDatabasePagerReadThreads);
-            else task->databasePager->start();
+            if (hints)
+                task->databasePager->start(hints->numDatabasePagerReadThreads);
+            else
+                task->databasePager->start();
         }
     }
 }

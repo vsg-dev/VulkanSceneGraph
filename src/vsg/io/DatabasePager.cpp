@@ -211,7 +211,6 @@ void DatabasePager::start(uint32_t numReadThreads)
         debug("Finished DatabaseThread delete thread");
     };
 
-
     for (uint32_t i = 0; i < numReadThreads; ++i)
     {
         threads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager read thread ", i));

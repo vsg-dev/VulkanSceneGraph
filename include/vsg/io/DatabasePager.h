@@ -127,7 +127,6 @@ namespace vsg
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;
         ref_ptr<DeleteQueue> _deleteQueue;
-
     };
     VSG_type_name(vsg::DatabasePager);
 
