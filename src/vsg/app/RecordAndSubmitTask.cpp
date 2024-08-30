@@ -36,7 +36,6 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
     }
 
     transferTask = TransferTask::create(in_device, numBuffers);
-    transferTask->setValue("name", "transferTask");
 }
 
 void RecordAndSubmitTask::advance()
