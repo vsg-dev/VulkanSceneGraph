@@ -25,6 +25,9 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
+    _earlyDataToCopy.name = "_earlyDataToCopy";
+    _lateDataToCopy.name = "_lateDataToCopy";
+
     _currentTransferBlockIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
@@ -33,7 +36,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
-    //level = Logger::LOGGER_INFO;
+    level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
@@ -359,6 +362,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     size_t frameIndex = index(0);
     if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
 
+    log(level, "TransferTask::_transferData( ",dataToCopy.name," )");
+
     //
     // begin compute total data size
     //
@@ -414,11 +419,11 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
-    log(level, "   frameIndex = ", frameIndex);
-    log(level, "   transferQueue = ", transferQueue);
-    log(level, "   staging = ", staging);
-    log(level, "   semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
-    log(level, "   copyRegions.size() = ", copyRegions.size());
+    log(level, "    frameIndex = ", frameIndex);
+    log(level, "    transferQueue = ", transferQueue);
+    log(level, "    staging = ", staging);
+    log(level, "    semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
+    log(level, "    copyRegions.size() = ", copyRegions.size());
 
     if (!commandBuffer)
     {
@@ -434,7 +439,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     {
         // signal transfer submission has completed
         semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-        log(level, "   Semaphore created ", semaphore, ", ", semaphore->vk());
+        log(level, "    Semaphore created ", semaphore, ", ", semaphore->vk());
     }
 
     VkResult result = VK_SUCCESS;
@@ -445,7 +450,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         if (totalSize < minimumStagingBufferSize)
         {
             totalSize = minimumStagingBufferSize;
-            log(level, "Clamping totalSize to ", minimumStagingBufferSize);
+            log(level, "    Clamping totalSize to ", minimumStagingBufferSize);
         }
 
         VkDeviceSize previousSize = staging ? staging->size : 0;
@@ -457,12 +462,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         buffer_data = nullptr;
         result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
 
-        log(level, "TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
+        log(level, "    TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
         if (result != VK_SUCCESS) return TransferResult{VK_SUCCESS, {}};
     }
 
-    log(level, "   totalSize = ", totalSize);
+    log(level, "    totalSize = ", totalSize);
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

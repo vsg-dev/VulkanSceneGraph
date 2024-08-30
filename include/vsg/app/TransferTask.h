@@ -87,6 +87,7 @@ namespace vsg
 
         struct DataToCopy
         {
+            std::string name;
             BufferMap dataMap;
             std::set<ref_ptr<ImageInfo>> imageInfoSet;
             std::vector<ref_ptr<TransferBlock>> frames;

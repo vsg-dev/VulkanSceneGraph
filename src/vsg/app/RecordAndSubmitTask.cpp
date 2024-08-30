@@ -82,12 +82,15 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask submit", COLOR_RECORD);
 
+    info("RecordAndSubmitTask::submit()");
+
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
     if (transferTask)
     {
         if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
         {
+            info("    adding early transfer semephore ", transfer.semaphore);
             if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
         }
         else
@@ -134,11 +137,17 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask finish", COLOR_RECORD);
 
+    info("RecordAndSubmitTask::finish()");
+
     if (transferTask)
     {
         if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
         {
-            if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
+            if (transfer.semaphore)
+            {
+                info("    adding late transfer semaphore ", transfer.semaphore);
+                transientWaitSemaphores.push_back(transfer.semaphore);
+            }
         }
         else
         {
@@ -174,6 +183,8 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     for (auto& semaphore : transientWaitSemaphores)
     {
+        vsg::info("    wait semaphore", semaphore);
+
         vk_waitSemaphores.emplace_back(*semaphore);
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
