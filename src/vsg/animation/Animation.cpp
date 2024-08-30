@@ -165,7 +165,7 @@ bool Animation::update(double simulationTime)
         sampler->update(samplerTime);
     }
 
-    if(finished)
+    if (finished)
     {
         stop(simulationTime);
         return false;
