@@ -417,17 +417,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 #endif
 
-    // assign dynamic data to transfer tasks
-    for (auto& task : recordAndSubmitTasks)
-    {
-        if (task->transferTask)
-        {
-            auto& deviceResource = deviceResourceMap[task->device];
-            auto& resourceRequirements = deviceResource.collectResources.requirements;
-            task->transferTask->assign(resourceRequirements.dynamicData);
-        }
-    }
-
     // set up the CompileManager
     if (!compileManager)
     {
@@ -460,6 +449,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         auto& deviceResource = deviceResourceMap[task->device];
         auto& resourceRequirements = deviceResource.collectResources.requirements;
         compileManager->compileTask(task, resourceRequirements);
+        task->transferTask->assign(resourceRequirements.dynamicData);
     }
 
 #endif

@@ -270,12 +270,20 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, con
 
     for (auto& context : compileTraversal->contexts)
     {
-        context->transferTask = task->transferTask;
+        if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
+        {
+            context->transferTask = task->transferTask;
+        }
     }
 
     for (auto& cg : task->commandGraphs)
     {
         cg->accept(*compileTraversal);
+    }
+
+    if (compileTraversal->record())
+    {
+        compileTraversal->waitForCompletion();
     }
 
     return {};
