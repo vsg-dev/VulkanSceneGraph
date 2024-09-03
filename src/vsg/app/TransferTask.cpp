@@ -36,7 +36,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
-    //level = Logger::LOGGER_INFO;
+    level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
@@ -362,7 +362,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     size_t frameIndex = index(0);
     if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
 
-    log(level, "TransferTask::_transferData( ",dataToCopy.name," ) ", this);
+    log(level, "TransferTask::_transferData( ",dataToCopy.name," ) ", this, ", frameIndex = ", frameIndex);
 
     //
     // begin compute total data size
@@ -420,6 +420,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     auto& buffer_data = frame.buffer_data;
 
     log(level, "    frameIndex = ", frameIndex);
+    log(level, "    frame = ", &frame);
     log(level, "    transferQueue = ", transferQueue);
     log(level, "    staging = ", staging);
     log(level, "    semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
