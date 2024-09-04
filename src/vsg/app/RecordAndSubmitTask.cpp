@@ -71,10 +71,10 @@ size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
 }
 
 /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
-Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
+ref_ptr<Fence> RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 {
     size_t i = index(relativeFrameIndex);
-    return i < _fences.size() ? _fences[i].get() : nullptr;
+    return i < _fences.size() ? _fences[i] : nullptr;
 }
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
@@ -87,7 +87,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     if (transferTask)
     {
-        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
+        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, fence()); transfer.result == VK_SUCCESS)
         {
             // info("    adding early transfer semephore ", transfer.semaphore);
             if (transfer.semaphore) transientWaitSemaphores.push_back(transfer.semaphore);
@@ -112,11 +112,20 @@ VkResult RecordAndSubmitTask::start()
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {
+        info("RecordAndSubmitTask::start() waiting on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
         if (VkResult result = current_fence->wait(timeout); result != VK_SUCCESS) return result;
 
         current_fence->resetFenceAndDependencies();
+
+        info("after RecordAndSubmitTask::start() waited on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
     }
+    else
+    {
+        info("RecordAndSubmitTask::start() initial fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+    }
+
     return VK_SUCCESS;
 }
 
@@ -138,9 +147,11 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     //info("RecordAndSubmitTask::finish()");
 
+    auto current_fence = fence();
+
     if (transferTask)
     {
-        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
+        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, current_fence); transfer.result == VK_SUCCESS)
         {
             if (transfer.semaphore)
             {
@@ -166,8 +177,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     std::vector<VkSemaphore> vk_waitSemaphores;
     std::vector<VkPipelineStageFlags> vk_waitStages;
     std::vector<VkSemaphore> vk_signalSemaphores;
-
-    auto current_fence = fence();
 
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     auto buffers = recordedCommandBuffers->buffers();

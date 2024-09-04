@@ -345,8 +345,17 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
-TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
+TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask, ref_ptr<Fence> fence)
 {
+    if (fence)
+    {
+        info("TransferTask::transferData(", transferMask, ") fence =", fence, ", fence->status() = ", fence->status(), ",  hasDependencies() = ", fence->hasDependencies());
+    }
+    else
+    {
+        info("TransferTask::transferData(", transferMask, ") fence =", fence, ", no fence to wait for.");
+    }
+
     TransferTask::TransferResult result;
     if ((transferMask & TRANSFER_BEFORE_RECORD_TRAVERSAL) != 0) result = _transferData(_earlyDataToCopy);
     if ((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) result = _transferData(_lateDataToCopy);

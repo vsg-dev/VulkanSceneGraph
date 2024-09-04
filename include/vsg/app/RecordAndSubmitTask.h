@@ -52,7 +52,7 @@ namespace vsg
         size_t index(size_t relativeFrameIndex = 0) const;
 
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
-        Fence* fence(size_t relativeFrameIndex = 0);
+        ref_ptr<Fence> fence(size_t relativeFrameIndex = 0);
 
         ref_ptr<Queue> queue;
 

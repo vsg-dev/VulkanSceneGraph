@@ -44,9 +44,9 @@ namespace vsg
         };
 
         /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
-        virtual TransferResult transferData(TransferMask transferMask = TRANSFER_ALL);
+        virtual TransferResult transferData(TransferMask transferMask, ref_ptr<Fence> fence);
 
-        virtual bool containsDataToTransfer(TransferMask transferMask = TRANSFER_ALL) const;
+        virtual bool containsDataToTransfer(TransferMask transferMask) const;
 
         ref_ptr<Device> device;
 
