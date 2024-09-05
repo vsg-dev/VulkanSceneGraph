@@ -151,14 +151,14 @@ void TransferTask::_transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame&
                     offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
                 }
 
-                if (bufferInfo->data->properties.dataVariance == STATIC_DATA)
+                if (bufferInfo->data->dynamic())
                 {
-                    log(level, "       removing copied static data: ", bufferInfo, ", ", bufferInfo->data);
-                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
+                    ++bufferInfo_itr;
                 }
                 else
                 {
-                    ++bufferInfo_itr;
+                    log(level, "       removing copied static data: ", bufferInfo, ", ", bufferInfo->data);
+                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
                 }
             }
         }
@@ -240,14 +240,14 @@ void TransferTask::_transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& 
                 _transferImageInfo(vk_commandBuffer, frame, offset, *imageInfo);
             }
 
-            if (imageInfo->imageView->image->data->properties.dataVariance == STATIC_DATA)
+            if (imageInfo->imageView->image->data->dynamic())
             {
-                log(level, "       removing copied static image data: ", imageInfo, ", ", imageInfo->imageView->image->data);
-                imageInfo_itr = _dynamicImageInfoSet.erase(imageInfo_itr);
+                ++imageInfo_itr;
             }
             else
             {
-                ++imageInfo_itr;
+                log(level, "       removing copied static image data: ", imageInfo, ", ", imageInfo->imageView->image->data);
+                imageInfo_itr = _dynamicImageInfoSet.erase(imageInfo_itr);
             }
         }
     }
