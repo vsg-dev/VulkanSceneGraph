@@ -532,7 +532,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         if (!waitSemaphore)
         {
             // for next submission we want to wait till the consume has signalled completion
-            waitSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+            waitSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
             log(level, "    waitSemaphore created ", waitSemaphore, ", ", waitSemaphore->vk());
         }
 
