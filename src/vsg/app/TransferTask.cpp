@@ -36,7 +36,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
-    level = Logger::LOGGER_INFO;
+    // level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()
@@ -347,7 +347,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
 
 TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
 {
-    info("TransferTask::transferData(", transferMask, ")");
+    log(level, "TransferTask::transferData(", transferMask, ")");
 
     TransferTask::TransferResult result;
     if ((transferMask & TRANSFER_BEFORE_RECORD_TRAVERSAL) != 0) result = _transferData(_earlyDataToCopy);
@@ -469,7 +469,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         log(level, "    TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
-        if (result != VK_SUCCESS) return TransferResult{VK_SUCCESS, {}};
+        if (result != VK_SUCCESS) return TransferResult{VK_SUCCESS, {}, {}};
     }
 
     log(level, "    totalSize = ", totalSize);

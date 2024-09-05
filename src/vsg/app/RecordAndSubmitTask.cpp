@@ -81,7 +81,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask submit", COLOR_RECORD);
 
-    info("RecordAndSubmitTask::submit()");
+    //info("RecordAndSubmitTask::submit()");
 
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
@@ -91,12 +91,12 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
         {
             if (transfer.dataTransferredSemaphore)
             {
-                info("    adding early transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
+                //info("    adding early transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
                 transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
             }
             if (transfer.dataConsumedSemaphore)
             {
-                info("    adding early transfer dataConsumedSemaphore ", transfer.dataConsumedSemaphore);
+                // info("    adding early transfer dataConsumedSemaphore ", transfer.dataConsumedSemaphore);
                 transientSignalSemaphores.push_back(transfer.dataConsumedSemaphore);
             }
         }
@@ -120,18 +120,18 @@ VkResult RecordAndSubmitTask::start()
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {
-        info("RecordAndSubmitTask::start() waiting on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+        // info("RecordAndSubmitTask::start() waiting on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
 
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
         if (VkResult result = current_fence->wait(timeout); result != VK_SUCCESS) return result;
 
         current_fence->resetFenceAndDependencies();
 
-        info("after RecordAndSubmitTask::start() waited on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+        // info("after RecordAndSubmitTask::start() waited on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
     }
     else
     {
-        info("RecordAndSubmitTask::start() initial fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+        // info("RecordAndSubmitTask::start() initial fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
     }
 
     return VK_SUCCESS;
@@ -163,12 +163,12 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         {
             if (transfer.dataTransferredSemaphore)
             {
-                info("    adding late transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
+                //info("    adding late transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
                 transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
             }
             if (transfer.dataConsumedSemaphore)
             {
-                info("    adding late transfer dataConsumedSemaphore ", transfer.dataConsumedSemaphore);
+                //info("    adding late transfer dataConsumedSemaphore ", transfer.dataConsumedSemaphore);
                 transientSignalSemaphores.push_back(transfer.dataConsumedSemaphore);
             }
         }
@@ -237,7 +237,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     {
         vk_signalSemaphores.emplace_back(*semaphore);
         current_fence->dependentSemaphores().push_back(semaphore);
-        info("RecordAndSubmitTask::finish() assigning transientSignalSemaphore ", semaphore);
+        //info("RecordAndSubmitTask::finish() assigning transientSignalSemaphore ", semaphore);
     }
 
     transientSignalSemaphores.clear();
