@@ -371,7 +371,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     size_t frameIndex = index(0);
     if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
 
-    log(level, "TransferTask::_transferData( ",dataToCopy.name," ) ", this, ", frameIndex = ", frameIndex);
+    log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
 
     //
     // begin compute total data size

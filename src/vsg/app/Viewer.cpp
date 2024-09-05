@@ -321,7 +321,6 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         views.insert(resourceRequirements.views.begin(), resourceRequirements.views.end());
 
         if (resourceRequirements.containsPagedLOD) containsPagedLOD = true;
-
     }
 
     // assign the viewID's to each View
