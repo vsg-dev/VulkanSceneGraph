@@ -33,7 +33,8 @@ namespace vsg
         struct TransferResult
         {
             VkResult result = VK_SUCCESS;
-            ref_ptr<Semaphore> semaphore;
+            ref_ptr<Semaphore> dataTransferredSemaphore;
+            ref_ptr<Semaphore> dataConsumedSemaphore;
         };
 
         enum TransferMask
@@ -44,7 +45,7 @@ namespace vsg
         };
 
         /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
-        virtual TransferResult transferData(TransferMask transferMask, ref_ptr<Fence> fence);
+        virtual TransferResult transferData(TransferMask transferMask);
 
         virtual bool containsDataToTransfer(TransferMask transferMask) const;
 
@@ -80,6 +81,7 @@ namespace vsg
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
             ref_ptr<Semaphore> transferCompleteSemaphore;
+            ref_ptr<Semaphore> consumerCompleteSemaphore;
             ref_ptr<Buffer> staging;
             void* buffer_data = nullptr;
             std::vector<VkBufferCopy> copyRegions;

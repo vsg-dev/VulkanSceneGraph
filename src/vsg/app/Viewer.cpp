@@ -733,9 +733,16 @@ void Viewer::setupThreading()
 
                     //vsg::info("run_transfer");
 
-                    if (auto transfer = transferTask->transferData(transferMask, {}); transfer.result == VK_SUCCESS && transfer.semaphore)
+                    if (auto transfer = transferTask->transferData(transferMask); transfer.result == VK_SUCCESS)
                     {
-                        data->task->transientWaitSemaphores.push_back(transfer.semaphore);
+                        if (transfer.dataTransferredSemaphore)
+                        {
+                            data->task->transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
+                        }
+                        if (transfer.dataConsumedSemaphore)
+                        {
+                            data->task->transientSignalSemaphores.push_back(transfer.dataConsumedSemaphore);
+                        }
                     }
 
                     data->recordCompletedBarrier->arrive_and_wait();

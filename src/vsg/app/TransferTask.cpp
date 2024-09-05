@@ -345,16 +345,9 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
-TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask, ref_ptr<Fence> fence)
+TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
 {
-    if (fence)
-    {
-        info("TransferTask::transferData(", transferMask, ") fence =", fence, ", fence->status() = ", fence->status(), ",  hasDependencies() = ", fence->hasDependencies());
-    }
-    else
-    {
-        info("TransferTask::transferData(", transferMask, ") fence =", fence, ", no fence to wait for.");
-    }
+    info("TransferTask::transferData(", transferMask, ")");
 
     TransferTask::TransferResult result;
     if ((transferMask & TRANSFER_BEFORE_RECORD_TRAVERSAL) != 0) result = _transferData(_earlyDataToCopy);
@@ -369,7 +362,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     std::scoped_lock<std::mutex> lock(_mutex);
 
     size_t frameIndex = index(0);
-    if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
+    if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}, {}};
 
     log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
 
@@ -418,13 +411,14 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     //
 
     VkDeviceSize totalSize = dataToCopy.dataTotalSize + dataToCopy.imageTotalSize;
-    if (totalSize == 0) return TransferResult{VK_SUCCESS, {}};
+    if (totalSize == 0) return TransferResult{VK_SUCCESS, {}, {}};
 
     uint32_t deviceID = device->deviceID;
     auto& frame = *(dataToCopy.frames[frameIndex]);
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
-    auto& semaphore = frame.transferCompleteSemaphore;
+    auto& signalSemaphore = frame.transferCompleteSemaphore;
+    auto& waitSemaphore = frame.consumerCompleteSemaphore;
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
@@ -432,7 +426,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    frame = ", &frame);
     log(level, "    transferQueue = ", transferQueue);
     log(level, "    staging = ", staging);
-    log(level, "    semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
+    log(level, "    signalSemaphore = ", signalSemaphore, ", ", signalSemaphore ? signalSemaphore->vk() : VK_NULL_HANDLE);
+    log(level, "    waitSemaphore = ", waitSemaphore, ", ", waitSemaphore ? waitSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    copyRegions.size() = ", copyRegions.size());
 
     if (!commandBuffer)
@@ -445,11 +440,11 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         commandBuffer->reset();
     }
 
-    if (!semaphore)
+    if (!signalSemaphore)
     {
         // signal transfer submission has completed
-        semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-        log(level, "    Semaphore created ", semaphore, ", ", semaphore->vk());
+        signalSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        log(level, "    signalSemaphore created ", signalSemaphore, ", ", signalSemaphore->vk());
     }
 
     VkResult result = VK_SUCCESS;
@@ -504,25 +499,48 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
+        // set up vulkan wait semaphore
+        std::vector<VkSemaphore> vk_waitSemaphores;
+        std::vector<VkPipelineStageFlags> vk_waitStages;
+        if (waitSemaphore)
+        {
+            vk_waitSemaphores.emplace_back(waitSemaphore->vk());
+            vk_waitStages.emplace_back(waitSemaphore->pipelineStageFlags());
+        }
+
         // set up the vulkan signal sempahore
         std::vector<VkSemaphore> vk_signalSemaphores;
-        vk_signalSemaphores.push_back(*semaphore);
+        vk_signalSemaphores.push_back(*signalSemaphore);
 
+        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(vk_waitSemaphores.size());
+        submitInfo.pWaitSemaphores = vk_waitSemaphores.data();
+        submitInfo.pWaitDstStageMask = vk_waitStages.data();
         submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
         submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vk_commandBuffer;
 
+        log(level, "   TransferTask submitInfo.waitSemaphoreCount = ", submitInfo.waitSemaphoreCount);
+        log(level, "   TransferTask submitInfo.signalSemaphoreCount = ", submitInfo.signalSemaphoreCount);
+
+
         result = transferQueue->submit(submitInfo);
 
-        if (result != VK_SUCCESS) return TransferResult{result, {}};
+        if (result != VK_SUCCESS) return TransferResult{result, {}, {}};
 
-        return TransferResult{VK_SUCCESS, semaphore};
+        if (!waitSemaphore)
+        {
+            // for next submission we want to wait till the consume has signalled completion
+            waitSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+            log(level, "    waitSemaphore created ", waitSemaphore, ", ", waitSemaphore->vk());
+        }
+
+        return TransferResult{VK_SUCCESS, signalSemaphore, waitSemaphore};
     }
     else
     {
         log(level, "Nothing to submit");
-        return TransferResult{VK_SUCCESS, {}};
+        return TransferResult{VK_SUCCESS, {}, {}};
     }
 }
