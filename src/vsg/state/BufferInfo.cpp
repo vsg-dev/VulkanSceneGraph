@@ -62,7 +62,7 @@ int BufferInfo::compare(const Object& rhs_object) const
 
     if (data != rhs.data && data && rhs.data)
     {
-        if (data->properties.dataVariance != STATIC_DATA || rhs.data->properties.dataVariance != STATIC_DATA)
+        if (data->dynamic() || rhs.data->dynamic())
         {
             if (data < rhs.data) return -1;
             return 1; // from checks above it must be that data > rhs.data
@@ -317,6 +317,10 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         if (data)
         {
             std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+            if (data->properties.dataVariance == STATIC_DATA_UNREF_AFTER_TRANSFER)
+            {
+                bufferInfo->data.reset();
+            }
         }
         bufferInfo->parent = deviceBufferInfo;
     }

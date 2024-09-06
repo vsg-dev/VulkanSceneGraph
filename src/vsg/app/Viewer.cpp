@@ -202,6 +202,8 @@ bool Viewer::advanceToNextFrame(double simulationTime)
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));
 
+    info("\nViewer::advanceToNextFrame()");
+
     return true;
 }
 

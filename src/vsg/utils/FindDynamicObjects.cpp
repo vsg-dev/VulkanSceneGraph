@@ -39,7 +39,7 @@ void FindDynamicObjects::apply(const Object& object)
 
 void FindDynamicObjects::apply(const Data& data)
 {
-    if (data.properties.dataVariance != STATIC_DATA) tag(&data);
+    if (data.dynamic()) tag(&data);
 }
 
 void FindDynamicObjects::apply(const AnimationGroup& ag)

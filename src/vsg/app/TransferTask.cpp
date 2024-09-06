@@ -41,6 +41,8 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 
 void TransferTask::advance()
 {
+    vsg::info("TransferTask::advance()");
+
     CPU_INSTRUMENTATION_L1(instrumentation);
     std::scoped_lock<std::mutex> lock(_mutex);
 
@@ -167,14 +169,14 @@ void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer 
                     log(level, "       no need to copy ", bufferInfo);
                 }
 
-                if (bufferInfo->data->properties.dataVariance == STATIC_DATA)
+                if (bufferInfo->data->dynamic())
                 {
-                    log(level, "       removing copied static data: ", bufferInfo, ", ", bufferInfo->data);
-                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
+                    ++bufferInfo_itr;
                 }
                 else
                 {
-                    ++bufferInfo_itr;
+                    log(level, "       removing copied static data: ", bufferInfo, ", ", bufferInfo->data);
+                    bufferInfo_itr = bufferInfos.erase(bufferInfo_itr);
                 }
             }
         }
@@ -249,14 +251,14 @@ void TransferTask::_transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer v
                 log(level, "    no need to copy ", imageInfo);
             }
 
-            if (imageInfo->imageView->image->data->properties.dataVariance == STATIC_DATA)
+            if (imageInfo->imageView->image->data->dynamic())
             {
-                log(level, "       removing copied static image data: ", imageInfo, ", ", imageInfo->imageView->image->data);
-                imageInfo_itr = dataToCopy.imageInfoSet.erase(imageInfo_itr);
+                ++imageInfo_itr;
             }
             else
             {
-                ++imageInfo_itr;
+                log(level, "    removing copied static image data: ", imageInfo, ", ", imageInfo->imageView->image->data);
+                imageInfo_itr = dataToCopy.imageInfoSet.erase(imageInfo_itr);
             }
         }
     }
@@ -364,7 +366,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     size_t frameIndex = index(0);
     if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}, {}};
 
-    log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
+    //log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
+    info("TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
 
     //
     // begin compute total data size
