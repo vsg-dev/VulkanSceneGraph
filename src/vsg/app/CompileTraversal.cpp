@@ -63,6 +63,7 @@ CompileTraversal::~CompileTraversal()
 
 void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
 {
+    // TODO : need to ensure queueFamily matches the main queue's queueFamily, or implement queue family ownership transfer, or defer copy and transfer commands to TransferTask?
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->instrumentation = instrumentation;
@@ -75,6 +76,7 @@ void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, cons
 {
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
+    // TODO : need to ensure queueFamily matches the main queue's queueFamily, or implement queue family ownership transfer, or defer copy and transfer commands to TransferTask?
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->instrumentation = instrumentation;
@@ -96,6 +98,7 @@ void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceReq
 {
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
+    // TODO : need to ensure queueFamily matches the main queue's queueFamily, or implement queue family ownership transfer, or defer copy and transfer commands to TransferTask?
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(queueFlags);
     auto context = Context::create(device, resourceRequirements);
     context->instrumentation = instrumentation;
@@ -125,6 +128,7 @@ void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const R
 {
     auto device = framebuffer.getDevice();
     auto renderPass = framebuffer.getRenderPass();
+    // TODO : need to ensure queueFamily matches the main queue's queueFamily, or implement queue family ownership transfer, or defer copy and transfer commands to TransferTask?
     auto queueFamily = device->getPhysicalDevice()->getQueueFamily(VK_QUEUE_GRAPHICS_BIT);
     auto context = Context::create(device, resourceRequirements);
     context->instrumentation = instrumentation;
