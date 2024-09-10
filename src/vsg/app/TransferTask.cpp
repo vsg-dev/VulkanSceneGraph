@@ -534,6 +534,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         if (result != VK_SUCCESS) return TransferResult{result, {}, {}};
 
+#if 0
         if (!waitSemaphore)
         {
             // for next submission we want to wait till the consume has signalled completion
@@ -542,6 +543,11 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         }
 
         return TransferResult{VK_SUCCESS, signalSemaphore, waitSemaphore};
+#else
+        if (!waitSemaphore) waitSemaphore = signalSemaphore;
+
+        return TransferResult{VK_SUCCESS, signalSemaphore, signalSemaphore};
+#endif
     }
     else
     {
