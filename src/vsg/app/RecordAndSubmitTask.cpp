@@ -239,7 +239,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     {
         vk_signalSemaphores.emplace_back(*semaphore);
         current_fence->dependentSemaphores().push_back(semaphore);
-        //info("RecordAndSubmitTask::finish() assigning transientSignalSemaphore ", semaphore);
+        info("RecordAndSubmitTask::finish() assigning transientSignalSemaphore ", semaphore);
     }
 
     transientSignalSemaphores.clear();

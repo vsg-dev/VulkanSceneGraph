@@ -509,6 +509,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         {
             vk_waitSemaphores.emplace_back(waitSemaphore->vk());
             vk_waitStages.emplace_back(waitSemaphore->pipelineStageFlags());
+
+            info("TransferTask::_transferData( ",dataToCopy.name," ) submit waitSemaphore = ", waitSemaphore);
         }
 
         // set up the vulkan signal sempahore
