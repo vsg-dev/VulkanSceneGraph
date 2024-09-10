@@ -20,6 +20,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#define SINGLE_SEMEPHORE_PER_DATATOCOPY 1
+
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     device(in_device)
 {
@@ -420,8 +422,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     auto& frame = *(dataToCopy.frames[frameIndex]);
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
+#if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
     auto& signalSemaphore = frame.transferCompleteSemaphore;
     auto& waitSemaphore = frame.consumerCompleteSemaphore;
+#else
+    auto& semaphore = dataToCopy.semaphore;
+#endif
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
@@ -429,8 +435,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    frame = ", &frame);
     log(level, "    transferQueue = ", transferQueue);
     log(level, "    staging = ", staging);
+#if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
     log(level, "    signalSemaphore = ", signalSemaphore, ", ", signalSemaphore ? signalSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    waitSemaphore = ", waitSemaphore, ", ", waitSemaphore ? waitSemaphore->vk() : VK_NULL_HANDLE);
+#else
+    log(level, "    semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
+#endif
     log(level, "    copyRegions.size() = ", copyRegions.size());
 
     if (!commandBuffer)
@@ -443,12 +453,14 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         commandBuffer->reset();
     }
 
+#if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
     if (!signalSemaphore)
     {
         // signal transfer submission has completed
         signalSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         log(level, "    signalSemaphore created ", signalSemaphore, ", ", signalSemaphore->vk());
     }
+#endif
 
     VkResult result = VK_SUCCESS;
 
@@ -505,6 +517,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         // set up vulkan wait semaphore
         std::vector<VkSemaphore> vk_waitSemaphores;
         std::vector<VkPipelineStageFlags> vk_waitStages;
+#if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
         if (waitSemaphore)
         {
             vk_waitSemaphores.emplace_back(waitSemaphore->vk());
@@ -512,10 +525,28 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
             info("TransferTask::_transferData( ",dataToCopy.name," ) submit waitSemaphore = ", waitSemaphore);
         }
+#else
+        if (semaphore)
+        {
+            vk_waitSemaphores.emplace_back(semaphore->vk());
+            vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
 
-        // set up the vulkan signal sempahore
+            info("TransferTask::_transferData( ",dataToCopy.name," ) submit waitSemaphore = ", semaphore);
+        }
+#endif
+        // set up the vulkan signal semaphore
         std::vector<VkSemaphore> vk_signalSemaphores;
+#if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
         vk_signalSemaphores.push_back(*signalSemaphore);
+#else
+        if (!semaphore)
+        {
+            // for next submission we want to wait till the consume has signalled completion
+            semaphore = Semaphore::create(device, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+            log(level, "    semaphore created ", semaphore, ", ", semaphore->vk());
+        }
+        vk_signalSemaphores.push_back(*semaphore);
+#endif
 
         submitInfo.waitSemaphoreCount = static_cast<uint32_t>(vk_waitSemaphores.size());
         submitInfo.pWaitSemaphores = vk_waitSemaphores.data();
@@ -534,7 +565,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         if (result != VK_SUCCESS) return TransferResult{result, {}, {}};
 
-#if 0
+#if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
         if (!waitSemaphore)
         {
             // for next submission we want to wait till the consume has signalled completion
@@ -544,9 +575,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         return TransferResult{VK_SUCCESS, signalSemaphore, waitSemaphore};
 #else
-        if (!waitSemaphore) waitSemaphore = signalSemaphore;
-
-        return TransferResult{VK_SUCCESS, signalSemaphore, signalSemaphore};
+        return TransferResult{VK_SUCCESS, semaphore, semaphore};
 #endif
     }
     else
