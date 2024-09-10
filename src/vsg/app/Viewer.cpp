@@ -156,6 +156,8 @@ bool Viewer::advanceToNextFrame(double simulationTime)
 {
     static constexpr SourceLocation s_frame_source_location{"Viewer advanceToNextFrame", VsgFunctionName, __FILE__, __LINE__, COLOR_VIEWER, 1};
 
+    info("\nViewer::advanceToNextFrame() {");
+
     // signal to instrumentation the end of the previous frame
     if (instrumentation && _frameStamp) instrumentation->leaveFrame(&s_frame_source_location, frameReference, *_frameStamp);
 
@@ -202,7 +204,7 @@ bool Viewer::advanceToNextFrame(double simulationTime)
     // create an event for the new frame.
     _events.emplace_back(new FrameEvent(_frameStamp));
 
-    info("\nViewer::advanceToNextFrame()");
+    info("} Viewer::advanceToNextFrame()");
 
     return true;
 }

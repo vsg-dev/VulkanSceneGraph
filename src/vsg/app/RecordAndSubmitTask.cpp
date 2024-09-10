@@ -42,6 +42,8 @@ void RecordAndSubmitTask::advance()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask advance", COLOR_VIEWER);
 
+    info("RecordAndSubmitTask::advance()");
+
     if (_currentFrameIndex >= _indices.size())
     {
         // first frame so set to 0
