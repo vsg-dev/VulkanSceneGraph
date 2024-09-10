@@ -92,7 +92,7 @@ namespace vsg
 
         virtual void request(ref_ptr<PagedLOD> plod);
 
-        virtual void updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr);
+        virtual void updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResult& cr);
 
         ref_ptr<CompileManager> compileManager;
 
