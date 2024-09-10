@@ -26,14 +26,39 @@ namespace vsg
     public:
         explicit DeleteQueue(ref_ptr<ActivityStatus> status);
 
-        using Nodes = std::list<ref_ptr<Node>>;
+        struct ObectToDelete
+        {
+            uint64_t frameCount = 0;
+            ref_ptr<Object> object;
+        };
+
+        using ObjectsToDelete = std::list<ObectToDelete>;
+
+        std::atomic_uint64_t frameCount = 0;
+        uint64_t retainForFrameCount = 3;
 
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }
 
-        void add(ref_ptr<Node> node);
+        void advance(ref_ptr<FrameStamp> frameStamp);
 
-        void add(Nodes& nodes);
+        void add(ref_ptr<Object> object)
+        {
+            std::scoped_lock lock(_mutex);
+            _objectsToDelete.push_back(ObectToDelete{frameCount + retainForFrameCount, object});
+            _cv.notify_one();
+        }
+
+        template<typename T>
+        void add(T& objects)
+        {
+            std::scoped_lock lock(_mutex);
+            for(auto& object : objects)
+            {
+                _objectsToDelete.emplace_back(ObectToDelete{frameCount + retainForFrameCount, object});
+            }
+            _cv.notify_one();
+        }
 
         void wait_then_clear();
 
@@ -44,7 +69,7 @@ namespace vsg
 
         std::mutex _mutex;
         std::condition_variable _cv;
-        Nodes _nodes;
+        ObjectsToDelete _objectsToDelete;
         ref_ptr<ActivityStatus> _status;
     };
     VSG_type_name(vsg::DeleteQueue);

@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/threading/DeleteQueue.h>
 
 using namespace vsg;
@@ -28,55 +29,53 @@ DeleteQueue::~DeleteQueue()
 {
 }
 
-void DeleteQueue::add(ref_ptr<Node> node)
+void DeleteQueue::advance(ref_ptr<FrameStamp> frameStamp)
 {
     std::scoped_lock lock(_mutex);
-    _nodes.push_back(node);
-    _cv.notify_one();
+
+    frameCount = frameStamp->frameCount;
+
+    if (!_objectsToDelete.empty() && _objectsToDelete.front().frameCount <= frameStamp->frameCount)
+    {
+        _cv.notify_one();
+    }
 }
 
-void DeleteQueue::add(Nodes& nodes)
-{
-    std::scoped_lock lock(_mutex);
-    _nodes.insert(_nodes.end(), nodes.begin(), nodes.end());
-    _cv.notify_one();
-
-    // vsg::info("DeleteQueue::add(Nodes), adding to ", nodes.size(),  ", new has _nodes.size() = ",  _nodes.size());
-}
 
 void DeleteQueue::wait_then_clear()
 {
-    Nodes nodesToRelease;
+    ObjectsToDelete objectsToDelete;
 
     {
         std::chrono::duration waitDuration = std::chrono::milliseconds(100);
         std::unique_lock lock(_mutex);
 
+        uint64_t previous_frameCount = frameCount.load();
+
         // wait until the conditional variable signals that an operation has been added
-        while (_nodes.empty() && _status->active())
+        while ((_objectsToDelete.empty() || (frameCount.load()==previous_frameCount))  && _status->active())
         {
-            //info("DeleteQueue::wait_then_clear() Waiting on condition variable, size = ", _nodes.size());
             _cv.wait_for(lock, waitDuration);
         }
+        auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObectToDelete& otd) { return otd.frameCount > frameCount; });
 
         // use a swap of the container to keep the time the mutex is aquired as short as possible
-        _nodes.swap(nodesToRelease);
+        objectsToDelete.splice(objectsToDelete.end(), _objectsToDelete, _objectsToDelete.begin(), last_itr);
     }
 
-    //vsg::info("DeleteQueue::wait_then_clear(), releasing ", nodesToRelease.size());
-    nodesToRelease.clear();
+    objectsToDelete.clear();
 }
 
 void DeleteQueue::clear()
 {
-    Nodes nodesToRelease;
+    ObjectsToDelete objectsToDelete;
 
     // use a swap of the container to keep the time the mutex is aquired as short as possible
     {
         std::scoped_lock lock(_mutex);
-        _nodes.swap(nodesToRelease);
+        objectsToDelete.swap(objectsToDelete);
     }
 
     //vsg::info("DeleteQueue::clear(), releasing ", nodesToRelease.size());
-    nodesToRelease.clear();
+    objectsToDelete.clear();
 }

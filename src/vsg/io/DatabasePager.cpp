@@ -257,15 +257,16 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
     --numActiveRequests;
 }
 
-void DatabasePager::updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr)
+void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResult& cr)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
     frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
+    _deleteQueue->advance(frameStamp);
 
     auto nodes = _toMergeQueue->take_all(cr);
 
-    DeleteQueue::Nodes deleteList;
+    std::list<ref_ptr<Object>> deleteList;
     if (culledPagedLODs)
     {
         auto previous_statusList_count = pagedLODContainer->activeList.count;
@@ -374,5 +375,6 @@ void DatabasePager::updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr)
     {
         debug("DatabasePager::updateSceneGraph() nothing to merge");
     }
+
     if (!deleteList.empty()) _deleteQueue->add(deleteList);
 }
