@@ -42,8 +42,6 @@ void RecordAndSubmitTask::advance()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask advance", COLOR_VIEWER);
 
-    info("RecordAndSubmitTask::advance()");
-
     if (_currentFrameIndex >= _indices.size())
     {
         // first frame so set to 0
@@ -239,7 +237,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     {
         vk_signalSemaphores.emplace_back(*semaphore);
         current_fence->dependentSemaphores().push_back(semaphore);
-        info("RecordAndSubmitTask::finish() assigning transientSignalSemaphore ", semaphore);
     }
 
     transientSignalSemaphores.clear();

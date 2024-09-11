@@ -41,7 +41,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
 
 void TransferTask::advance()
 {
-    vsg::info("TransferTask::advance()");
+    log(level, "TransferTask::advance()");
 
     CPU_INSTRUMENTATION_L1(instrumentation);
     std::scoped_lock<std::mutex> lock(_mutex);
@@ -349,8 +349,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     size_t previousFrameIndex = index(1);
     if (frameIndex >= dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}, {}};
 
-    //log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
-    info("TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex, ", previousFrameIndex = ", previousFrameIndex);
+    log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex, ", previousFrameIndex = ", previousFrameIndex);
 
     //
     // begin compute total data size
@@ -505,7 +504,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
             vk_waitSemaphores.emplace_back(previousWaitSemaphore->vk());
             vk_waitStages.emplace_back(previousWaitSemaphore->pipelineStageFlags());
 
-            info("TransferTask::_transferData( ",dataToCopy.name," ) submit previousWaitSemaphore = ", previousWaitSemaphore);
+            log(level, "TransferTask::_transferData( ",dataToCopy.name," ) submit previousWaitSemaphore = ", previousWaitSemaphore);
         }
 
         // set up the vulkan signal semaphore
