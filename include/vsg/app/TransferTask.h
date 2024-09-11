@@ -100,8 +100,6 @@ namespace vsg
             VkDeviceSize dataTotalSize = 0;
             VkDeviceSize imageTotalSize = 0;
 
-            ref_ptr<Semaphore> semaphore;
-
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
         };
 
