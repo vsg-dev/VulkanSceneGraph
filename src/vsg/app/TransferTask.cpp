@@ -23,17 +23,17 @@ using namespace vsg;
 #define SINGLE_SEMEPHORE_PER_DATATOCOPY 0
 
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
-    device(in_device)
+    device(in_device),
+    _bufferCount(numBuffers),
+    _frameCount(0)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
     _earlyDataToCopy.name = "_earlyDataToCopy";
     _lateDataToCopy.name = "_lateDataToCopy";
 
-    _currentTransferBlockIndex = numBuffers; // numBuffers is used to signify unset value
     for (uint32_t i = 0; i < numBuffers; ++i)
     {
-        _indices.emplace_back(numBuffers); // numBuffers is used to signify unset value
         _earlyDataToCopy.frames.emplace_back(TransferBlock::create());
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
@@ -48,30 +48,12 @@ void TransferTask::advance()
     CPU_INSTRUMENTATION_L1(instrumentation);
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    if (_currentTransferBlockIndex >= _indices.size())
-    {
-        // first frame so set to 0
-        _currentTransferBlockIndex = 0;
-    }
-    else
-    {
-        ++_currentTransferBlockIndex;
-        if (_currentTransferBlockIndex > _indices.size() - 1) _currentTransferBlockIndex = 0;
-
-        // shift the index for previous frames
-        for (size_t i = _indices.size() - 1; i >= 1; --i)
-        {
-            _indices[i] = _indices[i - 1];
-        }
-    }
-
-    // pass the index for the current frame
-    _indices[0] = _currentTransferBlockIndex;
+    ++_frameCount;
 }
 
 size_t TransferTask::index(size_t relativeTransferBlockIndex) const
 {
-    return relativeTransferBlockIndex < _indices.size() ? _indices[relativeTransferBlockIndex] : _indices.size();
+    return (_frameCount < relativeTransferBlockIndex) ? _bufferCount : ((_frameCount - relativeTransferBlockIndex) % _bufferCount);
 }
 
 bool TransferTask::containsDataToTransfer(TransferMask transferMask) const
@@ -366,10 +348,11 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     std::scoped_lock<std::mutex> lock(_mutex);
 
     size_t frameIndex = index(0);
-    if (frameIndex > dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}, {}};
+    size_t previousFrameIndex = index(1);
+    if (frameIndex >= dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}, {}};
 
     //log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
-    info("TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex);
+    info("TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex, ", previousFrameIndex = ", previousFrameIndex);
 
     //
     // begin compute total data size
@@ -423,8 +406,11 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
 #if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
+    ref_ptr<Semaphore> previousWaitSemaphore;
+    if (previousFrameIndex < _bufferCount) previousWaitSemaphore = dataToCopy.frames[previousFrameIndex]->consumerCompleteSemaphore;
+
     auto& signalSemaphore = frame.transferCompleteSemaphore;
-    auto& waitSemaphore = frame.consumerCompleteSemaphore;
+    auto& nextWaitSemaphore = frame.consumerCompleteSemaphore;
 #else
     auto& semaphore = dataToCopy.semaphore;
 #endif
@@ -436,8 +422,9 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    transferQueue = ", transferQueue);
     log(level, "    staging = ", staging);
 #if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
+    log(level, "    previousWaitSemaphore = ", previousWaitSemaphore, ", ", previousWaitSemaphore ? previousWaitSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    signalSemaphore = ", signalSemaphore, ", ", signalSemaphore ? signalSemaphore->vk() : VK_NULL_HANDLE);
-    log(level, "    waitSemaphore = ", waitSemaphore, ", ", waitSemaphore ? waitSemaphore->vk() : VK_NULL_HANDLE);
+    log(level, "    nextWaitSemaphore = ", nextWaitSemaphore, ", ", nextWaitSemaphore ? nextWaitSemaphore->vk() : VK_NULL_HANDLE);
 #else
     log(level, "    semaphore = ", semaphore, ", ", semaphore ? semaphore->vk() : VK_NULL_HANDLE);
 #endif
@@ -458,6 +445,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     {
         // signal transfer submission has completed
         signalSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        log(level, "    signalSemaphore created ", signalSemaphore, ", ", signalSemaphore->vk());
+    }
+    if (!nextWaitSemaphore)
+    {
+        // for next submission we want to wait till the consume has signalled completion
+        nextWaitSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
         log(level, "    signalSemaphore created ", signalSemaphore, ", ", signalSemaphore->vk());
     }
 #endif
@@ -518,12 +511,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         std::vector<VkSemaphore> vk_waitSemaphores;
         std::vector<VkPipelineStageFlags> vk_waitStages;
 #if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
-        if (waitSemaphore)
+        if (previousWaitSemaphore)
         {
-            vk_waitSemaphores.emplace_back(waitSemaphore->vk());
-            vk_waitStages.emplace_back(waitSemaphore->pipelineStageFlags());
+            vk_waitSemaphores.emplace_back(previousWaitSemaphore->vk());
+            vk_waitStages.emplace_back(previousWaitSemaphore->pipelineStageFlags());
 
-            info("TransferTask::_transferData( ",dataToCopy.name," ) submit waitSemaphore = ", waitSemaphore);
+            info("TransferTask::_transferData( ",dataToCopy.name," ) submit previousWaitSemaphore = ", previousWaitSemaphore);
         }
 #else
         if (semaphore)
@@ -566,14 +559,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         if (result != VK_SUCCESS) return TransferResult{result, {}, {}};
 
 #if SINGLE_SEMEPHORE_PER_DATATOCOPY==0
-        if (!waitSemaphore)
-        {
-            // for next submission we want to wait till the consume has signalled completion
-            waitSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
-            log(level, "    waitSemaphore created ", waitSemaphore, ", ", waitSemaphore->vk());
-        }
-
-        return TransferResult{VK_SUCCESS, signalSemaphore, waitSemaphore};
+        return TransferResult{VK_SUCCESS, signalSemaphore, nextWaitSemaphore};
 #else
         return TransferResult{VK_SUCCESS, semaphore, semaphore};
 #endif

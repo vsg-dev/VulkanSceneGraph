@@ -73,6 +73,8 @@ namespace vsg
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
+        // return the index of the transferBlock to use.
+        // relativeTransferBlockIndex of 0 is the frame currently being record, 1 is the previous frame record.
         size_t index(size_t relativeTransferBlockIndex = 0) const;
 
         mutable std::mutex _mutex;
@@ -106,8 +108,8 @@ namespace vsg
         DataToCopy _earlyDataToCopy;
         DataToCopy _lateDataToCopy;
 
-        size_t _currentTransferBlockIndex;
-        std::vector<size_t> _indices;
+        size_t _bufferCount;
+        size_t _frameCount;
 
         TransferResult _transferData(DataToCopy& dataToCopy);
 
