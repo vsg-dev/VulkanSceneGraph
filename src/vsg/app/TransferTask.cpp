@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define SINGLE_SEMEPHORE_PER_DATATOCOPY 1
+#define SINGLE_SEMEPHORE_PER_DATATOCOPY 0
 
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     device(in_device)
