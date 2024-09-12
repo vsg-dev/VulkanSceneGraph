@@ -735,13 +735,10 @@ void Viewer::setupThreading()
 
                     if (auto transfer = transferTask->transferData(transferMask); transfer.result == VK_SUCCESS)
                     {
+                        data->task->dataTransferred = true;
                         if (transfer.dataTransferredSemaphore)
                         {
                             data->task->transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
-                        }
-                        if (transfer.dataConsumedSemaphore)
-                        {
-                            data->task->transientSignalSemaphores.push_back(transfer.dataConsumedSemaphore);
                         }
                     }
 

@@ -34,7 +34,6 @@ namespace vsg
         {
             VkResult result = VK_SUCCESS;
             ref_ptr<Semaphore> dataTransferredSemaphore;
-            ref_ptr<Semaphore> dataConsumedSemaphore;
         };
 
         enum TransferMask
@@ -50,6 +49,7 @@ namespace vsg
         virtual bool containsDataToTransfer(TransferMask transferMask) const;
 
         ref_ptr<Device> device;
+        ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
         /// advance the currentTransferBlockIndex
         void advance();
@@ -99,7 +99,6 @@ namespace vsg
             VkDeviceSize imageTotalSize = 0;
 
             uint32_t currentSemephoreCount = 0;
-            ref_ptr<Semaphore> consumerCompleteSemaphore[2];
             ref_ptr<Semaphore> transferCompleteSemaphore[2];
 
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
