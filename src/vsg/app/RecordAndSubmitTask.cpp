@@ -42,6 +42,8 @@ void RecordAndSubmitTask::advance()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask advance", COLOR_VIEWER);
 
+    info("\nRecordAndSubmitTask::advance()");
+
     if (_currentFrameIndex >= _indices.size())
     {
         // first frame so set to 0
@@ -180,6 +182,11 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (recordedCommandBuffers->empty())
     {
+
+        info("RecordAndSubmitTask::finish() transientWaitSemaphores.size() = ", transientWaitSemaphores.size());
+        info("                              transientSignalSemaphores.size() = ", transientSignalSemaphores.size());
+
+
         // nothing to do so return early
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
         return VK_SUCCESS;
