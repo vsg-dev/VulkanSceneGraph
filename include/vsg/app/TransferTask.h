@@ -82,8 +82,6 @@ namespace vsg
         struct TransferBlock : public Inherit<Object, TransferBlock>
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
-            ref_ptr<Semaphore> transferCompleteSemaphore;
-            ref_ptr<Semaphore> consumerCompleteSemaphore;
             ref_ptr<Buffer> staging;
             void* buffer_data = nullptr;
             std::vector<VkBufferCopy> copyRegions;
@@ -99,6 +97,10 @@ namespace vsg
             VkDeviceSize dataTotalRegions = 0;
             VkDeviceSize dataTotalSize = 0;
             VkDeviceSize imageTotalSize = 0;
+
+            uint32_t currentSemephoreCount = 0;
+            ref_ptr<Semaphore> consumerCompleteSemaphore[2];
+            ref_ptr<Semaphore> transferCompleteSemaphore[2];
 
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
         };
