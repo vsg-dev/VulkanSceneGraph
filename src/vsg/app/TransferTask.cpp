@@ -36,7 +36,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
-    // level = Logger::LOGGER_INFO;
+    level = Logger::LOGGER_INFO;
 }
 
 void TransferTask::advance()

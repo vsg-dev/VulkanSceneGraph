@@ -84,7 +84,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask submit", COLOR_RECORD);
 
-    //info("RecordAndSubmitTask::submit()");
+    info("\nRecordAndSubmitTask::submit()");
 
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
@@ -96,6 +96,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
             {
                 //info("    adding early transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
                 transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
+                dataTransferred = true;
             }
         }
         else
@@ -153,7 +154,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask finish", COLOR_RECORD);
 
-    //info("RecordAndSubmitTask::finish()");
+    info("RecordAndSubmitTask::finish()");
 
     auto current_fence = fence();
 
@@ -167,6 +168,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
             if (transfer.dataTransferredSemaphore)
             {
                 //info("    adding late transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
+                dataTransferred = true;
                 transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
             }
         }
@@ -239,8 +241,14 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         vk_signalSemaphores.emplace_back(*semaphore);
         current_fence->dependentSemaphores().push_back(semaphore);
     }
-
     transientSignalSemaphores.clear();
+
+    if (dataTransferred)
+    {
+        vk_signalSemaphores.emplace_back(transferConsumerCompletedSemaphore->vk());
+    }
+
+
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
