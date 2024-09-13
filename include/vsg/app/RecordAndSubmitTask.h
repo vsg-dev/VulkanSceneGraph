@@ -41,7 +41,7 @@ namespace vsg
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
-        Semaphores transientWaitSemaphores; // assign per frame and then cleared by finish(), assumed reference to semaphores assigned are retained elsewhere to pevert deletion while still in use.
+        Semaphores transientWaitSemaphores;   // assign per frame and then cleared by finish(), assumed reference to semaphores assigned are retained elsewhere to pevert deletion while still in use.
         Semaphores transientSignalSemaphores; // assign per frame and then cleared by finish(), assumed reference to semaphores assigned are retained elsewhere to pevert deletion while still in use.
 
         ref_ptr<TransferTask> transferTask; // data is transferred for this frame

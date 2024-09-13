@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
-#include <vsg/ui/FrameStamp.h>
 #include <vsg/threading/DeleteQueue.h>
+#include <vsg/ui/FrameStamp.h>
 
 using namespace vsg;
 
@@ -41,7 +41,6 @@ void DeleteQueue::advance(ref_ptr<FrameStamp> frameStamp)
     }
 }
 
-
 void DeleteQueue::wait_then_clear()
 {
     ObjectsToDelete objectsToDelete;
@@ -53,7 +52,7 @@ void DeleteQueue::wait_then_clear()
         uint64_t previous_frameCount = frameCount.load();
 
         // wait until the conditional variable signals that an operation has been added
-        while ((_objectsToDelete.empty() || (frameCount.load()==previous_frameCount))  && _status->active())
+        while ((_objectsToDelete.empty() || (frameCount.load() == previous_frameCount)) && _status->active())
         {
             _cv.wait_for(lock, waitDuration);
         }

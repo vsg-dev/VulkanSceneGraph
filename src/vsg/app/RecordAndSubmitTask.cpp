@@ -170,7 +170,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL);
         transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore.reset();
 
-        if ( transfer.result == VK_SUCCESS)
+        if (transfer.result == VK_SUCCESS)
         {
             if (transfer.dataTransferredSemaphore)
             {
@@ -183,7 +183,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         {
             return transfer.result;
         }
-
     }
 
     if (recordedCommandBuffers->empty())
@@ -207,7 +206,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
         current_fence->dependentCommandBuffers().emplace_back(commandBuffer);
     }
-
 
     for (auto& semaphore : transientWaitSemaphores)
     {

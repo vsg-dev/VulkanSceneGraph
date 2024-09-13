@@ -53,7 +53,7 @@ namespace vsg
         void add(T& objects)
         {
             std::scoped_lock lock(_mutex);
-            for(auto& object : objects)
+            for (auto& object : objects)
             {
                 _objectsToDelete.emplace_back(ObectToDelete{frameCount + retainForFrameCount, object});
             }

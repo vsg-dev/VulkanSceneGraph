@@ -496,7 +496,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
             vk_waitSemaphores.emplace_back(dataToCopy.transferConsumerCompletedSemaphore->vk());
             vk_waitStages.emplace_back(dataToCopy.transferConsumerCompletedSemaphore->pipelineStageFlags());
 
-            log(level, "TransferTask::_transferData( ",dataToCopy.name," ) submit dataToCopy.transferConsumerCompletedSemaphore = ", dataToCopy.transferConsumerCompletedSemaphore);
+            log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) submit dataToCopy.transferConsumerCompletedSemaphore = ", dataToCopy.transferConsumerCompletedSemaphore);
         }
 
         // set up the vulkan signal semaphore
@@ -515,7 +515,6 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         log(level, "   TransferTask submitInfo.waitSemaphoreCount = ", submitInfo.waitSemaphoreCount);
         log(level, "   TransferTask submitInfo.signalSemaphoreCount = ", submitInfo.signalSemaphoreCount);
-
 
         result = transferQueue->submit(submitInfo);
 
