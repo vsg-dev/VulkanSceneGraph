@@ -89,7 +89,7 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask submit", COLOR_RECORD);
 
-    info("\nRecordAndSubmitTask::submit()");
+    //info("\nRecordAndSubmitTask::submit()");
 
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
@@ -161,7 +161,7 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask finish", COLOR_RECORD);
 
-    info("RecordAndSubmitTask::finish()");
+    //info("RecordAndSubmitTask::finish()");
 
     auto current_fence = fence();
 
