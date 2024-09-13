@@ -403,7 +403,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
 
-    uint32_t newSemaphoreIndex = (dataToCopy.currentSemephoreCount) % 2;
+    uint32_t newSemaphoreIndex = 0;//(dataToCopy.currentSemephoreCount) % 2;
     ++dataToCopy.currentSemephoreCount;
 
     auto& newSignalSemaphore = dataToCopy.transferCompleteSemaphore[newSemaphoreIndex];
