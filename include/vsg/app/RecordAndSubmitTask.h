@@ -45,8 +45,12 @@ namespace vsg
         Semaphores transientSignalSemaphores; // assign per frame and then cleared by finish(), assumed reference to semaphores assigned are retained elsewhere to pevert deletion while still in use.
 
         ref_ptr<TransferTask> transferTask; // data is transferred for this frame
-        ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
-        bool dataTransferred = false;
+
+        ref_ptr<Semaphore> earlyTransferConsumerCompletedSemaphore;
+        bool earlyDataTransferred = false;
+
+        ref_ptr<Semaphore> lateTransferConsumerCompletedSemaphore;
+        bool lateDataTransferred = false;
 
         /// advance the currentFrameIndex
         void advance();

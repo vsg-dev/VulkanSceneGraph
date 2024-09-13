@@ -415,7 +415,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    frame = ", &frame);
     log(level, "    transferQueue = ", transferQueue);
     log(level, "    staging = ", staging);
-    log(level, "    transferConsumerCompletedSemaphore = ", transferConsumerCompletedSemaphore, ", ", transferConsumerCompletedSemaphore ? transferConsumerCompletedSemaphore->vk() : VK_NULL_HANDLE);
+    log(level, "    dataToCopy.transferConsumerCompletedSemaphore = ", dataToCopy.transferConsumerCompletedSemaphore, ", ", dataToCopy.transferConsumerCompletedSemaphore ? dataToCopy.transferConsumerCompletedSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    newSignalSemaphore = ", newSignalSemaphore, ", ", newSignalSemaphore ? newSignalSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    copyRegions.size() = ", copyRegions.size());
 
@@ -491,12 +491,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         // set up vulkan wait semaphore
         std::vector<VkSemaphore> vk_waitSemaphores;
         std::vector<VkPipelineStageFlags> vk_waitStages;
-        if (transferConsumerCompletedSemaphore)
+        if (dataToCopy.transferConsumerCompletedSemaphore)
         {
-            vk_waitSemaphores.emplace_back(transferConsumerCompletedSemaphore->vk());
-            vk_waitStages.emplace_back(transferConsumerCompletedSemaphore->pipelineStageFlags());
+            vk_waitSemaphores.emplace_back(dataToCopy.transferConsumerCompletedSemaphore->vk());
+            vk_waitStages.emplace_back(dataToCopy.transferConsumerCompletedSemaphore->pipelineStageFlags());
 
-            log(level, "TransferTask::_transferData( ",dataToCopy.name," ) submit transferConsumerCompletedSemaphore = ", transferConsumerCompletedSemaphore);
+            log(level, "TransferTask::_transferData( ",dataToCopy.name," ) submit dataToCopy.transferConsumerCompletedSemaphore = ", dataToCopy.transferConsumerCompletedSemaphore);
         }
 
         // set up the vulkan signal semaphore

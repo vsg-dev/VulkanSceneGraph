@@ -38,6 +38,7 @@ namespace vsg
 
         enum TransferMask
         {
+            TRANSFER_NONE = 0,
             TRANSFER_BEFORE_RECORD_TRAVERSAL = 1 << 0,
             TRANSFER_AFTER_RECORD_TRAVERSAL = 1 << 1,
             TRANSFER_ALL = TRANSFER_BEFORE_RECORD_TRAVERSAL | TRANSFER_AFTER_RECORD_TRAVERSAL
@@ -49,7 +50,6 @@ namespace vsg
         virtual bool containsDataToTransfer(TransferMask transferMask) const;
 
         ref_ptr<Device> device;
-        ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
         /// advance the currentTransferBlockIndex
         void advance();
@@ -69,7 +69,7 @@ namespace vsg
         /// control for the level of debug infomation emitted by the TransferTask
         Logger::Level level = Logger::LOGGER_DEBUG;
 
-    protected:
+    // protected:
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
@@ -100,6 +100,7 @@ namespace vsg
 
             uint32_t currentSemephoreCount = 0;
             ref_ptr<Semaphore> transferCompleteSemaphore[2];
+            ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
         };
