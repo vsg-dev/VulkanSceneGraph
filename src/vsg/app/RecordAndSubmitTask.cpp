@@ -95,7 +95,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 
     if (transferTask)
     {
-        transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore.reset();
         if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
         {
             if (transfer.dataTransferredSemaphore)
@@ -168,7 +167,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     if (transferTask)
     {
         auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL);
-        transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore.reset();
 
         if (transfer.result == VK_SUCCESS)
         {

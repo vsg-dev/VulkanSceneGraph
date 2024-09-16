@@ -518,6 +518,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         result = transferQueue->submit(submitInfo);
 
+        dataToCopy.transferConsumerCompletedSemaphore.reset();
+
         if (result != VK_SUCCESS) return TransferResult{result, {}};
 
         return TransferResult{VK_SUCCESS, newSignalSemaphore};
