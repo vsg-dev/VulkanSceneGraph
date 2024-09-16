@@ -48,7 +48,7 @@ void RecordAndSubmitTask::advance()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask advance", COLOR_VIEWER);
 
-    info("\nRecordAndSubmitTask::advance()");
+    // info("\nRecordAndSubmitTask::advance()");
 
     if (_currentFrameIndex >= _indices.size())
     {
@@ -69,8 +69,6 @@ void RecordAndSubmitTask::advance()
 
     // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
-
-    if (transferTask) transferTask->advance();
 }
 
 size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
@@ -127,18 +125,18 @@ VkResult RecordAndSubmitTask::start()
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {
-        info("RecordAndSubmitTask::start() waiting on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+        //info("RecordAndSubmitTask::start() waiting on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
 
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
         if (VkResult result = current_fence->wait(timeout); result != VK_SUCCESS) return result;
 
         current_fence->resetFenceAndDependencies();
 
-        info("after RecordAndSubmitTask::start() waited on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+        //info("after RecordAndSubmitTask::start() waited on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
     }
     else
     {
-        info("RecordAndSubmitTask::start() initial fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+        //info("RecordAndSubmitTask::start() initial fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
     }
 
     return VK_SUCCESS;

@@ -22,8 +22,7 @@ using namespace vsg;
 
 TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     device(in_device),
-    _bufferCount(numBuffers),
-    _frameCount(0)
+    _bufferCount(numBuffers)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
 
@@ -37,21 +36,6 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
     }
 
     // level = Logger::LOGGER_INFO;
-}
-
-void TransferTask::advance()
-{
-    CPU_INSTRUMENTATION_L1(instrumentation);
-    std::scoped_lock<std::mutex> lock(_mutex);
-
-    ++_frameCount;
-
-    log(level, "TransferTask::advance() _frameCount = ", _frameCount);
-}
-
-size_t TransferTask::index(size_t relativeTransferBlockIndex) const
-{
-    return (_frameCount < relativeTransferBlockIndex) ? _bufferCount : ((_frameCount - relativeTransferBlockIndex) % _bufferCount);
 }
 
 bool TransferTask::containsDataToTransfer(TransferMask transferMask) const
@@ -345,11 +329,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     std::scoped_lock<std::mutex> lock(_mutex);
 
-    size_t frameIndex = index(0);
-    size_t previousFrameIndex = index(1);
-    if (frameIndex >= dataToCopy.frames.size()) return TransferResult{VK_SUCCESS, {}};
-
-    log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", frameIndex, ", previousFrameIndex = ", previousFrameIndex);
+    log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", dataToCopy.frameIndex);
 
     //
     // begin compute total data size
@@ -399,25 +379,34 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     if (totalSize == 0) return TransferResult{VK_SUCCESS, {}};
 
     uint32_t deviceID = device->deviceID;
-    auto& frame = *(dataToCopy.frames[frameIndex]);
+    auto& frame = *(dataToCopy.frames[dataToCopy.frameIndex]);
+    auto& fence = frame.fence;
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
-
-    uint32_t newSemaphoreIndex = 0;//(dataToCopy.currentSemephoreCount) % 2;
-    ++dataToCopy.currentSemephoreCount;
-
-    auto& newSignalSemaphore = dataToCopy.transferCompleteSemaphore[newSemaphoreIndex];
+    auto& newSignalSemaphore = dataToCopy.transferCompleteSemaphore;
 
     const auto& copyRegions = frame.copyRegions;
     auto& buffer_data = frame.buffer_data;
 
-    log(level, "    frameIndex = ", frameIndex);
+    log(level, "    frameIndex = ", dataToCopy.frameIndex);
     log(level, "    frame = ", &frame);
+    log(level, "    fence = ", fence);
     log(level, "    transferQueue = ", transferQueue);
     log(level, "    staging = ", staging);
     log(level, "    dataToCopy.transferConsumerCompletedSemaphore = ", dataToCopy.transferConsumerCompletedSemaphore, ", ", dataToCopy.transferConsumerCompletedSemaphore ? dataToCopy.transferConsumerCompletedSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    newSignalSemaphore = ", newSignalSemaphore, ", ", newSignalSemaphore ? newSignalSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    copyRegions.size() = ", copyRegions.size());
+
+    if (frame.waitOnFence && fence)
+    {
+        uint64_t timeout = std::numeric_limits<uint64_t>::max();
+        if (VkResult result = fence->wait(timeout); result != VK_SUCCESS) return TransferResult{result, {}};;
+        fence->resetFenceAndDependencies();
+    }
+    frame.waitOnFence = false;
+
+    // advance frameIndex
+    dataToCopy.frameIndex = (dataToCopy.frameIndex + 1) % dataToCopy.frames.size();
 
     if (!commandBuffer)
     {
@@ -435,6 +424,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         newSignalSemaphore = Semaphore::create(device, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         log(level, "    newSignalSemaphore created ", newSignalSemaphore, ", ", newSignalSemaphore->vk());
     }
+
+    if (!fence) fence = Fence::create(device);
 
     VkResult result = VK_SUCCESS;
 
@@ -456,7 +447,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         buffer_data = nullptr;
         result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
 
-        log(level, "    TransferTask::transferData() frameIndex = ", frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
+        log(level, "    TransferTask::transferData() frameIndex = ", dataToCopy.frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 
         if (result != VK_SUCCESS) return TransferResult{VK_SUCCESS, {}};
     }
@@ -516,7 +507,9 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         log(level, "   TransferTask submitInfo.waitSemaphoreCount = ", submitInfo.waitSemaphoreCount);
         log(level, "   TransferTask submitInfo.signalSemaphoreCount = ", submitInfo.signalSemaphoreCount);
 
-        result = transferQueue->submit(submitInfo);
+        result = transferQueue->submit(submitInfo, fence);
+
+        frame.waitOnFence = true;
 
         dataToCopy.transferConsumerCompletedSemaphore.reset();
 
