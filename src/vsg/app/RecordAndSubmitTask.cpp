@@ -98,8 +98,9 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
             if (transfer.dataTransferredSemaphore)
             {
                 //info("    adding early transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
-                transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
                 earlyDataTransferred = true;
+                earlyTransferDataCompletedSemaphore = transfer.dataTransferredSemaphore;
+                transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
             }
         }
         else
@@ -120,7 +121,9 @@ VkResult RecordAndSubmitTask::start()
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask start", COLOR_RECORD);
 
     earlyDataTransferred = false;
+    earlyTransferDataCompletedSemaphore.reset();
     lateDataTransferred = false;
+    lateTransferDataCompletedSemaphore.reset();
 
     auto current_fence = fence();
     if (current_fence->hasDependencies())
@@ -171,8 +174,9 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
             if (transfer.dataTransferredSemaphore)
             {
                 //info("    adding late transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
-                transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
                 lateDataTransferred = true;
+                lateTransferDataCompletedSemaphore = transfer.dataTransferredSemaphore;
+                transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
             }
         }
         else
@@ -183,10 +187,53 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (recordedCommandBuffers->empty())
     {
+        if (!transientWaitSemaphores.empty())
+        {
+#if 0
+            info("EMPTY RecordAndSubmitTask::finish() recordedCommandBuffers->empty(), transientWaitSemaphores.size() = ", transientWaitSemaphores.size());
+
+            if (earlyDataTransferred)
+            {
+                info("   earlyTransferDataCompletedSemaphore = ", earlyTransferDataCompletedSemaphore);
+            }
+            if (lateDataTransferred)
+            {
+                info("   lateTransferDataCompletedSemaphore = ", lateTransferDataCompletedSemaphore);
+            }
+            for(auto& semaphore : transientWaitSemaphores)
+            {
+                info("   semaphore = ", semaphore, ", semaphore->vk() = ", semaphore->vk());
+            }
+#endif
+            if (earlyDataTransferred) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyTransferDataCompletedSemaphore;
+            if (lateDataTransferred) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateTransferDataCompletedSemaphore;
+
+            transientWaitSemaphores.clear();
+        }
+
         // nothing to do so return early
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
         return VK_SUCCESS;
     }
+
+#if 0
+    if (!transientWaitSemaphores.empty())
+    {
+        info("ACTIVE RecordAndSubmitTask::finish() transientWaitSemaphores.size() = ", transientWaitSemaphores.size());
+        if (earlyDataTransferred)
+        {
+            info("   earlyTransferConsumerCompletedSemaphore = ", earlyTransferConsumerCompletedSemaphore);
+        }
+        if (lateDataTransferred)
+        {
+            info("   lateTransferConsumerCompletedSemaphore = ", lateTransferConsumerCompletedSemaphore);
+        }
+        for(auto& semaphore : transientWaitSemaphores)
+        {
+            info("   semaphore = ", semaphore, ", semaphore->vk() = ", semaphore->vk());
+        }
+    }
+#endif
 
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     std::vector<VkCommandBuffer> vk_commandBuffers;
