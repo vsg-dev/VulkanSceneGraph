@@ -737,7 +737,6 @@ void Viewer::setupThreading()
                     {
                         if (transfer.dataTransferredSemaphore)
                         {
-                            data->task->earlyDataTransferred = true;
                             data->task->earlyDataTransferredSemaphore = transfer.dataTransferredSemaphore;
                         }
                     }

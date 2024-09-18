@@ -38,10 +38,7 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
     transferTask = TransferTask::create(in_device, numBuffers);
 
     earlyTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
-    earlyDataTransferred = false;
-
     lateTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
-    lateDataTransferred = false;
 }
 
 void RecordAndSubmitTask::advance()
@@ -98,7 +95,6 @@ VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
             if (transfer.dataTransferredSemaphore)
             {
                 //info("    adding early transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
-                earlyDataTransferred = true;
                 earlyDataTransferredSemaphore = transfer.dataTransferredSemaphore;
             }
         }
@@ -119,9 +115,7 @@ VkResult RecordAndSubmitTask::start()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask start", COLOR_RECORD);
 
-    earlyDataTransferred = false;
     earlyDataTransferredSemaphore.reset();
-    lateDataTransferred = false;
     lateDataTransferredSemaphore.reset();
 
     auto current_fence = fence();
@@ -173,7 +167,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
             if (transfer.dataTransferredSemaphore)
             {
                 //info("    adding late transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
-                lateDataTransferred = true;
                 lateDataTransferredSemaphore = transfer.dataTransferredSemaphore;
             }
         }
@@ -185,8 +178,8 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (recordedCommandBuffers->empty())
     {
-        if (earlyDataTransferred) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyDataTransferredSemaphore;
-        if (lateDataTransferred) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateDataTransferredSemaphore;
+        if (earlyDataTransferredSemaphore) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyDataTransferredSemaphore;
+        if (lateDataTransferredSemaphore) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateDataTransferredSemaphore;
 
         // nothing to do so return early
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
@@ -219,8 +212,8 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         vk_waitStages.emplace_back(lateDataTransferredSemaphore->pipelineStageFlags());
     }
 
-    if (earlyDataTransferred) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyTransferConsumerCompletedSemaphore;
-    if (lateDataTransferred) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateTransferConsumerCompletedSemaphore;
+    if (earlyDataTransferredSemaphore) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyTransferConsumerCompletedSemaphore;
+    if (lateDataTransferredSemaphore) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateTransferConsumerCompletedSemaphore;
 
     for (auto& window : windows)
     {
@@ -245,12 +238,12 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         vk_signalSemaphores.emplace_back(*(semaphore));
     }
 
-    if (earlyDataTransferred)
+    if (earlyDataTransferredSemaphore)
     {
         vk_signalSemaphores.emplace_back(earlyTransferConsumerCompletedSemaphore->vk());
         current_fence->dependentSemaphores().push_back(earlyTransferConsumerCompletedSemaphore);
     }
-    if (lateDataTransferred)
+    if (lateDataTransferredSemaphore)
     {
         vk_signalSemaphores.emplace_back(lateTransferConsumerCompletedSemaphore->vk());
         current_fence->dependentSemaphores().push_back(lateTransferConsumerCompletedSemaphore);

@@ -45,11 +45,9 @@ namespace vsg
 
         ref_ptr<Semaphore> earlyDataTransferredSemaphore;
         ref_ptr<Semaphore> earlyTransferConsumerCompletedSemaphore;
-        bool earlyDataTransferred = false;
 
         ref_ptr<Semaphore> lateDataTransferredSemaphore;
         ref_ptr<Semaphore> lateTransferConsumerCompletedSemaphore;
-        bool lateDataTransferred = false;
 
         /// advance the currentFrameIndex
         void advance();
