@@ -177,7 +177,16 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     if (bufferInfoList.empty()) return false;
 
+    Device* device = context.device;
     auto deviceID = context.deviceID;
+    auto transferTask = context.transferTask.get();
+    VkDeviceSize alignment = 4;
+    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+        alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
+
+    //transferTask = nullptr;
 
     ref_ptr<BufferInfo> deviceBufferInfo;
     size_t numBuffersRequired = 0;
@@ -210,14 +219,6 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         warn("vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo.");
         return false;
     }
-
-    Device* device = context.device;
-
-    VkDeviceSize alignment = 4;
-    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
-        alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
-    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
-        alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
@@ -267,13 +268,29 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
-    debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer.get(), ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
+    debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
 
     // assign the buffer to the bufferData entries and shift the offsets to offset within the buffer
     for (auto& bufferInfo : bufferInfoList)
     {
         bufferInfo->buffer = deviceBufferInfo->buffer;
         bufferInfo->offset += deviceBufferInfo->offset;
+    }
+
+    if (transferTask)
+    {
+        vsg::debug("vsg::createBufferAndTransferData(..)");
+
+        for (auto& bufferInfo : bufferInfoList)
+        {
+            vsg::debug("    ", bufferInfo, ", ", bufferInfo->data, ", ", bufferInfo->buffer, ", ", bufferInfo->offset);
+            bufferInfo->data->dirty();
+            bufferInfo->parent = deviceBufferInfo;
+        }
+
+        transferTask->assign(bufferInfoList);
+
+        return true;
     }
 
     auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
