@@ -47,7 +47,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     // round blockSize up to nearest aligned size
     blockSize = ((blockSize + alignment - 1) / alignment) * alignment;
 
-    memory = static_cast<Element*>(operator new (blockSize, std::align_val_t{blockAlignment}));
+    memory = static_cast<Element*>(operator new(blockSize, std::align_val_t{blockAlignment}));
     memoryEnd = memory + blockSize / sizeof(Element);
     capacity = static_cast<Element::Index>(blockSize / alignment);
     firstSlot = static_cast<Element::Index>(((1 + elementAlignment) / elementAlignment) * elementAlignment - 1);
@@ -99,7 +99,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
 IntrusiveAllocator::MemoryBlock::~MemoryBlock()
 {
-    operator delete (memory, std::align_val_t{blockAlignment});
+    operator delete(memory, std::align_val_t{blockAlignment});
 }
 
 bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
@@ -924,13 +924,13 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
             //std::cout<<"IntrusiveAllocator::allocate() Failed to allocator memory from memoryBlocks "<<blocks.get()<<std::endl;
         }
 
-        ptr = operator new (size, std::align_val_t{blocks->alignment});
+        ptr = operator new(size, std::align_val_t{blocks->alignment});
         if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(blocks->alignment, size);
         //std::cout<<"IntrusiveAllocator::allocate() MemoryBlocks aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<blocks->alignment<<" blocks->maximumAllocationSize = "<<blocks->maximumAllocationSize<<std::endl;
         return ptr;
     }
 
-    ptr = operator new (size, std::align_val_t{defaultAlignment});
+    ptr = operator new(size, std::align_val_t{defaultAlignment});
     if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(defaultAlignment, size);
     //std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<defaultAlignment<<std::endl;
     return ptr;
@@ -977,7 +977,7 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
     {
         // large allocation;
         // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
-        operator delete (ptr, std::align_val_t{la_itr->second.first});
+        operator delete(ptr, std::align_val_t{la_itr->second.first});
         largeAllocations.erase(la_itr);
         return true;
     }

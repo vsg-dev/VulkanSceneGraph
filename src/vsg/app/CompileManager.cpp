@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/CompileManager.h>
+#include <vsg/app/RecordAndSubmitTask.h>
 #include <vsg/app/View.h>
 #include <vsg/app/Viewer.h>
 #include <vsg/core/Exception.h>
@@ -27,8 +28,7 @@ void CompileResult::reset()
     maxSlot = 0;
     containsPagedLOD = false;
     views.clear();
-    earlyDynamicData.clear();
-    lateDynamicData.clear();
+    dynamicData.clear();
 }
 
 void CompileResult::add(const CompileResult& cr)
@@ -50,15 +50,14 @@ void CompileResult::add(const CompileResult& cr)
         binDetails.bins.insert(src_binDetails.bins.begin(), src_binDetails.bins.end());
     }
 
-    earlyDynamicData.add(cr.earlyDynamicData);
-    lateDynamicData.add(cr.lateDynamicData);
+    dynamicData.add(dynamicData);
 }
 
 bool CompileResult::requiresViewerUpdate() const
 {
     if (result == VK_INCOMPLETE) return false;
 
-    if (earlyDynamicData || lateDynamicData) return true;
+    if (dynamicData) return true;
 
     for (auto& [view, binDetails] : views)
     {
@@ -168,6 +167,8 @@ void CompileManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumen
 
 CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
 {
+    vsg::debug("CompileManager::compile(", object, ", ..)");
+
     CollectResourceRequirements collectRequirements;
     object->accept(collectRequirements);
 
@@ -178,8 +179,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.maxSlot = requirements.maxSlot;
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
-    result.earlyDynamicData = requirements.earlyDynamicData;
-    result.lateDynamicData = requirements.lateDynamicData;
+    result.dynamicData = requirements.dynamicData;
 
     auto compileTraversal = compileTraversals->take_when_available();
 
@@ -214,8 +214,11 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
             //debug("Finished compile traversal ", object);
 
-            compileTraversal->record(); // records and submits to queue
-            compileTraversal->waitForCompletion();
+            // if required records and submits to queue
+            if (compileTraversal->record())
+            {
+                compileTraversal->waitForCompletion();
+            }
         }
         catch (const vsg::Exception& ve)
         {
@@ -259,4 +262,29 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     compileTraversals->add(compileTraversal);
 
     return result;
+}
+
+CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
+{
+    auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+
+    for (auto& context : compileTraversal->contexts)
+    {
+        if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
+        {
+            context->transferTask = task->transferTask;
+        }
+    }
+
+    for (auto& cg : task->commandGraphs)
+    {
+        cg->accept(*compileTraversal);
+    }
+
+    if (compileTraversal->record())
+    {
+        compileTraversal->waitForCompletion();
+    }
+
+    return {};
 }

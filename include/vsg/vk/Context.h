@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <deque>
 #include <memory>
 
+#include <vsg/app/TransferTask.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/CopyAndReleaseImage.h>
@@ -122,6 +123,7 @@ namespace vsg
         ref_ptr<Fence> fence;
         ref_ptr<Semaphore> semaphore;
         ref_ptr<ScratchMemory> scratchMemory;
+        bool requiresWaitForCompletion = false;
 
         std::vector<ref_ptr<Command>> commands;
 
@@ -143,6 +145,8 @@ namespace vsg
         // RTX ray tracing
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
+
+        ref_ptr<TransferTask> transferTask;
     };
     VSG_type_name(vsg::Context);
 

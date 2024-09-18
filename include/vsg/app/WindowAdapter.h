@@ -48,7 +48,7 @@ namespace vsg
     protected:
         virtual ~WindowAdapter() {}
 
-        void _initSurface() override{};
+        void _initSurface() override {};
     };
     VSG_type_name(WindowAdapter);
 

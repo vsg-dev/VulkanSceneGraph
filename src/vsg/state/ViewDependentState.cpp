@@ -289,11 +289,13 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 #endif
 
     lightData = vec4Array::create(lightDataSize);
+    lightData->setValue("name", "lightData");
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
     descriptorConfigurator->assignDescriptor("lightData", BufferInfoList{lightDataBufferInfo});
 
     viewportData = vec4Array::create(maxViewports);
+    viewportData->setValue("name", "viewportData");
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
     descriptorConfigurator->assignDescriptor("viewportData", BufferInfoList{viewportDataBufferInfo});
