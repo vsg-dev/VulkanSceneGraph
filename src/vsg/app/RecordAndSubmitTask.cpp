@@ -178,8 +178,8 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (recordedCommandBuffers->empty())
     {
-        if (earlyDataTransferredSemaphore) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyDataTransferredSemaphore;
-        if (lateDataTransferredSemaphore) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateDataTransferredSemaphore;
+        if (earlyDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, earlyDataTransferredSemaphore);
+        if (lateDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, lateDataTransferredSemaphore);
 
         // nothing to do so return early
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
@@ -212,8 +212,8 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         vk_waitStages.emplace_back(lateDataTransferredSemaphore->pipelineStageFlags());
     }
 
-    if (earlyDataTransferredSemaphore) transferTask->_earlyDataToCopy.transferConsumerCompletedSemaphore = earlyTransferConsumerCompletedSemaphore;
-    if (lateDataTransferredSemaphore) transferTask->_lateDataToCopy.transferConsumerCompletedSemaphore = lateTransferConsumerCompletedSemaphore;
+    if (earlyDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, earlyTransferConsumerCompletedSemaphore);
+    if (lateDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, lateTransferConsumerCompletedSemaphore);
 
     for (auto& window : windows)
     {

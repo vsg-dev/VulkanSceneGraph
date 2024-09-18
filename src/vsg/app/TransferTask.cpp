@@ -45,6 +45,12 @@ bool TransferTask::containsDataToTransfer(TransferMask transferMask) const
            (((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) && _lateDataToCopy.containsDataToTransfer());
 }
 
+void TransferTask::assignTransferConsumedCompletedSemaphore(TransferMask transferMask, ref_ptr<Semaphore> semaphore)
+{
+    if ((transferMask & TRANSFER_BEFORE_RECORD_TRAVERSAL) != 0) _earlyDataToCopy.transferConsumerCompletedSemaphore = semaphore;
+    if ((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) _lateDataToCopy.transferConsumerCompletedSemaphore = semaphore;
+}
+
 void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
