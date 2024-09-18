@@ -738,6 +738,7 @@ void Viewer::setupThreading()
                         if (transfer.dataTransferredSemaphore)
                         {
                             data->task->earlyDataTransferred = true;
+                            data->task->earlyTransferDataCompletedSemaphore = transfer.dataTransferredSemaphore;
                             data->task->transientWaitSemaphores.push_back(transfer.dataTransferredSemaphore);
                         }
                     }

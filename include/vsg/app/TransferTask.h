@@ -51,9 +51,6 @@ namespace vsg
 
         ref_ptr<Device> device;
 
-        /// advance the currentTransferBlockIndex
-        void advance();
-
         void assign(const ResourceRequirements::DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
         void assign(const ImageInfoList& imageInfoList);
@@ -73,18 +70,16 @@ namespace vsg
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
-        // return the index of the transferBlock to use.
-        // relativeTransferBlockIndex of 0 is the frame currently being record, 1 is the previous frame record.
-        size_t index(size_t relativeTransferBlockIndex = 0) const;
-
         mutable std::mutex _mutex;
 
         struct TransferBlock : public Inherit<Object, TransferBlock>
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
+            ref_ptr<Fence> fence;
             ref_ptr<Buffer> staging;
             void* buffer_data = nullptr;
             std::vector<VkBufferCopy> copyRegions;
+            bool waitOnFence = false;
         };
 
         struct DataToCopy
@@ -92,14 +87,15 @@ namespace vsg
             std::string name;
             BufferMap dataMap;
             std::set<ref_ptr<ImageInfo>> imageInfoSet;
+
+            uint32_t frameIndex = 0;
             std::vector<ref_ptr<TransferBlock>> frames;
 
             VkDeviceSize dataTotalRegions = 0;
             VkDeviceSize dataTotalSize = 0;
             VkDeviceSize imageTotalSize = 0;
 
-            uint32_t currentSemephoreCount = 0;
-            ref_ptr<Semaphore> transferCompleteSemaphore[2];
+            ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
@@ -109,7 +105,6 @@ namespace vsg
         DataToCopy _lateDataToCopy;
 
         size_t _bufferCount;
-        size_t _frameCount;
 
         TransferResult _transferData(DataToCopy& dataToCopy);
 

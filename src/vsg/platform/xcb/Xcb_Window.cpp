@@ -590,17 +590,17 @@ bool Xcb_Window::pollEvents(UIEvents& events)
             break;
         }
         case (XCB_UNMAP_NOTIFY): {
-            //debug("xcb_unmap_notify_event_t");
+            //info("xcb_unmap_notify_event_t");
             _windowMapped = false;
             break;
         }
         case (XCB_MAP_NOTIFY): {
-            //debug("xcb_map_notify_event_t");
+            //info("xcb_map_notify_event_t");
             _windowMapped = true;
             break;
         }
         case (XCB_MAPPING_NOTIFY): {
-            //debug("xcb_mapping_notify_event_t");
+            //info("xcb_mapping_notify_event_t");
             break;
         }
         case (XCB_LIST_PROPERTIES): {
