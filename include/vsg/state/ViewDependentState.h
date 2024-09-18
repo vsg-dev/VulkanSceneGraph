@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
-#include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
 #include <vsg/lighting/Light.h>
 #include <vsg/nodes/Switch.h>
@@ -22,7 +21,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/utils/ShaderSet.h>
-#include <vsg/vk/Context.h>
 
 namespace vsg
 {
