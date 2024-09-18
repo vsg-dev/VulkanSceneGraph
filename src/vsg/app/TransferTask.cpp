@@ -400,7 +400,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     if (frame.waitOnFence && fence)
     {
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
-        if (VkResult result = fence->wait(timeout); result != VK_SUCCESS) return TransferResult{result, {}};;
+        if (VkResult result = fence->wait(timeout); result != VK_SUCCESS) return TransferResult{result, {}};
         fence->resetFenceAndDependencies();
     }
     frame.waitOnFence = false;
