@@ -43,11 +43,11 @@ namespace vsg
 
         ref_ptr<TransferTask> transferTask; // data is transferred for this frame
 
-        ref_ptr<Semaphore> earlyTransferDataCompletedSemaphore;
+        ref_ptr<Semaphore> earlyDataTransferredSemaphore;
         ref_ptr<Semaphore> earlyTransferConsumerCompletedSemaphore;
         bool earlyDataTransferred = false;
 
-        ref_ptr<Semaphore> lateTransferDataCompletedSemaphore;
+        ref_ptr<Semaphore> lateDataTransferredSemaphore;
         ref_ptr<Semaphore> lateTransferConsumerCompletedSemaphore;
         bool lateDataTransferred = false;
 
