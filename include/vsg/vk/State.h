@@ -255,6 +255,9 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
+        StateStack<Command> scissorStack{};
+        StateStack<Command> viewportStack{};
+
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
             inheritedProjectionMatrix = projMatrix;
@@ -291,6 +294,9 @@ namespace vsg
                 {
                     stateStack.record(*_commandBuffer);
                 }
+
+                scissorStack.record(*_commandBuffer);
+                viewportStack.record(*_commandBuffer);
 
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);

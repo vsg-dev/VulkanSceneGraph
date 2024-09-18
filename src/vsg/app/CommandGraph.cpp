@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
 #include <vsg/app/View.h>
+#include <vsg/commands/SetScissor.h>
+#include <vsg/commands/SetViewport.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -119,6 +121,13 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     recordTraversal->getState()->_commandBuffer = commandBuffer;
 
+    if (framebuffer || window)
+    {
+        const VkExtent2D& extent = framebuffer ? framebuffer->extent2D() : window->extent2D();
+        recordTraversal->getState()->scissorStack.push(SetScissor::create(0, Scissors{{{0, 0}, extent}}));
+        recordTraversal->getState()->viewportStack.push(SetViewport::create(0, Viewports{{0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height), 0.0f, 1.0f}}));
+    }
+
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
 
@@ -137,6 +146,12 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     }
 
     vkEndCommandBuffer(vk_commandBuffer);
+
+    if (framebuffer || window)
+    {
+        recordTraversal->getState()->scissorStack.pop();
+        recordTraversal->getState()->viewportStack.pop();
+    }
 
     recordedCommandBuffers->add(submitOrder, commandBuffer);
 }

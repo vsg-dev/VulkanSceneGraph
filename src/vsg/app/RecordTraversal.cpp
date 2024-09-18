@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/commands/SetScissor.h>
+#include <vsg/commands/SetViewport.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -546,10 +548,8 @@ void RecordTraversal::apply(const View& view)
             auto& viewportData = _viewDependentState->viewportData;
             auto& viewports = view.camera->viewportState->viewports;
 
-            _viewDependentState->viewports = viewports;
-            _viewDependentState->viewportsDirty = true;
-            _viewDependentState->scissors = view.camera->viewportState->scissors;
-            _viewDependentState->scissorsDirty = true;
+            _state->scissorStack.push(vsg::SetScissor::create(0, view.camera->viewportState->scissors));
+            _state->viewportStack.push(vsg::SetViewport::create(0, viewports));
 
             if (viewportData)
             {
@@ -570,6 +570,12 @@ void RecordTraversal::apply(const View& view)
         }
 
         view.traverse(*this);
+
+        if (_viewDependentState && view.camera->viewportState)
+        {
+            _state->scissorStack.pop();
+            _state->viewportStack.pop();
+        }
     }
     else
     {

@@ -142,11 +142,6 @@ namespace vsg
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
 
-        Viewports viewports;
-        Scissors scissors;
-        bool viewportsDirty;
-        bool scissorsDirty;
-
         ref_ptr<vec4Array> viewportData;
         ref_ptr<BufferInfo> viewportDataBufferInfo;
 
