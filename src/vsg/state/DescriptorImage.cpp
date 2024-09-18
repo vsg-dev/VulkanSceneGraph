@@ -109,7 +109,6 @@ void DescriptorImage::compile(Context& context)
     if (imageInfoList.empty()) return;
 
     auto transferTask = context.transferTask.get();
-    // transferTask = nullptr;
 
     for (auto& imageInfo : imageInfoList)
     {
