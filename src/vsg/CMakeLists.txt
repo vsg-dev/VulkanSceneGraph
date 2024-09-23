@@ -251,6 +251,7 @@ set(SOURCES
     utils/Instrumentation.cpp
     utils/GpuAnnotation.cpp
     utils/LineSegmentIntersector.cpp
+    utils/PolytopeIntersector.cpp
     utils/LoadPagedLOD.cpp
     utils/FindDynamicObjects.cpp
     utils/PropagateDynamicObjects.cpp
