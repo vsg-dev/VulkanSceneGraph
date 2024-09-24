@@ -19,12 +19,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    using Polytope = std::vector<dplane>;
+
     /// PolytopeIntersector is an Intersector subclass that provides support for computing intersections between a line segment and geometry in the scene graph.
     class VSG_DECLSPEC PolytopeIntersector : public Inherit<Intersector, PolytopeIntersector>
     {
     public:
-        PolytopeIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
-        PolytopeIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
+        PolytopeIntersector(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData = {});
+        PolytopeIntersector(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData = {});
+
 
         class VSG_DECLSPEC Intersection : public Inherit<Object, Intersection>
         {
@@ -61,13 +64,8 @@ namespace vsg
         bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) override;
 
     protected:
-        struct LineSegment
-        {
-            dvec3 start;
-            dvec3 end;
-        };
 
-        std::vector<LineSegment> _lineSegmentStack;
+        std::vector<Polytope> _polytopeStack;
     };
     VSG_type_name(vsg::PolytopeIntersector);
 

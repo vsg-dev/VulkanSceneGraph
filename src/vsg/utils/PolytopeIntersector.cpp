@@ -130,21 +130,33 @@ struct TriangleIntersector
     }
 };
 
-PolytopeIntersector::PolytopeIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData) :
+PolytopeIntersector::PolytopeIntersector(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData) :
     Inherit(initialArrayData)
 {
-    _lineSegmentStack.push_back(LineSegment{s, e});
+    _polytopeStack.push_back(in_polytope);
 }
 
-PolytopeIntersector::PolytopeIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData) :
+PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData) :
     Inherit(initialArrayData)
 {
     auto viewport = camera.getViewport();
 
-    vsg::vec2 ndc(0.0f, 0.0f);
-    if ((viewport.width > 0) && (viewport.height > 0))
+    double ndc_xMin = xMin;
+    double ndc_xMax = xMax;
+    double ndc_yMin = yMin;
+    double ndc_yMax = yMax;
+
+    info("PolytopeIntersector::PolytopeIntersector(camera, ", xMin, ", ", yMin, ", ", xMax, ", ", yMax, ")");
+
+    if (viewport.width > 0)
     {
-        ndc.set((static_cast<float>(x) - viewport.x) / viewport.width, (static_cast<float>(y) - viewport.y) / viewport.height);
+        ndc_xMin = (ndc_xMin - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width);
+        ndc_xMax = (ndc_xMax - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width);
+    }
+    if (viewport.height > 0)
+    {
+        ndc_yMin = (ndc_yMin - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height);
+        ndc_yMax = (ndc_yMax - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height);
     }
 
     auto projectionMatrix = camera.projectionMatrix->transform();
@@ -152,18 +164,37 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, int32_t x, int32_
 
     bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
 
-    vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.maxDepth : viewport.minDepth);
-    vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.minDepth : viewport.maxDepth);
 
-    auto inv_projectionMatrix = vsg::inverse(projectionMatrix);
-    vsg::dvec3 eye_near = inv_projectionMatrix * ndc_near;
-    vsg::dvec3 eye_far = inv_projectionMatrix * ndc_far;
-    _lineSegmentStack.push_back(LineSegment{eye_near, eye_far});
+    Polytope clipspace;
+    clipspace.push_back(dplane(1.0, 0.0, 0.0, -xMin));
+    clipspace.push_back(dplane(-1.0, 0.0, 0.0, xMax));
+    clipspace.push_back(dplane(0.0, 1.0, 0.0, -yMin));
+    clipspace.push_back(dplane(0.0, -1.0, 0.0, -yMax));
 
-    dmat4 eyeToWorld = inverse(viewMatrix);
-    localToWorldStack().push_back(viewMatrix);
-    worldToLocalStack().push_back(eyeToWorld);
-    _lineSegmentStack.push_back(LineSegment{eyeToWorld * eye_near, eyeToWorld * eye_far});
+    if (reverse_depth)
+    {
+        clipspace.push_back(dplane(0.0, 0.0, 1.0, -viewport.maxDepth));
+        clipspace.push_back(dplane(0.0, 0.0, -1.0, viewport.minDepth));
+    }
+    else
+    {
+        clipspace.push_back(dplane(0.0, 0.0, 1.0, -viewport.maxDepth));
+        clipspace.push_back(dplane(0.0, 0.0, -1.0, viewport.minDepth));
+    }
+
+    Polytope eyespace;
+    for(auto& pl : clipspace)
+    {
+        eyespace.push_back(pl * projectionMatrix);
+    }
+
+    Polytope worldspace;
+    for(auto& pl : worldspace)
+    {
+        eyespace.push_back(pl * viewMatrix);
+    }
+
+    _polytopeStack.push_back(worldspace);
 }
 
 PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex) :
@@ -191,6 +222,8 @@ ref_ptr<PolytopeIntersector::Intersection> PolytopeIntersector::add(const dvec3&
 
 void PolytopeIntersector::pushTransform(const Transform& transform)
 {
+    vsg::info("PolytopeIntersector::pushTransform(", transform.className(), ")");
+
     auto& l2wStack = localToWorldStack();
     auto& w2lStack = worldToLocalStack();
 
@@ -200,13 +233,23 @@ void PolytopeIntersector::pushTransform(const Transform& transform)
     l2wStack.push_back(localToWorld);
     w2lStack.push_back(worldToLocal);
 
-    const auto& worldLineSegment = _lineSegmentStack.front();
-    _lineSegmentStack.push_back(LineSegment{worldToLocal * worldLineSegment.start, worldToLocal * worldLineSegment.end});
+    const auto& worldspace = _polytopeStack.front();
+
+    Polytope localspace;
+    for(auto& pl : worldspace)
+    {
+        localspace.push_back(pl * localToWorld);
+    }
+
+    _polytopeStack.push_back(localspace);
+
 }
 
 void PolytopeIntersector::popTransform()
 {
-    _lineSegmentStack.pop_back();
+    vsg::info("PolytopeIntersector::popTransform()");
+
+    _polytopeStack.pop_back();
     localToWorldStack().pop_back();
     worldToLocalStack().pop_back();
 }
@@ -216,7 +259,8 @@ bool PolytopeIntersector::intersects(const dsphere& bs)
     //debug("intersects( center = ", bs.center, ", radius = ", bs.radius, ")");
     if (!bs.valid()) return false;
 
-    const auto& lineSegment = _lineSegmentStack.back();
+
+#if 0
     const dvec3& start = lineSegment.start;
     const dvec3& end = lineSegment.end;
 
@@ -240,19 +284,22 @@ bool PolytopeIntersector::intersects(const dsphere& bs)
 
     if (r1 <= 0.0 && r2 <= 0.0) return false;
     if (r1 >= 1.0 && r2 >= 1.0) return false;
-
+#else
+    info("PolytopeIntersector::intersects(const dsphere& bs) todo.");
+#endif
     // passed all the rejection tests so line must intersect bounding sphere, return true.
     return true;
 }
 
 bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
+    size_t previous_size = intersections.size();
+#if 0
     auto& arrayState = *arrayStateStack.back();
     if (arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount < 3) return false;
 
     const auto& ls = _lineSegmentStack.back();
 
-    size_t previous_size = intersections.size();
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
@@ -266,18 +313,20 @@ bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCou
             triIntersector.intersect(i, i + 1, i + 2);
         }
     }
-
+#else
+    info("PolytopeIntersector::intersectDraw(", firstVertex, ", ", vertexCount, ", ", firstInstance, ", ", instanceCount,")) todo.");
+#endif
     return intersections.size() != previous_size;
 }
 
 bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
+    size_t previous_size = intersections.size();
+#if 0
     auto& arrayState = *arrayStateStack.back();
     if (arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount < 3) return false;
-
     const auto& ls = _lineSegmentStack.back();
 
-    size_t previous_size = intersections.size();
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
@@ -303,6 +352,9 @@ bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t ind
             }
         }
     }
+#else
+    info("PolytopeIntersector::intersectDrawIndexed(", firstIndex, ", ", indexCount, ", ", firstInstance, ", ", instanceCount,")) todo.");
+#endif
 
     return intersections.size() != previous_size;
 }
