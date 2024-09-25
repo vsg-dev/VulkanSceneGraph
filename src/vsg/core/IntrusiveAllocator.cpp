@@ -745,7 +745,11 @@ void* IntrusiveAllocator::MemoryBlocks::allocate(std::size_t size)
         if (block != memoryBlockWithSpace)
         {
             auto ptr = block->allocate(size);
-            if (ptr) return ptr;
+            if (ptr)
+            {
+                memoryBlockWithSpace = block;
+                return ptr;
+            }
         }
     }
 
