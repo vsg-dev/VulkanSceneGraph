@@ -252,7 +252,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
                     bound.add(v);
                 }
                 cullNode->bound.center = (bound.min + bound.max) * 0.5f;
-                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz);
+                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz) * 0.5;
             }
             else
             {
@@ -263,7 +263,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
         else
         {
             cullNode->bound.center = info.position;
-            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz);
+            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz) * 0.5;
         }
 
         subgraph = cullNode;
