@@ -162,40 +162,34 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
 
     info("\nPolytopeIntersector::PolytopeIntersector(camera, ", xMin, ", ", yMin, ", ", xMax, ", ", yMax, ")");
 
+    auto projectionMatrix = camera.projectionMatrix->transform();
+    auto viewMatrix = camera.viewMatrix->transform();
+    bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
+
     double ndc_xMin = (viewport.width > 0) ? (2.0 * (xMin - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width) - 1.0) : xMin;
     double ndc_xMax = (viewport.width > 0) ? (2.0 * (xMax - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width) - 1.0) : xMax;
 
-    double ndc_yMin = (viewport.height > 0) ? (1.0 - 2.0 * (yMax - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height)) : yMin;
-    double ndc_yMax = (viewport.height > 0) ? (1.0 - 2.0 * (yMin - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height)) : yMax;
+    double ndc_yMin = (viewport.height > 0) ? (2.0 * (yMin - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height) - 1.0) : yMin;
+    double ndc_yMax = (viewport.height > 0) ? (2.0 * (yMax - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height) - 1.0) : yMax;
+
+    double ndc_near = reverse_depth ? viewport.maxDepth : viewport.minDepth;
+    double ndc_far = reverse_depth ? viewport.minDepth : viewport.maxDepth;
 
     info("ndc_xMin ", ndc_xMin);
     info("ndc_xMax ", ndc_xMax);
     info("ndc_yMin ", ndc_yMin);
     info("ndc_yMax ", ndc_yMax);
-
-    auto projectionMatrix = camera.projectionMatrix->transform();
-    auto inverse_projectionMatrix = camera.projectionMatrix->inverse();
-    auto viewMatrix = camera.viewMatrix->transform();
-    auto inverse_viewMatrix = camera.viewMatrix->inverse();
-
-    bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
+    info("ndc_near ", ndc_near);
+    info("ndc_far ", ndc_far);
 
     vsg::Polytope clipspace;
-    clipspace.push_back(dplane(1.0, 0.0, 0.0, -ndc_xMin));
-    clipspace.push_back(dplane(-1.0, 0.0, 0.0, ndc_xMax));
-    clipspace.push_back(dplane(0.0, 1.0, 0.0, -ndc_yMin));
-    clipspace.push_back(dplane(0.0, -1.0, 0.0, ndc_yMax));
+    clipspace.push_back(dplane(1.0, 0.0, 0.0, -ndc_xMin)); // left
+    clipspace.push_back(dplane(-1.0, 0.0, 0.0, ndc_xMax)); // right
+    clipspace.push_back(dplane(0.0, 1.0, 0.0, -ndc_yMin)); // bottom
+    clipspace.push_back(dplane(0.0, -1.0, 0.0, ndc_yMax)); // top
+    clipspace.push_back(dplane(0.0, 0.0, -1.0, ndc_near)); // near
+    clipspace.push_back(dplane(0.0, 0.0, 1.0, ndc_far)); // far
 
-    if (reverse_depth)
-    {
-        clipspace.push_back(dplane(0.0, 0.0, 1.0, -viewport.maxDepth));
-        clipspace.push_back(dplane(0.0, 0.0, -1.0, viewport.minDepth));
-    }
-    else
-    {
-        clipspace.push_back(dplane(0.0, 0.0, -1.0, viewport.maxDepth));
-        clipspace.push_back(dplane(0.0, 0.0, 1.0, -viewport.minDepth));
-    }
 
     vsg::Polytope eyespace;
     for(auto& pl : clipspace)
@@ -242,7 +236,7 @@ ref_ptr<PolytopeIntersector::Intersection> PolytopeIntersector::add(const dvec3&
 
 void PolytopeIntersector::pushTransform(const Transform& transform)
 {
-    vsg::info("PolytopeIntersector::pushTransform(", transform.className(), ")");
+    vsg::info("\nPolytopeIntersector::pushTransform(", transform.className(), ")");
 
 
     auto& l2wStack = localToWorldStack();
@@ -263,7 +257,6 @@ void PolytopeIntersector::pushTransform(const Transform& transform)
     }
 
     _polytopeStack.push_back(localspace);
-
 }
 
 void PolytopeIntersector::popTransform()
@@ -280,36 +273,11 @@ bool PolytopeIntersector::intersects(const dsphere& bs)
     //debug("intersects( center = ", bs.center, ", radius = ", bs.radius, ")");
     if (!bs.valid()) return false;
 
+    const auto& polytope = _polytopeStack.back();
 
-#if 0
-    const dvec3& start = lineSegment.start;
-    const dvec3& end = lineSegment.end;
+    info("PolytopeIntersector::intersects(const dsphere& bs = ", bs.center, ", ", bs.radius, ") : result = ", vsg::intersect(polytope, bs));
 
-    dvec3 sm = start - bs.center;
-    double c = length2(sm) - bs.radius * bs.radius;
-    if (c < 0.0) return true;
-
-    dvec3 se = end - start;
-    double a = length2(se);
-    double b = dot(sm, se) * 2.0;
-    double d = b * b - 4.0 * a * c;
-
-    if (d < 0.0) return false;
-
-    d = sqrt(d);
-
-    double div = 1.0 / (2.0 * a);
-
-    double r1 = (-b - d) * div;
-    double r2 = (-b + d) * div;
-
-    if (r1 <= 0.0 && r2 <= 0.0) return false;
-    if (r1 >= 1.0 && r2 >= 1.0) return false;
-#else
-    info("PolytopeIntersector::intersects(const dsphere& bs) todo.");
-#endif
-    // passed all the rejection tests so line must intersect bounding sphere, return true.
-    return true;
+    return vsg::intersect(polytope, bs);
 }
 
 bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
