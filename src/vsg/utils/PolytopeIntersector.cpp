@@ -36,116 +36,59 @@ std::ostream& operator<<(std::ostream& output, const vsg::Polytope& polytope)
 }
 
 template<typename V>
-struct TriangleIntersector
+struct PrimtiveIntersector
 {
     using value_type = V;
     using vec_type = t_vec3<value_type>;
 
-    dvec3 start;
-    dvec3 end;
     uint32_t instanceIndex = 0;
 
-    vec_type _d;
-    value_type _length;
-    value_type _inverse_length;
-
-    vec_type _d_invX;
-    vec_type _d_invY;
-    vec_type _d_invZ;
-
     PolytopeIntersector& intersector;
+    const Polytope& polytope;
     ref_ptr<const vec3Array> vertices;
 
-    TriangleIntersector(PolytopeIntersector& in_intersector, const dvec3& in_start, const dvec3& in_end, ref_ptr<const vec3Array> in_vertices) :
-        start(in_start),
-        end(in_end),
+    PrimtiveIntersector(PolytopeIntersector& in_intersector, const Polytope& in_polytope, ref_ptr<const vec3Array> in_vertices) :
         intersector(in_intersector),
+        polytope(in_polytope),
         vertices(in_vertices)
     {
-
-        _d = end - start;
-        _length = length(_d);
-        _inverse_length = (_length != 0.0) ? 1.0 / _length : 0.0;
-        _d *= _inverse_length;
-
-        _d_invX = _d.x != 0.0 ? _d / _d.x : vec_type(0.0, 0.0, 0.0);
-        _d_invY = _d.y != 0.0 ? _d / _d.y : vec_type(0.0, 0.0, 0.0);
-        _d_invZ = _d.z != 0.0 ? _d / _d.z : vec_type(0.0, 0.0, 0.0);
     }
 
     /// intersect with a single triangle
     bool intersect(uint32_t i0, uint32_t i1, uint32_t i2)
     {
-        const vec3& v0 = vertices->at(i0);
-        const vec3& v1 = vertices->at(i1);
-        const vec3& v2 = vertices->at(i2);
+        const dvec3 v0(vertices->at(i0));
+        const dvec3 v1(vertices->at(i1));
+        const dvec3 v2(vertices->at(i2));
 
-        vec_type T = vec_type(start) - vec_type(v0);
-        vec_type E2 = vec_type(v2) - vec_type(v0);
-        vec_type E1 = vec_type(v1) - vec_type(v0);
+        //info("PrimtiveIntersector::intersect(", i0, ", ", i1, ", ", i2, ") v0 = ", v0, ", v1 = ", v1, " v2 = ", v2);
 
-        vec_type P = cross(_d, E2);
+        if (vsg::inside(polytope, v0) || vsg::inside(polytope, v1) || vsg::inside(polytope, v2)) return true;
 
-        value_type det = dot(P, E1);
+        return false;
+    }
 
-        value_type r, r0, r1, r2;
+    /// intersect with a single line segment
+    bool intersect(uint32_t i0, uint32_t i1)
+    {
+        const dvec3 v0(vertices->at(i0));
+        const dvec3 v1(vertices->at(i1));
 
-        const value_type epsilon = 1e-10;
-        if (det > epsilon)
-        {
-            value_type u = dot(P, T);
-            if (u < 0.0 || u > det) return false;
+        //info("PrimtiveIntersector::intersect(", i0, ", ", i1, ") v0 = ", v0, ", v1 = ", v1);
 
-            vec_type Q = cross(T, E1);
-            value_type v = dot(Q, _d);
-            if (v < 0.0 || v > det) return false;
+        if (vsg::inside(polytope, v0) || vsg::inside(polytope, v1)) return true;
 
-            if ((u + v) > det) return false;
+        return false;
+    }
 
-            value_type inv_det = 1.0 / det;
-            value_type t = dot(Q, E2) * inv_det;
-            if (t < 0.0 || t > _length) return false;
+    /// intersect with a single line segment
+    bool intersect(uint32_t i0)
+    {
+        const dvec3 v0(vertices->at(i0));
 
-            u *= inv_det;
-            v *= inv_det;
+        //info("PrimtiveIntersector::intersect(", i0, ") v0 = ", v0);
 
-            r0 = 1.0 - u - v;
-            r1 = u;
-            r2 = v;
-            r = t * _inverse_length;
-        }
-        else if (det < -epsilon)
-        {
-            value_type u = dot(P, T);
-            if (u > 0.0 || u < det) return false;
-
-            vec_type Q = cross(T, E1);
-            value_type v = dot(Q, _d);
-            if (v > 0.0 || v < det) return false;
-
-            if ((u + v) < det) return false;
-
-            value_type inv_det = 1.0 / det;
-            value_type t = dot(Q, E2) * inv_det;
-            if (t < 0.0 || t > _length) return false;
-
-            u *= inv_det;
-            v *= inv_det;
-
-            r0 = 1.0 - u - v;
-            r1 = u;
-            r2 = v;
-            r = t * _inverse_length;
-        }
-        else
-        {
-            return false;
-        }
-
-        dvec3 intersection = dvec3(dvec3(v0) * double(r0) + dvec3(v1) * double(r1) + dvec3(v2) * double(r2));
-        intersector.add(intersection, double(r), {{i0, r0}, {i1, r1}, {i2, r2}}, instanceIndex);
-
-        return true;
+        return vsg::inside(polytope, v0);
     }
 };
 
@@ -282,44 +225,47 @@ bool PolytopeIntersector::intersects(const dsphere& bs)
 
 bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
+    info("PolytopeIntersector::intersectDraw(", firstVertex, ", ", vertexCount, ", ", firstInstance, ", ", instanceCount,")) todo.");
+
     size_t previous_size = intersections.size();
-#if 0
+
     auto& arrayState = *arrayStateStack.back();
     if (arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount < 3) return false;
 
-    const auto& ls = _lineSegmentStack.back();
+    const auto& polytope = _polytopeStack.back();
 
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
-        TriangleIntersector<double> triIntersector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
+        PrimtiveIntersector<double> triIntersector(*this, polytope, arrayState.vertexArray(instanceIndex));
         if (!triIntersector.vertices) return false;
 
         uint32_t endVertex = int((firstVertex + vertexCount) / 3.0f) * 3;
 
         for (uint32_t i = firstVertex; i < endVertex; i += 3)
         {
-            triIntersector.intersect(i, i + 1, i + 2);
+            if (triIntersector.intersect(i, i + 1, i + 2)) info("intersection!");
         }
     }
-#else
-    info("PolytopeIntersector::intersectDraw(", firstVertex, ", ", vertexCount, ", ", firstInstance, ", ", instanceCount,")) todo.");
-#endif
+
     return intersections.size() != previous_size;
 }
 
 bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
+    info("PolytopeIntersector::intersectDrawIndexed(", firstIndex, ", ", indexCount, ", ", firstInstance, ", ", instanceCount,")) todo.");
+
     size_t previous_size = intersections.size();
-#if 0
+
     auto& arrayState = *arrayStateStack.back();
     if (arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount < 3) return false;
-    const auto& ls = _lineSegmentStack.back();
+
+    const auto& polytope = _polytopeStack.back();
 
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
-        TriangleIntersector<double> triIntersector(*this, ls.start, ls.end, arrayState.vertexArray(instanceIndex));
+        PrimtiveIntersector<double> triIntersector(*this, polytope, arrayState.vertexArray(instanceIndex));
         if (!triIntersector.vertices) continue;
 
         triIntersector.instanceIndex = instanceIndex;
@@ -330,20 +276,17 @@ bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t ind
         {
             for (uint32_t i = firstIndex; i < endIndex; i += 3)
             {
-                triIntersector.intersect(ushort_indices->at(i), ushort_indices->at(i + 1), ushort_indices->at(i + 2));
+                if (triIntersector.intersect(ushort_indices->at(i), ushort_indices->at(i + 1), ushort_indices->at(i + 2))) info("intersection!");
             }
         }
         else if (uint_indices)
         {
             for (uint32_t i = firstIndex; i < endIndex; i += 3)
             {
-                triIntersector.intersect(uint_indices->at(i), uint_indices->at(i + 1), uint_indices->at(i + 2));
+                if (triIntersector.intersect(uint_indices->at(i), uint_indices->at(i + 1), uint_indices->at(i + 2))) info("intersection!");
             }
         }
     }
-#else
-    info("PolytopeIntersector::intersectDrawIndexed(", firstIndex, ", ", indexCount, ", ", firstInstance, ", ", instanceCount,")) todo.");
-#endif
 
     return intersections.size() != previous_size;
 }
