@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/Camera.h>
+#include <vsg/maths/plane.h>
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 
@@ -68,5 +69,6 @@ namespace vsg
         std::vector<Polytope> _polytopeStack;
     };
     VSG_type_name(vsg::PolytopeIntersector);
+
 
 } // namespace vsg

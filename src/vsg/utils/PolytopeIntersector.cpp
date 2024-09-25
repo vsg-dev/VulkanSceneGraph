@@ -11,10 +11,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Options.h>
+#include <vsg/io/stream.h>
 #include <vsg/nodes/Transform.h>
 #include <vsg/utils/PolytopeIntersector.h>
 
+#include <iostream>
+
 using namespace vsg;
+
+namespace vsg
+{
+
+std::ostream& operator<<(std::ostream& output, const vsg::Polytope& polytope)
+{
+    output<<"Polytope "<<&polytope<<" {"<<std::endl;
+    for(auto& pl : polytope)
+    {
+        output<<"   "<<pl<<std::endl;
+    }
+    output<<"}"<<std::endl;
+    return output;
+}
+
+}
 
 template<typename V>
 struct TriangleIntersector
@@ -141,35 +160,31 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
 {
     auto viewport = camera.getViewport();
 
-    double ndc_xMin = xMin;
-    double ndc_xMax = xMax;
-    double ndc_yMin = yMin;
-    double ndc_yMax = yMax;
+    info("\nPolytopeIntersector::PolytopeIntersector(camera, ", xMin, ", ", yMin, ", ", xMax, ", ", yMax, ")");
 
-    info("PolytopeIntersector::PolytopeIntersector(camera, ", xMin, ", ", yMin, ", ", xMax, ", ", yMax, ")");
+    double ndc_xMin = (viewport.width > 0) ? (2.0 * (xMin - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width) - 1.0) : xMin;
+    double ndc_xMax = (viewport.width > 0) ? (2.0 * (xMax - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width) - 1.0) : xMax;
 
-    if (viewport.width > 0)
-    {
-        ndc_xMin = (ndc_xMin - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width);
-        ndc_xMax = (ndc_xMax - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width);
-    }
-    if (viewport.height > 0)
-    {
-        ndc_yMin = (ndc_yMin - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height);
-        ndc_yMax = (ndc_yMax - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height);
-    }
+    double ndc_yMin = (viewport.height > 0) ? (1.0 - 2.0 * (yMax - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height)) : yMin;
+    double ndc_yMax = (viewport.height > 0) ? (1.0 - 2.0 * (yMin - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height)) : yMax;
+
+    info("ndc_xMin ", ndc_xMin);
+    info("ndc_xMax ", ndc_xMax);
+    info("ndc_yMin ", ndc_yMin);
+    info("ndc_yMax ", ndc_yMax);
 
     auto projectionMatrix = camera.projectionMatrix->transform();
+    auto inverse_projectionMatrix = camera.projectionMatrix->inverse();
     auto viewMatrix = camera.viewMatrix->transform();
+    auto inverse_viewMatrix = camera.viewMatrix->inverse();
 
     bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
 
-
-    Polytope clipspace;
-    clipspace.push_back(dplane(1.0, 0.0, 0.0, -xMin));
-    clipspace.push_back(dplane(-1.0, 0.0, 0.0, xMax));
-    clipspace.push_back(dplane(0.0, 1.0, 0.0, -yMin));
-    clipspace.push_back(dplane(0.0, -1.0, 0.0, -yMax));
+    vsg::Polytope clipspace;
+    clipspace.push_back(dplane(1.0, 0.0, 0.0, -ndc_xMin));
+    clipspace.push_back(dplane(-1.0, 0.0, 0.0, ndc_xMax));
+    clipspace.push_back(dplane(0.0, 1.0, 0.0, -ndc_yMin));
+    clipspace.push_back(dplane(0.0, -1.0, 0.0, ndc_yMax));
 
     if (reverse_depth)
     {
@@ -178,23 +193,28 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     }
     else
     {
-        clipspace.push_back(dplane(0.0, 0.0, 1.0, -viewport.maxDepth));
-        clipspace.push_back(dplane(0.0, 0.0, -1.0, viewport.minDepth));
+        clipspace.push_back(dplane(0.0, 0.0, -1.0, viewport.maxDepth));
+        clipspace.push_back(dplane(0.0, 0.0, 1.0, -viewport.minDepth));
     }
 
-    Polytope eyespace;
+    vsg::Polytope eyespace;
     for(auto& pl : clipspace)
     {
         eyespace.push_back(pl * projectionMatrix);
     }
 
-    Polytope worldspace;
-    for(auto& pl : worldspace)
+    vsg::Polytope worldspace;
+    for(auto& pl : eyespace)
     {
-        eyespace.push_back(pl * viewMatrix);
+        worldspace.push_back(pl * viewMatrix);
     }
 
     _polytopeStack.push_back(worldspace);
+
+    std::cout<<"Clip space : "<<clipspace<<std::endl;
+    std::cout<<"Eye space : "<<eyespace<<std::endl;
+    std::cout<<"World space : "<<worldspace<<std::endl;
+
 }
 
 PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex) :
@@ -223,6 +243,7 @@ ref_ptr<PolytopeIntersector::Intersection> PolytopeIntersector::add(const dvec3&
 void PolytopeIntersector::pushTransform(const Transform& transform)
 {
     vsg::info("PolytopeIntersector::pushTransform(", transform.className(), ")");
+
 
     auto& l2wStack = localToWorldStack();
     auto& w2lStack = worldToLocalStack();
