@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/vulkan.h>
+#include <vsg/io/Logger.h>
 
 namespace vsg
 {
@@ -30,14 +31,38 @@ namespace vsg
             uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
             for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
             {
-                T::instance(instanceIndex);
+                if (!T::instance(instanceIndex)) continue;
 
                 switch(topology)
                 {
                     case(VK_PRIMITIVE_TOPOLOGY_POINT_LIST):
-                    case(VK_PRIMITIVE_TOPOLOGY_LINE_LIST):
-                    case(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP):
+                    {
+                        uint32_t endVertex = firstVertex + vertexCount;
+                        for (uint32_t i = firstVertex; i < endVertex; ++i)
+                        {
+                            T::point(i);
+                        }
                         break;
+                    }
+                    case(VK_PRIMITIVE_TOPOLOGY_LINE_LIST):
+                    {
+                        uint32_t primitiveCount = vertexCount / 2;
+                        uint32_t endVertex = firstVertex + primitiveCount * 2;
+                        for (uint32_t i = firstVertex; i < endVertex; i += 2)
+                        {
+                            T::line(i, i+1);
+                        }
+                        break;
+                    }
+                    case(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP):
+                    {
+                        uint32_t endVertex = firstVertex + ((vertexCount >= 2) ? (vertexCount-1) : 0);
+                        for (uint32_t i = firstVertex; i < endVertex; ++i)
+                        {
+                            T::line(i, i+1);
+                        }
+                        break;
+                    }
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST):
                     {
                         uint32_t primtiveCount = vertexCount / 3;
@@ -49,13 +74,30 @@ namespace vsg
                         break;
                     }
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP):
+                    {
+                        uint32_t endVertex = firstVertex + ((vertexCount >= 3) ? (vertexCount-2) : 0);
+                        for (uint32_t i = firstVertex; i < endVertex; ++i)
+                        {
+                            T::triangle(i, i+1, i+2); // do we need to reverse the i+1 and i+2 order on odd triangles?
+                        }
+                        break;
+                    }
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN):
+                    {
+                        uint32_t endVertex = firstVertex + ((vertexCount >= 3) ? (vertexCount-2) : 0);
+                        for (uint32_t i = firstVertex+1; i < endVertex; ++i)
+                        {
+                            T::triangle(firstVertex, i+1, i+2);
+                        }
+                        break;
+                    }
                     case(VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_PATCH_LIST):
                     default:
+                        warn("PrimitiveFunctor::draw(topology = ", topology, ", ...) not implemented.");
                         break;
                 }
             }
@@ -67,14 +109,38 @@ namespace vsg
             uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
             for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
             {
-                T::instance(instanceIndex);
+                if (!T::instance(instanceIndex)) continue;
 
                 switch(topology)
                 {
                     case(VK_PRIMITIVE_TOPOLOGY_POINT_LIST):
-                    case(VK_PRIMITIVE_TOPOLOGY_LINE_LIST):
-                    case(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP):
+                    {
+                        uint32_t endIndex = firstIndex + indexCount;
+                        for (uint32_t i = firstIndex; i < endIndex; ++i)
+                        {
+                            T::point(indices->at(i));
+                        }
                         break;
+                    }
+                    case(VK_PRIMITIVE_TOPOLOGY_LINE_LIST):
+                    {
+                        uint32_t primtiveCount = indexCount / 2;
+                        uint32_t endIndex = firstIndex + primtiveCount * 2;
+                        for (uint32_t i = firstIndex; i < endIndex; i += 2)
+                        {
+                            T::line(indices->at(i), indices->at(i + 1));
+                        }
+                        break;
+                    }
+                    case(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP):
+                    {
+                        uint32_t endIndex= firstIndex + ((indexCount >= 2) ? (indexCount-1) : 0);
+                        for (uint32_t i = firstIndex; i < endIndex; ++i)
+                        {
+                            T::line(indices->at(i), indices->at(i + 1));
+                        }
+                        break;
+                    }
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST):
                     {
                         uint32_t primtiveCount = indexCount / 3;
@@ -86,13 +152,30 @@ namespace vsg
                         break;
                     }
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP):
+                    {
+                        uint32_t endIndex = firstIndex + ((indexCount >= 3) ? (indexCount-2) : 0);
+                        for (uint32_t i = firstIndex; i < endIndex; ++i)
+                        {
+                            T::triangle(indices->at(i), indices->at(i+1), indices->at(i+2)); // do we need to reverse the i+1 and i+2 order on odd triangles?
+                        }
+                        break;
+                    }
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN):
+                    {
+                        uint32_t endIndex = firstIndex + ((indexCount >= 3) ? (indexCount-2) : 0);
+                        for (uint32_t i = firstIndex+1; i < endIndex; ++i)
+                        {
+                            T::triangle(indices->at(firstIndex), indices->at(i+1), indices->at(i+2));
+                        }
+                        break;
+                    }
                     case(VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY):
                     case(VK_PRIMITIVE_TOPOLOGY_PATCH_LIST):
                     default:
+                        warn("PrimitiveFunctor::drawIndexed(topology = ", topology, ", ...) not implemented.");
                         break;
                 }
             }

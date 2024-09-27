@@ -46,11 +46,12 @@ struct PolytopePrimitiveIntersection
         arrayState(in_arrayState),
         polytope(in_polytope) {}
 
-    void instance(uint32_t index)
+    bool instance(uint32_t index)
     {
         info("PolytopePrimitiveIntersection::instance(", index, ")");
 
         vertices = arrayState.vertexArray(index);
+        return vertices.valid();
     }
 
     void triangle(uint32_t i0, uint32_t i1, uint32_t i2)
