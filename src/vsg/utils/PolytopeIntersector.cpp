@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/Transform.h>
+#include <vsg/utils/PrimitiveFunctor.h>
 #include <vsg/utils/PolytopeIntersector.h>
 
 #include <iostream>
@@ -33,64 +34,62 @@ std::ostream& operator<<(std::ostream& output, const vsg::Polytope& polytope)
     return output;
 }
 
-}
-
-template<typename V>
-struct PrimtiveIntersector
+struct PolytopePrimitiveIntersection
 {
-    using value_type = V;
-    using vec_type = t_vec3<value_type>;
-
-    uint32_t instanceIndex = 0;
-
-    PolytopeIntersector& intersector;
+    PolytopeIntersector& polyopeIntersector;
+    ArrayState& arrayState;
     const Polytope& polytope;
     ref_ptr<const vec3Array> vertices;
 
-    PrimtiveIntersector(PolytopeIntersector& in_intersector, const Polytope& in_polytope, ref_ptr<const vec3Array> in_vertices) :
-        intersector(in_intersector),
-        polytope(in_polytope),
-        vertices(in_vertices)
+    PolytopePrimitiveIntersection(PolytopeIntersector& in_polyopeIntersector, ArrayState& in_arrayState, const Polytope& in_polytope) :
+        polyopeIntersector(in_polyopeIntersector),
+        arrayState(in_arrayState),
+        polytope(in_polytope) {}
+
+    void instance(uint32_t index)
     {
+        info("PolytopePrimitiveIntersection::instance(", index, ")");
+
+        vertices = arrayState.vertexArray(index);
     }
 
-    /// intersect with a single triangle
-    bool intersect(uint32_t i0, uint32_t i1, uint32_t i2)
+    void triangle(uint32_t i0, uint32_t i1, uint32_t i2)
     {
+        info("PolytopePrimitiveIntersection::triangle(", i0, ", ", i1, ", ", i2, ")");
         const dvec3 v0(vertices->at(i0));
         const dvec3 v1(vertices->at(i1));
         const dvec3 v2(vertices->at(i2));
 
-        //info("PrimtiveIntersector::intersect(", i0, ", ", i1, ", ", i2, ") v0 = ", v0, ", v1 = ", v1, " v2 = ", v2);
-
-        if (vsg::inside(polytope, v0) || vsg::inside(polytope, v1) || vsg::inside(polytope, v2)) return true;
-
-        return false;
+        if (vsg::inside(polytope, v0) || vsg::inside(polytope, v1) || vsg::inside(polytope, v2))
+        {
+            info("   inside(", i0, ", ", i1, ", ", i2, ") v0 = ", v0, ", v1 = ", v1, " v2 = ", v2);
+        }
     }
 
-    /// intersect with a single line segment
-    bool intersect(uint32_t i0, uint32_t i1)
+    void line(uint32_t i0, uint32_t i1)
     {
+        info("PolytopePrimitiveIntersection::line(", i0, ", ", i1, ")");
         const dvec3 v0(vertices->at(i0));
         const dvec3 v1(vertices->at(i1));
 
-        //info("PrimtiveIntersector::intersect(", i0, ", ", i1, ") v0 = ", v0, ", v1 = ", v1);
-
-        if (vsg::inside(polytope, v0) || vsg::inside(polytope, v1)) return true;
-
-        return false;
+        if (vsg::inside(polytope, v0) || vsg::inside(polytope, v1))
+        {
+            info("   inside(", i0, ", ", i1, ") v0 = ", v0, ", v1 = ", v1);
+        }
     }
 
-    /// intersect with a single line segment
-    bool intersect(uint32_t i0)
+    void point(uint32_t i0)
     {
+        info("PolytopePrimitiveIntersection::point(", i0, ")");
         const dvec3 v0(vertices->at(i0));
-
-        //info("PrimtiveIntersector::intersect(", i0, ") v0 = ", v0);
-
-        return vsg::inside(polytope, v0);
+        if (vsg::inside(polytope, v0))
+        {
+            info("   inside(", i0, ") v0 = ", v0);
+        }
     }
 };
+
+}
 
 PolytopeIntersector::PolytopeIntersector(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData) :
     Inherit(initialArrayData)
@@ -230,23 +229,9 @@ bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCou
     size_t previous_size = intersections.size();
 
     auto& arrayState = *arrayStateStack.back();
-    if (arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || vertexCount < 3) return false;
 
-    const auto& polytope = _polytopeStack.back();
-
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
-    for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
-    {
-        PrimtiveIntersector<double> triIntersector(*this, polytope, arrayState.vertexArray(instanceIndex));
-        if (!triIntersector.vertices) return false;
-
-        uint32_t endVertex = int((firstVertex + vertexCount) / 3.0f) * 3;
-
-        for (uint32_t i = firstVertex; i < endVertex; i += 3)
-        {
-            if (triIntersector.intersect(i, i + 1, i + 2)) info("intersection!");
-        }
-    }
+    vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimitives(*this, arrayState, _polytopeStack.back());
+    if (ushort_indices) printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
 
     return intersections.size() != previous_size;
 }
@@ -258,35 +243,10 @@ bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t ind
     size_t previous_size = intersections.size();
 
     auto& arrayState = *arrayStateStack.back();
-    if (arrayState.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST || indexCount < 3) return false;
 
-    const auto& polytope = _polytopeStack.back();
-
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
-    for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
-    {
-        PrimtiveIntersector<double> triIntersector(*this, polytope, arrayState.vertexArray(instanceIndex));
-        if (!triIntersector.vertices) continue;
-
-        triIntersector.instanceIndex = instanceIndex;
-
-        uint32_t endIndex = int((firstIndex + indexCount) / 3.0f) * 3;
-
-        if (ushort_indices)
-        {
-            for (uint32_t i = firstIndex; i < endIndex; i += 3)
-            {
-                if (triIntersector.intersect(ushort_indices->at(i), ushort_indices->at(i + 1), ushort_indices->at(i + 2))) info("intersection!");
-            }
-        }
-        else if (uint_indices)
-        {
-            for (uint32_t i = firstIndex; i < endIndex; i += 3)
-            {
-                if (triIntersector.intersect(uint_indices->at(i), uint_indices->at(i + 1), uint_indices->at(i + 2))) info("intersection!");
-            }
-        }
-    }
+    vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimtives(*this, arrayState, _polytopeStack.back());
+    if (ushort_indices) printPrimtives.drawIndexed(arrayState.topology, ushort_indices, firstIndex, indexCount, firstInstance, instanceCount);
+    else if (uint_indices) printPrimtives.drawIndexed(arrayState.topology, uint_indices, firstIndex, indexCount, firstInstance, instanceCount);
 
     return intersections.size() != previous_size;
 }
