@@ -292,6 +292,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/LoadPagedLOD.h>
 #include <vsg/utils/PolytopeIntersector.h>
+#include <vsg/utils/PrimitiveFunctor.h>
 #include <vsg/utils/Profiler.h>
 #include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/ShaderCompiler.h>
