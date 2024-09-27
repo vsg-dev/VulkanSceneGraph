@@ -29,7 +29,6 @@ namespace vsg
         PolytopeIntersector(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData = {});
         PolytopeIntersector(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData = {});
 
-
         class VSG_DECLSPEC Intersection : public Inherit<Object, Intersection>
         {
         public:
@@ -65,10 +64,8 @@ namespace vsg
         bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) override;
 
     protected:
-
         std::vector<Polytope> _polytopeStack;
     };
     VSG_type_name(vsg::PolytopeIntersector);
-
 
 } // namespace vsg
