@@ -33,11 +33,10 @@ namespace vsg
         {
         public:
             Intersection() {}
-            Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex);
+            Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex);
 
             dvec3 localIntersection;
             dvec3 worldIntersection;
-            double ratio = 0.0;
 
             dmat4 localToWorld;
             NodePath nodePath;
@@ -52,7 +51,7 @@ namespace vsg
         using Intersections = std::vector<ref_ptr<Intersection>>;
         Intersections intersections;
 
-        ref_ptr<Intersection> add(const dvec3& coord, double ratio, const IndexRatios& indexRatios, uint32_t instanceIndex);
+        ref_ptr<Intersection> add(const dvec3& coord, const IndexRatios& indexRatios, uint32_t instanceIndex);
 
         void pushTransform(const Transform& transform) override;
         void popTransform() override;

@@ -29,9 +29,9 @@ namespace vsg
         void draw(VkPrimitiveTopology topology, uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
         {
             uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
-            for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+            for (uint32_t inst = firstInstance; inst < lastIndex; ++inst)
             {
-                if (!T::instance(instanceIndex)) continue;
+                if (!T::instance(inst)) continue;
 
                 switch (topology)
                 {
@@ -104,9 +104,9 @@ namespace vsg
         void drawIndexed(VkPrimitiveTopology topology, IndexArray indices, uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
         {
             uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
-            for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+            for (uint32_t inst = firstInstance; inst < lastIndex; ++inst)
             {
-                if (!T::instance(instanceIndex)) continue;
+                if (!T::instance(inst)) continue;
 
                 switch (topology)
                 {
