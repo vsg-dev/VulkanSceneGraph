@@ -79,30 +79,33 @@ namespace vsg
             processedVertices[2] = sourceVertices->at(i2);
 
             // trim the convex polygon to each successive plane
-            for(auto& pl : polytope)
+            for (auto& pl : polytope)
             {
                 size_t numNegativeDistances = 0;
                 size_t numPositiveDistances = 0;
                 size_t numZeroDistances = 0;
                 processedDistances.resize(0);
-                for(auto& v :processedVertices)
+                for (auto& v : processedVertices)
                 {
                     double d = distance(pl, v);
                     processedDistances.push_back(d);
-                    if (d < 0.0) ++numNegativeDistances;
-                    else if (d > 0.0) ++numPositiveDistances;
-                    else ++numZeroDistances;
+                    if (d < 0.0)
+                        ++numNegativeDistances;
+                    else if (d > 0.0)
+                        ++numPositiveDistances;
+                    else
+                        ++numZeroDistances;
                 }
 
                 if (numNegativeDistances > 0)
                 {
-                    if (numPositiveDistances==0)
+                    if (numPositiveDistances == 0)
                     {
                         return; // wholly outside plane
                     }
-                    for(size_t i=0; i<processedVertices.size(); ++i)
+                    for (size_t i = 0; i < processedVertices.size(); ++i)
                     {
-                        size_t ni = (i+1) % processedVertices.size();
+                        size_t ni = (i + 1) % processedVertices.size();
                         if (processedDistances[i] >= 0.0)
                         {
                             trimmedVertices.push_back(processedVertices[i]);
@@ -135,7 +138,7 @@ namespace vsg
                     trimmedVertices.clear();
                     trimmedDistances.clear();
 
-                    if (processedVertices.size()<2)
+                    if (processedVertices.size() < 2)
                     {
                         return; // no triangle remaining inside plan
                     }
@@ -143,7 +146,7 @@ namespace vsg
             }
 
             dvec3 intersection(0.0, 0.0, 0.0);
-            for(auto& v :processedVertices)
+            for (auto& v : processedVertices)
             {
                 intersection += v;
             }
@@ -154,11 +157,11 @@ namespace vsg
 
         void line(uint32_t i0, uint32_t i1)
         {
-//            info("PolytopePrimitiveIntersection::line(", i0, ", ", i1, ")");
+            //            info("PolytopePrimitiveIntersection::line(", i0, ", ", i1, ")");
             dvec3 v0(sourceVertices->at(i0));
             dvec3 v1(sourceVertices->at(i1));
 
-            for(auto& pl : polytope)
+            for (auto& pl : polytope)
             {
                 double d0 = distance(pl, v0);
                 double d1 = distance(pl, v1);
