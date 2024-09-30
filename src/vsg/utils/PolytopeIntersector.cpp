@@ -149,7 +149,7 @@ namespace vsg
             }
             intersection /= static_cast<double>(processedVertices.size());
 
-            intersector.add(intersection, {{i0, 1.0}, {i1, 1.0}, {i2, 1.0}}, instanceIndex);
+            intersector.add(intersection, {i0, i1, i2}, instanceIndex);
         }
 
         void line(uint32_t i0, uint32_t i1)
@@ -181,8 +181,8 @@ namespace vsg
                     // both inside
                 }
             }
-            dvec3 intersection = (v0 + v1)/2.0;
-            intersector.add(intersection, {{i0, 1.0}, {i1, 1.0}}, instanceIndex);
+            dvec3 intersection = (v0 + v1) * 0.5;
+            intersector.add(intersection, {i0, i1}, instanceIndex);
         }
 
         void point(uint32_t i0)
@@ -191,7 +191,7 @@ namespace vsg
             const dvec3 v0(sourceVertices->at(i0));
             if (vsg::inside(polytope, v0))
             {
-                intersector.add(v0, {{i0, 1.0}}, instanceIndex);
+                intersector.add(v0, {i0}, instanceIndex);
                 //info("   inside(", i0, ") v0 = ", v0);
             }
         }
@@ -248,23 +248,23 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     _polytopeStack.push_back(worldspace);
 }
 
-PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex) :
+PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const std::vector<uint32_t>& in_indices, uint32_t in_instanceIndex) :
     localIntersection(in_localIntersection),
     worldIntersection(in_worldIntersection),
     localToWorld(in_localToWorld),
     nodePath(in_nodePath),
     arrays(in_arrays),
-    indexRatios(in_indexRatios),
+    indices(in_indices),
     instanceIndex(in_instanceIndex)
 {
 }
 
-ref_ptr<PolytopeIntersector::Intersection> PolytopeIntersector::add(const dvec3& coord, const IndexRatios& indexRatios, uint32_t instanceIndex)
+ref_ptr<PolytopeIntersector::Intersection> PolytopeIntersector::add(const dvec3& coord, const std::vector<uint32_t>& indices, uint32_t instanceIndex)
 {
     ref_ptr<Intersection> intersection;
 
     auto localToWorld = computeTransform(_nodePath);
-    intersection = Intersection::create(coord, localToWorld * coord, localToWorld, _nodePath, arrayStateStack.back()->arrays, indexRatios, instanceIndex);
+    intersection = Intersection::create(coord, localToWorld * coord, localToWorld, _nodePath, arrayStateStack.back()->arrays, indices, instanceIndex);
     intersections.emplace_back(intersection);
 
     // info("PolytopeIntersector::add(", coord, ", indexRatios.size() = ", indexRatios.size(),"...)");
