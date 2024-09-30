@@ -61,8 +61,6 @@ namespace vsg
 
         bool instance(uint32_t index)
         {
-            //info("PolytopePrimitiveIntersection::instance(", index, ")");
-
             sourceVertices = arrayState.vertexArray(index);
             instanceIndex = index;
             return sourceVertices.valid();
@@ -70,8 +68,6 @@ namespace vsg
 
         void triangle(uint32_t i0, uint32_t i1, uint32_t i2)
         {
-            //info("PolytopePrimitiveIntersection::triangle(", i0, ", ", i1, ", ", i2, ") polytope.size() = ", polytope.size());
-
             // create a convex polygon from the 3 input vertices
             processedVertices.resize(3);
             processedVertices[0] = sourceVertices->at(i0);
@@ -157,7 +153,6 @@ namespace vsg
 
         void line(uint32_t i0, uint32_t i1)
         {
-            //            info("PolytopePrimitiveIntersection::line(", i0, ", ", i1, ")");
             dvec3 v0(sourceVertices->at(i0));
             dvec3 v1(sourceVertices->at(i1));
 
@@ -179,10 +174,6 @@ namespace vsg
                     double r = -d1 / (d0 - d1);
                     v1 = v1 * (1.0 - r) + v0 * r;
                 }
-                else
-                {
-                    // both inside
-                }
             }
             dvec3 intersection = (v0 + v1) * 0.5;
             intersector.add(intersection, {i0, i1}, instanceIndex);
@@ -190,12 +181,10 @@ namespace vsg
 
         void point(uint32_t i0)
         {
-            //info("PolytopePrimitiveIntersection::point(", i0, ")");
             const dvec3 v0(sourceVertices->at(i0));
             if (vsg::inside(polytope, v0))
             {
                 intersector.add(v0, {i0}, instanceIndex);
-                //info("   inside(", i0, ") v0 = ", v0);
             }
         }
     };
@@ -212,8 +201,6 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     Inherit(initialArrayData)
 {
     auto viewport = camera.getViewport();
-
-    //info("\nPolytopeIntersector::PolytopeIntersector(camera, ", xMin, ", ", yMin, ", ", xMax, ", ", yMax, ")");
 
     auto projectionMatrix = camera.projectionMatrix->transform();
     auto viewMatrix = camera.viewMatrix->transform();
@@ -270,15 +257,11 @@ ref_ptr<PolytopeIntersector::Intersection> PolytopeIntersector::add(const dvec3&
     intersection = Intersection::create(coord, localToWorld * coord, localToWorld, _nodePath, arrayStateStack.back()->arrays, indices, instanceIndex);
     intersections.emplace_back(intersection);
 
-    // info("PolytopeIntersector::add(", coord, ", indexRatios.size() = ", indexRatios.size(),"...)");
-
     return intersection;
 }
 
 void PolytopeIntersector::pushTransform(const Transform& transform)
 {
-    // vsg::info("\nPolytopeIntersector::pushTransform(", transform.className(), ")");
-
     auto& l2wStack = localToWorldStack();
     auto& w2lStack = worldToLocalStack();
 
@@ -301,8 +284,6 @@ void PolytopeIntersector::pushTransform(const Transform& transform)
 
 void PolytopeIntersector::popTransform()
 {
-    //vsg::info("PolytopeIntersector::popTransform()");
-
     _polytopeStack.pop_back();
     localToWorldStack().pop_back();
     worldToLocalStack().pop_back();
@@ -310,20 +291,15 @@ void PolytopeIntersector::popTransform()
 
 bool PolytopeIntersector::intersects(const dsphere& bs)
 {
-    //debug("intersects( center = ", bs.center, ", radius = ", bs.radius, ")");
     if (!bs.valid()) return false;
 
     const auto& polytope = _polytopeStack.back();
-
-    // info("PolytopeIntersector::intersects(const dsphere& bs = ", bs.center, ", ", bs.radius, ") : result = ", vsg::intersect(polytope, bs));
 
     return vsg::intersect(polytope, bs);
 }
 
 bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
-    //info("\nPolytopeIntersector::intersectDraw(", firstVertex, ", ", vertexCount, ", ", firstInstance, ", ", instanceCount, ")) todo.");
-
     size_t previous_size = intersections.size();
 
     auto& arrayState = *arrayStateStack.back();
@@ -336,8 +312,6 @@ bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCou
 
 bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
 {
-    //info("\nPolytopeIntersector::intersectDrawIndexed(", firstIndex, ", ", indexCount, ", ", firstInstance, ", ", instanceCount, ")) todo.");
-
     size_t previous_size = intersections.size();
 
     auto& arrayState = *arrayStateStack.back();
