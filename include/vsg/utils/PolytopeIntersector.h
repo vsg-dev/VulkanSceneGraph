@@ -26,7 +26,6 @@ namespace vsg
     class VSG_DECLSPEC PolytopeIntersector : public Inherit<Intersector, PolytopeIntersector>
     {
     public:
-
         /// create intersector for specified polytope.
         PolytopeIntersector(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData = {});
 
