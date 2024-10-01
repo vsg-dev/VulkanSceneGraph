@@ -26,7 +26,11 @@ namespace vsg
     class VSG_DECLSPEC PolytopeIntersector : public Inherit<Intersector, PolytopeIntersector>
     {
     public:
+
+        /// create intersector for specified polytope.
         PolytopeIntersector(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData = {});
+
+        /// create intersector for a polytope with window space dimensions, projected into world coords using the Camera's projection and view matrices.
         PolytopeIntersector(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData = {});
 
         class VSG_DECLSPEC Intersection : public Inherit<Object, Intersection>
