@@ -27,7 +27,6 @@ DeviceFeatures::~DeviceFeatures()
 VkPhysicalDeviceFeatures& DeviceFeatures::get()
 {
     return get<VkPhysicalDeviceFeatures2, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2>().features;
-
 }
 
 void DeviceFeatures::clear()
