@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Queue.h>
+#include <vsg/io/Logger.h>
 
 #include <mutex>
 #include <vector>
@@ -23,8 +24,10 @@ namespace vsg
 {
     /// convenience template function for submitting Vulkan commands to a queue
     template<typename F>
-    void submitCommandsToQueue(CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
+    VkResult submitCommandsToQueue(CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
     {
+        VkResult result = VK_SUCCESS;
+
         auto commandBuffer = commandPool->allocate();
 
         VkCommandBufferBeginInfo beginInfo = {};
@@ -45,21 +48,28 @@ namespace vsg
         // we must wait for the queue to empty before we can safely clean up the commandBuffer
         if (fence)
         {
-            queue->submit(submitInfo, fence);
-            if (timeout > 0) fence->wait(timeout);
+            result = queue->submit(submitInfo, fence);
+            if (result == VK_SUCCESS && timeout > 0)
+            {
+                result = fence->wait(timeout);
+            }
         }
         else
         {
-            queue->submit(submitInfo, VK_NULL_HANDLE);
-            queue->waitIdle();
+            result = queue->submit(submitInfo, VK_NULL_HANDLE);
+            if (result == VK_SUCCESS)
+            {
+                result = queue->waitIdle();
+            }
         }
+        return result;
     }
 
     /// convenience template function for submitting Vulkan commands to a queue and waiting for completion.
     template<typename F>
-    void submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
+    VkResult  submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
     {
-        submitCommandsToQueue(commandPool, nullptr, 0, queue, function);
+        return submitCommandsToQueue(commandPool, nullptr, 0, queue, function);
     }
 
 } // namespace vsg
