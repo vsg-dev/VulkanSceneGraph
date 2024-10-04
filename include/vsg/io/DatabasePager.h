@@ -90,6 +90,8 @@ namespace vsg
 
         virtual void start(uint32_t numReadThreads = 4);
 
+        virtual void stop();
+
         virtual void request(ref_ptr<PagedLOD> plod);
 
         virtual void updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResult& cr);

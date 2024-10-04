@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Queue.h>
 
+#include <vsg/io/Logger.h>
+
 using namespace vsg;
 
 Queue::Queue(VkQueue queue, VkQueueFlags queueFlags, uint32_t queueFamilyIndex, uint32_t queueIndex) :
@@ -22,32 +24,38 @@ Queue::Queue(VkQueue queue, VkQueueFlags queueFlags, uint32_t queueFamilyIndex, 
     _queueFamilyIndex(queueFamilyIndex),
     _queueIndex(queueIndex)
 {
+    info("Queue::Queue(", queue, ", ", queueFlags, ", ", queueFamilyIndex, ", ", queueIndex,") ", this, " thread = ", std::this_thread::get_id());
 }
 
 Queue::~Queue()
 {
+    info("Queue::~Queue() ", _vkQueue, ", ", _queueFlags, ", ", _queueFamilyIndex, ", ", _queueIndex,") ", this, " thread = ", std::this_thread::get_id());
 }
 
 VkResult Queue::submit(const std::vector<VkSubmitInfo>& submitInfos, Fence* fence)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
+    info("Queue::submit(..) A ", this, ", ", _vkQueue, " thread = ", std::this_thread::get_id());
     return vkQueueSubmit(_vkQueue, static_cast<uint32_t>(submitInfos.size()), submitInfos.data(), fence ? fence->vk() : VK_NULL_HANDLE);
 }
 
 VkResult Queue::submit(const VkSubmitInfo& submitInfo, Fence* fence)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
+    info("Queue::submit(..) B ", this, ", ", _vkQueue, " thread = ", std::this_thread::get_id());
     return vkQueueSubmit(_vkQueue, 1, &submitInfo, fence ? fence->vk() : VK_NULL_HANDLE);
 }
 
 VkResult Queue::present(const VkPresentInfoKHR& info)
 {
     std::scoped_lock<std::mutex> guard(_mutex);
+    vsg::info("Queue::present(..) C ", this, ", ", _vkQueue, " thread = ", std::this_thread::get_id());
     return vkQueuePresentKHR(_vkQueue, &info);
 }
 
 VkResult Queue::waitIdle()
 {
     std::scoped_lock<std::mutex> guard(_mutex);
+    info("Queue::waitIdle(..) D ", this, ", ", _vkQueue, " thread = ", std::this_thread::get_id());
     return vkQueueWaitIdle(_vkQueue);
 }
