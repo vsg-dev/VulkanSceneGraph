@@ -46,7 +46,6 @@ namespace vsg
         // and C) the number of acceleration structures for type VK_GEOMETRY_TYPE_INSTANCES_KHR
         BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts);
 
-        void compile(Context&) override {}
         void record(CommandBuffer& commandBuffer) const override;
         void setScratchBuffer(ref_ptr<Buffer> scratchBuffer);
 

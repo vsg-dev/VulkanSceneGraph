@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC StateCommand : public Inherit<Command, StateCommand>
     {
     public:
-        StateCommand(uint32_t in_slot = 0) :
+        explicit StateCommand(uint32_t in_slot = 0) :
             slot(in_slot) {}
 
         StateCommand(const StateCommand& rhs, const CopyOp& copyop);

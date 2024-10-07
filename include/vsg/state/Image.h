@@ -25,7 +25,7 @@ namespace vsg
     {
     public:
         /// create a vsg::Image, optional Data is used to initialize createInfo, delay VkImage creation to compile
-        Image(ref_ptr<Data> in_data = {});
+        explicit Image(ref_ptr<Data> in_data = {});
 
         /// create a vsg::Image wrapper for specified VkImage
         Image(VkImage image, Device* device);

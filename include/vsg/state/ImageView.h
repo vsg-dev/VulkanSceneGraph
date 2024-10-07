@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC ImageView : public Inherit<Object, ImageView>
     {
     public:
-        ImageView(ref_ptr<Image> in_image = {});
+        explicit ImageView(ref_ptr<Image> in_image = {});
         ImageView(ref_ptr<Image> in_image, VkImageAspectFlags aspectFlags);
 
         /// VkImageViewCreateInfo settings

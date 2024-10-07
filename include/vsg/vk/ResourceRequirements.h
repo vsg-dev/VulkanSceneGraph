@@ -29,8 +29,9 @@ namespace vsg
     class VSG_DECLSPEC ResourceRequirements
     {
     public:
-        ResourceRequirements(ref_ptr<ResourceHints> hints = {});
+        ResourceRequirements();
         ResourceRequirements(const ResourceRequirements& rhs) = default;
+        explicit ResourceRequirements(ref_ptr<ResourceHints> hints);
 
         ResourceRequirements& operator=(const ResourceRequirements& rhs) = default;
 

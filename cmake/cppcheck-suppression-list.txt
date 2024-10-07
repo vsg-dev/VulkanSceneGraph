@@ -157,7 +157,13 @@ pointerLessThanZero:*/src/vsg/app/Viewer.cpp
 
 // suppress inappropriate warning of duplInheritedMember
 duplInheritedMember:*/vsg/core/Inherit.h
-duplInheritedMember:*/vsg/core/Node.h
+duplInheritedMember:*/vsg/core/Data.h
+duplInheritedMember:*/vsg/nodes/Node.h
+duplInheritedMember:*/vsg/nodes/Group.h
 
 // suppress unhelpful warning of shadowFunction
 shadowFunction:*/src/io/Path.cpp
+
+
+unusedStructMember:*/include/vsg/animation/MorphSampler.h
+

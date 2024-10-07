@@ -240,7 +240,7 @@ GraphicsPipeline::Implementation::~Implementation()
 //
 // BindGraphicsPipeline
 //
-BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* in_pipeline) :
+BindGraphicsPipeline::BindGraphicsPipeline(ref_ptr<GraphicsPipeline> in_pipeline) :
     Inherit(0), // slot 0
     pipeline(in_pipeline)
 {

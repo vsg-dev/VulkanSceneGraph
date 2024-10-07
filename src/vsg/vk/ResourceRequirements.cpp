@@ -36,9 +36,14 @@ using namespace vsg;
 //
 // ResourceRequirements
 //
-ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
+ResourceRequirements::ResourceRequirements()
 {
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
+}
+
+ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints) :
+    vsg::ResourceRequirements()
+{
     if (hints) apply(*hints);
 }
 

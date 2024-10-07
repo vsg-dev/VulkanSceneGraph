@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseBuffer : public Inherit<Command, CopyAndReleaseBuffer>
     {
     public:
-        CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
+        explicit CopyAndReleaseBuffer(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
 
         void add(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest);
 
