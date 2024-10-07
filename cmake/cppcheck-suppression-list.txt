@@ -155,3 +155,9 @@ variableScope:*/src/vsg/core/IntrusiveAllocator.cpp
 // suppress really stupid warning of pointerLessThanZero
 pointerLessThanZero:*/src/vsg/app/Viewer.cpp
 
+// suppress inappropriate warning of duplInheritedMember
+duplInheritedMember:*/vsg/core/Inherit.h
+duplInheritedMember:*/vsg/core/Node.h
+
+// suppress unhelpful warning of shadowFunction
+shadowFunction:*/src/io/Path.cpp

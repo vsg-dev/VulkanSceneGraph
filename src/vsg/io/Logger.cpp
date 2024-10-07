@@ -283,7 +283,7 @@ void ThreadLogger::print_id(FILE* out, std::thread::id id)
         _stream.str({});
         _stream.clear();
         _stream << "thread::id = " << id << " | ";
-        auto& str = _threadPrefixes[id] = _stream.str();
+        const auto& str = _threadPrefixes[id] = _stream.str();
         fprintf(out, "%s", str.c_str());
     }
 }

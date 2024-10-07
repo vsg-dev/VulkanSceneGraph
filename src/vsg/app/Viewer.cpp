@@ -58,7 +58,7 @@ void Viewer::deviceWaitIdle() const
         if (window->getDevice()) devices.insert(*(window->getDevice()));
     }
 
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
@@ -90,7 +90,7 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
     // create a new list of CommandGraphs not associated with removed window
     CommandGraphs commandGraphs;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
@@ -330,7 +330,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         for (auto& binNumber : binDetails.indices)
         {
             bool binNumberMatched = false;
-            for (auto& bin : view->bins)
+            for (const auto& bin : view->bins)
             {
                 if (bin->binNumber == binNumber)
                 {
@@ -352,7 +352,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 
     // create the Vulkan objects
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         auto& deviceResource = deviceResourceMap[task->device];
         auto& resourceRequirements = deviceResource.collectResources.requirements;
@@ -593,7 +593,7 @@ void Viewer::setupThreading()
 
     // check how many valid tasks there are.
     uint32_t numValidTasks = 0;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (!task->commandGraphs.empty())
         {
@@ -787,7 +787,7 @@ void Viewer::update()
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer update", COLOR_UPDATE);
 
     // merge any updates from the DatabasePager
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -809,7 +809,7 @@ void Viewer::recordAndSubmit()
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer recordAndSubmitTask", COLOR_VIEWER);
 
     // reset connected ExecuteCommands
-    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+    for (const auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
         for (auto& commandGraph : recordAndSubmitTask->commandGraphs)
         {

@@ -84,13 +84,13 @@ bool MemorySlots::check() const
     }
 
     size_t availableSize = 0;
-    for (auto& offsetSize : _offsetSizes)
+    for (const auto& offsetSize : _offsetSizes)
     {
         availableSize += offsetSize.second;
     }
 
     size_t reservedSize = 0;
-    for (auto& offsetSize : _reservedMemory)
+    for (const auto& offsetSize : _reservedMemory)
     {
         reservedSize += offsetSize.second;
     }

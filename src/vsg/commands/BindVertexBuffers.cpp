@@ -32,7 +32,7 @@ int BindVertexBuffers::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(firstBinding, rhs.firstBinding))) return result;
     return compare_pointer_container(arrays, rhs.arrays);
 }
@@ -72,7 +72,7 @@ void BindVertexBuffers::write(Output& output) const
     output.write("firstBinding", firstBinding);
 
     output.writeValue<uint32_t>("arrays", arrays.size());
-    for (auto& array : arrays)
+    for (const auto& array : arrays)
     {
         if (array)
             output.writeObject("array", array->data.get());

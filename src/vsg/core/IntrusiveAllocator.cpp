@@ -106,7 +106,7 @@ bool IntrusiveAllocator::MemoryBlock::freeSlotsAvaible(size_t size) const
 {
     if (size > maximumAllocationSize) return false;
 
-    for (auto& freeList : freeLists)
+    for (const auto& freeList : freeLists)
     {
         if (freeList.count > 0) return true;
     }
@@ -261,7 +261,7 @@ void IntrusiveAllocator::MemoryBlock::SlotTester::slot(size_t position, const st
 void IntrusiveAllocator::MemoryBlock::SlotTester::report(std::ostream& out)
 {
     out << "head = " << head << std::endl;
-    for (auto& entry : elements)
+    for (const auto& entry : elements)
     {
         out << "    " << entry.name << ", pos = " << entry.position << " slot { " << entry.slot.previous << ", " << entry.slot.next << ", " << static_cast<uint16_t>(entry.slot.status) << " } ";
         if (entry.slot.status != 0)
@@ -546,7 +546,7 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     size_t position = firstSlot;
     while (position < capacity)
     {
-        auto& slot = memory[position];
+        const auto& slot = memory[position];
         if (slot.status == 1)
         {
             out << "   memory[" << position << "] slot { " << slot.previous << ", " << slot.next << ", " << slot.status << "}, " << memory[position + 1].index << ", " << memory[position + 2].index << std::endl;
@@ -561,14 +561,14 @@ void IntrusiveAllocator::MemoryBlock::report(std::ostream& out) const
     }
 
     out << "   freeList.size() = " << freeLists.size() << " { " << std::endl;
-    for (auto& freeList : freeLists)
+    for (const auto& freeList : freeLists)
     {
         out << "   FreeList ( count = " << freeList.count << " , head = " << freeList.head << " ) {" << std::endl;
 
         size_t freePosition = freeList.head;
         while (freePosition != 0 && freePosition < capacity)
         {
-            auto& slot = memory[freePosition];
+            const auto& slot = memory[freePosition];
             out << "      slot " << freePosition << " { " << slot.previous << ", " << slot.next << ", " << slot.status
                 << " } previous = " << memory[freePosition + 1].index << ", next = " << memory[freePosition + 2].index << std::endl;
             freePosition = memory[freePosition + 2].index;
@@ -636,13 +636,13 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
     std::set<size_t> inFreeList;
 
     // std::cout<<"No invalid entries found"<<std::endl;
-    for (auto& freeList : freeLists)
+    for (const auto& freeList : freeLists)
     {
         size_t previousPosition = 0;
         size_t freePosition = freeList.head;
         while (freePosition != 0 && freePosition < capacity)
         {
-            auto& slot = memory[freePosition];
+            const auto& slot = memory[freePosition];
 
             inFreeList.insert(freePosition);
 
@@ -706,7 +706,7 @@ size_t IntrusiveAllocator::MemoryBlock::totalMemorySize() const
     size_t position = firstSlot;
     while (position < capacity)
     {
-        auto& slot = memory[position];
+        const auto& slot = memory[position];
         position += slot.next;
         count += slot.next - 1;
     }
