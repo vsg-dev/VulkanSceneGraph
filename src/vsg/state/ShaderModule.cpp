@@ -147,9 +147,10 @@ ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shade
 {
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
     createInfo.codeSize = shaderModule->code.size() * sizeof(ShaderModule::SPIRV::value_type);
     createInfo.pCode = shaderModule->code.data();
-    createInfo.pNext = nullptr;
 
     if (VkResult result = vkCreateShaderModule(*device, &createInfo, _device->getAllocationCallbacks(), &_shaderModule); result != VK_SUCCESS)
     {
