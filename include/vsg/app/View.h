@@ -35,6 +35,8 @@ namespace vsg
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
     public:
+        static ModifiedCount modifiedCount(uint32_t viewID);
+
         View(ViewFeatures in_features = RECORD_ALL);
 
         // share the specified view's children, viewID, mask and camera ViewportState
@@ -62,6 +64,10 @@ namespace vsg
 
         /// share the specified view's viewID, mask, camera ViewportState, with this View
         void share(const View& view);
+
+        /// incremented when the pipeline state for the viewID is invalidated
+        ModifiedCount modifiedCount();
+        void modified();
 
         /// camera controls the viewport state and projection and view matrices
         ref_ptr<Camera> camera;

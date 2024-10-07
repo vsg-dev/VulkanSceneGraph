@@ -95,6 +95,8 @@ namespace vsg
 
             virtual ~Implementation();
 
+            ModifiedCount viewModifiedCount;
+
             VkPipeline _pipeline;
 
             ref_ptr<Device> _device;
