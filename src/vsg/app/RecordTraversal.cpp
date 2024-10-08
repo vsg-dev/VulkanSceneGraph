@@ -56,14 +56,14 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
+RecordTraversal::RecordTraversal(uint32_t in_maxSlot, const std::set<Bin*>& in_bins) :
     _state(new State(in_maxSlot))
 {
     CPU_INSTRUMENTATION_L1_C(instrumentation, COLOR_RECORD);
 
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
-    for (auto& bin : in_bins)
+    for (const auto& bin : in_bins)
     {
         if (bin->binNumber < _minimumBinNumber) _minimumBinNumber = bin->binNumber;
         if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
@@ -308,7 +308,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
     if (_state->intersect(depthSorted.bound))
     {
         const auto& mv = _state->modelviewMatrixStack.top();
-        auto& center = depthSorted.bound.center;
+        const auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
         addToBin(depthSorted.binNumber, distance, depthSorted.child);
@@ -458,7 +458,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     stateGroup.traverse(*this);
 
-    for (auto& command : stateGroup.stateCommands)
+    for (const auto& command : stateGroup.stateCommands)
     {
         _state->stateStacks[command->slot].pop();
     }
@@ -515,7 +515,7 @@ void RecordTraversal::apply(const View& view)
     // assign and clear the View's bins
     int32_t min_binNumber = 0;
     int32_t max_binNumber = 0;
-    for (auto& bin : view.bins)
+    for (const auto& bin : view.bins)
     {
         if (bin->binNumber < min_binNumber) min_binNumber = bin->binNumber;
         if (bin->binNumber > max_binNumber) max_binNumber = bin->binNumber;

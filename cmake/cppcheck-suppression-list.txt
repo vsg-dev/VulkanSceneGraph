@@ -108,6 +108,9 @@ unusedStructMember:*/include/vsg/io/ReaderWriter.h
 unusedStructMember:*/include/vsg/raytracing/BuildAccelerationStructureTraversal.h
 unusedStructMember:*/include/vsg/state/BindDescriptorSet.h
 unusedStructMember:*/include/vsg/state/BufferInfo.h
+unusedStructMember:*/include/vsg/utils/Instrumentation.h
+unusedStructMember:*/include/vsg/utils/ShaderSet.h
+unusedStructMember:*/include/vsg/utils/LoadPagedLOD.h
 
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp
@@ -185,7 +188,12 @@ shadowFunction:*/src/vsg/animation/CameraAnimation.cpp
 shadowFunction:*/src/vsg/animation/TransformSampler.cpp
 shadowFunction:*/src/vsg/io/tile.cpp
 shadowFunction:*/src/vsg/io/FileSystem.cpp
+shadowFunction:*/src/vsg/app/Trackball.cpp
 
 
 // suppress unhelpful warning of c casts
 cstyleCast:*/include/vsg/io/mem_stream.h
+
+// suppress unhelpful warnings of override that make inform programmers what is being done
+uselessOverride:include/vsg/utils/TracyInstrumentation.h
+

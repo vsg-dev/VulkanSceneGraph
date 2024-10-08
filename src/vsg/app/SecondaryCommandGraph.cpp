@@ -138,7 +138,7 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
     inheritanceInfo.pipelineStatistics = pipelineStatistics;
     beginInfo.pInheritanceInfo = &inheritanceInfo;
 
-    if (auto activeRenderPass = getRenderPass())
+    if (const auto activeRenderPass = getRenderPass())
         inheritanceInfo.renderPass = *(activeRenderPass);
     else
         inheritanceInfo.renderPass = VK_NULL_HANDLE;

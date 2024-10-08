@@ -355,11 +355,11 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     for (const auto& task : recordAndSubmitTasks)
     {
         auto& deviceResource = deviceResourceMap[task->device];
-        auto& resourceRequirements = deviceResource.collectResources.requirements;
+        const auto& resourceRequirements = deviceResource.collectResources.requirements;
 
         bool task_containsPagedLOD = false;
 
-        for (auto& commandGraph : task->commandGraphs)
+        for (const auto& commandGraph : task->commandGraphs)
         {
             commandGraph->maxSlot = resourceRequirements.maxSlot;
             if (resourceRequirements.containsPagedLOD) task_containsPagedLOD = true;
@@ -393,7 +393,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 
     // start any DatabasePagers
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -415,7 +415,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
     // if a DatabasePager is already assigned re-assign
     ref_ptr<DatabasePager> databasePager;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -522,7 +522,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
                 commandGraph->accept(findWindows);
             }
 
-            Windows windows(findWindows.windows.begin(), findWindows.windows.end());
+            Windows activeWindows(findWindows.windows.begin(), findWindows.windows.end());
 
             auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 
@@ -531,7 +531,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-            recordAndSubmitTask->windows = windows;
+            recordAndSubmitTask->windows = activeWindows;
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
@@ -542,7 +542,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
-            presentation->windows = windows;
+            presentation->windows = activeWindows;
             presentation->queue = device->getQueue(deviceQueueFamily.presentFamily);
             presentations.emplace_back(presentation);
         }
@@ -572,7 +572,7 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
     // collect the existing CommandGraphs
     CommandGraphs combinedCommandGraphs;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {

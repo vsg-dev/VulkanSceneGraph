@@ -343,7 +343,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    for (auto& imageInfo : dataToCopy.imageInfoSet)
+    for (const auto& imageInfo : dataToCopy.imageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
 
@@ -367,7 +367,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         auto& bufferInfos = entry.second;
         for (auto& offset_bufferInfo : bufferInfos)
         {
-            auto& bufferInfo = offset_bufferInfo.second;
+            const auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
             ++dataToCopy.dataTotalRegions;
