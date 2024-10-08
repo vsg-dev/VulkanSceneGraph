@@ -163,7 +163,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 {
                     vsg::ComputeBounds computeBound;
                     tile_node->accept(computeBound);
-                    auto& bb = computeBound.bounds;
+                    const auto& bb = computeBound.bounds;
                     vsg::dsphere bound((bb.min.x + bb.max.x) * 0.5, (bb.min.y + bb.max.y) * 0.5, (bb.min.z + bb.max.z) * 0.5, vsg::length(bb.max - bb.min) * 0.5);
 
                     auto plod = vsg::PagedLOD::create();

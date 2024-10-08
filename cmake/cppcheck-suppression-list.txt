@@ -180,4 +180,9 @@ duplInheritedMember:*/include/vsg/animation/AnimationGroup.h
 shadowFunction:*/src/io/Path.cpp
 shadowFunction:*/src/vsg/animation/CameraAnimation.cpp
 shadowFunction:*/src/vsg/animation/TransformSampler.cpp
+shadowFunction:*/src/vsg/io/tile.cpp
+shadowFunction:*/src/vsg/io/FileSystem.cpp
 
+
+// suppress unhelpful warning of c casts
+cstyleCast:*/src/vsg/io/mem_stream.cpp

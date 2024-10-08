@@ -34,7 +34,7 @@ int SpotLight::compare(const Object& rhs_object) const
     int result = Light::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(position, rhs.position)) != 0) return result;
     if ((result = compare_value(direction, rhs.direction)) != 0) return result;
     if ((result = compare_value(innerAngle, rhs.innerAngle)) != 0) return result;
