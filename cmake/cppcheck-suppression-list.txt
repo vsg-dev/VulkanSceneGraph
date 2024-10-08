@@ -195,6 +195,10 @@ shadowFunction:*/src/vsg/io/Path.cpp
 shadowFunction:*/src/vsg/app/Trackball.cpp
 shadowFunction:*/src/vsg/commands/PipelineBarrier.cpp
 shadowFunction:*/src/vsg/state/ArrayState.cpp
+shadowFunction:*/src/vsg/state/DescriptorBuffer.cpp
+shadowFunction:*/src/vsg/state/Image.cpp
+shadowFunction:*/src/vsg/state/ImageView.cpp
+shadowFunction:*/src/vsg/state/MultisampleState.cpp
 
 // suppress unhelpful warning of c casts
 cstyleCast:*/include/vsg/io/mem_stream.h

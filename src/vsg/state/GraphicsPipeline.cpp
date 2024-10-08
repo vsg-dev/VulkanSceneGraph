@@ -29,7 +29,7 @@ int GraphicsPipelineState::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(mask, rhs.mask);
 }
 
@@ -71,7 +71,7 @@ void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_Pi
 
 void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
 {
-    for (auto& src_PipelineState : src_PipelineStates)
+    for (const auto& src_PipelineState : src_PipelineStates)
     {
         mergeGraphicsPipelineStates(mask, dest_PipelineStates, src_PipelineState);
     }
@@ -142,7 +142,7 @@ void GraphicsPipeline::compile(Context& context)
     {
         // compile shaders if required
         bool requiresShaderCompiler = false;
-        for (auto& shaderStage : stages)
+        for (const auto& shaderStage : stages)
         {
             if (shaderStage->module)
             {
@@ -255,7 +255,7 @@ int BindGraphicsPipeline::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer(pipeline, rhs.pipeline);
 }
 
