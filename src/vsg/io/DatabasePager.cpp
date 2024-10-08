@@ -198,7 +198,7 @@ void DatabasePager::start(uint32_t numReadThreads)
         debug("Finished DatabaseThread read thread");
     };
 
-    auto deleteThread = [](ref_ptr<DeleteQueue> deleteQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager, const std::string& threadName) {
+    auto deleteThread = [](ref_ptr<DeleteQueue> deleteQueue, ref_ptr<ActivityStatus> status, const DatabasePager& databasePager, const std::string& threadName) {
         debug("Started DatabaseThread deletethread");
 
         auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);

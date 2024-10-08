@@ -56,6 +56,7 @@ useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
 useStlAlgorithm:*/src/vsg//utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/io/Path.cpp
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*/include/vsg/core/Inherit.h
@@ -189,6 +190,7 @@ shadowFunction:*/src/vsg/animation/CameraAnimation.cpp
 shadowFunction:*/src/vsg/animation/TransformSampler.cpp
 shadowFunction:*/src/vsg/io/tile.cpp
 shadowFunction:*/src/vsg/io/FileSystem.cpp
+shadowFunction:*/src/vsg/io/Path.cpp
 shadowFunction:*/src/vsg/app/Trackball.cpp
 shadowFunction:*/src/vsg/commands/PipelineBarrier.cpp
 

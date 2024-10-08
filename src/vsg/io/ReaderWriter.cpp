@@ -34,7 +34,7 @@ void CompositeReaderWriter::read(Input& input)
 void CompositeReaderWriter::write(Output& output) const
 {
     output.writeValue<uint32_t>("NumReaderWriters", readerWriters.size());
-    for (auto& rw : readerWriters)
+    for (const auto& rw : readerWriters)
     {
         output.writeObject("ReaderWriter", rw);
     }
