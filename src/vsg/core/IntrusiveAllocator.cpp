@@ -588,7 +588,7 @@ bool IntrusiveAllocator::MemoryBlock::validate() const
 
     while (position < capacity)
     {
-        auto& slot = memory[position];
+        const auto& slot = memory[position];
         if (slot.previous > capacity || slot.next > capacity)
         {
             std::cerr << "IntrusiveAllocator::MemoryBlock::validate() " << this << " slot.corrupted invalid position = " << position << ", slot = {" << slot.previous << ", " << slot.next << ", " << int(slot.status) << "}" << std::endl;
@@ -678,7 +678,7 @@ size_t IntrusiveAllocator::MemoryBlock::totalAvailableSize() const
     size_t position = firstSlot;
     while (position < capacity)
     {
-        auto& slot = memory[position];
+        const auto& slot = memory[position];
         position += slot.next;
         if (slot.status != 0) count += slot.next - 1;
     }
@@ -692,7 +692,7 @@ size_t IntrusiveAllocator::MemoryBlock::totalReservedSize() const
     size_t position = firstSlot;
     while (position < capacity)
     {
-        auto& slot = memory[position];
+        const auto& slot = memory[position];
         position += slot.next;
         if (slot.status == 0) count += slot.next - 1;
     }

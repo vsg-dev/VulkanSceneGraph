@@ -181,6 +181,7 @@ duplInheritedMember:*/include/vsg/nodes/Node.h
 duplInheritedMember:*/include/vsg/nodes/Group.h
 duplInheritedMember:*/include/vsg/nodes/StateGroup.h
 duplInheritedMember:*/include/vsg/animation/AnimationGroup.h
+duplInheritedMember:*/src/vsg/core/Data.cpp
 
 // suppress unhelpful warning of shadowFunction
 shadowFunction:*/src/io/Path.cpp
@@ -189,7 +190,7 @@ shadowFunction:*/src/vsg/animation/TransformSampler.cpp
 shadowFunction:*/src/vsg/io/tile.cpp
 shadowFunction:*/src/vsg/io/FileSystem.cpp
 shadowFunction:*/src/vsg/app/Trackball.cpp
-
+shadowFunction:*/src/vsg/commands/PipelineBarrier.cpp
 
 // suppress unhelpful warning of c casts
 cstyleCast:*/include/vsg/io/mem_stream.h
