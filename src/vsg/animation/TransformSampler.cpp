@@ -75,7 +75,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write position key frames
     output.writeValue<uint32_t>("positions", positions.size());
-    for (auto& position : positions)
+    for (const auto& position : positions)
     {
         output.writePropertyName("position");
         output.write(1, &position.time);
@@ -85,7 +85,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write rotation key frames
     output.writeValue<uint32_t>("rotations", rotations.size());
-    for (auto& rotation : rotations)
+    for (const auto& rotation : rotations)
     {
         output.writePropertyName("rotation");
         output.write(1, &rotation.time);

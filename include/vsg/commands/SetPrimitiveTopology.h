@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC SetPrimitiveTopology : public Inherit<Command, SetPrimitiveTopology>
     {
     public:
-        SetPrimitiveTopology(VkPrimitiveTopology in_topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+        explicit SetPrimitiveTopology(VkPrimitiveTopology in_topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
         VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 

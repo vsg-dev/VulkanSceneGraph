@@ -268,7 +268,7 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, con
 {
     auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
 
-    for (auto& context : compileTraversal->contexts)
+    for (const auto& context : compileTraversal->contexts)
     {
         if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
         {

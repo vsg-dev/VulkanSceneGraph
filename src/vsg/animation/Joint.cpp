@@ -41,7 +41,7 @@ int Joint::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(index, rhs.index)) != 0) return result;
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(matrix, rhs.matrix)) != 0) return result;
