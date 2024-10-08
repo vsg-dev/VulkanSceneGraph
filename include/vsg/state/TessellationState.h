@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC TessellationState : public Inherit<GraphicsPipelineState, TessellationState>
     {
     public:
-        TessellationState(uint32_t in_patchControlPoints = 1);
+        explicit TessellationState(uint32_t in_patchControlPoints = 1);
         TessellationState(const TessellationState& ts);
 
         /// VkPipelineTessellationStateCreateInfo settings

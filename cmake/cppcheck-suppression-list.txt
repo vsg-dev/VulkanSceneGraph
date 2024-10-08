@@ -105,8 +105,9 @@ unusedStructMember:*/include/vsg/io/Input.h
 unusedStructMember:*/include/vsg/io/Output.h
 unusedStructMember:*/include/vsg/io/Path.h
 unusedStructMember:*/include/vsg/io/ReaderWriter.h
-
-
+unusedStructMember:*/include/vsg/raytracing/BuildAccelerationStructureTraversal.h
+unusedStructMember:*/include/vsg/state/BindDescriptorSet.h
+unusedStructMember:*/include/vsg/state/BufferInfo.h
 
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp
@@ -174,6 +175,7 @@ duplInheritedMember:*/include/vsg/core/Inherit.h
 duplInheritedMember:*/include/vsg/core/Data.h
 duplInheritedMember:*/include/vsg/nodes/Node.h
 duplInheritedMember:*/include/vsg/nodes/Group.h
+duplInheritedMember:*/include/vsg/nodes/StateGroup.h
 duplInheritedMember:*/include/vsg/animation/AnimationGroup.h
 
 // suppress unhelpful warning of shadowFunction
@@ -185,4 +187,4 @@ shadowFunction:*/src/vsg/io/FileSystem.cpp
 
 
 // suppress unhelpful warning of c casts
-cstyleCast:*/src/vsg/io/mem_stream.cpp
+cstyleCast:*/include/vsg/io/mem_stream.h
