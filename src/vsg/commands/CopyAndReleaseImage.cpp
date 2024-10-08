@@ -177,7 +177,7 @@ void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const
 
     _readyToClear.swap(_completed);
 
-    for (auto& copyData : _pending)
+    for (const auto& copyData : _pending)
     {
         copyData.record(commandBuffer);
     }
