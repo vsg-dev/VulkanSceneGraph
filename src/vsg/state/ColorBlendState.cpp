@@ -82,7 +82,7 @@ int ColorBlendState::compare(const Object& rhs_object) const
     int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(logicOpEnable, rhs.logicOpEnable))) return result;
     if ((result = compare_value(logicOp, rhs.logicOp))) return result;
     if ((result = compare_value_container(attachments, rhs.attachments))) return result;

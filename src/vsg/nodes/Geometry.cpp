@@ -46,7 +46,7 @@ int Geometry::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(firstBinding, rhs.firstBinding)) != 0) return result;
     if ((result = compare_pointer_container(arrays, rhs.arrays)) != 0) return result;
     if ((result = compare_pointer(indices, rhs.indices)) != 0) return result;
@@ -108,7 +108,7 @@ void Geometry::write(Output& output) const
 
     output.write("firstBinding", firstBinding);
     output.writeValue<uint32_t>("NumArrays", arrays.size());
-    for (auto& array : arrays)
+    for (const auto& array : arrays)
     {
         if (array)
             output.writeObject("Array", array->data.get());
@@ -122,7 +122,7 @@ void Geometry::write(Output& output) const
         output.writeObject("Indices", nullptr);
 
     output.writeValue<uint32_t>("NumCommands", commands.size());
-    for (auto& command : commands)
+    for (const auto& command : commands)
     {
         output.writeObject("Command", command.get());
     }

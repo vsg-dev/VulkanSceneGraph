@@ -42,7 +42,7 @@ int ComputePipeline::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(layout, rhs.layout))) return result;
     return compare_pointer(stage, rhs.stage);
@@ -94,7 +94,7 @@ void ComputePipeline::compile(Context& context)
 //
 // ComputePipeline::Implementation
 //
-ComputePipeline::Implementation::Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage) :
+ComputePipeline::Implementation::Implementation(Context& context, Device* device, const PipelineLayout* pipelineLayout, const ShaderStage* shaderStage) :
     _device(device)
 {
     VkPipelineShaderStageCreateInfo stageInfo = {};
@@ -138,7 +138,7 @@ int BindComputePipeline::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer(pipeline, rhs.pipeline);
 }
 

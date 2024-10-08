@@ -58,11 +58,11 @@ void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
 
 bool ArrayState::getAttributeDetails(const VertexInputState& vas, uint32_t location, AttributeDetails& attributeDetails)
 {
-    for (auto& attribute : vas.vertexAttributeDescriptions)
+    for (const auto& attribute : vas.vertexAttributeDescriptions)
     {
         if (attribute.location == location)
         {
-            for (auto& binding : vas.vertexBindingDescriptions)
+            for (const auto& binding : vas.vertexBindingDescriptions)
             {
                 if (attribute.binding == binding.binding)
                 {
@@ -287,7 +287,7 @@ void DisplacementMapArrayState::apply(const DescriptorImage& di)
 {
     if (!di.imageInfoList.empty())
     {
-        auto& imageInfo = *di.imageInfoList[0];
+        const auto& imageInfo = *di.imageInfoList[0];
         if (imageInfo.imageView && imageInfo.imageView->image)
         {
             displacementMap = imageInfo.imageView->image->data.cast<floatArray2D>();
@@ -351,8 +351,8 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
 
         for (auto& v : *new_vertices)
         {
-            auto& tc = *(src_texcoord_itr++);
-            auto& n = *(src_normal_itr++);
+            const auto& tc = *(src_texcoord_itr++);
+            const auto& n = *(src_normal_itr++);
             float d = sample(*sampler, *displacementMap, tc);
             v = *(src_vertex_itr++) + n * d;
         }
@@ -426,8 +426,8 @@ ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint3
 
         for (auto& v : *new_vertices)
         {
-            auto& tc = *(src_teccoord_itr++);
-            auto& n = *(src_normal_itr++);
+            const auto& tc = *(src_teccoord_itr++);
+            const auto& n = *(src_normal_itr++);
             float d = sample(*sampler, *displacementMap, tc);
             v = *(src_vertex_itr++) + n * d + position;
         }
@@ -494,8 +494,8 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     dmat4 billboard_to_local;
     if (!localToWorldStack.empty() && !worldToLocalStack.empty())
     {
-        auto& mv = localToWorldStack.back();
-        auto& inverse_mv = worldToLocalStack.back();
+        const auto& mv = localToWorldStack.back();
+        const auto& inverse_mv = worldToLocalStack.back();
 
         auto center_eye = mv * position;
         double distance = -center_eye.z;
@@ -523,7 +523,7 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     auto src_vertex_itr = vertices->begin();
     for (auto& v : *new_vertices)
     {
-        auto& sv = *(src_vertex_itr++);
+        const auto& sv = *(src_vertex_itr++);
         v = vec3(billboard_to_local * dvec3(sv));
     }
     return new_vertices;

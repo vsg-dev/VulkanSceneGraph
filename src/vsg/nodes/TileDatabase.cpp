@@ -49,7 +49,7 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(extents, rhs.extents)) != 0) return result;
     if ((result = compare_value(noX, rhs.noX)) != 0) return result;
     if ((result = compare_value(noY, rhs.noY)) != 0) return result;
@@ -127,7 +127,7 @@ int TileDatabase::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(settings, rhs.settings)) != 0) return result;
     return compare_pointer(child, rhs.child);
 }

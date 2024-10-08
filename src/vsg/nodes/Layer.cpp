@@ -45,7 +45,7 @@ int Layer::compare(const Object& rhs_object) const
     int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(mask, rhs.mask)) != 0) return result;
     if ((result = compare_value(binNumber, rhs.binNumber)) != 0) return result;
     if ((result = compare_value(value, rhs.value)) != 0) return result;

@@ -44,7 +44,7 @@ int VertexIndexDraw::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(indexCount, rhs.indexCount)) != 0) return result;
     if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
     if ((result = compare_value(firstIndex, rhs.firstIndex)) != 0) return result;
@@ -112,7 +112,7 @@ void VertexIndexDraw::write(Output& output) const
 
     output.write("firstBinding", firstBinding);
     output.writeValue<uint32_t>("NumArrays", arrays.size());
-    for (auto& array : arrays)
+    for (const auto& array : arrays)
     {
         if (array)
             output.writeObject("Array", array->data.get());

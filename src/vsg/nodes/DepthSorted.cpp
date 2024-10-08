@@ -44,7 +44,7 @@ int DepthSorted::compare(const Object& rhs_object) const
     int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(binNumber, rhs.binNumber)) != 0) return result;
     if ((result = compare_value(bound, rhs.bound)) != 0) return result;
     return compare_pointer(child, rhs.child);
