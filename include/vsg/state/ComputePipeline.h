@@ -64,7 +64,7 @@ namespace vsg
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
     {
     public:
-        BindComputePipeline(ComputePipeline* pipeline = nullptr);
+        explicit BindComputePipeline(ComputePipeline* pipeline = nullptr);
 
         int compare(const Object& rhs_object) const override;
 

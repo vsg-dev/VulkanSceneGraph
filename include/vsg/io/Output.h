@@ -163,7 +163,7 @@ namespace vsg
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
 
-            for (auto& v : values)
+            for (const auto& v : values)
             {
                 write("element", v);
             }

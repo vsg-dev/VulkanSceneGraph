@@ -205,7 +205,7 @@ namespace vsg
         int writeErrorMessages(std::ostream& out) const
         {
             if (_errorMessages.empty()) return 1;
-            for (auto message : _errorMessages) out << message << std::endl;
+            for (const auto& message : _errorMessages) out << message << std::endl;
             return 0;
         }
 

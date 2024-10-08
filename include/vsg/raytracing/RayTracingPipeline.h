@@ -84,7 +84,7 @@ namespace vsg
     class VSG_DECLSPEC BindRayTracingPipeline : public Inherit<StateCommand, BindRayTracingPipeline>
     {
     public:
-        BindRayTracingPipeline(RayTracingPipeline* pipeline = nullptr);
+        explicit BindRayTracingPipeline(RayTracingPipeline* pipeline = nullptr);
 
         int compare(const Object& rhs_object) const override;
 
