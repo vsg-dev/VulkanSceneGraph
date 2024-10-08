@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC SetLineWidth : public Inherit<Command, SetLineWidth>
     {
     public:
-        SetLineWidth(float in_lineWidth = 0.0f);
+        explicit SetLineWidth(float in_lineWidth = 0.0f);
 
         float lineWidth = 0.0f;
 
