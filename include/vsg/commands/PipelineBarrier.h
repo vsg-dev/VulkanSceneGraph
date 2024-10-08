@@ -32,7 +32,7 @@ namespace vsg
     struct VSG_DECLSPEC MemoryBarrier : public Inherit<Object, MemoryBarrier>
     {
         explicit MemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
-                      VkAccessFlags in_dstAccessMask = 0) :
+                               VkAccessFlags in_dstAccessMask = 0) :
             srcAccessMask(in_srcAccessMask),
             dstAccessMask(in_dstAccessMask) {}
 
@@ -49,12 +49,12 @@ namespace vsg
     struct VSG_DECLSPEC BufferMemoryBarrier : public Inherit<Object, BufferMemoryBarrier>
     {
         explicit BufferMemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
-                            VkAccessFlags in_dstAccessMask = 0,
-                            uint32_t in_srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                            uint32_t in_dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                            ref_ptr<Buffer> in_buffer = {},
-                            VkDeviceSize in_offset = 0,
-                            VkDeviceSize in_size = 0) :
+                                     VkAccessFlags in_dstAccessMask = 0,
+                                     uint32_t in_srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                                     uint32_t in_dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                                     ref_ptr<Buffer> in_buffer = {},
+                                     VkDeviceSize in_offset = 0,
+                                     VkDeviceSize in_size = 0) :
             srcAccessMask(in_srcAccessMask),
             dstAccessMask(in_dstAccessMask),
             srcQueueFamilyIndex(in_srcQueueFamilyIndex),
@@ -81,13 +81,13 @@ namespace vsg
     struct VSG_DECLSPEC ImageMemoryBarrier : public Inherit<Object, ImageMemoryBarrier>
     {
         explicit ImageMemoryBarrier(VkAccessFlags in_srcAccessMask = 0,
-                           VkAccessFlags in_dstAccessMask = 0,
-                           VkImageLayout in_oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                           VkImageLayout in_newLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                           uint32_t in_srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                           uint32_t in_dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                           ref_ptr<Image> in_image = {},
-                           VkImageSubresourceRange in_subresourceRange = {0, 0, 0, 0, 0}) :
+                                    VkAccessFlags in_dstAccessMask = 0,
+                                    VkImageLayout in_oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                                    VkImageLayout in_newLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                                    uint32_t in_srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                                    uint32_t in_dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                                    ref_ptr<Image> in_image = {},
+                                    VkImageSubresourceRange in_subresourceRange = {0, 0, 0, 0, 0}) :
             srcAccessMask(in_srcAccessMask),
             dstAccessMask(in_dstAccessMask),
             oldLayout(in_oldLayout),

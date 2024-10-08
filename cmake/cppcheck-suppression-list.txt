@@ -138,8 +138,9 @@ uninitvar:*/src/vsg/vk/DeviceFeatures.cpp
 // suppress inappropriate warning about out of bounds
 arrayIndexOutOfBounds:*/include/vsg/vk/State.h
 
-// suppress warnings about intentional code usage
+// suppress warnings about intentional code usage or where cppcheck just hasn't got a clue about how templates are used...
 knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
+knownConditionTrueFalse:*/include/vsg/utils/CommandLine.h
 
 // suppress warning about initializtion.
 useInitializationList:*/include/vsg/core/ScratchMemory.h

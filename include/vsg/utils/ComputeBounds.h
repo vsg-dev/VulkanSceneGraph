@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC ComputeBounds : public Inherit<ConstVisitor, ComputeBounds>
     {
     public:
-        ComputeBounds(ref_ptr<ArrayState> intialArrayState = {});
+        explicit ComputeBounds(ref_ptr<ArrayState> intialArrayState = {});
 
         /// Result of compute bounds traversal
         dbox bounds;
