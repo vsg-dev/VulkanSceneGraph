@@ -22,6 +22,15 @@ namespace vsg
     class VSG_DECLSPEC ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:
+        ViewMatrix()
+        {
+        }
+
+        explicit ViewMatrix(const ViewMatrix& vm, const CopyOp& copyop = {}) :
+            Inherit(vm, copyop)
+        {
+        }
+
         virtual dmat4 transform() const = 0;
 
         virtual dmat4 inverse() const
@@ -42,8 +51,8 @@ namespace vsg
         {
         }
 
-        LookAt(const LookAt& lookAt) :
-            Inherit(lookAt),
+        LookAt(const LookAt& lookAt, const CopyOp& copyop = {}) :
+            Inherit(lookAt, copyop),
             eye(lookAt.eye),
             center(lookAt.center),
             up(lookAt.up)
@@ -67,6 +76,8 @@ namespace vsg
             up = lookAt.up;
             return *this;
         }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookAt::create(*this, copyop); }
 
         void transform(const dmat4& matrix)
         {
