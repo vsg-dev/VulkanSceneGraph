@@ -99,7 +99,7 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
     bool singleOutlineColor = true;
     bool singleOutlineWidth = true;
     bool singleCenterAutoScaleDistance = true;
-    for (auto& quad : quads)
+    for (const auto& quad : quads)
     {
         for (int i = 0; i < 4; ++i)
         {

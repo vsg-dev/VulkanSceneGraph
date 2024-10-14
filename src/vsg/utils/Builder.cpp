@@ -91,7 +91,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture("displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    if (auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
+    if (const auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
@@ -247,7 +247,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
             if (auto v3a = info.positions.cast<vec3Array>())
             {
                 box bound;
-                for (auto& v : *v3a)
+                for (const auto& v : *v3a)
                 {
                     bound.add(v);
                 }

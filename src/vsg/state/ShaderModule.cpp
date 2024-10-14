@@ -28,7 +28,7 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(vulkanVersion, rhs.vulkanVersion))) return result;
     if ((result = compare_value(clientInputVersion, rhs.clientInputVersion))) return result;
@@ -108,7 +108,7 @@ int ShaderModule::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(source, rhs.source))) return result;
     if ((result = compare_pointer(hints, rhs.hints))) return result;

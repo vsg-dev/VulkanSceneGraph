@@ -35,35 +35,35 @@ namespace
 
         void apply(const stringValue& text) override
         {
-            for (auto& c : text.value())
+            for (const auto& c : text.value())
             {
                 character(uint8_t(c));
             }
         }
         void apply(const wstringValue& text) override
         {
-            for (auto& c : text.value())
+            for (const auto& c : text.value())
             {
                 character(uint16_t(c));
             }
         }
         void apply(const ubyteArray& text) override
         {
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 character(c);
             }
         }
         void apply(const ushortArray& text) override
         {
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 character(c);
             }
         }
         void apply(const uintArray& text) override
         {
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 character(c);
             }
@@ -398,7 +398,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
             if (layout.horizontalAlignment != BASELINE_ALIGNMENT || layout.verticalAlignment != BASELINE_ALIGNMENT)
             {
-                vec2 alignment(0.0f, 0.0f);
+                vec2 glyphAlignment(0.0f, 0.0f);
 
                 float left = textQuads[start_of_conversion].vertices[0].x;
                 float right = textQuads[start_of_conversion].vertices[1].x;
@@ -406,7 +406,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
                 float top = textQuads[start_of_conversion].vertices[3].y;
                 for (size_t i = start_of_conversion + 1; i < textQuads.size(); ++i)
                 {
-                    auto& quad = textQuads[i];
+                    const auto& quad = textQuads[i];
                     if (quad.vertices[0].x < left) left = quad.vertices[0].x;
                     if (quad.vertices[1].x > right) right = quad.vertices[1].x;
                     if (quad.vertices[0].y < bottom) bottom = quad.vertices[0].y;
@@ -415,21 +415,21 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
 
                 switch (layout.horizontalAlignment)
                 {
-                case (BASELINE_ALIGNMENT): alignment.x = 0.0f; break;
-                case (LEFT_ALIGNMENT): alignment.x = -left; break;
-                case (CENTER_ALIGNMENT): alignment.x = -(right + left) * 0.5f; break;
-                case (RIGHT_ALIGNMENT): alignment.x = -right; break;
+                case (BASELINE_ALIGNMENT): glyphAlignment.x = 0.0f; break;
+                case (LEFT_ALIGNMENT): glyphAlignment.x = -left; break;
+                case (CENTER_ALIGNMENT): glyphAlignment.x = -(right + left) * 0.5f; break;
+                case (RIGHT_ALIGNMENT): glyphAlignment.x = -right; break;
                 }
 
                 switch (layout.verticalAlignment)
                 {
-                case (BASELINE_ALIGNMENT): alignment.y = 0.0f; break;
-                case (TOP_ALIGNMENT): alignment.y = -top; break;
-                case (CENTER_ALIGNMENT): alignment.y = -(bottom + top) * 0.5f; break;
-                case (BOTTOM_ALIGNMENT): alignment.y = -bottom; break;
+                case (BASELINE_ALIGNMENT): glyphAlignment.y = 0.0f; break;
+                case (TOP_ALIGNMENT): glyphAlignment.y = -top; break;
+                case (CENTER_ALIGNMENT): glyphAlignment.y = -(bottom + top) * 0.5f; break;
+                case (BOTTOM_ALIGNMENT): glyphAlignment.y = -bottom; break;
                 }
 
-                offset = layout.horizontal * alignment.x + layout.vertical * alignment.y;
+                offset = layout.horizontal * glyphAlignment.x + layout.vertical * glyphAlignment.y;
             }
 
             if (!layout.billboard)

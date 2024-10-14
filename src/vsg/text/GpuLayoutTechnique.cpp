@@ -111,7 +111,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 assignValue(*(itr++), font.glyphIndexForCharcode(c), updated);
             }
@@ -121,7 +121,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 assignValue(*(itr++), font.glyphIndexForCharcode(c), updated);
             }
@@ -131,7 +131,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 assignValue(*(itr++), font.glyphIndexForCharcode(c), updated);
             }

@@ -47,7 +47,7 @@ int ViewportState::compare(const Object& rhs_object) const
     int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value_container(viewports, rhs.viewports))) return result;
     return compare_value_container(scissors, rhs.scissors);

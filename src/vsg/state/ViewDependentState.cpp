@@ -80,7 +80,7 @@ int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
     int result = DescriptorSetLayout::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer(_viewDescriptorSetLayout, rhs._viewDescriptorSetLayout);
 }
 
@@ -119,7 +119,7 @@ int BindViewDescriptorSets::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(pipelineBindPoint, rhs.pipelineBindPoint))) return result;
     if ((result = compare_pointer(layout, rhs.layout))) return result;
@@ -229,7 +229,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     uint32_t shadowHeight = 2048;
     uint32_t maxShadowMaps = 8;
 
-    auto& viewDetails = requirements.views[view];
+    const auto& viewDetails = requirements.views[view];
 
     if ((view->features & (RECORD_LIGHTS | RECORD_SHADOW_MAPS)) != 0)
     {
@@ -448,7 +448,7 @@ void ViewDependentState::compile(Context& context)
         shadowDepthImage->compile(context);
 
         uint32_t layer = 0;
-        for (auto& shadowMap : shadowMaps)
+        for (const auto& shadowMap : shadowMaps)
         {
             // create depth buffer
             auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -686,7 +686,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
 
-    for (auto& entry : ambientLights)
+    for (const auto& entry : ambientLights)
     {
         auto light = entry.second;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
