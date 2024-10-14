@@ -324,7 +324,7 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
         size_t endpos = str.find_last_not_of(" \t\r\n");
         if (endpos != std::string::npos)
         {
-            str.resize(endpos+1);
+            str.resize(endpos + 1);
         }
     };
 

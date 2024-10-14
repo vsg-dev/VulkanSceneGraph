@@ -165,8 +165,10 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
     if (!child)
     {
         auto error = result.cast<ReadError>();
-        if (error) warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load. Error: ", error->message);
-        else warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load.");
+        if (error)
+            warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load. Error: ", error->message);
+        else
+            warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load.");
     }
 
     return child.valid();
