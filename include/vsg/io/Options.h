@@ -87,6 +87,22 @@ namespace vsg
         /// Coordinate convention to assume for specified lower case file formats extensions
         std::map<Path, CoordinateConvention> formatCoordinateConventions;
 
+        enum ColorSpace
+        {
+            sRGB,
+            linearRGB
+        };
+
+        /// Color space to use for vertex colors for scene graph
+        ColorSpace sceneVertexColorColorSpace = ColorSpace::linearRGB;
+        /// Color space to use for materials for scene graph
+        ColorSpace sceneMaterialColorSpace = ColorSpace::linearRGB;
+
+        /// Color space to assume for vertex colors for specified lower case file formats extensions
+        std::map<Path, ColorSpace> formatVertexColorColorSpaces;
+        /// Color space to assume for materials for specified lower case file formats extensions
+        std::map<Path, ColorSpace> formatMaterialColorSpaces;
+
         /// User defined ShaderSet map, loaders should check the available ShaderSet using the name of the type of ShaderSet.
         /// Standard names are :
         ///     "pbr" will substitute for vsg::createPhysicsBasedRenderingShaderSet()
