@@ -354,7 +354,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     // create the Vulkan objects
     for (const auto& task : recordAndSubmitTasks)
     {
-        auto& deviceResource = deviceResourceMap[task->device];
+        const auto& deviceResource = deviceResourceMap[task->device];
         const auto& resourceRequirements = deviceResource.collectResources.requirements;
 
         bool task_containsPagedLOD = false;

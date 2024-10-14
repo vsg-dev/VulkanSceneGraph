@@ -45,7 +45,7 @@ namespace vsg
     class VSG_DECLSPEC Instance : public Inherit<Object, Instance>
     {
     public:
-        Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion = VK_API_VERSION_1_0, AllocationCallbacks* allocator = nullptr);
+        Instance(const Names& instanceExtensions, const Names& layers, uint32_t vulkanApiVersion = VK_API_VERSION_1_0, AllocationCallbacks* allocator = nullptr);
 
         /// Vulkan apiVersion used when creating the VkInstance
         const uint32_t apiVersion = VK_API_VERSION_1_0;

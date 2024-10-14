@@ -123,7 +123,7 @@ void DescriptorBuffer::compile(Context& context)
     }
 
     bool requiresAssignmentOfBuffers = false;
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         if (bufferInfo->buffer == nullptr) requiresAssignmentOfBuffers = true;
     }

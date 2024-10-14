@@ -193,16 +193,24 @@ shadowFunction:*/src/vsg/io/tile.cpp
 shadowFunction:*/src/vsg/io/FileSystem.cpp
 shadowFunction:*/src/vsg/io/Path.cpp
 shadowFunction:*/src/vsg/app/Trackball.cpp
+shadowFunction:*/src/vsg/app/RecordTraversal.cpp
 shadowFunction:*/src/vsg/commands/PipelineBarrier.cpp
 shadowFunction:*/src/vsg/state/ArrayState.cpp
 shadowFunction:*/src/vsg/state/DescriptorBuffer.cpp
 shadowFunction:*/src/vsg/state/Image.cpp
 shadowFunction:*/src/vsg/state/ImageView.cpp
 shadowFunction:*/src/vsg/state/MultisampleState.cpp
+shadowFunction:*/src/vsg/state/DescriptorImage.cpp
 
 // suppress unhelpful warning of c casts
 cstyleCast:*/include/vsg/io/mem_stream.h
+cstyleCast:*/src/vsg/io/mem_stream.cpp
 
 // suppress unhelpful warnings of override that make inform programmers what is being done
-uselessOverride:include/vsg/utils/TracyInstrumentation.h
+uselessOverride:*/include/vsg/utils/TracyInstrumentation.h
 
+// suppress inappropriate warning
+constParameterReference:*/include/vsg/utils/RecordAndSubmitTask.h
+
+// suppress inappropriate warning
+constVariableReference:*/src/vsg/app/RecordTraversal.cpp

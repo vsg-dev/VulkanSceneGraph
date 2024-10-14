@@ -131,7 +131,7 @@ void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer 
                     // record region
                     pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
 
-                    log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
+                    log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", static_cast<void*>(ptr));
 
                     VkDeviceSize endOfEntry = offset + bufferInfo->range;
                     offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
@@ -365,7 +365,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     for (auto& entry : dataToCopy.dataMap)
     {
         auto& bufferInfos = entry.second;
-        for (auto& offset_bufferInfo : bufferInfos)
+        for (const auto& offset_bufferInfo : bufferInfos)
         {
             const auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;

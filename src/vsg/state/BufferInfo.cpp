@@ -386,7 +386,7 @@ void vsg::assignVulkanArrayData(uint32_t deviceID, const BufferInfoList& arrays,
 
     for (size_t i = 0; i < arrays.size(); ++i)
     {
-        auto& bufferInfo = arrays[i];
+        const auto& bufferInfo = arrays[i];
         if (bufferInfo->buffer)
         {
             vkd.vkBuffers[i] = bufferInfo->buffer->vk(deviceID);
