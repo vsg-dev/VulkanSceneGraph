@@ -216,8 +216,10 @@ cstyleCast:*/src/vsg/io/mem_stream.cpp
 uselessOverride:*/include/vsg/utils/TracyInstrumentation.h
 
 // suppress inappropriate warning
-constParameterReference:*/include/vsg/utils/Device.h
-constParameterReference:*/src/vsg/utils/Device.cpp
+constParameterReference:*/include/vsg/vk/Device.h
+constParameterReference:*/src/vsg/vk/Device.cpp
+constParameterReference:*/include/vsg/vk/Instance.h
+constParameterReference:*/src/vsg/vk/Instance.cpp
 constParameterReference:*/include/vsg/utils/RecordAndSubmitTask.h
 constParameterReference:*/src/vsg/utils/RecordAndSubmitTask.cpp
 
