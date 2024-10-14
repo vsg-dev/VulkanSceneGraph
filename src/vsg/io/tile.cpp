@@ -123,6 +123,8 @@ vsg::ref_ptr<vsg::Object> tile::read(const vsg::Path& filename, vsg::ref_ptr<con
     auto extension = vsg::lowerCaseFileExtension(filename);
     if (extension != ".tile") return {};
 
+    if (!options) return {};
+
     auto tile_info = filename.substr(0, filename.length() - 5);
     if (tile_info == "root")
     {
@@ -176,6 +178,32 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                     group->addChild(plod);
                 }
             }
+        }
+    }
+
+    // error handling.
+    if (group->children.empty())
+    {
+        // check to see if we required a protocol like http
+        const auto& filename = settings->imageLayer;
+        auto pos = filename.find("://");
+        if (pos != vsg::Path::npos)
+        {
+            auto protocol = filename.substr(0, pos);
+
+            Features features;
+            if (vsg::getFeatures(options, features))
+            {
+                if (auto itr = features.protocolFeatureMap.find(protocol); itr != features.protocolFeatureMap.end())
+                {
+                    return ReadError::create("vsg::tile::read_root(..) could not data.");
+                }
+            }
+            return ReadError::create("vsg::tile::read_root(..) no support available for protocol.");
+        }
+        else
+        {
+            return ReadError::create("vsg::tile::read_root(..) unable to load file.");
         }
     }
 

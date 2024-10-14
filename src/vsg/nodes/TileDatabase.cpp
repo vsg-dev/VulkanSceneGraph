@@ -159,7 +159,15 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
     auto local_options = options ? vsg::Options::create(*options) : vsg::Options::create();
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);
 
-    child = vsg::read_cast<vsg::Node>("root.tile", local_options);
+    auto result = vsg::read("root.tile", local_options);
+
+    child = result.cast<vsg::Node>();
+    if (!child)
+    {
+        auto error = result.cast<ReadError>();
+        if (error) warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load. Error: ", error->message);
+        else warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load.");
+    }
 
     return child.valid();
 }
