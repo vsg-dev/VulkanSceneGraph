@@ -104,3 +104,15 @@ bool CompositeReaderWriter::getFeatures(Features& features) const
     }
     return result;
 }
+
+bool vsg::getFeatures(ref_ptr<const Options> options, ReaderWriter::Features& features)
+{
+    if (!options) return false;
+
+    bool result = false;
+    for (auto& rw : options->readerWriters)
+    {
+        if (rw->getFeatures(features)) result = true;
+    }
+    return result;
+}
