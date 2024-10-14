@@ -23,7 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-InstanceExtensions::InstanceExtensions(Instance* instance)
+InstanceExtensions::InstanceExtensions(const Instance* instance)
 {
     // VK_EXT_debug_utils
     instance->getProcAddr(vkSetDebugUtilsObjectNameEXT, "vkSetDebugUtilsObjectNameEXT");

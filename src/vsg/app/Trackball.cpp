@@ -73,7 +73,7 @@ std::pair<int32_t, int32_t> Trackball::cameraRenderAreaCoordinates(const Pointer
         auto itr = windowOffsets.find(pointerEvent.window);
         if (itr != windowOffsets.end())
         {
-            auto& offset = itr->second;
+            const auto& offset = itr->second;
             return {pointerEvent.x + offset.x, pointerEvent.y + offset.y};
         }
     }

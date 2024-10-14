@@ -100,7 +100,7 @@ int CustomDescriptorSetBinding::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(set, rhs.set);
 }
 
@@ -220,7 +220,7 @@ AttributeBinding& ShaderSet::getAttributeBinding(const std::string& name)
 
 const DescriptorBinding& ShaderSet::getDescriptorBinding(const std::string& name) const
 {
-    for (auto& binding : descriptorBindings)
+    for (const auto& binding : descriptorBindings)
     {
         if (binding.name == name) return binding;
     }
@@ -235,7 +235,7 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>
     std::set<std::string> relevant_defines;
     for (auto& define : defines)
     {
-        for (auto& definesArrayState : definesArrayStates)
+        for (const auto& definesArrayState : definesArrayStates)
         {
             if (definesArrayState.defines.count(define) != 0)
             {
@@ -246,7 +246,7 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>
     }
 
     // find the matching ArrayState
-    for (auto& definesArrayState : definesArrayStates)
+    for (const auto& definesArrayState : definesArrayStates)
     {
         if (definesArrayState.defines == relevant_defines)
         {
@@ -293,7 +293,7 @@ int ShaderSet::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_container(attributeBindings, rhs.attributeBindings))) return result;
     if ((result = compare_container(descriptorBindings, rhs.descriptorBindings))) return result;
@@ -428,7 +428,7 @@ void ShaderSet::write(Output& output) const
     }
 
     output.writeValue<uint32_t>("definesArrayStates", definesArrayStates.size());
-    for (auto& das : definesArrayStates)
+    for (const auto& das : definesArrayStates)
     {
         output.writeValues("defines", das.defines);
         output.writeObject("arrayState", das.arrayState);
@@ -447,7 +447,7 @@ void ShaderSet::write(Output& output) const
     if (output.version_greater_equal(1, 0, 8))
     {
         output.writeValue<uint32_t>("customDescriptorSetBindings", customDescriptorSetBindings.size());
-        for (auto& custom : customDescriptorSetBindings)
+        for (const auto& custom : customDescriptorSetBindings)
         {
             output.writeObject("customDescriptorSetBinding", custom);
         }
@@ -493,7 +493,7 @@ std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
     uint32_t minimum = std::numeric_limits<uint32_t>::max();
     uint32_t maximum = std::numeric_limits<uint32_t>::min();
 
-    for (auto& binding : descriptorBindings)
+    for (const auto& binding : descriptorBindings)
     {
         if (binding.set < minimum) minimum = binding.set;
         if (binding.set > maximum) maximum = binding.set;
@@ -549,7 +549,7 @@ ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set
 bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines) const
 {
     uint32_t set = 0;
-    for (auto& descriptorSetLayout : layout.setLayouts)
+    for (const auto& descriptorSetLayout : layout.setLayouts)
     {
         if (descriptorSetLayout && !compatibleDescriptorSetLayout(*descriptorSetLayout, defines, set))
         {

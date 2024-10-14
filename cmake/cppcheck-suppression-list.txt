@@ -57,6 +57,9 @@ useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
 useStlAlgorithm:*/src/vsg//utils/Builder.cpp
 useStlAlgorithm:*/src/vsg/io/Path.cpp
+useStlAlgorithm:*/src/vsg/utils/PolytopeIntersector.cpp
+useStlAlgorithm:*/src/vsg/vk/PhysicalDevice.cpp
+
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*/include/vsg/core/Inherit.h
@@ -202,7 +205,8 @@ shadowFunction:*/src/vsg/state/ImageView.cpp
 shadowFunction:*/src/vsg/state/MultisampleState.cpp
 shadowFunction:*/src/vsg/state/DescriptorImage.cpp
 shadowFunction:*/src/vsg/utils/FindDynamicObjects.cpp
-
+shadowFunction:*/src/vsg/utils/LoadPagedLOD.cpp
+shadowFunction:*/src/vsg/utils/PropagateDynamicObjects.cpp
 
 // suppress unhelpful warning of c casts
 cstyleCast:*/include/vsg/io/mem_stream.h
@@ -213,6 +217,10 @@ uselessOverride:*/include/vsg/utils/TracyInstrumentation.h
 
 // suppress inappropriate warning
 constParameterReference:*/include/vsg/utils/RecordAndSubmitTask.h
+constParameterReference:*/src/vsg/utils/RecordAndSubmitTask.cpp
 
 // suppress inappropriate warning
 constVariableReference:*/src/vsg/app/RecordTraversal.cpp
+
+// suppress inappropriate warning
+constVariablePointer:src/vsg/app/SecondaryCommandGraph.cpp

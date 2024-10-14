@@ -23,7 +23,7 @@ using namespace vsg;
 inline VkSampleCountFlagBits computeMaxSamples(const RenderPass::Attachments& attachments)
 {
     VkSampleCountFlagBits maxSamples = VK_SAMPLE_COUNT_1_BIT;
-    for (auto& attachment : attachments)
+    for (const auto& attachment : attachments)
     {
         if (attachment.samples > maxSamples) maxSamples = attachment.samples;
     }
