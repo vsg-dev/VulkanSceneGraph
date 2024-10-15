@@ -69,12 +69,15 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 
     for (auto& bufferInfo : bufferInfoList)
     {
-        if (bufferInfo->buffer)
+        if (bufferInfo->buffer && bufferInfo->data)
         {
             DataToCopy& dataToCopy = (bufferInfo->data->properties.dataVariance >= DYNAMIC_DATA_TRANSFER_AFTER_RECORD) ? _lateDataToCopy : _earlyDataToCopy;
             dataToCopy.dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
         }
-        //else throw "Problem";
+        else
+        {
+            warn("TransferTask::assign(const BufferInfoList& bufferInfoList) bufferInfo incomplete, buffer = ", bufferInfo->buffer, ", data = ", bufferInfo->data);
+        }
     }
 }
 
