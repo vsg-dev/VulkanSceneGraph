@@ -76,7 +76,7 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
         }
         else
         {
-            warn("TransferTask::assign(const BufferInfoList& bufferInfoList) bufferInfo incomplete, buffer = ", bufferInfo->buffer, ", data = ", bufferInfo->data);
+            debug("TransferTask::assign(const BufferInfoList& bufferInfoList) bufferInfo ignored as incomplete, buffer = ", bufferInfo->buffer, ", data = ", bufferInfo->data);
         }
     }
 }
