@@ -220,11 +220,11 @@ constParameterReference:*/include/vsg/vk/Device.h
 constParameterReference:*/src/vsg/vk/Device.cpp
 constParameterReference:*/include/vsg/vk/Instance.h
 constParameterReference:*/src/vsg/vk/Instance.cpp
-constParameterReference:*/include/vsg/utils/RecordAndSubmitTask.h
-constParameterReference:*/src/vsg/utils/RecordAndSubmitTask.cpp
+constParameterReference:*/include/vsg/app/RecordAndSubmitTask.h
+constParameterReference:*/src/vsg/app/RecordAndSubmitTask.cpp
 
 // suppress inappropriate warning
 constVariableReference:*/src/vsg/app/RecordTraversal.cpp
 
 // suppress inappropriate warning
-constVariablePointer:src/vsg/app/SecondaryCommandGraph.cpp
+constVariablePointer:*/src/vsg/app/SecondaryCommandGraph.cpp

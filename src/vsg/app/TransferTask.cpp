@@ -352,7 +352,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     offset = 0;
     dataToCopy.dataTotalRegions = 0;
-    for (auto& entry : dataToCopy.dataMap)
+    for (const auto& entry : dataToCopy.dataMap)
     {
         const auto& bufferInfos = entry.second;
         for (const auto& offset_bufferInfo : bufferInfos)
