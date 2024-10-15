@@ -69,16 +69,6 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 
     for (auto& bufferInfo : bufferInfoList)
     {
-        std::string str;
-        if (bufferInfo->data->getValue("name", str))
-        {
-            log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "} name = ", str);
-        }
-        else
-        {
-            log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
-        }
-
         if (bufferInfo->buffer)
         {
             DataToCopy& dataToCopy = (bufferInfo->data->properties.dataVariance >= DYNAMIC_DATA_TRANSFER_AFTER_RECORD) ? _lateDataToCopy : _earlyDataToCopy;
