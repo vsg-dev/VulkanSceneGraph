@@ -288,7 +288,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
         void apply(const ubyteArray& text) override
         {
             reserve(text.size());
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 character(c);
             }
@@ -296,7 +296,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
         void apply(const ushortArray& text) override
         {
             reserve(text.size());
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 character(c);
             }
@@ -304,7 +304,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
         void apply(const uintArray& text) override
         {
             reserve(text.size());
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 character(c);
             }

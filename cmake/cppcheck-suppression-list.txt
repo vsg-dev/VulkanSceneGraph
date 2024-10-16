@@ -225,6 +225,11 @@ constParameterReference:*/src/vsg/app/RecordAndSubmitTask.cpp
 
 // suppress inappropriate warning
 constVariableReference:*/src/vsg/app/RecordTraversal.cpp
+constVariableReference:*/src/vsg/utils/ShaderSet.cpp
 
 // suppress inappropriate warning
 constVariablePointer:*/src/vsg/app/SecondaryCommandGraph.cpp
+
+// suppress inappropriate warning
+passedByValue:*/src/vsg/vk/Device.cpp
+passedByValue:*/src/vsg/vk/Instance.cpp
