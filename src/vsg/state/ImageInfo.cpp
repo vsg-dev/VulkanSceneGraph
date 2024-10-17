@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+
 FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
 {
     FormatTraits traits;
@@ -87,6 +88,40 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         case 1: traits.assign4<int64_t>(default_one ? std::numeric_limits<int64_t>::max() : 0); break;
         case 2: traits.assign4<double>(default_one ? 1.0 : 0.0); break;
         }
+    }
+    else if (format == VK_FORMAT_D16_UNORM)
+    {
+        traits.numBitsPerComponent = 16;
+        traits.numComponents = 1;
+        traits.size = 2;
+    }
+    else if (format == VK_FORMAT_D32_SFLOAT)
+    {
+        traits.numBitsPerComponent = 32;
+        traits.numComponents = 1;
+        traits.size = 4;
+    }
+    else if (format == VK_FORMAT_D16_UNORM_S8_UINT)
+    {
+        traits.numBitsPerComponent = 24;
+        traits.numComponents = 1;
+        traits.size = 3;
+    }
+    else if (format == VK_FORMAT_D24_UNORM_S8_UINT)
+    {
+        traits.numBitsPerComponent = 32;
+        traits.numComponents = 1;
+        traits.size = 4;
+    }
+    else if (format == VK_FORMAT_D32_SFLOAT_S8_UINT)
+    {
+        traits.numBitsPerComponent = 40;
+        traits.numComponents = 1;
+        traits.size = 5;
+    }
+    else
+    {
+        info("getFormatTraits(", format, ") unhandled.");
     }
 
     return traits;
