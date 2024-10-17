@@ -342,11 +342,10 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         VkFormat targetFormat = imageInfo->imageView->format;
         auto targetTraits = getFormatTraits(targetFormat);
-        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+        VkDeviceSize imageSize =  (targetTraits.size > 0) ? targetTraits.size * data->valueCount() : data->dataSize();
+        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageSize = ", imageSize, " targetTraits.size = ", targetTraits.size, ", ", data->valueCount(), ", targetFormat = ", targetFormat);
 
-        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
-
-        VkDeviceSize endOfEntry = offset + imageTotalSize;
+        VkDeviceSize endOfEntry = offset + imageSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
     dataToCopy.imageTotalSize = offset;
@@ -369,13 +368,14 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     dataToCopy.dataTotalSize = offset;
     log(level, "    dataToCopy.dataTotalSize = ", dataToCopy.dataTotalSize);
 
-    offset = 0;
     //
     // end of compute size
     //
 
     VkDeviceSize totalSize = dataToCopy.dataTotalSize + dataToCopy.imageTotalSize;
     if (totalSize == 0) return TransferResult{VK_SUCCESS, {}};
+
+    log(level, "    totalSize = ", totalSize);
 
     uint32_t deviceID = device->deviceID;
     auto& frame = *(dataToCopy.frames[dataToCopy.frameIndex]);
@@ -461,12 +461,13 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
+    offset = 0;
     {
         COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "transferData", COLOR_GPU)
 
         // transfer the modified BufferInfo and ImageInfo
-        _transferBufferInfos(dataToCopy, vk_commandBuffer, frame, offset);
         _transferImageInfos(dataToCopy, vk_commandBuffer, frame, offset);
+        _transferBufferInfos(dataToCopy, vk_commandBuffer, frame, offset);
     }
 
     vkEndCommandBuffer(vk_commandBuffer);
