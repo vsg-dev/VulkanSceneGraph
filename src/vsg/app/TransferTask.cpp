@@ -342,7 +342,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         VkFormat targetFormat = imageInfo->imageView->format;
         auto targetTraits = getFormatTraits(targetFormat);
-        VkDeviceSize imageSize =  (targetTraits.size > 0) ? targetTraits.size * data->valueCount() : data->dataSize();
+        VkDeviceSize imageSize = (targetTraits.size > 0) ? targetTraits.size * data->valueCount() : data->dataSize();
         log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageSize = ", imageSize, " targetTraits.size = ", targetTraits.size, ", ", data->valueCount(), ", targetFormat = ", targetFormat);
 
         VkDeviceSize endOfEntry = offset + imageSize;

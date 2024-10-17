@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-
 FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
 {
     FormatTraits traits;
