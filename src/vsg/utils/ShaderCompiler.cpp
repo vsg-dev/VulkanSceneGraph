@@ -317,8 +317,6 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
         }
     };
 
-    info("ShaderCompiler::combineSourceAndDefines");
-
     // trim trailing spaces/tabs/newlines
     auto trimTrailing = [](std::string& str) {
         size_t endpos = str.find_last_not_of(" \t\r\n");
