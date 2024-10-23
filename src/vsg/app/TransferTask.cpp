@@ -233,11 +233,15 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
+    auto& data = imageInfo.imageView->image->data;
+
+    VkDeviceSize image_alignment = std::max(static_cast<VkDeviceSize>(data->stride()), static_cast<VkDeviceSize>(4));
+    offset = ((offset % image_alignment) == 0) ? offset : ((offset / image_alignment) + 1) * image_alignment;
+
     auto& imageStagingBuffer = frame.staging;
     auto& buffer_data = frame.buffer_data;
     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
 
-    auto& data = imageInfo.imageView->image->data;
     auto properties = data->properties;
     auto width = data->width();
     auto height = data->height();
@@ -339,6 +343,10 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     for (const auto& imageInfo : dataToCopy.imageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
+
+        // adjust offset to make sure it fits with the stride();
+        VkDeviceSize image_alignment = std::max(static_cast<VkDeviceSize>(data->stride()), alignment);
+        offset = ((offset % image_alignment) == 0) ? offset : ((offset / image_alignment) + 1) * image_alignment;
 
         VkFormat targetFormat = imageInfo->imageView->format;
         auto targetTraits = getFormatTraits(targetFormat);
