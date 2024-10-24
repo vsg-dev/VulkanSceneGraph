@@ -51,6 +51,7 @@ namespace vsg
                 value_type s, t, p, q;
             };
             t_vec3<T> xyz;
+            t_vec3<T> rgb;
         };
 
         constexpr t_vec4() :
