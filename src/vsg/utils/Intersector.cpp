@@ -208,8 +208,6 @@ void Intersector::apply(const uintArray& array)
 
 void Intersector::apply(const TextTechnique& technique)
 {
-    // TODO: Implement TextLayout support
-
     if (auto cpuTechnique = technique.cast<CpuLayoutTechnique>())
         cpuTechnique->scenegraph->accept(*this);
     if (auto gpuTechnique = technique.cast<GpuLayoutTechnique>())
