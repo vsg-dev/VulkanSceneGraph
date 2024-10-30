@@ -249,6 +249,7 @@ set(SOURCES
     utils/ShaderSet.cpp
     utils/GraphicsPipelineConfigurator.cpp
     utils/ShaderCompiler.cpp
+    utils/ColorSpaceConvertor.cpp
     utils/ComputeBounds.cpp
     utils/Intersector.cpp
     utils/Instrumentation.cpp

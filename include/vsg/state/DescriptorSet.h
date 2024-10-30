@@ -69,6 +69,9 @@ namespace vsg
         public:
             Implementation(DescriptorPool* descriptorPool, DescriptorSetLayout* descriptorSetLayout);
 
+            Implementation(const Implementation&) = delete;
+            Implementation& operator=(const Implementation&) = delete;
+
             void assign(Context& context, const Descriptors& descriptors);
 
             VkDescriptorSet _descriptorSet;

@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/maths/transform.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/utils/ColorSpaceConvertor.h>
 #include <vsg/utils/Instrumentation.h>
 
 namespace vsg
@@ -87,21 +88,10 @@ namespace vsg
         /// Coordinate convention to assume for specified lower case file formats extensions
         std::map<Path, CoordinateConvention> formatCoordinateConventions;
 
-        enum ColorSpace
-        {
-            sRGB,
-            linearRGB
-        };
-
-        /// Color space to use for vertex colors for scene graph
-        ColorSpace sceneVertexColorColorSpace = ColorSpace::linearRGB;
-        /// Color space to use for materials for scene graph
-        ColorSpace sceneMaterialColorSpace = ColorSpace::linearRGB;
-
-        /// Color space to assume for vertex colors for specified lower case file formats extensions
-        std::map<Path, ColorSpace> formatVertexColorColorSpaces;
-        /// Color space to assume for materials for specified lower case file formats extensions
-        std::map<Path, ColorSpace> formatMaterialColorSpaces;
+        /// Convertors for colors for specified lower case file formats extensions
+        /// Leave blank to use the default conversion, which will assume the scenegraph should use linear RGB and files use whichever color space is most typical
+        std::map<Path, vsg::ref_ptr<ColorSpaceConvertor>> formatLoadColorSpaceConvertors;
+        std::map<Path, vsg::ref_ptr<ColorSpaceConvertor>> formatSaveColorSpaceConvertors;
 
         /// User defined ShaderSet map, loaders should check the available ShaderSet using the name of the type of ShaderSet.
         /// Standard names are :
