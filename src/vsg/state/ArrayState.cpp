@@ -491,7 +491,6 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     dvec3 position(gv.value.xyz);
     double autoDistanceScale = gv.value.w;
 
-
     dmat4 billboard_to_local;
     if (!localToWorldStack.empty() && !worldToLocalStack.empty())
     {

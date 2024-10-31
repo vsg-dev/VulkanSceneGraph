@@ -37,7 +37,7 @@ using namespace vsg;
 class VSG_DECLSPEC CpuLayoutTechniqueArrayState : public Inherit<ArrayState, CpuLayoutTechniqueArrayState>
 {
 public:
-    CpuLayoutTechniqueArrayState(const CpuLayoutTechnique& in_technique) :
+    CpuLayoutTechniqueArrayState(const CpuLayoutTechnique* in_technique) :
         technique(in_technique)
     {
     }
@@ -48,6 +48,11 @@ public:
     {
     }
 
+    CpuLayoutTechniqueArrayState(const ArrayState& rhs) :
+        Inherit(rhs)
+    {
+    }
+
     ref_ptr<ArrayState> cloneArrayState() override
     {
         return CpuLayoutTechniqueArrayState::create(*this);
@@ -55,9 +60,8 @@ public:
 
     ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override
     {
-        auto clone = CpuLayoutTechniqueArrayState::create(*this);
-        clone->localToWorldStack = arrayState->localToWorldStack;
-        clone->worldToLocalStack = arrayState->worldToLocalStack;
+        auto clone = CpuLayoutTechniqueArrayState::create(*arrayState);
+        clone->technique = technique;
         return clone;
     }
 
@@ -70,17 +74,19 @@ public:
         {
             const auto& sv = *(src_vertex_itr++);
 
+            // single value vs per vertex value
             dvec4 centerAndAutoScaleDistance;
-            if (technique.centerAndAutoScaleDistances->size() == 1)
-                centerAndAutoScaleDistance = technique.centerAndAutoScaleDistances->at(0);
+            if (technique->centerAndAutoScaleDistances->size() == 1)
+                centerAndAutoScaleDistance = technique->centerAndAutoScaleDistances->at(0);
             else
-                centerAndAutoScaleDistance = technique.centerAndAutoScaleDistances->at(v_index++);
+                centerAndAutoScaleDistance = technique->centerAndAutoScaleDistances->at(v_index++);
 
+            // billboard effect
             dmat4 billboard_to_local;
             if (!localToWorldStack.empty() && !worldToLocalStack.empty())
             {
-                const auto& mv = localToWorldStack.back();
-                const auto& inverse_mv = worldToLocalStack.back();
+                const dmat4& mv = localToWorldStack.back();
+                const dmat4& inverse_mv = worldToLocalStack.back();
                 dvec3 center_eye = mv * centerAndAutoScaleDistance.xyz;
                 dmat4 billboard_mv = computeBillboardMatrix(center_eye, centerAndAutoScaleDistance.w);
                 billboard_to_local = inverse_mv * billboard_mv;
@@ -96,9 +102,7 @@ public:
         return new_vertices;
     }
 
-    using ArrayState::apply;
-
-    const CpuLayoutTechnique& technique;
+    const CpuLayoutTechnique* technique = nullptr;
 };
 
 void CpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<const Options> options)
@@ -357,12 +361,11 @@ ref_ptr<Node> CpuLayoutTechnique::createRenderingSubgraph(ref_ptr<ShaderSet> sha
         drawCommands->addChild(bindVertexBuffers);
         drawCommands->addChild(bindIndexBuffer);
         drawCommands->addChild(drawIndexed);
-
-        // Assign ArrayState for CPU mapping of billboarding
-        if (billboard)
-            stategroup->prototypeArrayState = CpuLayoutTechniqueArrayState::create(*this);
-
         stategroup->addChild(drawCommands);
+
+        // Assign ArrayState for CPU mapping of vertices for billboarding
+        if (billboard)
+            stategroup->prototypeArrayState = CpuLayoutTechniqueArrayState::create(this);
     }
     else
     {
