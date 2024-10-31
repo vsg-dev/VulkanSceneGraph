@@ -236,6 +236,10 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     }
 
     _polytopeStack.push_back(worldspace);
+
+    dmat4 eyeToWorld = inverse(viewMatrix);
+    localToWorldStack().push_back(viewMatrix);
+    worldToLocalStack().push_back(eyeToWorld);
 }
 
 PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const std::vector<uint32_t>& in_indices, uint32_t in_instanceIndex) :
