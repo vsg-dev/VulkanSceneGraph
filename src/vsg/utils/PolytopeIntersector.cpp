@@ -309,7 +309,7 @@ bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCou
     auto& arrayState = *arrayStateStack.back();
 
     vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimitives(*this, arrayState, _polytopeStack.back());
-    if (ushort_indices) printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
+    printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
 
     return intersections.size() != previous_size;
 }
