@@ -176,6 +176,25 @@ namespace vsg
                vsg::translate(-eye.x, -eye.y, -eye.z);
     }
 
+    template<typename T>
+    constexpr t_mat4<T> computeBillboardMatrix(const t_vec3<T>& centerEye, T autoscaleDistance)
+    {
+        auto distance = -centerEye.z;
+
+        auto scale = (distance < autoscaleDistance) ? distance / autoscaleDistance : 1.0;
+        t_mat4<T> mS(scale, 0.0, 0.0, 0.0,
+                     0.0, scale, 0.0, 0.0,
+                     0.0, 0.0, scale, 0.0,
+                     0.0, 0.0, 0.0, 1.0);
+
+        t_mat4<T> mT(1.0, 0.0, 0.0, 0.0,
+                     0.0, 1.0, 0.0, 0.0,
+                     0.0, 0.0, 1.0, 0.0,
+                     centerEye.x, centerEye.y, centerEye.z, 1.0);
+
+        return mT * mS;
+    }
+
     /// Hint on axis, using Collada conventions, all Right Hand
     enum class CoordinateConvention
     {

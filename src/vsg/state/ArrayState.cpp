@@ -496,22 +496,8 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     {
         const auto& mv = localToWorldStack.back();
         const auto& inverse_mv = worldToLocalStack.back();
-
         auto center_eye = mv * position;
-        double distance = -center_eye.z;
-
-        double scale = (distance < autoDistanceScale) ? distance / autoDistanceScale : 1.0;
-        dmat4 S(scale, 0.0, 0.0, 0.0,
-                0.0, scale, 0.0, 0.0,
-                0.0, 0.0, scale, 0.0,
-                0.0, 0.0, 0.0, 1.0);
-
-        dmat4 T(1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                center_eye.x, center_eye.y, center_eye.z, 1.0);
-
-        dmat4 billboard_mv = T * S;
+        auto billboard_mv = computeBillboardMatrix(center_eye, autoDistanceScale);
         billboard_to_local = inverse_mv * billboard_mv;
     }
     else

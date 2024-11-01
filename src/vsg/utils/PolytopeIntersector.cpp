@@ -236,6 +236,10 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     }
 
     _polytopeStack.push_back(worldspace);
+
+    dmat4 eyeToWorld = inverse(viewMatrix);
+    localToWorldStack().push_back(viewMatrix);
+    worldToLocalStack().push_back(eyeToWorld);
 }
 
 PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const std::vector<uint32_t>& in_indices, uint32_t in_instanceIndex) :
@@ -305,7 +309,7 @@ bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCou
     auto& arrayState = *arrayStateStack.back();
 
     vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimitives(*this, arrayState, _polytopeStack.back());
-    if (ushort_indices) printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
+    printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
 
     return intersections.size() != previous_size;
 }

@@ -53,6 +53,8 @@ namespace vsg
         void apply(const ushortArray& array) override;
         void apply(const uintArray& array) override;
 
+        void apply(const TextTechnique& technique) override;
+
         //
         // provide virtual functions for concrete Intersector implementations to provide handling of intersection with mesh geometries
         //
