@@ -43,12 +43,12 @@ public:
     {
     }
 
-    explict CpuLayoutTechniqueArrayState(const CpuLayoutTechnique* in_technique) :
+    explicit CpuLayoutTechniqueArrayState(const CpuLayoutTechnique* in_technique) :
         technique(in_technique)
     {
     }
 
-    explict CpuLayoutTechniqueArrayState(const ArrayState& rhs) :
+    explicit CpuLayoutTechniqueArrayState(const ArrayState& rhs) :
         Inherit(rhs)
     {
     }
