@@ -37,18 +37,18 @@ using namespace vsg;
 class VSG_DECLSPEC CpuLayoutTechniqueArrayState : public Inherit<ArrayState, CpuLayoutTechniqueArrayState>
 {
 public:
-    CpuLayoutTechniqueArrayState(const CpuLayoutTechnique* in_technique) :
-        technique(in_technique)
-    {
-    }
-
     CpuLayoutTechniqueArrayState(const CpuLayoutTechniqueArrayState& rhs) :
         Inherit(rhs),
         technique(rhs.technique)
     {
     }
 
-    CpuLayoutTechniqueArrayState(const ArrayState& rhs) :
+    explict CpuLayoutTechniqueArrayState(const CpuLayoutTechnique* in_technique) :
+        technique(in_technique)
+    {
+    }
+
+    explict CpuLayoutTechniqueArrayState(const ArrayState& rhs) :
         Inherit(rhs)
     {
     }

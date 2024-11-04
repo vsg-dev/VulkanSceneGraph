@@ -189,6 +189,7 @@ duplInheritedMember:*/src/vsg/core/Data.cpp
 duplInheritedMember:*/src/vsg/nodes/Node.cpp
 
 // suppress unhelpful warning of shadowFunction
+shadowFunction:*/include/vsg/maths/transform.h
 shadowFunction:*/src/io/Path.cpp
 shadowFunction:*/src/vsg/animation/CameraAnimation.cpp
 shadowFunction:*/src/vsg/animation/TransformSampler.cpp
