@@ -65,7 +65,7 @@ public:
         return clone;
     }
 
-    ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override
+    ref_ptr<const vec3Array> vertexArray(uint32_t /*instanceIndex*/) override
     {
         auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
         auto src_vertex_itr = vertices->begin();
