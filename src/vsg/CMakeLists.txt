@@ -34,6 +34,7 @@ set(SOURCES
     nodes/PagedLOD.cpp
     nodes/AbsoluteTransform.cpp
     nodes/MatrixTransform.cpp
+    nodes/CoordinateFrame.cpp
     nodes/Transform.cpp
     nodes/VertexDraw.cpp
     nodes/VertexIndexDraw.cpp

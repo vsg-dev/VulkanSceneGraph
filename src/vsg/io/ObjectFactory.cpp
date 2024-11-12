@@ -176,6 +176,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::PagedLOD>();
     add<vsg::AbsoluteTransform>();
     add<vsg::MatrixTransform>();
+    add<vsg::CoordinateFrame>();
     add<vsg::Geometry>();
     add<vsg::VertexDraw>();
     add<vsg::VertexIndexDraw>();

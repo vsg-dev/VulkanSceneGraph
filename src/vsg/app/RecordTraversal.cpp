@@ -35,6 +35,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/RegionOfInterest.h>
@@ -429,6 +430,28 @@ void RecordTraversal::apply(const MatrixTransform& mt)
     else
     {
         mt.traverse(*this);
+    }
+
+    _state->modelviewMatrixStack.pop();
+    _state->dirty = true;
+}
+
+void RecordTraversal::apply(const CoordinateFrame& cf)
+{
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CoordinateFrame", COLOR_RECORD_L2, &cf);
+
+    _state->modelviewMatrixStack.push(cf);
+    _state->dirty = true;
+
+    if (cf.subgraphRequiresLocalFrustum)
+    {
+        _state->pushFrustum();
+        cf.traverse(*this);
+        _state->popFrustum();
+    }
+    else
+    {
+        cf.traverse(*this);
     }
 
     _state->modelviewMatrixStack.pop();

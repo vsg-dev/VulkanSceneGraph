@@ -36,6 +36,7 @@ namespace vsg
     class Layer;
     class Transform;
     class MatrixTransform;
+    class CoordinateFrame;
     class Joint;
     class TileDatabase;
     class VertexDraw;
@@ -135,6 +136,7 @@ namespace vsg
         // transform nodes
         void apply(const Transform& transform);
         void apply(const MatrixTransform& mt);
+        void apply(const CoordinateFrame& cf);
 
         // Animation nodes
         void apply(const Joint& joint);
