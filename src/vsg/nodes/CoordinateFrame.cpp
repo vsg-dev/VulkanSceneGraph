@@ -23,6 +23,7 @@ CoordinateFrame::CoordinateFrame()
 
 CoordinateFrame::CoordinateFrame(const CoordinateFrame& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
+    name(rhs.name),
     origin(rhs.origin)
 {
 }
@@ -33,12 +34,14 @@ int CoordinateFrame::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_value(name, rhs.name)) != 0) return result;
     return compare_value(origin, rhs.origin);
 }
 
 void CoordinateFrame::read(Input& input)
 {
     Node::read(input);
+    input.read("name", name);
     input.read("origin", origin);
     input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
     input.readObjects("children", children);
@@ -47,6 +50,7 @@ void CoordinateFrame::read(Input& input)
 void CoordinateFrame::write(Output& output) const
 {
     Node::write(output);
+    output.write("name", name);
     output.write("origin", origin);
     output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
     output.writeObjects("children", children);

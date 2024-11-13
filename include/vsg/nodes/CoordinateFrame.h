@@ -25,6 +25,7 @@ namespace vsg
         CoordinateFrame();
         CoordinateFrame(const CoordinateFrame& rhs, const CopyOp& copyop = {});
 
+        std::string name;
         ucoord::vec_type origin;
 
         dmat4 transform(const dmat4& mv) const override;
