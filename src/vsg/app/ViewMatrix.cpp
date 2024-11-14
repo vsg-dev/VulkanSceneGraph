@@ -34,12 +34,36 @@ void LookAt::write(Output& output) const
     output.write("up", up);
 }
 
-dmat4 TrackingViewMatrix::transform() const
+void LookAt::transform(const dmat4& matrix)
 {
-    return matrix * vsg::inverse(computeTransform(objectPath));
+    up = normalize(matrix * (eye + up) - matrix * eye);
+    center = matrix * center;
+    eye = matrix * eye;
 }
 
-dmat4 TrackingViewMatrix::inverse() const
+void LookAt::set(const dmat4& matrix)
 {
-    return computeTransform(objectPath) * vsg::inverse(matrix);
+    up = normalize(matrix * (dvec3(0.0, 0.0, 0.0) + dvec3(0.0, 1.0, 0.0)) - matrix * dvec3(0.0, 0.0, 0.0));
+    center = matrix * dvec3(0.0, 0.0, -1.0);
+    eye = matrix * dvec3(0.0, 0.0, 0.0);
+}
+
+dmat4 LookAt::transform(const vsg::dvec3& offset) const
+{
+    return lookAt(eye, center, up) * vsg::translate(offset-origin);
+}
+
+dmat4 RelativeViewMatrix::transform(const vsg::dvec3& offset) const
+{
+    return matrix * viewMatrix->transform(offset);
+}
+
+dmat4 TrackingViewMatrix::transform(const vsg::dvec3& offset) const
+{
+    return matrix * vsg::translate(offset-origin) * vsg::inverse(computeTransform(objectPath));
+}
+
+dmat4 TrackingViewMatrix::inverse(const vsg::dvec3& offset) const
+{
+    return computeTransform(objectPath) * vsg::translate(origin - offset) * vsg::inverse(matrix);
 }

@@ -31,11 +31,16 @@ namespace vsg
         {
         }
 
-        virtual dmat4 transform() const = 0;
+        /// origin value provides a means of translating the view matrix relative to the origin of any CoordinateFrame subgraphs
+        /// to maximize the precision when moving around the CoordinateFrame subgraph.  This is helpful for astronmically large
+        /// scenes where standrd double precision is insufficient for avoiding visually significant numerical errors.
+        dvec3 origin;
 
-        virtual dmat4 inverse() const
+        virtual dmat4 transform(const vsg::dvec3& offset={}) const = 0;
+
+        virtual dmat4 inverse(const vsg::dvec3& offset={}) const
         {
-            return vsg::inverse(transform());
+            return vsg::inverse(transform(offset));
         }
     };
     VSG_type_name(vsg::ViewMatrix);
@@ -79,21 +84,11 @@ namespace vsg
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookAt::create(*this, copyop); }
 
-        void transform(const dmat4& matrix)
-        {
-            up = normalize(matrix * (eye + up) - matrix * eye);
-            center = matrix * center;
-            eye = matrix * eye;
-        }
+        void transform(const dmat4& matrix);
 
-        void set(const dmat4& matrix)
-        {
-            up = normalize(matrix * (dvec3(0.0, 0.0, 0.0) + dvec3(0.0, 1.0, 0.0)) - matrix * dvec3(0.0, 0.0, 0.0));
-            center = matrix * dvec3(0.0, 0.0, -1.0);
-            eye = matrix * dvec3(0.0, 0.0, 0.0);
-        }
+        void set(const dmat4& matrix);
 
-        dmat4 transform() const override { return lookAt(eye, center, up); }
+        dmat4 transform(const vsg::dvec3& offset={}) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -115,10 +110,7 @@ namespace vsg
         }
 
         /// returns matrix * viewMatrix->transform()
-        dmat4 transform() const override
-        {
-            return matrix * viewMatrix->transform();
-        }
+        dmat4 transform(const vsg::dvec3& offset={}) const override;
 
         dmat4 matrix;
         ref_ptr<ViewMatrix> viewMatrix;
@@ -141,8 +133,8 @@ namespace vsg
             objectPath(path.begin(), path.end()) {}
 
         /// returns matrix * computeTransfrom(objectPath)
-        dmat4 transform() const override;
-        dmat4 inverse() const override;
+        dmat4 transform(const vsg::dvec3& offset={}) const override;
+        dmat4 inverse(const vsg::dvec3& offset={}) const override;
 
         dmat4 matrix;
         RefObjectPath objectPath;

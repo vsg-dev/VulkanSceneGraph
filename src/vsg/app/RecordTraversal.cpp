@@ -440,7 +440,11 @@ void RecordTraversal::apply(const CoordinateFrame& cf)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CoordinateFrame", COLOR_RECORD_L2, &cf);
 
-    _state->modelviewMatrixStack.push(cf);
+    View* parentView = _viewDependentState ? _viewDependentState->view : nullptr;
+    Camera* camera = parentView ? parentView->camera : nullptr;
+    ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
+
+    _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin));
     _state->dirty = true;
 
     if (cf.subgraphRequiresLocalFrustum)
