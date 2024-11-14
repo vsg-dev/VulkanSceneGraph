@@ -269,7 +269,7 @@ set(LIBRARIES PUBLIC
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})
-    list(APPEND LIBRARIES PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+    list(INSERT LIBRARIES 0 PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
 endif()
 
 # Check for std::atomic
