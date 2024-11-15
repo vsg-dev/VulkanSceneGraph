@@ -393,6 +393,14 @@ namespace vsg
     VSG_array3D(dvec3Array3D, dvec3);
     VSG_array3D(dvec4Array3D, dvec4);
 
+    VSG_array3D(svec2Array3D, svec2);
+    VSG_array3D(svec3Array3D, svec3);
+    VSG_array3D(svec4Array3D, svec4);
+	
+    VSG_array3D(usvec2Array3D, usvec2);
+    VSG_array3D(usvec3Array3D, usvec3);
+    VSG_array3D(usvec4Array3D, usvec4);
+	
     VSG_array3D(ubvec2Array3D, ubvec2);
     VSG_array3D(ubvec3Array3D, ubvec3);
     VSG_array3D(ubvec4Array3D, ubvec4);
