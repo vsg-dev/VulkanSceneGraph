@@ -88,7 +88,7 @@ namespace vsg
 
         void set(const dmat4& matrix);
 
-        dmat4 transform(const vsg::dvec3& offset={}) const override;
+        dmat4 transform(const dvec3& offset={}) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -99,8 +99,38 @@ namespace vsg
     };
     VSG_type_name(vsg::LookAt);
 
+    /// LookDirection is a ViewMatrix that uses a position and rotation to set the view matrix.
+    class VSG_DECLSPEC LookDirection : public vsg::Inherit<ViewMatrix, LookDirection>
+    {
+    public:
+
+        LookDirection() :
+            position(0.0, 0.0, 0.0),
+            rotation()
+        {
+        }
+
+        LookDirection(const LookDirection& view, const CopyOp& copyop = {}) :
+            Inherit(view, copyop),
+            position(view.position),
+            rotation(view.rotation)
+        {
+        }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookDirection::create(*this, copyop); }
+
+        dvec3 position;
+        dquat rotation;
+
+        void set(const dmat4& matrix);
+
+        dmat4 transform(const dvec3& offset={}) const override;
+    };
+    VSG_type_name(vsg::LookDirection);
+
+
     /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and pre-multiplies its transform matrix to give a relative view matrix.
-    class RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
+    class VSG_DECLSPEC RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
     {
     public:
         RelativeViewMatrix(const dmat4& m, ref_ptr<ViewMatrix> vm) :

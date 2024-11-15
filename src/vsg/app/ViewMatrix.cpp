@@ -48,23 +48,34 @@ void LookAt::set(const dmat4& matrix)
     eye = matrix * dvec3(0.0, 0.0, 0.0);
 }
 
-dmat4 LookAt::transform(const vsg::dvec3& offset) const
+dmat4 LookAt::transform(const dvec3& offset) const
 {
     dvec3 delta = origin - offset;
-    return lookAt(eye + delta, center + delta, up);
+    return vsg::lookAt(eye + delta, center + delta, up);
 }
 
-dmat4 RelativeViewMatrix::transform(const vsg::dvec3& offset) const
+void LookDirection::set(const dmat4& matrix)
+{
+    dvec3 scale;
+    vsg::decompose(matrix, position, rotation, scale);
+}
+
+dmat4 LookDirection::transform(const dvec3& offset) const
+{
+    return vsg::rotate(-rotation) * vsg::translate(offset-origin-position);
+}
+
+dmat4 RelativeViewMatrix::transform(const dvec3& offset) const
 {
     return matrix * viewMatrix->transform(offset);
 }
 
-dmat4 TrackingViewMatrix::transform(const vsg::dvec3& offset) const
+dmat4 TrackingViewMatrix::transform(const dvec3& offset) const
 {
     return matrix * vsg::translate(offset-origin) * vsg::inverse(computeTransform(objectPath));
 }
 
-dmat4 TrackingViewMatrix::inverse(const vsg::dvec3& offset) const
+dmat4 TrackingViewMatrix::inverse(const dvec3& offset) const
 {
-    return computeTransform(objectPath) * vsg::translate(origin - offset) * vsg::inverse(matrix);
+    return vsg::computeTransform(objectPath) * vsg::translate(origin - offset) * vsg::inverse(matrix);
 }
