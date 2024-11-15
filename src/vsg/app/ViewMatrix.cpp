@@ -50,7 +50,8 @@ void LookAt::set(const dmat4& matrix)
 
 dmat4 LookAt::transform(const vsg::dvec3& offset) const
 {
-    return lookAt(eye, center, up) * vsg::translate(offset-origin);
+    dvec3 delta = origin - offset;
+    return lookAt(eye + delta, center + delta, up);
 }
 
 dmat4 RelativeViewMatrix::transform(const vsg::dvec3& offset) const
