@@ -444,7 +444,15 @@ void RecordTraversal::apply(const CoordinateFrame& cf)
     Camera* camera = parentView ? parentView->camera : nullptr;
     ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
 
-    _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin));
+    if (viewMatrix)
+    {
+        _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin));
+    }
+    else
+    {
+        _state->modelviewMatrixStack.push(cf);
+    }
+
     _state->dirty = true;
 
     if (cf.subgraphRequiresLocalFrustum)
