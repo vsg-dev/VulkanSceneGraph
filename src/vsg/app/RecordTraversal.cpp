@@ -440,9 +440,9 @@ void RecordTraversal::apply(const CoordinateFrame& cf)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CoordinateFrame", COLOR_RECORD_L2, &cf);
 
-    View* parentView = _viewDependentState ? _viewDependentState->view : nullptr;
-    Camera* camera = parentView ? parentView->camera : nullptr;
-    ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
+    const View* parentView = _viewDependentState ? _viewDependentState->view : nullptr;
+    const Camera* camera = parentView ? parentView->camera : nullptr;
+    const ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
 
     if (viewMatrix)
     {
