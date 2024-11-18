@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/nodes/Transform.h>
-#include <vsg/maths/ucoord.h>
 
 namespace vsg
 {
@@ -26,7 +25,7 @@ namespace vsg
         CoordinateFrame(const CoordinateFrame& rhs, const CopyOp& copyop = {});
 
         std::string name;
-        ucoord::vec_type origin;
+        dvec3 origin;
 
         dmat4 transform(const dmat4& mv) const override;
 
