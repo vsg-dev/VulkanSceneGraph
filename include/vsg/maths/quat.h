@@ -147,9 +147,11 @@ namespace vsg
 
     using quat = t_quat<float>;   /// float quaternion
     using dquat = t_quat<double>; /// double quaternion
+    using ldquat = t_quat<long double>; /// long double quaternion
 
     VSG_type_name(vsg::quat);
     VSG_type_name(vsg::dquat);
+    VSG_type_name(vsg::ldquat);
 
     template<typename T>
     constexpr bool operator==(const t_quat<T>& lhs, const t_quat<T>& rhs)

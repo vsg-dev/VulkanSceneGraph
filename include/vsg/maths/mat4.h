@@ -121,9 +121,11 @@ namespace vsg
 
     using mat4 = t_mat4<float>;   /// float 4x4 matrix
     using dmat4 = t_mat4<double>; /// double 4x4 matrix
+    using ldmat4 = t_mat4<long double>; /// long double 4x4 matrix
 
     VSG_type_name(vsg::mat4);
     VSG_type_name(vsg::dmat4);
+    VSG_type_name(vsg::ldmat4);
 
     template<typename T>
     bool operator==(const t_mat4<T>& lhs, const t_mat4<T>& rhs)

@@ -138,6 +138,7 @@ namespace vsg
 
     using vec2 = t_vec2<float>;      // float 2D vector
     using dvec2 = t_vec2<double>;    // double 2D vector
+    using ldvec2 = t_vec2<long double>;    // long double 2D vector
     using bvec2 = t_vec2<int8_t>;    // signed 8 bit integer 2D vector
     using svec2 = t_vec2<int16_t>;   //  signed 16 bit integer 2D vector
     using ivec2 = t_vec2<int32_t>;   //  signed 32 bit integer 2D vector

@@ -110,6 +110,7 @@ namespace vsg
 
     using plane = t_plane<float>;
     using dplane = t_plane<double>;
+    using ldplane = t_plane<long double>;
 
     VSG_type_name(vsg::plane);
     VSG_type_name(vsg::dplane);

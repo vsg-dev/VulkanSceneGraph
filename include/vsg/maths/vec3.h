@@ -146,6 +146,7 @@ namespace vsg
 
     using vec3 = t_vec3<float>;      // float 3D vector
     using dvec3 = t_vec3<double>;    // double 3D vector
+    using ldvec3 = t_vec3<long double>;    // long double 3D vector
     using bvec3 = t_vec3<int8_t>;    // signed 8 bit integer 3D vector
     using svec3 = t_vec3<int16_t>;   //  signed 16 bit integer 3D vector
     using ivec3 = t_vec3<int32_t>;   //  signed 32 bit integer 3D vector
@@ -155,6 +156,7 @@ namespace vsg
 
     VSG_type_name(vsg::vec3);
     VSG_type_name(vsg::dvec3);
+    VSG_type_name(vsg::ldvec3);
     VSG_type_name(vsg::bvec3);
     VSG_type_name(vsg::svec3);
     VSG_type_name(vsg::ivec3);

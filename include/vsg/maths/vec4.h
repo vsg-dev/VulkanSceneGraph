@@ -176,6 +176,7 @@ namespace vsg
 
     using vec4 = t_vec4<float>;      // float 4D vector
     using dvec4 = t_vec4<double>;    // double 4D vector
+    using ldvec4 = t_vec4<long double>;    // long double 4D vector
     using bvec4 = t_vec4<int8_t>;    // signed 8 bit integer 4D vector
     using svec4 = t_vec4<int16_t>;   //  signed 16 bit integer 4D vector
     using ivec4 = t_vec4<int32_t>;   //  signed 32 bit integer 4D vector
@@ -185,6 +186,7 @@ namespace vsg
 
     VSG_type_name(vsg::vec4);
     VSG_type_name(vsg::dvec4);
+    VSG_type_name(vsg::ldvec4);
     VSG_type_name(vsg::bvec4);
     VSG_type_name(vsg::svec4);
     VSG_type_name(vsg::ivec4);

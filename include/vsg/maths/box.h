@@ -90,9 +90,11 @@ namespace vsg
 
     using box = t_box<float>;   /// float box class
     using dbox = t_box<double>; /// double box class
+    using ldbox = t_box<long double>; /// double box class
 
     VSG_type_name(vsg::box);
     VSG_type_name(vsg::dbox);
+    VSG_type_name(vsg::ldbox);
 
     template<typename T>
     constexpr bool operator==(const t_box<T>& lhs, const t_box<T>& rhs)
