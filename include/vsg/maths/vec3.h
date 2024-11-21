@@ -52,7 +52,7 @@ namespace vsg
         };
 
         constexpr t_vec3() :
-            value{} {}
+            value{0, 0, 0} {}
         constexpr t_vec3(const t_vec3& v) :
             value{v.x, v.y, v.z} {}
         constexpr t_vec3& operator=(const t_vec3&) = default;

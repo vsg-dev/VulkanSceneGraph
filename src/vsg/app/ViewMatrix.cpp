@@ -62,7 +62,7 @@ void LookDirection::set(const dmat4& matrix)
 
 dmat4 LookDirection::transform(const ldvec3& offset) const
 {
-    return vsg::rotate(-rotation) * vsg::translate(dvec3(origin - offset) - position);
+    return vsg::rotate(-rotation) * vsg::translate(dvec3(offset - origin) - position);
 }
 
 dmat4 RelativeViewMatrix::transform(const ldvec3& offset) const
@@ -72,10 +72,10 @@ dmat4 RelativeViewMatrix::transform(const ldvec3& offset) const
 
 dmat4 TrackingViewMatrix::transform(const ldvec3& offset) const
 {
-    return matrix * vsg::translate(dvec3(origin - offset)) * vsg::inverse(computeTransform(objectPath));
+    return matrix * vsg::translate(dvec3(offset - origin)) * vsg::inverse(computeTransform(objectPath));
 }
 
 dmat4 TrackingViewMatrix::inverse(const ldvec3& offset) const
 {
-    return vsg::computeTransform(objectPath) * vsg::translate(dvec3(origin - offset)) * vsg::inverse(matrix);
+    return vsg::computeTransform(objectPath) * vsg::translate(dvec3(offset - origin)) * vsg::inverse(matrix);
 }
