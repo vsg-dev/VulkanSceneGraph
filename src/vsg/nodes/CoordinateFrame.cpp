@@ -58,5 +58,5 @@ void CoordinateFrame::write(Output& output) const
 
 dmat4 CoordinateFrame::transform(const dmat4& mv) const
 {
-    return mv * translate(origin);
+    return mv * translate(dvec3(origin));
 }

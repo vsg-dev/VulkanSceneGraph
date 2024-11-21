@@ -55,6 +55,7 @@ namespace vsg
         void read(size_t num, uint64_t* value) override { _read(num, value); }
         void read(size_t num, float* value) override { _read(num, value); }
         void read(size_t num, double* value) override { _read(num, value); }
+        void read(size_t num, long double* value) override { _read(num, value); }
 
         // read in an individual string
         void _read(std::string& value);

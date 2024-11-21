@@ -25,7 +25,7 @@ namespace vsg
         CoordinateFrame(const CoordinateFrame& rhs, const CopyOp& copyop = {});
 
         std::string name;
-        dvec3 origin;
+        ldvec3 origin;
 
         dmat4 transform(const dmat4& mv) const override;
 
