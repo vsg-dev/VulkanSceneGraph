@@ -120,8 +120,8 @@ namespace vsg
         }
     };
 
-    using sphere = t_sphere<float>;   /// float sphere class
-    using dsphere = t_sphere<double>; /// double sphere class
+    using sphere = t_sphere<float>;         /// float sphere class
+    using dsphere = t_sphere<double>;       /// double sphere class
     using ldsphere = t_sphere<long double>; /// long double sphere class
 
     VSG_type_name(vsg::sphere);

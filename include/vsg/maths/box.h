@@ -88,8 +88,8 @@ namespace vsg
         }
     };
 
-    using box = t_box<float>;   /// float box class
-    using dbox = t_box<double>; /// double box class
+    using box = t_box<float>;         /// float box class
+    using dbox = t_box<double>;       /// double box class
     using ldbox = t_box<long double>; /// double box class
 
     VSG_type_name(vsg::box);

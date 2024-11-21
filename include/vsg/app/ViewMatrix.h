@@ -36,9 +36,9 @@ namespace vsg
         /// scenes where standrd double precision is insufficient for avoiding visually significant numerical errors.
         dvec3 origin;
 
-        virtual dmat4 transform(const vsg::dvec3& offset={}) const = 0;
+        virtual dmat4 transform(const vsg::dvec3& offset = {}) const = 0;
 
-        virtual dmat4 inverse(const vsg::dvec3& offset={}) const
+        virtual dmat4 inverse(const vsg::dvec3& offset = {}) const
         {
             return vsg::inverse(transform(offset));
         }
@@ -88,7 +88,7 @@ namespace vsg
 
         void set(const dmat4& matrix);
 
-        dmat4 transform(const dvec3& offset={}) const override;
+        dmat4 transform(const dvec3& offset = {}) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -103,7 +103,6 @@ namespace vsg
     class VSG_DECLSPEC LookDirection : public vsg::Inherit<ViewMatrix, LookDirection>
     {
     public:
-
         LookDirection() :
             position(0.0, 0.0, 0.0),
             rotation()
@@ -124,10 +123,9 @@ namespace vsg
 
         void set(const dmat4& matrix);
 
-        dmat4 transform(const dvec3& offset={}) const override;
+        dmat4 transform(const dvec3& offset = {}) const override;
     };
     VSG_type_name(vsg::LookDirection);
-
 
     /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and pre-multiplies its transform matrix to give a relative view matrix.
     class VSG_DECLSPEC RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
@@ -140,7 +138,7 @@ namespace vsg
         }
 
         /// returns matrix * viewMatrix->transform()
-        dmat4 transform(const vsg::dvec3& offset={}) const override;
+        dmat4 transform(const vsg::dvec3& offset = {}) const override;
 
         dmat4 matrix;
         ref_ptr<ViewMatrix> viewMatrix;
@@ -163,8 +161,8 @@ namespace vsg
             objectPath(path.begin(), path.end()) {}
 
         /// returns matrix * computeTransfrom(objectPath)
-        dmat4 transform(const vsg::dvec3& offset={}) const override;
-        dmat4 inverse(const vsg::dvec3& offset={}) const override;
+        dmat4 transform(const vsg::dvec3& offset = {}) const override;
+        dmat4 inverse(const vsg::dvec3& offset = {}) const override;
 
         dmat4 matrix;
         RefObjectPath objectPath;

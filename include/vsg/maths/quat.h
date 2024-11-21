@@ -145,8 +145,8 @@ namespace vsg
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };
 
-    using quat = t_quat<float>;   /// float quaternion
-    using dquat = t_quat<double>; /// double quaternion
+    using quat = t_quat<float>;         /// float quaternion
+    using dquat = t_quat<double>;       /// double quaternion
     using ldquat = t_quat<long double>; /// long double quaternion
 
     VSG_type_name(vsg::quat);

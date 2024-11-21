@@ -119,8 +119,8 @@ namespace vsg
         const T* data() const { return value[0].data(); }
     };
 
-    using mat4 = t_mat4<float>;   /// float 4x4 matrix
-    using dmat4 = t_mat4<double>; /// double 4x4 matrix
+    using mat4 = t_mat4<float>;         /// float 4x4 matrix
+    using dmat4 = t_mat4<double>;       /// double 4x4 matrix
     using ldmat4 = t_mat4<long double>; /// long double 4x4 matrix
 
     VSG_type_name(vsg::mat4);
