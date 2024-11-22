@@ -16,6 +16,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+void ViewMatrix::read(Input& input)
+{
+    Object::read(input);
+
+    input.read("origin", origin);
+}
+
+void ViewMatrix::write(Output& output) const
+{
+    Object::write(output);
+
+    output.write("origin", origin);
+}
+
 void LookAt::read(Input& input)
 {
     ViewMatrix::read(input);
@@ -48,7 +62,7 @@ void LookAt::set(const dmat4& matrix)
     eye = matrix * dvec3(0.0, 0.0, 0.0);
 }
 
-dmat4 LookAt::transform(const ldvec3& offset) const
+dmat4 LookAt::transform(const dvec3& offset) const
 {
     dvec3 delta = dvec3(origin - offset);
     return vsg::lookAt(eye + delta, center + delta, up);
@@ -60,22 +74,22 @@ void LookDirection::set(const dmat4& matrix)
     vsg::decompose(matrix, position, rotation, scale);
 }
 
-dmat4 LookDirection::transform(const ldvec3& offset) const
+dmat4 LookDirection::transform(const dvec3& offset) const
 {
     return vsg::rotate(-rotation) * vsg::translate(dvec3(offset - origin) - position);
 }
 
-dmat4 RelativeViewMatrix::transform(const ldvec3& offset) const
+dmat4 RelativeViewMatrix::transform(const dvec3& offset) const
 {
     return matrix * viewMatrix->transform(offset);
 }
 
-dmat4 TrackingViewMatrix::transform(const ldvec3& offset) const
+dmat4 TrackingViewMatrix::transform(const dvec3& offset) const
 {
     return matrix * vsg::translate(dvec3(offset - origin)) * vsg::inverse(computeTransform(objectPath));
 }
 
-dmat4 TrackingViewMatrix::inverse(const ldvec3& offset) const
+dmat4 TrackingViewMatrix::inverse(const dvec3& offset) const
 {
     return vsg::computeTransform(objectPath) * vsg::translate(dvec3(offset - origin)) * vsg::inverse(matrix);
 }
