@@ -26,6 +26,7 @@ namespace vsg
 
         std::string name;
         dvec3 origin;
+        dquat rotation;
 
         dmat4 transform(const dmat4& mv) const override;
 

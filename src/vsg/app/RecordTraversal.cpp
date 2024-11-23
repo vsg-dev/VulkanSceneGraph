@@ -446,7 +446,7 @@ void RecordTraversal::apply(const CoordinateFrame& cf)
 
     if (viewMatrix)
     {
-        _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin));
+        _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin) * vsg::rotate(cf.rotation));
     }
     else
     {
