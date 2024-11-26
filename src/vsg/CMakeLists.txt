@@ -22,6 +22,7 @@ set(SOURCES
     core/Visitor.cpp
     core/Version.cpp
 
+    maths/common.cpp
     maths/maths_transform.cpp
 
     nodes/Group.cpp

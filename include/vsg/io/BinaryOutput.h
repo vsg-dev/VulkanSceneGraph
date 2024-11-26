@@ -50,7 +50,7 @@ namespace vsg
         void write(size_t num, const uint64_t* value) override { _write(num, value); }
         void write(size_t num, const float* value) override { _write(num, value); }
         void write(size_t num, const double* value) override { _write(num, value); }
-        void write(size_t num, const long double* value) override { _write(num, value); }
+        void write(size_t num, const long double* value) override;
 
         void _write(const std::string& str);
         void _write(const std::wstring& str);

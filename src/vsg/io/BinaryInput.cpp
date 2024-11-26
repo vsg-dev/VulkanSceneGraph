@@ -88,6 +88,31 @@ void BinaryInput::read(size_t num, Path* value)
     }
 }
 
+void BinaryInput::read(size_t num, long double* value)
+{
+    uint32_t native_type = native_long_double_bits();
+
+    uint32_t read_type;
+    _read(1, &read_type);
+
+    if (read_type == native_type)
+    {
+        info("reading native long double without conversion.");
+        _read(num, value);
+    }
+    else
+    {
+        info("reading long double requiring conversion from ", read_type, " to ", native_type);
+
+        // 64 to 80
+        // 64 to 128
+        // 80 to 64
+        // 80 to 128
+        // 128 to 64
+        // 128 to 64
+    }
+}
+
 vsg::ref_ptr<vsg::Object> BinaryInput::read()
 {
     ObjectID id = objectID();
