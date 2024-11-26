@@ -25,7 +25,8 @@ CoordinateFrame::CoordinateFrame(const CoordinateFrame& rhs, const CopyOp& copyo
     Inherit(rhs, copyop),
     name(rhs.name),
     origin(rhs.origin),
-    rotation(rhs.rotation)
+    rotation(rhs.rotation),
+    temp_ldvec3(rhs.temp_ldvec3)
 {
 }
 
@@ -37,6 +38,7 @@ int CoordinateFrame::compare(const Object& rhs_object) const
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(origin, rhs.origin)) != 0) return result;
+    if ((result = compare_value(temp_ldvec3, rhs.temp_ldvec3)) != 0) return result;
     return compare_value(rotation, rhs.rotation);
 }
 
@@ -46,6 +48,7 @@ void CoordinateFrame::read(Input& input)
     input.read("name", name);
     input.read("origin", origin);
     input.read("rotation", rotation);
+    input.read("temp_ldvec3" , temp_ldvec3);
     input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
     input.readObjects("children", children);
 }
@@ -56,6 +59,7 @@ void CoordinateFrame::write(Output& output) const
     output.write("name", name);
     output.write("origin", origin);
     output.write("rotation", rotation);
+    output.write("temp_ldvec3" , temp_ldvec3);
     output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
     output.writeObjects("children", children);
 }
