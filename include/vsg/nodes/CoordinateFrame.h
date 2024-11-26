@@ -28,6 +28,8 @@ namespace vsg
         dvec3 origin;
         dquat rotation;
 
+        ldvec3 temp_ldvec3;
+
         dmat4 transform(const dmat4& mv) const override;
 
     public:
