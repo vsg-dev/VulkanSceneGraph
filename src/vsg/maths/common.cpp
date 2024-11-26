@@ -13,14 +13,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/common.h>
 
+#include <float.h>
+
 uint32_t vsg::native_long_double_bits()
 {
-#if defined(_MSC_VER)
-    return 64;
-#elif defined(__GNUC__) || defined(__clang__)
-    if (typeid(long double)==typeid(__float80)) return 80;
-    if (typeid(long double)==typeid(__float128)) return 128;
-    if (typeid(long double)==typeid(double)) return 64;
-#endif
-    return (sizeof(long double)==8) ? 64 : 128;
+    if (LDBL_MANT_DIG == DBL_MANT_DIG) return 64;
+    return LDBL_MANT_DIG <= 64 ? 80 : 128;
 }
