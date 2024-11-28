@@ -127,7 +127,7 @@ void BinaryInput::read(size_t num, long double* value)
             std::vector<double> data(num);
             _read(num, data.data());
 
-            for (auto& v : data)
+            for (const auto& v : data)
             {
                 *(value++) = v;
             }
@@ -141,7 +141,7 @@ void BinaryInput::read(size_t num, long double* value)
             if (native_type == 64)
             {
                 double_64* dest = reinterpret_cast<double_64*>(value);
-                for (auto& v : data)
+                for (const auto& v : data)
                 {
                     auto& d = *(dest++);
                     d.sign = v.sign;
@@ -152,7 +152,7 @@ void BinaryInput::read(size_t num, long double* value)
             else if (native_type == 80)
             {
                 double_128* dest = reinterpret_cast<double_128*>(value);
-                for (auto& v : data)
+                for (const auto& v : data)
                 {
                     auto& d = *(dest++);
                     d.sign = v.sign;
@@ -165,7 +165,7 @@ void BinaryInput::read(size_t num, long double* value)
             else if (native_type == 128)
             {
                 double_128* dest = reinterpret_cast<double_128*>(value);
-                for (auto& v : data)
+                for (const auto& v : data)
                 {
                     auto& d = *(dest++);
                     d.sign = v.sign;
