@@ -88,7 +88,6 @@ void BinaryInput::read(size_t num, Path* value)
     }
 }
 
-
 struct double_64
 {
     uint8_t sign : 1;
@@ -106,7 +105,6 @@ struct double_128
         uint8_t mantissa[14];
     };
 };
-
 
 void BinaryInput::read(size_t num, long double* value)
 {
@@ -129,7 +127,7 @@ void BinaryInput::read(size_t num, long double* value)
             std::vector<double> data(num);
             _read(num, data.data());
 
-            for(auto& v : data)
+            for (auto& v : data)
             {
                 *(value++) = v;
             }
@@ -143,7 +141,7 @@ void BinaryInput::read(size_t num, long double* value)
             if (native_type == 64)
             {
                 double_64* dest = reinterpret_cast<double_64*>(value);
-                for(auto& v : data)
+                for (auto& v : data)
                 {
                     auto& d = *(dest++);
                     d.sign = v.sign;
@@ -154,29 +152,29 @@ void BinaryInput::read(size_t num, long double* value)
             else if (native_type == 80)
             {
                 double_128* dest = reinterpret_cast<double_128*>(value);
-                for(auto& v : data)
+                for (auto& v : data)
                 {
                     auto& d = *(dest++);
                     d.sign = v.sign;
                     d.exponent = v.exponent;
 
                     // copy fraction and fill in zeros at end
-                    for(int i=0; i<8; ++i) d.mantissa[i] = v.mantissa[i];
+                    for (int i = 0; i < 8; ++i) d.mantissa[i] = v.mantissa[i];
                 }
             }
             else if (native_type == 128)
             {
                 double_128* dest = reinterpret_cast<double_128*>(value);
-                for(auto& v : data)
+                for (auto& v : data)
                 {
                     auto& d = *(dest++);
                     d.sign = v.sign;
                     d.exponent = v.exponent;
 
                     // copy fraction and fill in zeros at end
-                    int i=0;
-                    for(; i<8; ++i) d.mantissa[i] = v.mantissa[i];
-                    for(; i<14; ++i) d.mantissa[i] = 0;
+                    int i = 0;
+                    for (; i < 8; ++i) d.mantissa[i] = v.mantissa[i];
+                    for (; i < 14; ++i) d.mantissa[i] = 0;
                 }
             }
         }

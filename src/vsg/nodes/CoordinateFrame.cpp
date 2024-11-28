@@ -48,7 +48,7 @@ void CoordinateFrame::read(Input& input)
     input.read("name", name);
     input.read("origin", origin);
     input.read("rotation", rotation);
-    input.read("temp_ldvec3" , temp_ldvec3);
+    input.read("temp_ldvec3", temp_ldvec3);
     input.read("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
     input.readObjects("children", children);
 }
@@ -59,7 +59,7 @@ void CoordinateFrame::write(Output& output) const
     output.write("name", name);
     output.write("origin", origin);
     output.write("rotation", rotation);
-    output.write("temp_ldvec3" , temp_ldvec3);
+    output.write("temp_ldvec3", temp_ldvec3);
     output.write("subgraphRequiresLocalFrustum", subgraphRequiresLocalFrustum);
     output.writeObjects("children", children);
 }
