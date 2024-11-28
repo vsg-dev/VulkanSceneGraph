@@ -88,6 +88,26 @@ void BinaryInput::read(size_t num, Path* value)
     }
 }
 
+
+struct double_64
+{
+    unsigned int sign : 1;
+    unsigned int exponent : 11;
+    unsigned long mantissa : 52;
+};
+
+struct double_128
+{
+    unsigned int sign : 1;
+    unsigned int exponent : 15;
+    union
+    {
+        unsigned long mantissa_64 : 52;
+        uint8_t mantissa[14];
+    };
+};
+
+
 void BinaryInput::read(size_t num, long double* value)
 {
     uint32_t native_type = native_long_double_bits();
@@ -102,14 +122,70 @@ void BinaryInput::read(size_t num, long double* value)
     }
     else
     {
-        info("reading long double requiring conversion from ", read_type, " to ", native_type);
 
-        // 64 to 80
-        // 64 to 128
-        // 80 to 64
-        // 80 to 128
-        // 128 to 64
-        // 128 to 64
+        if (read_type == 64)
+        {
+            info("reading long double as double then converting conversion from ", read_type, " to ", native_type);
+
+            // 64 to 80
+            // 64 to 128
+
+            std::vector<double> data(num);
+            _read(num, data.data());
+
+            for(auto& v : data)
+            {
+                *(value++) = v;
+            }
+        }
+        else // (read_type == 80) || read_type ==128
+        {
+            info("reading long double as 80bit then converting conversion from ", read_type, " to ", native_type);
+
+            std::vector<double_128> data(num);
+
+            _input.read(reinterpret_cast<char*>(data.data()), num * sizeof(double_128));
+
+            if (native_type == 64)
+            {
+                double_64* dest = reinterpret_cast<double_64*>(value);
+                for(auto& v : data)
+                {
+                    auto& d = *(dest++);
+                    d.sign = v.sign;
+                    d.exponent = v.exponent;
+                    d.mantissa = v.mantissa_64;
+                }
+            }
+            else if (native_type == 80)
+            {
+                double_128* dest = reinterpret_cast<double_128*>(value);
+                for(auto& v : data)
+                {
+                    auto& d = *(dest++);
+                    d.sign = v.sign;
+                    d.exponent = v.exponent;
+
+                    // copy fraction and fill in zeros at end
+                    for(int i=0; i<8; ++i) d.mantissa[i] = v.mantissa[i];
+                }
+            }
+            else if (native_type == 128)
+            {
+                double_128* dest = reinterpret_cast<double_128*>(value);
+                for(auto& v : data)
+                {
+                    auto& d = *(dest++);
+                    d.sign = v.sign;
+                    d.exponent = v.exponent;
+
+                    // copy fraction and fill in zeros at end
+                    int i=0;
+                    for(; i<8; ++i) d.mantissa[i] = v.mantissa[i];
+                    for(; i<14; ++i) d.mantissa[i] = 0;
+                }
+            }
+        }
     }
 }
 
