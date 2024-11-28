@@ -122,14 +122,10 @@ void BinaryInput::read(size_t num, long double* value)
     }
     else
     {
-
         if (read_type == 64)
         {
-            info("reading long double as double then converting conversion from ", read_type, " to ", native_type);
-
             // 64 to 80
             // 64 to 128
-
             std::vector<double> data(num);
             _read(num, data.data());
 
@@ -140,8 +136,6 @@ void BinaryInput::read(size_t num, long double* value)
         }
         else // (read_type == 80) || read_type ==128
         {
-            info("reading long double as 80bit then converting conversion from ", read_type, " to ", native_type);
-
             std::vector<double_128> data(num);
 
             _input.read(reinterpret_cast<char*>(data.data()), num * sizeof(double_128));
