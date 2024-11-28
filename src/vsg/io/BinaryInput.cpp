@@ -91,18 +91,18 @@ void BinaryInput::read(size_t num, Path* value)
 
 struct double_64
 {
-    unsigned int sign : 1;
-    unsigned int exponent : 11;
-    unsigned long mantissa : 52;
+    uint8_t sign : 1;
+    uint16_t exponent : 11;
+    uint64_t mantissa : 52;
 };
 
 struct double_128
 {
-    unsigned int sign : 1;
-    unsigned int exponent : 15;
+    uint8_t sign : 1;
+    uint16_t exponent : 15;
     union
     {
-        unsigned long mantissa_64 : 52;
+        uint64_t mantissa_64 : 52;
         uint8_t mantissa[14];
     };
 };
