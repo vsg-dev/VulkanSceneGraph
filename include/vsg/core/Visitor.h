@@ -34,8 +34,9 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
-    class MatrixTransform;
     class Transform;
+    class MatrixTransform;
+    class CoordinateFrame;
     class Geometry;
     class VertexDraw;
     class VertexIndexDraw;
@@ -323,8 +324,9 @@ namespace vsg
         virtual void apply(StateGroup&);
         virtual void apply(CullGroup&);
         virtual void apply(CullNode&);
-        virtual void apply(MatrixTransform&);
         virtual void apply(Transform&);
+        virtual void apply(MatrixTransform&);
+        virtual void apply(CoordinateFrame&);
         virtual void apply(Geometry&);
         virtual void apply(VertexDraw&);
         virtual void apply(VertexIndexDraw&);

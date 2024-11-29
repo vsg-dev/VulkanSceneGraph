@@ -22,6 +22,7 @@ set(SOURCES
     core/Visitor.cpp
     core/Version.cpp
 
+    maths/common.cpp
     maths/maths_transform.cpp
 
     nodes/Group.cpp
@@ -34,6 +35,7 @@ set(SOURCES
     nodes/PagedLOD.cpp
     nodes/AbsoluteTransform.cpp
     nodes/MatrixTransform.cpp
+    nodes/CoordinateFrame.cpp
     nodes/Transform.cpp
     nodes/VertexDraw.cpp
     nodes/VertexIndexDraw.cpp

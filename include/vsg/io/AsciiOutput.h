@@ -136,6 +136,11 @@ namespace vsg
             _output.precision(double_precision);
             _write_real(num, value);
         }
+        void write(size_t num, const long double* value) override
+        {
+            _output.precision(long_double_precision);
+            _write_real(num, value);
+        }
 
         void _write(const std::string& str)
         {
@@ -161,6 +166,7 @@ namespace vsg
 
         int float_precision = 6;
         int double_precision = 12;
+        int long_double_precision = 24;
 
     protected:
         std::ostream& _output;

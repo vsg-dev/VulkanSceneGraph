@@ -573,6 +573,10 @@ void Visitor::apply(MatrixTransform& value)
 {
     apply(static_cast<Transform&>(value));
 }
+void Visitor::apply(CoordinateFrame& value)
+{
+    apply(static_cast<Transform&>(value));
+}
 void Visitor::apply(Geometry& value)
 {
     apply(static_cast<Command&>(value));

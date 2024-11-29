@@ -208,6 +208,7 @@ shadowFunction:*/src/vsg/state/DescriptorImage.cpp
 shadowFunction:*/src/vsg/utils/FindDynamicObjects.cpp
 shadowFunction:*/src/vsg/utils/LoadPagedLOD.cpp
 shadowFunction:*/src/vsg/utils/PropagateDynamicObjects.cpp
+shadowFunction:*/src/vsg/app/ViewMatrix.cpp
 
 // suppress unhelpful warning of c casts
 cstyleCast:*/include/vsg/io/mem_stream.h

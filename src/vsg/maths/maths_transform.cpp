@@ -297,6 +297,11 @@ bool vsg::decompose(const dmat4& m, dvec3& translation, dquat& rotation, dvec3& 
     return t_decompose<double>(m, translation, rotation, scale);
 }
 
+bool vsg::decompose(const ldmat4& m, ldvec3& translation, ldquat& rotation, ldvec3& scale)
+{
+    return t_decompose<long double>(m, translation, rotation, scale);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // computeFrustumBound
