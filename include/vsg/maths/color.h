@@ -97,28 +97,78 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr T linear_to_sRGB_component(T c)
+    {
+        constexpr T cutoff = static_cast<T>(0.04045 / 12.92);
+        constexpr T linearFactor = static_cast<T>(12.92);
+        constexpr T nonlinearFactor = static_cast<T>(1.055);
+        constexpr T exponent = static_cast<T>(1.0 / 2.4);
+        if (c <= cutoff)
+            return c * linearFactor;
+        else
+            return std::pow(c, exponent) * nonlinearFactor - static_cast<T>(0.055);
+    }
+
+    template<typename T>
+    constexpr T sRGB_to_linear_component(T c)
+    {
+        constexpr T cutoff = static_cast<T>(0.04045);
+        constexpr T linearFactor = static_cast<T>(1.0 / 12.92);
+        constexpr T nonlinearFactor = static_cast<T>(1.0 / 1.055);
+        constexpr T exponent = static_cast<T>(2.4);
+        if (c <= cutoff)
+            return c * linearFactor;
+        else
+            return std::pow((c + static_cast<T>(0.055)) * nonlinearFactor, exponent);
+    }
+
+    template<typename T>
     constexpr t_vec4<T> linear_to_sRGB(const t_vec4<T>& src)
+    {
+        return t_vec4<T>(linear_to_sRGB_component(src.r), linear_to_sRGB_component(src.g), linear_to_sRGB_component(src.b), src.a);
+    }
+
+    template<typename T>
+    constexpr t_vec4<T> linear_to_sRGB(T r, T g, T b, T a)
+    {
+        return t_vec4<T>(linear_to_sRGB_component(r), linear_to_sRGB_component(g), linear_to_sRGB_component(b), a);
+    }
+
+    template<typename T>
+    constexpr t_vec4<T> sRGB_to_linear(const t_vec4<T>& src)
+    {
+        return t_vec4<T>(sRGB_to_linear_component(src.r), sRGB_to_linear_component(src.g), sRGB_to_linear_component(src.b), src.a);
+    }
+
+    template<typename T>
+    constexpr t_vec4<T> sRGB_to_linear(T r, T g, T b, T a)
+    {
+        return t_vec4<T>(sRGB_to_linear_component(r), sRGB_to_linear_component(r), sRGB_to_linear_component(b), src.a);
+    }
+
+    template<typename T>
+    constexpr t_vec4<T> linear_to_sRGB_approx(const t_vec4<T>& src)
     {
         const T exponent = static_cast<T>(1.0 / 2.2);
         return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), src.a);
     }
 
     template<typename T>
-    constexpr t_vec4<T> linear_to_sRGB(T r, T g, T b, T a)
+    constexpr t_vec4<T> linear_to_sRGB_approx(T r, T g, T b, T a)
     {
         const T exponent = static_cast<T>(1.0 / 2.2);
         return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), a);
     }
 
     template<typename T>
-    constexpr t_vec4<T> sRGB_to_linear(const t_vec4<T>& src)
+    constexpr t_vec4<T> sRGB_to_linear_approx(const t_vec4<T>& src)
     {
         const T exponent = static_cast<T>(2.2);
         return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), src.a);
     }
 
     template<typename T>
-    constexpr t_vec4<T> sRGB_to_linear(T r, T g, T b, T a)
+    constexpr t_vec4<T> sRGB_to_linear_approx(T r, T g, T b, T a)
     {
         const T exponent = static_cast<T>(2.2);
         return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), a);
