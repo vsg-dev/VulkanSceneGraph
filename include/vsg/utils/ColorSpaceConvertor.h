@@ -118,4 +118,7 @@ namespace vsg
         void convertMaterialColors(dvec3Array& colors) const override;
     };
     VSG_type_name(vsg::linear_to_sRGBColorSpaceConvertor);
+
+    extern VSG_DECLSPEC VkFormat uNorm_to_sRGB(VkFormat format);
+    extern VSG_DECLSPEC VkFormat sRGB_to_uNorm(VkFormat format);
 } // namespace vsg
