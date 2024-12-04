@@ -18,6 +18,20 @@ ColorSpaceConvertor::ColorSpaceConvertor()
 {
 }
 
+void ColorSpaceConvertor::convertVertexColor(vec3& color) const
+{
+    vec4 temp {color.x, color.y, color.z, 1.0};
+    convertVertexColor(temp);
+    color = temp.xyz;
+}
+
+void ColorSpaceConvertor::convertVertexColor(dvec3& color) const
+{
+    dvec4 temp{color.x, color.y, color.z, 1.0};
+    convertVertexColor(temp);
+    color = temp.xyz;
+}
+
 void ColorSpaceConvertor::convertVertexColors(vec4Array& colors) const
 {
     for (auto& color : colors)
@@ -30,6 +44,32 @@ void ColorSpaceConvertor::convertVertexColors(dvec4Array& colors) const
         convertVertexColor(color);
 }
 
+void ColorSpaceConvertor::convertVertexColors(vec3Array& colors) const
+{
+    for (auto& color : colors)
+        convertVertexColor(color);
+}
+
+void ColorSpaceConvertor::convertVertexColors(dvec3Array& colors) const
+{
+    for (auto& color : colors)
+        convertVertexColor(color);
+}
+
+void ColorSpaceConvertor::convertMaterialColor(vec3& color) const
+{
+    vec4 temp{color.x, color.y, color.z, 1.0};
+    convertMaterialColor(temp);
+    color = temp.xyz;
+}
+
+void ColorSpaceConvertor::convertMaterialColor(dvec3& color) const
+{
+    dvec4 temp{color.x, color.y, color.z, 1.0};
+    convertMaterialColor(temp);
+    color = temp.xyz;
+}
+
 void ColorSpaceConvertor::convertMaterialColors(vec4Array& colors) const
 {
     for (auto& color : colors)
@@ -37,6 +77,18 @@ void ColorSpaceConvertor::convertMaterialColors(vec4Array& colors) const
 }
 
 void ColorSpaceConvertor::convertMaterialColors(dvec4Array& colors) const
+{
+    for (auto& color : colors)
+        convertMaterialColor(color);
+}
+
+void ColorSpaceConvertor::convertMaterialColors(vec3Array& colors) const
+{
+    for (auto& color : colors)
+        convertMaterialColor(color);
+}
+
+void ColorSpaceConvertor::convertMaterialColors(dvec3Array& colors) const
 {
     for (auto& color : colors)
         convertMaterialColor(color);
@@ -54,6 +106,24 @@ void sRGB_to_linearColorSpaceConvertor::convertVertexColors(dvec4Array& colors) 
         color = sRGB_to_linear(color);
 }
 
+void sRGB_to_linearColorSpaceConvertor::convertVertexColors(vec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        vec4 temp{color.x, color.y, color.z, 1.0};
+        color = sRGB_to_linear(temp).xyz;
+    }
+}
+
+void sRGB_to_linearColorSpaceConvertor::convertVertexColors(dvec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        dvec4 temp{color.x, color.y, color.z, 1.0};
+        color = sRGB_to_linear(temp).xyz;
+    }
+}
+
 void sRGB_to_linearColorSpaceConvertor::convertMaterialColors(vec4Array& colors) const
 {
     for (auto& color : colors)
@@ -64,6 +134,24 @@ void sRGB_to_linearColorSpaceConvertor::convertMaterialColors(dvec4Array& colors
 {
     for (auto& color : colors)
         color = sRGB_to_linear(color);
+}
+
+void sRGB_to_linearColorSpaceConvertor::convertMaterialColors(vec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        vec4 temp{color.x, color.y, color.z, 1.0};
+        color = sRGB_to_linear(temp).xyz;
+    }
+}
+
+void sRGB_to_linearColorSpaceConvertor::convertMaterialColors(dvec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        dvec4 temp{color.x, color.y, color.z, 1.0};
+        color = sRGB_to_linear(temp).xyz;
+    }
 }
 
 void linear_to_sRGBColorSpaceConvertor::convertVertexColors(vec4Array& colors) const
@@ -78,6 +166,24 @@ void linear_to_sRGBColorSpaceConvertor::convertVertexColors(dvec4Array& colors) 
         color = linear_to_sRGB(color);
 }
 
+void linear_to_sRGBColorSpaceConvertor::convertVertexColors(vec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        vec4 temp{color.x, color.y, color.z, 1.0};
+        color = linear_to_sRGB(temp).xyz;
+    }
+}
+
+void linear_to_sRGBColorSpaceConvertor::convertVertexColors(dvec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        dvec4 temp{color.x, color.y, color.z, 1.0};
+        color = linear_to_sRGB(temp).xyz;
+    }
+}
+
 void linear_to_sRGBColorSpaceConvertor::convertMaterialColors(vec4Array& colors) const
 {
     for (auto& color : colors)
@@ -88,4 +194,22 @@ void linear_to_sRGBColorSpaceConvertor::convertMaterialColors(dvec4Array& colors
 {
     for (auto& color : colors)
         color = linear_to_sRGB(color);
+}
+
+void linear_to_sRGBColorSpaceConvertor::convertMaterialColors(vec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        vec4 temp{color.x, color.y, color.z, 1.0};
+        color = linear_to_sRGB(temp).xyz;
+    }
+}
+
+void linear_to_sRGBColorSpaceConvertor::convertMaterialColors(dvec3Array& colors) const
+{
+    for (auto& color : colors)
+    {
+        dvec4 temp{color.x, color.y, color.z, 1.0};
+        color = linear_to_sRGB(temp).xyz;
+    }
 }

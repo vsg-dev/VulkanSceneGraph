@@ -27,16 +27,24 @@ namespace vsg
 
         //
         // provide virtual functions for concrete BaseColorSpaceConvertor implementations to actually convert colors
-        // default implementations are provided for the array overloads, but implementations may be faster if they implement them anyway so the conversion can be inlined
+        // default implementations are provided for the array and vec3 overloads, but implementations may be faster if they implement them anyway so the conversion can be inlined
         virtual void convertVertexColor(vec4& color) const = 0;
         virtual void convertVertexColor(dvec4& color) const = 0;
+        virtual void convertVertexColor(vec3& color) const;
+        virtual void convertVertexColor(dvec3& color) const;
         virtual void convertVertexColors(vec4Array& colors) const;
         virtual void convertVertexColors(dvec4Array& colors) const;
+        virtual void convertVertexColors(vec3Array& colors) const;
+        virtual void convertVertexColors(dvec3Array& colors) const;
 
         virtual void convertMaterialColor(vec4& color) const = 0;
         virtual void convertMaterialColor(dvec4& color) const = 0;
+        virtual void convertMaterialColor(vec3& color) const;
+        virtual void convertMaterialColor(dvec3& color) const;
         virtual void convertMaterialColors(vec4Array& colors) const;
         virtual void convertMaterialColors(dvec4Array& colors) const;
+        virtual void convertMaterialColors(vec3Array& colors) const;
+        virtual void convertMaterialColors(dvec3Array& colors) const;
     };
     VSG_type_name(vsg::ColorSpaceConvertor);
 
@@ -44,44 +52,70 @@ namespace vsg
     {
     public:
         void convertVertexColor(vec4& color) const override{};
-        void convertVertexColor(dvec4& color) const override{};
+        void convertVertexColor(dvec4& color) const override {};
+        void convertVertexColor(vec3& color) const override {};
+        void convertVertexColor(dvec3& color) const override {};
         void convertVertexColors(vec4Array& colors) const override{};
-        void convertVertexColors(dvec4Array& colors) const override{};
+        void convertVertexColors(dvec4Array& colors) const override {};
+        void convertVertexColors(vec3Array& colors) const override {};
+        void convertVertexColors(dvec3Array& colors) const override {};
 
         void convertMaterialColor(vec4& color) const override{};
-        void convertMaterialColor(dvec4& color) const override{};
+        void convertMaterialColor(dvec4& color) const override {};
+        void convertMaterialColor(vec3& color) const override {};
+        void convertMaterialColor(dvec3& color) const override {};
         void convertMaterialColors(vec4Array& colors) const override{};
-        void convertMaterialColors(dvec4Array& colors) const override{};
+        void convertMaterialColors(dvec4Array& colors) const override {};
+        void convertMaterialColors(vec3Array& colors) const override {};
+        void convertMaterialColors(dvec3Array& colors) const override {};
     };
     VSG_type_name(vsg::NoOpColorSpaceConvertor);
 
     class VSG_DECLSPEC sRGB_to_linearColorSpaceConvertor : public Inherit<ColorSpaceConvertor, sRGB_to_linearColorSpaceConvertor>
     {
     public:
+        using ColorSpaceConvertor::convertVertexColor;
+        using ColorSpaceConvertor::convertVertexColors;
+        using ColorSpaceConvertor::convertMaterialColor;
+        using ColorSpaceConvertor::convertMaterialColors;
+
         void convertVertexColor(vec4& color) const override { color = sRGB_to_linear(color); };
         void convertVertexColor(dvec4& color) const override { color = sRGB_to_linear(color); };
         void convertVertexColors(vec4Array& colors) const override;
         void convertVertexColors(dvec4Array& colors) const override;
+        void convertVertexColors(vec3Array& colors) const override;
+        void convertVertexColors(dvec3Array& colors) const override;
 
         void convertMaterialColor(vec4& color) const override { color = sRGB_to_linear(color); };
         void convertMaterialColor(dvec4& color) const override { color = sRGB_to_linear(color); };
         void convertMaterialColors(vec4Array& colors) const override;
         void convertMaterialColors(dvec4Array& colors) const override;
+        void convertMaterialColors(vec3Array& colors) const override;
+        void convertMaterialColors(dvec3Array& colors) const override;
     };
     VSG_type_name(vsg::sRGB_to_linearColorSpaceConvertor);
 
     class VSG_DECLSPEC linear_to_sRGBColorSpaceConvertor : public Inherit<ColorSpaceConvertor, linear_to_sRGBColorSpaceConvertor>
     {
     public:
+        using ColorSpaceConvertor::convertVertexColor;
+        using ColorSpaceConvertor::convertVertexColors;
+        using ColorSpaceConvertor::convertMaterialColor;
+        using ColorSpaceConvertor::convertMaterialColors;
+
         void convertVertexColor(vec4& color) const override { color = linear_to_sRGB(color); };
         void convertVertexColor(dvec4& color) const override { color = linear_to_sRGB(color); };
         void convertVertexColors(vec4Array& colors) const override;
         void convertVertexColors(dvec4Array& colors) const override;
+        void convertVertexColors(vec3Array& colors) const override;
+        void convertVertexColors(dvec3Array& colors) const override;
 
         void convertMaterialColor(vec4& color) const override { color = linear_to_sRGB(color); };
         void convertMaterialColor(dvec4& color) const override { color = linear_to_sRGB(color); };
         void convertMaterialColors(vec4Array& colors) const override;
         void convertMaterialColors(dvec4Array& colors) const override;
+        void convertMaterialColors(vec3Array& colors) const override;
+        void convertMaterialColors(dvec3Array& colors) const override;
     };
     VSG_type_name(vsg::linear_to_sRGBColorSpaceConvertor);
 } // namespace vsg
