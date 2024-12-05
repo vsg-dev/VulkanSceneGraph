@@ -388,8 +388,12 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
 
         context->renderPass = renderGraph.getRenderPass();
         auto const& ra = renderGraph.renderArea;
-        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates,
-                                    ViewportState::create(ra.offset.x, ra.offset.y, ra.extent.width, ra.extent.height));
+        auto viewportState = ViewportState::create(ra.offset.x, ra.offset.y, ra.extent.width, ra.extent.height);
+        if (auto view{context->view.ref_ptr()}; view && view->camera)
+        {
+            viewportState->viewports[0] = view->camera->viewportState->viewports[0];
+        }
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, viewportState);
 
         if (context->renderPass)
         {
@@ -416,11 +420,13 @@ void CompileTraversal::apply(View& view)
         if (context_view && context_view.get() != &view) continue;
 
         // save previous states
+        auto previous_view = context->view;
         auto previous_viewID = context->viewID;
         auto previous_mask = context->mask;
         auto previous_overridePipelineStates = context->overridePipelineStates;
         auto previous_defaultPipelineStates = context->defaultPipelineStates;
 
+        context->view = &view;
         context->viewID = view.viewID;
         context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
@@ -437,6 +443,7 @@ void CompileTraversal::apply(View& view)
         view.traverse(*this);
 
         // restore previous states
+        context->view = previous_view;
         context->viewID = previous_viewID;
         context->mask = previous_mask;
         context->defaultPipelineStates = previous_defaultPipelineStates;
