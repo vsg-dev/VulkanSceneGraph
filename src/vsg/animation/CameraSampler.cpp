@@ -219,12 +219,15 @@ void CameraSampler::apply(dmat4Value& matrix)
 
 void CameraSampler::apply(LookAt& lookAt)
 {
+    lookAt.origin = origin;
     lookAt.set(transform());
 }
 
 void CameraSampler::apply(LookDirection& lookDirection)
 {
-    lookDirection.set(transform());
+    lookDirection.origin = origin;
+    lookDirection.position = origin;
+    lookDirection.rotation = rotation;
 }
 
 void CameraSampler::apply(Perspective& perspective)
