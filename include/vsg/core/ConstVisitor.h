@@ -65,6 +65,7 @@ namespace vsg
     class JointSampler;
     class MorphSampler;
     class TransformSampler;
+    class CameraSampler;
     class Joint;
 
     // forward declare vulkan classes
@@ -157,6 +158,7 @@ namespace vsg
     class Viewer;
     class ViewMatrix;
     class LookAt;
+    class LookDirection;
     class RelativeViewMatrix;
     class TrackingViewMatrix;
     class ProjectionMatrix;
@@ -355,6 +357,7 @@ namespace vsg
         virtual void apply(const JointSampler&);
         virtual void apply(const MorphSampler&);
         virtual void apply(const TransformSampler&);
+        virtual void apply(const CameraSampler&);
         virtual void apply(const Joint&);
 
         // Vulkan nodes
@@ -446,6 +449,7 @@ namespace vsg
         virtual void apply(const Viewer&);
         virtual void apply(const ViewMatrix&);
         virtual void apply(const LookAt&);
+        virtual void apply(const LookDirection&);
         virtual void apply(const RelativeViewMatrix&);
         virtual void apply(const TrackingViewMatrix&);
         virtual void apply(const ProjectionMatrix&);

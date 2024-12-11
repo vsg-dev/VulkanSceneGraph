@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/Joint.h>
-#include <vsg/animation/TransformSampler.h>
+#include <vsg/animation/CameraSampler.h>
 #include <vsg/app/Camera.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
@@ -24,13 +24,13 @@ using namespace vsg;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// TransformKeyframes
+// CameraKeyframes
 //
-TransformKeyframes::TransformKeyframes()
+CameraKeyframes::CameraKeyframes()
 {
 }
 
-void TransformKeyframes::read(Input& input)
+void CameraKeyframes::read(Input& input)
 {
     Object::read(input);
 
@@ -57,9 +57,9 @@ void TransformKeyframes::read(Input& input)
     }
 
     // read scale key frames
-    uint32_t num_scales = input.readValue<uint32_t>("scales");
-    scales.resize(num_scales);
-    for (auto& scale : scales)
+    uint32_t num_projections = input.readValue<uint32_t>("projections");
+    projections.resize(num_projections);
+    for (auto& scale : projections)
     {
         input.matchPropertyName("scale");
         input.read(1, &scale.time);
@@ -67,7 +67,7 @@ void TransformKeyframes::read(Input& input)
     }
 }
 
-void TransformKeyframes::write(Output& output) const
+void CameraKeyframes::write(Output& output) const
 {
     Object::write(output);
 
@@ -94,8 +94,8 @@ void TransformKeyframes::write(Output& output) const
     }
 
     // write scale key frames
-    output.writeValue<uint32_t>("scales", scales.size());
-    for (const auto& scale : scales)
+    output.writeValue<uint32_t>("projections", projections.size());
+    for (const auto& scale : projections)
     {
         output.writePropertyName("scale");
         output.write(1, &scale.time);
@@ -150,26 +150,27 @@ bool sample(double time, const T& values, V& value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// TransformSampler
+// CameraSampler
 //
-TransformSampler::TransformSampler() :
+CameraSampler::CameraSampler() :
+    origin(0.0, 0.0, 0.0),
     position(0.0, 0.0, 0.0),
     rotation(),
-    scale(1.0, 1.0, 1.0)
+    projection(60.0, 0.1, 1000.0)
 {
 }
 
-TransformSampler::TransformSampler(const TransformSampler& rhs, const CopyOp& copyop) :
+CameraSampler::CameraSampler(const CameraSampler& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     keyframes(copyop(rhs.keyframes)),
     object(copyop(rhs.object)),
     position(rhs.position),
     rotation(rhs.rotation),
-    scale(rhs.scale)
+    projection(rhs.projection)
 {
 }
 
-int TransformSampler::compare(const Object& rhs_object) const
+int CameraSampler::compare(const Object& rhs_object) const
 {
     int result = AnimationSampler::compare(rhs_object);
     if (result != 0) return result;
@@ -179,72 +180,74 @@ int TransformSampler::compare(const Object& rhs_object) const
     return compare_pointer(object, rhs.object);
 }
 
-void TransformSampler::update(double time)
+void CameraSampler::update(double time)
 {
     if (keyframes)
     {
+        sample(time, keyframes->origins, origin);
         sample(time, keyframes->positions, position);
         sample(time, keyframes->rotations, rotation);
-        sample(time, keyframes->scales, scale);
+        sample(time, keyframes->projections, projection);
     }
 
     if (object) object->accept(*this);
 }
 
-double TransformSampler::maxTime() const
+double CameraSampler::maxTime() const
 {
     double maxTime = 0.0;
     if (keyframes)
     {
+        if (!keyframes->origins.empty()) maxTime = std::max(maxTime, keyframes->origins.back().time);
         if (!keyframes->positions.empty()) maxTime = std::max(maxTime, keyframes->positions.back().time);
         if (!keyframes->rotations.empty()) maxTime = std::max(maxTime, keyframes->rotations.back().time);
-        if (!keyframes->scales.empty()) maxTime = std::max(maxTime, keyframes->scales.back().time);
+        if (!keyframes->projections.empty()) maxTime = std::max(maxTime, keyframes->projections.back().time);
     }
 
     return maxTime;
 }
 
-void TransformSampler::apply(mat4Value& matrix)
+void CameraSampler::apply(mat4Value& matrix)
 {
     matrix.set(mat4(transform()));
 }
 
-void TransformSampler::apply(dmat4Value& matrix)
+void CameraSampler::apply(dmat4Value& matrix)
 {
     matrix.set(transform());
 }
 
-void TransformSampler::apply(MatrixTransform& mt)
-{
-    mt.matrix.set(transform());
-}
-
-void TransformSampler::apply(Joint& joint)
-{
-    joint.matrix.set(transform());
-}
-
-void TransformSampler::apply(LookAt& lookAt)
+void CameraSampler::apply(LookAt& lookAt)
 {
     lookAt.set(transform());
 }
 
-void TransformSampler::apply(Camera& camera)
+void CameraSampler::apply(LookDirection& lookDirection)
 {
-    if (camera.viewMatrix)
-    {
-        camera.viewMatrix->accept(*this);
-    }
+    lookDirection.set(transform());
 }
 
-void TransformSampler::read(Input& input)
+void CameraSampler::apply(Perspective& perspective)
+{
+    perspective.fieldOfViewY = projection.x;
+    perspective.nearDistance = projection.y;
+    perspective.farDistance = projection.z;
+}
+
+void CameraSampler::apply(Camera& camera)
+{
+    if (camera.projectionMatrix) camera.projectionMatrix->accept(*this);
+    if (camera.viewMatrix) camera.viewMatrix->accept(*this);
+}
+
+void CameraSampler::read(Input& input)
 {
     AnimationSampler::read(input);
     input.read("keyframes", keyframes);
     input.read("object", object);
 }
 
-void TransformSampler::write(Output& output) const
+void CameraSampler::write(Output& output) const
 {
     AnimationSampler::write(output);
     output.write("keyframes", keyframes);

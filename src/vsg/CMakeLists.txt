@@ -204,6 +204,7 @@ set(SOURCES
     animation/Joint.cpp
     animation/JointSampler.cpp
     animation/MorphSampler.cpp
+    animation/CameraSampler.cpp
     animation/TransformSampler.cpp
 
     ui/UIEvent.cpp
