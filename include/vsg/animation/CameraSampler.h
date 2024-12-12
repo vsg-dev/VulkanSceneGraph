@@ -28,38 +28,59 @@ namespace vsg
         std::string name;
 
         /// position key frames
-        std::vector<VectorKey> origins;
+        std::vector<time_dvec3> origins;
 
         /// position key frames
-        std::vector<VectorKey> positions;
+        std::vector<time_dvec3> positions;
 
         /// rotation key frames
-        std::vector<QuatKey> rotations;
+        std::vector<time_dquat> rotations;
 
         /// field of view key frames
-        std::vector<VectorKey> projections;
+        std::vector<time_double> fieldOfViews;
+
+        /// near/far key frames
+        std::vector<time_dvec2> nearFars;
 
         void clear()
         {
             origins.clear();
             positions.clear();
             rotations.clear();
-            projections.clear();
+            fieldOfViews.clear();
+            nearFars.clear();
         }
 
-        void add(double time, const dvec3& origin, const dvec3& position, const dquat& rotation, const dvec3& projection)
+        void add(double time, const dvec3& origin, const dvec3& position, const dquat& rotation, double fov, const dvec2& nearFar)
         {
             origins.push_back(VectorKey{time, origin});
             positions.push_back(VectorKey{time, position});
             rotations.push_back(QuatKey{time, rotation});
-            projections.push_back(VectorKey{time, projection});
+            fieldOfViews.push_back(time_double{time, fov});
+            nearFars.push_back(time_dvec2{time, nearFar});
         }
 
-        void add(double time, const dvec3& position, const dquat& rotation, const dvec3& projection)
+        void add(double time, const dvec3& origin, const dvec3& position, const dquat& rotation, double fov)
+        {
+            origins.push_back(VectorKey{time, origin});
+            positions.push_back(VectorKey{time, position});
+            rotations.push_back(QuatKey{time, rotation});
+            fieldOfViews.push_back(time_double{time, fov});
+        }
+
+        void add(double time, const dvec3& position, const dquat& rotation, double fov, const dvec2& nearFar)
         {
             positions.push_back(VectorKey{time, position});
             rotations.push_back(QuatKey{time, rotation});
-            projections.push_back(VectorKey{time, projection});
+            fieldOfViews.push_back(time_double{time, fov});
+            nearFars.push_back(time_dvec2{time, nearFar});
+        }
+
+        void add(double time, const dvec3& position, const dquat& rotation, double fov)
+        {
+            positions.push_back(VectorKey{time, position});
+            rotations.push_back(QuatKey{time, rotation});
+            fieldOfViews.push_back(time_double{time, fov});
         }
 
         void add(double time, const dvec3& origin, const dvec3& position, const dquat& rotation)
@@ -94,7 +115,8 @@ namespace vsg
         dvec3 origin;
         dvec3 position;
         dquat rotation;
-        dvec3 projection;
+        double fieldOfView;
+        dvec2 nearFar;
 
         void update(double time) override;
         double maxTime() const override;

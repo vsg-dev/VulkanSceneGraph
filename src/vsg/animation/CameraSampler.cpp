@@ -57,9 +57,9 @@ void CameraKeyframes::read(Input& input)
     }
 
     // read scale key frames
-    uint32_t num_projections = input.readValue<uint32_t>("projections");
-    projections.resize(num_projections);
-    for (auto& scale : projections)
+    uint32_t num_fieldOfViews = input.readValue<uint32_t>("fieldOfViews");
+    fieldOfViews.resize(num_fieldOfViews);
+    for (auto& scale : fieldOfViews)
     {
         input.matchPropertyName("projection");
         input.read(1, &scale.time);
@@ -94,57 +94,13 @@ void CameraKeyframes::write(Output& output) const
     }
 
     // write scale key frames
-    output.writeValue<uint32_t>("projections", projections.size());
-    for (const auto& scale : projections)
+    output.writeValue<uint32_t>("fieldOfViews", fieldOfViews.size());
+    for (const auto& scale : fieldOfViews)
     {
         output.writePropertyName("projection");
         output.write(1, &scale.time);
         output.write(1, &scale.value);
         output.writeEndOfLine();
-    }
-}
-
-template<typename T, typename V>
-bool sample(double time, const T& values, V& value)
-{
-    if (values.size() == 0) return false;
-
-    if (values.size() == 1)
-    {
-        value = values.front().value;
-        return true;
-    }
-
-    auto pos_itr = values.begin();
-    if (time <= pos_itr->time)
-    {
-        value = pos_itr->value;
-        return true;
-    }
-    else
-    {
-        using value_type = typename T::value_type;
-        pos_itr = std::lower_bound(values.begin(), values.end(), time, [](const value_type& elem, double t) -> bool { return elem.time < t; });
-
-        if (pos_itr == values.begin())
-        {
-            value = values.front().value;
-            return true;
-        }
-
-        if (pos_itr == values.end())
-        {
-            value = values.back().value;
-            return true;
-        }
-
-        auto before_pos_itr = pos_itr - 1;
-        double delta_time = (pos_itr->time - before_pos_itr->time);
-        double r = delta_time != 0.0 ? (time - before_pos_itr->time) / delta_time : 0.5;
-
-        value = mix(before_pos_itr->value, pos_itr->value, r);
-
-        return true;
     }
 }
 
@@ -156,7 +112,8 @@ CameraSampler::CameraSampler() :
     origin(0.0, 0.0, 0.0),
     position(0.0, 0.0, 0.0),
     rotation(),
-    projection(60.0, 0.1, 1000.0)
+    fieldOfView(60.0),
+    nearFar(1.0, 1e10)
 {
 }
 
@@ -166,7 +123,8 @@ CameraSampler::CameraSampler(const CameraSampler& rhs, const CopyOp& copyop) :
     object(copyop(rhs.object)),
     position(rhs.position),
     rotation(rhs.rotation),
-    projection(rhs.projection)
+    fieldOfView(rhs.fieldOfView),
+    nearFar(rhs.nearFar)
 {
 }
 
@@ -187,7 +145,8 @@ void CameraSampler::update(double time)
         sample(time, keyframes->origins, origin);
         sample(time, keyframes->positions, position);
         sample(time, keyframes->rotations, rotation);
-        sample(time, keyframes->projections, projection);
+        sample(time, keyframes->fieldOfViews, fieldOfView);
+        sample(time, keyframes->nearFars, nearFar);
     }
 
     if (object) object->accept(*this);
@@ -201,7 +160,8 @@ double CameraSampler::maxTime() const
         if (!keyframes->origins.empty()) maxTime = std::max(maxTime, keyframes->origins.back().time);
         if (!keyframes->positions.empty()) maxTime = std::max(maxTime, keyframes->positions.back().time);
         if (!keyframes->rotations.empty()) maxTime = std::max(maxTime, keyframes->rotations.back().time);
-        if (!keyframes->projections.empty()) maxTime = std::max(maxTime, keyframes->projections.back().time);
+        if (!keyframes->fieldOfViews.empty()) maxTime = std::max(maxTime, keyframes->fieldOfViews.back().time);
+        if (!keyframes->nearFars.empty()) maxTime = std::max(maxTime, keyframes->nearFars.back().time);
     }
 
     return maxTime;
@@ -221,7 +181,6 @@ void CameraSampler::apply(LookAt& lookAt)
 {
     if (keyframes)
     {
-        vsg::info("CameraSampler::apply(LookAt&)");
         if (!keyframes->origins.empty()) lookAt.origin = origin;
         if (!keyframes->positions.empty() || !keyframes->rotations.empty())
         {
@@ -234,7 +193,6 @@ void CameraSampler::apply(LookDirection& lookDirection)
 {
     if (keyframes)
     {
-        vsg::info("CameraSampler::apply(LookDirection&)");
         if (!keyframes->origins.empty()) lookDirection.origin = origin;
         if (!keyframes->positions.empty()) lookDirection.position = position;
         if (!keyframes->rotations.empty()) lookDirection.rotation = rotation;
@@ -243,12 +201,14 @@ void CameraSampler::apply(LookDirection& lookDirection)
 
 void CameraSampler::apply(Perspective& perspective)
 {
-    if (keyframes && !keyframes->projections.empty())
+    if (keyframes && !keyframes->fieldOfViews.empty())
     {
-        vsg::info("CameraSampler::apply(Perspective&)");
-        perspective.fieldOfViewY = projection.x;
-        perspective.nearDistance = projection.y;
-        perspective.farDistance = projection.z;
+        perspective.fieldOfViewY = fieldOfView;
+    }
+    if (keyframes && !keyframes->nearFars.empty())
+    {
+        perspective.nearDistance = nearFar[0];
+        perspective.farDistance = nearFar[1];
     }
 }
 
