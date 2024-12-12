@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/CameraAnimation.h>
+#include <vsg/animation/TransformSampler.h>
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -35,28 +36,46 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
             {
                 for (auto sampler : animation->samplers)
                 {
-                    if (auto ts = sampler.cast<TransformSampler>())
+                    if (auto cs = sampler.cast<CameraSampler>())
                     {
-                        transformSampler = ts;
+                        cameraSampler = cs;
                         break;
                     }
                 }
             }
-            else if ((transformSampler = read_object.cast<TransformSampler>()))
+            else if ((cameraSampler = read_object.cast<CameraSampler>()))
             {
                 animation = Animation::create();
-                animation->samplers.push_back(transformSampler);
+                animation->samplers.push_back(cameraSampler);
+            }
+            else if (auto ts = read_object.cast<TransformSampler>())
+            {
+                auto tkf = ts->keyframes;
+
+                // convert TransformSampler to CameraSampler
+                cameraSampler = CameraSampler::create();
+                cameraSampler->name = ts->name;
+                auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
+
+                ckf->positions = tkf->positions;
+                ckf->rotations = tkf->rotations;
+
+                animation = Animation::create();
+                animation->samplers.push_back(cameraSampler);
             }
             else if (auto keyframes = read_object.cast<TransformKeyframes>())
             {
-                transformSampler = TransformSampler::create();
-                transformSampler->keyframes = keyframes;
+                cameraSampler = CameraSampler::create();
+                auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
+
+                ckf->positions = keyframes->positions;
+                ckf->rotations = keyframes->rotations;
 
                 animation = Animation::create();
-                animation->samplers.push_back(transformSampler);
+                animation->samplers.push_back(cameraSampler);
             }
         }
-        if (object && transformSampler) transformSampler->object = object;
+        if (object && cameraSampler) cameraSampler->object = object;
     }
     else
     {
@@ -74,10 +93,10 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> i
     {
         for (auto& sampler : animation->samplers)
         {
-            if (auto ts = sampler.cast<TransformSampler>())
+            if (auto ts = sampler.cast<CameraSampler>())
             {
-                transformSampler = ts;
-                transformSampler->object = object;
+                cameraSampler = ts;
+                cameraSampler->object = object;
                 break;
             }
         }
@@ -86,33 +105,33 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> i
 
 void CameraAnimation::apply(Camera& camera)
 {
-    if (transformSampler)
+    if (cameraSampler)
     {
-        auto& keyframes = transformSampler->keyframes;
-        if (!keyframes) keyframes = TransformKeyframes::create();
+        auto& keyframes = cameraSampler->keyframes;
+        if (!keyframes) keyframes = CameraKeyframes::create();
 
         dvec3 position, scale;
         dquat orientation;
         auto matrix = camera.viewMatrix->inverse();
         if (decompose(matrix, position, orientation, scale))
         {
-            keyframes->add(simulationTime - startTime, position, orientation, scale);
+            keyframes->add(simulationTime - startTime, position, orientation);
         }
     }
 }
 
 void CameraAnimation::apply(MatrixTransform& transform)
 {
-    if (transformSampler)
+    if (cameraSampler)
     {
-        auto& keyframes = transformSampler->keyframes;
-        if (!keyframes) keyframes = TransformKeyframes::create();
+        auto& keyframes = cameraSampler->keyframes;
+        if (!keyframes) keyframes = CameraKeyframes::create();
 
         dvec3 position, scale;
         dquat orientation;
         if (decompose(transform.matrix, position, orientation, scale))
         {
-            keyframes->add(simulationTime - startTime, position, orientation, scale);
+            keyframes->add(simulationTime - startTime, position, orientation);
         }
     }
 }
@@ -137,21 +156,21 @@ void CameraAnimation::record()
     {
         animation = Animation::create();
     }
-    if (!transformSampler)
+    if (!cameraSampler)
     {
-        transformSampler = TransformSampler::create();
-        transformSampler->object = object;
+        cameraSampler = CameraSampler::create();
+        cameraSampler->object = object;
 
-        animation->samplers.push_back(transformSampler);
+        animation->samplers.push_back(cameraSampler);
     }
 
-    if (transformSampler->keyframes)
+    if (cameraSampler->keyframes)
     {
-        transformSampler->keyframes->clear();
+        cameraSampler->keyframes->clear();
     }
     else
     {
-        transformSampler->keyframes = TransformKeyframes::create();
+        cameraSampler->keyframes = CameraKeyframes::create();
     }
 }
 

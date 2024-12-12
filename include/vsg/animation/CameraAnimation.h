@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/TransformSampler.h>
+#include <vsg/animation/CameraSampler.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/maths/quat.h>
 #include <vsg/ui/KeyEvent.h>
@@ -37,8 +37,8 @@ namespace vsg
         // animation to play/record to
         ref_ptr<Animation> animation;
 
-        // transformSampler to play/record to
-        ref_ptr<TransformSampler> transformSampler;
+        // CameraSampler to play/record to
+        ref_ptr<CameraSampler> cameraSampler;
 
         KeySymbol toggleRecordingKey = KEY_r;
         KeySymbol togglePlaybackKey = KEY_p;

@@ -61,7 +61,7 @@ void CameraKeyframes::read(Input& input)
     projections.resize(num_projections);
     for (auto& scale : projections)
     {
-        input.matchPropertyName("scale");
+        input.matchPropertyName("projection");
         input.read(1, &scale.time);
         input.read(1, &scale.value);
     }
@@ -97,7 +97,7 @@ void CameraKeyframes::write(Output& output) const
     output.writeValue<uint32_t>("projections", projections.size());
     for (const auto& scale : projections)
     {
-        output.writePropertyName("scale");
+        output.writePropertyName("projection");
         output.write(1, &scale.time);
         output.write(1, &scale.value);
         output.writeEndOfLine();
@@ -219,22 +219,37 @@ void CameraSampler::apply(dmat4Value& matrix)
 
 void CameraSampler::apply(LookAt& lookAt)
 {
-    lookAt.origin = origin;
-    lookAt.set(transform());
+    if (keyframes)
+    {
+        vsg::info("CameraSampler::apply(LookAt&)");
+        if (!keyframes->origins.empty()) lookAt.origin = origin;
+        if (!keyframes->positions.empty() || !keyframes->rotations.empty())
+        {
+            lookAt.set(transform());
+        }
+    }
 }
 
 void CameraSampler::apply(LookDirection& lookDirection)
 {
-    lookDirection.origin = origin;
-    lookDirection.position = origin;
-    lookDirection.rotation = rotation;
+    if (keyframes)
+    {
+        vsg::info("CameraSampler::apply(LookDirection&)");
+        if (!keyframes->origins.empty()) lookDirection.origin = origin;
+        if (!keyframes->positions.empty()) lookDirection.position = position;
+        if (!keyframes->rotations.empty()) lookDirection.rotation = rotation;
+    }
 }
 
 void CameraSampler::apply(Perspective& perspective)
 {
-    perspective.fieldOfViewY = projection.x;
-    perspective.nearDistance = projection.y;
-    perspective.farDistance = projection.z;
+    if (keyframes && !keyframes->projections.empty())
+    {
+        vsg::info("CameraSampler::apply(Perspective&)");
+        perspective.fieldOfViewY = projection.x;
+        perspective.nearDistance = projection.y;
+        perspective.farDistance = projection.z;
+    }
 }
 
 void CameraSampler::apply(Camera& camera)
