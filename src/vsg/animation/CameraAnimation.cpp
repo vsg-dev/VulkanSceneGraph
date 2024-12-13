@@ -55,7 +55,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
                 // convert TransformSampler to CameraSampler
                 cameraSampler = CameraSampler::create();
                 cameraSampler->name = ts->name;
-                auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
+                const auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
 
                 ckf->positions = tkf->positions;
                 ckf->rotations = tkf->rotations;
@@ -66,7 +66,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
             else if (auto keyframes = read_object.cast<TransformKeyframes>())
             {
                 cameraSampler = CameraSampler::create();
-                auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
+                const auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
 
                 ckf->positions = keyframes->positions;
                 ckf->rotations = keyframes->rotations;
