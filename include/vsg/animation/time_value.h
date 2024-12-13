@@ -79,5 +79,4 @@ namespace vsg
         }
     }
 
-
 } // namespace vsg
