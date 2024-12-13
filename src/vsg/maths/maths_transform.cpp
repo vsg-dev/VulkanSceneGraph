@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/maths/transform.h>
 #include <vsg/nodes/MatrixTransform.h>
+#include <vsg/nodes/CoordinateFrame.h>
 
 using namespace vsg;
 
@@ -439,6 +440,12 @@ void ComputeTransform::apply(const Transform& transform)
 void ComputeTransform::apply(const MatrixTransform& mt)
 {
     matrix = matrix * mt.matrix;
+}
+
+void ComputeTransform::apply(const CoordinateFrame& cf)
+{
+    origin = cf.origin;
+    matrix = vsg::rotate(cf.rotation);
 }
 
 void ComputeTransform::apply(const Camera& camera)

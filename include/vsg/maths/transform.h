@@ -263,10 +263,12 @@ namespace vsg
     /// usage:  auto matrix = vsg::visit<vsg::ComputeTransform>(nodePath).matrix;
     struct VSG_DECLSPEC ComputeTransform : public ConstVisitor
     {
+        dvec3 origin;
         dmat4 matrix;
 
         void apply(const Transform& transform) override;
         void apply(const MatrixTransform& mt) override;
+        void apply(const CoordinateFrame& cf) override;
         void apply(const Camera& camera) override;
     };
 
