@@ -56,14 +56,24 @@ void CameraKeyframes::read(Input& input)
         input.read(1, &rotation.value);
     }
 
-    // read scale key frames
+    // read field of view key frames
     uint32_t num_fieldOfViews = input.readValue<uint32_t>("fieldOfViews");
     fieldOfViews.resize(num_fieldOfViews);
-    for (auto& scale : fieldOfViews)
+    for (auto& fov : fieldOfViews)
     {
-        input.matchPropertyName("projection");
-        input.read(1, &scale.time);
-        input.read(1, &scale.value);
+        input.matchPropertyName("fov");
+        input.read(1, &fov.time);
+        input.read(1, &fov.value);
+    }
+
+    // read near/far key frames
+    uint32_t num_nearFars = input.readValue<uint32_t>("nearFars");
+    nearFars.resize(num_nearFars);
+    for (auto& nf : nearFars)
+    {
+        input.matchPropertyName("nearfar");
+        input.read(1, &nf.time);
+        input.read(1, &nf.value);
     }
 }
 
@@ -94,12 +104,31 @@ void CameraKeyframes::write(Output& output) const
     }
 
     // write scale key frames
-    output.writeValue<uint32_t>("fieldOfViews", fieldOfViews.size());
     for (const auto& scale : fieldOfViews)
     {
-        output.writePropertyName("projection");
+        output.writePropertyName("fov");
         output.write(1, &scale.time);
         output.write(1, &scale.value);
+        output.writeEndOfLine();
+    }
+
+    // write field of view key frames
+    output.writeValue<uint32_t>("fieldOfViews", fieldOfViews.size());
+    for (const auto& fov : fieldOfViews)
+    {
+        output.writePropertyName("fov");
+        output.write(1, &fov.time);
+        output.write(1, &fov.value);
+        output.writeEndOfLine();
+    }
+
+    // read near/far key frames
+    output.writeValue<uint32_t>("nearFars", nearFars.size());
+    for (const auto& nf : nearFars)
+    {
+        output.writePropertyName("nearfar");
+        output.write(1, &nf.time);
+        output.write(1, &nf.value);
         output.writeEndOfLine();
     }
 }
