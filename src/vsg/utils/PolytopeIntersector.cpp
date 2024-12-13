@@ -229,6 +229,8 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
         eyespace.push_back(pl * projectionMatrix);
     }
 
+    _polytopeStack.push_back(eyespace);
+
     vsg::Polytope worldspace;
     for (auto& pl : eyespace)
     {
