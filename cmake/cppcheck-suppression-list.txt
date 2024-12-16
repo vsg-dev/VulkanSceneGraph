@@ -1,4 +1,4 @@
-s// suppress Key related errors
+// suppress Key related errors
 noExplicitConstructor:*/include/vsg/core/ref_ptr.h
 noExplicitConstructor:*/include/vsg/core/Inherit.h:31
 noExplicitConstructor:*/include/vsg/core/Allocator.h:138
