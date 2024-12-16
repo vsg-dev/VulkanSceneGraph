@@ -104,50 +104,6 @@ void TransformKeyframes::write(Output& output) const
     }
 }
 
-template<typename T, typename V>
-bool sample(double time, const T& values, V& value)
-{
-    if (values.size() == 0) return false;
-
-    if (values.size() == 1)
-    {
-        value = values.front().value;
-        return true;
-    }
-
-    auto pos_itr = values.begin();
-    if (time <= pos_itr->time)
-    {
-        value = pos_itr->value;
-        return true;
-    }
-    else
-    {
-        using value_type = typename T::value_type;
-        pos_itr = std::lower_bound(values.begin(), values.end(), time, [](const value_type& elem, double t) -> bool { return elem.time < t; });
-
-        if (pos_itr == values.begin())
-        {
-            value = values.front().value;
-            return true;
-        }
-
-        if (pos_itr == values.end())
-        {
-            value = values.back().value;
-            return true;
-        }
-
-        auto before_pos_itr = pos_itr - 1;
-        double delta_time = (pos_itr->time - before_pos_itr->time);
-        double r = delta_time != 0.0 ? (time - before_pos_itr->time) / delta_time : 0.5;
-
-        value = mix(before_pos_itr->value, pos_itr->value, r);
-
-        return true;
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // TransformSampler
@@ -176,10 +132,7 @@ int TransformSampler::compare(const Object& rhs_object) const
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(keyframes, rhs.keyframes)) != 0) return result;
-    if ((result = compare_pointer(object, rhs.object)) != 0) return result;
-    if ((result = compare_value(position, rhs.position)) != 0) return result;
-    if ((result = compare_value(rotation, rhs.rotation)) != 0) return result;
-    return compare_value(scale, rhs.scale);
+    return compare_pointer(object, rhs.object);
 }
 
 void TransformSampler::update(double time)

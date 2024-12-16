@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/TransformSampler.h>
+#include <vsg/animation/CameraSampler.h>
 #include <vsg/core/Inherit.h>
 #include <vsg/maths/quat.h>
 #include <vsg/ui/KeyEvent.h>
@@ -21,11 +21,12 @@ namespace vsg
 {
 
     /// event handler for controlling the playing and recording of camera animation paths
-    class VSG_DECLSPEC CameraAnimation : public Inherit<Visitor, CameraAnimation>
+    class VSG_DECLSPEC CameraAnimationHandler : public Inherit<Visitor, CameraAnimationHandler>
     {
     public:
-        explicit CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
-        CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        CameraAnimationHandler();
+        CameraAnimationHandler(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        explicit CameraAnimationHandler(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
 
         /// object to track/modify
         ref_ptr<Object> object;
@@ -37,8 +38,8 @@ namespace vsg
         // animation to play/record to
         ref_ptr<Animation> animation;
 
-        // transformSampler to play/record to
-        ref_ptr<TransformSampler> transformSampler;
+        // CameraSampler to play/record to
+        ref_ptr<CameraSampler> cameraSampler;
 
         KeySymbol toggleRecordingKey = KEY_r;
         KeySymbol togglePlaybackKey = KEY_p;
@@ -61,6 +62,9 @@ namespace vsg
 
     protected:
     };
-    VSG_type_name(vsg::CameraAnimation);
+    VSG_type_name(vsg::CameraAnimationHandler);
+
+    // fallback for naming prior to VulkanSceneGraph-1.1.9.
+    using CameraAnimation = vsg::CameraAnimationHandler;
 
 } // namespace vsg

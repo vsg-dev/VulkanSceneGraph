@@ -683,6 +683,10 @@ void Visitor::apply(TransformSampler& sampler)
 {
     apply(static_cast<AnimationSampler&>(sampler));
 }
+void Visitor::apply(CameraSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
 void Visitor::apply(Joint& value)
 {
     apply(static_cast<Node&>(value));
@@ -1029,6 +1033,10 @@ void Visitor::apply(ViewMatrix& value)
     apply(static_cast<Object&>(value));
 }
 void Visitor::apply(LookAt& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(LookDirection& value)
 {
     apply(static_cast<ViewMatrix&>(value));
 }

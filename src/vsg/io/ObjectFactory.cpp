@@ -300,6 +300,8 @@ ObjectFactory::ObjectFactory()
     // animation
     add<vsg::TransformKeyframes>();
     add<vsg::TransformSampler>();
+    add<vsg::CameraKeyframes>();
+    add<vsg::CameraSampler>();
     add<vsg::MorphKeyframes>();
     add<vsg::MorphSampler>();
     add<vsg::JointSampler>();
