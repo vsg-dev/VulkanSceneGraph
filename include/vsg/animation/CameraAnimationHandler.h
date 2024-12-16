@@ -21,12 +21,12 @@ namespace vsg
 {
 
     /// event handler for controlling the playing and recording of camera animation paths
-    class VSG_DECLSPEC CameraAnimation : public Inherit<Visitor, CameraAnimation>
+    class VSG_DECLSPEC CameraAnimationHandler : public Inherit<Visitor, CameraAnimationHandler>
     {
     public:
-        CameraAnimation();
-        CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
-        explicit CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        CameraAnimationHandler();
+        CameraAnimationHandler(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        explicit CameraAnimationHandler(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
 
         /// object to track/modify
         ref_ptr<Object> object;
@@ -62,6 +62,9 @@ namespace vsg
 
     protected:
     };
-    VSG_type_name(vsg::CameraAnimation);
+    VSG_type_name(vsg::CameraAnimationHandler);
+
+    // fallback for naming prior to VulkanSceneGraph-1.1.9.
+    using CameraAnimation = vsg::CameraAnimationHandler;
 
 } // namespace vsg

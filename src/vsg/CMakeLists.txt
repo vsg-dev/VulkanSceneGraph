@@ -199,7 +199,7 @@ set(SOURCES
     animation/Animation.cpp
     animation/AnimationGroup.cpp
     animation/AnimationManager.cpp
-    animation/CameraAnimation.cpp
+    animation/CameraAnimationHandler.cpp
     animation/FindAnimations.cpp
     animation/Joint.cpp
     animation/JointSampler.cpp

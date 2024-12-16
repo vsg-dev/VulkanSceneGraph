@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/CameraAnimation.h>
+#include <vsg/animation/CameraAnimationHandler.h>
 #include <vsg/animation/TransformSampler.h>
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
@@ -23,11 +23,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CameraAnimation::CameraAnimation()
+CameraAnimationHandler::CameraAnimationHandler()
 {
 }
 
-CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
+CameraAnimationHandler::CameraAnimationHandler(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
     options(in_options)
@@ -87,7 +87,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
     }
 }
 
-CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename, ref_ptr<Options> in_options) :
+CameraAnimationHandler::CameraAnimationHandler(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
     options(in_options),
@@ -107,9 +107,9 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> i
     }
 }
 
-void CameraAnimation::apply(Camera& camera)
+void CameraAnimationHandler::apply(Camera& camera)
 {
-    info("CameraAnimation::apply(Camera& camera) ", cameraSampler);
+    info("CameraAnimationHandler::apply(Camera& camera) ", cameraSampler);
 
     if (cameraSampler)
     {
@@ -127,7 +127,7 @@ void CameraAnimation::apply(Camera& camera)
     }
 }
 
-void CameraAnimation::apply(MatrixTransform& transform)
+void CameraAnimationHandler::apply(MatrixTransform& transform)
 {
     if (cameraSampler)
     {
@@ -143,7 +143,7 @@ void CameraAnimation::apply(MatrixTransform& transform)
     }
 }
 
-void CameraAnimation::play()
+void CameraAnimationHandler::play()
 {
     if (playing) return;
 
@@ -151,7 +151,7 @@ void CameraAnimation::play()
     if (playing) info("Starting playback.");
 }
 
-void CameraAnimation::record()
+void CameraAnimationHandler::record()
 {
     if (recording) return;
 
@@ -181,7 +181,7 @@ void CameraAnimation::record()
     }
 }
 
-void CameraAnimation::stop()
+void CameraAnimationHandler::stop()
 {
     if (playing)
     {
@@ -205,7 +205,7 @@ void CameraAnimation::stop()
     }
 }
 
-void CameraAnimation::apply(KeyPressEvent& keyPress)
+void CameraAnimationHandler::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.keyModified == togglePlaybackKey)
     {
@@ -235,7 +235,7 @@ void CameraAnimation::apply(KeyPressEvent& keyPress)
     }
 }
 
-void CameraAnimation::apply(FrameEvent& frame)
+void CameraAnimationHandler::apply(FrameEvent& frame)
 {
     simulationTime = frame.frameStamp->simulationTime;
 
