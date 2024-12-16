@@ -19,6 +19,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    using time_path = time_value<RefObjectPath>;
+
     class VSG_DECLSPEC CameraKeyframes : public Inherit<Object, CameraKeyframes>
     {
     public:
@@ -26,6 +28,9 @@ namespace vsg
 
         /// name of node
         std::string name;
+
+        // object tracking key frames
+        std::vector<time_path> tracking;
 
         /// position key frames
         std::vector<time_dvec3> origins;

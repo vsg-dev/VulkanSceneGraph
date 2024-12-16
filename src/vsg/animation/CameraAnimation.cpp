@@ -23,6 +23,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+CameraAnimation::CameraAnimation()
+{
+}
+
 CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
@@ -105,8 +109,11 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> i
 
 void CameraAnimation::apply(Camera& camera)
 {
+    info("CameraAnimation::apply(Camera& camera) ", cameraSampler);
+
     if (cameraSampler)
     {
+
         auto& keyframes = cameraSampler->keyframes;
         if (!keyframes) keyframes = CameraKeyframes::create();
 

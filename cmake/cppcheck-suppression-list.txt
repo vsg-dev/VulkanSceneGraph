@@ -1,4 +1,4 @@
-// suppress Key related errors
+s// suppress Key related errors
 noExplicitConstructor:*/include/vsg/core/ref_ptr.h
 noExplicitConstructor:*/include/vsg/core/Inherit.h:31
 noExplicitConstructor:*/include/vsg/core/Allocator.h:138
@@ -192,6 +192,7 @@ duplInheritedMember:*/src/vsg/nodes/Node.cpp
 shadowFunction:*/include/vsg/maths/transform.h
 shadowFunction:*/src/io/Path.cpp
 shadowFunction:*/src/vsg/animation/CameraAnimation.cpp
+shadowFunction:*/src/vsg/animation/CameraSampler.cpp
 shadowFunction:*/src/vsg/animation/TransformSampler.cpp
 shadowFunction:*/src/vsg/io/tile.cpp
 shadowFunction:*/src/vsg/io/FileSystem.cpp

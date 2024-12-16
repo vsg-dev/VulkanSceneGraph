@@ -36,6 +36,16 @@ void CameraKeyframes::read(Input& input)
 
     input.read("name", name);
 
+    // read tracking key frames
+    uint32_t num_tracking = input.readValue<uint32_t>("tracking");
+    tracking.resize(num_tracking);
+    for (auto& track : tracking)
+    {
+        input.matchPropertyName("track");
+        input.read(1, &track.time);
+        input.readObjects("path", track.value);
+    }
+
     // read position key frames
     uint32_t num_positions = input.readValue<uint32_t>("positions");
     positions.resize(num_positions);
@@ -82,6 +92,17 @@ void CameraKeyframes::write(Output& output) const
     Object::write(output);
 
     output.write("name", name);
+
+    // write position key frames
+    output.writeValue<uint32_t>("tracking", tracking.size());
+    for (const auto& track : tracking)
+    {
+        output.writePropertyName("track");
+        output.write(1, &track.time);
+        output.writeEndOfLine();
+
+        output.writeObjects("path", track.value);
+    }
 
     // write position key frames
     output.writeValue<uint32_t>("positions", positions.size());
@@ -176,6 +197,55 @@ void CameraSampler::update(double time)
         sample(time, keyframes->rotations, rotation);
         sample(time, keyframes->fieldOfViews, fieldOfView);
         sample(time, keyframes->nearFars, nearFar);
+
+        auto find_values = [](const RefObjectPath& path, dvec3& in_origin, dvec3& in_position, dquat& in_rotation) -> void
+        {
+            ComputeTransform ct;
+            for(auto& obj : path) obj->accept(ct);
+
+            in_origin = ct.origin;
+
+            dvec3 scale;
+            vsg::decompose(ct.matrix, in_position, in_rotation, scale);
+        };
+
+        auto& tracking = keyframes->tracking;
+        if (tracking.size() == 1)
+        {
+            find_values(tracking.front().value, origin, position, rotation);
+        }
+        else if (!tracking.empty())
+        {
+            auto pos_itr = std::lower_bound(tracking.begin(), tracking.end(), time, [](const time_path& elem, double t) -> bool { return elem.time < t; });
+            if (pos_itr == tracking.begin())
+            {
+                find_values(tracking.front().value, origin, position, rotation);
+            }
+            else if (pos_itr == tracking.end())
+            {
+                find_values(tracking.back().value, origin, position, rotation);
+            }
+            else
+            {
+                auto before_pos_itr = pos_itr - 1;
+                double delta_time = (pos_itr->time - before_pos_itr->time);
+                double r = delta_time != 0.0 ? (time - before_pos_itr->time) / delta_time : 0.5;
+
+                dvec3 origin_before, position_before;
+                dquat rotation_before;
+                find_values(before_pos_itr->value, origin_before, position_before, rotation_before);
+
+                dvec3 origin_after, position_after;
+                dquat rotation_after;
+                find_values(pos_itr->value, origin_after, position_after, rotation_after);
+
+                // convert origin input values and ratio to long double to minimize the intermediate rounding errors.
+                origin = mix(ldvec3(origin_before), ldvec3(origin_after), static_cast<long double>(r));
+
+                position = mix(position_before, position_after, r);
+                rotation = mix(rotation_before, rotation_after, r);
+            }
+        }
     }
 
     if (object) object->accept(*this);
@@ -186,6 +256,7 @@ double CameraSampler::maxTime() const
     double maxTime = 0.0;
     if (keyframes)
     {
+        if (!keyframes->tracking.empty()) maxTime = std::max(maxTime, keyframes->tracking.back().time);
         if (!keyframes->origins.empty()) maxTime = std::max(maxTime, keyframes->origins.back().time);
         if (!keyframes->positions.empty()) maxTime = std::max(maxTime, keyframes->positions.back().time);
         if (!keyframes->rotations.empty()) maxTime = std::max(maxTime, keyframes->rotations.back().time);
@@ -210,8 +281,9 @@ void CameraSampler::apply(LookAt& lookAt)
 {
     if (keyframes)
     {
-        if (!keyframes->origins.empty()) lookAt.origin = origin;
-        if (!keyframes->positions.empty() || !keyframes->rotations.empty())
+        bool has_tracking = !keyframes->tracking.empty();
+        if (!keyframes->origins.empty() || has_tracking) lookAt.origin = origin;
+        if (!keyframes->positions.empty() || !keyframes->rotations.empty()  || has_tracking)
         {
             lookAt.set(transform());
         }
@@ -222,9 +294,10 @@ void CameraSampler::apply(LookDirection& lookDirection)
 {
     if (keyframes)
     {
-        if (!keyframes->origins.empty()) lookDirection.origin = origin;
-        if (!keyframes->positions.empty()) lookDirection.position = position;
-        if (!keyframes->rotations.empty()) lookDirection.rotation = rotation;
+        bool has_tracking = !keyframes->tracking.empty();
+        if (!keyframes->origins.empty() || has_tracking) lookDirection.origin = origin;
+        if (!keyframes->positions.empty() || has_tracking) lookDirection.position = position;
+        if (!keyframes->rotations.empty() || has_tracking) lookDirection.rotation = rotation;
     }
 }
 

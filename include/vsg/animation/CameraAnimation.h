@@ -24,8 +24,9 @@ namespace vsg
     class VSG_DECLSPEC CameraAnimation : public Inherit<Visitor, CameraAnimation>
     {
     public:
-        explicit CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        CameraAnimation();
         CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
+        explicit CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename = "saved_animation.vsgt", ref_ptr<Options> in_options = {});
 
         /// object to track/modify
         ref_ptr<Object> object;
