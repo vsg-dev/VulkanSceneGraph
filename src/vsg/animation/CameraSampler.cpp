@@ -198,10 +198,9 @@ void CameraSampler::update(double time)
         sample(time, keyframes->fieldOfViews, fieldOfView);
         sample(time, keyframes->nearFars, nearFar);
 
-        auto find_values = [](const RefObjectPath& path, dvec3& in_origin, dvec3& in_position, dquat& in_rotation) -> void
-        {
+        auto find_values = [](const RefObjectPath& path, dvec3& in_origin, dvec3& in_position, dquat& in_rotation) -> void {
             ComputeTransform ct;
-            for(auto& obj : path) obj->accept(ct);
+            for (auto& obj : path) obj->accept(ct);
 
             in_origin = ct.origin;
 
@@ -283,7 +282,7 @@ void CameraSampler::apply(LookAt& lookAt)
     {
         bool has_tracking = !keyframes->tracking.empty();
         if (!keyframes->origins.empty() || has_tracking) lookAt.origin = origin;
-        if (!keyframes->positions.empty() || !keyframes->rotations.empty()  || has_tracking)
+        if (!keyframes->positions.empty() || !keyframes->rotations.empty() || has_tracking)
         {
             lookAt.set(transform());
         }
