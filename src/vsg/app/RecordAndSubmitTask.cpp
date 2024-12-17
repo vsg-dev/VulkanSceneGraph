@@ -284,7 +284,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) compileResult.maxSlot = ", compileResult.maxSlot);
     if (compileResult.dynamicData)
     {
-        for (auto& task : tasks)
+        for (const auto& task : tasks)
         {
             if (task->transferTask)
             {
@@ -294,9 +294,9 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     }
 
     // increase maxSlot if required
-    for (auto& task : tasks)
+    for (const auto& task : tasks)
     {
-        for (auto& commandGraph : task->commandGraphs)
+        for (const auto& commandGraph : task->commandGraphs)
         {
             if (compileResult.maxSlot > commandGraph->maxSlot)
             {
@@ -309,7 +309,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     if (compileResult.containsPagedLOD)
     {
         ref_ptr<DatabasePager> databasePager;
-        for (auto& task : tasks)
+        for (const auto& task : tasks)
         {
             if (task->databasePager && !databasePager) databasePager = task->databasePager;
         }
@@ -317,7 +317,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         if (!databasePager)
         {
             databasePager = DatabasePager::create();
-            for (auto& task : tasks)
+            for (const auto& task : tasks)
             {
                 if (!task->databasePager)
                 {
@@ -337,7 +337,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         for (auto& binNumber : viewDetails.indices)
         {
             bool binNumberMatched = false;
-            for (auto& bin : view->bins)
+            for (const auto& bin : view->bins)
             {
                 if (bin->binNumber == binNumber)
                 {

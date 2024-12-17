@@ -60,6 +60,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Compilable.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
@@ -84,12 +85,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/Animation.h>
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/AnimationManager.h>
-#include <vsg/animation/CameraAnimation.h>
+#include <vsg/animation/CameraAnimationHandler.h>
+#include <vsg/animation/CameraSampler.h>
 #include <vsg/animation/FindAnimations.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/JointSampler.h>
 #include <vsg/animation/MorphSampler.h>
 #include <vsg/animation/TransformSampler.h>
+#include <vsg/animation/time_value.h>
 
 // Lighting header files
 #include <vsg/lighting/AmbientLight.h>

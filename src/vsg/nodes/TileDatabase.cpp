@@ -49,7 +49,7 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(extents, rhs.extents)) != 0) return result;
     if ((result = compare_value(noX, rhs.noX)) != 0) return result;
     if ((result = compare_value(noY, rhs.noY)) != 0) return result;
@@ -127,7 +127,7 @@ int TileDatabase::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(settings, rhs.settings)) != 0) return result;
     return compare_pointer(child, rhs.child);
 }
@@ -159,7 +159,17 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
     auto local_options = options ? vsg::Options::create(*options) : vsg::Options::create();
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);
 
-    child = vsg::read_cast<vsg::Node>("root.tile", local_options);
+    auto result = vsg::read("root.tile", local_options);
+
+    child = result.cast<vsg::Node>();
+    if (!child)
+    {
+        auto error = result.cast<ReadError>();
+        if (error)
+            warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load. Error: ", error->message);
+        else
+            warn("TileDatabase::readDatabase() imageLayer = ", settings->imageLayer, " failed to load.");
+    }
 
     return child.valid();
 }

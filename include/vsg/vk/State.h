@@ -75,7 +75,7 @@ namespace vsg
     class MatrixStack
     {
     public:
-        MatrixStack(uint32_t in_offset = 0) :
+        explicit MatrixStack(uint32_t in_offset = 0) :
             offset(in_offset)
         {
             // make sure there is an initial matrix

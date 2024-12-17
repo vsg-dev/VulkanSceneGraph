@@ -24,7 +24,7 @@ namespace vsg
     class VSG_DECLSPEC CopyAndReleaseImage : public Inherit<Command, CopyAndReleaseImage>
     {
     public:
-        CopyAndReleaseImage(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
+        explicit CopyAndReleaseImage(ref_ptr<MemoryBufferPools> optional_stagingMemoryBufferPools = {});
 
         struct VSG_DECLSPEC CopyData
         {

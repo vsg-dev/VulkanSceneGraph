@@ -69,22 +69,15 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
 
     for (auto& bufferInfo : bufferInfoList)
     {
-        std::string str;
-        if (bufferInfo->data->getValue("name", str))
-        {
-            log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "} name = ", str);
-        }
-        else
-        {
-            log(level, "    bufferInfo ", bufferInfo, " { ", bufferInfo->data, ", ", bufferInfo->buffer, "}");
-        }
-
-        if (bufferInfo->buffer)
+        if (bufferInfo->buffer && bufferInfo->data)
         {
             DataToCopy& dataToCopy = (bufferInfo->data->properties.dataVariance >= DYNAMIC_DATA_TRANSFER_AFTER_RECORD) ? _lateDataToCopy : _earlyDataToCopy;
             dataToCopy.dataMap[bufferInfo->buffer][bufferInfo->offset] = bufferInfo;
         }
-        //else throw "Problem";
+        else
+        {
+            debug("TransferTask::assign(const BufferInfoList& bufferInfoList) bufferInfo ignored as incomplete, buffer = ", bufferInfo->buffer, ", data = ", bufferInfo->data);
+        }
     }
 }
 
@@ -131,7 +124,7 @@ void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer 
                     // record region
                     pRegions[regionCount++] = VkBufferCopy{offset, bufferInfo->offset, bufferInfo->range};
 
-                    log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", (void*)ptr);
+                    log(level, "       copying ", bufferInfo, ", ", bufferInfo->data, " to ", static_cast<void*>(ptr));
 
                     VkDeviceSize endOfEntry = offset + bufferInfo->range;
                     offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
@@ -240,11 +233,15 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
+    auto& data = imageInfo.imageView->image->data;
+
+    VkDeviceSize image_alignment = std::max(static_cast<VkDeviceSize>(data->stride()), static_cast<VkDeviceSize>(4));
+    offset = ((offset % image_alignment) == 0) ? offset : ((offset / image_alignment) + 1) * image_alignment;
+
     auto& imageStagingBuffer = frame.staging;
     auto& buffer_data = frame.buffer_data;
     char* ptr = reinterpret_cast<char*>(buffer_data) + offset;
 
-    auto& data = imageInfo.imageView->image->data;
     auto properties = data->properties;
     auto width = data->width();
     auto height = data->height();
@@ -343,17 +340,20 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     VkDeviceSize offset = 0;
     VkDeviceSize alignment = 4;
 
-    for (auto& imageInfo : dataToCopy.imageInfoSet)
+    for (const auto& imageInfo : dataToCopy.imageInfoSet)
     {
         auto data = imageInfo->imageView->image->data;
 
+        // adjust offset to make sure it fits with the stride();
+        VkDeviceSize image_alignment = std::max(static_cast<VkDeviceSize>(data->stride()), alignment);
+        offset = ((offset % image_alignment) == 0) ? offset : ((offset / image_alignment) + 1) * image_alignment;
+
         VkFormat targetFormat = imageInfo->imageView->format;
         auto targetTraits = getFormatTraits(targetFormat);
-        VkDeviceSize imageTotalSize = targetTraits.size * data->valueCount();
+        VkDeviceSize imageSize = (targetTraits.size > 0) ? targetTraits.size * data->valueCount() : data->dataSize();
+        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageSize = ", imageSize, " targetTraits.size = ", targetTraits.size, ", ", data->valueCount(), ", targetFormat = ", targetFormat);
 
-        log(level, "      ", data, ", data->dataSize() = ", data->dataSize(), ", imageTotalSize = ", imageTotalSize);
-
-        VkDeviceSize endOfEntry = offset + imageTotalSize;
+        VkDeviceSize endOfEntry = offset + imageSize;
         offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
     }
     dataToCopy.imageTotalSize = offset;
@@ -362,12 +362,12 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     offset = 0;
     dataToCopy.dataTotalRegions = 0;
-    for (auto& entry : dataToCopy.dataMap)
+    for (const auto& entry : dataToCopy.dataMap)
     {
-        auto& bufferInfos = entry.second;
-        for (auto& offset_bufferInfo : bufferInfos)
+        const auto& bufferInfos = entry.second;
+        for (const auto& offset_bufferInfo : bufferInfos)
         {
-            auto& bufferInfo = offset_bufferInfo.second;
+            const auto& bufferInfo = offset_bufferInfo.second;
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (/*alignment == 1 ||*/ (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
             ++dataToCopy.dataTotalRegions;
@@ -376,13 +376,14 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     dataToCopy.dataTotalSize = offset;
     log(level, "    dataToCopy.dataTotalSize = ", dataToCopy.dataTotalSize);
 
-    offset = 0;
     //
     // end of compute size
     //
 
     VkDeviceSize totalSize = dataToCopy.dataTotalSize + dataToCopy.imageTotalSize;
     if (totalSize == 0) return TransferResult{VK_SUCCESS, {}};
+
+    log(level, "    totalSize = ", totalSize);
 
     uint32_t deviceID = device->deviceID;
     auto& frame = *(dataToCopy.frames[dataToCopy.frameIndex]);
@@ -468,12 +469,13 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     VkCommandBuffer vk_commandBuffer = *commandBuffer;
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
+    offset = 0;
     {
         COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "transferData", COLOR_GPU)
 
         // transfer the modified BufferInfo and ImageInfo
-        _transferBufferInfos(dataToCopy, vk_commandBuffer, frame, offset);
         _transferImageInfos(dataToCopy, vk_commandBuffer, frame, offset);
+        _transferBufferInfos(dataToCopy, vk_commandBuffer, frame, offset);
     }
 
     vkEndCommandBuffer(vk_commandBuffer);

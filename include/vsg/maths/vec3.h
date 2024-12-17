@@ -52,7 +52,7 @@ namespace vsg
         };
 
         constexpr t_vec3() :
-            value{} {}
+            value{0, 0, 0} {}
         constexpr t_vec3(const t_vec3& v) :
             value{v.x, v.y, v.z} {}
         constexpr t_vec3& operator=(const t_vec3&) = default;
@@ -144,17 +144,19 @@ namespace vsg
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0; }
     };
 
-    using vec3 = t_vec3<float>;      // float 3D vector
-    using dvec3 = t_vec3<double>;    // double 3D vector
-    using bvec3 = t_vec3<int8_t>;    // signed 8 bit integer 3D vector
-    using svec3 = t_vec3<int16_t>;   //  signed 16 bit integer 3D vector
-    using ivec3 = t_vec3<int32_t>;   //  signed 32 bit integer 3D vector
-    using ubvec3 = t_vec3<uint8_t>;  //  unsigned 8 bit integer 3D vector
-    using usvec3 = t_vec3<uint16_t>; //  unsigned 16 bit integer 3D vector
-    using uivec3 = t_vec3<uint32_t>; //  unsigned 32 bit integer 3D vector
+    using vec3 = t_vec3<float>;         // float 3D vector
+    using dvec3 = t_vec3<double>;       // double 3D vector
+    using ldvec3 = t_vec3<long double>; // long double 3D vector
+    using bvec3 = t_vec3<int8_t>;       // signed 8 bit integer 3D vector
+    using svec3 = t_vec3<int16_t>;      //  signed 16 bit integer 3D vector
+    using ivec3 = t_vec3<int32_t>;      //  signed 32 bit integer 3D vector
+    using ubvec3 = t_vec3<uint8_t>;     //  unsigned 8 bit integer 3D vector
+    using usvec3 = t_vec3<uint16_t>;    //  unsigned 16 bit integer 3D vector
+    using uivec3 = t_vec3<uint32_t>;    //  unsigned 32 bit integer 3D vector
 
     VSG_type_name(vsg::vec3);
     VSG_type_name(vsg::dvec3);
+    VSG_type_name(vsg::ldvec3);
     VSG_type_name(vsg::bvec3);
     VSG_type_name(vsg::svec3);
     VSG_type_name(vsg::ivec3);

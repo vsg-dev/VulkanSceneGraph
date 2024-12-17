@@ -13,27 +13,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Animation.h>
+#include <vsg/animation/time_value.h>
 #include <vsg/app/ViewMatrix.h>
 #include <vsg/maths/transform.h>
 
 namespace vsg
 {
 
-    struct VectorKey
-    {
-        double time;
-        dvec3 value;
-
-        bool operator<(const VectorKey& rhs) const { return time < rhs.time; }
-    };
-
-    struct QuatKey
-    {
-        double time;
-        dquat value;
-
-        bool operator<(const QuatKey& rhs) const { return time < rhs.time; }
-    };
+    using VectorKey = time_dvec3;
+    using QuatKey = time_dquat;
 
     class VSG_DECLSPEC TransformKeyframes : public Inherit<Object, TransformKeyframes>
     {

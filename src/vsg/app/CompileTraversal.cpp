@@ -225,7 +225,7 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
         }
     } addViews(this, resourceRequirements);
 
-    for (auto& task : viewer.recordAndSubmitTasks)
+    for (const auto& task : viewer.recordAndSubmitTasks)
     {
         if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
         {
@@ -273,7 +273,7 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
 void CompileTraversal::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
     instrumentation = in_instrumentation;
-    for (auto& context : contexts)
+    for (const auto& context : contexts)
     {
         context->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
     }
@@ -321,7 +321,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "CompileTraversal CommandGraph", COLOR_COMPILE);
 
-    for (auto& context : contexts)
+    for (const auto& context : contexts)
     {
         if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
         {

@@ -34,8 +34,9 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
-    class MatrixTransform;
     class Transform;
+    class MatrixTransform;
+    class CoordinateFrame;
     class Geometry;
     class VertexDraw;
     class VertexIndexDraw;
@@ -62,6 +63,7 @@ namespace vsg
     class AnimationGroup;
     class AnimationSampler;
     class TransformSampler;
+    class CameraSampler;
     class MorphSampler;
     class JointSampler;
     class Joint;
@@ -156,6 +158,7 @@ namespace vsg
     class Viewer;
     class ViewMatrix;
     class LookAt;
+    class LookDirection;
     class RelativeViewMatrix;
     class TrackingViewMatrix;
     class ProjectionMatrix;
@@ -323,8 +326,9 @@ namespace vsg
         virtual void apply(StateGroup&);
         virtual void apply(CullGroup&);
         virtual void apply(CullNode&);
-        virtual void apply(MatrixTransform&);
         virtual void apply(Transform&);
+        virtual void apply(MatrixTransform&);
+        virtual void apply(CoordinateFrame&);
         virtual void apply(Geometry&);
         virtual void apply(VertexDraw&);
         virtual void apply(VertexIndexDraw&);
@@ -353,6 +357,7 @@ namespace vsg
         virtual void apply(JointSampler&);
         virtual void apply(MorphSampler&);
         virtual void apply(TransformSampler&);
+        virtual void apply(CameraSampler&);
         virtual void apply(Joint&);
 
         // Vulkan nodes
@@ -444,6 +449,7 @@ namespace vsg
         virtual void apply(Viewer&);
         virtual void apply(ViewMatrix&);
         virtual void apply(LookAt&);
+        virtual void apply(LookDirection&);
         virtual void apply(RelativeViewMatrix&);
         virtual void apply(TrackingViewMatrix&);
         virtual void apply(ProjectionMatrix&);

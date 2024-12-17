@@ -61,6 +61,7 @@ namespace vsg
         virtual void write(size_t num, const uint64_t* value) = 0;
         virtual void write(size_t num, const float* value) = 0;
         virtual void write(size_t num, const double* value) = 0;
+        virtual void write(size_t num, const long double* value) = 0;
         virtual void write(size_t num, const std::string* value) = 0;
         virtual void write(size_t num, const std::wstring* value) = 0;
         virtual void write(size_t num, const Path* value) = 0;
@@ -79,6 +80,9 @@ namespace vsg
         void write(size_t num, const dvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const dvec4* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ldvec2* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ldvec3* value) { write(num * value->size(), value->data()); }
+        void write(size_t num, const ldvec4* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const bvec2* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const bvec3* value) { write(num * value->size(), value->data()); }
         void write(size_t num, const bvec4* value) { write(num * value->size(), value->data()); }
@@ -163,7 +167,7 @@ namespace vsg
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
 
-            for (auto& v : values)
+            for (const auto& v : values)
             {
                 write("element", v);
             }

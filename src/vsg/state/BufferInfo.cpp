@@ -222,7 +222,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         if (bufferInfo->data)
         {
@@ -271,7 +271,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
 
     // assign the buffer to the bufferData entries and shift the offsets to offset within the buffer
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         bufferInfo->buffer = deviceBufferInfo->buffer;
         bufferInfo->offset += deviceBufferInfo->offset;
@@ -311,7 +311,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     debug("    buffer_data ", buffer_data, ", stagingBufferInfo->offset=", stagingBufferInfo->offset, ", ", totalSize);
 
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         const Data* data = bufferInfo->data;
         if (data)
@@ -362,7 +362,7 @@ BufferInfoList vsg::createHostVisibleBuffer(Device* device, const DataList& data
 
     ref_ptr<Buffer> buffer = vsg::createBufferAndMemory(device, totalSize, usage, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    for (auto& bufferData : bufferInfoList)
+    for (const auto& bufferData : bufferInfoList)
     {
         bufferData->buffer = buffer;
     }
@@ -386,7 +386,7 @@ void vsg::assignVulkanArrayData(uint32_t deviceID, const BufferInfoList& arrays,
 
     for (size_t i = 0; i < arrays.size(); ++i)
     {
-        auto& bufferInfo = arrays[i];
+        const auto& bufferInfo = arrays[i];
         if (bufferInfo->buffer)
         {
             vkd.vkBuffers[i] = bufferInfo->buffer->vk(deviceID);

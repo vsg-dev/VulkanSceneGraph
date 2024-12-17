@@ -22,7 +22,7 @@ namespace vsg
     class VSG_DECLSPEC ProfileLog : public Inherit<Object, ProfileLog>
     {
     public:
-        ProfileLog(size_t size = 16384);
+        explicit ProfileLog(size_t size = 16384);
 
         enum Type : uint8_t
         {
@@ -107,7 +107,7 @@ namespace vsg
             uint32_t gpu_timestamp_size = 1024;
         };
 
-        Profiler(ref_ptr<Settings> in_settings = {});
+        explicit Profiler(ref_ptr<Settings> in_settings = {});
 
         ref_ptr<Settings> settings;
         mutable ref_ptr<ProfileLog> log;

@@ -21,7 +21,7 @@ namespace vsg
     class ActivityStatus : public Inherit<Object, ActivityStatus>
     {
     public:
-        ActivityStatus(bool active = true) :
+        explicit ActivityStatus(bool active = true) :
             _active(active) {}
 
         void set(bool flag) noexcept { _active.exchange(flag); }

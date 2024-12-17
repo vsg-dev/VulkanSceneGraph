@@ -27,6 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/lighting/SpotLight.h>
 #include <vsg/maths/plane.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
@@ -56,14 +57,14 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
+RecordTraversal::RecordTraversal(uint32_t in_maxSlot, const std::set<Bin*>& in_bins) :
     _state(new State(in_maxSlot))
 {
     CPU_INSTRUMENTATION_L1_C(instrumentation, COLOR_RECORD);
 
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
-    for (auto& bin : in_bins)
+    for (const auto& bin : in_bins)
     {
         if (bin->binNumber < _minimumBinNumber) _minimumBinNumber = bin->binNumber;
         if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
@@ -308,7 +309,7 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
     if (_state->intersect(depthSorted.bound))
     {
         const auto& mv = _state->modelviewMatrixStack.top();
-        auto& center = depthSorted.bound.center;
+        const auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
         addToBin(depthSorted.binNumber, distance, depthSorted.child);
@@ -435,6 +436,40 @@ void RecordTraversal::apply(const MatrixTransform& mt)
     _state->dirty = true;
 }
 
+void RecordTraversal::apply(const CoordinateFrame& cf)
+{
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CoordinateFrame", COLOR_RECORD_L2, &cf);
+
+    const View* parentView = _viewDependentState ? _viewDependentState->view : nullptr;
+    const Camera* camera = parentView ? parentView->camera : nullptr;
+    const ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
+
+    if (viewMatrix)
+    {
+        _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin) * vsg::rotate(cf.rotation));
+    }
+    else
+    {
+        _state->modelviewMatrixStack.push(cf);
+    }
+
+    _state->dirty = true;
+
+    if (cf.subgraphRequiresLocalFrustum)
+    {
+        _state->pushFrustum();
+        cf.traverse(*this);
+        _state->popFrustum();
+    }
+    else
+    {
+        cf.traverse(*this);
+    }
+
+    _state->modelviewMatrixStack.pop();
+    _state->dirty = true;
+}
+
 // Animation nodes
 void RecordTraversal::apply(const Joint&)
 {
@@ -458,7 +493,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     stateGroup.traverse(*this);
 
-    for (auto& command : stateGroup.stateCommands)
+    for (const auto& command : stateGroup.stateCommands)
     {
         _state->stateStacks[command->slot].pop();
     }
@@ -515,7 +550,7 @@ void RecordTraversal::apply(const View& view)
     // assign and clear the View's bins
     int32_t min_binNumber = 0;
     int32_t max_binNumber = 0;
-    for (auto& bin : view.bins)
+    for (const auto& bin : view.bins)
     {
         if (bin->binNumber < min_binNumber) min_binNumber = bin->binNumber;
         if (bin->binNumber > max_binNumber) max_binNumber = bin->binNumber;

@@ -179,7 +179,7 @@ void PagedLODContainer::print(std::ostream& fout)
 
     for (unsigned i = 0; i < total_size; ++i)
     {
-        auto& element = elements[i];
+        const auto& element = elements[i];
         fout << "         element[" << i << "] plod = " << element.plod.get() << ", previous =" << element.previous << ", next = " << element.next << ", list = ";
         if (element.list)
             fout << element.list->name;

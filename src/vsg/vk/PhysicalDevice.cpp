@@ -107,7 +107,7 @@ std::vector<VkExtensionProperties> PhysicalDevice::enumerateDeviceExtensionPrope
 bool PhysicalDevice::supportsDeviceExtension(const char* extensionName)
 {
     auto extensionProperties = enumerateDeviceExtensionProperties();
-    for (auto& extensionProperty : extensionProperties)
+    for (const auto& extensionProperty : extensionProperties)
     {
         if (std::strncmp(extensionProperty.extensionName, extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0)
             return true;

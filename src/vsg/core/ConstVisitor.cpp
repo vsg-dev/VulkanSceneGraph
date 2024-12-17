@@ -573,6 +573,10 @@ void ConstVisitor::apply(const MatrixTransform& value)
 {
     apply(static_cast<const Transform&>(value));
 }
+void ConstVisitor::apply(const CoordinateFrame& value)
+{
+    apply(static_cast<const Transform&>(value));
+}
 void ConstVisitor::apply(const Geometry& value)
 {
     apply(static_cast<const Command&>(value));
@@ -676,6 +680,10 @@ void ConstVisitor::apply(const MorphSampler& sampler)
     apply(static_cast<const AnimationSampler&>(sampler));
 }
 void ConstVisitor::apply(const TransformSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const CameraSampler& sampler)
 {
     apply(static_cast<const AnimationSampler&>(sampler));
 }
@@ -1025,6 +1033,10 @@ void ConstVisitor::apply(const ViewMatrix& value)
     apply(static_cast<const Object&>(value));
 }
 void ConstVisitor::apply(const LookAt& value)
+{
+    apply(static_cast<const ViewMatrix&>(value));
+}
+void ConstVisitor::apply(const LookDirection& value)
 {
     apply(static_cast<const ViewMatrix&>(value));
 }

@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Queue.h>
-#include <vsg/io/Logger.h>
 
 #include <mutex>
 #include <vector>
@@ -67,7 +66,7 @@ namespace vsg
 
     /// convenience template function for submitting Vulkan commands to a queue and waiting for completion.
     template<typename F>
-    VkResult  submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
+    VkResult submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
     {
         return submitCommandsToQueue(commandPool, nullptr, 0, queue, function);
     }

@@ -53,7 +53,7 @@ namespace vsg
             {
                 _data = _allocate(_size);
                 auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                for (const auto& v : rhs) *(dest_v++) = v;
             }
             dirty();
         }
@@ -227,7 +227,7 @@ namespace vsg
             {
                 _data = _allocate(_size);
                 auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                for (const auto& v : rhs) *(dest_v++) = v;
             }
 
             dirty();

@@ -269,8 +269,6 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         {
             auto settings = vsg_shader->module->hints ? vsg_shader->module->hints : defaults;
 
-            ShaderModule::SPIRV spirv;
-            std::string warningsErrors;
             spv::SpvBuildLogger logger;
 
             glslang::SpvOptions spvOptions;
@@ -324,7 +322,7 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
         size_t endpos = str.find_last_not_of(" \t\r\n");
         if (endpos != std::string::npos)
         {
-            str = str.substr(0, endpos + 1);
+            str.resize(endpos + 1);
         }
     };
 
@@ -436,7 +434,7 @@ void ShaderCompiler::apply(BindGraphicsPipeline& bgp)
 
     // compile shaders if required
     bool requiresShaderCompiler = false;
-    for (auto& shaderStage : pipeline->stages)
+    for (const auto& shaderStage : pipeline->stages)
     {
         if (shaderStage->module)
         {
@@ -476,7 +474,7 @@ void ShaderCompiler::apply(BindRayTracingPipeline& brtp)
 
     // compile shaders if required
     bool requiresShaderCompiler = false;
-    for (auto& shaderStage : pipeline->getShaderStages())
+    for (const auto& shaderStage : pipeline->getShaderStages())
     {
         if (shaderStage->module)
         {

@@ -36,7 +36,7 @@ namespace vsg
     class VSG_DECLSPEC DescriptorConfigurator : public vsg::Inherit<Object, DescriptorConfigurator>
     {
     public:
-        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         ref_ptr<ShaderSet> shaderSet;
         bool blending = false;
@@ -75,7 +75,7 @@ namespace vsg
     class VSG_DECLSPEC ArrayConfigurator : public vsg::Inherit<Object, ArrayConfigurator>
     {
     public:
-        ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         ref_ptr<ShaderSet> shaderSet;
 
@@ -97,7 +97,7 @@ namespace vsg
     class VSG_DECLSPEC GraphicsPipelineConfigurator : public vsg::Inherit<Object, GraphicsPipelineConfigurator>
     {
     public:
-        GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         void traverse(Visitor& visitor) override;
         void traverse(ConstVisitor& visitor) const override;

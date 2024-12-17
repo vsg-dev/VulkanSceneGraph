@@ -23,6 +23,15 @@ namespace vsg
     class VSG_DECLSPEC ProjectionMatrix : public Inherit<Object, ProjectionMatrix>
     {
     public:
+        ProjectionMatrix()
+        {
+        }
+
+        explicit ProjectionMatrix(const ProjectionMatrix& pm, const CopyOp& copyop = {}) :
+            Inherit(pm, copyop)
+        {
+        }
+
         virtual dmat4 transform() const = 0;
 
         virtual dmat4 inverse() const
@@ -48,6 +57,15 @@ namespace vsg
         {
         }
 
+        explicit Perspective(const Perspective& p, const CopyOp& copyop = {}) :
+            Inherit(p, copyop),
+            fieldOfViewY(p.fieldOfViewY),
+            aspectRatio(p.aspectRatio),
+            nearDistance(p.nearDistance),
+            farDistance(p.farDistance)
+        {
+        }
+
         Perspective(double fov, double ar, double nd, double fd) :
             fieldOfViewY(fov),
             aspectRatio(ar),
@@ -55,6 +73,8 @@ namespace vsg
             farDistance(fd)
         {
         }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Perspective::create(*this, copyop); }
 
         dmat4 transform() const override { return perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
 
@@ -91,6 +111,17 @@ namespace vsg
         {
         }
 
+        explicit Orthographic(const Orthographic& o, const CopyOp& copyop = {}) :
+            Inherit(o, copyop),
+            left(o.left),
+            right(o.right),
+            bottom(o.bottom),
+            top(o.top),
+            nearDistance(o.nearDistance),
+            farDistance(o.farDistance)
+        {
+        }
+
         Orthographic(double l, double r, double b, double t, double nd, double fd) :
             left(l),
             right(r),
@@ -100,6 +131,8 @@ namespace vsg
             farDistance(fd)
         {
         }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Orthographic::create(*this, copyop); }
 
         dmat4 transform() const override { return orthographic(left, right, bottom, top, nearDistance, farDistance); }
 

@@ -238,7 +238,7 @@ endmacro()
 macro(vsg_add_target_clang_format)
     set(options)
     set(oneValueArgs )
-    set(multiValueArgs FILES EXCLUDE)
+    set(multiValueArgs FILES EXCLUDES)
     cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     find_program(CLANGFORMAT clang-format)

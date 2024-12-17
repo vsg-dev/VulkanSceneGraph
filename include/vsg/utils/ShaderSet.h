@@ -74,7 +74,7 @@ namespace vsg
     /// Base class for specifying custom DescriptorSetLayout and StateCommand
     struct VSG_DECLSPEC CustomDescriptorSetBinding : public Inherit<Object, CustomDescriptorSetBinding>
     {
-        CustomDescriptorSetBinding(uint32_t in_set = 0);
+        explicit CustomDescriptorSetBinding(uint32_t in_set = 0);
 
         uint32_t set = 0;
 
@@ -92,7 +92,7 @@ namespace vsg
     /// Custom state binding class for providing the DescriptorSetLayout and StateCommand required to pass view dependent data, lights/shadows etc., to shaders
     struct VSG_DECLSPEC ViewDependentStateBinding : public Inherit<CustomDescriptorSetBinding, ViewDependentStateBinding>
     {
-        ViewDependentStateBinding(uint32_t in_set = 0);
+        explicit ViewDependentStateBinding(uint32_t in_set = 0);
 
         int compare(const Object& rhs) const override;
 

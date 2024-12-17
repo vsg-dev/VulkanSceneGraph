@@ -176,6 +176,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::PagedLOD>();
     add<vsg::AbsoluteTransform>();
     add<vsg::MatrixTransform>();
+    add<vsg::CoordinateFrame>();
     add<vsg::Geometry>();
     add<vsg::VertexDraw>();
     add<vsg::VertexIndexDraw>();
@@ -299,6 +300,8 @@ ObjectFactory::ObjectFactory()
     // animation
     add<vsg::TransformKeyframes>();
     add<vsg::TransformSampler>();
+    add<vsg::CameraKeyframes>();
+    add<vsg::CameraSampler>();
     add<vsg::MorphKeyframes>();
     add<vsg::MorphSampler>();
     add<vsg::JointSampler>();

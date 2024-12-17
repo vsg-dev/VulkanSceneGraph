@@ -128,4 +128,7 @@ namespace vsg
     };
     VSG_type_name(vsg::CompositeReaderWriter);
 
+    /// Get the Features supported by the ReaderWriters assigned to Options object.
+    extern VSG_DECLSPEC bool getFeatures(ref_ptr<const Options> options, ReaderWriter::Features& features);
+
 } // namespace vsg

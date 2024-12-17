@@ -26,10 +26,6 @@ namespace vsg
     public:
         WindowAdapter(ref_ptr<Surface> surface, ref_ptr<WindowTraits> traits);
 
-        WindowAdapter() = delete;
-        WindowAdapter(const Window&) = delete;
-        WindowAdapter& operator=(const Window&) = delete;
-
         const char* instanceExtensionSurfaceName() const override { return nullptr; }
 
         bool visible() const override { return windowVisible; }
@@ -41,7 +37,6 @@ namespace vsg
         void updateExtents(uint32_t width, uint32_t height);
 
         // access methods
-        VkExtent2D& extent2D() { return _extent2D; }
         bool windowVisible = false;
         bool windowValid = false;
 

@@ -134,7 +134,7 @@ void DatabasePager::start(uint32_t numReadThreads)
     //
     // set up read thread(s)
     //
-    auto read = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager, const std::string& threadName) {
+    auto readThread = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager, const std::string& threadName) {
         debug("Started DatabaseThread read thread");
 
         auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);
@@ -193,7 +193,7 @@ void DatabasePager::start(uint32_t numReadThreads)
         debug("Finished DatabaseThread read thread");
     };
 
-    auto deleteThread = [](ref_ptr<DeleteQueue> deleteQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager, const std::string& threadName) {
+    auto deleteThread = [](ref_ptr<DeleteQueue> deleteQueue, ref_ptr<ActivityStatus> status, const DatabasePager& databasePager, const std::string& threadName) {
         debug("Started DatabaseThread deletethread");
 
         auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);
@@ -208,7 +208,7 @@ void DatabasePager::start(uint32_t numReadThreads)
 
     for (uint32_t i = 0; i < numReadThreads; ++i)
     {
-        threads.emplace_back(read, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager read thread ", i));
+        threads.emplace_back(readThread, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager read thread ", i));
     }
 
     threads.emplace_back(deleteThread, std::ref(_deleteQueue), std::ref(_status), std::ref(*this), "DatabasePager delete thread ");

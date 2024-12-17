@@ -141,12 +141,12 @@ void SharedObjects::prune()
     }
 
     // reassign any default objects that still have references
-    for (auto& observerDefault : observedDefaults)
+    for (const auto& observerDefault : observedDefaults)
     {
         ref_ptr<Object> defaultObject = observerDefault;
         if (defaultObject)
         {
-            auto& object = *defaultObject;
+            const auto& object = *defaultObject;
             _defaults[std::type_index(typeid(object))] = defaultObject;
         }
     }

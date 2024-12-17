@@ -23,7 +23,7 @@ namespace vsg
     class VSG_DECLSPEC InstanceExtensions : public Inherit<Object, InstanceExtensions>
     {
     public:
-        explicit InstanceExtensions(Instance* instance);
+        explicit InstanceExtensions(const Instance* instance);
 
         // VK_EXT_debug_utils
         PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = nullptr;

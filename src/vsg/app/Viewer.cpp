@@ -58,7 +58,7 @@ void Viewer::deviceWaitIdle() const
         if (window->getDevice()) devices.insert(*(window->getDevice()));
     }
 
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
@@ -90,7 +90,7 @@ void Viewer::removeWindow(ref_ptr<Window> window)
 
     // create a new list of CommandGraphs not associated with removed window
     CommandGraphs commandGraphs;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
@@ -330,7 +330,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
         for (auto& binNumber : binDetails.indices)
         {
             bool binNumberMatched = false;
-            for (auto& bin : view->bins)
+            for (const auto& bin : view->bins)
             {
                 if (bin->binNumber == binNumber)
                 {
@@ -352,14 +352,14 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 
     // create the Vulkan objects
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
-        auto& deviceResource = deviceResourceMap[task->device];
-        auto& resourceRequirements = deviceResource.collectResources.requirements;
+        const auto& deviceResource = deviceResourceMap[task->device];
+        const auto& resourceRequirements = deviceResource.collectResources.requirements;
 
         bool task_containsPagedLOD = false;
 
-        for (auto& commandGraph : task->commandGraphs)
+        for (const auto& commandGraph : task->commandGraphs)
         {
             commandGraph->maxSlot = resourceRequirements.maxSlot;
             if (resourceRequirements.containsPagedLOD) task_containsPagedLOD = true;
@@ -393,7 +393,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
     }
 
     // start any DatabasePagers
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -415,7 +415,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
     // if a DatabasePager is already assigned re-assign
     ref_ptr<DatabasePager> databasePager;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -534,7 +534,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
                 commandGraph->accept(findWindows);
             }
 
-            Windows windows(findWindows.windows.begin(), findWindows.windows.end());
+            Windows activeWindows(findWindows.windows.begin(), findWindows.windows.end());
 
             auto renderFinishedSemaphore = vsg::Semaphore::create(device);
 
@@ -543,7 +543,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->databasePager = databasePager;
             recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
-            recordAndSubmitTask->windows = windows;
+            recordAndSubmitTask->windows = activeWindows;
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
 
@@ -554,7 +554,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
             auto presentation = vsg::Presentation::create();
             presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
-            presentation->windows = windows;
+            presentation->windows = activeWindows;
             presentation->queue = device->getQueue(deviceQueueFamily.presentFamily);
             presentations.emplace_back(presentation);
         }
@@ -586,7 +586,7 @@ void Viewer::addRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs)
 
     // collect the existing CommandGraphs
     CommandGraphs combinedCommandGraphs;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         for (auto& cg : task->commandGraphs)
         {
@@ -607,7 +607,7 @@ void Viewer::setupThreading()
 
     // check how many valid tasks there are.
     uint32_t numValidTasks = 0;
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (!task->commandGraphs.empty())
         {
@@ -801,7 +801,7 @@ void Viewer::update()
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer update", COLOR_UPDATE);
 
     // merge any updates from the DatabasePager
-    for (auto& task : recordAndSubmitTasks)
+    for (const auto& task : recordAndSubmitTasks)
     {
         if (task->databasePager)
         {
@@ -823,7 +823,7 @@ void Viewer::recordAndSubmit()
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer recordAndSubmitTask", COLOR_VIEWER);
 
     // reset connected ExecuteCommands
-    for (auto& recordAndSubmitTask : recordAndSubmitTasks)
+    for (const auto& recordAndSubmitTask : recordAndSubmitTasks)
     {
         for (auto& commandGraph : recordAndSubmitTask->commandGraphs)
         {

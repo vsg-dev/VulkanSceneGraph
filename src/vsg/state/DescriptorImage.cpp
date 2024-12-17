@@ -59,7 +59,7 @@ int DescriptorImage::compare(const Object& rhs_object) const
     int result = Descriptor::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     return compare_pointer_container(imageInfoList, rhs.imageInfoList);
 }
@@ -93,7 +93,7 @@ void DescriptorImage::write(Output& output) const
     Descriptor::write(output);
 
     output.writeValue<uint32_t>("images", imageInfoList.size());
-    for (auto& imageInfo : imageInfoList)
+    for (const auto& imageInfo : imageInfoList)
     {
         output.writeObject("sampler", imageInfo->sampler.get());
 
@@ -125,7 +125,7 @@ void DescriptorImage::compile(Context& context)
 
             if (!transferTask && imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
-                auto& image = *imageView.image;
+                const auto& image = *imageView.image;
                 context.copy(image.data, imageInfo, image.mipLevels);
             }
         }

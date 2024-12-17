@@ -68,7 +68,7 @@ namespace vsg
         if (lhs.empty()) return 0;
 
         auto rhs_itr = rhs.begin();
-        for (auto& object : lhs)
+        for (const auto& object : lhs)
         {
             int result = compare_pointer(object, *rhs_itr++);
             if (result != 0) return result;

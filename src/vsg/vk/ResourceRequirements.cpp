@@ -36,9 +36,14 @@ using namespace vsg;
 //
 // ResourceRequirements
 //
-ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
+ResourceRequirements::ResourceRequirements()
 {
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
+}
+
+ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints) :
+    vsg::ResourceRequirements()
+{
     if (hints) apply(*hints);
 }
 
@@ -189,7 +194,7 @@ void CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer
     if (registerDescriptor(descriptorBuffer))
     {
         //info("CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer) ", &descriptorBuffer);
-        for (auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
+        for (const auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
     }
 }
 
@@ -198,7 +203,7 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
     if (registerDescriptor(descriptorImage))
     {
         //info("CollectResourceRequirements::apply(const DescriptorImage& descriptorImage) ", &descriptorImage);
-        for (auto& imageInfo : descriptorImage.imageInfoList) apply(imageInfo);
+        for (const auto& imageInfo : descriptorImage.imageInfoList) apply(imageInfo);
     }
 }
 
@@ -263,24 +268,24 @@ void CollectResourceRequirements::apply(const Bin& bin)
 
 void CollectResourceRequirements::apply(const Geometry& geometry)
 {
-    for (auto& bufferInfo : geometry.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo);
     apply(geometry.indices);
 }
 
 void CollectResourceRequirements::apply(const VertexDraw& vd)
 {
-    for (auto& bufferInfo : vd.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : vd.arrays) apply(bufferInfo);
 }
 
 void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
 {
-    for (auto& bufferInfo : vid.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : vid.arrays) apply(bufferInfo);
     apply(vid.indices);
 }
 
 void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
 {
-    for (auto& bufferInfo : bvb.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo);
 }
 
 void CollectResourceRequirements::apply(const BindIndexBuffer& bib)

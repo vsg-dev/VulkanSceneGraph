@@ -37,7 +37,7 @@ int TessellationState::compare(const Object& rhs_object) const
     int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(patchControlPoints, rhs.patchControlPoints);
 }
 

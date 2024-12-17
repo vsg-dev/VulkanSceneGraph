@@ -35,7 +35,7 @@ int Light::compare(const Object& rhs_object) const
     int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(color, rhs.color)) != 0) return result;
     if ((result = compare_value(intensity, rhs.intensity)) != 0) return result;

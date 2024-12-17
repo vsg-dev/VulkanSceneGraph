@@ -80,7 +80,7 @@ ref_ptr<vsg::Object> txt::read(const uint8_t* ptr, size_t size, ref_ptr<const Op
 
 bool txt::getFeatures(Features& features) const
 {
-    for (auto& ext : supportedExtensions)
+    for (const auto& ext : supportedExtensions)
     {
         features.extensionFeatureMap[ext] = static_cast<FeatureMask>(READ_FILENAME | READ_ISTREAM | READ_MEMORY);
     }

@@ -110,7 +110,7 @@ namespace vsg
 
     struct PagedLODContainer : public Inherit<Object, PagedLODContainer>
     {
-        PagedLODContainer(uint32_t maxNumPagedLOD = 10000);
+        explicit PagedLODContainer(uint32_t maxNumPagedLOD = 10000);
 
         struct List
         {

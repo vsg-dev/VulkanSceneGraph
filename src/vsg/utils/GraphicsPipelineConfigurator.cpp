@@ -100,7 +100,7 @@ int DescriptorConfigurator::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
     if ((result = compare_value(blending, rhs.blending))) return result;
@@ -252,7 +252,7 @@ bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedS
             if (descriptorBinding.define.empty() && assigned.count(descriptorBinding.name) == 0)
             {
                 bool set_matched = false;
-                for (auto& cds : shaderSet->customDescriptorSetBindings)
+                for (const auto& cds : shaderSet->customDescriptorSetBindings)
                 {
                     if (cds->set == descriptorBinding.set)
                     {
@@ -310,7 +310,7 @@ int ArrayConfigurator::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
     if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
@@ -493,7 +493,7 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
 
@@ -599,7 +599,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
     bool stateAssigned = false;
 
     bool pipelineUnique = true;
-    for (auto& sc : inheritedState)
+    for (const auto& sc : inheritedState)
     {
         if (compare_pointer(sc, bindGraphicsPipeline) == 0) pipelineUnique = false;
     }
@@ -632,7 +632,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
 
                 bool dsUnique = true;
-                for (auto& sc : inheritedState)
+                for (const auto& sc : inheritedState)
                 {
                     if (compare_pointer(sc, bindDescriptorSet) == 0) dsUnique = false;
                 }

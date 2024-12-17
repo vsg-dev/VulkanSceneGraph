@@ -26,7 +26,7 @@ namespace vsg
     std::ostream& operator<<(std::ostream& output, const vsg::Polytope& polytope)
     {
         output << "Polytope " << &polytope << " {" << std::endl;
-        for (auto& pl : polytope)
+        for (const auto& pl : polytope)
         {
             output << "   " << pl << std::endl;
         }
@@ -75,13 +75,13 @@ namespace vsg
             processedVertices[2] = sourceVertices->at(i2);
 
             // trim the convex polygon to each successive plane
-            for (auto& pl : polytope)
+            for (const auto& pl : polytope)
             {
                 size_t numNegativeDistances = 0;
                 size_t numPositiveDistances = 0;
                 size_t numZeroDistances = 0;
                 processedDistances.resize(0);
-                for (auto& v : processedVertices)
+                for (const auto& v : processedVertices)
                 {
                     double d = distance(pl, v);
                     processedDistances.push_back(d);
@@ -142,7 +142,7 @@ namespace vsg
             }
 
             dvec3 intersection(0.0, 0.0, 0.0);
-            for (auto& v : processedVertices)
+            for (const auto& v : processedVertices)
             {
                 intersection += v;
             }
@@ -236,6 +236,10 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     }
 
     _polytopeStack.push_back(worldspace);
+
+    dmat4 eyeToWorld = inverse(viewMatrix);
+    localToWorldStack().push_back(viewMatrix);
+    worldToLocalStack().push_back(eyeToWorld);
 }
 
 PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const std::vector<uint32_t>& in_indices, uint32_t in_instanceIndex) :
@@ -305,7 +309,7 @@ bool PolytopeIntersector::intersectDraw(uint32_t firstVertex, uint32_t vertexCou
     auto& arrayState = *arrayStateStack.back();
 
     vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimitives(*this, arrayState, _polytopeStack.back());
-    if (ushort_indices) printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
+    printPrimitives.draw(arrayState.topology, firstVertex, vertexCount, firstInstance, instanceCount);
 
     return intersections.size() != previous_size;
 }

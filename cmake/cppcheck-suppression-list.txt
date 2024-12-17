@@ -1,8 +1,8 @@
 // suppress Key related errors
-noExplicitConstructor:*include/vsg/core/ref_ptr.h
-noExplicitConstructor:*include/vsg/core/Inherit.h:31
-noExplicitConstructor:*include/vsg/core/Allocator.h:138
-noExplicitConstructor:*include/vsg/io/Path.h
+noExplicitConstructor:*/include/vsg/core/ref_ptr.h
+noExplicitConstructor:*/include/vsg/core/Inherit.h:31
+noExplicitConstructor:*/include/vsg/core/Allocator.h:138
+noExplicitConstructor:*/include/vsg/io/Path.h
 
 // suppress correct casts flagged as issues
 invalidPointerCast:*/include/vsg/core/Data.h
@@ -18,6 +18,7 @@ useStlAlgorithm:*/include/vsg/core/Value.h
 useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
+useStlAlgorithm:*/include/vsg/threading/DeleteQueue.h
 useStlAlgorithm:*/include/vsg/vk/vk_buffer.h
 useStlAlgorithm:*/include/vsg/utils/CommandLine.h
 useStlAlgorithm:*/src/vsg/nodes/VertexDraw.cpp
@@ -55,63 +56,84 @@ useStlAlgorithm:*/src/vsg/utils/ShaderSet.cpp
 useStlAlgorithm:*/src/vsg/utils/ShaderCompiler.cpp
 useStlAlgorithm:*/src/vsg/utils/GraphicsPipelineConfigurator.cpp
 useStlAlgorithm:*/src/vsg//utils/Builder.cpp
+useStlAlgorithm:*/src/vsg/io/Path.cpp
+useStlAlgorithm:*/src/vsg/utils/PolytopeIntersector.cpp
+useStlAlgorithm:*/src/vsg/vk/PhysicalDevice.cpp
+
 
 // suppress the warning about valid C++17 if (init; condition) usage
-syntaxError:*include/vsg/core/Inherit.h
-syntaxError:*src/vsg/io/AsciiOutput.cpp
-syntaxError:*src/vsg/io/AsciiInput.cpp
-syntaxError:*src/vsg/io/BinaryOutput.cpp
-syntaxError:*src/vsg/io/BinaryInput.cpp
-syntaxError:*src/vsg/io/ReaderWriter.cpp
-syntaxError:*src/vsg/io/FileSystem.cpp
-syntaxError:*include/vsg/io/Input.h
-syntaxError:*include/vsg/io/Output.h
+syntaxError:*/include/vsg/core/Inherit.h
+syntaxError:*/src/vsg/io/AsciiOutput.cpp
+syntaxError:*/src/vsg/io/AsciiInput.cpp
+syntaxError:*/src/vsg/io/BinaryOutput.cpp
+syntaxError:*/src/vsg/io/BinaryInput.cpp
+syntaxError:*/src/vsg/io/ReaderWriter.cpp
+syntaxError:*/src/vsg/io/FileSystem.cpp
+syntaxError:*/include/vsg/io/Input.h
+syntaxError:*/include/vsg/io/Output.h
 
 // suppress the warning about valid C++17 if (init; condition) usage
-syntaxError:*include/vsg/utils/CommandLine.h
-syntaxError:*include/vsg/core/Data.h:51
+syntaxError:*/include/vsg/utils/CommandLine.h
+syntaxError:*/include/vsg/core/Data.h:51
 
 // suppress warnings about never used variables that are used in .cpp's
-unusedStructMember:*include/vsg/core/Data.h
-unusedStructMember:*include/vsg/core/Exception.h
-unusedStructMember:*include/vsg/core/Version.h
-unusedStructMember:*include/vsg/core/IntrusiveAllocator.h
-unusedStructMember:*include/vsg/io/ObjectCache.h
-unusedStructMember:*include/vsg/nodes/Bin.h
-unusedStructMember:*include/vsg/nodes/LOD.h
-unusedStructMember:*include/vsg/nodes/PagedLOD.h
-unusedStructMember:*include/vsg/state/ArrayState.h
-unusedStructMember:*include/vsg/utils/LineSegmentIntersector.h
-unusedStructMember:*include/vsg/app/Trackball.h
-unusedStructMember:*include/vsg/vk/ResourceRequirements.h
-unusedStructMember:*include/vsg/vk/Device.h
-unusedStructMember:*include/vsg/vk/RenderPass.h
-unusedStructMember:*include/vsg/vk/Swapchain.h
-unusedStructMember:*include/vsg/vk/vulkan.h
-unusedStructMember:*include/vsg/nodes/Switch.h
-unusedStructMember:*include/vsg/text/TextLayout.h
-unusedStructMember:*include/vsg/introspection/c_interface.h
-unusedStructMember:*include/vsg/utils/Builder.h
-unusedStructMember:*src/vsg/core/External.cpp
+unusedStructMember:*/include/vsg/core/Data.h
+unusedStructMember:*/include/vsg/core/Exception.h
+unusedStructMember:*/include/vsg/core/Version.h
+unusedStructMember:*/include/vsg/core/IntrusiveAllocator.h
+unusedStructMember:*/include/vsg/io/ObjectCache.h
+unusedStructMember:*/include/vsg/nodes/Bin.h
+unusedStructMember:*/include/vsg/nodes/LOD.h
+unusedStructMember:*/include/vsg/nodes/PagedLOD.h
+unusedStructMember:*/include/vsg/state/ArrayState.h
+unusedStructMember:*/include/vsg/utils/LineSegmentIntersector.h
+unusedStructMember:*/include/vsg/app/Trackball.h
+unusedStructMember:*/include/vsg/vk/ResourceRequirements.h
+unusedStructMember:*/include/vsg/vk/Device.h
+unusedStructMember:*/include/vsg/vk/RenderPass.h
+unusedStructMember:*/include/vsg/vk/Swapchain.h
+unusedStructMember:*/include/vsg/vk/vulkan.h
+unusedStructMember:*/include/vsg/nodes/Switch.h
+unusedStructMember:*/include/vsg/text/TextLayout.h
+unusedStructMember:*/include/vsg/introspection/c_interface.h
+unusedStructMember:*/include/vsg/utils/Builder.h
+unusedStructMember:*/src/vsg/core/External.cpp#
+unusedStructMember:*/include/vsg/animation/MorphSampler.h
+unusedStructMember:*/include/vsg/app/CompileManager.h
+unusedStructMember:*/include/vsg/app/RecordTraversal.h
+unusedStructMember:*/include/vsg/app/TransferTask.h
+unusedStructMember:*/include/vsg/commands/CopyAndReleaseImage.h
+unusedStructMember:*/include/vsg/core/MemorySlots.h
+unusedStructMember:*/include/vsg/io/AsciiInput.h
+unusedStructMember:*/include/vsg/io/Input.h
+unusedStructMember:*/include/vsg/io/Output.h
+unusedStructMember:*/include/vsg/io/Path.h
+unusedStructMember:*/include/vsg/io/ReaderWriter.h
+unusedStructMember:*/include/vsg/raytracing/BuildAccelerationStructureTraversal.h
+unusedStructMember:*/include/vsg/state/BindDescriptorSet.h
+unusedStructMember:*/include/vsg/state/BufferInfo.h
+unusedStructMember:*/include/vsg/utils/Instrumentation.h
+unusedStructMember:*/include/vsg/utils/ShaderSet.h
+unusedStructMember:*/include/vsg/utils/LoadPagedLOD.h
 
 // suppress warnings about unused variables
-unusedVariable:*src/vsg/io/FileSystem.cpp
-unusedVariable:*src/vsg/app/CompileManager.cpp
-unusedVariable:*src/vsg/app/Viewer.cpp
+unusedVariable:*/src/vsg/io/FileSystem.cpp
+unusedVariable:*/src/vsg/app/CompileManager.cpp
+unusedVariable:*/src/vsg/app/Viewer.cpp
 
 // suppress inappropriate warnings about unassigned variables
-unassignedVariable:*src/vsg/commands/ExecuteCommands.cpp
-unassignedVariable:*src/vsg/state/ShaderStage.cpp
-unassignedVariable:*src/vsg/state/ViewDependentState.cpp
-unassignedVariable:*src/vsg/vk/DescriptorPool.cpp
-unassignedVariable:*src/vsg/vk/ResourceRequirements.cpp
-unassignedVariable:*src/vsg/core/External.cpp
-unassignedVariable:*src/vsg/core/MemorySlots.cpp
-unassignedVariable:*src/vsg/vk/Context.cpp
-unassignedVariable:*src/vsg/app/CompileManager.cpp
-unassignedVariable:*src/vsg/app/RecordAndSubmitTask.cpp
-unassignedVariable:*src/vsg/app/Viewer.cpp
-unassignedVariable:*src/vsg/vk/DescriptorPools.cpp
+unassignedVariable:*/src/vsg/commands/ExecuteCommands.cpp
+unassignedVariable:*/src/vsg/state/ShaderStage.cpp
+unassignedVariable:*/src/vsg/state/ViewDependentState.cpp
+unassignedVariable:*/src/vsg/vk/DescriptorPool.cpp
+unassignedVariable:*/src/vsg/vk/ResourceRequirements.cpp
+unassignedVariable:*/src/vsg/core/External.cpp
+unassignedVariable:*/src/vsg/core/MemorySlots.cpp
+unassignedVariable:*/src/vsg/vk/Context.cpp
+unassignedVariable:*/src/vsg/app/CompileManager.cpp
+unassignedVariable:*/src/vsg/app/RecordAndSubmitTask.cpp
+unassignedVariable:*/src/vsg/app/Viewer.cpp
+unassignedVariable:*/src/vsg/vk/DescriptorPools.cpp
 
 // suppress inappropriate warnings about unreadVariable variables
 unreadVariable:*/src/vsg/state/DescriptorTexelBufferView.cpp
@@ -121,10 +143,11 @@ uninitvar:*/include/vsg/vk/DeviceFeatures.h
 uninitvar:*/src/vsg/vk/DeviceFeatures.cpp
 
 // suppress inappropriate warning about out of bounds
-arrayIndexOutOfBounds:*include/vsg/vk/State.h
+arrayIndexOutOfBounds:*/include/vsg/vk/State.h
 
-// suppress warnings about intentional code usage
+// suppress warnings about intentional code usage or where cppcheck just hasn't got a clue about how templates are used...
 knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
+knownConditionTrueFalse:*/include/vsg/utils/CommandLine.h
 
 // suppress warning about initializtion.
 useInitializationList:*/include/vsg/core/ScratchMemory.h
@@ -155,3 +178,61 @@ variableScope:*/src/vsg/core/IntrusiveAllocator.cpp
 // suppress really stupid warning of pointerLessThanZero
 pointerLessThanZero:*/src/vsg/app/Viewer.cpp
 
+// suppress inappropriate warning of duplInheritedMember
+duplInheritedMember:*/include/vsg/core/Inherit.h
+duplInheritedMember:*/include/vsg/core/Data.h
+duplInheritedMember:*/include/vsg/nodes/Node.h
+duplInheritedMember:*/include/vsg/nodes/Group.h
+duplInheritedMember:*/include/vsg/nodes/StateGroup.h
+duplInheritedMember:*/include/vsg/animation/AnimationGroup.h
+duplInheritedMember:*/src/vsg/core/Data.cpp
+duplInheritedMember:*/src/vsg/nodes/Node.cpp
+
+// suppress unhelpful warning of shadowFunction
+shadowFunction:*/include/vsg/maths/transform.h
+shadowFunction:*/src/io/Path.cpp
+shadowFunction:*/src/vsg/animation/CameraAnimationHandler.cpp
+shadowFunction:*/src/vsg/animation/CameraSampler.cpp
+shadowFunction:*/src/vsg/animation/TransformSampler.cpp
+shadowFunction:*/src/vsg/io/tile.cpp
+shadowFunction:*/src/vsg/io/FileSystem.cpp
+shadowFunction:*/src/vsg/io/Path.cpp
+shadowFunction:*/src/vsg/app/Trackball.cpp
+shadowFunction:*/src/vsg/app/RecordTraversal.cpp
+shadowFunction:*/src/vsg/commands/PipelineBarrier.cpp
+shadowFunction:*/src/vsg/state/ArrayState.cpp
+shadowFunction:*/src/vsg/state/DescriptorBuffer.cpp
+shadowFunction:*/src/vsg/state/Image.cpp
+shadowFunction:*/src/vsg/state/ImageView.cpp
+shadowFunction:*/src/vsg/state/MultisampleState.cpp
+shadowFunction:*/src/vsg/state/DescriptorImage.cpp
+shadowFunction:*/src/vsg/utils/FindDynamicObjects.cpp
+shadowFunction:*/src/vsg/utils/LoadPagedLOD.cpp
+shadowFunction:*/src/vsg/utils/PropagateDynamicObjects.cpp
+shadowFunction:*/src/vsg/app/ViewMatrix.cpp
+
+// suppress unhelpful warning of c casts
+cstyleCast:*/include/vsg/io/mem_stream.h
+cstyleCast:*/src/vsg/io/mem_stream.cpp
+
+// suppress unhelpful warnings of override that make inform programmers what is being done
+uselessOverride:*/include/vsg/utils/TracyInstrumentation.h
+
+// suppress inappropriate warning
+constParameterReference:*/include/vsg/vk/Device.h
+constParameterReference:*/src/vsg/vk/Device.cpp
+constParameterReference:*/include/vsg/vk/Instance.h
+constParameterReference:*/src/vsg/vk/Instance.cpp
+constParameterReference:*/include/vsg/app/RecordAndSubmitTask.h
+constParameterReference:*/src/vsg/app/RecordAndSubmitTask.cpp
+
+// suppress inappropriate warning
+constVariableReference:*/src/vsg/app/RecordTraversal.cpp
+constVariableReference:*/src/vsg/utils/ShaderSet.cpp
+
+// suppress inappropriate warning
+constVariablePointer:*/src/vsg/app/SecondaryCommandGraph.cpp
+
+// suppress inappropriate warning
+passedByValue:*/src/vsg/vk/Device.cpp
+passedByValue:*/src/vsg/vk/Instance.cpp
