@@ -42,7 +42,7 @@ int InputAssemblyState::compare(const Object& rhs_object) const
     int result = GraphicsPipelineState::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(topology, rhs.topology))) return result;
     return compare_value(primitiveRestartEnable, rhs.primitiveRestartEnable);

@@ -15,6 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Perspective
+//
 void Perspective::read(Input& input)
 {
     ProjectionMatrix::read(input);
@@ -33,4 +37,60 @@ void Perspective::write(Output& output) const
     output.write("aspectRatio", aspectRatio);
     output.write("nearDistance", nearDistance);
     output.write("farDistance", farDistance);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Orthographic
+//
+void Orthographic::read(Input& input)
+{
+    ProjectionMatrix::read(input);
+
+    input.read("left", left);
+    input.read("right", right);
+    input.read("bottom", bottom);
+    input.read("top", top);
+    input.read("nearDistance", nearDistance);
+    input.read("farDistance", farDistance);
+}
+
+void Orthographic::write(Output& output) const
+{
+    ProjectionMatrix::write(output);
+
+    output.write("left", left);
+    output.write("right", right);
+    output.write("bottom", bottom);
+    output.write("top", top);
+    output.write("nearDistance", nearDistance);
+    output.write("farDistance", farDistance);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// EllipsoidPerspective
+//
+void EllipsoidPerspective::read(Input& input)
+{
+    ProjectionMatrix::read(input);
+
+    input.read("lookAt", lookAt);
+    input.read("ellipsoidModel", ellipsoidModel);
+    input.read("fieldOfViewY", fieldOfViewY);
+    input.read("aspectRatio", aspectRatio);
+    input.read("nearFarRatio", nearFarRatio);
+    input.read("horizonMountainHeight", horizonMountainHeight);
+}
+
+void EllipsoidPerspective::write(Output& output) const
+{
+    ProjectionMatrix::write(output);
+
+    output.write("lookAt", lookAt);
+    output.write("ellipsoidModel", ellipsoidModel);
+    output.write("fieldOfViewY", fieldOfViewY);
+    output.write("aspectRatio", aspectRatio);
+    output.write("nearFarRatio", nearFarRatio);
+    output.write("horizonMountainHeight", horizonMountainHeight);
 }

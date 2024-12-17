@@ -34,12 +34,14 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
-    class MatrixTransform;
     class Transform;
+    class MatrixTransform;
+    class CoordinateFrame;
     class Geometry;
     class VertexDraw;
     class VertexIndexDraw;
     class DepthSorted;
+    class Layer;
     class Bin;
     class Switch;
     class Light;
@@ -48,6 +50,7 @@ namespace vsg
     class PointLight;
     class SpotLight;
     class InstrumentationNode;
+    class RegionOfInterest;
 
     // forward declare text classes
     class Text;
@@ -58,11 +61,11 @@ namespace vsg
     // forward declare animation classes
     class Animation;
     class AnimationGroup;
-    class AnimationPath;
     class AnimationSampler;
     class JointSampler;
     class MorphSampler;
     class TransformSampler;
+    class CameraSampler;
     class Joint;
 
     // forward declare vulkan classes
@@ -153,6 +156,16 @@ namespace vsg
     class RenderGraph;
     class View;
     class Viewer;
+    class ViewMatrix;
+    class LookAt;
+    class LookDirection;
+    class RelativeViewMatrix;
+    class TrackingViewMatrix;
+    class ProjectionMatrix;
+    class Perspective;
+    class Orthographic;
+    class RelativeProjection;
+    class EllipsoidPerspective;
 
     // forward declare general classes
     class FrameStamp;
@@ -313,12 +326,14 @@ namespace vsg
         virtual void apply(const StateGroup&);
         virtual void apply(const CullGroup&);
         virtual void apply(const CullNode&);
-        virtual void apply(const MatrixTransform&);
         virtual void apply(const Transform&);
+        virtual void apply(const MatrixTransform&);
+        virtual void apply(const CoordinateFrame&);
         virtual void apply(const Geometry&);
         virtual void apply(const VertexDraw&);
         virtual void apply(const VertexIndexDraw&);
         virtual void apply(const DepthSorted&);
+        virtual void apply(const Layer&);
         virtual void apply(const Bin&);
         virtual void apply(const Switch&);
         virtual void apply(const Light&);
@@ -327,6 +342,7 @@ namespace vsg
         virtual void apply(const PointLight&);
         virtual void apply(const SpotLight&);
         virtual void apply(const InstrumentationNode&);
+        virtual void apply(const RegionOfInterest&);
 
         // text
         virtual void apply(const Text&);
@@ -337,11 +353,11 @@ namespace vsg
         // animation
         virtual void apply(const Animation&);
         virtual void apply(const AnimationGroup&);
-        virtual void apply(const AnimationPath&);
         virtual void apply(const AnimationSampler&);
         virtual void apply(const JointSampler&);
         virtual void apply(const MorphSampler&);
         virtual void apply(const TransformSampler&);
+        virtual void apply(const CameraSampler&);
         virtual void apply(const Joint&);
 
         // Vulkan nodes
@@ -431,6 +447,16 @@ namespace vsg
         virtual void apply(const RenderGraph&);
         virtual void apply(const View&);
         virtual void apply(const Viewer&);
+        virtual void apply(const ViewMatrix&);
+        virtual void apply(const LookAt&);
+        virtual void apply(const LookDirection&);
+        virtual void apply(const RelativeViewMatrix&);
+        virtual void apply(const TrackingViewMatrix&);
+        virtual void apply(const ProjectionMatrix&);
+        virtual void apply(const Perspective&);
+        virtual void apply(const Orthographic&);
+        virtual void apply(const RelativeProjection&);
+        virtual void apply(const EllipsoidPerspective&);
 
         // general classes
         virtual void apply(const FrameStamp&);

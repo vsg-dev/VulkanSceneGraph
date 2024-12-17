@@ -33,8 +33,10 @@ namespace vsg
     class CullGroup;
     class CullNode;
     class DepthSorted;
+    class Layer;
     class Transform;
     class MatrixTransform;
+    class CoordinateFrame;
     class Joint;
     class TileDatabase;
     class VertexDraw;
@@ -50,6 +52,7 @@ namespace vsg
     class View;
     class Bin;
     class Switch;
+    class RegionOfInterest;
     class ViewDependentState;
     class Light;
     class AmbientLight;
@@ -66,7 +69,7 @@ namespace vsg
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(uint32_t in_maxSlot = 2, std::set<Bin*> in_bins = {});
+        explicit RecordTraversal(uint32_t in_maxSlot = 2, const std::set<Bin*>& in_bins = {});
 
         RecordTraversal(const RecordTraversal&) = delete;
         RecordTraversal& operator=(const RecordTraversal& rhs) = delete;
@@ -74,7 +77,7 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<RecordTraversal> create(Args&&... args)
         {
-            return ref_ptr<RecordTraversal>(new RecordTraversal(args...));
+            return ref_ptr<RecordTraversal>(new RecordTraversal(std::forward<Args>(args)...));
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(RecordTraversal); }
@@ -114,7 +117,9 @@ namespace vsg
         void apply(const CullGroup& cullGroup);
         void apply(const CullNode& cullNode);
         void apply(const DepthSorted& depthSorted);
+        void apply(const Layer& layer);
         void apply(const Switch& sw);
+        void apply(const RegionOfInterest& roi);
 
         // leaf node
         void apply(const VertexDraw& vid);
@@ -131,6 +136,7 @@ namespace vsg
         // transform nodes
         void apply(const Transform& transform);
         void apply(const MatrixTransform& mt);
+        void apply(const CoordinateFrame& cf);
 
         // Animation nodes
         void apply(const Joint& joint);
@@ -147,8 +153,13 @@ namespace vsg
         void apply(const View& view);
         void apply(const CommandGraph& commandGraph);
 
+        void addToBin(int32_t binNumber, double value, const Node* node);
+
         // clear the bins to record a new frame.
         void clearBins();
+
+        // list of pairs of modelview matrix & region of interest
+        std::vector<std::pair<dmat4, const RegionOfInterest*>> regionsOfInterest;
 
     protected:
         virtual ~RecordTraversal();

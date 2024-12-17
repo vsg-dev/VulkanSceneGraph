@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/platform/win32/Win32_Window.h>
+#include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 
 using namespace vsg;
@@ -31,6 +31,7 @@ namespace vsg
 
 namespace vsgWin32
 {
+
     class VSG_DECLSPEC Win32Surface : public vsg::Surface
     {
     public:
@@ -55,11 +56,38 @@ namespace vsgWin32
     LRESULT CALLBACK Win32WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         Win32_Window* win = reinterpret_cast<Win32_Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-        if (win != nullptr) return win->handleWin32Messages(msg, wParam, lParam);
+        if (win != nullptr)
+        {
+#if 1
+            // return if vsg::Win32_Window is able to handle it, otherwise fallback to the ::DefWindowProc(..) below
+            if (win->handleWin32Messages(msg, wParam, lParam)) return 0;
+#else
+            win->handleWin32Messages(msg, wParam, lParam);
+#endif
+        }
         return ::DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
 } // namespace vsgWin32
+
+vsg::Exception vsgWin32::getLastErrorAsException(const std::string_view& prefix)
+{
+    DWORD errorCode = GetLastError();
+    if (errorCode == NOERROR) return Exception{std::string(prefix), 0};
+
+    // Hopefully the error will be representable with the current eight-bit code page as Exception doesn't support wide strings
+    LPSTR buffer;
+    // Ignore the dodgy cast from pointer-to-pointer to pointer
+    // the argument should really be a union of those types as it's interpreted differently depending on the flags passed
+    std::size_t length = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                        nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, nullptr);
+
+    std::string message(buffer, length);
+    LocalFree(buffer);
+
+    if (!prefix.empty()) message.insert(message.begin(), prefix.begin(), prefix.end());
+    return Exception{message, static_cast<int>(errorCode)};
+}
 
 KeyboardMap::KeyboardMap()
 {
@@ -117,7 +145,7 @@ KeyboardMap::KeyboardMap()
             {VK_RETURN                            ,              KEY_Return},
             {VK_SHIFT                             ,              KEY_Undefined},
             {VK_CONTROL                           ,              KEY_Undefined},
-            {VK_MENU                              ,              KEY_Undefined},
+            {VK_MENU                              ,              KEY_Alt_L},
             {VK_PAUSE                             ,              KEY_Pause},
             {VK_CAPITAL                           ,              KEY_Undefined},
             {VK_KANA                              ,              KEY_Undefined},
@@ -144,7 +172,7 @@ KeyboardMap::KeyboardMap()
             {VK_RIGHT                             ,              KEY_Right    },
             {VK_DOWN                              ,              KEY_Down     },
             {VK_SELECT                            ,              KEY_Select},
-            {VK_PRINT                             ,              KEY_Print},
+            {VK_SNAPSHOT                          ,              KEY_Print},
             {VK_EXECUTE                           ,              KEY_Execute},
             {VK_SNAPSHOT                          ,              KEY_Undefined},
             {VK_INSERT                            ,              KEY_Insert},
@@ -152,24 +180,24 @@ KeyboardMap::KeyboardMap()
             {VK_HELP                              ,              KEY_Help},
             {VK_LWIN                              ,              KEY_Super_L},
             {VK_RWIN                              ,              KEY_Super_R},
-            {VK_APPS                              ,              KEY_Undefined},
+            {VK_APPS                              ,              KEY_Menu},
             {VK_SLEEP                             ,              KEY_Undefined},
-            {VK_NUMPAD0                           ,              KEY_Undefined},
-            {VK_NUMPAD1                           ,              KEY_Undefined},
-            {VK_NUMPAD2                           ,              KEY_Undefined},
-            {VK_NUMPAD3                           ,              KEY_Undefined},
-            {VK_NUMPAD4                           ,              KEY_Undefined},
-            {VK_NUMPAD5                           ,              KEY_Undefined},
-            {VK_NUMPAD6                           ,              KEY_Undefined},
-            {VK_NUMPAD7                           ,              KEY_Undefined},
-            {VK_NUMPAD8                           ,              KEY_Undefined},
-            {VK_NUMPAD9                           ,              KEY_Undefined},
-            {VK_MULTIPLY                          ,              KEY_Undefined},
-            {VK_ADD                               ,              KEY_Undefined},
-            {VK_SEPARATOR                         ,              KEY_Undefined},
-            {VK_SUBTRACT                          ,              KEY_Undefined},
-            {VK_DECIMAL                           ,              KEY_Undefined},
-            {VK_DIVIDE                            ,              KEY_Undefined},
+            {VK_NUMPAD0                           ,              KEY_KP_0},
+            {VK_NUMPAD1                           ,              KEY_KP_1},
+            {VK_NUMPAD2                           ,              KEY_KP_2},
+            {VK_NUMPAD3                           ,              KEY_KP_3},
+            {VK_NUMPAD4                           ,              KEY_KP_4},
+            {VK_NUMPAD5                           ,              KEY_KP_5},
+            {VK_NUMPAD6                           ,              KEY_KP_6},
+            {VK_NUMPAD7                           ,              KEY_KP_7},
+            {VK_NUMPAD8                           ,              KEY_KP_8},
+            {VK_NUMPAD9                           ,              KEY_KP_9},
+            {VK_MULTIPLY                          ,              KEY_KP_Multiply},
+            {VK_ADD                               ,              KEY_KP_Add},
+            {VK_SEPARATOR                         ,              KEY_KP_Separator},
+            {VK_SUBTRACT                          ,              KEY_KP_Subtract},
+            {VK_DECIMAL                           ,              KEY_KP_Decimal},
+            {VK_DIVIDE                            ,              KEY_KP_Divide},
             {VK_F1                                ,              KEY_F1},
             {VK_F2                                ,              KEY_F2},
             {VK_F3                                ,              KEY_F3},
@@ -203,13 +231,13 @@ KeyboardMap::KeyboardMap()
             {VK_NAVIGATION_ACCEPT                 ,              KEY_Undefined},   // reserved
             {VK_NAVIGATION_CANCEL                 ,              KEY_Undefined},   // reserved
             {VK_NUMLOCK                           ,              KEY_Undefined},
-            {VK_SCROLL                            ,              KEY_Undefined},
+            {VK_SCROLL                            ,              KEY_Scroll_Lock},
             {VK_LSHIFT                            ,              KEY_Shift_L},
             {VK_RSHIFT                            ,              KEY_Shift_R},
             {VK_LCONTROL                          ,              KEY_Control_L},
             {VK_RCONTROL                          ,              KEY_Control_R},
-            {VK_LMENU                             ,              KEY_Menu},
-            {VK_RMENU                             ,              KEY_Menu},
+            {VK_LMENU                             ,              KEY_Alt_L},
+            {VK_RMENU                             ,              KEY_Alt_R},
             {VK_BROWSER_BACK                      ,              KEY_Undefined},
             {VK_BROWSER_FORWARD                   ,              KEY_Undefined},
             {VK_BROWSER_REFRESH                   ,              KEY_Undefined},
@@ -345,7 +373,7 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
         if (::RegisterClassEx(&wc) == 0)
         {
             auto lastError = ::GetLastError();
-            if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class.", VK_ERROR_INITIALIZATION_FAILED};
+            if (lastError != ERROR_CLASS_ALREADY_EXISTS) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, could not register window class :");
         }
 
         // fetch screen display information
@@ -364,13 +392,15 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         // assume a traits->screenNum of < 0 will default to screen 0
         int32_t screenNum = traits->screenNum < 0 ? 0 : traits->screenNum;
-        if (screenNum >= static_cast<int32_t>(displayDevices.size())) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (screenNum >= static_cast<int32_t>(displayDevices.size()))
+            throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, screenNum is out of range.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
         DEVMODE deviceMode;
         deviceMode.dmSize = sizeof(deviceMode);
         deviceMode.dmDriverExtra = 0;
 
-        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (!::EnumDisplaySettings(displayDevices[screenNum].DeviceName, ENUM_CURRENT_SETTINGS, &deviceMode))
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, EnumDisplaySettings failed to fetch display settings : ");
 
         // setup window rect and style
         int32_t screenx = 0;
@@ -401,7 +431,8 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
                                  WS_EX_LTRREADING;
 
                 // if decorated call adjust to account for borders etc
-                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle)) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+                if (!::AdjustWindowRectEx(&windowRect, windowStyle, FALSE, extendedStyle))
+                    throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, AdjustWindowRectEx failed : ");
             }
         }
         else
@@ -420,13 +451,18 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
                                    windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
                                    NULL, NULL, ::GetModuleHandle(NULL), NULL);
 
-        if (_window == nullptr) throw Exception{"Error: vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+        if (_window == nullptr) throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) failed to create Window, CreateWindowEx did not return a valid window handle : ");
 
         // set window handle user data pointer to hold ref to this so we can retrieve in WindowsProc
-        SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+        // this function lies about failing so we must jump through some hoops
+        // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptra#return-value
+        SetLastError(NOERROR);
+        if (!SetWindowLongPtr(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this)) && GetLastError() != NOERROR)
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetWindowLongPtr(..) failed : ");
 
         // reposition once the window has been created to account for borders etc
-        ::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0);
+        if (!::SetWindowPos(_window, nullptr, screenx, screeny, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0))
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetWindowPos(..) failed : ");
 
         traits->x = windowRect.left;
         traits->y = windowRect.top;
@@ -434,12 +470,14 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         ShowWindow(_window, SW_SHOW);
         SetForegroundWindow(_window);
-        SetFocus(_window);
+        if (!SetFocus(_window))
+            throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) SetFocus(..) failed : ");
     }
 
     // get client rect to find final width and height of the view
     RECT clientRect;
-    ::GetClientRect(_window, &clientRect);
+    if (!::GetClientRect(_window, &clientRect))
+        throw getLastErrorAsException("vsg::Win32_Window::Win32_Window(...) GetClientRect(..) failed : ");
 
     uint32_t finalWidth = clientRect.right - clientRect.left;
     uint32_t finalHeight = clientRect.bottom - clientRect.top;
@@ -467,12 +505,14 @@ Win32_Window::~Win32_Window()
 
     if (_window != nullptr)
     {
-        vsg::debug("Calling DestroyWindow(_window);");
-
         TCHAR className[MAX_PATH];
         GetClassName(_window, className, MAX_PATH);
 
-        ::DestroyWindow(_window);
+        if (!::DestroyWindow(_window))
+        {
+            vsg::warn(getLastErrorAsException("Win32_Window::~Win32_Window() ::DestroyWindow(_window) failed : "));
+        }
+
         _window = nullptr;
 
         // when should we unregister??
@@ -523,47 +563,61 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
 void Win32_Window::resize()
 {
     RECT windowRect;
-    GetClientRect(_window, &windowRect);
+    if (GetClientRect(_window, &windowRect))
+    {
+        _extent2D.width = windowRect.right - windowRect.left;
+        _extent2D.height = windowRect.bottom - windowRect.top;
 
-    _extent2D.width = windowRect.right - windowRect.left;
-    _extent2D.height = windowRect.bottom - windowRect.top;
-
-    buildSwapchain();
+        buildSwapchain();
+    }
+    else
+    {
+        vsg::warn("Win32_Window::resize() GetClientRect(..) call failed unable to rebuild swapchain.");
+    }
 }
 
-LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
+bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
 {
     vsg::clock::time_point event_time = vsg::clock::now();
 
     // get the current window rect
-    RECT windowRect;
-    GetClientRect(_window, &windowRect);
+    auto getWindowExtents = [](HWND window, int32_t& x, int32_t& y, int32_t& width, int32_t& height) -> bool {
+        RECT windowRect;
+        if (GetClientRect(window, &windowRect) == 0) return false;
 
-    int32_t winx = windowRect.left;
-    int32_t winy = windowRect.top;
-    int32_t winw = windowRect.right - windowRect.left;
-    int32_t winh = windowRect.bottom - windowRect.top;
+        x = windowRect.left;
+        y = windowRect.top;
+        width = windowRect.right - windowRect.left;
+        height = windowRect.bottom - windowRect.top;
+        return true;
+    };
 
     switch (msg)
     {
     case WM_CLOSE:
-        vsg::debug("close window");
         bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(this, event_time));
-        break;
-    case WM_SHOWWINDOW:
-        bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, winx, winy, winw, winh));
-        break;
+        return true;
+    case WM_SHOWWINDOW: {
+        int32_t winx, winy, winw, winh;
+        if (getWindowExtents(_window, winx, winy, winw, winh))
+        {
+            bufferedEvents.emplace_back(vsg::ExposeWindowEvent::create(this, event_time, winx, winy, winw, winh));
+        }
+        return true;
+    }
     case WM_DESTROY:
+        bufferedEvents.emplace_back(vsg::TerminateEvent::create(event_time));
         _windowMapped = false;
-        break;
+        return true;
     case WM_PAINT:
         ValidateRect(_window, NULL);
-        break;
+        return true;
     case WM_MOUSEMOVE: {
         int32_t mx = GET_X_LPARAM(lParam);
         int32_t my = GET_Y_LPARAM(lParam);
 
         bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, mx, my, getButtonMask(wParam)));
+        return true;
     }
     break;
     case WM_LBUTTONDOWN:
@@ -578,8 +632,8 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         int32_t my = GET_Y_LPARAM(lParam);
 
         bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonDownEventDetail(msg, HIWORD(wParam))));
-
         //::SetCapture(_window);
+        return true;
     }
     break;
     case WM_LBUTTONUP:
@@ -590,30 +644,37 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         int32_t my = GET_Y_LPARAM(lParam);
 
         bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, mx, my, getButtonMask(wParam), getButtonUpEventDetail(msg, HIWORD(wParam))));
-
         //::ReleaseCapture(); // should only release once all mouse buttons are released ??
-        break;
+        return true;
     }
     break;
     case WM_MOUSEWHEEL: {
         bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, GET_WHEEL_DELTA_WPARAM(wParam) < 0 ? vec3(0.0f, -1.0f, 0.0f) : vec3(0.0f, 1.0f, 0.0f)));
-        break;
+        return true;
     }
     case WM_MOVE: {
-        bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
-        break;
-    }
-    case WM_SIZE: {
-        if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
+        int32_t winx, winy, winw, winh;
+        if (getWindowExtents(_window, winx, winy, winw, winh))
         {
-            _windowMapped = false;
-        }
-        else
-        {
-            _windowMapped = true;
             bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
         }
-        break;
+        return true;
+    }
+    case WM_SIZE: {
+        int32_t winx, winy, winw, winh;
+        if (getWindowExtents(_window, winx, winy, winw, winh))
+        {
+            if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE || winw == 0 || winh == 0)
+            {
+                _windowMapped = false;
+            }
+            else
+            {
+                _windowMapped = true;
+                bufferedEvents.emplace_back(vsg::ConfigureWindowEvent::create(this, event_time, winx, winy, winw, winh));
+            }
+        }
+        return true;
     }
     case WM_EXITSIZEMOVE:
         break;
@@ -626,7 +687,7 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
             int32_t repeatCount = (lParam & 0xffff);
             bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, repeatCount));
         }
-        break;
+        return true;
     }
     case WM_KEYUP:
     case WM_SYSKEYUP: {
@@ -636,19 +697,18 @@ LRESULT Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam
         {
             bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier, 0));
         }
-
-        break;
+        return true;
     }
     case WM_SETFOCUS: {
         bufferedEvents.emplace_back(vsg::FocusInEvent::create(this, event_time));
-        break;
+        return true;
     }
     case WM_KILLFOCUS: {
         bufferedEvents.emplace_back(vsg::FocusOutEvent::create(this, event_time));
-        break;
+        return true;
     }
     default:
         break;
     }
-    return ::DefWindowProc(_window, msg, wParam, lParam);
+    return false;
 }

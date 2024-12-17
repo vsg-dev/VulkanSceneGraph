@@ -50,22 +50,23 @@ namespace vsg
             _height(rhs._height),
             _depth(rhs._depth)
         {
-            if (_width != 0 && _height != 0 && _depth != 0)
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
+            if (_data)
             {
-                _data = _allocate(_width * _height * _depth);
                 auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                for (const auto& v : rhs) *(dest_v++) = v;
+                dirty();
             }
-            dirty();
         }
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
-            _data(_allocate(width * height * depth)),
+            _data(nullptr),
             _width(width),
             _height(height),
             _depth(depth)
         {
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
             dirty();
         }
 
@@ -78,13 +79,17 @@ namespace vsg
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
-            _data(_allocate(width * height * depth)),
+            _data(nullptr),
             _width(width),
             _height(height),
             _depth(depth)
         {
-            for (auto& v : *this) v = value;
-            dirty();
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
+            if (_data)
+            {
+                for (auto& v : *this) v = value;
+                dirty();
+            }
         }
 
         Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
@@ -100,7 +105,7 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<Array3D> create(Args&&... args)
         {
-            return ref_ptr<Array3D>(new Array3D(args...));
+            return ref_ptr<Array3D>(new Array3D(std::forward<Args>(args)...));
         }
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
@@ -211,11 +216,11 @@ namespace vsg
             _height = rhs._height;
             _depth = rhs._depth;
 
-            if (_width != 0 && _height != 0 && _depth != 0)
+            _data = _allocate(static_cast<size_t>(_width) * static_cast<size_t>(_height) * static_cast<size_t>(_depth));
+            if (_data)
             {
-                _data = _allocate(_width * _height * _depth);
                 auto dest_v = _data;
-                for (auto& v : rhs) *(dest_v++) = v;
+                for (const auto& v : rhs) *(dest_v++) = v;
             }
 
             dirty();
@@ -303,10 +308,10 @@ namespace vsg
         value_type* data() { return _data; }
         const value_type* data() const { return _data; }
 
-        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * properties.stride); }
-        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * properties.stride); }
+        inline value_type* data(size_t i) { return reinterpret_cast<value_type*>(reinterpret_cast<uint8_t*>(_data) + i * static_cast<size_t>(properties.stride)); }
+        inline const value_type* data(size_t i) const { return reinterpret_cast<const value_type*>(reinterpret_cast<const uint8_t*>(_data) + i * static_cast<size_t>(properties.stride)); }
 
-        size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<size_t>(k * _width * _height + j * _width + i); }
+        size_t index(uint32_t i, uint32_t j, uint32_t k) const noexcept { return static_cast<size_t>(static_cast<size_t>(k) * static_cast<size_t>(_width) * static_cast<size_t>(_height) + static_cast<size_t>(j) * static_cast<size_t>(_width) + static_cast<size_t>(i)); }
 
         value_type& operator[](size_t i) { return *data(i); }
         const value_type& operator[](size_t i) const { return *data(i); }
@@ -387,6 +392,14 @@ namespace vsg
     VSG_array3D(dvec2Array3D, dvec2);
     VSG_array3D(dvec3Array3D, dvec3);
     VSG_array3D(dvec4Array3D, dvec4);
+
+    VSG_array3D(svec2Array3D, svec2);
+    VSG_array3D(svec3Array3D, svec3);
+    VSG_array3D(svec4Array3D, svec4);
+
+    VSG_array3D(usvec2Array3D, usvec2);
+    VSG_array3D(usvec3Array3D, usvec3);
+    VSG_array3D(usvec4Array3D, usvec4);
 
     VSG_array3D(ubvec2Array3D, ubvec2);
     VSG_array3D(ubvec3Array3D, ubvec3);

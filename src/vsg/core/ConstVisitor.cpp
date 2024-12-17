@@ -573,6 +573,10 @@ void ConstVisitor::apply(const MatrixTransform& value)
 {
     apply(static_cast<const Transform&>(value));
 }
+void ConstVisitor::apply(const CoordinateFrame& value)
+{
+    apply(static_cast<const Transform&>(value));
+}
 void ConstVisitor::apply(const Geometry& value)
 {
     apply(static_cast<const Command&>(value));
@@ -586,6 +590,10 @@ void ConstVisitor::apply(const VertexIndexDraw& value)
     apply(static_cast<const Command&>(value));
 }
 void ConstVisitor::apply(const DepthSorted& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const Layer& value)
 {
     apply(static_cast<const Node&>(value));
 }
@@ -618,6 +626,10 @@ void ConstVisitor::apply(const SpotLight& value)
     apply(static_cast<const Light&>(value));
 }
 void ConstVisitor::apply(const InstrumentationNode& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const RegionOfInterest& value)
 {
     apply(static_cast<const Node&>(value));
 }
@@ -655,10 +667,6 @@ void ConstVisitor::apply(const AnimationGroup& value)
 {
     apply(static_cast<const Group&>(value));
 }
-void ConstVisitor::apply(const AnimationPath& animationPath)
-{
-    apply(static_cast<const Object&>(animationPath));
-}
 void ConstVisitor::apply(const AnimationSampler& sampler)
 {
     apply(static_cast<const Object&>(sampler));
@@ -672,6 +680,10 @@ void ConstVisitor::apply(const MorphSampler& sampler)
     apply(static_cast<const AnimationSampler&>(sampler));
 }
 void ConstVisitor::apply(const TransformSampler& sampler)
+{
+    apply(static_cast<const AnimationSampler&>(sampler));
+}
+void ConstVisitor::apply(const CameraSampler& sampler)
 {
     apply(static_cast<const AnimationSampler&>(sampler));
 }
@@ -1015,6 +1027,46 @@ void ConstVisitor::apply(const View& view)
 void ConstVisitor::apply(const Viewer& viewer)
 {
     apply(static_cast<const Object&>(viewer));
+}
+void ConstVisitor::apply(const ViewMatrix& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const LookAt& value)
+{
+    apply(static_cast<const ViewMatrix&>(value));
+}
+void ConstVisitor::apply(const LookDirection& value)
+{
+    apply(static_cast<const ViewMatrix&>(value));
+}
+void ConstVisitor::apply(const RelativeViewMatrix& value)
+{
+    apply(static_cast<const ViewMatrix&>(value));
+}
+void ConstVisitor::apply(const TrackingViewMatrix& value)
+{
+    apply(static_cast<const ViewMatrix&>(value));
+}
+void ConstVisitor::apply(const ProjectionMatrix& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+void ConstVisitor::apply(const Perspective& value)
+{
+    apply(static_cast<const ProjectionMatrix&>(value));
+}
+void ConstVisitor::apply(const Orthographic& value)
+{
+    apply(static_cast<const ProjectionMatrix&>(value));
+}
+void ConstVisitor::apply(const RelativeProjection& value)
+{
+    apply(static_cast<const ProjectionMatrix&>(value));
+}
+void ConstVisitor::apply(const EllipsoidPerspective& value)
+{
+    apply(static_cast<const ProjectionMatrix&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

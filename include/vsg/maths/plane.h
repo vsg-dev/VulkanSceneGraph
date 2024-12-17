@@ -110,6 +110,7 @@ namespace vsg
 
     using plane = t_plane<float>;
     using dplane = t_plane<double>;
+    using ldplane = t_plane<long double>;
 
     VSG_type_name(vsg::plane);
     VSG_type_name(vsg::dplane);
@@ -167,6 +168,25 @@ namespace vsg
     constexpr bool intersect(const Polytope& polytope, const t_sphere<T>& s)
     {
         return intersect(polytope.begin(), polytope.end(), s);
+    }
+
+    /** return true if bounding sphere wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */
+    template<class PlaneItr, typename T>
+    constexpr bool inside(PlaneItr first, PlaneItr last, const t_vec3<T>& v, T epsilon = 1e-10)
+    {
+        const auto negative_epsilon = -epsilon;
+        for (auto itr = first; itr != last; ++itr)
+        {
+            if (distance(*itr, v) < negative_epsilon) return false;
+        }
+        return true;
+    }
+
+    /** return true if bounding sphere wholly or partially intersects with convex polytope defined by a list of planes with normals pointing inwards towards center of the polytope. */
+    template<class Polytope, typename T>
+    constexpr bool inside(const Polytope& polytope, const t_vec3<T>& v, T epsilon = 1e-10)
+    {
+        return inside(polytope.begin(), polytope.end(), v, epsilon);
     }
 } // namespace vsg
 

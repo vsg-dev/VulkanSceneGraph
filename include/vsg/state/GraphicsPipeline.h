@@ -80,7 +80,10 @@ namespace vsg
         void compile(Context& context);
 
         // remove the local reference to the Vulkan implementation
-        void release(uint32_t viewID) { _implementation[viewID] = {}; }
+        void release(uint32_t viewID)
+        {
+            if (viewID < static_cast<uint32_t>(_implementation.size())) _implementation[viewID] = {};
+        }
         void release() { _implementation.clear(); }
 
     protected:
@@ -105,7 +108,7 @@ namespace vsg
     class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
     {
     public:
-        BindGraphicsPipeline(GraphicsPipeline* in_pipeline = nullptr);
+        explicit BindGraphicsPipeline(ref_ptr<GraphicsPipeline> in_pipeline = {});
 
         /// pipeline to pass in the vkCmdBindPipeline call;
         ref_ptr<GraphicsPipeline> pipeline;

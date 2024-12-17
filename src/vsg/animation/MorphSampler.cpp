@@ -79,7 +79,7 @@ int MorphSampler::compare(const Object& rhs_object) const
     int result = AnimationSampler::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(keyframes, rhs.keyframes)) != 0) return result;
     return compare_pointer(object, rhs.object);
 }

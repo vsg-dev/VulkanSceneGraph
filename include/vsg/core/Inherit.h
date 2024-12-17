@@ -29,18 +29,18 @@ namespace vsg
     public:
         template<typename... Args>
         Inherit(Args&&... args) :
-            ParentClass(args...) {}
+            ParentClass(std::forward<Args>(args)...) {}
 
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)
         {
-            return ref_ptr<Subclass>(new Subclass(args...));
+            return ref_ptr<Subclass>(new Subclass(std::forward<Args>(args)...));
         }
 
         template<typename... Args>
         static ref_ptr<Subclass> create_if(bool flag, Args&&... args)
         {
-            if (flag) return ref_ptr<Subclass>(new Subclass(args...));
+            if (flag) return ref_ptr<Subclass>(new Subclass(std::forward<Args>(args)...));
             return {};
         }
 

@@ -59,7 +59,7 @@ int DescriptorImage::compare(const Object& rhs_object) const
     int result = Descriptor::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     return compare_pointer_container(imageInfoList, rhs.imageInfoList);
 }
@@ -93,7 +93,7 @@ void DescriptorImage::write(Output& output) const
     Descriptor::write(output);
 
     output.writeValue<uint32_t>("images", imageInfoList.size());
-    for (auto& imageInfo : imageInfoList)
+    for (const auto& imageInfo : imageInfoList)
     {
         output.writeObject("sampler", imageInfo->sampler.get());
 
@@ -108,6 +108,8 @@ void DescriptorImage::compile(Context& context)
 {
     if (imageInfoList.empty()) return;
 
+    auto transferTask = context.transferTask.get();
+
     for (auto& imageInfo : imageInfoList)
     {
         if (imageInfo->sampler) imageInfo->sampler->compile(context);
@@ -121,13 +123,15 @@ void DescriptorImage::compile(Context& context)
             auto& imageView = *imageInfo->imageView;
             imageView.compile(context);
 
-            if (imageView.image && imageView.image->syncModifiedCount(context.deviceID))
+            if (!transferTask && imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
-                auto& image = *imageView.image;
+                const auto& image = *imageView.image;
                 context.copy(image.data, imageInfo, image.mipLevels);
             }
         }
     }
+
+    if (transferTask) transferTask->assign(imageInfoList);
 }
 
 void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) const
@@ -160,4 +164,22 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
 uint32_t DescriptorImage::getNumDescriptors() const
 {
     return static_cast<uint32_t>(imageInfoList.size());
+}
+
+VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createSamplerDescriptor(ref_ptr<Sampler> sampler, uint32_t dstBinding, uint32_t dstArrayElement)
+{
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(sampler, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_SAMPLER);
+}
+
+VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createCombinedImageSamplerDescriptor(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement)
+{
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(sampler, image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+}
+
+VSG_DECLSPEC ref_ptr<DescriptorImage> vsg::createSampedImageDescriptor(ref_ptr<Data> image, uint32_t dstBinding, uint32_t dstArrayElement)
+{
+    ref_ptr<ImageInfo> imageImageInfo = ImageInfo::create(nullptr, image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    return DescriptorImage::create(imageImageInfo, dstBinding, dstArrayElement, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 }

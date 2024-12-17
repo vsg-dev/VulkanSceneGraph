@@ -21,7 +21,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const DescriptorPoolSizes& descriptorPoolSizes) :
+DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const DescriptorPoolSizes& in_descriptorPoolSizes) :
+    maxSets(in_maxSets),
+    descriptorPoolSizes(in_descriptorPoolSizes),
     _device(device),
     _availableDescriptorSet(maxSets),
     _availableDescriptorPoolSizes(descriptorPoolSizes)
@@ -38,6 +40,13 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t maxSets, const Descripto
     {
         throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
+
+    vsg::debug("DescriptorPool::DescriptorPool() ", this, ", maxSets = ", maxSets, " {");
+    for (auto& dps : descriptorPoolSizes)
+    {
+        vsg::debug("   { ", dps.type, ", ", dps.descriptorCount, " }");
+    }
+    vsg::debug("}");
 }
 
 DescriptorPool::~DescriptorPool()
@@ -62,25 +71,25 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         auto dsi = *itr;
         if (dsi->_descriptorSetLayout.get() == descriptorSetLayout || compare_value_container(dsi->_descriptorSetLayout->bindings, descriptorSetLayout->bindings) == 0)
         {
+            // swap ownership so that DescriptorSet::Implementation now "has a" reference to this DescriptorPool
             dsi->_descriptorPool = this;
             _recyclingList.erase(itr);
             --_availableDescriptorSet;
-            // debug("DescriptorPool::allocateDescriptorSet(..) reusing ", dsi)   ;
             return dsi;
         }
     }
 
     if (_availableDescriptorSet == _recyclingList.size())
     {
-        //debug("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
+        vsg::debug("The only available vkDescriptorSets associated with DescriptorPool are in the recyclingList, but none are compatible.");
         return {};
     }
 
-    DescriptorPoolSizes descriptorPoolSizes;
-    descriptorSetLayout->getDescriptorPoolSizes(descriptorPoolSizes);
+    DescriptorPoolSizes requiredDescriptorPoolSizes;
+    descriptorSetLayout->getDescriptorPoolSizes(requiredDescriptorPoolSizes);
 
     auto newDescriptorPoolSizes = _availableDescriptorPoolSizes;
-    for (auto& [type, descriptorCount] : descriptorPoolSizes)
+    for (auto& [type, descriptorCount] : requiredDescriptorPoolSizes)
     {
         uint32_t foundDescriptorCount = 0;
         for (auto& [availableType, availableCount] : newDescriptorPoolSizes)
@@ -102,51 +111,128 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
     --_availableDescriptorSet;
 
     auto dsi = DescriptorSet::Implementation::create(this, descriptorSetLayout);
-    //debug("DescriptorPool::allocateDescriptorSet(..) allocated ", dsi);
+    vsg::debug("DescriptorPool::allocateDescriptorSet(..) allocated new ", dsi);
     return dsi;
 }
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
     {
+        // swap ownership so that DescriptorSet::Implementation' reference is reset to null and while this DescriptorPool takes a reference to it.
+        // aquire lock within local scope so that subsequent dsi->_descriptorPool = {} call doesn't unref and (possibly) delete this DescriptorPool while lock still held.
         std::scoped_lock<std::mutex> lock(mutex);
         _recyclingList.push_back(dsi);
         ++_availableDescriptorSet;
     }
-
     dsi->_descriptorPool = {};
 }
 
-bool DescriptorPool::getAvailability(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes) const
+bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& availableDescriptorPoolSizes) const
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
     if (_availableDescriptorSet == 0) return false;
 
-    maxSets += _availableDescriptorSet;
+    numSets += _availableDescriptorSet;
 
-    for (auto& [availableType, availableCount] : _availableDescriptorPoolSizes)
+    for (auto& dps : descriptorPoolSizes)
     {
-        if (availableCount > 0)
+        if (dps.descriptorCount > 0)
         {
             // increment any entries that are already in the descriptorPoolSizes vector
-            auto itr = descriptorPoolSizes.begin();
-            for (; itr != descriptorPoolSizes.end(); ++itr)
-            {
-                if (itr->type == availableType)
-                {
-                    itr->descriptorCount += availableCount;
-                    break;
-                }
-            }
+            auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
+            if (itr != availableDescriptorPoolSizes.end())
+                itr->descriptorCount += dps.descriptorCount;
+            else
+                availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{dps.type, dps.descriptorCount});
+        }
+    }
 
-            // if none matched add a new entry
-            if (itr == descriptorPoolSizes.end())
+    for (const auto& dsi : _recyclingList)
+    {
+        if (dsi->_descriptorSetLayout)
+        {
+            for (auto& binding : dsi->_descriptorSetLayout->bindings)
             {
-                descriptorPoolSizes.push_back(VkDescriptorPoolSize{availableType, availableCount});
+                // increment any entries that are already in the descriptorPoolSizes vector
+                auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&binding](const VkDescriptorPoolSize& value) { return value.type == binding.descriptorType; });
+                if (itr != availableDescriptorPoolSizes.end())
+                    itr->descriptorCount += binding.descriptorCount;
+                else
+                    availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
             }
         }
     }
 
     return true;
+}
+
+bool DescriptorPool::used(uint32_t& numSets, DescriptorPoolSizes& usedDescriptorPoolSizes) const
+{
+    if (maxSets == _availableDescriptorSet) return false;
+
+    numSets += maxSets - _availableDescriptorSet;
+
+    for (auto& dps : descriptorPoolSizes)
+    {
+        auto itr = std::find_if(_availableDescriptorPoolSizes.begin(), _availableDescriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
+        if (itr != _availableDescriptorPoolSizes.end())
+        {
+            uint32_t usedDescriptorCount = dps.descriptorCount - itr->descriptorCount;
+            auto used_itr = std::find_if(usedDescriptorPoolSizes.begin(), usedDescriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
+            if (used_itr != usedDescriptorPoolSizes.end())
+                used_itr += usedDescriptorCount;
+            else
+                usedDescriptorPoolSizes.push_back(VkDescriptorPoolSize{dps.type, usedDescriptorCount});
+        }
+    }
+    return true;
+}
+
+void DescriptorPool::report(std::ostream& out, indentation indent) const
+{
+    out << indent << "DescriptorPool " << this << " {" << std::endl;
+    indent += 4;
+
+    out << indent << "maxSets = " << maxSets << std::endl;
+    out << indent << "descriptorPoolSizes = " << descriptorPoolSizes.size() << " {" << std::endl;
+    indent += 4;
+    for (const auto& dps : descriptorPoolSizes)
+    {
+        out << indent << "VkDescriptorPoolSize { " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
+    }
+    indent -= 4;
+    out << indent << "}" << std::endl;
+
+    out << indent << "_availableDescriptorSet = " << _availableDescriptorSet << std::endl;
+    out << indent << "_availableDescriptorPoolSizes = " << _availableDescriptorPoolSizes.size() << " {" << std::endl;
+    indent += 4;
+    for (const auto& dps : _availableDescriptorPoolSizes)
+    {
+        out << indent << "VkDescriptorPoolSize { " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
+    }
+    indent -= 4;
+    out << indent << "}" << std::endl;
+
+    out << indent << "_recyclingList " << _recyclingList.size() << " {" << std::endl;
+    indent += 4;
+    for (const auto& dsi : _recyclingList)
+    {
+        out << indent << "DescriptorSet::Implementation " << dsi << ", descriptorSetLayout =  " << dsi->_descriptorSetLayout << " {" << std::endl;
+        indent += 4;
+        if (dsi->_descriptorSetLayout)
+        {
+            for (const auto& binding : dsi->_descriptorSetLayout->bindings)
+            {
+                out << indent << "VkDescriptorSetLayoutBinding { " << binding.binding << ", " << binding.descriptorType << ", " << binding.stageFlags << ", " << binding.pImmutableSamplers << " }" << std::endl;
+            }
+        }
+        indent -= 4;
+        out << indent << " }" << std::endl;
+    }
+    indent -= 4;
+    out << indent << "}" << std::endl;
+
+    indent -= 4;
+    out << indent << "}" << std::endl;
 }

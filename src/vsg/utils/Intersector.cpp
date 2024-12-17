@@ -27,6 +27,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/GraphicsPipeline.h>
+#include <vsg/text/CpuLayoutTechnique.h>
+#include <vsg/text/GpuLayoutTechnique.h>
 #include <vsg/utils/Intersector.h>
 
 using namespace vsg;
@@ -57,7 +59,7 @@ void Intersector::apply(const StateGroup& stategroup)
 {
     PushPopNode ppn(_nodePath, &stategroup);
 
-    auto arrayState = stategroup.prototypeArrayState ? stategroup.prototypeArrayState->clone(arrayStateStack.back()) : arrayStateStack.back()->clone();
+    auto arrayState = stategroup.prototypeArrayState ? stategroup.prototypeArrayState->cloneArrayState(arrayStateStack.back()) : arrayStateStack.back()->cloneArrayState();
 
     for (auto& statecommand : stategroup.stateCommands)
     {
@@ -202,6 +204,14 @@ void Intersector::apply(const uintArray& array)
 {
     ushort_indices = nullptr;
     uint_indices = &array;
+}
+
+void Intersector::apply(const TextTechnique& technique)
+{
+    if (auto cpuTechnique = technique.cast<CpuLayoutTechnique>())
+        cpuTechnique->scenegraph->accept(*this);
+    if (auto gpuTechnique = technique.cast<GpuLayoutTechnique>())
+        gpuTechnique->scenegraph->accept(*this);
 }
 
 void Intersector::apply(const Draw& draw)

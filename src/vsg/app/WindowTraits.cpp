@@ -22,8 +22,8 @@ WindowTraits::WindowTraits()
     defaults();
 }
 
-WindowTraits::WindowTraits(const WindowTraits& traits) :
-    Inherit(traits),
+WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
+    Inherit(traits, copyop),
     x(traits.x),
     y(traits.y),
     width(traits.width),
@@ -41,8 +41,10 @@ WindowTraits::WindowTraits(const WindowTraits& traits) :
     depthFormat(traits.depthFormat),
     depthImageUsage(traits.depthImageUsage),
     queueFlags(traits.queueFlags),
+    queuePiorities(traits.queuePiorities),
     imageAvailableSemaphoreWaitFlag(traits.imageAvailableSemaphoreWaitFlag),
     debugLayer(traits.debugLayer),
+    synchronizationLayer(traits.synchronizationLayer),
     apiDumpLayer(traits.apiDumpLayer),
     debugUtils(traits.debugUtils),
     device(traits.device),

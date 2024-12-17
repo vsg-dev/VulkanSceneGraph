@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 #include <vsg/io/Path.h>
@@ -275,4 +276,12 @@ namespace vsg
         path = str;
         return input;
     }
+
+    /// output stream support for vsg::Exception
+    inline std::ostream& operator<<(std::ostream& output, const vsg::Exception& e)
+    {
+        output << "Error code: " << e.result << " | " << e.message;
+        return output;
+    }
+
 } // namespace vsg

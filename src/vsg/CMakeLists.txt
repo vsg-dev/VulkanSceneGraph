@@ -11,6 +11,7 @@ endif()
 set(SOURCES
 
     core/Allocator.cpp
+    core/IntrusiveAllocator.cpp
     core/Auxiliary.cpp
     core/ConstVisitor.cpp
     core/Data.cpp
@@ -21,6 +22,7 @@ set(SOURCES
     core/Visitor.cpp
     core/Version.cpp
 
+    maths/common.cpp
     maths/maths_transform.cpp
 
     nodes/Group.cpp
@@ -33,16 +35,28 @@ set(SOURCES
     nodes/PagedLOD.cpp
     nodes/AbsoluteTransform.cpp
     nodes/MatrixTransform.cpp
+    nodes/CoordinateFrame.cpp
     nodes/Transform.cpp
     nodes/VertexDraw.cpp
     nodes/VertexIndexDraw.cpp
     nodes/DepthSorted.cpp
+    nodes/Layer.cpp
     nodes/Bin.cpp
     nodes/Switch.cpp
     nodes/StateGroup.cpp
-    nodes/Light.cpp
     nodes/TileDatabase.cpp
     nodes/InstrumentationNode.cpp
+    nodes/RegionOfInterest.cpp
+
+    lighting/Light.cpp
+    lighting/AmbientLight.cpp
+    lighting/DirectionalLight.cpp
+    lighting/PointLight.cpp
+    lighting/SpotLight.cpp
+    lighting/ShadowSettings.cpp
+    lighting/HardShadows.cpp
+    lighting/SoftShadows.cpp
+    lighting/PercentageCloserSoftShadows.cpp
 
     commands/BindIndexBuffer.cpp
     commands/BindVertexBuffers.cpp
@@ -144,6 +158,7 @@ set(SOURCES
 
     threading/Affinity.cpp
     threading/OperationThreads.cpp
+    threading/DeleteQueue.cpp
 
     app/Camera.cpp
     app/CompileManager.cpp
@@ -184,11 +199,12 @@ set(SOURCES
     animation/Animation.cpp
     animation/AnimationGroup.cpp
     animation/AnimationManager.cpp
-    animation/AnimationPath.cpp
+    animation/CameraAnimationHandler.cpp
     animation/FindAnimations.cpp
     animation/Joint.cpp
     animation/JointSampler.cpp
     animation/MorphSampler.cpp
+    animation/CameraSampler.cpp
     animation/TransformSampler.cpp
 
     ui/UIEvent.cpp
@@ -209,6 +225,7 @@ set(SOURCES
     vk/CommandPool.cpp
     vk/Context.cpp
     vk/DescriptorPool.cpp
+    vk/DescriptorPools.cpp
     vk/Device.cpp
     vk/DeviceFeatures.cpp
     vk/DeviceMemory.cpp
@@ -237,22 +254,22 @@ set(SOURCES
     utils/Instrumentation.cpp
     utils/GpuAnnotation.cpp
     utils/LineSegmentIntersector.cpp
+    utils/PolytopeIntersector.cpp
     utils/LoadPagedLOD.cpp
     utils/FindDynamicObjects.cpp
     utils/PropagateDynamicObjects.cpp
+    utils/Profiler.cpp
 )
-
-if (${VSG_SUPPORTS_ShaderCompiler})
-
-    # include glslang source code directly into the VulkanScenegraph library build.
-    include(../glslang/build_vars.cmake)
-endif()
 
 # set up library dependencies
 set(LIBRARIES PUBLIC
         Vulkan::Vulkan
         Threads::Threads
 )
+
+if (${VSG_SUPPORTS_ShaderCompiler})
+    list(APPEND LIBRARIES PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+endif()
 
 # Check for std::atomic
 if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
@@ -397,9 +414,6 @@ target_include_directories(vsg
     PUBLIC
         $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>
-    PRIVATE
-        $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/src/glslang>
-        $<BUILD_INTERFACE:${GLSLANG_GENERATED_INCLUDEDIR}>
 )
 
 target_link_libraries(vsg ${LIBRARIES})

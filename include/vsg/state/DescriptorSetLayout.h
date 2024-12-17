@@ -28,6 +28,7 @@ namespace vsg
     {
     public:
         DescriptorSetLayout();
+        DescriptorSetLayout(const DescriptorSetLayout& rhs, const CopyOp& copyop = {});
         explicit DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
 
         /// Vulkan VkDescriptorSetLayout handle
@@ -47,6 +48,7 @@ namespace vsg
         void release() { _implementation.clear(); }
 
     public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorSetLayout::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;

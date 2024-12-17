@@ -45,7 +45,7 @@ int BindDescriptorSets::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(pipelineBindPoint, rhs.pipelineBindPoint))) return result;
     if ((result = compare_pointer(layout, rhs.layout))) return result;
@@ -145,7 +145,7 @@ int BindDescriptorSet::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(pipelineBindPoint, rhs.pipelineBindPoint))) return result;
     if ((result = compare_pointer(layout, rhs.layout))) return result;

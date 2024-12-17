@@ -29,7 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsgWin32
 {
-    class KeyboardMap : public vsg::Object
+    class VSG_DECLSPEC KeyboardMap : public vsg::Object
     {
     public:
         KeyboardMap();
@@ -39,7 +39,17 @@ namespace vsgWin32
         bool getKeySymbol(WPARAM wParam, LPARAM lParam, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier)
         {
             uint16_t modifierMask = 0;
-            uint32_t virtualKey = ::MapVirtualKeyEx((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
+
+            // see https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
+            WORD vkCode = LOWORD(wParam); // virtual-key code
+            WORD keyFlags = HIWORD(lParam);
+            WORD scanCode = LOBYTE(keyFlags);                             // scan code
+            BOOL isExtendedKey = (keyFlags & KF_EXTENDED) == KF_EXTENDED; // extended-key flag, 1 if scancode has 0xE0 prefix
+
+            if (isExtendedKey)
+                scanCode = MAKEWORD(scanCode, 0xE0);
+
+            uint32_t virtualKey = ::MapVirtualKeyEx(scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
             auto itr = _vk2vsg.find(virtualKey);
 
             if (itr == _vk2vsg.end())
@@ -80,7 +90,7 @@ namespace vsgWin32
                 break;
 
             default:
-                virtualKey = static_cast<int>(wParam);
+                virtualKey = static_cast<uint32_t>(wParam);
                 break;
             }
 
@@ -102,7 +112,7 @@ namespace vsgWin32
 
             // The actual keystroke is what we get after the ::ToAscii call
             char asciiKey[2];
-            int32_t numChars = ::ToAscii(static_cast<UINT>(wParam), (lParam >> 16) & 0xff, keyState, reinterpret_cast<WORD*>(asciiKey), 0);
+            int32_t numChars = ::ToAsciiEx(static_cast<UINT>(wParam), scanCode, keyState, reinterpret_cast<WORD*>(asciiKey), 0, ::GetKeyboardLayout(0));
             if (numChars == 1)
             {
                 // it is indeed an ascii character. 0-127
@@ -132,9 +142,13 @@ namespace vsgWin32
     {
         switch (buttonMsg)
         {
+        case WM_LBUTTONDBLCLK:
         case WM_LBUTTONDOWN: return 1;
+        case WM_MBUTTONDBLCLK:
         case WM_MBUTTONDOWN: return 2;
+        case WM_RBUTTONDBLCLK:
         case WM_RBUTTONDOWN: return 3;
+        case WM_XBUTTONDBLCLK:
         case WM_XBUTTONDOWN:
             if (wParamHi == XBUTTON1)
                 return 4;
@@ -167,7 +181,7 @@ namespace vsgWin32
     }
 
     /// Win32_Window implements Win32 specific window creation, event handling and vulkan Surface setup.
-    class Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
+    class VSG_DECLSPEC Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
     public:
         Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
@@ -189,7 +203,8 @@ namespace vsgWin32
 
         operator HWND() const { return _window; }
 
-        LRESULT handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
+        /// handle Win32 event messages, return true if handled.
+        virtual bool handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam);
 
     protected:
         virtual ~Win32_Window();
@@ -201,6 +216,9 @@ namespace vsgWin32
 
         vsg::ref_ptr<KeyboardMap> _keyboard;
     };
+
+    /// Use GetLastError() and FormatMessageA(..) to get the error number and error message and store them in a vsg::Exception.
+    extern VSG_DECLSPEC vsg::Exception getLastErrorAsException(const std::string_view& prefix = {});
 
 } // namespace vsgWin32
 

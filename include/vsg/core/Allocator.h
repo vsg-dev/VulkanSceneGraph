@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/MemorySlots.h>
+#include <vsg/core/Export.h>
 
+#include <map>
 #include <memory>
 #include <mutex>
-#include <vector>
 
 namespace vsg
 {
@@ -33,97 +33,54 @@ namespace vsg
         ALLOCATOR_AFFINITY_OBJECTS,
         ALLOCATOR_AFFINITY_DATA,
         ALLOCATOR_AFFINITY_NODES,
-        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_NODES + 1
+        ALLOCATOR_AFFINITY_PHYSICS,
+        ALLOCATOR_AFFINITY_LAST = ALLOCATOR_AFFINITY_PHYSICS + 1
     };
 
     /** extensible Allocator that handles allocation and deallocation of scene graph CPU memory,*/
     class VSG_DECLSPEC Allocator
     {
     public:
-        Allocator(std::unique_ptr<Allocator> in_nestedAllocator = {});
-
-        virtual ~Allocator();
+        explicit Allocator(size_t in_defaultAlignment = 4) :
+            defaultAlignment(in_defaultAlignment) {}
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 4) :
+            defaultAlignment(in_defaultAlignment), nestedAllocator(std::move(in_nestedAllocator)) {}
+        virtual ~Allocator() {}
 
         /// Allocator singleton
         static std::unique_ptr<Allocator>& instance();
 
         /// allocate from the pool of memory blocks, or allocate from a new memory block
-        virtual void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS);
+        virtual void* allocate(std::size_t size, AllocatorAffinity allocatorAffinity = ALLOCATOR_AFFINITY_OBJECTS) = 0;
 
         /// deallocate, returning data to pool.
-        virtual bool deallocate(void* ptr, std::size_t size);
+        virtual bool deallocate(void* ptr, std::size_t size) = 0;
 
         /// delete any MemoryBlock that are empty
-        virtual size_t deleteEmptyMemoryBlocks();
+        virtual size_t deleteEmptyMemoryBlocks() = 0;
 
         /// return the total available size of allocated MemoryBlocks
-        virtual size_t totalAvailableSize() const;
+        virtual size_t totalAvailableSize() const = 0;
 
         /// return the total reserved size of allocated MemoryBlocks
-        virtual size_t totalReservedSize() const;
+        virtual size_t totalReservedSize() const = 0;
 
         /// return the total memory size of allocated MemoryBlocks
-        virtual size_t totalMemorySize() const;
+        virtual size_t totalMemorySize() const = 0;
+
+        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR; // use MemoryBlocks by default
+
+        virtual void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) = 0;
 
         /// report stats about blocks of memory allocated.
-        virtual void report(std::ostream& out) const;
-
-        AllocatorType allocatorType = ALLOCATOR_TYPE_VSG_ALLOCATOR;          // use MemoryBlocks by default
-        AllocatorType memoryBlocksAllocatorType = ALLOCATOR_TYPE_NEW_DELETE; // Use new/delete within MemoryBlocks by default
-        int memoryTracking = MEMORY_TRACKING_DEFAULT;
-
-        /// set the MemoryTracking member of the vsg::Allocator and all the MemoryBlocks that it manages.
-        void setMemoryTracking(int mt);
-
-        struct MemoryBlock
-        {
-            MemoryBlock(size_t blockSize, int memoryTracking, AllocatorType in_allocatorType);
-            virtual ~MemoryBlock();
-
-            void* allocate(std::size_t size);
-            bool deallocate(void* ptr, std::size_t size);
-
-            vsg::MemorySlots memorySlots;
-            const AllocatorType allocatorType;
-            uint8_t* memory = nullptr;
-        };
-
-        struct MemoryBlocks
-        {
-            Allocator* parent = nullptr;
-            std::string name;
-            size_t blockSize = 0;
-            std::map<void*, std::shared_ptr<MemoryBlock>> memoryBlocks;
-            std::shared_ptr<MemoryBlock> latestMemoryBlock;
-
-            MemoryBlocks(Allocator* in_parent, const std::string& in_name, size_t in_blockSize);
-            virtual ~MemoryBlocks();
-
-            void* allocate(std::size_t size);
-            bool deallocate(void* ptr, std::size_t size);
-
-            size_t deleteEmptyMemoryBlocks();
-            size_t totalAvailableSize() const;
-            size_t totalReservedSize() const;
-            size_t totalMemorySize() const;
-        };
-
-        MemoryBlocks* getMemoryBlocks(AllocatorAffinity allocatorAffinity);
-
-        MemoryBlocks* getOrCreateMemoryBlocks(AllocatorAffinity allocatorAffinity, const std::string& name, size_t blockSize);
-
-        void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize);
+        virtual void report(std::ostream& out) const = 0;
 
         mutable std::mutex mutex;
-
-        double allocationTime = 0.0;
-        double deallocationTime = 0.0;
+        size_t defaultAlignment = 4;
 
     protected:
         // if you are assigning a custom allocator you must retain the old allocator to manage the memory it allocated and needs to delete
         std::unique_ptr<Allocator> nestedAllocator;
-
-        std::vector<std::unique_ptr<MemoryBlocks>> allocatorMemoryBlocks;
     };
 
     /// allocate memory using vsg::Allocator::instance() if available, otherwise use std::malloc(size)
@@ -132,19 +89,25 @@ namespace vsg
     /// deallocate memory using vsg::Allocator::instance() if available, otherwise use std::free(ptr)
     extern VSG_DECLSPEC void deallocate(void* ptr, std::size_t size = 0);
 
-    /// std container adapter for allocating with MEMORY_AFFINITY_NODES
-    template<typename T>
-    struct allocator_affinity_nodes
+    /// std container adapter for allocating with specific affinity
+    template<typename T, vsg::AllocatorAffinity A>
+    struct allocator_affinity_adapter
     {
         using value_type = T;
 
-        allocator_affinity_nodes() = default;
+        allocator_affinity_adapter() = default;
         template<class U>
-        explicit constexpr allocator_affinity_nodes(const allocator_affinity_nodes<U>&) noexcept {}
+        explicit constexpr allocator_affinity_adapter(const allocator_affinity_adapter<U, A>&) noexcept {}
+
+        template<class U>
+        struct rebind
+        {
+            using other = allocator_affinity_adapter<U, A>;
+        };
 
         value_type* allocate(std::size_t n)
         {
-            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), vsg::ALLOCATOR_AFFINITY_NODES));
+            return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), A));
         }
 
         void deallocate(value_type* ptr, std::size_t n)
@@ -153,10 +116,19 @@ namespace vsg
         }
     };
 
-    template<class T, class U>
-    bool operator==(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return true; }
+    template<class T, class U, vsg::AllocatorAffinity A>
+    bool operator==(const allocator_affinity_adapter<T, A>&, const allocator_affinity_adapter<U, A>&) { return true; }
 
-    template<class T, class U>
-    bool operator!=(const allocator_affinity_nodes<T>&, const allocator_affinity_nodes<U>&) { return false; }
+    template<class T, class U, vsg::AllocatorAffinity A>
+    bool operator!=(const allocator_affinity_adapter<T, A>&, const allocator_affinity_adapter<U, A>&) { return false; }
+
+    template<typename T>
+    using allocator_affinity_objects = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_OBJECTS>;
+    template<typename T>
+    using allocator_affinity_data = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_DATA>;
+    template<typename T>
+    using allocator_affinity_nodes = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_NODES>;
+    template<typename T>
+    using allocator_affinity_physics = allocator_affinity_adapter<T, vsg::ALLOCATOR_AFFINITY_PHYSICS>;
 
 } // namespace vsg

@@ -45,7 +45,7 @@ int Bin::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(binNumber, rhs.binNumber)) != 0) return result;
     return compare_value(sortOrder, rhs.sortOrder);
 }
@@ -91,7 +91,7 @@ void Bin::add(State* state, double value, const Node* node)
 #endif
 
     element.stateCommandIndex = static_cast<uint32_t>(_stateCommands.size());
-    for (auto& stateStack : state->stateStacks)
+    for (const auto& stateStack : state->stateStacks)
     {
         if (stateStack.size() > 0)
         {
@@ -131,9 +131,9 @@ void Bin::traverse(RecordTraversal& rt) const
     state->pushFrustum();
     state->dirty = true;
 
-    for (auto& keyElement : _binElements)
+    for (const auto& keyElement : _binElements)
     {
-        auto& element = _elements[keyElement.second];
+        const auto& element = _elements[keyElement.second];
 
         if (element.matrixIndex != previousMatrixIndex)
         {

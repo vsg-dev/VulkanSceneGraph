@@ -69,7 +69,7 @@ int Options::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer_container(readerWriters, rhs.readerWriters))) return result;
     if ((result = compare_value(checkFilenameHint, rhs.checkFilenameHint))) return result;
@@ -128,7 +128,7 @@ void Options::write(Output& output) const
     output.writeObject("sharedObjects", sharedObjects);
 
     output.writeValue<uint32_t>("NumReaderWriters", readerWriters.size());
-    for (auto& rw : readerWriters)
+    for (const auto& rw : readerWriters)
     {
         output.writeObject("ReaderWriter", rw);
     }
@@ -137,7 +137,7 @@ void Options::write(Output& output) const
     output.writeValue<uint32_t>("checkFilenameHint", checkFilenameHint);
 
     output.writeValue<uint32_t>("NumPaths", paths.size());
-    for (auto& path : paths)
+    for (const auto& path : paths)
     {
         output.write("path", path);
     }
@@ -161,21 +161,21 @@ void Options::add(ref_ptr<ReaderWriter> rw)
 
 void Options::add(const ReaderWriters& rws)
 {
-    for (auto& rw : rws) add(rw);
+    for (const auto& rw : rws) add(rw);
 }
 
 bool Options::readOptions(CommandLine& arguments)
 {
-    bool read = false;
+    bool optionsRead = false;
     for (auto& readerWriter : readerWriters)
     {
-        if (readerWriter->readOptions(*this, arguments)) read = true;
+        if (readerWriter->readOptions(*this, arguments)) optionsRead = true;
     }
 
-    if (arguments.read("--file-cache", fileCache)) read = true;
-    if (arguments.read("--extension-hint", extensionHint)) read = true;
+    if (arguments.read("--file-cache", fileCache)) optionsRead = true;
+    if (arguments.read("--extension-hint", extensionHint)) optionsRead = true;
 
-    return read;
+    return optionsRead;
 }
 
 ref_ptr<const vsg::Options> vsg::prependPathToOptionsIfRequired(const vsg::Path& filename, ref_ptr<const vsg::Options> options)

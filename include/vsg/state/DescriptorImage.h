@@ -53,4 +53,7 @@ namespace vsg
     };
     VSG_type_name(vsg::DescriptorImage);
 
+    extern VSG_DECLSPEC ref_ptr<DescriptorImage> createSamplerDescriptor(ref_ptr<Sampler> sampler, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0);
+    extern VSG_DECLSPEC ref_ptr<DescriptorImage> createCombinedImageSamplerDescriptor(ref_ptr<Sampler> sampler, ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0);
+    extern VSG_DECLSPEC ref_ptr<DescriptorImage> createSampedImageDescriptor(ref_ptr<Data> image, uint32_t dstBinding = 0, uint32_t dstArrayElement = 0);
 } // namespace vsg

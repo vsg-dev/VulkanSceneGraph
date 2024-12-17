@@ -29,8 +29,9 @@ namespace vsg
     class VSG_DECLSPEC ResourceRequirements
     {
     public:
-        ResourceRequirements(ref_ptr<ResourceHints> hints = {});
+        ResourceRequirements();
         ResourceRequirements(const ResourceRequirements& rhs) = default;
+        explicit ResourceRequirements(ref_ptr<ResourceHints> hints);
 
         ResourceRequirements& operator=(const ResourceRequirements& rhs) = default;
 
@@ -44,6 +45,13 @@ namespace vsg
             std::set<int32_t> indices;
             std::set<const Bin*> bins;
             std::set<const Light*> lights;
+
+            void add(ViewDetails& vd)
+            {
+                indices.insert(vd.indices.begin(), vd.indices.end());
+                bins.insert(vd.bins.begin(), vd.bins.end());
+                lights.insert(vd.lights.begin(), vd.lights.end());
+            }
         };
 
         using Descriptors = std::set<const Descriptor*>;
@@ -72,8 +80,7 @@ namespace vsg
             }
         };
 
-        DynamicData earlyDynamicData;
-        DynamicData lateDynamicData;
+        DynamicData dynamicData;
 
         Descriptors descriptors;
         DescriptorSets descriptorSets;
@@ -88,9 +95,13 @@ namespace vsg
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
 
+        VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
+
         uivec2 numLightsRange = {8, 1024};
         uivec2 numShadowMapsRange = {0, 64};
         uivec2 shadowMapSize = {2048, 2048};
+
+        DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
     };
     VSG_type_name(vsg::ResourceRequirements);
 
@@ -121,6 +132,7 @@ namespace vsg
         void apply(const Light& light) override;
         void apply(const View& view) override;
         void apply(const DepthSorted& depthSorted) override;
+        void apply(const Layer& layer) override;
         void apply(const Bin& bin) override;
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;

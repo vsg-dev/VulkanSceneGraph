@@ -68,7 +68,7 @@ int DescriptorBuffer::compare(const Object& rhs_object) const
     int result = Descriptor::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     return compare_pointer_container(bufferInfoList, rhs.bufferInfoList);
 }
@@ -95,7 +95,7 @@ void DescriptorBuffer::write(Output& output) const
     Descriptor::write(output);
 
     output.writeValue<uint32_t>("dataList", bufferInfoList.size());
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         output.writeObject("data", bufferInfo->data.get());
     }
@@ -103,6 +103,10 @@ void DescriptorBuffer::write(Output& output) const
 
 void DescriptorBuffer::compile(Context& context)
 {
+    if (bufferInfoList.empty()) return;
+
+    auto transferTask = context.transferTask.get();
+
     VkBufferUsageFlags bufferUsageFlags = 0;
     switch (descriptorType)
     {
@@ -119,7 +123,7 @@ void DescriptorBuffer::compile(Context& context)
     }
 
     bool requiresAssignmentOfBuffers = false;
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         if (bufferInfo->buffer == nullptr) requiresAssignmentOfBuffers = true;
     }
@@ -140,13 +144,13 @@ void DescriptorBuffer::compile(Context& context)
         // compute the total size of BufferInfo that needs to be allocated.
         {
             VkDeviceSize offset = 0;
-            for (auto& bufferInfo : bufferInfoList)
+            for (const auto& bufferInfo : bufferInfoList)
             {
                 if (bufferInfo->data && !bufferInfo->buffer)
                 {
                     totalSize = offset + bufferInfo->data->dataSize();
                     offset = (alignment == 1 || (totalSize % alignment) == 0) ? totalSize : ((totalSize / alignment) + 1) * alignment;
-                    if (bufferInfo->data->dynamic()) bufferUsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+                    if (bufferInfo->data->dynamic() || transferTask) bufferUsageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
                 }
             }
         }
@@ -155,7 +159,7 @@ void DescriptorBuffer::compile(Context& context)
         if (totalSize > 0)
         {
             auto buffer = vsg::Buffer::create(totalSize, bufferUsageFlags, VK_SHARING_MODE_EXCLUSIVE);
-            for (auto& bufferInfo : bufferInfoList)
+            for (const auto& bufferInfo : bufferInfoList)
             {
                 if (bufferInfo->data && !bufferInfo->buffer)
                 {
@@ -197,12 +201,14 @@ void DescriptorBuffer::compile(Context& context)
                 }
             }
 
-            if (bufferInfo->data && bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            if (!transferTask && bufferInfo->data && bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
             {
                 bufferInfo->copyDataToBuffer(context.deviceID);
             }
         }
     }
+
+    if (transferTask) transferTask->assign(bufferInfoList);
 }
 
 void DescriptorBuffer::assignTo(Context& context, VkWriteDescriptorSet& wds) const

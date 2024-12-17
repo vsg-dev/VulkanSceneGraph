@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Camera.h>
 #include <vsg/io/Options.h>
 #include <vsg/maths/transform.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/MatrixTransform.h>
 
 using namespace vsg;
@@ -297,6 +298,11 @@ bool vsg::decompose(const dmat4& m, dvec3& translation, dquat& rotation, dvec3& 
     return t_decompose<double>(m, translation, rotation, scale);
 }
 
+bool vsg::decompose(const ldmat4& m, ldvec3& translation, ldquat& rotation, ldvec3& scale)
+{
+    return t_decompose<long double>(m, translation, rotation, scale);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // computeFrustumBound
@@ -434,6 +440,12 @@ void ComputeTransform::apply(const Transform& transform)
 void ComputeTransform::apply(const MatrixTransform& mt)
 {
     matrix = matrix * mt.matrix;
+}
+
+void ComputeTransform::apply(const CoordinateFrame& cf)
+{
+    origin = cf.origin;
+    matrix = vsg::rotate(cf.rotation);
 }
 
 void ComputeTransform::apply(const Camera& camera)

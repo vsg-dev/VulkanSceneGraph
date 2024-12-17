@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;

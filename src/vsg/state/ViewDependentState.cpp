@@ -16,8 +16,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/write.h>
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/HardShadows.h>
+#include <vsg/lighting/PercentageCloserSoftShadows.h>
+#include <vsg/lighting/PointLight.h>
+#include <vsg/lighting/SoftShadows.h>
+#include <vsg/lighting/SpotLight.h>
+#include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
+#include <vsg/utils/GraphicsPipelineConfigurator.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -70,7 +80,7 @@ int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
     int result = DescriptorSetLayout::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer(_viewDescriptorSetLayout, rhs._viewDescriptorSetLayout);
 }
 
@@ -109,7 +119,7 @@ int BindViewDescriptorSets::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(pipelineBindPoint, rhs.pipelineBindPoint))) return result;
     if ((result = compare_pointer(layout, rhs.layout))) return result;
@@ -180,10 +190,37 @@ ref_ptr<Image> createShadowImage(uint32_t width, uint32_t height, uint32_t level
     return image;
 }
 
+ref_ptr<ShadowSettings> ViewDependentState::getActiveShadowSettings(const Light* light) const
+{
+    // find an exact match
+    auto itr = shadowSettingsOverride.find(ref_ptr<const Light>(light));
+    if (itr != shadowSettingsOverride.end())
+    {
+        return itr->second;
+    }
+
+    // if null entry exists then use it to override all unmatched Lights.
+    itr = shadowSettingsOverride.find({});
+    if (itr != shadowSettingsOverride.end())
+    {
+        return itr->second;
+    }
+
+    return light->shadowSettings;
+}
+
 void ViewDependentState::init(ResourceRequirements& requirements)
 {
     // check if ViewDependentState has already been initialized
     if (lightData) return;
+
+    if (!shaderSet)
+    {
+        // fallback to using the standard PBR ShaderSet
+        shaderSet = vsg::createPhysicsBasedRenderingShaderSet();
+    }
+
+    auto descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
 
     uint32_t maxNumberLights = 64;
     uint32_t maxViewports = 1;
@@ -192,7 +229,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     uint32_t shadowHeight = 2048;
     uint32_t maxShadowMaps = 8;
 
-    auto& viewDetails = requirements.views[view];
+    const auto& viewDetails = requirements.views[view];
 
     if ((view->features & (RECORD_LIGHTS | RECORD_SHADOW_MAPS)) != 0)
     {
@@ -200,7 +237,10 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         uint32_t numShadowMaps = 0;
         for (auto& light : viewDetails.lights)
         {
-            numShadowMaps += light->shadowMaps;
+            if (auto shadowSettings = getActiveShadowSettings(light))
+            {
+                numShadowMaps += shadowSettings->shadowMapCount;
+            }
         }
 
         if (numLights < requirements.numLightsRange[0])
@@ -226,7 +266,8 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         maxShadowMaps = 0;
     }
 
-    uint32_t lightDataSize = 4 + maxNumberLights * 16 + maxShadowMaps * 16;
+    // 1 vec3 is used for specifying the number of lights, lagest lightData entries are for spot light with 4 vec4s per light, and each shadowmap takes 8 vec4s.
+    uint32_t lightDataSize = 1 + maxNumberLights * 4 + maxShadowMaps * 8;
 
 #if 0
     if (active)
@@ -248,36 +289,42 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 #endif
 
     lightData = vec4Array::create(lightDataSize);
+    lightData->setValue("name", "lightData");
     lightData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     lightDataBufferInfo = BufferInfo::create(lightData.get());
+    descriptorConfigurator->assignDescriptor("lightData", BufferInfoList{lightDataBufferInfo});
 
     viewportData = vec4Array::create(maxViewports);
+    viewportData->setValue("name", "viewportData");
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
-
-    descriptor = DescriptorBuffer::create(BufferInfoList{lightDataBufferInfo, viewportDataBufferInfo}, 0); // hardwired position for now
+    descriptorConfigurator->assignDescriptor("viewportData", BufferInfoList{viewportDataBufferInfo});
 
     // set up ShadowMaps
+    auto shadowMapDirectSampler = Sampler::create();
+    shadowMapDirectSampler->minFilter = VK_FILTER_NEAREST;
+    shadowMapDirectSampler->magFilter = VK_FILTER_NEAREST;
+    shadowMapDirectSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    shadowMapDirectSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapDirectSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapDirectSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
     auto shadowMapSampler = Sampler::create();
+    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #define HARDWARE_PCF 1
 #if HARDWARE_PCF == 1
     shadowMapSampler->minFilter = VK_FILTER_LINEAR;
     shadowMapSampler->magFilter = VK_FILTER_LINEAR;
     shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     shadowMapSampler->compareEnable = VK_TRUE;
     shadowMapSampler->compareOp = VK_COMPARE_OP_LESS;
 #else
     shadowMapSampler->minFilter = VK_FILTER_NEAREST;
     shadowMapSampler->magFilter = VK_FILTER_NEAREST;
     shadowMapSampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    shadowMapSampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    shadowMapSampler->addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 #endif
-
     if (maxShadowMaps > 0)
     {
         shadowDepthImage = createShadowImage(shadowWidth, shadowHeight, maxShadowMaps, VK_FORMAT_D32_SFLOAT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
@@ -289,9 +336,9 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         depthImageView->subresourceRange.baseArrayLayer = 0;
         depthImageView->subresourceRange.layerCount = maxShadowMaps;
 
-        auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+        descriptorConfigurator->assignTexture("shadowMaps", ImageInfoList{depthImageInfo});
     }
     else
     {
@@ -313,19 +360,26 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         depthImageView->subresourceRange.baseArrayLayer = 0;
         depthImageView->subresourceRange.layerCount = 1;
 
-        auto depthImageInfo = ImageInfo::create(shadowMapSampler, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+        auto depthImageInfo = ImageInfo::create(nullptr, depthImageView, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 
-        shadowMapImages = DescriptorImage::create(ImageInfoList{depthImageInfo}, 2);
+        descriptorConfigurator->assignTexture("shadowMaps", ImageInfoList{depthImageInfo});
     }
 
-    DescriptorSetLayoutBindings descriptorBindings{
-        VkDescriptorSetLayoutBinding{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // lightData
-        VkDescriptorSetLayoutBinding{1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // viewportData
-        VkDescriptorSetLayoutBinding{2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},                      // shadow map 2D texture array
-    };
+    auto shadowMapDirectSamplerInfo = ImageInfo::create(shadowMapDirectSampler, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    auto shadowMapSamplerInfo = ImageInfo::create(shadowMapSampler, nullptr, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    descriptorSetLayout = DescriptorSetLayout::create(descriptorBindings);
-    descriptorSet = DescriptorSet::create(descriptorSetLayout, Descriptors{descriptor, shadowMapImages});
+    descriptorConfigurator->assignTexture("shadowMapDirectSampler", ImageInfoList{shadowMapDirectSamplerInfo});
+    descriptorConfigurator->assignTexture("shadowMapShadowSampler", ImageInfoList{shadowMapSamplerInfo});
+
+    // assign the DescriptorSet and layout created by the descriptorConfigurator
+    for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
+    {
+        if (auto ds = descriptorConfigurator->descriptorSets[set])
+        {
+            descriptorSet = ds;
+            descriptorSetLayout = ds->setLayout;
+        }
+    }
 
     // if not active then don't enable shadow maps
     if (maxShadowMaps == 0) return;
@@ -375,6 +429,9 @@ void ViewDependentState::update(ResourceRequirements& requirements)
 
 void ViewDependentState::compile(Context& context)
 {
+    if (compiled) return;
+    compiled = true;
+
     CPU_INSTRUMENTATION_L1_NC(context.instrumentation, "ViewDependentState compile", COLOR_COMPILE);
 
     descriptorSet->compile(context);
@@ -391,7 +448,7 @@ void ViewDependentState::compile(Context& context)
         shadowDepthImage->compile(context);
 
         uint32_t layer = 0;
-        for (auto& shadowMap : shadowMaps)
+        for (const auto& shadowMap : shadowMaps)
         {
             // create depth buffer
             auto depthImageView = ImageView::create(shadowDepthImage, VK_IMAGE_ASPECT_DEPTH_BIT);
@@ -528,7 +585,95 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         return bounds;
     };
 
+    // clip against near plane
+    // Converting between homogeneous coordinates and Cartesian coordinates can turn internal line segements
+    // (the section of the line between two points) into external line segments (the line except the part
+    // between the points). In particular, this happens for ones that cross the near plane of a perspective
+    // projection. This function therefore excludes the section of the frustum on the wrong side of the near
+    // plane, sidestepping the problem, and avoiding giving infinite bounds for infinite external line segments.
+    auto computeFrustumBoundsClipped = [&](double n, double f, const dmat4& clipToWorld) -> dbox {
+        std::array<dvec4, 8> corners{{
+            clipToWorld * dvec4(-1.0, -1.0, n, 1.0),
+            clipToWorld * dvec4(-1.0, 1.0, n, 1.0),
+            clipToWorld * dvec4(1.0, -1.0, n, 1.0),
+            clipToWorld * dvec4(1.0, 1.0, n, 1.0),
+            clipToWorld * dvec4(-1.0, -1.0, f, 1.0),
+            clipToWorld * dvec4(-1.0, 1.0, f, 1.0),
+            clipToWorld * dvec4(1.0, -1.0, f, 1.0),
+            clipToWorld * dvec4(1.0, 1.0, f, 1.0),
+        }};
+        std::array<std::pair<int, int>, 12> edges{{
+            {0, 1},
+            {1, 3},
+            {3, 2},
+            {2, 0},
+            {0, 4},
+            {1, 5},
+            {2, 6},
+            {3, 7},
+            {4, 5},
+            {5, 7},
+            {7, 6},
+            {6, 4},
+        }};
+
+        dbox bounds;
+
+        std::array<bool, 8> clipped;
+        for (unsigned int i = 0; i < corners.size(); ++i)
+        {
+            clipped[i] = corners[i].w < corners[i].z;
+            if (!clipped[i])
+                bounds.add(corners[i].xyz / corners[i].w);
+        }
+        for (const auto& [start, end] : edges)
+        {
+            if (clipped[start] != clipped[end])
+            {
+                // add the point where z=w on the line
+                const auto& p1 = corners[start];
+                const auto& p2 = corners[end];
+                double a = (p1.z - p1.w) / (p1.z - p2.z - p1.w + p2.w);
+                dvec4 p = p1 * (1.0 - a) + p2 * a;
+                bounds.add(p.xyz / p.w);
+            }
+        }
+        return bounds;
+    };
+
     // info("\n\nViewDependentState::traverse(", &rt, ", ", &view, ") numShadowMaps = ", numShadowMaps);
+
+    // cache general view parameters
+    auto projectionMatrix = view->camera->projectionMatrix->transform();
+    auto viewMatrix = view->camera->viewMatrix->transform();
+    auto inverse_viewMatrix = inverse(viewMatrix);
+    auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
+    auto view_up = normalize(dvec3(0.0, -1.0, 0.0) * (projectionMatrix * viewMatrix));
+
+    auto clipToEye = inverse(projectionMatrix);
+    auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
+    auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
+
+    // if regions of interest have been found in the scene graph use them to clamp the near/far values.
+    if (!rt.regionsOfInterest.empty())
+    {
+        dbox eyeSpaceRegionBounds;
+        for (auto& [mv, regionOfInterest] : rt.regionsOfInterest)
+        {
+            for (auto& v : regionOfInterest->points)
+            {
+                eyeSpaceRegionBounds.add(mv * v);
+            }
+        }
+
+        if (eyeSpaceRegionBounds)
+        {
+            double regionNear = -eyeSpaceRegionBounds.max.z;
+            double regionFar = -eyeSpaceRegionBounds.min.z;
+            if (regionNear > n) { n = regionNear; }
+            if (regionFar < f) { f = regionFar; }
+        }
+    }
 
     // set up the light data
     auto light_itr = lightData->begin();
@@ -541,7 +686,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
 
-    for (auto& entry : ambientLights)
+    for (const auto& entry : ambientLights)
     {
         auto light = entry.second;
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
@@ -549,15 +694,33 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     for (auto& [mv, light] : directionalLights)
     {
-        // info("   light ", light->className(), ", light->shadowMaps = ", light->shadowMaps);
+        // info("   light ", light->className(), ", light->shadowMapCount = ", light->shadowMapCount);
 
         // assign basic direction light settings to light data
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
-        uint32_t activeNumShadowMaps = std::min(light->shadowMaps, numShadowMaps - shadowMapIndex);
-        (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.0f, 0.0f, 0.0f); // shadow map setting
+        auto shadowSettings = getActiveShadowSettings(light);
+        uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
+        if (shadowSettings)
+        {
+            if (shadowSettings->type_info() == typeid(HardShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(SoftShadows))
+            {
+                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(light->angleSubtended / 2), 0.0f);
+            }
+        }
+        else
+            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (activeNumShadowMaps == 0) continue;
 
@@ -565,18 +728,10 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         requiresPerRenderShadowMaps = true;
 
         // compute directional light space
-        auto projectionMatrix = view->camera->projectionMatrix->transform();
-        auto viewMatrix = view->camera->viewMatrix->transform();
-        auto inverse_viewMatrix = inverse(viewMatrix);
-
-        // view direction in world coords
-        auto view_direction = normalize(dvec3(0.0, 0.0, -1.0) * (projectionMatrix * viewMatrix));
-        auto view_up = normalize(dvec3(0.0, -1.0, 0.0) * (projectionMatrix * viewMatrix));
-
         // light direction in world coords
         auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
 #if 0
-        info("   directional light : light direction in world = ", light_direction, ", light->shadowMaps = ", light->shadowMaps);
+        info("   directional light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
         info("      light->direction in model = ", light->direction);
         info("      view_direction in world = ", view_direction);
         info("      view_up in world = ", view_up);
@@ -587,11 +742,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto light_x = (length(light_x_direction) > length(light_x_up)) ? normalize(light_x_direction) : normalize(light_x_up);
         auto light_y = cross(light_x, light_direction);
         auto light_z = light_direction;
-
-        auto clipToEye = inverse(projectionMatrix);
-
-        auto n = -(clipToEye * dvec3(0.0, 0.0, 1.0)).z;
-        auto f = -(clipToEye * dvec3(0.0, 0.0, 0.0)).z;
 
         // clamp the near and far values
         if (n > maxShadowDistance)
@@ -644,6 +794,13 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             (*light_itr++) = m[3];
 
             // info("m = ", m);
+
+            m = inverse(m);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
 
             // advance to the next shadowMap
             shadowMapIndex++;
@@ -703,6 +860,163 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
         (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
         (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
+
+        auto shadowSettings = getActiveShadowSettings(light);
+        uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
+        if (shadowSettings)
+        {
+            if (shadowSettings->type_info() == typeid(HardShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(SoftShadows))
+            {
+                const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+            }
+            else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
+            {
+                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, static_cast<float>(light->radius), 0.0f);
+            }
+        }
+        else
+            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if (activeNumShadowMaps == 0) continue;
+
+        // set up shadow map rendering backend
+        requiresPerRenderShadowMaps = true;
+
+        // compute spot light space
+        // light direction in world coords
+        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
+        auto light_position = inverse_viewMatrix * mv * light->position;
+#if 0
+        info("   spot light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
+        info("      light->direction in model = ", light->direction);
+        info("      view_direction in world = ", view_direction);
+        info("      view_up in world = ", view_up);
+#endif
+        auto light_x_direction = cross(light_direction, view_direction);
+        auto light_x_up = cross(light_direction, view_up);
+
+        auto light_x = (length(light_x_direction) > length(light_x_up)) ? normalize(light_x_direction) : normalize(light_x_up);
+        auto light_y = cross(light_x, light_direction);
+        auto light_z = light_direction;
+
+        // clamp the near and far values
+        if (n > maxShadowDistance)
+        {
+            // near plane further than maximum shadow distance so no need to generate shadow maps
+            continue;
+        }
+        if (f > maxShadowDistance)
+        {
+            f = maxShadowDistance;
+        }
+
+        auto light_outerAngle = light->outerAngle;
+        auto light_intensity = light->intensity;
+
+        auto updateCamera = [&](double clip_near_z, double clip_far_z, const dmat4& clipToWorld) -> void {
+            const auto& shadowMap = shadowMaps[shadowMapIndex];
+            preRenderSwitch->children[shadowMapIndex].mask = MASK_ALL;
+
+            const auto& camera = shadowMap.view->camera;
+            auto lookAt = camera->viewMatrix.cast<LookAt>();
+            auto relativeProjection = camera->projectionMatrix.cast<RelativeProjection>();
+
+            if (!lookAt) camera->viewMatrix = lookAt = LookAt::create();
+            if (!relativeProjection) camera->projectionMatrix = relativeProjection = RelativeProjection::create(dmat4{}, Perspective::create());
+
+            auto perspective = relativeProjection->projectionMatrix.cast<Perspective>();
+
+            lookAt->eye = light_position;
+            lookAt->center = light_position + light_z;
+            lookAt->up = light_y;
+
+            perspective->aspectRatio = 1.0;
+            perspective->fieldOfViewY = 2.0 * degrees(light_outerAngle);
+            perspective->farDistance = sqrt(light_intensity / 0.001);
+            perspective->nearDistance = perspective->farDistance / 10000.0;
+
+            dmat4 intermediateProjView = perspective->transform() * camera->viewMatrix->transform();
+
+            auto ls_bounds = computeFrustumBoundsClipped(clip_near_z, clip_far_z, intermediateProjView * clipToWorld);
+            ls_bounds.min = dvec3(std::max(-1.0, ls_bounds.min.x), std::max(-1.0, ls_bounds.min.y), std::max(0.0, ls_bounds.min.z));
+            ls_bounds.max = dvec3(std::min(1.0, ls_bounds.max.x), std::min(1.0, ls_bounds.max.y), std::min(1.0, ls_bounds.max.z));
+
+            // we need to use the reverse Z depth range without actually reversing depth, as the previous matrix already does that
+            auto tweakedOrthographic = [](double left, double right, double bottom, double top, double zNear, double zFar) {
+                return dmat4(2.0 / (right - left), 0.0, 0.0, 0.0,
+                             0.0, 2.0 / (top - bottom), 0.0, 0.0,
+                             0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
+                             -(right + left) / (right - left), -(top + bottom) / (top - bottom), -zNear / (zFar - zNear), 1.0);
+            };
+
+            relativeProjection->matrix = tweakedOrthographic(ls_bounds.min.x, ls_bounds.max.x, ls_bounds.min.y, ls_bounds.max.y, ls_bounds.min.z, ls_bounds.max.z);
+
+            dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
+
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
+
+            // convert tex gen matrix to float matrix and assign to light data
+            mat4 m(shadowMapTM);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
+
+            // info("m = ", m);
+
+            m = inverse(m);
+
+            (*light_itr++) = m[0];
+            (*light_itr++) = m[1];
+            (*light_itr++) = m[2];
+            (*light_itr++) = m[3];
+
+            // advance to the next shadowMap
+            shadowMapIndex++;
+        };
+
+#if 0
+        info("     light_x = ", light_x);
+        info("     light_y = ", light_y);
+        info("     light_z = ", light_z);
+#endif
+
+#if 0
+        double range = f - n;
+        info("    n = ", n, ", f = ", f, ", range = ", range);
+#endif
+        auto clipToWorld = inverse(projectionMatrix * viewMatrix);
+
+        if (activeNumShadowMaps > 1)
+        {
+            double m = static_cast<double>(activeNumShadowMaps);
+            for (double i = 0; i < m; i += 1.0)
+            {
+                dvec3 eye_near(0.0, 0.0, -Cpractical(n, f, i, m, lambda));
+                dvec3 eye_far(0.0, 0.0, -Cpractical(n, f, i + 1.0, m, lambda));
+
+                auto clip_near = projectionMatrix * eye_near;
+                auto clip_far = projectionMatrix * eye_far;
+
+                updateCamera(clip_near.z, clip_far.z, clipToWorld);
+            }
+        }
+        else
+        {
+            dvec3 eye_near(0.0, 0.0, -n);
+            dvec3 eye_far(0.0, 0.0, -f);
+
+            auto clip_near = projectionMatrix * eye_near;
+            auto clip_far = projectionMatrix * eye_far;
+
+            updateCamera(clip_near.z, clip_far.z, clipToWorld);
+        }
     }
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)

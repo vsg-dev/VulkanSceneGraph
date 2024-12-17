@@ -49,7 +49,7 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Context& context, Device* device, PipelineLayout* pipelineLayout, ShaderStage* shaderStage);
+            Implementation(Context& context, Device* device, const PipelineLayout* pipelineLayout, const ShaderStage* shaderStage);
             virtual ~Implementation();
 
             VkPipeline _pipeline;
@@ -64,7 +64,7 @@ namespace vsg
     class VSG_DECLSPEC BindComputePipeline : public Inherit<StateCommand, BindComputePipeline>
     {
     public:
-        BindComputePipeline(ComputePipeline* pipeline = nullptr);
+        explicit BindComputePipeline(ComputePipeline* pipeline = nullptr);
 
         int compare(const Object& rhs_object) const override;
 

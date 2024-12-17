@@ -440,13 +440,13 @@ VkResult Window::acquireNextImage(uint64_t timeout)
     // check the dimensions of the swapchain and window extents are consistent, if not return a VK_ERROR_OUT_OF_DATE_KHR
     if (_swapchain->getExtent() != _extent2D) return VK_ERROR_OUT_OF_DATE_KHR;
 
-    uint32_t imageIndex;
-    VkResult result = _swapchain->acquireNextImage(timeout, _availableSemaphore, {}, imageIndex);
+    uint32_t nextImageIndex;
+    VkResult result = _swapchain->acquireNextImage(timeout, _availableSemaphore, {}, nextImageIndex);
 
     if (result == VK_SUCCESS)
     {
         // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set its entry to the one to use for the next frame by swapping ref_ptr<>'s
-        _availableSemaphore.swap(_frames[imageIndex].imageAvailableSemaphore);
+        _availableSemaphore.swap(_frames[nextImageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices
         for (size_t i = _indices.size() - 1; i > 0; --i)
@@ -454,8 +454,8 @@ VkResult Window::acquireNextImage(uint64_t timeout)
             _indices[i] = _indices[i - 1];
         }
 
-        // update head of _indices to the new frames imageIndex
-        _indices[0] = imageIndex;
+        // update head of _indices to the new frames nextImageIndex
+        _indices[0] = nextImageIndex;
     }
     else
     {

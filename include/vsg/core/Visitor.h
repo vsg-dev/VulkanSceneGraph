@@ -34,12 +34,14 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
-    class MatrixTransform;
     class Transform;
+    class MatrixTransform;
+    class CoordinateFrame;
     class Geometry;
     class VertexDraw;
     class VertexIndexDraw;
     class DepthSorted;
+    class Layer;
     class Bin;
     class Switch;
     class Light;
@@ -48,6 +50,7 @@ namespace vsg
     class PointLight;
     class SpotLight;
     class InstrumentationNode;
+    class RegionOfInterest;
 
     // forward declare text classes
     class Text;
@@ -58,9 +61,9 @@ namespace vsg
     // forward declare animation classes
     class Animation;
     class AnimationGroup;
-    class AnimationPath;
     class AnimationSampler;
     class TransformSampler;
+    class CameraSampler;
     class MorphSampler;
     class JointSampler;
     class Joint;
@@ -153,6 +156,16 @@ namespace vsg
     class RenderGraph;
     class View;
     class Viewer;
+    class ViewMatrix;
+    class LookAt;
+    class LookDirection;
+    class RelativeViewMatrix;
+    class TrackingViewMatrix;
+    class ProjectionMatrix;
+    class Perspective;
+    class Orthographic;
+    class RelativeProjection;
+    class EllipsoidPerspective;
 
     // forward declare general classes
     class FrameStamp;
@@ -313,12 +326,14 @@ namespace vsg
         virtual void apply(StateGroup&);
         virtual void apply(CullGroup&);
         virtual void apply(CullNode&);
-        virtual void apply(MatrixTransform&);
         virtual void apply(Transform&);
+        virtual void apply(MatrixTransform&);
+        virtual void apply(CoordinateFrame&);
         virtual void apply(Geometry&);
         virtual void apply(VertexDraw&);
         virtual void apply(VertexIndexDraw&);
         virtual void apply(DepthSorted&);
+        virtual void apply(Layer&);
         virtual void apply(Bin&);
         virtual void apply(Switch&);
         virtual void apply(Light&);
@@ -327,6 +342,7 @@ namespace vsg
         virtual void apply(PointLight&);
         virtual void apply(SpotLight&);
         virtual void apply(InstrumentationNode&);
+        virtual void apply(RegionOfInterest&);
 
         // text
         virtual void apply(Text&);
@@ -337,11 +353,11 @@ namespace vsg
         // animation
         virtual void apply(Animation&);
         virtual void apply(AnimationGroup&);
-        virtual void apply(AnimationPath&);
         virtual void apply(AnimationSampler&);
         virtual void apply(JointSampler&);
         virtual void apply(MorphSampler&);
         virtual void apply(TransformSampler&);
+        virtual void apply(CameraSampler&);
         virtual void apply(Joint&);
 
         // Vulkan nodes
@@ -424,13 +440,23 @@ namespace vsg
         // utils
         virtual void apply(ShaderCompileSettings&);
 
-        // viewer
+        // app
         virtual void apply(Camera&);
         virtual void apply(CommandGraph&);
         virtual void apply(SecondaryCommandGraph&);
         virtual void apply(RenderGraph&);
         virtual void apply(View&);
         virtual void apply(Viewer&);
+        virtual void apply(ViewMatrix&);
+        virtual void apply(LookAt&);
+        virtual void apply(LookDirection&);
+        virtual void apply(RelativeViewMatrix&);
+        virtual void apply(TrackingViewMatrix&);
+        virtual void apply(ProjectionMatrix&);
+        virtual void apply(Perspective&);
+        virtual void apply(Orthographic&);
+        virtual void apply(RelativeProjection&);
+        virtual void apply(EllipsoidPerspective&);
 
         // general classes
         virtual void apply(FrameStamp&);

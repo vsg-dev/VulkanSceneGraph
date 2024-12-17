@@ -27,12 +27,14 @@ namespace vsg
     {
     public:
         WindowTraits();
-        explicit WindowTraits(const WindowTraits& traits);
+        explicit WindowTraits(const WindowTraits& traits, const CopyOp& copyop = {});
         explicit WindowTraits(const std::string& title);
         WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height, const std::string& title = "vsg window");
         WindowTraits(uint32_t in_width, uint32_t in_height, const std::string& title = "vsg window");
 
         WindowTraits& operator=(const WindowTraits&) = delete;
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return WindowTraits::create(*this, copyop); }
 
         /// set default values, called by all constructors except copy constructor
         void defaults();

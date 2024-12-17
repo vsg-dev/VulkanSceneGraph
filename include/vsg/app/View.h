@@ -35,7 +35,7 @@ namespace vsg
     class VSG_DECLSPEC View : public Inherit<Group, View>
     {
     public:
-        View(ViewFeatures in_features = RECORD_ALL);
+        explicit View(ViewFeatures in_features = RECORD_ALL);
 
         // share the specified view's children, viewID, mask and camera ViewportState
         View(const View& view);

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.1.2
+    VERSION 1.1.9
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES C CXX
 )
@@ -12,7 +12,7 @@ set(Vulkan_MIN_VERSION 1.1.70.0)
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
 set(VSG_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "Root binary directory of VulkanSceneGraph.")
 
-# create the version heder
+# create the version header
 set(VSG_MAX_DEVICES 1 CACHE STRING "Set maximum number of vk/vsg::Device that are supported.")
 set(VSG_VERSION_HEADER "${PROJECT_BINARY_DIR}/include/vsg/core/Version.h")
 
@@ -43,26 +43,26 @@ set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level 
 # Enable/disable shader compilation support that pulls in glslang
 set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
 if (VSG_SUPPORTS_ShaderCompiler)
-    if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/glslang/build_vars.cmake)
 
-        if (Git_FOUND)
+    # Try looking for glslang 15 first.
+    set(GLSLANG_MIN_VERSION "15" CACHE STRING "glslang 14 is the earliest version that we think installs itself properly on all platforms. Other platforms may be able to use an earlier version")
+    find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG QUIET)
 
-            set(glslang_URL "https://github.com/vsg-dev/glslang.git" CACHE STRING "URL of the glslang git repository")
-            set(glslang_branch "VSG-1.0.x" CACHE STRING "branch/tag of the glslang git repository")
-
-            execute_process(COMMAND ${GIT_EXECUTABLE} clone --depth 1 --branch ${glslang_branch} ${glslang_URL}
-                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-                            RESULT_VARIABLE GIT_SUBMOD_RESULT)
-
-            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
-                set(VSG_SUPPORTS_ShaderCompiler 0)
-            endif()
-        else()
-                message(WARNING "git clone of glslang failed. ShaderCompile support disabled.")
-                set(VSG_SUPPORTS_ShaderCompiler 0)
-        endif()
+    if (NOT glslang_FOUND)
+        # fallback to trying glslang 14.
+        set(GLSLANG_MIN_VERSION "14")
+        find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG)
     endif()
+
+    if (glslang_FOUND)
+        set(FIND_DEPENDENCY_glslang "find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)")
+    else()
+        message(WARNING "glslang not found. ShaderCompile support disabled.")
+        set(VSG_SUPPORTS_ShaderCompiler 0)
+        set(FIND_DEPENDENCY_glslang "")
+    endif()
+else()
+    set(FIND_DEPENDENCY_glslang "")
 endif()
 
 set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )
@@ -143,11 +143,73 @@ add_custom_target(build_all_h
 set_target_properties(build_all_h PROPERTIES FOLDER "VulkanSceneGraph")
 
 # build_ShaderSets target automatically rebuilds the various built-in ShaderSets.
+set(PBR_DEFINES
+    -v \"\"
+    -v "VSG_DIFFUSE_MAP"
+    -v "VSG_EMISSIVE_MAP"
+    -v "VSG_LIGHTMAP_MAP"
+    -v "VSG_METALLROUGHNESS_MAP"
+    -v "VSG_NORMAL_MAP"
+    -v "VSG_SKINNING"
+    -v "VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_WORKFLOW_SPECGLOSS"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_METALLROUGHNESS_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_NORMAL_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_SKINNING"
+    -v "VSG_DIFFUSE_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_WORKFLOW_SPECGLOSS"
+    -v "VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP"
+    -v "VSG_LIGHTMAP_MAP VSG_NORMAL_MAP"
+    -v "VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP"
+    -v "VSG_METALLROUGHNESS_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_NORMAL_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_METALLROUGHNESS_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_LIGHTMAP_MAP VSG_NORMAL_MAP VSG_WORKFLOW_SPECGLOSS"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_WORKFLOW_SPECGLOSS"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
+    -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_LIGHTMAP_MAP VSG_NORMAL_MAP VSG_SPECULAR_MAP VSG_WORKFLOW_SPECGLOSS"
+)
+
+set(PHONG_DEFINES
+    -v \"\"
+    -v "VSG_BILLBOARD"
+    -v "VSG_DIFFUSE_MAP"
+    -v "VSG_BILLBOARD VSG_DIFFUSE_MAP"
+)
+
+set(FLAT_DEFINES
+    -v \"\"
+    -v "VSG_BILLBOARD"
+    -v "VSG_DIFFUSE_MAP"
+    -v "VSG_BILLBOARD VSG_DIFFUSE_MAP"
+)
+
+set(TEXT_DEFINES
+    -v "CPU_LAYOUT"
+    -v "CPU_LAYOUT BILLBOARD"
+    -v "GPU_LAYOUT"
+    -v "GPU_LAYOUT BILLBOARD"
+)
+
 add_custom_target(build_ShaderSets
-    COMMAND find ~/Data/glTF-Sample-Models/2.0 -name "*.glb" -o -name "*.gltf" | xargs vsgshaderset --pbr -o src/vsg/utils/shaders/pbr_ShaderSet.cpp --binary
-    COMMAND vsgshaderset --phong -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/phong_ShaderSet.cpp --binary
-    COMMAND vsgshaderset --flat -v \"\" -v "VSG_BILLBOARD" -v "VSG_DIFFUSE_MAP" -v "VSG_BILLBOARD VSG_DIFFUSE_MAP" -o src/vsg/utils/shaders/flat_ShaderSet.cpp --binary
-    COMMAND vsgshaderset --text -v "CPU_LAYOUT" -v "CPU_LAYOUT BILLBOARD" -v "GPU_LAYOUT" -v "GPU_LAYOUT BILLBOARD" -o src/vsg/text/shaders/text_ShaderSet.cpp  --binary
+    COMMAND vsgshaderset --pbr ${PBR_DEFINES} -o src/vsg/utils/shaders/pbr_ShaderSet.cpp --binary
+    COMMAND vsgshaderset --phong ${PHONG_DEFINES}  -o src/vsg/utils/shaders/phong_ShaderSet.cpp --binary
+    COMMAND vsgshaderset --flat ${FLAT_DEFINES} -o src/vsg/utils/shaders/flat_ShaderSet.cpp --binary
+    COMMAND vsgshaderset --text ${TEXT_DEFINES}  -o src/vsg/text/shaders/text_ShaderSet.cpp  --binary
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "update built-in ShaderSets"
 )

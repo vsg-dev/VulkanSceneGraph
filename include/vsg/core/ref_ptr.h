@@ -60,6 +60,10 @@ namespace vsg
             if (_ptr) _ptr->ref();
         }
 
+        // std::nullptr_t requires extra header
+        ref_ptr(decltype(nullptr)) noexcept :
+            ref_ptr() {}
+
         ~ref_ptr()
         {
             if (_ptr) _ptr->unref();

@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Export.h>
 #include <vsg/core/External.h>
 #include <vsg/core/Inherit.h>
+#include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/core/Mask.h>
 #include <vsg/core/MemorySlots.h>
 #include <vsg/core/Object.h>
@@ -59,6 +60,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Compilable.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
@@ -66,11 +68,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/Light.h>
+#include <vsg/nodes/Layer.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/Node.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/nodes/TileDatabase.h>
@@ -82,12 +85,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/Animation.h>
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/AnimationManager.h>
-#include <vsg/animation/AnimationPath.h>
+#include <vsg/animation/CameraAnimationHandler.h>
+#include <vsg/animation/CameraSampler.h>
 #include <vsg/animation/FindAnimations.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/JointSampler.h>
 #include <vsg/animation/MorphSampler.h>
 #include <vsg/animation/TransformSampler.h>
+#include <vsg/animation/time_value.h>
+
+// Lighting header files
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/HardShadows.h>
+#include <vsg/lighting/Light.h>
+#include <vsg/lighting/PercentageCloserSoftShadows.h>
+#include <vsg/lighting/PointLight.h>
+#include <vsg/lighting/ShadowSettings.h>
+#include <vsg/lighting/SoftShadows.h>
+#include <vsg/lighting/SpotLight.h>
 
 // Commands header files
 #include <vsg/commands/BeginQuery.h>
@@ -166,6 +182,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
 #include <vsg/threading/Barrier.h>
+#include <vsg/threading/DeleteQueue.h>
 #include <vsg/threading/FrameBlock.h>
 #include <vsg/threading/Latch.h>
 #include <vsg/threading/OperationQueue.h>
@@ -218,6 +235,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandPool.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/DeviceExtensions.h>
 #include <vsg/vk/DeviceFeatures.h>
@@ -276,6 +294,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/LoadPagedLOD.h>
+#include <vsg/utils/PolytopeIntersector.h>
+#include <vsg/utils/PrimitiveFunctor.h>
+#include <vsg/utils/Profiler.h>
 #include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/ShaderCompiler.h>
 #include <vsg/utils/ShaderSet.h>

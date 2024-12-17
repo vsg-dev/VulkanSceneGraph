@@ -36,7 +36,7 @@ namespace vsg
     class VSG_DECLSPEC DescriptorConfigurator : public vsg::Inherit<Object, DescriptorConfigurator>
     {
     public:
-        DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         ref_ptr<ShaderSet> shaderSet;
         bool blending = false;
@@ -62,7 +62,7 @@ namespace vsg
 
         bool assignDescriptor(uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Descriptor> descriptor);
 
-        /// call after all the textures/uniforms have been explictly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
+        /// call after all the textures/uniforms have been explicitly assigned to add in textures/uniforms descriptors that are enabled by default (define == "").
         bool assignDefaults(const std::set<uint32_t>& inheritedSets = {});
 
         std::set<std::string> assigned;
@@ -75,7 +75,7 @@ namespace vsg
     class VSG_DECLSPEC ArrayConfigurator : public vsg::Inherit<Object, ArrayConfigurator>
     {
     public:
-        ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         ref_ptr<ShaderSet> shaderSet;
 
@@ -97,7 +97,7 @@ namespace vsg
     class VSG_DECLSPEC GraphicsPipelineConfigurator : public vsg::Inherit<Object, GraphicsPipelineConfigurator>
     {
     public:
-        GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit GraphicsPipelineConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
 
         void traverse(Visitor& visitor) override;
         void traverse(ConstVisitor& visitor) const override;
@@ -121,7 +121,7 @@ namespace vsg
         bool assignTexture(const std::string& name, ref_ptr<Data> textureData = {}, ref_ptr<Sampler> sampler = {}, uint32_t dstArrayElement = 0);
         bool assignTexture(const std::string& name, const ImageInfoList& imageInfoList, uint32_t dstArrayElement = 0);
 
-        /// set the inherited state which if compatible can hint the the state setup and copying to avoid setting inherited state local subgraph
+        /// set the inherited state which if compatible can hint at the state setup and copying to avoid setting inherited state local subgraph
         void assignInheritedState(const StateCommands& stateCommands);
 
         [[deprecated("use enableDescriptor(..)")]] bool enableUniform(const std::string& name) { return enableDescriptor(name); }
@@ -138,10 +138,10 @@ namespace vsg
         /// initialize state objects
         virtual void init();
 
-        /// convinience function for calling shaderSet->getSuitableArrayState(shaderHints->defines) to return the appropriate ArrayState object
+        /// convenience function for calling shaderSet->getSuitableArrayState(shaderHints->defines) to return the appropriate ArrayState object
         virtual ref_ptr<ArrayState> getSuitableArrayState() const;
 
-        /// copy state objects to StateCommands list, return true if is add added.
+        /// copy state objects to StateCommands list, return true if state is added.
         virtual bool copyTo(StateCommands& stateCommands, ref_ptr<SharedObjects> sharedObjects = {});
 
         /// copy state objects to StateGroup, return true if state is added.

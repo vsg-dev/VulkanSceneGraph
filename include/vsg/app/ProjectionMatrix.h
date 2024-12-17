@@ -23,6 +23,15 @@ namespace vsg
     class VSG_DECLSPEC ProjectionMatrix : public Inherit<Object, ProjectionMatrix>
     {
     public:
+        ProjectionMatrix()
+        {
+        }
+
+        explicit ProjectionMatrix(const ProjectionMatrix& pm, const CopyOp& copyop = {}) :
+            Inherit(pm, copyop)
+        {
+        }
+
         virtual dmat4 transform() const = 0;
 
         virtual dmat4 inverse() const
@@ -48,6 +57,15 @@ namespace vsg
         {
         }
 
+        explicit Perspective(const Perspective& p, const CopyOp& copyop = {}) :
+            Inherit(p, copyop),
+            fieldOfViewY(p.fieldOfViewY),
+            aspectRatio(p.aspectRatio),
+            nearDistance(p.nearDistance),
+            farDistance(p.farDistance)
+        {
+        }
+
         Perspective(double fov, double ar, double nd, double fd) :
             fieldOfViewY(fov),
             aspectRatio(ar),
@@ -55,6 +73,8 @@ namespace vsg
             farDistance(fd)
         {
         }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Perspective::create(*this, copyop); }
 
         dmat4 transform() const override { return perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
 
@@ -66,18 +86,19 @@ namespace vsg
             aspectRatio *= (newRatio / oldRatio);
         }
 
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         double fieldOfViewY;
         double aspectRatio;
         double nearDistance;
         double farDistance;
+
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::Perspective);
 
     /// Orthographic is a ProjectionMatrix that implements the glOrtho model for setting the projection matrix.
-    class Orthographic : public Inherit<ProjectionMatrix, Orthographic>
+    class VSG_DECLSPEC Orthographic : public Inherit<ProjectionMatrix, Orthographic>
     {
     public:
         Orthographic() :
@@ -90,6 +111,17 @@ namespace vsg
         {
         }
 
+        explicit Orthographic(const Orthographic& o, const CopyOp& copyop = {}) :
+            Inherit(o, copyop),
+            left(o.left),
+            right(o.right),
+            bottom(o.bottom),
+            top(o.top),
+            nearDistance(o.nearDistance),
+            farDistance(o.farDistance)
+        {
+        }
+
         Orthographic(double l, double r, double b, double t, double nd, double fd) :
             left(l),
             right(r),
@@ -99,6 +131,8 @@ namespace vsg
             farDistance(fd)
         {
         }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Orthographic::create(*this, copyop); }
 
         dmat4 transform() const override { return orthographic(left, right, bottom, top, nearDistance, farDistance); }
 
@@ -116,6 +150,10 @@ namespace vsg
         double top;
         double nearDistance;
         double farDistance;
+
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::Orthographic);
 
@@ -148,16 +186,14 @@ namespace vsg
 
     /// EllipsoidPerspective is a ProjectionMatrix that implements the gluPerspective model for setting the projection matrix,
     /// with automatic clamping of the near/far values to an ellipsoidModel, typically used for rendering whole earth models.
-    class EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
+    class VSG_DECLSPEC EllipsoidPerspective : public Inherit<ProjectionMatrix, EllipsoidPerspective>
     {
     public:
+        EllipsoidPerspective() {}
+
         EllipsoidPerspective(ref_ptr<LookAt> la, ref_ptr<EllipsoidModel> em) :
             lookAt(la),
-            ellipsoidModel(em),
-            fieldOfViewY(60.0),
-            aspectRatio(1.0),
-            nearFarRatio(0.0001),
-            horizonMountainHeight(1000.0)
+            ellipsoidModel(em)
         {
         }
 
@@ -207,11 +243,14 @@ namespace vsg
 
         ref_ptr<LookAt> lookAt;
         ref_ptr<EllipsoidModel> ellipsoidModel;
+        double fieldOfViewY = 60.0;
+        double aspectRatio = 1.0;
+        double nearFarRatio = 0.0001;
+        double horizonMountainHeight = 1000.0;
 
-        double fieldOfViewY;
-        double aspectRatio;
-        double nearFarRatio;
-        double horizonMountainHeight;
+    public:
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::EllipsoidPerspective);
 

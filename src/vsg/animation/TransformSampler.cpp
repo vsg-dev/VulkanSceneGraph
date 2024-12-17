@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/TransformSampler.h>
+#include <vsg/app/Camera.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Options.h>
@@ -74,7 +75,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write position key frames
     output.writeValue<uint32_t>("positions", positions.size());
-    for (auto& position : positions)
+    for (const auto& position : positions)
     {
         output.writePropertyName("position");
         output.write(1, &position.time);
@@ -84,7 +85,7 @@ void TransformKeyframes::write(Output& output) const
 
     // write rotation key frames
     output.writeValue<uint32_t>("rotations", rotations.size());
-    for (auto& rotation : rotations)
+    for (const auto& rotation : rotations)
     {
         output.writePropertyName("rotation");
         output.write(1, &rotation.time);
@@ -94,56 +95,12 @@ void TransformKeyframes::write(Output& output) const
 
     // write scale key frames
     output.writeValue<uint32_t>("scales", scales.size());
-    for (auto& scale : scales)
+    for (const auto& scale : scales)
     {
         output.writePropertyName("scale");
         output.write(1, &scale.time);
         output.write(1, &scale.value);
         output.writeEndOfLine();
-    }
-}
-
-template<typename T, typename V>
-bool sample(double time, const T& values, V& value)
-{
-    if (values.size() == 0) return false;
-
-    if (values.size() == 1)
-    {
-        value = values.front().value;
-        return true;
-    }
-
-    auto pos_itr = values.begin();
-    if (time <= pos_itr->time)
-    {
-        value = pos_itr->value;
-        return true;
-    }
-    else
-    {
-        using value_type = typename T::value_type;
-        pos_itr = std::lower_bound(values.begin(), values.end(), time, [](const value_type& elem, double t) -> bool { return elem.time < t; });
-
-        if (pos_itr == values.begin())
-        {
-            value = values.front().value;
-            return true;
-        }
-
-        if (pos_itr == values.end())
-        {
-            value = values.back().value;
-            return true;
-        }
-
-        auto before_pos_itr = pos_itr - 1;
-        double delta_time = (pos_itr->time - before_pos_itr->time);
-        double r = delta_time != 0.0 ? (time - before_pos_itr->time) / delta_time : 0.5;
-
-        value = mix(before_pos_itr->value, pos_itr->value, r);
-
-        return true;
     }
 }
 
@@ -173,12 +130,9 @@ int TransformSampler::compare(const Object& rhs_object) const
     int result = AnimationSampler::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(keyframes, rhs.keyframes)) != 0) return result;
-    if ((result = compare_pointer(object, rhs.object)) != 0) return result;
-    if ((result = compare_value(position, rhs.position)) != 0) return result;
-    if ((result = compare_value(rotation, rhs.rotation)) != 0) return result;
-    return compare_value(scale, rhs.scale);
+    return compare_pointer(object, rhs.object);
 }
 
 void TransformSampler::update(double time)
@@ -208,22 +162,35 @@ double TransformSampler::maxTime() const
 
 void TransformSampler::apply(mat4Value& matrix)
 {
-    matrix.set(mat4(translate(position) * vsg::rotate(rotation) * vsg::scale(scale)));
+    matrix.set(mat4(transform()));
 }
 
 void TransformSampler::apply(dmat4Value& matrix)
 {
-    matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
+    matrix.set(transform());
 }
 
 void TransformSampler::apply(MatrixTransform& mt)
 {
-    mt.matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
+    mt.matrix.set(transform());
 }
 
 void TransformSampler::apply(Joint& joint)
 {
-    joint.matrix.set(translate(position) * vsg::rotate(rotation) * vsg::scale(scale));
+    joint.matrix.set(transform());
+}
+
+void TransformSampler::apply(LookAt& lookAt)
+{
+    lookAt.set(transform());
+}
+
+void TransformSampler::apply(Camera& camera)
+{
+    if (camera.viewMatrix)
+    {
+        camera.viewMatrix->accept(*this);
+    }
 }
 
 void TransformSampler::read(Input& input)

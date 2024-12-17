@@ -22,12 +22,29 @@ namespace vsg
     class VSG_DECLSPEC ViewMatrix : public Inherit<Object, ViewMatrix>
     {
     public:
-        virtual dmat4 transform() const = 0;
-
-        virtual dmat4 inverse() const
+        ViewMatrix()
         {
-            return vsg::inverse(transform());
         }
+
+        explicit ViewMatrix(const ViewMatrix& vm, const CopyOp& copyop = {}) :
+            Inherit(vm, copyop)
+        {
+        }
+
+        /// origin value provides a means of translating the view matrix relative to the origin of any CoordinateFrame subgraphs
+        /// to maximize the precision when moving around the CoordinateFrame subgraph.  This is helpful for astronmically large
+        /// scenes where standrd double precision is insufficient for avoiding visually significant numerical errors.
+        dvec3 origin;
+
+        virtual dmat4 transform(const dvec3& offset = {}) const = 0;
+
+        virtual dmat4 inverse(const dvec3& offset = {}) const
+        {
+            return vsg::inverse(transform(offset));
+        }
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
     };
     VSG_type_name(vsg::ViewMatrix);
 
@@ -42,8 +59,8 @@ namespace vsg
         {
         }
 
-        LookAt(const LookAt& lookAt) :
-            Inherit(lookAt),
+        LookAt(const LookAt& lookAt, const CopyOp& copyop = {}) :
+            Inherit(lookAt, copyop),
             eye(lookAt.eye),
             center(lookAt.center),
             up(lookAt.up)
@@ -68,21 +85,13 @@ namespace vsg
             return *this;
         }
 
-        void transform(const dmat4& matrix)
-        {
-            up = normalize(matrix * (eye + up) - matrix * eye);
-            center = matrix * center;
-            eye = matrix * eye;
-        }
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookAt::create(*this, copyop); }
 
-        void set(const dmat4& matrix)
-        {
-            up = normalize(matrix * (dvec3(0.0, 0.0, 0.0) + dvec3(0.0, 1.0, 0.0)) - matrix * dvec3(0.0, 0.0, 0.0));
-            center = matrix * dvec3(0.0, 0.0, -1.0);
-            eye = matrix * dvec3(0.0, 0.0, 0.0);
-        }
+        void transform(const dmat4& matrix);
 
-        dmat4 transform() const override { return lookAt(eye, center, up); }
+        void set(const dmat4& matrix);
+
+        dmat4 transform(const dvec3& offset = {}) const override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -93,8 +102,36 @@ namespace vsg
     };
     VSG_type_name(vsg::LookAt);
 
+    /// LookDirection is a ViewMatrix that uses a position and rotation to set the view matrix.
+    class VSG_DECLSPEC LookDirection : public vsg::Inherit<ViewMatrix, LookDirection>
+    {
+    public:
+        LookDirection() :
+            position(0.0, 0.0, 0.0),
+            rotation()
+        {
+        }
+
+        LookDirection(const LookDirection& view, const CopyOp& copyop = {}) :
+            Inherit(view, copyop),
+            position(view.position),
+            rotation(view.rotation)
+        {
+        }
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookDirection::create(*this, copyop); }
+
+        dvec3 position;
+        dquat rotation;
+
+        void set(const dmat4& matrix);
+
+        dmat4 transform(const dvec3& offset = {}) const override;
+    };
+    VSG_type_name(vsg::LookDirection);
+
     /// RelativeViewMatrix is a ViewMatrix that decorates another ViewMatrix and pre-multiplies its transform matrix to give a relative view matrix.
-    class RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
+    class VSG_DECLSPEC RelativeViewMatrix : public Inherit<ViewMatrix, RelativeViewMatrix>
     {
     public:
         RelativeViewMatrix(const dmat4& m, ref_ptr<ViewMatrix> vm) :
@@ -104,10 +141,7 @@ namespace vsg
         }
 
         /// returns matrix * viewMatrix->transform()
-        dmat4 transform() const override
-        {
-            return matrix * viewMatrix->transform();
-        }
+        dmat4 transform(const dvec3& offset = {}) const override;
 
         dmat4 matrix;
         ref_ptr<ViewMatrix> viewMatrix;
@@ -130,8 +164,8 @@ namespace vsg
             objectPath(path.begin(), path.end()) {}
 
         /// returns matrix * computeTransfrom(objectPath)
-        dmat4 transform() const override;
-        dmat4 inverse() const override;
+        dmat4 transform(const dvec3& offset = {}) const override;
+        dmat4 inverse(const dvec3& offset = {}) const override;
 
         dmat4 matrix;
         RefObjectPath objectPath;

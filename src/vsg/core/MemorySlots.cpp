@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Allocator.h>
 #include <vsg/core/Exception.h>
+#include <vsg/core/MemorySlots.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 
@@ -84,13 +84,13 @@ bool MemorySlots::check() const
     }
 
     size_t availableSize = 0;
-    for (auto& offsetSize : _offsetSizes)
+    for (const auto& offsetSize : _offsetSizes)
     {
         availableSize += offsetSize.second;
     }
 
     size_t reservedSize = 0;
-    for (auto& offsetSize : _reservedMemory)
+    for (const auto& offsetSize : _reservedMemory)
     {
         reservedSize += offsetSize.second;
     }

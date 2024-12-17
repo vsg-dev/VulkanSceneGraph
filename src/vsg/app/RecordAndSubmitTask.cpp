@@ -35,16 +35,17 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
         _fences[i] = Fence::create(device);
     }
 
-    earlyTransferTask = TransferTask::create(in_device, numBuffers);
-    earlyTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
+    transferTask = TransferTask::create(in_device, numBuffers);
 
-    lateTransferTask = TransferTask::create(in_device, numBuffers);
-    lateTransferTaskConsumerCompletedSemaphore = Semaphore::create(in_device);
+    earlyTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
+    lateTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
 }
 
 void RecordAndSubmitTask::advance()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask advance", COLOR_VIEWER);
+
+    // info("\nRecordAndSubmitTask::advance()");
 
     if (_currentFrameIndex >= _indices.size())
     {
@@ -65,9 +66,6 @@ void RecordAndSubmitTask::advance()
 
     // pass the index for the current frame
     _indices[0] = _currentFrameIndex;
-
-    if (earlyTransferTask) earlyTransferTask->advance();
-    if (lateTransferTask) lateTransferTask->advance();
 }
 
 size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
@@ -76,21 +74,34 @@ size_t RecordAndSubmitTask::index(size_t relativeFrameIndex) const
 }
 
 /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
-Fence* RecordAndSubmitTask::fence(size_t relativeFrameIndex)
+ref_ptr<Fence> RecordAndSubmitTask::fence(size_t relativeFrameIndex)
 {
     size_t i = index(relativeFrameIndex);
-    return i < _fences.size() ? _fences[i].get() : nullptr;
+    return i < _fences.size() ? _fences[i] : nullptr;
 }
 
 VkResult RecordAndSubmitTask::submit(ref_ptr<FrameStamp> frameStamp)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask submit", COLOR_RECORD);
 
+    //info("\nRecordAndSubmitTask::submit()");
+
     if (VkResult result = start(); result != VK_SUCCESS) return result;
 
-    if (earlyTransferTask)
+    if (transferTask)
     {
-        if (VkResult result = earlyTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
+        if (auto transfer = transferTask->transferData(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL); transfer.result == VK_SUCCESS)
+        {
+            if (transfer.dataTransferredSemaphore)
+            {
+                //info("    adding early transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
+                earlyDataTransferredSemaphore = transfer.dataTransferredSemaphore;
+            }
+        }
+        else
+        {
+            return transfer.result;
+        }
     }
 
     auto recordedCommandBuffers = RecordedCommandBuffers::create();
@@ -104,17 +115,26 @@ VkResult RecordAndSubmitTask::start()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask start", COLOR_RECORD);
 
-    if (earlyTransferTask) earlyTransferTask->currentTransferCompletedSemaphore = {};
-    if (lateTransferTask) lateTransferTask->currentTransferCompletedSemaphore = {};
+    earlyDataTransferredSemaphore.reset();
+    lateDataTransferredSemaphore.reset();
 
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {
+        //info("RecordAndSubmitTask::start() waiting on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
         if (VkResult result = current_fence->wait(timeout); result != VK_SUCCESS) return result;
 
         current_fence->resetFenceAndDependencies();
+
+        //info("after RecordAndSubmitTask::start() waited on fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
     }
+    else
+    {
+        //info("RecordAndSubmitTask::start() initial fence ", current_fence, ", ", current_fence->status(), ", current_fence->hasDependencies() = ", current_fence->hasDependencies());
+    }
+
     return VK_SUCCESS;
 }
 
@@ -134,13 +154,33 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "RecordAndSubmitTask finish", COLOR_RECORD);
 
-    if (lateTransferTask)
+    //info("RecordAndSubmitTask::finish()");
+
+    auto current_fence = fence();
+
+    if (transferTask)
     {
-        if (VkResult result = lateTransferTask->transferDynamicData(); result != VK_SUCCESS) return result;
+        auto transfer = transferTask->transferData(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL);
+
+        if (transfer.result == VK_SUCCESS)
+        {
+            if (transfer.dataTransferredSemaphore)
+            {
+                //info("    adding late transfer dataTransferredSemaphore ", transfer.dataTransferredSemaphore);
+                lateDataTransferredSemaphore = transfer.dataTransferredSemaphore;
+            }
+        }
+        else
+        {
+            return transfer.result;
+        }
     }
 
     if (recordedCommandBuffers->empty())
     {
+        if (earlyDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, earlyDataTransferredSemaphore);
+        if (lateDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, lateDataTransferredSemaphore);
+
         // nothing to do so return early
         std::this_thread::sleep_for(std::chrono::milliseconds(16)); // sleep for 1/60th of a second
         return VK_SUCCESS;
@@ -152,8 +192,6 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     std::vector<VkPipelineStageFlags> vk_waitStages;
     std::vector<VkSemaphore> vk_signalSemaphores;
 
-    auto current_fence = fence();
-
     // convert VSG CommandBuffer to Vulkan handles and add to the Fence's list of dependent CommandBuffers
     auto buffers = recordedCommandBuffers->buffers();
     for (auto& commandBuffer : buffers)
@@ -163,25 +201,19 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         current_fence->dependentCommandBuffers().emplace_back(commandBuffer);
     }
 
-    current_fence->dependentSemaphores() = signalSemaphores;
-
-    if (earlyTransferTask && earlyTransferTask->currentTransferCompletedSemaphore)
+    if (earlyDataTransferredSemaphore)
     {
-        vk_waitSemaphores.emplace_back(*earlyTransferTask->currentTransferCompletedSemaphore);
-        vk_waitStages.emplace_back(earlyTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
-
-        earlyTransferTask->waitSemaphores.push_back(earlyTransferTaskConsumerCompletedSemaphore);
-        vk_signalSemaphores.emplace_back(*earlyTransferTaskConsumerCompletedSemaphore);
+        vk_waitSemaphores.emplace_back(*earlyDataTransferredSemaphore);
+        vk_waitStages.emplace_back(earlyDataTransferredSemaphore->pipelineStageFlags());
+    }
+    if (lateDataTransferredSemaphore)
+    {
+        vk_waitSemaphores.emplace_back(*lateDataTransferredSemaphore);
+        vk_waitStages.emplace_back(lateDataTransferredSemaphore->pipelineStageFlags());
     }
 
-    if (lateTransferTask && lateTransferTask->currentTransferCompletedSemaphore)
-    {
-        vk_waitSemaphores.emplace_back(*lateTransferTask->currentTransferCompletedSemaphore);
-        vk_waitStages.emplace_back(lateTransferTask->currentTransferCompletedSemaphore->pipelineStageFlags());
-
-        lateTransferTask->waitSemaphores.push_back(lateTransferTaskConsumerCompletedSemaphore);
-        vk_signalSemaphores.emplace_back(*lateTransferTaskConsumerCompletedSemaphore);
-    }
+    if (earlyDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, earlyTransferConsumerCompletedSemaphore);
+    if (lateDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, lateTransferConsumerCompletedSemaphore);
 
     for (auto& window : windows)
     {
@@ -200,9 +232,21 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
+    current_fence->dependentSemaphores() = signalSemaphores;
     for (auto& semaphore : signalSemaphores)
     {
         vk_signalSemaphores.emplace_back(*(semaphore));
+    }
+
+    if (earlyDataTransferredSemaphore)
+    {
+        vk_signalSemaphores.emplace_back(earlyTransferConsumerCompletedSemaphore->vk());
+        current_fence->dependentSemaphores().push_back(earlyTransferConsumerCompletedSemaphore);
+    }
+    if (lateDataTransferredSemaphore)
+    {
+        vk_signalSemaphores.emplace_back(lateTransferConsumerCompletedSemaphore->vk());
+        current_fence->dependentSemaphores().push_back(lateTransferConsumerCompletedSemaphore);
     }
 
     VkSubmitInfo submitInfo = {};
@@ -226,8 +270,7 @@ void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_inst
     instrumentation = in_instrumentation;
 
     if (databasePager) databasePager->assignInstrumentation(instrumentation);
-    if (earlyTransferTask) earlyTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
-    if (lateTransferTask) lateTransferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
+    if (transferTask) transferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);
 
     for (auto cg : commandGraphs)
     {
@@ -239,26 +282,21 @@ void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_inst
 void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compileManager, const CompileResult& compileResult)
 {
     //info("vsg::updateTasks(RecordAndSubmitTasks& tasks..) compileResult.maxSlot = ", compileResult.maxSlot);
-    if (compileResult.earlyDynamicData || compileResult.lateDynamicData)
+    if (compileResult.dynamicData)
     {
-        for (auto& task : tasks)
+        for (const auto& task : tasks)
         {
-            if (task->earlyTransferTask && compileResult.earlyDynamicData)
+            if (task->transferTask)
             {
-                task->earlyTransferTask->assign(compileResult.earlyDynamicData);
-            }
-
-            if (task->lateTransferTask && compileResult.lateDynamicData)
-            {
-                task->lateTransferTask->assign(compileResult.lateDynamicData);
+                task->transferTask->assign(compileResult.dynamicData);
             }
         }
     }
 
     // increase maxSlot if required
-    for (auto& task : tasks)
+    for (const auto& task : tasks)
     {
-        for (auto& commandGraph : task->commandGraphs)
+        for (const auto& commandGraph : task->commandGraphs)
         {
             if (compileResult.maxSlot > commandGraph->maxSlot)
             {
@@ -271,7 +309,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     if (compileResult.containsPagedLOD)
     {
         ref_ptr<DatabasePager> databasePager;
-        for (auto& task : tasks)
+        for (const auto& task : tasks)
         {
             if (task->databasePager && !databasePager) databasePager = task->databasePager;
         }
@@ -279,7 +317,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
         if (!databasePager)
         {
             databasePager = DatabasePager::create();
-            for (auto& task : tasks)
+            for (const auto& task : tasks)
             {
                 if (!task->databasePager)
                 {
@@ -293,13 +331,13 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     }
 
     /// handle any new Bin needs
-    for (auto& [const_view, binDetails] : compileResult.views)
+    for (auto& [const_view, viewDetails] : compileResult.views)
     {
         auto view = const_cast<View*>(const_view);
-        for (auto& binNumber : binDetails.indices)
+        for (auto& binNumber : viewDetails.indices)
         {
             bool binNumberMatched = false;
-            for (auto& bin : view->bins)
+            for (const auto& bin : view->bins)
             {
                 if (bin->binNumber == binNumber)
                 {

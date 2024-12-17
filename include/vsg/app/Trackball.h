@@ -30,10 +30,10 @@ namespace vsg
         explicit Trackball(ref_ptr<Camera> camera, ref_ptr<EllipsoidModel> ellipsoidModel = {});
 
         /// compute non dimensional window coordinate (-1,1) from event coords
-        dvec2 ndc(PointerEvent& event);
+        dvec2 ndc(const PointerEvent& event);
 
         /// compute trackball coordinate from event coords
-        dvec3 tbc(PointerEvent& event);
+        dvec3 tbc(const PointerEvent& event);
 
         void apply(KeyPressEvent& keyPress) override;
         void apply(KeyReleaseEvent& keyRelease) override;

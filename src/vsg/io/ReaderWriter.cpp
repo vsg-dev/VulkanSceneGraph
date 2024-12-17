@@ -34,7 +34,7 @@ void CompositeReaderWriter::read(Input& input)
 void CompositeReaderWriter::write(Output& output) const
 {
     output.writeValue<uint32_t>("NumReaderWriters", readerWriters.size());
-    for (auto& rw : readerWriters)
+    for (const auto& rw : readerWriters)
     {
         output.writeObject("ReaderWriter", rw);
     }
@@ -99,6 +99,18 @@ bool CompositeReaderWriter::getFeatures(Features& features) const
 {
     bool result = false;
     for (auto& rw : readerWriters)
+    {
+        if (rw->getFeatures(features)) result = true;
+    }
+    return result;
+}
+
+bool vsg::getFeatures(ref_ptr<const Options> options, ReaderWriter::Features& features)
+{
+    if (!options) return false;
+
+    bool result = false;
+    for (auto& rw : options->readerWriters)
     {
         if (rw->getFeatures(features)) result = true;
     }

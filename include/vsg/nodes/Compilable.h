@@ -26,7 +26,7 @@ namespace vsg
         Compilable(const Compilable& rhs, const CopyOp& copyop = {}) :
             Inherit(rhs, copyop) {}
 
-        virtual void compile(Context& /*context*/){};
+        virtual void compile(Context& /*context*/) {};
     };
     VSG_type_name(vsg::Compilable);
 

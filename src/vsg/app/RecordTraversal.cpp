@@ -20,18 +20,25 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
+#include <vsg/lighting/AmbientLight.h>
+#include <vsg/lighting/DirectionalLight.h>
+#include <vsg/lighting/Light.h>
+#include <vsg/lighting/PointLight.h>
+#include <vsg/lighting/SpotLight.h>
 #include <vsg/maths/plane.h>
 #include <vsg/nodes/Bin.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
-#include <vsg/nodes/Light.h>
+#include <vsg/nodes/Layer.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/QuadGroup.h>
+#include <vsg/nodes/RegionOfInterest.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/nodes/TileDatabase.h>
@@ -50,14 +57,14 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(uint32_t in_maxSlot, std::set<Bin*> in_bins) :
+RecordTraversal::RecordTraversal(uint32_t in_maxSlot, const std::set<Bin*>& in_bins) :
     _state(new State(in_maxSlot))
 {
     CPU_INSTRUMENTATION_L1_C(instrumentation, COLOR_RECORD);
 
     _minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
-    for (auto& bin : in_bins)
+    for (const auto& bin : in_bins)
     {
         if (bin->binNumber < _minimumBinNumber) _minimumBinNumber = bin->binNumber;
         if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
@@ -288,6 +295,13 @@ void RecordTraversal::apply(const Switch& sw)
     }
 }
 
+void RecordTraversal::apply(const RegionOfInterest& roi)
+{
+    CPU_INSTRUMENTATION_L2_NCO(instrumentation, "RegionOfInterest", COLOR_RECORD_L2, &roi);
+
+    regionsOfInterest.emplace_back(_state->modelviewMatrixStack.top(), &roi);
+}
+
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
     CPU_INSTRUMENTATION_L2_NCO(instrumentation, "DepthSorted", COLOR_RECORD_L2, &depthSorted);
@@ -295,10 +309,19 @@ void RecordTraversal::apply(const DepthSorted& depthSorted)
     if (_state->intersect(depthSorted.bound))
     {
         const auto& mv = _state->modelviewMatrixStack.top();
-        auto& center = depthSorted.bound.center;
+        const auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
-        _bins[depthSorted.binNumber - _minimumBinNumber]->add(_state, distance, depthSorted.child);
+        addToBin(depthSorted.binNumber, distance, depthSorted.child);
+    }
+}
+
+void RecordTraversal::apply(const Layer& layer)
+{
+    CPU_INSTRUMENTATION_L2_NCO(instrumentation, "Layer", COLOR_RECORD_L2, &layer);
+    if ((traversalMask & (overrideMask | layer.mask)) != MASK_OFF)
+    {
+        addToBin(layer.binNumber, layer.value, layer.child);
     }
 }
 
@@ -413,6 +436,40 @@ void RecordTraversal::apply(const MatrixTransform& mt)
     _state->dirty = true;
 }
 
+void RecordTraversal::apply(const CoordinateFrame& cf)
+{
+    GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CoordinateFrame", COLOR_RECORD_L2, &cf);
+
+    const View* parentView = _viewDependentState ? _viewDependentState->view : nullptr;
+    const Camera* camera = parentView ? parentView->camera : nullptr;
+    const ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
+
+    if (viewMatrix)
+    {
+        _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin) * vsg::rotate(cf.rotation));
+    }
+    else
+    {
+        _state->modelviewMatrixStack.push(cf);
+    }
+
+    _state->dirty = true;
+
+    if (cf.subgraphRequiresLocalFrustum)
+    {
+        _state->pushFrustum();
+        cf.traverse(*this);
+        _state->popFrustum();
+    }
+    else
+    {
+        cf.traverse(*this);
+    }
+
+    _state->modelviewMatrixStack.pop();
+    _state->dirty = true;
+}
+
 // Animation nodes
 void RecordTraversal::apply(const Joint&)
 {
@@ -436,7 +493,7 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     stateGroup.traverse(*this);
 
-    for (auto& command : stateGroup.stateCommands)
+    for (const auto& command : stateGroup.stateCommands)
     {
         _state->stateStacks[command->slot].pop();
     }
@@ -487,10 +544,13 @@ void RecordTraversal::apply(const View& view)
     cached_bins.swap(_bins);
     auto cached_viewDependentState = _viewDependentState;
 
+    decltype(regionsOfInterest) cached_regionsOfInterest;
+    cached_regionsOfInterest.swap(regionsOfInterest);
+
     // assign and clear the View's bins
     int32_t min_binNumber = 0;
     int32_t max_binNumber = 0;
-    for (auto& bin : view.bins)
+    for (const auto& bin : view.bins)
     {
         if (bin->binNumber < min_binNumber) min_binNumber = bin->binNumber;
         if (bin->binNumber > max_binNumber) max_binNumber = bin->binNumber;
@@ -500,7 +560,7 @@ void RecordTraversal::apply(const View& view)
     _bins.resize(max_binNumber - min_binNumber + 1);
     for (auto& bin : view.bins)
     {
-        _bins[bin->binNumber] = bin;
+        _bins[bin->binNumber - min_binNumber] = bin;
         bin->clear();
     }
 
@@ -556,6 +616,7 @@ void RecordTraversal::apply(const View& view)
     // swap back previous bin setup.
     _minimumBinNumber = cached_minimumBinNumber;
     cached_bins.swap(_bins);
+    cached_regionsOfInterest.swap(regionsOfInterest);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
     _viewDependentState = cached_viewDependentState;
 }
@@ -586,4 +647,9 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
     {
         commandGraph.traverse(*this);
     }
+}
+
+void RecordTraversal::addToBin(int32_t binNumber, double value, const Node* node)
+{
+    _bins[binNumber - _minimumBinNumber]->add(_state, value, node);
 }

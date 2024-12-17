@@ -119,7 +119,7 @@ namespace vsg
             value_type dot_pd = vsg::dot(from, to);
             value_type div = std::sqrt(length2(from) * length2(to));
             vsg::dvec3 axis;
-            if (div - dot_pd < epsilon)
+            if (div - std::abs(dot_pd) < epsilon)
             {
                 axis = orthogonal(from);
             }
@@ -145,11 +145,13 @@ namespace vsg
         explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
     };
 
-    using quat = t_quat<float>;   /// float quaternion
-    using dquat = t_quat<double>; /// double quaternion
+    using quat = t_quat<float>;         /// float quaternion
+    using dquat = t_quat<double>;       /// double quaternion
+    using ldquat = t_quat<long double>; /// long double quaternion
 
     VSG_type_name(vsg::quat);
     VSG_type_name(vsg::dquat);
+    VSG_type_name(vsg::ldquat);
 
     template<typename T>
     constexpr bool operator==(const t_quat<T>& lhs, const t_quat<T>& rhs)

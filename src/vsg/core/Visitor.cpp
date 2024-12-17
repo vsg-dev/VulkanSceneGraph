@@ -573,6 +573,10 @@ void Visitor::apply(MatrixTransform& value)
 {
     apply(static_cast<Transform&>(value));
 }
+void Visitor::apply(CoordinateFrame& value)
+{
+    apply(static_cast<Transform&>(value));
+}
 void Visitor::apply(Geometry& value)
 {
     apply(static_cast<Command&>(value));
@@ -586,6 +590,10 @@ void Visitor::apply(VertexIndexDraw& value)
     apply(static_cast<Command&>(value));
 }
 void Visitor::apply(DepthSorted& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(Layer& value)
 {
     apply(static_cast<Node&>(value));
 }
@@ -618,6 +626,10 @@ void Visitor::apply(SpotLight& value)
     apply(static_cast<Light&>(value));
 }
 void Visitor::apply(InstrumentationNode& value)
+{
+    apply(static_cast<Node&>(value));
+}
+void Visitor::apply(RegionOfInterest& value)
 {
     apply(static_cast<Node&>(value));
 }
@@ -655,10 +667,6 @@ void Visitor::apply(AnimationGroup& value)
 {
     apply(static_cast<Group&>(value));
 }
-void Visitor::apply(AnimationPath& animationPath)
-{
-    apply(static_cast<Object&>(animationPath));
-}
 void Visitor::apply(AnimationSampler& sampler)
 {
     apply(static_cast<Object&>(sampler));
@@ -672,6 +680,10 @@ void Visitor::apply(MorphSampler& sampler)
     apply(static_cast<AnimationSampler&>(sampler));
 }
 void Visitor::apply(TransformSampler& sampler)
+{
+    apply(static_cast<AnimationSampler&>(sampler));
+}
+void Visitor::apply(CameraSampler& sampler)
 {
     apply(static_cast<AnimationSampler&>(sampler));
 }
@@ -1015,6 +1027,46 @@ void Visitor::apply(View& view)
 void Visitor::apply(Viewer& viewer)
 {
     apply(static_cast<Object&>(viewer));
+}
+void Visitor::apply(ViewMatrix& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(LookAt& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(LookDirection& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(RelativeViewMatrix& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(TrackingViewMatrix& value)
+{
+    apply(static_cast<ViewMatrix&>(value));
+}
+void Visitor::apply(ProjectionMatrix& value)
+{
+    apply(static_cast<Object&>(value));
+}
+void Visitor::apply(Perspective& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
+void Visitor::apply(Orthographic& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
+void Visitor::apply(RelativeProjection& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
+}
+void Visitor::apply(EllipsoidPerspective& value)
+{
+    apply(static_cast<ProjectionMatrix&>(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

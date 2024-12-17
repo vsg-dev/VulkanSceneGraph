@@ -26,6 +26,15 @@ QueryPool::QueryPool()
 {
 }
 
+QueryPool::QueryPool(Device* device, VkQueryPoolCreateFlags in_flags, VkQueryType in_queryType, uint32_t in_queryCount, VkQueryPipelineStatisticFlags in_pipelineStatistics) :
+    flags(in_flags),
+    queryType(in_queryType),
+    queryCount(in_queryCount),
+    pipelineStatistics(in_pipelineStatistics)
+{
+    compile(device);
+}
+
 QueryPool::~QueryPool()
 {
     if (_queryPool)
@@ -89,18 +98,23 @@ VkResult QueryPool::getResults(std::vector<uint64_t>& results, uint32_t firstQue
     return vkGetQueryPoolResults(*_device, _queryPool, firstQuery, count, count * sizeof(uint64_t), results.data(), sizeof(uint64_t), resultsFlags);
 }
 
-void QueryPool::compile(Context& context)
+void QueryPool::compile(Device* device)
 {
     if (_queryPool) return;
-    _device = context.device;
+    _device = device;
     VkQueryPoolCreateInfo createInfo{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
                                      {},         //pNext
                                      flags,      //flags
                                      queryType,  //queryType
                                      queryCount, //queryCount
                                      pipelineStatistics};
-    if (VkResult res = vkCreateQueryPool(*context.device, &createInfo, nullptr, &_queryPool); res != VK_SUCCESS)
+    if (VkResult res = vkCreateQueryPool(*_device, &createInfo, nullptr, &_queryPool); res != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create QueryPool.", res};
     }
+}
+
+void QueryPool::compile(Context& context)
+{
+    compile(context.device);
 }

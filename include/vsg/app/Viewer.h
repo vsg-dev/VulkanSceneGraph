@@ -93,10 +93,13 @@ namespace vsg
         /// compile manager provides thread safe support for compiling subgraphs
         ref_ptr<CompileManager> compileManager;
 
+        /// hint for setting the FrameStamp::simulationTime to time since start_point()
+        static constexpr double UseTimeSinceStartPoint = std::numeric_limits<double>::max();
+
         /// Convenience method for advancing to the next frame.
         /// Check active status, return false if viewer no longer active.
         /// If still active, poll for pending events and place them in the Events list and advance to the next frame, generate updated FrameStamp to signify the advancement to a new frame and return true.
-        virtual bool advanceToNextFrame();
+        virtual bool advanceToNextFrame(double simulationTime = UseTimeSinceStartPoint);
 
         /// pass the Events into any registered EventHandlers
         virtual void handleEvents();
@@ -139,6 +142,7 @@ namespace vsg
         virtual void deviceWaitIdle() const;
 
         /// Hook for assigning Instrumentation to enable profiling of record traversal.
+        uint64_t frameReference = 0;
         ref_ptr<Instrumentation> instrumentation;
 
         /// Convenience method for assigning Instrumentation to the viewer and any associated objects.
@@ -149,11 +153,12 @@ namespace vsg
 
         bool _close = false;
 
-        ref_ptr<FrameStamp> _frameStamp;
-
         Windows _windows;
 
+        bool _firstFrame = true;
         clock::time_point _start_point;
+        ref_ptr<FrameStamp> _frameStamp;
+
         UIEvents _events;
         EventHandlers _eventHandlers;
 

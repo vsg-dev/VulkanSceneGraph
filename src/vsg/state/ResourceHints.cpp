@@ -41,14 +41,25 @@ void ResourceHints::read(Input& input)
         input.read("count", count);
     }
 
-    input.readValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-    input.readValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
+    input.read("minimumBufferSize", minimumBufferSize);
+    input.read("minimumDeviceMemorySize", minimumDeviceMemorySize);
+
+    if (input.version_greater_equal(1, 1, 8))
+    {
+        input.read("minimumStagingBufferSize", minimumStagingBufferSize);
+    }
 
     if (input.version_greater_equal(1, 0, 10))
     {
         input.read("numLightsRange", numLightsRange);
         input.read("numShadowMapsRange", numShadowMapsRange);
         input.read("shadowMapSize", shadowMapSize);
+    }
+
+    if (input.version_greater_equal(1, 1, 8))
+    {
+        input.read("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
+        input.readValue<uint32_t>("dataTransferHint", dataTransferHint);
     }
 }
 
@@ -70,13 +81,24 @@ void ResourceHints::write(Output& output) const
         output.write("count", count);
     }
 
-    output.writeValue<uint64_t>("minimumBufferSize", minimumBufferSize);
-    output.writeValue<uint64_t>("minimumDeviceMemorySize", minimumDeviceMemorySize);
+    output.write("minimumBufferSize", minimumBufferSize);
+    output.write("minimumDeviceMemorySize", minimumDeviceMemorySize);
+
+    if (output.version_greater_equal(1, 1, 8))
+    {
+        output.write("minimumStagingBufferSize", minimumStagingBufferSize);
+    }
 
     if (output.version_greater_equal(1, 0, 10))
     {
         output.write("numLightsRange", numLightsRange);
         output.write("numShadowMapsRange", numShadowMapsRange);
         output.write("shadowMapSize", shadowMapSize);
+    }
+
+    if (output.version_greater_equal(1, 1, 8))
+    {
+        output.write("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
+        output.writeValue<uint32_t>("dataTransferHint", dataTransferHint);
     }
 }

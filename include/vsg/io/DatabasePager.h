@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Options.h>
 #include <vsg/nodes/PagedLOD.h>
-#include <vsg/threading/ActivityStatus.h>
+#include <vsg/threading/DeleteQueue.h>
 #include <vsg/utils/Instrumentation.h>
 
 #include <condition_variable>
@@ -79,7 +79,7 @@ namespace vsg
     VSG_type_name(vsg::DatabaseQueue);
 
     /// Multi-threaded database pager for reading, compiling loaded PagedLOD subgraphs and updating the scene graph
-    /// with newly loaded subgraphs and pruning expired PageLOD subgraphs
+    /// with newly loaded subgraphs and pruning expired PagedLOD subgraphs
     class VSG_DECLSPEC DatabasePager : public Inherit<Object, DatabasePager>
     {
     public:
@@ -88,11 +88,11 @@ namespace vsg
         DatabasePager(const DatabasePager&) = delete;
         DatabasePager& operator=(const DatabasePager& rhs) = delete;
 
-        virtual void start();
+        virtual void start(uint32_t numReadThreads = 4);
 
         virtual void request(ref_ptr<PagedLOD> plod);
 
-        virtual void updateSceneGraph(FrameStamp* frameStamp, CompileResult& cr);
+        virtual void updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResult& cr);
 
         ref_ptr<CompileManager> compileManager;
 
@@ -114,6 +114,9 @@ namespace vsg
         /// assign Instrumentation to all CompileTraversal and their associated Context
         void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
+        /// read and delete threads created by start()
+        std::list<std::thread> threads;
+
     protected:
         virtual ~DatabasePager();
 
@@ -123,8 +126,7 @@ namespace vsg
 
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;
-
-        std::list<std::thread> _readThreads;
+        ref_ptr<DeleteQueue> _deleteQueue;
     };
     VSG_type_name(vsg::DatabasePager);
 

@@ -18,6 +18,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declare
+    class RecordAndSubmitTask;
+
     /// CompileResult struct encapsulates the results of compile traversal.
     /// Used to help guide further operations done with the compiled subgraph.
     struct VSG_DECLSPEC CompileResult
@@ -27,8 +30,7 @@ namespace vsg
         uint32_t maxSlot = 0;
         bool containsPagedLOD = false;
         ResourceRequirements::Views views;
-        ResourceRequirements::DynamicData earlyDynamicData;
-        ResourceRequirements::DynamicData lateDynamicData;
+        ResourceRequirements::DynamicData dynamicData;
 
         explicit operator bool() const noexcept { return result == VK_SUCCESS; }
 
@@ -65,6 +67,9 @@ namespace vsg
 
         /// compile object
         CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
+
+        /// compile all the command graphs in a task
+        CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
     protected:
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;

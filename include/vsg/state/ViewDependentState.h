@@ -15,11 +15,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/CommandGraph.h>
 #include <vsg/app/RenderGraph.h>
 #include <vsg/io/Logger.h>
-#include <vsg/nodes/Light.h>
+#include <vsg/lighting/Light.h>
 #include <vsg/nodes/Switch.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
+#include <vsg/utils/ShaderSet.h>
 
 namespace vsg
 {
@@ -133,6 +134,9 @@ namespace vsg
 
         View* view = nullptr;
 
+        // ShaderSet to guide the set up of lightData, viewportData and shadowMap Descriptors & DescriptorSet(s).
+        ref_ptr<ShaderSet> shaderSet;
+
         ref_ptr<vec4Array> lightData;
         ref_ptr<BufferInfo> lightDataBufferInfo;
 
@@ -140,10 +144,8 @@ namespace vsg
         ref_ptr<BufferInfo> viewportDataBufferInfo;
 
         ref_ptr<Image> shadowDepthImage;
-        ref_ptr<DescriptorImage> shadowMapImages;
 
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
-        ref_ptr<DescriptorBuffer> descriptor;
         ref_ptr<DescriptorSet> descriptorSet;
 
         // shadow map hints
@@ -151,7 +153,14 @@ namespace vsg
         double shadowMapBias = 0.005;
         double lambda = 0.5;
 
+        // map of Light's that we wish to override their ShadowSettings,
+        // assigning shadowSettingsOverride[{}] = shadowSettings will override all Light not otherwise explicitly matched.
+        std::map<ref_ptr<const Light>, ref_ptr<ShadowSettings>> shadowSettingsOverride;
+
+        virtual ref_ptr<ShadowSettings> getActiveShadowSettings(const Light* light) const;
+
         // Shadow backend.
+        bool compiled = false;
         ref_ptr<CommandGraph> preRenderCommandGraph;
         ref_ptr<Switch> preRenderSwitch;
 

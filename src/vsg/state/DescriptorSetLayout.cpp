@@ -27,6 +27,12 @@ DescriptorSetLayout::DescriptorSetLayout()
 {
 }
 
+DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayout& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    bindings(rhs.bindings)
+{
+}
+
 DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& descriptorSetLayoutBindings) :
     bindings(descriptorSetLayoutBindings)
 {
@@ -61,7 +67,7 @@ int DescriptorSetLayout::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value_container(bindings, rhs.bindings);
 }
 

@@ -14,7 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/vk/DescriptorPools.h>
 #include <vsg/vk/Device.h>
+#include <vsg/vk/MemoryBufferPools.h>
 
 #include <cstring>
 #include <set>
@@ -74,7 +76,7 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
 
         // check to see if the queueFamilyIndex has already been referenced or is unique
         bool unique = true;
-        for (auto& existingInfo : queueCreateInfos)
+        for (const auto& existingInfo : queueCreateInfos)
         {
             if (existingInfo.queueFamilyIndex == static_cast<uint32_t>(queueSetting.queueFamilyIndex)) unique = false;
         }

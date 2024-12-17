@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <deque>
 #include <memory>
 
+#include <vsg/app/TransferTask.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/commands/CopyAndReleaseImage.h>
@@ -45,7 +46,6 @@ namespace vsg
         // and C) the number of acceleration structures for type VK_GEOMETRY_TYPE_INSTANCES_KHR
         BuildAccelerationStructureCommand(Device* device, const VkAccelerationStructureBuildGeometryInfoKHR& info, const VkAccelerationStructureKHR& structure, const std::vector<uint32_t>& primitiveCounts);
 
-        void compile(Context&) override {}
         void record(CommandBuffer& commandBuffer) const override;
         void setScratchBuffer(ref_ptr<Buffer> scratchBuffer);
 
@@ -86,17 +86,10 @@ namespace vsg
 
         ref_ptr<CommandBuffer> getOrCreateCommandBuffer();
 
-        uint32_t minimum_maxSets = 0;
-        DescriptorPoolSizes minimum_descriptorPoolSizes;
-
-        /// get the maxSets and descriptorPoolSizes to use
-        void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);
-
-        /// allocate or reuse a DescriptorSet::Implementation from the available DescriptorPool
-        ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
-
         /// reserve resources that may be needed during compile traversal.
         void reserve(const ResourceRequirements& requirements);
+
+        ref_ptr<DescriptorSet::Implementation> allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout);
 
         // used by GraphicsPipeline.cpp
         ref_ptr<RenderPass> renderPass;
@@ -113,8 +106,8 @@ namespace vsg
         // the scene graph .
         GraphicsPipelineStates overridePipelineStates;
 
-        // DescriptorPool
-        std::list<ref_ptr<DescriptorPool>> descriptorPools;
+        // DescriptorPools
+        ref_ptr<DescriptorPools> descriptorPools;
 
         // ShaderCompiler
         ref_ptr<ShaderCompiler> shaderCompiler;
@@ -129,6 +122,7 @@ namespace vsg
         ref_ptr<Fence> fence;
         ref_ptr<Semaphore> semaphore;
         ref_ptr<ScratchMemory> scratchMemory;
+        bool requiresWaitForCompletion = false;
 
         std::vector<ref_ptr<Command>> commands;
 
@@ -150,6 +144,8 @@ namespace vsg
         // RTX ray tracing
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
+
+        ref_ptr<TransferTask> transferTask;
     };
     VSG_type_name(vsg::Context);
 

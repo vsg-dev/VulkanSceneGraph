@@ -13,25 +13,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/animation/Animation.h>
+#include <vsg/animation/time_value.h>
+#include <vsg/app/ViewMatrix.h>
+#include <vsg/maths/transform.h>
 
 namespace vsg
 {
 
-    struct VectorKey
-    {
-        double time;
-        dvec3 value;
-
-        bool operator<(const VectorKey& rhs) const { return time < rhs.time; }
-    };
-
-    struct QuatKey
-    {
-        double time;
-        dquat value;
-
-        bool operator<(const QuatKey& rhs) const { return time < rhs.time; }
-    };
+    using VectorKey = time_dvec3;
+    using QuatKey = time_dquat;
 
     class VSG_DECLSPEC TransformKeyframes : public Inherit<Object, TransformKeyframes>
     {
@@ -49,6 +39,26 @@ namespace vsg
 
         /// scale key frames
         std::vector<VectorKey> scales;
+
+        void clear()
+        {
+            positions.clear();
+            rotations.clear();
+            scales.clear();
+        }
+
+        void add(double time, const dvec3& position, const dquat& rotation)
+        {
+            positions.push_back(VectorKey{time, position});
+            rotations.push_back(QuatKey{time, rotation});
+        }
+
+        void add(double time, const dvec3& position, const dquat& rotation, const dvec3& scale)
+        {
+            positions.push_back(VectorKey{time, position});
+            rotations.push_back(QuatKey{time, rotation});
+            scales.push_back(VectorKey{time, scale});
+        }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -73,6 +83,8 @@ namespace vsg
         void update(double time) override;
         double maxTime() const override;
 
+        inline dmat4 transform() const { return translate(position) * vsg::rotate(rotation) * vsg::scale(scale); }
+
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TransformSampler::create(*this, copyop); }
         int compare(const Object& rhs) const override;
@@ -84,6 +96,8 @@ namespace vsg
         void apply(dmat4Value& mat) override;
         void apply(MatrixTransform& mt) override;
         void apply(Joint& joint) override;
+        void apply(LookAt& lookAt) override;
+        void apply(Camera& camera) override;
     };
     VSG_type_name(vsg::TransformSampler);
 

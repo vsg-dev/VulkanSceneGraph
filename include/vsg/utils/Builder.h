@@ -36,6 +36,16 @@ namespace vsg
         ref_ptr<Data> image;
         ref_ptr<Data> displacementMap;
         ref_ptr<DescriptorSetLayout> viewDescriptorSetLayout;
+
+        bool operator<(const StateInfo& rhs) const
+        {
+            int result = compare_region(lighting, billboard, rhs.lighting);
+            if (result) return result < 0;
+
+            if ((result = compare_pointer(image, rhs.image))) return result < 0;
+            if ((result = compare_pointer(displacementMap, rhs.displacementMap))) return result < 0;
+            return compare_pointer(viewDescriptorSetLayout, rhs.viewDescriptorSetLayout) < 0;
+        }
     };
     VSG_type_name(vsg::StateInfo);
 
@@ -99,6 +109,12 @@ namespace vsg
     class VSG_DECLSPEC Builder : public Inherit<Object, Builder>
     {
     public:
+        Builder();
+        Builder(const Builder& rhs) = delete;
+        Builder& operator=(const Builder& rhs) = delete;
+
+        ~Builder();
+
         bool verbose = false;
         ref_ptr<Options> options;
         ref_ptr<SharedObjects> sharedObjects;
@@ -131,11 +147,12 @@ namespace vsg
         ref_ptr<ShaderSet> _flatShadedShaderSet;
         ref_ptr<ShaderSet> _phongShaderSet;
 
-        using GeometryMap = std::map<GeometryInfo, ref_ptr<Node>>;
+        using GeometryMap = std::map<std::pair<GeometryInfo, StateInfo>, ref_ptr<Node>>;
         GeometryMap _boxes;
         GeometryMap _capsules;
         GeometryMap _cones;
         GeometryMap _cylinders;
+        GeometryMap _disks;
         GeometryMap _quads;
         GeometryMap _spheres;
         GeometryMap _heightfields;

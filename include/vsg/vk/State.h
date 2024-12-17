@@ -75,7 +75,7 @@ namespace vsg
     class MatrixStack
     {
     public:
-        MatrixStack(uint32_t in_offset = 0) :
+        explicit MatrixStack(uint32_t in_offset = 0) :
             offset(in_offset)
         {
             // make sure there is an initial matrix
@@ -229,7 +229,7 @@ namespace vsg
     public:
         explicit State(uint32_t maxSlot) :
             dirty(false),
-            stateStacks(maxSlot + 1)
+            stateStacks(static_cast<size_t>(maxSlot) + 1)
         {
         }
 

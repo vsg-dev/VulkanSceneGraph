@@ -26,6 +26,7 @@ namespace vsg
     public:
         PropagateDynamicObjects();
 
+        std::mutex mutex;
         std::set<const Object*> dynamicObjects;
         std::stack<bool> taggedStack;
 

@@ -37,15 +37,17 @@ namespace vsg
 
         ref_ptr<Device> device;
         Windows windows;
-        Semaphores waitSemaphores;
+        Semaphores waitSemaphores;   // assign in application setup
         CommandGraphs commandGraphs; // assign in application setup
         Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
-        ref_ptr<TransferTask> earlyTransferTask; // data is updated prior to record traversal so can be transferred before/in parallel to record traversal
-        ref_ptr<Semaphore> earlyTransferTaskConsumerCompletedSemaphore;
+        ref_ptr<TransferTask> transferTask; // data is transferred for this frame
 
-        ref_ptr<TransferTask> lateTransferTask; // data is updated during the record traversal so has to be transferred after record traversal
-        ref_ptr<Semaphore> lateTransferTaskConsumerCompletedSemaphore;
+        ref_ptr<Semaphore> earlyDataTransferredSemaphore;
+        ref_ptr<Semaphore> earlyTransferConsumerCompletedSemaphore;
+
+        ref_ptr<Semaphore> lateDataTransferredSemaphore;
+        ref_ptr<Semaphore> lateTransferConsumerCompletedSemaphore;
 
         /// advance the currentFrameIndex
         void advance();
@@ -54,7 +56,7 @@ namespace vsg
         size_t index(size_t relativeFrameIndex = 0) const;
 
         /// fence() and fence(0) return the Fence for the frame currently being rendered, fence(1) returns the previous frame's Fence etc.
-        Fence* fence(size_t relativeFrameIndex = 0);
+        ref_ptr<Fence> fence(size_t relativeFrameIndex = 0);
 
         ref_ptr<Queue> queue;
 

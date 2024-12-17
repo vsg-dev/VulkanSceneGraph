@@ -30,6 +30,19 @@ using namespace vsg;
 //
 // ArrayState
 //
+ArrayState::ArrayState(const ArrayState& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    localToWorldStack(rhs.localToWorldStack),
+    worldToLocalStack(rhs.worldToLocalStack),
+    topology(rhs.topology),
+    vertex_attribute_location(rhs.vertex_attribute_location),
+    vertexAttribute(rhs.vertexAttribute),
+    vertices(rhs.vertices),
+    proxy_vertices(rhs.proxy_vertices),
+    arrays(rhs.arrays)
+{
+}
+
 ref_ptr<const vec3Array> ArrayState::vertexArray(uint32_t /*instanceIndex*/)
 {
     return vertices;
@@ -45,11 +58,11 @@ void ArrayState::apply(const vsg::BindGraphicsPipeline& bpg)
 
 bool ArrayState::getAttributeDetails(const VertexInputState& vas, uint32_t location, AttributeDetails& attributeDetails)
 {
-    for (auto& attribute : vas.vertexAttributeDescriptions)
+    for (const auto& attribute : vas.vertexAttributeDescriptions)
     {
         if (attribute.location == location)
         {
-            for (auto& binding : vas.vertexBindingDescriptions)
+            for (const auto& binding : vas.vertexBindingDescriptions)
             {
                 if (attribute.binding == binding.binding)
                 {
@@ -166,13 +179,13 @@ NullArrayState::NullArrayState(const ArrayState& as) :
     vertices = {};
 }
 
-ref_ptr<ArrayState> NullArrayState::clone()
+ref_ptr<ArrayState> NullArrayState::cloneArrayState()
 {
     return NullArrayState::create(*this);
 }
 
 // clone the specified ArrayState
-ref_ptr<ArrayState> NullArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> NullArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return NullArrayState::create(*arrayState);
 }
@@ -207,12 +220,12 @@ PositionArrayState::PositionArrayState(const ArrayState& rhs) :
 {
 }
 
-ref_ptr<ArrayState> PositionArrayState::clone()
+ref_ptr<ArrayState> PositionArrayState::cloneArrayState()
 {
     return PositionArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> PositionArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return PositionArrayState::create(*arrayState);
 }
@@ -260,12 +273,12 @@ DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs) :
 {
 }
 
-ref_ptr<ArrayState> DisplacementMapArrayState::clone()
+ref_ptr<ArrayState> DisplacementMapArrayState::cloneArrayState()
 {
     return DisplacementMapArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> DisplacementMapArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> DisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return DisplacementMapArrayState::create(*arrayState);
 }
@@ -274,7 +287,7 @@ void DisplacementMapArrayState::apply(const DescriptorImage& di)
 {
     if (!di.imageInfoList.empty())
     {
-        auto& imageInfo = *di.imageInfoList[0];
+        const auto& imageInfo = *di.imageInfoList[0];
         if (imageInfo.imageView && imageInfo.imageView->image)
         {
             displacementMap = imageInfo.imageView->image->data.cast<floatArray2D>();
@@ -338,8 +351,8 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
 
         for (auto& v : *new_vertices)
         {
-            auto& tc = *(src_texcoord_itr++);
-            auto& n = *(src_normal_itr++);
+            const auto& tc = *(src_texcoord_itr++);
+            const auto& n = *(src_normal_itr++);
             float d = sample(*sampler, *displacementMap, tc);
             v = *(src_vertex_itr++) + n * d;
         }
@@ -367,12 +380,12 @@ PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const
 {
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::clone()
+ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState()
 {
     return PositionAndDisplacementMapArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return PositionAndDisplacementMapArrayState::create(*arrayState);
 }
@@ -413,8 +426,8 @@ ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint3
 
         for (auto& v : *new_vertices)
         {
-            auto& tc = *(src_teccoord_itr++);
-            auto& n = *(src_normal_itr++);
+            const auto& tc = *(src_teccoord_itr++);
+            const auto& n = *(src_normal_itr++);
             float d = sample(*sampler, *displacementMap, tc);
             v = *(src_vertex_itr++) + n * d + position;
         }
@@ -444,12 +457,12 @@ BillboardArrayState::BillboardArrayState(const ArrayState& rhs) :
 {
 }
 
-ref_ptr<ArrayState> BillboardArrayState::clone()
+ref_ptr<ArrayState> BillboardArrayState::cloneArrayState()
 {
     return BillboardArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> BillboardArrayState::clone(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> BillboardArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
     return BillboardArrayState::create(*arrayState);
 }
@@ -481,24 +494,10 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     dmat4 billboard_to_local;
     if (!localToWorldStack.empty() && !worldToLocalStack.empty())
     {
-        auto& mv = localToWorldStack.back();
-        auto& inverse_mv = worldToLocalStack.back();
-
+        const auto& mv = localToWorldStack.back();
+        const auto& inverse_mv = worldToLocalStack.back();
         auto center_eye = mv * position;
-        double distance = -center_eye.z;
-
-        double scale = (distance < autoDistanceScale) ? distance / autoDistanceScale : 1.0;
-        dmat4 S(scale, 0.0, 0.0, 0.0,
-                0.0, scale, 0.0, 0.0,
-                0.0, 0.0, scale, 0.0,
-                0.0, 0.0, 0.0, 1.0);
-
-        dmat4 T(1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                center_eye.x, center_eye.y, center_eye.z, 1.0);
-
-        dmat4 billboard_mv = T * S;
+        auto billboard_mv = computeBillboardMatrix(center_eye, autoDistanceScale);
         billboard_to_local = inverse_mv * billboard_mv;
     }
     else
@@ -510,7 +509,7 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     auto src_vertex_itr = vertices->begin();
     for (auto& v : *new_vertices)
     {
-        auto& sv = *(src_vertex_itr++);
+        const auto& sv = *(src_vertex_itr++);
         v = vec3(billboard_to_local * dvec3(sv));
     }
     return new_vertices;

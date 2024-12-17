@@ -21,6 +21,14 @@
 
 using namespace vsg;
 
+Builder::Builder()
+{
+}
+
+Builder::~Builder()
+{
+}
+
 void Builder::assignCompileTraversal(ref_ptr<CompileTraversal> ct)
 {
     compileTraversal = ct;
@@ -83,7 +91,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture("displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    if (auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
+    if (const auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
@@ -239,23 +247,23 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
             if (auto v3a = info.positions.cast<vec3Array>())
             {
                 box bound;
-                for (auto& v : *v3a)
+                for (const auto& v : *v3a)
                 {
                     bound.add(v);
                 }
                 cullNode->bound.center = (bound.min + bound.max) * 0.5f;
-                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz);
+                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz) * 0.5;
             }
             else
             {
                 // unable to compute bound so do not decorate with a CullNode.
-                return node;
+                return subgraph;
             }
         }
         else
         {
             cullNode->bound.center = info.position;
-            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz);
+            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz) * 0.5;
         }
 
         subgraph = cullNode;
@@ -268,7 +276,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
 
 ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _boxes[info];
+    auto& subgraph = _boxes[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -395,12 +403,13 @@ ref_ptr<Node> Builder::createBox(const GeometryInfo& info, const StateInfo& stat
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _capsules[info];
+    auto& subgraph = _capsules[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -457,7 +466,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     {
         unsigned int vi = c * 2;
         float r = float(c) / float(num_columns - 1);
-        float alpha = (r)*2.0f * PIf;
+        float alpha = (r) * 2.0f * PIf;
         v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
         n = normalize(v);
 
@@ -616,12 +625,13 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cones[info];
+    auto& subgraph = _cones[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -680,7 +690,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = 1 + c;
             float r = float(c) / float(num_columns);
-            alpha = (r)*2.0f * PIf;
+            alpha = (r) * 2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -740,7 +750,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            alpha = (r)*2.0f * PIf;
+            alpha = (r) * 2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -780,7 +790,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                alpha = (r)*2.0f * PIf;
+                alpha = (r) * 2.0f * PIf;
                 v = edge(alpha);
 
                 unsigned int vi = bottom_i + c;
@@ -818,12 +828,13 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cylinders[info];
+    auto& subgraph = _cylinders[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -872,7 +883,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0f * PIf;
+            float alpha = (r) * 2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -952,7 +963,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0f * PIf;
+            float alpha = (r) * 2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -1006,7 +1017,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                float alpha = (r)*2.0f * PIf;
+                float alpha = (r) * 2.0f * PIf;
                 v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
                 n = normalize(v);
 
@@ -1057,12 +1068,13 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _cylinders[info];
+    auto& subgraph = _disks[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1094,7 +1106,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     for (unsigned int c = 1; c < num_vertices; ++c)
     {
         float r = float(c) / float(num_vertices - 1);
-        float alpha = (r)*2.0f * PIf;
+        float alpha = (r) * 2.0f * PIf;
         float sn = sinf(alpha);
         float cs = cosf(alpha);
         vec3 v = dy * cs - dx * sn;
@@ -1105,7 +1117,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
 
     if (stateInfo.wireframe)
     {
-        unsigned int num_indices = (num_vertices)*2;
+        unsigned int num_indices = (num_vertices) * 2;
         indices = ushortArray::create(num_indices);
 
         unsigned int i = 0;
@@ -1152,12 +1164,13 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _boxes[info];
+    auto& subgraph = _quads[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1226,12 +1239,13 @@ ref_ptr<Node> Builder::createQuad(const GeometryInfo& info, const StateInfo& sta
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _spheres[info];
+    auto& subgraph = _spheres[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1327,12 +1341,13 @@ ref_ptr<Node> Builder::createSphere(const GeometryInfo& info, const StateInfo& s
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }
 
 ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateInfo& stateInfo)
 {
-    auto& subgraph = _heightfields[info];
+    auto& subgraph = _heightfields[std::make_pair(info, stateInfo)];
     if (subgraph)
     {
         return subgraph;
@@ -1452,5 +1467,6 @@ ref_ptr<Node> Builder::createHeightField(const GeometryInfo& info, const StateIn
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = instanceCount;
 
-    return decorateAndCompileIfRequired(info, stateInfo, vid);
+    subgraph = decorateAndCompileIfRequired(info, stateInfo, vid);
+    return subgraph;
 }

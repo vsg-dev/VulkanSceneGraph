@@ -22,7 +22,11 @@ namespace vsg
     class VSG_DECLSPEC QueryPool : public Inherit<Object, QueryPool>
     {
     public:
+        /// construct QueuePool and defer creation kQueuePool to compile().
         QueryPool();
+
+        /// construct QueryPool and create a vkQueuePool for it
+        QueryPool(Device* device, VkQueryPoolCreateFlags in_flags, VkQueryType in_queryType, uint32_t in_queryCount, VkQueryPipelineStatisticFlags in_pipelineStatistics);
 
         operator VkQueryPool() const { return _queryPool; }
         VkQueryPool vk() const { return _queryPool; }
@@ -40,6 +44,10 @@ namespace vsg
         VkResult getResults(std::vector<uint32_t>& results, uint32_t firstQuery = 0, VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT) const;
         VkResult getResults(std::vector<uint64_t>& results, uint32_t firstQuery = 0, VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT | VK_QUERY_RESULT_64_BIT) const;
 
+        /// create the Querypool
+        void compile(Device* device);
+
+        /// call compile(context.deivce)
         void compile(Context& context);
 
     protected:

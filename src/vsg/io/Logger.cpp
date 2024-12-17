@@ -18,6 +18,55 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+namespace vsg
+{
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // intercept_streambuf takes std::cout/cerr output and redirects it the Logger
+    //
+
+    class intercept_streambuf : public std::streambuf
+    {
+    public:
+        explicit intercept_streambuf(Logger* in_logger, Logger::Level in_level) :
+            logger(in_logger),
+            level(in_level)
+        {
+        }
+
+        Logger* logger = nullptr;
+        Logger::Level level = Logger::LOGGER_INFO;
+
+        std::streamsize xsputn(const char_type* s, std::streamsize n) override
+        {
+            std::scoped_lock<std::mutex> lock(_mutex);
+            _line.append(s, static_cast<std::size_t>(n));
+            return n;
+        }
+
+        std::streambuf::int_type overflow(std::streambuf::int_type c) override
+        {
+            std::scoped_lock<std::mutex> lock(_mutex);
+            if (c == '\n')
+            {
+                logger->log(level, _line);
+                _line.clear();
+            }
+            else
+            {
+                _line.push_back(static_cast<char>(c));
+            }
+            return c;
+        }
+
+    protected:
+        std::string _line;
+        std::mutex _mutex;
+    };
+
+} // namespace vsg
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Logger
@@ -40,6 +89,8 @@ Logger::Logger(const Logger& rhs) :
 
 Logger::~Logger()
 {
+    if (_original_cout) std::cout.rdbuf(_original_cout);
+    if (_original_cerr) std::cerr.rdbuf(_original_cerr);
 }
 
 ref_ptr<Logger>& Logger::instance()
@@ -47,6 +98,15 @@ ref_ptr<Logger>& Logger::instance()
     static ref_ptr<Logger> s_logger = StdLogger::create();
     //static ref_ptr<Logger> s_logger = ThreadLogger::create();
     return s_logger;
+}
+
+void Logger::redirect_std()
+{
+    _override_cout.reset(new intercept_streambuf(this, LOGGER_INFO));
+    _original_cout = std::cout.rdbuf(_override_cout.get());
+
+    _override_cerr.reset(new intercept_streambuf(this, LOGGER_ERROR));
+    _original_cerr = std::cerr.rdbuf(_override_cerr.get());
 }
 
 void Logger::debug_stream(PrintToStreamFunction print)
@@ -161,33 +221,33 @@ StdLogger::StdLogger()
 
 void StdLogger::flush()
 {
-    std::cout.flush();
-    std::cerr.flush();
+    fflush(stdout);
+    fflush(stderr);
 }
 
 void StdLogger::debug_implementation(const std::string_view& message)
 {
-    std::cout << debugPrefix << message << std::endl;
+    fprintf(stdout, "%s%.*s\n", debugPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::info_implementation(const std::string_view& message)
 {
-    std::cout << infoPrefix << message << std::endl;
+    fprintf(stdout, "%s%.*s\n", infoPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::warn_implementation(const std::string_view& message)
 {
-    std::cerr << warnPrefix << message << std::endl;
+    fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::error_implementation(const std::string_view& message)
 {
-    std::cerr << errorPrefix << message << std::endl;
+    fprintf(stderr, "%s%.*s\n", errorPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void StdLogger::fatal_implementation(const std::string_view& message)
 {
-    std::cerr << fatalPrefix << message << std::endl;
+    fprintf(stderr, "%s%.*s\n", fatalPrefix.c_str(), static_cast<int>(message.length()), message.data());
     throw vsg::Exception{std::string(message)};
 }
 
@@ -201,8 +261,8 @@ ThreadLogger::ThreadLogger()
 
 void ThreadLogger::flush()
 {
-    std::cout.flush();
-    std::cerr.flush();
+    fflush(stdout);
+    fflush(stderr);
 }
 
 void ThreadLogger::setThreadPrefix(std::thread::id id, const std::string& str)
@@ -211,47 +271,51 @@ void ThreadLogger::setThreadPrefix(std::thread::id id, const std::string& str)
     _threadPrefixes[id] = str;
 }
 
-void ThreadLogger::print_id(std::ostream& out, std::thread::id id)
+void ThreadLogger::print_id(FILE* out, std::thread::id id)
 {
     if (auto itr = _threadPrefixes.find(id); itr != _threadPrefixes.end())
     {
-        out << itr->second;
+        fprintf(out, "%s", itr->second.c_str());
     }
     else
     {
-        out << "thread::id = " << id << " | ";
+        // no name string for this thread yet, so create one using the Logger::_stream and then assign to _threadPrefixes for future use
+        _stream.str({});
+        _stream.clear();
+        _stream << "thread::id = " << id << " | ";
+        const auto& str = _threadPrefixes[id] = _stream.str();
+        fprintf(out, "%s", str.c_str());
     }
 }
 
 void ThreadLogger::debug_implementation(const std::string_view& message)
 {
-    print_id(std::cout, std::this_thread::get_id());
-    std::cout << debugPrefix << message << std::endl;
+    print_id(stdout, std::this_thread::get_id());
+    fprintf(stdout, "%s%.*s\n", debugPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::info_implementation(const std::string_view& message)
 {
-    print_id(std::cout, std::this_thread::get_id());
-    std::cout << infoPrefix << message << std::endl;
+    print_id(stdout, std::this_thread::get_id());
+    fprintf(stdout, "%s%.*s\n", infoPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::warn_implementation(const std::string_view& message)
 {
-    print_id(std::cout, std::this_thread::get_id());
-    std::cerr << warnPrefix << message << std::endl;
+    print_id(stderr, std::this_thread::get_id());
+    fprintf(stderr, "%s%.*s\n", warnPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::error_implementation(const std::string_view& message)
 {
-    print_id(std::cout, std::this_thread::get_id());
-    std::cerr << errorPrefix << message << std::endl;
+    print_id(stderr, std::this_thread::get_id());
+    fprintf(stderr, "%s%.*s\n", errorPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 void ThreadLogger::fatal_implementation(const std::string_view& message)
 {
-    print_id(std::cout, std::this_thread::get_id());
-    std::cerr << fatalPrefix << message << std::endl;
-    throw vsg::Exception{std::string(message)};
+    print_id(stderr, std::this_thread::get_id());
+    fprintf(stderr, "%s%.*s\n", fatalPrefix.c_str(), static_cast<int>(message.length()), message.data());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -277,5 +341,5 @@ void NullLogger::error_implementation(const std::string_view&)
 }
 void NullLogger::fatal_implementation(const std::string_view& message)
 {
-    throw vsg::Exception{std::string(message)};
+    throw Exception{std::string(message)};
 }

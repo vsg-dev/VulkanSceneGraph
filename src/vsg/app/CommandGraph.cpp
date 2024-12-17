@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/utils/ShaderSet.h>
 #include <vsg/vk/State.h>
 
 using namespace vsg;
@@ -63,8 +64,7 @@ void CommandGraph::reset()
 
 ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 {
-    CPU_INSTRUMENTATION_L1(instrumentation);
-
+    //CPU_INSTRUMENTATION_L1(instrumentation);
     if (!recordTraversal)
     {
         recordTraversal = RecordTraversal::create(maxSlot);
@@ -78,6 +78,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     if (window && !window->visible())
     {
+        //vsg::info("CommandGraph::record() ", frameStamp->frameCount, " window not visible.");
         return;
     }
 
@@ -93,6 +94,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     recordTraversal->setFrameStamp(frameStamp);
     recordTraversal->setDatabasePager(databasePager);
     recordTraversal->clearBins();
+    recordTraversal->regionsOfInterest.clear();
 
     ref_ptr<CommandBuffer> commandBuffer;
     for (auto& cb : _commandBuffers)

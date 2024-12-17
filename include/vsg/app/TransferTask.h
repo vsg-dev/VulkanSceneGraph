@@ -12,11 +12,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/app/CommandGraph.h>
-#include <vsg/app/Window.h>
-#include <vsg/io/DatabasePager.h>
-#include <vsg/nodes/Group.h>
+#include <vsg/io/Logger.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/ResourceRequirements.h>
+#include <vsg/vk/Semaphore.h>
 
 namespace vsg
 {
@@ -30,58 +30,90 @@ namespace vsg
     public:
         explicit TransferTask(Device* in_device, uint32_t numBuffers = 3);
 
-        /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
-        virtual VkResult transferDynamicData();
+        struct TransferResult
+        {
+            VkResult result = VK_SUCCESS;
+            ref_ptr<Semaphore> dataTransferredSemaphore;
+        };
 
-        virtual bool containsDataToTransfer() const;
+        enum TransferMask
+        {
+            TRANSFER_NONE = 0,
+            TRANSFER_BEFORE_RECORD_TRAVERSAL = 1 << 0,
+            TRANSFER_AFTER_RECORD_TRAVERSAL = 1 << 1,
+            TRANSFER_ALL = TRANSFER_BEFORE_RECORD_TRAVERSAL | TRANSFER_AFTER_RECORD_TRAVERSAL
+        };
+
+        /// transfer any vsg::Data entries that have been updated to the associated GPU memory.
+        virtual TransferResult transferData(TransferMask transferMask);
+
+        virtual bool containsDataToTransfer(TransferMask transferMask) const;
 
         ref_ptr<Device> device;
-        Semaphores waitSemaphores;
-        Semaphores signalSemaphores;
-
-        /// advance the currentFrameIndex
-        void advance();
 
         void assign(const ResourceRequirements::DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
         void assign(const ImageInfoList& imageInfoList);
 
         ref_ptr<Queue> transferQueue;
-        ref_ptr<Semaphore> currentTransferCompletedSemaphore;
+
+        /// minimum size to use when allocating staging buffers.
+        VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
 
         /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
+
+        /// control for the level of debug infomation emitted by the TransferTask
+        Logger::Level level = Logger::LOGGER_DEBUG;
+
+        void assignTransferConsumedCompletedSemaphore(TransferMask transferMask, ref_ptr<Semaphore> semaphore);
 
     protected:
         using OffsetBufferInfoMap = std::map<VkDeviceSize, ref_ptr<BufferInfo>>;
         using BufferMap = std::map<ref_ptr<Buffer>, OffsetBufferInfoMap>;
 
-        size_t index(size_t relativeFrameIndex = 0) const;
+        mutable std::mutex _mutex;
 
-        VkDeviceSize _dynamicDataTotalRegions = 0;
-        VkDeviceSize _dynamicDataTotalSize = 0;
-        VkDeviceSize _dynamicImageTotalSize = 0;
-        BufferMap _dynamicDataMap;
-        std::set<ref_ptr<ImageInfo>> _dynamicImageInfoSet;
-
-        size_t _currentFrameIndex;
-        std::vector<size_t> _indices;
-
-        struct Frame
+        struct TransferBlock : public Inherit<Object, TransferBlock>
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
-            ref_ptr<Semaphore> transferCompleteSemaphore;
+            ref_ptr<Fence> fence;
             ref_ptr<Buffer> staging;
             void* buffer_data = nullptr;
             std::vector<VkBufferCopy> copyRegions;
+            bool waitOnFence = false;
         };
 
-        std::vector<Frame> _frames;
+        struct DataToCopy
+        {
+            std::string name;
+            BufferMap dataMap;
+            std::set<ref_ptr<ImageInfo>> imageInfoSet;
 
-        void _transferBufferInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
+            uint32_t frameIndex = 0;
+            std::vector<ref_ptr<TransferBlock>> frames;
 
-        void _transferImageInfos(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset);
-        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, Frame& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
+            VkDeviceSize dataTotalRegions = 0;
+            VkDeviceSize dataTotalSize = 0;
+            VkDeviceSize imageTotalSize = 0;
+
+            ref_ptr<Semaphore> transferCompleteSemaphore;
+            ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
+
+            bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
+        };
+
+        DataToCopy _earlyDataToCopy;
+        DataToCopy _lateDataToCopy;
+
+        size_t _bufferCount;
+
+        TransferResult _transferData(DataToCopy& dataToCopy);
+
+        void _transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
+
+        void _transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
+        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
     };
     VSG_type_name(vsg::TransferTask);
 

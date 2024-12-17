@@ -34,7 +34,7 @@ int AnimationSampler::compare(const Object& rhs_object) const
     int result = Visitor::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(name, rhs.name);
 }
 
@@ -72,7 +72,7 @@ int Animation::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(mode, rhs.mode)) != 0) return result;
     if ((result = compare_value(speed, rhs.speed)) != 0) return result;
@@ -132,34 +132,43 @@ bool Animation::update(double simulationTime)
 {
     if (!_active) return false;
 
+    bool finished = false;
+
     auto time_within_period = [](double x, double y) -> double {
         return x < 0.0 ? y + std::fmod(x, y) : std::fmod(x, y);
     };
 
-    time = time + (simulationTime - _previousSimulationTime) * speed;
+    auto samplerTime = time = time + (simulationTime - _previousSimulationTime) * speed;
+
     _previousSimulationTime = simulationTime;
 
     if (mode == REPEAT)
     {
-        time = time_within_period(time, _maxTime);
+        samplerTime = time = time_within_period(time, _maxTime);
     }
     else if (mode == FORWARD_AND_BACK)
     {
-        time = time_within_period(time, 2.0 * _maxTime);
-        if (time > _maxTime) time = 2.0 * _maxTime - time;
+        samplerTime = time = time_within_period(time, 2.0 * _maxTime);
+        if (time > _maxTime) samplerTime = 2.0 * _maxTime - time;
     }
     else
     {
         if (time > _maxTime)
         {
-            stop(simulationTime);
-            return false;
+            finished = true;
+            samplerTime = time = _maxTime;
         }
     }
 
     for (auto sampler : samplers)
     {
-        sampler->update(time);
+        sampler->update(samplerTime);
+    }
+
+    if (finished)
+    {
+        stop(simulationTime);
+        return false;
     }
 
     return true;

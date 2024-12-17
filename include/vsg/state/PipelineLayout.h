@@ -27,6 +27,7 @@ namespace vsg
     {
     public:
         PipelineLayout();
+        PipelineLayout(const PipelineLayout& rhs, const CopyOp& copyop = {});
         PipelineLayout(const DescriptorSetLayouts& in_setLayouts, const PushConstantRanges& in_pushConstantRanges, VkPipelineLayoutCreateFlags in_flags = 0);
 
         /// VkPipelineLayoutCreateInfo settings
@@ -37,15 +38,17 @@ namespace vsg
         /// Vulkan VkPipelineLayout handle
         VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
 
-        int compare(const Object& rhs) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         void compile(Context& context);
 
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return PipelineLayout::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~PipelineLayout();

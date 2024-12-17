@@ -176,20 +176,28 @@ ObjectFactory::ObjectFactory()
     add<vsg::PagedLOD>();
     add<vsg::AbsoluteTransform>();
     add<vsg::MatrixTransform>();
+    add<vsg::CoordinateFrame>();
     add<vsg::Geometry>();
     add<vsg::VertexDraw>();
     add<vsg::VertexIndexDraw>();
     add<vsg::Bin>();
     add<vsg::DepthSorted>();
+    add<vsg::Layer>();
     add<vsg::Switch>();
+    add<vsg::TileDatabase>();
+    add<vsg::TileDatabaseSettings>();
+    add<vsg::InstrumentationNode>();
+
+    // lighting
     add<vsg::Light>();
     add<vsg::AmbientLight>();
     add<vsg::DirectionalLight>();
     add<vsg::PointLight>();
     add<vsg::SpotLight>();
-    add<vsg::TileDatabase>();
-    add<vsg::TileDatabaseSettings>();
-    add<vsg::InstrumentationNode>();
+    add<vsg::ShadowSettings>();
+    add<vsg::HardShadows>();
+    add<vsg::SoftShadows>();
+    add<vsg::PercentageCloserSoftShadows>();
 
     // vulkan objects
     add<vsg::BindGraphicsPipeline>();
@@ -242,6 +250,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::ResetQueryPool>();
     add<vsg::CopyQueryPoolResults>();
     add<vsg::SetPrimitiveTopology>();
+    add<vsg::ClearAttachments>();
 
     // text
     add<vsg::GlyphMetricsArray>();
@@ -279,6 +288,9 @@ ObjectFactory::ObjectFactory()
     add<vsg::Camera>();
     add<vsg::LookAt>();
     add<vsg::Perspective>();
+    add<vsg::EllipsoidPerspective>();
+    add<vsg::EllipsoidModel>();
+    add<vsg::Orthographic>();
 
     // mesh shading
     add<vsg::DrawMeshTasks>();
@@ -288,6 +300,8 @@ ObjectFactory::ObjectFactory()
     // animation
     add<vsg::TransformKeyframes>();
     add<vsg::TransformSampler>();
+    add<vsg::CameraKeyframes>();
+    add<vsg::CameraSampler>();
     add<vsg::MorphKeyframes>();
     add<vsg::MorphSampler>();
     add<vsg::JointSampler>();
@@ -304,7 +318,6 @@ ObjectFactory::ObjectFactory()
     add<vsg::NullArrayState>();
 
     // utils
-    add<vsg::AnimationPath>();
     add<vsg::ShaderSet>();
     add<vsg::ViewDependentStateBinding>();
     add<vsg::PositionAndDisplacementMapArrayState>();
@@ -312,6 +325,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::PositionArrayState>();
     add<vsg::BillboardArrayState>();
     add<vsg::SharedObjects>();
+    add<vsg::ProfileLog>();
 
     // application
     add<vsg::EllipsoidModel>();
@@ -329,6 +343,6 @@ vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
         return (itr->second)();
     }
 
-    warn("ObjectFactory::create(", className, ") failed to find means to create object");
+    warn("ObjectFactory::create(", className, ") failed to find means to create object.");
     return vsg::ref_ptr<vsg::Object>();
 }
