@@ -143,7 +143,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec4<T> sRGB_to_linear(T r, T g, T b, T a)
     {
-        return t_vec4<T>(sRGB_to_linear_component(r), sRGB_to_linear_component(r), sRGB_to_linear_component(b), src.a);
+        return t_vec4<T>(sRGB_to_linear_component(r), sRGB_to_linear_component(g), sRGB_to_linear_component(b), a);
     }
 
     template<typename T>
