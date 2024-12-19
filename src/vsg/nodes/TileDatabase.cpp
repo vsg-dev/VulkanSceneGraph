@@ -59,6 +59,7 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(projection, rhs.projection)) != 0) return result;
     if ((result = compare_pointer(ellipsoidModel, rhs.ellipsoidModel)) != 0) return result;
     if ((result = compare_value(imageLayer, rhs.imageLayer)) != 0) return result;
+    if ((result = compare_value(detailLayer, rhs.detailLayer)) != 0) return result;
     if ((result = compare_value(terrainLayer, rhs.terrainLayer)) != 0) return result;
     if ((result = compare_value(mipmapLevelsHint, rhs.mipmapLevelsHint)) != 0) return result;
     if ((result = compare_value(lighting, rhs.lighting)) != 0) return result;
@@ -76,6 +77,10 @@ void TileDatabaseSettings::read(vsg::Input& input)
     input.read("projection", projection);
     input.readObject("ellipsoidModel", ellipsoidModel);
     input.read("imageLayer", imageLayer);
+    if (input.version_greater_equal(1, 1, 10))
+    {
+        input.read("detailLayer", detailLayer);
+    }
     input.read("terrainLayer", terrainLayer);
     input.read("mipmapLevelsHint", mipmapLevelsHint);
 
@@ -97,6 +102,10 @@ void TileDatabaseSettings::write(vsg::Output& output) const
     output.write("projection", projection);
     output.writeObject("ellipsoidModel", ellipsoidModel);
     output.write("imageLayer", imageLayer);
+    if (output.version_greater_equal(1, 1, 10))
+    {
+        output.write("detailLayer", detailLayer);
+    }
     output.write("terrainLayer", terrainLayer);
     output.write("mipmapLevelsHint", mipmapLevelsHint);
 

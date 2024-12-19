@@ -109,6 +109,9 @@ vsg::Path tile::getTilePath(const vsg::Path& src, uint32_t x, uint32_t y, uint32
     else
     {
         replace(path, "{z}", level);
+        replace(path, "{z+1}", level+1);
+        replace(path, "{z-1}", level > 1 ? level-1 : 0);
+
         replace(path, "{x}", x);
         replace(path, "{y}", y);
     }

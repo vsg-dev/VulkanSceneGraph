@@ -42,6 +42,7 @@ namespace vsg
         ref_ptr<EllipsoidModel> ellipsoidModel = EllipsoidModel::create();
 
         Path imageLayer;
+        Path detailLayer;
         Path terrainLayer;
         uint32_t mipmapLevelsHint = 16;
 
