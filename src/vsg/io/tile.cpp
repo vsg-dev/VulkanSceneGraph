@@ -159,11 +159,11 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
         {
             auto imagePath = getTilePath(settings->imageLayer, x, y, lod);
             auto imageTile = vsg::read_cast<vsg::Data>(imagePath, options);
-
+            ref_ptr<Data> detailTile, elevationTile;
             if (imageTile)
             {
                 auto tile_extents = computeTileExtents(x, y, lod);
-                auto tile_node = createTile(tile_extents, imageTile);
+                auto tile_node = createTile(tile_extents, imageTile, detailTile, elevationTile);
                 if (tile_node)
                 {
                     vsg::ComputeBounds computeBound;
@@ -246,6 +246,18 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
     {
         uint32_t local_x;
         uint32_t local_y;
+        uint32_t type; // type = 0 -> imageData, 1 -> detailLayer, 2 -> terrainLayer
+
+        bool operator < (const TileID& rhs) const
+        {
+            if (local_x < rhs.local_x) return true;
+            if (local_x > rhs.local_x) return false;
+
+            if (local_y < rhs.local_y) return true;
+            if (local_y > rhs.local_y) return false;
+
+            return type < rhs.type;
+        }
     };
 
     vsg::Paths tiles;
@@ -260,53 +272,97 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
         {
             uint32_t local_x = subtile_x + dx;
             uint32_t local_y = subtile_y + dy;
-            auto tilePath = getTilePath(settings->imageLayer, local_x, local_y, local_lod);
-            tiles.push_back(tilePath);
-            pathToTileID[tilePath] = TileID{local_x, local_y};
+
+            if (settings->imageLayer)
+            {
+                auto tilePath = getTilePath(settings->imageLayer, local_x, local_y, local_lod);
+                tiles.push_back(tilePath);
+                pathToTileID[tilePath] = TileID{local_x, local_y, 0};
+            }
+
+            if (settings->detailLayer)
+            {
+                auto tilePath = getTilePath(settings->detailLayer, local_x, local_y, local_lod);
+                tiles.push_back(tilePath);
+                pathToTileID[tilePath] = TileID{local_x, local_y, 1};
+            }
+
+            if (settings->terrainLayer)
+            {
+                auto tilePath = getTilePath(settings->terrainLayer, local_x, local_y, local_lod);
+                tiles.push_back(tilePath);
+                pathToTileID[tilePath] = TileID{local_x, local_y, 2};
+            }
         }
     }
 
     auto pathObjects = vsg::read(tiles, options);
 
-    if (pathObjects.size() == 4)
+    struct TileData
     {
-        for (auto& [tilePath, object] : pathObjects)
+        ref_ptr<Data> imageData;
+        ref_ptr<Data> detailData;
+        ref_ptr<Data> elevationData;
+    };
+
+    // map the read files back to their TileID
+    std::map<TileID, TileData> tileData;
+    for(auto& [tilePath, object] : pathObjects)
+    {
+        if (auto data = object.cast<Data>())
         {
-            auto imageTile = object.cast<vsg::Data>();
-            if (imageTile)
+            auto tileID = pathToTileID[tilePath];
+            auto& entry = tileData[TileID{tileID.local_x, tileID.local_y, 0}];
+
+            if (tileID.type == 0)
             {
-                auto& tileID = pathToTileID[tilePath];
-                auto tile_extents = computeTileExtents(tileID.local_x, tileID.local_y, local_lod);
-                auto tile_node = createTile(tile_extents, imageTile);
-                if (tile_node)
-                {
-                    vsg::ComputeBounds computeBound;
-                    tile_node->accept(computeBound);
-                    auto& bb = computeBound.bounds;
-                    vsg::dsphere bound((bb.min.x + bb.max.x) * 0.5, (bb.min.y + bb.max.y) * 0.5, (bb.min.z + bb.max.z) * 0.5, vsg::length(bb.max - bb.min) * 0.5);
+                entry.imageData = (settings->imageLayerCallback) ? settings->imageLayerCallback(data) : data;
+            }
+            else if (tileID.type == 1)
+            {
+                entry.detailData = (settings->detailLayerCallback) ? settings->detailLayerCallback(data) : data;
+            }
+            else if (tileID.type == 2)
+            {
+                entry.elevationData = (settings->terrainLayerCallback) ? settings->terrainLayerCallback(data) : data;
+            }
+        }
+    }
 
-                    if (local_lod < settings->maxLevel)
-                    {
-                        auto plod = vsg::PagedLOD::create();
-                        plod->bound = bound;
-                        plod->children[0] = vsg::PagedLOD::Child{settings->lodTransitionScreenHeightRatio, {}}; // external child visible when its bound occupies more than 1/4 of the height of the window
-                        plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node};                               // visible always
-                        plod->filename = vsg::make_string(tileID.local_x, " ", tileID.local_y, " ", local_lod, ".tile");
-                        plod->options = Options::create_if(options, *options);
+    if (tileData.empty())
+    {
+        return ReadError::create("vsg::tile::read_subtile(..) could not load any subtiles.");
+    }
 
-                        vsg::debug("plod->filename ", plod->filename);
+    for(auto& [tileID, entry] : tileData)
+    {
+        auto tile_extents = computeTileExtents(tileID.local_x, tileID.local_y, local_lod);
+        auto tile_node = createTile(tile_extents, entry.imageData, entry.detailData, entry.elevationData);
+        if (tile_node)
+        {
+            vsg::ComputeBounds computeBound;
+            tile_node->accept(computeBound);
+            auto& bb = computeBound.bounds;
+            vsg::dsphere bound((bb.min.x + bb.max.x) * 0.5, (bb.min.y + bb.max.y) * 0.5, (bb.min.z + bb.max.z) * 0.5, vsg::length(bb.max - bb.min) * 0.5);
 
-                        group->addChild(plod);
-                    }
-                    else
-                    {
-                        auto cullGroup = vsg::CullGroup::create();
-                        cullGroup->bound = bound;
-                        cullGroup->addChild(tile_node);
+            if (local_lod < settings->maxLevel)
+            {
+                auto plod = vsg::PagedLOD::create();
+                plod->bound = bound;
+                plod->children[0] = vsg::PagedLOD::Child{settings->lodTransitionScreenHeightRatio, {}}; // external child visible when its bound occupies more than 1/4 of the height of the window
+                plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node};                               // visible always
+                plod->filename = vsg::make_string(tileID.local_x, " ", tileID.local_y, " ", local_lod, ".tile");
+                plod->options = Options::create_if(options, *options);
 
-                        group->addChild(cullGroup);
-                    }
-                }
+                group->addChild(plod);
+            }
+            else
+            {
+                auto cullGroup = vsg::CullGroup::create();
+                cullGroup->bound = bound;
+                cullGroup->addChild(tile_node);
+
+                group->addChild(cullGroup);
             }
         }
     }
@@ -364,12 +420,15 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     {
         _graphicsPipelineConfig->enableTexture("diffuseMap");
     }
-#if 0
+    if (settings->detailLayer)
+    {
+        _graphicsPipelineConfig->enableTexture("detailMap");
+    }
     if (settings->terrainLayer)
     {
         _graphicsPipelineConfig->enableTexture("displacementMap");
     }
-#endif
+
     _graphicsPipelineConfig->enableDescriptor("material");
 
     _graphicsPipelineConfig->enableArray("vsg_Vertex", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);
@@ -407,20 +466,55 @@ vsg::ref_ptr<vsg::StateGroup> tile::createRoot() const
     return root;
 }
 
-vsg::ref_ptr<vsg::Node> tile::createTile(const vsg::dbox& tile_extents, vsg::ref_ptr<vsg::Data> sourceData) const
+ref_ptr<BindDescriptorSet> tile::createBindDescriptorSet(ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData, Origin& origin) const
+{
+    // create texture image, material and associated DescriptorSets and binding
+    ref_ptr<DescriptorImage> imageTexture;
+    ref_ptr<DescriptorImage> detailTexture;
+    ref_ptr<DescriptorImage> elevationTexture;
+
+    Descriptors descriptors;
+    if (imageData)
+    {
+        origin = Origin(imageData->properties.origin);
+        descriptors.push_back(vsg::DescriptorImage::create(_sampler, imageData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
+    }
+
+    if (detailData)
+    {
+        origin = Origin(detailData->properties.origin);
+        descriptors.push_back(vsg::DescriptorImage::create(_sampler, detailData, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
+    }
+
+    if (elevationData)
+    {
+        origin = Origin(elevationData->properties.origin);
+        descriptors.push_back(vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
+    }
+
+    descriptors.push_back(_material);
+
+    return vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, _materialSetIndex, descriptors);
+}
+
+vsg::ref_ptr<vsg::Node> tile::createTile(const vsg::dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const
 {
     if (settings->ellipsoidModel)
     {
-        return createECEFTile(tile_extents, sourceData);
+        return createECEFTile(tile_extents, imageData, detailData, elevationData);
     }
     else
     {
-        return createTextureQuad(tile_extents, sourceData);
+        return createTextureQuad(tile_extents, imageData, detailData, elevationData);
     }
 }
 
-vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg::ref_ptr<vsg::Data> textureData) const
+
+
+vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const
 {
+    if (!imageData) return {};
+
     vsg::dvec3 center = computeLatitudeLongitudeAltitude((tile_extents.min + tile_extents.max) * 0.5);
 
     auto localToWorld = settings->ellipsoidModel->computeLocalToWorldTransform(center);
@@ -430,14 +524,12 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
                             localToWorld(1, 0), localToWorld(1, 1), localToWorld(1, 2),
                             localToWorld(2, 0), localToWorld(2, 1), localToWorld(2, 2));
 
-    // create texture image, material and associated DescriptorSets and binding
-    auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, _materialSetIndex, vsg::Descriptors{texture, _material});
+    Origin origin = vsg::TOP_LEFT;
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
-    scenegraph->add(bindDescriptorSet);
+    scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
 
     // set up model transformation node
     auto transform = vsg::MatrixTransform::create(localToWorld); // VK_SHADER_STAGE_VERTEX_BIT
@@ -458,7 +550,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     float sCoordScale = 1.0f / float(numCols - 1);
     float tCoordScale = 1.0f / float(numRows - 1);
     float tCoordOrigin = 0.0;
-    if (textureData->properties.origin == vsg::TOP_LEFT)
+    if (origin == vsg::TOP_LEFT)
     {
         tCoordScale = -tCoordScale;
         tCoordOrigin = 1.0f;
@@ -519,18 +611,15 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, vsg:
     return scenegraph;
 }
 
-vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, vsg::ref_ptr<vsg::Data> textureData) const
+vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents,  ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const
 {
-    if (!textureData) return {};
+    if (!imageData) return {};
 
-    // create texture image and associated DescriptorSets and binding
-    auto texture = vsg::DescriptorImage::create(_sampler, textureData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
-    auto bindDescriptorSet = vsg::BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipelineConfig->layout, _materialSetIndex, vsg::Descriptors{texture});
+    Origin origin = vsg::TOP_LEFT;
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
-    scenegraph->add(bindDescriptorSet);
+    scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
 
     // set up model transformation node
     auto transform = vsg::MatrixTransform::create();
@@ -556,7 +645,6 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, v
          {1.0f, 1.0f, 1.0f},
          {1.0f, 1.0f, 1.0f}}); // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
 
-    uint8_t origin = textureData->properties.origin; // in Vulkan the origin is top left by default.
     float left = 0.0f;
     float right = 1.0f;
     float top = (origin == vsg::TOP_LEFT) ? 0.0f : 1.0f;

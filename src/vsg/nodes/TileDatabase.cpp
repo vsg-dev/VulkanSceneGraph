@@ -37,7 +37,11 @@ TileDatabaseSettings::TileDatabaseSettings(const TileDatabaseSettings& rhs, cons
     projection(rhs.projection),
     ellipsoidModel(copyop(rhs.ellipsoidModel)),
     imageLayer(rhs.imageLayer),
+    imageLayerCallback(rhs.imageLayerCallback),
+    detailLayer(rhs.detailLayer),
+    detailLayerCallback(rhs.detailLayerCallback),
     terrainLayer(rhs.terrainLayer),
+    terrainLayerCallback(rhs.terrainLayerCallback),
     mipmapLevelsHint(rhs.mipmapLevelsHint),
     lighting(rhs.lighting),
     shaderSet(copyop(rhs.shaderSet))

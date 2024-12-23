@@ -23,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+
     /// TileDatabaseSettings provides the settings used by vsg::TileDatabase and vsg::tile ReaderWriter to guide paging in image, DEM tiles from disk/http/.
     class VSG_DECLSPEC TileDatabaseSettings : public Inherit<Object, TileDatabaseSettings>
     {
@@ -41,9 +42,18 @@ namespace vsg
         std::string projection;
         ref_ptr<EllipsoidModel> ellipsoidModel = EllipsoidModel::create();
 
+        // callback for post processing loading image, detail or terrain layers data after the source data is loaded.
+        using ProcessCallback = std::function<ref_ptr<Data>(ref_ptr<Data>)>;
+
         Path imageLayer;
+        ProcessCallback imageLayerCallback;
+
         Path detailLayer;
+        ProcessCallback detailLayerCallback;
+
         Path terrainLayer;
+        ProcessCallback terrainLayerCallback;
+
         uint32_t mipmapLevelsHint = 16;
 
         /// hint of whether to use flat shaded shaders or with lighting enabled.

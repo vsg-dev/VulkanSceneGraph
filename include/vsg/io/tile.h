@@ -52,9 +52,12 @@ namespace vsg
         ref_ptr<Object> read_root(ref_ptr<const Options> options = {}) const;
         ref_ptr<Object> read_subtile(uint32_t x, uint32_t y, uint32_t lod, ref_ptr<const Options> options = {}) const;
 
-        ref_ptr<Node> createTile(const dbox& tile_extents, ref_ptr<Data> sourceData) const;
-        ref_ptr<Node> createECEFTile(const dbox& tile_extents, ref_ptr<Data> sourceData) const;
-        ref_ptr<Node> createTextureQuad(const dbox& tile_extents, ref_ptr<Data> sourceData) const;
+        ref_ptr<BindDescriptorSet> createBindDescriptorSet(ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData, Origin& origin) const;
+
+        ref_ptr<Node> createTile(const dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
+        ref_ptr<Node> createECEFTile(const dbox& tile_extents,  ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
+        ref_ptr<Node> createTextureQuad(const dbox& tile_extents,  ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
+
 
         ref_ptr<StateGroup> createRoot() const;
 
