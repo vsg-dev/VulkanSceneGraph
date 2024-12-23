@@ -109,8 +109,8 @@ vsg::Path tile::getTilePath(const vsg::Path& src, uint32_t x, uint32_t y, uint32
     else
     {
         replace(path, "{z}", level);
-        replace(path, "{z+1}", level+1);
-        replace(path, "{z-1}", level > 1 ? level-1 : 0);
+        replace(path, "{z+1}", level + 1);
+        replace(path, "{z-1}", level > 1 ? level - 1 : 0);
 
         replace(path, "{x}", x);
         replace(path, "{y}", y);
@@ -265,7 +265,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
         uint32_t local_y;
         uint32_t type; // type = 0 -> imageData, 1 -> detailLayer, 2 -> elevationLayer
 
-        bool operator < (const TileID& rhs) const
+        bool operator<(const TileID& rhs) const
         {
             if (local_x < rhs.local_x) return true;
             if (local_x > rhs.local_x) return false;
@@ -324,7 +324,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
     // map the read files back to their TileID
     std::map<TileID, TileData> tileData;
-    for(auto& [tilePath, object] : pathObjects)
+    for (auto& [tilePath, object] : pathObjects)
     {
         if (auto data = object.cast<Data>())
         {
@@ -351,7 +351,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
         return ReadError::create("vsg::tile::read_subtile(..) could not load any subtiles.");
     }
 
-    for(auto& [tileID, entry] : tileData)
+    for (auto& [tileID, entry] : tileData)
     {
         auto tile_extents = computeTileExtents(tileID.local_x, tileID.local_y, local_lod);
         auto tile_node = createTile(tile_extents, entry.imageData, entry.detailData, entry.elevationData);
@@ -526,8 +526,6 @@ vsg::ref_ptr<vsg::Node> tile::createTile(const vsg::dbox& tile_extents, ref_ptr<
     }
 }
 
-
-
 vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const
 {
     if (!imageData) return {};
@@ -540,7 +538,6 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     vsg::dmat3 normalMatrix(localToWorld(0, 0), localToWorld(0, 1), localToWorld(0, 2),
                             localToWorld(1, 0), localToWorld(1, 1), localToWorld(1, 2),
                             localToWorld(2, 0), localToWorld(2, 1), localToWorld(2, 2));
-
 
     Origin origin = vsg::TOP_LEFT;
 
@@ -628,7 +625,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     return scenegraph;
 }
 
-vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents,  ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const
+vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const
 {
     if (!imageData) return {};
 

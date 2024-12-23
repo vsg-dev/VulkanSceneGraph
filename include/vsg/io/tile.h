@@ -55,9 +55,8 @@ namespace vsg
         ref_ptr<BindDescriptorSet> createBindDescriptorSet(ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData, Origin& origin) const;
 
         ref_ptr<Node> createTile(const dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
-        ref_ptr<Node> createECEFTile(const dbox& tile_extents,  ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
-        ref_ptr<Node> createTextureQuad(const dbox& tile_extents,  ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
-
+        ref_ptr<Node> createECEFTile(const dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
+        ref_ptr<Node> createTextureQuad(const dbox& tile_extents, ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData) const;
 
         ref_ptr<StateGroup> createRoot() const;
 
