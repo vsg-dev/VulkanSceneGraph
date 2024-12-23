@@ -40,8 +40,8 @@ TileDatabaseSettings::TileDatabaseSettings(const TileDatabaseSettings& rhs, cons
     imageLayerCallback(rhs.imageLayerCallback),
     detailLayer(rhs.detailLayer),
     detailLayerCallback(rhs.detailLayerCallback),
-    terrainLayer(rhs.terrainLayer),
-    terrainLayerCallback(rhs.terrainLayerCallback),
+    elevationLayer(rhs.elevationLayer),
+    elevationLayerCallback(rhs.elevationLayerCallback),
     mipmapLevelsHint(rhs.mipmapLevelsHint),
     lighting(rhs.lighting),
     shaderSet(copyop(rhs.shaderSet))
@@ -64,7 +64,7 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     if ((result = compare_pointer(ellipsoidModel, rhs.ellipsoidModel)) != 0) return result;
     if ((result = compare_value(imageLayer, rhs.imageLayer)) != 0) return result;
     if ((result = compare_value(detailLayer, rhs.detailLayer)) != 0) return result;
-    if ((result = compare_value(terrainLayer, rhs.terrainLayer)) != 0) return result;
+    if ((result = compare_value(elevationLayer, rhs.elevationLayer)) != 0) return result;
     if ((result = compare_value(mipmapLevelsHint, rhs.mipmapLevelsHint)) != 0) return result;
     if ((result = compare_value(lighting, rhs.lighting)) != 0) return result;
     return compare_pointer(shaderSet, rhs.shaderSet);
@@ -81,11 +81,15 @@ void TileDatabaseSettings::read(vsg::Input& input)
     input.read("projection", projection);
     input.readObject("ellipsoidModel", ellipsoidModel);
     input.read("imageLayer", imageLayer);
-    if (input.version_greater_equal(1, 1, 10))
+    if (input.version_greater_equal(1, 1, 9))
     {
         input.read("detailLayer", detailLayer);
+        input.read("elevationLayer", elevationLayer);
     }
-    input.read("terrainLayer", terrainLayer);
+    else
+    {
+        input.read("terrainLayer", elevationLayer);
+    }
     input.read("mipmapLevelsHint", mipmapLevelsHint);
 
     if (input.version_greater_equal(0, 7, 1))
@@ -106,11 +110,15 @@ void TileDatabaseSettings::write(vsg::Output& output) const
     output.write("projection", projection);
     output.writeObject("ellipsoidModel", ellipsoidModel);
     output.write("imageLayer", imageLayer);
-    if (output.version_greater_equal(1, 1, 10))
+    if (output.version_greater_equal(1, 1, 9))
     {
         output.write("detailLayer", detailLayer);
+        output.write("elevationLayer", elevationLayer);
     }
-    output.write("terrainLayer", terrainLayer);
+    else
+    {
+        output.write("terrainLayer", elevationLayer);
+    }
     output.write("mipmapLevelsHint", mipmapLevelsHint);
 
     if (output.version_greater_equal(0, 7, 1))

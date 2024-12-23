@@ -51,8 +51,8 @@ namespace vsg
         Path detailLayer;
         ProcessCallback detailLayerCallback;
 
-        Path terrainLayer;
-        ProcessCallback terrainLayerCallback;
+        Path elevationLayer;
+        ProcessCallback elevationLayerCallback;
 
         uint32_t mipmapLevelsHint = 16;
 

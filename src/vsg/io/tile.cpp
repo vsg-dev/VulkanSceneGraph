@@ -157,7 +157,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
     {
         for (uint32_t x = 0; x < settings->noX; ++x)
         {
-            ref_ptr<Data> imageData, detailData, terrainData;
+            ref_ptr<Data> imageData, detailData, elevationData;
 
             if (settings->imageLayer)
             {
@@ -173,15 +173,15 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 if (detailData && settings->detailLayerCallback) detailData = settings->detailLayerCallback(detailData);
             }
 
-            if (settings->terrainLayer)
+            if (settings->elevationLayer)
             {
-                auto terrainPath = getTilePath(settings->terrainLayer, x, y, lod);
-                terrainData = vsg::read_cast<vsg::Data>(terrainPath, options);
-                if (terrainData && settings->terrainLayerCallback) terrainData = settings->terrainLayerCallback(terrainData);
+                auto terrainPath = getTilePath(settings->elevationLayer, x, y, lod);
+                elevationData = vsg::read_cast<vsg::Data>(terrainPath, options);
+                if (elevationData && settings->elevationLayerCallback) elevationData = settings->elevationLayerCallback(elevationData);
             }
 
             auto tile_extents = computeTileExtents(x, y, lod);
-            auto tile_node = createTile(tile_extents, imageData, detailData, terrainData);
+            auto tile_node = createTile(tile_extents, imageData, detailData, elevationData);
             if (tile_node)
             {
                 vsg::ComputeBounds computeBound;
@@ -263,7 +263,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
     {
         uint32_t local_x;
         uint32_t local_y;
-        uint32_t type; // type = 0 -> imageData, 1 -> detailLayer, 2 -> terrainLayer
+        uint32_t type; // type = 0 -> imageData, 1 -> detailLayer, 2 -> elevationLayer
 
         bool operator < (const TileID& rhs) const
         {
@@ -304,9 +304,9 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
                 pathToTileID[tilePath] = TileID{local_x, local_y, 1};
             }
 
-            if (settings->terrainLayer)
+            if (settings->elevationLayer)
             {
-                auto tilePath = getTilePath(settings->terrainLayer, local_x, local_y, local_lod);
+                auto tilePath = getTilePath(settings->elevationLayer, local_x, local_y, local_lod);
                 tiles.push_back(tilePath);
                 pathToTileID[tilePath] = TileID{local_x, local_y, 2};
             }
@@ -341,7 +341,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
             }
             else if (tileID.type == 2)
             {
-                entry.elevationData = (settings->terrainLayerCallback) ? settings->terrainLayerCallback(data) : data;
+                entry.elevationData = (settings->elevationLayerCallback) ? settings->elevationLayerCallback(data) : data;
             }
         }
     }
@@ -441,7 +441,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     {
         _graphicsPipelineConfig->enableTexture("detailMap");
     }
-    if (settings->terrainLayer)
+    if (settings->elevationLayer)
     {
         _graphicsPipelineConfig->enableTexture("displacementMap");
     }
