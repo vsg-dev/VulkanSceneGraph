@@ -157,29 +157,46 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
     {
         for (uint32_t x = 0; x < settings->noX; ++x)
         {
-            auto imagePath = getTilePath(settings->imageLayer, x, y, lod);
-            auto imageTile = vsg::read_cast<vsg::Data>(imagePath, options);
-            ref_ptr<Data> detailTile, elevationTile;
-            if (imageTile)
+            ref_ptr<Data> imageData, detailData, terrainData;
+
+            if (settings->imageLayer)
             {
-                auto tile_extents = computeTileExtents(x, y, lod);
-                auto tile_node = createTile(tile_extents, imageTile, detailTile, elevationTile);
-                if (tile_node)
-                {
-                    vsg::ComputeBounds computeBound;
-                    tile_node->accept(computeBound);
-                    const auto& bb = computeBound.bounds;
-                    vsg::dsphere bound((bb.min.x + bb.max.x) * 0.5, (bb.min.y + bb.max.y) * 0.5, (bb.min.z + bb.max.z) * 0.5, vsg::length(bb.max - bb.min) * 0.5);
+                auto imagePath = getTilePath(settings->imageLayer, x, y, lod);
+                imageData = vsg::read_cast<vsg::Data>(imagePath, options);
+                if (imageData && settings->imageLayerCallback) imageData = settings->imageLayerCallback(imageData);
+            }
 
-                    auto plod = vsg::PagedLOD::create();
-                    plod->bound = bound;
-                    plod->children[0] = vsg::PagedLOD::Child{0.25, {}};       // external child visible when its bound occupies more than 1/4 of the height of the window
-                    plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node}; // visible always
-                    plod->filename = vsg::make_string(x, " ", y, " 0.tile");
-                    plod->options = Options::create_if(options, *options);
+            if (settings->detailLayer)
+            {
+                auto detailPath = getTilePath(settings->detailLayer, x, y, lod);
+                detailData = vsg::read_cast<vsg::Data>(detailPath, options);
+                if (detailData && settings->detailLayerCallback) detailData = settings->detailLayerCallback(detailData);
+            }
 
-                    group->addChild(plod);
-                }
+            if (settings->terrainLayer)
+            {
+                auto terrainPath = getTilePath(settings->terrainLayer, x, y, lod);
+                terrainData = vsg::read_cast<vsg::Data>(terrainPath, options);
+                if (terrainData && settings->terrainLayerCallback) terrainData = settings->terrainLayerCallback(terrainData);
+            }
+
+            auto tile_extents = computeTileExtents(x, y, lod);
+            auto tile_node = createTile(tile_extents, imageData, detailData, terrainData);
+            if (tile_node)
+            {
+                vsg::ComputeBounds computeBound;
+                tile_node->accept(computeBound);
+                const auto& bb = computeBound.bounds;
+                vsg::dsphere bound((bb.min.x + bb.max.x) * 0.5, (bb.min.y + bb.max.y) * 0.5, (bb.min.z + bb.max.z) * 0.5, vsg::length(bb.max - bb.min) * 0.5);
+
+                auto plod = vsg::PagedLOD::create();
+                plod->bound = bound;
+                plod->children[0] = vsg::PagedLOD::Child{0.25, {}};       // external child visible when its bound occupies more than 1/4 of the height of the window
+                plod->children[1] = vsg::PagedLOD::Child{0.0, tile_node}; // visible always
+                plod->filename = vsg::make_string(x, " ", y, " 0.tile");
+                plod->options = Options::create_if(options, *options);
+
+                group->addChild(plod);
             }
         }
     }
