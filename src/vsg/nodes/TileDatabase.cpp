@@ -180,6 +180,9 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
     auto local_options = options ? vsg::Options::create(*options) : vsg::Options::create();
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);
 
+    info("TileDatabase::readDatabase()");
+    for(auto& rw : local_options->readerWriters) info("    ", rw);
+
     auto result = vsg::read("root.tile", local_options);
 
     child = result.cast<vsg::Node>();

@@ -37,6 +37,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/UIEvent.h>
 #include <vsg/utils/ComputeBounds.h>
 #include <vsg/vk/ResourceRequirements.h>
+#include <vsg/core/Visitor.h>
 
 using namespace vsg;
 
@@ -436,15 +437,33 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     if (settings->imageLayer)
     {
         _graphicsPipelineConfig->enableTexture("diffuseMap");
+
+        auto imageData = vsg::vec4Value::create(1.0f, 1.0f, 1.0f, 1.0f);
+        imageData->properties.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+
+        _imageFallback = vsg::DescriptorImage::create(_sampler, imageData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+
     }
     if (settings->detailLayer)
     {
         _graphicsPipelineConfig->enableTexture("detailMap");
+
+        auto detailData = vsg::vec4Value::create(1.0f, 1.0f, 1.0f, 1.0f);
+        detailData->properties.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+
+        _detailFallback = vsg::DescriptorImage::create(_sampler, detailData, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
+
     if (settings->elevationLayer)
     {
         _graphicsPipelineConfig->enableTexture("displacementMap");
+
+        auto elevationData = vsg::floatValue::create(0.0f);
+        elevationData->properties.format = VK_FORMAT_R32_SFLOAT;
+        _elevationFallback = vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
+
+
 
     _graphicsPipelineConfig->enableDescriptor("material");
 
@@ -452,6 +471,11 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     _graphicsPipelineConfig->enableArray("vsg_Normal", VK_VERTEX_INPUT_RATE_VERTEX, 12, VK_FORMAT_R32G32B32_SFLOAT);
     _graphicsPipelineConfig->enableArray("vsg_TexCoord0", VK_VERTEX_INPUT_RATE_VERTEX, 8, VK_FORMAT_R32G32_SFLOAT);
     _graphicsPipelineConfig->enableArray("vsg_Color", VK_VERTEX_INPUT_RATE_INSTANCE, 16, VK_FORMAT_R32G32B32A32_SFLOAT);
+
+    if (settings->elevationLayer)
+    {
+        _graphicsPipelineConfig->enableArray("vsg_DisplacementScale", VK_VERTEX_INPUT_RATE_INSTANCE, 12, VK_FORMAT_R32G32B32_SFLOAT);
+    }
 
     if (auto& materialBinding = _shaderSet->getDescriptorBinding("material"))
     {
@@ -496,17 +520,29 @@ ref_ptr<BindDescriptorSet> tile::createBindDescriptorSet(ref_ptr<Data> imageData
         origin = Origin(imageData->properties.origin);
         descriptors.push_back(vsg::DescriptorImage::create(_sampler, imageData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
     }
+    else if (_imageFallback)
+    {
+        descriptors.push_back(_imageFallback);
+    }
 
     if (detailData)
     {
         origin = Origin(detailData->properties.origin);
         descriptors.push_back(vsg::DescriptorImage::create(_sampler, detailData, 1, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
     }
+    else if (_detailFallback)
+    {
+        descriptors.push_back(_detailFallback);
+    }
 
     if (elevationData)
     {
         origin = Origin(elevationData->properties.origin);
         descriptors.push_back(vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
+    }
+    else if (_elevationFallback)
+    {
+        descriptors.push_back(_elevationFallback);
     }
 
     descriptors.push_back(_material);
@@ -532,6 +568,14 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     vsg::dvec3 center = computeLatitudeLongitudeAltitude((tile_extents.min + tile_extents.max) * 0.5);
 
+    uint32_t numRows = 32;
+    uint32_t numCols = 32;
+    if (elevationData)
+    {
+        numCols = elevationData->width();
+        numRows = elevationData->height();
+    }
+
     auto localToWorld = settings->ellipsoidModel->computeLocalToWorldTransform(center);
     auto worldToLocal = vsg::inverse(localToWorld);
 
@@ -546,13 +590,12 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
 
     // set up model transformation node
-    auto transform = vsg::MatrixTransform::create(localToWorld); // VK_SHADER_STAGE_VERTEX_BIT
+    auto transform = vsg::MatrixTransform::create(localToWorld);
 
     // add transform to root of the scene graph
     scenegraph->addChild(transform);
 
-    uint32_t numRows = 32;
-    uint32_t numCols = 32;
+
     uint32_t numVertices = numRows * numCols;
     uint32_t numTriangles = (numRows - 1) * (numCols - 1) * 2;
 
@@ -568,6 +611,19 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     {
         tCoordScale = -tCoordScale;
         tCoordOrigin = 1.0f;
+    }
+
+    double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y)* settings->ellipsoidModel->radiusEquator();
+    vec3 vsg_DisplacementScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+
+    if (elevationData)
+    {
+        switch(elevationData->properties.format)
+        {
+            case(VK_FORMAT_R16_SFLOAT) : vsg_DisplacementScale.z = 1.0; break;
+            case(VK_FORMAT_R32_SFLOAT) : vsg_DisplacementScale.z = 1.0; break;
+            default: break;
+        }
     }
 
     vsg::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -597,7 +653,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     }
 
     // set up indices
-    auto indices = vsg::ushortArray::create(numTriangles * 3);
+    auto indices = vsg::uintArray::create(numTriangles * 3);
     auto itr = indices->begin();
     for (uint32_t r = 0; r < numRows - 1; ++r)
     {
@@ -613,9 +669,16 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         }
     }
 
+    vsg::DataList arrays{vertices, normals, texcoords, colors};
+
+    if (elevationData)
+    {
+        arrays.push_back(vsg::vec3Value::create(vsg_DisplacementScale));
+    }
+
     // setup geometry
     auto vid = vsg::VertexIndexDraw::create();
-    vid->assignArrays(vsg::DataList{vertices, normals, texcoords, colors});
+    vid->assignArrays(arrays);
     vid->assignIndices(indices);
     vid->indexCount = static_cast<uint32_t>(indices->size());
     vid->instanceCount = 1;

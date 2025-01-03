@@ -52,6 +52,7 @@ namespace vsg
 
         Path elevationLayer;
         ProcessCallback elevationLayerCallback;
+        double elevationScale = 32868.0;
 
         uint32_t mipmapLevelsHint = 16;
 
