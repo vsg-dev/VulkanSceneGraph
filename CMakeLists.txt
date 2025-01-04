@@ -96,6 +96,8 @@ if (VSG_SUPPORTS_Windowing)
             execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/stable/xdg-shell/xdg-shell.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/wayland-xdg-shell-protocol.c)
             execute_process(COMMAND wayland-scanner client-header ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml ${PROJECT_SOURCE_DIR}/include/vsg/platform/wayland/xdg-decoration-client.h)
             execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/xdg-decoration-client.c)
+            execute_process(COMMAND wayland-scanner client-header ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-output/xdg-output-unstable-v1.xml ${PROJECT_SOURCE_DIR}/include/vsg/platform/wayland/xdg-output-client.h)
+            execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-output/xdg-output-unstable-v1.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/xdg-output-client.c)
         else()
             set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
             # just use Xcb for native windowing
