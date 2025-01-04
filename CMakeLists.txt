@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.7)
 project(vsg
     VERSION 1.1.9
     DESCRIPTION "VulkanSceneGraph library"
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 set(VSG_SOVERSION 14)
-SET(VSG_RELEASE_CANDIDATE 0)
+SET(VSG_RELEASE_CANDIDATE 1)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
 set(VSG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "Root source directory of VulkanSceneGraph.")
@@ -80,11 +80,29 @@ if (VSG_SUPPORTS_Windowing)
         set(FIND_DEPENDENCY_WINDOWING "find_library(COCOA_LIBRARY Cocoa)\nfind_library(QUARTZCORE_LIBRARY QuartzCore)\n")
         find_library(COCOA_LIBRARY Cocoa)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
+    elseif (UNIX)
+        if(BUILD_WAYLAND)
+            set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(wayland-client REQUIRED IMPORTED_TARGET wayland-client)\npkg_check_modules(wayland-cursor REQUIRED IMPORTED_TARGET wayland-cursor)\npkg_check_modules(xkbcommon REQUIRED IMPORTED_TARGET xkbcommon)\n")
+            find_package(PkgConfig REQUIRED)
+            pkg_check_modules(wayland-client REQUIRED IMPORTED_TARGET wayland-client)
+            pkg_check_modules(wayland-cursor REQUIRED IMPORTED_TARGET wayland-cursor)
+            pkg_check_modules(xkbcommon REQUIRED IMPORTED_TARGET xkbcommon)
+            #generate Wayland source files
+            execute_process(COMMAND pkg-config wayland-protocols --variable=pkgdatadir
+                OUTPUT_VARIABLE WAYLAND_PROTOCOLS_DIR
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+            execute_process(COMMAND wayland-scanner client-header ${WAYLAND_PROTOCOLS_DIR}/stable/xdg-shell/xdg-shell.xml ${PROJECT_SOURCE_DIR}/include/vsg/platform/wayland/wayland-xdg-shell-client-protocol.h)
+            execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/stable/xdg-shell/xdg-shell.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/wayland-xdg-shell-protocol.c)
+            execute_process(COMMAND wayland-scanner client-header ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml ${PROJECT_SOURCE_DIR}/include/vsg/platform/wayland/xdg-decoration-client.h)
+            execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/xdg-decoration-client.c)
+        else()
+            set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
+            # just use Xcb for native windowing
+            find_package(PkgConfig REQUIRED)
+            pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
+        endif()
     else()
-        set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
-        # just use Xcb for native windowing
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
     endif()
 endif()
 
