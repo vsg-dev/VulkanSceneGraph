@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindVertexBuffers.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/commands/DrawIndexed.h>
+#include <vsg/core/Visitor.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
@@ -37,7 +38,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/UIEvent.h>
 #include <vsg/utils/ComputeBounds.h>
 #include <vsg/vk/ResourceRequirements.h>
-#include <vsg/core/Visitor.h>
 
 using namespace vsg;
 
@@ -442,7 +442,6 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
         imageData->properties.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 
         _imageFallback = vsg::DescriptorImage::create(_sampler, imageData, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-
     }
     if (settings->detailLayer)
     {
@@ -462,8 +461,6 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
         elevationData->properties.format = VK_FORMAT_R32_SFLOAT;
         _elevationFallback = vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
-
-
 
     _graphicsPipelineConfig->enableDescriptor("material");
 
@@ -595,7 +592,6 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     // add transform to root of the scene graph
     scenegraph->addChild(transform);
 
-
     uint32_t numVertices = numRows * numCols;
     uint32_t numTriangles = (numRows - 1) * (numCols - 1) * 2;
 
@@ -613,16 +609,16 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         tCoordOrigin = 1.0f;
     }
 
-    double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y)* settings->ellipsoidModel->radiusEquator();
+    double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y) * settings->ellipsoidModel->radiusEquator();
     vec3 vsg_DisplacementScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
 
     if (elevationData)
     {
-        switch(elevationData->properties.format)
+        switch (elevationData->properties.format)
         {
-            case(VK_FORMAT_R16_SFLOAT) : vsg_DisplacementScale.z = 1.0; break;
-            case(VK_FORMAT_R32_SFLOAT) : vsg_DisplacementScale.z = 1.0; break;
-            default: break;
+        case (VK_FORMAT_R16_SFLOAT): vsg_DisplacementScale.z = 1.0; break;
+        case (VK_FORMAT_R32_SFLOAT): vsg_DisplacementScale.z = 1.0; break;
+        default: break;
         }
     }
 

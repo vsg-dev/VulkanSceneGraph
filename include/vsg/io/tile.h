@@ -69,7 +69,6 @@ namespace vsg
         ref_ptr<DescriptorImage> _imageFallback;
         ref_ptr<DescriptorImage> _detailFallback;
         ref_ptr<DescriptorImage> _elevationFallback;
-
     };
     VSG_type_name(vsg::tile);
 

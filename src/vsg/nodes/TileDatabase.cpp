@@ -42,6 +42,8 @@ TileDatabaseSettings::TileDatabaseSettings(const TileDatabaseSettings& rhs, cons
     detailLayerCallback(rhs.detailLayerCallback),
     elevationLayer(rhs.elevationLayer),
     elevationLayerCallback(rhs.elevationLayerCallback),
+    elevationScale(rhs.elevationScale),
+    fenceHeightRatio(rhs.fenceHeightRatio),
     mipmapLevelsHint(rhs.mipmapLevelsHint),
     lighting(rhs.lighting),
     shaderSet(copyop(rhs.shaderSet))
@@ -65,6 +67,8 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(imageLayer, rhs.imageLayer)) != 0) return result;
     if ((result = compare_value(detailLayer, rhs.detailLayer)) != 0) return result;
     if ((result = compare_value(elevationLayer, rhs.elevationLayer)) != 0) return result;
+    if ((result = compare_value(elevationScale, rhs.elevationScale)) != 0) return result;
+    if ((result = compare_value(fenceHeightRatio, rhs.fenceHeightRatio)) != 0) return result;
     if ((result = compare_value(mipmapLevelsHint, rhs.mipmapLevelsHint)) != 0) return result;
     if ((result = compare_value(lighting, rhs.lighting)) != 0) return result;
     return compare_pointer(shaderSet, rhs.shaderSet);
@@ -85,6 +89,8 @@ void TileDatabaseSettings::read(vsg::Input& input)
     {
         input.read("detailLayer", detailLayer);
         input.read("elevationLayer", elevationLayer);
+        input.read("elevationScale", elevationScale);
+        input.read("fenceHeightRatio", fenceHeightRatio);
     }
     else
     {
@@ -114,6 +120,8 @@ void TileDatabaseSettings::write(vsg::Output& output) const
     {
         output.write("detailLayer", detailLayer);
         output.write("elevationLayer", elevationLayer);
+        output.write("elevationScale", elevationScale);
+        output.write("fenceHeightRatio", fenceHeightRatio);
     }
     else
     {
@@ -181,7 +189,7 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);
 
     info("TileDatabase::readDatabase()");
-    for(auto& rw : local_options->readerWriters) info("    ", rw);
+    for (auto& rw : local_options->readerWriters) info("    ", rw);
 
     auto result = vsg::read("root.tile", local_options);
 
