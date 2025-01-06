@@ -44,12 +44,18 @@ namespace vsgWayland
         Wayland_output(struct wl_output *wlOutput, struct zxdg_output_manager_v1 *zxdgOutputManager) : _wlOutput(wlOutput)
         {
             wl_output_add_listener(wlOutput, &wl_output_listener, this);
-            _zxdgOutput = zxdg_output_manager_v1_get_xdg_output(zxdgOutputManager, wlOutput);
-            zxdg_output_v1_add_listener(_zxdgOutput, &zxdg_output_v1_listener, this);
+            if (zxdgOutputManager)
+            {
+                _zxdgOutput = zxdg_output_manager_v1_get_xdg_output(zxdgOutputManager, wlOutput);
+                zxdg_output_v1_add_listener(_zxdgOutput, &zxdg_output_v1_listener, this);
+            }
         }
         ~Wayland_output()
         {
-            zxdg_output_v1_destroy(_zxdgOutput);
+            if (_zxdgOutput)
+            {
+                zxdg_output_v1_destroy(_zxdgOutput);
+            }
             wl_output_destroy(_wlOutput);
         }
 
@@ -66,7 +72,7 @@ namespace vsgWayland
         int _refresh;
         int _factor;
         bool _done = false;
-        struct zxdg_output_v1 *_zxdgOutput;
+        struct zxdg_output_v1 *_zxdgOutput = nullptr;
         int _logical_width, _logical_height;
 
         constexpr static struct wl_output_listener wl_output_listener = {
@@ -239,7 +245,6 @@ namespace vsgWayland
 
         bool _ownDisplay = true;
         struct wl_display* _wlDisplay = nullptr;
-        struct wl_event_queue *_wlEventQueue = nullptr;
         struct wl_registry* _wlRegistry = nullptr;
         struct wl_compositor* _wlCompositor = nullptr;
         std::vector<vsg::ref_ptr<Wayland_output>> _outputs;

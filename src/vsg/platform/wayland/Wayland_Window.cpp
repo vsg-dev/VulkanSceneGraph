@@ -137,11 +137,11 @@ void Wayland_Window::xdg_surface_handle_configure(void *data, struct xdg_surface
 }
 
 void Wayland_Window::xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *xdg_toplevel, int32_t width, int32_t height, struct wl_array *states) {
-    if (width==0 || height==0)
-        return;
     Wayland_Window *window = static_cast<Wayland_Window*>(data);
-    window->_widthRequested = width;
-    window->_heightRequested = height;
+    if ((width != 0) && (height != 0)) {
+        window->_widthRequested = width;
+        window->_heightRequested = height;
+    }
 }
 
 void Wayland_Window::xdg_toplevel_handle_close(void *data, struct xdg_toplevel *xdg_toplevel) {
@@ -321,28 +321,29 @@ Wayland_Window::Wayland_Window(vsg::ref_ptr<WindowTraits> traits) :
         }
     }
 
-    _wlEventQueue = wl_display_create_queue(_wlDisplay);
     _wlRegistry = wl_display_get_registry(_wlDisplay);
-    wl_proxy_set_queue(reinterpret_cast<struct wl_proxy *>(_wlRegistry), _wlEventQueue);
     _xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 
     wl_registry_add_listener(_wlRegistry, &registry_listener, this);
-    wl_display_roundtrip_queue(_wlDisplay, _wlEventQueue);
+    wl_display_roundtrip(_wlDisplay);
 
     while (!std::all_of(_outputs.begin(), _outputs.end(), [](const auto output) { return output->_done; }))
     {
-        wl_display_roundtrip_queue(_wlDisplay, _wlEventQueue);
+        wl_display_roundtrip(_wlDisplay);
     }
 
-    _width = traits->width;
-    _height = traits->height;
-
-    _extent2D.width = _width;
-    _extent2D.height = _height;
+    if (traits->width)
+    {
+        _extent2D.width = _width = traits->width;
+    }
+    if (traits->height)
+    {
+        _extent2D.height = _height = traits->height;
+    }
 
     if (traits->nativeWindow.has_value())
     {
-        auto nativeWindow = std::any_cast<struct wl_surface*>(traits->nativeWindow);
+        auto nativeWindow = std::any_cast<struct wl_surface *>(traits->nativeWindow);
         if (nativeWindow)
         {
             _wlSurface = nativeWindow;
@@ -390,13 +391,11 @@ Wayland_Window::Wayland_Window(vsg::ref_ptr<WindowTraits> traits) :
     {
         share(traits->device);
     }
-
-    wl_display_roundtrip_queue(_wlDisplay, _wlEventQueue);
 }
 
 Wayland_Window::~Wayland_Window()
 {
-    // clear();
+    clear();
 
     if (_ownSurface)
     {
@@ -414,10 +413,10 @@ Wayland_Window::~Wayland_Window()
     xkb_state_unref(_xkb_state);
     xkb_keymap_unref(_xkb_keymap);
     xkb_context_unref(_xkb_context);
+    _outputs.clear();
     zxdg_output_manager_v1_destroy(_zxdgOutputManager);
     wl_compositor_destroy(_wlCompositor);
     wl_registry_destroy(_wlRegistry);
-    wl_event_queue_destroy (_wlEventQueue);
     if (_ownDisplay) wl_display_disconnect(_wlDisplay);
 }
 
@@ -460,6 +459,7 @@ void Wayland_Window::resize()
 
 bool Wayland_Window::pollEvents(UIEvents& events)
 {
-    wl_display_dispatch_queue_pending(_wlDisplay, _wlEventQueue);
+    wl_display_dispatch_pending(_wlDisplay);
+
     return Window::pollEvents(events);
 }
