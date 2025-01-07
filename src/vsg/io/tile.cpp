@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
+#include <vsg/io/write.h>
 #include <vsg/io/tile.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -563,6 +564,8 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 {
     if (!imageData) return {};
 
+    bool debugTile = false;
+
     vsg::dvec3 center = computeLatitudeLongitudeAltitude((tile_extents.min + tile_extents.max) * 0.5);
 
     uint32_t numRows = 32;
@@ -584,6 +587,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
+    if (debugTile) _graphicsPipelineConfig->copyTo(scenegraph, {});
     scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
 
     // set up model transformation node
@@ -594,6 +598,15 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     uint32_t numVertices = numRows * numCols;
     uint32_t numTriangles = (numRows - 1) * (numCols - 1) * 2;
+
+    //settings->skirtRatio = 0.0;
+
+    // if we require a feence add the number of extra veritices and triangles required
+    if (settings->skirtRatio != 0.0)
+    {
+        numVertices += 2 * (numCols + numRows);
+        numTriangles += 4 * (numCols + numRows - 2);
+    }
 
     double longitudeOrigin = tile_extents.min.x;
     double longitudeScale = (tile_extents.max.x - tile_extents.min.x) / double(numCols - 1);
@@ -665,6 +678,106 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         }
     }
 
+    // add skirt around perimeter to avoid visual gaps between adjacent tiles of different LOD level
+    if (settings->skirtRatio != 0.0)
+    {
+        float skirtHeight = static_cast<float>(tileReferenceSize * settings->skirtRatio);
+
+        // row[0]
+        uint32_t tile_bottom_row = 0;
+        uint32_t skirt_bottom_row = numRows * numCols;
+        uint32_t vi = skirt_bottom_row;
+        for(uint32_t c = 0;  c < numCols; ++c, ++vi)
+        {
+            uint32_t si = tile_bottom_row + c;
+            auto& normal = normals->at(si);
+            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+            texcoords->at(vi) = texcoords->at(si);
+            normals->at(vi) = normal;
+        }
+        for(uint32_t c = 0; c < numCols-1 ; ++c)
+        {
+            uint32_t tile_i = tile_bottom_row + c;
+            uint32_t skirt_i = skirt_bottom_row + c;
+            (*itr++) = tile_i;
+            (*itr++) = skirt_i;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = tile_i + 1;
+            (*itr++) = tile_i;
+        }
+
+        // row[numRows-1]
+        uint32_t tile_top_row = (numRows-1) * numCols;
+        uint32_t base_top_row = vi;
+        for(uint32_t c = 0;  c < numCols; ++c, ++vi)
+        {
+            uint32_t si = tile_top_row + c;
+            auto& normal = normals->at(si);
+            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+            texcoords->at(vi) = texcoords->at(si);
+            normals->at(vi) = normal;
+        }
+        for(uint32_t c = 0; c < numCols-1 ; ++c)
+        {
+            uint32_t tile_i = tile_top_row + c;
+            uint32_t skirt_i = base_top_row + c;
+            (*itr++) = tile_i;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = skirt_i;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = tile_i;
+            (*itr++) = tile_i + 1;
+        }
+
+        // colum[0]
+        uint32_t tile_left_column = 0;
+        uint32_t skirt_left_column = vi;
+        for(uint32_t r = 0;  r < numRows; ++r, ++vi)
+        {
+            uint32_t si = tile_left_column + r * numCols;
+            auto& normal = normals->at(si);
+            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+            texcoords->at(vi) = texcoords->at(si);
+            normals->at(vi) = normal;
+        }
+        for(uint32_t r = 0; r < numRows-1 ; ++r)
+        {
+            uint32_t tile_i = tile_left_column + r * numCols;
+            uint32_t skirt_i = skirt_left_column + r;
+            (*itr++) = tile_i;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = skirt_i;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = tile_i;
+            (*itr++) = tile_i + numCols;
+        }
+
+        // column[numColums-1]
+        uint32_t tile_right_column = numCols - 1;
+        uint32_t skirt_right_column = vi;
+        for(uint32_t r = 0;  r < numRows; ++r, ++vi)
+        {
+            uint32_t si = tile_right_column + r * numCols;
+            auto& normal = normals->at(si);
+            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+            texcoords->at(vi) = texcoords->at(si);
+            normals->at(vi) = normal;
+        }
+        for(uint32_t r = 0; r < numRows-1 ; ++r)
+        {
+            uint32_t tile_i = tile_right_column + r * numCols;
+            uint32_t skirt_i = skirt_right_column + r;
+            (*itr++) = tile_i;
+            (*itr++) = skirt_i;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = skirt_i + 1;
+            (*itr++) = tile_i + numCols;
+            (*itr++) = tile_i;
+        }
+
+    }
+
     vsg::DataList arrays{vertices, normals, texcoords, colors};
 
     if (elevationData)
@@ -680,6 +793,14 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     vid->instanceCount = 1;
 
     transform->addChild(vid);
+
+    if (debugTile)
+    {
+        // test purposes only
+        static std::mutex s_mutex;
+        std::scoped_lock<std::mutex> lokc(s_mutex);
+        vsg::write(scenegraph, "tile.vsgt");
+    }
 
     return scenegraph;
 }
