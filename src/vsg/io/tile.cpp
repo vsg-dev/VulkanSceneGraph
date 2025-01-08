@@ -361,7 +361,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
         {
             vsg::ComputeBounds computeBound;
             tile_node->accept(computeBound);
-            auto& bb = computeBound.bounds;
+            const auto& bb = computeBound.bounds;
             vsg::dsphere bound((bb.min.x + bb.max.x) * 0.5, (bb.min.y + bb.max.y) * 0.5, (bb.min.z + bb.max.z) * 0.5, vsg::length(bb.max - bb.min) * 0.5);
 
             if (local_lod < settings->maxLevel)
@@ -564,7 +564,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 {
     if (!imageData) return {};
 
-    bool debugTile = false;
+    #define DEBUG_TILE 0
 
     vsg::dvec3 center = computeLatitudeLongitudeAltitude((tile_extents.min + tile_extents.max) * 0.5);
 
@@ -587,7 +587,9 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
-    if (debugTile) _graphicsPipelineConfig->copyTo(scenegraph, {});
+#if DEBUG_TILE
+    _graphicsPipelineConfig->copyTo(scenegraph, {});
+#endif
     scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
 
     // set up model transformation node
@@ -690,7 +692,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         for(uint32_t c = 0;  c < numCols; ++c, ++vi)
         {
             uint32_t si = tile_bottom_row + c;
-            auto& normal = normals->at(si);
+            const auto& normal = normals->at(si);
             vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
             texcoords->at(vi) = texcoords->at(si);
             normals->at(vi) = normal;
@@ -713,7 +715,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         for(uint32_t c = 0;  c < numCols; ++c, ++vi)
         {
             uint32_t si = tile_top_row + c;
-            auto& normal = normals->at(si);
+            const auto& normal = normals->at(si);
             vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
             texcoords->at(vi) = texcoords->at(si);
             normals->at(vi) = normal;
@@ -736,7 +738,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         for(uint32_t r = 0;  r < numRows; ++r, ++vi)
         {
             uint32_t si = tile_left_column + r * numCols;
-            auto& normal = normals->at(si);
+            const auto& normal = normals->at(si);
             vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
             texcoords->at(vi) = texcoords->at(si);
             normals->at(vi) = normal;
@@ -759,7 +761,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         for(uint32_t r = 0;  r < numRows; ++r, ++vi)
         {
             uint32_t si = tile_right_column + r * numCols;
-            auto& normal = normals->at(si);
+            const auto& normal = normals->at(si);
             vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
             texcoords->at(vi) = texcoords->at(si);
             normals->at(vi) = normal;
@@ -775,7 +777,6 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
             (*itr++) = tile_i + numCols;
             (*itr++) = tile_i;
         }
-
     }
 
     vsg::DataList arrays{vertices, normals, texcoords, colors};
@@ -794,13 +795,14 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     transform->addChild(vid);
 
-    if (debugTile)
+#if DEBUG_TILE
     {
         // test purposes only
         static std::mutex s_mutex;
         std::scoped_lock<std::mutex> lokc(s_mutex);
         vsg::write(scenegraph, "tile.vsgt");
     }
+#endif
 
     return scenegraph;
 }
