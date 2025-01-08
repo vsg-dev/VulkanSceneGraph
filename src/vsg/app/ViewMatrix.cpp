@@ -20,14 +20,18 @@ void ViewMatrix::read(Input& input)
 {
     Object::read(input);
 
-    input.read("origin", origin);
+    if (input.version_greater_equal(1, 1, 8))
+        input.read("origin", origin);
+    else
+        origin = {};
 }
 
 void ViewMatrix::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("origin", origin);
+    if (output.version_greater_equal(1, 1, 8))
+        output.write("origin", origin);
 }
 
 void LookAt::read(Input& input)
