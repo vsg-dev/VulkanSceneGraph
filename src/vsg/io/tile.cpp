@@ -394,6 +394,8 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
         std::scoped_lock<std::mutex> lock(statsMutex);
         numTilesRead += 1;
         totalTimeReadingTiles += time_to_read_tile;
+
+        info("total numTilesRead = ", numTilesRead, ", time to read tile ", time_to_read_tile);
     }
 
     if (group->children.size() != 4)
@@ -457,6 +459,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
     if (settings->elevationLayer)
     {
         _graphicsPipelineConfig->enableTexture("displacementMap");
+        _graphicsPipelineConfig->enableDescriptor("displacementMapScale");
 
         auto elevationData = vsg::floatValue::create(0.0f);
         elevationData->properties.format = VK_FORMAT_R32_SFLOAT;
@@ -472,7 +475,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
 
     if (settings->elevationLayer)
     {
-        _graphicsPipelineConfig->enableArray("vsg_DisplacementScale", VK_VERTEX_INPUT_RATE_INSTANCE, 12, VK_FORMAT_R32G32B32_SFLOAT);
+        _graphicsPipelineConfig->enableArray("displacementMapScale", VK_VERTEX_INPUT_RATE_INSTANCE, 12, VK_FORMAT_R32G32B32_SFLOAT);
     }
 
     if (auto& materialBinding = _shaderSet->getDescriptorBinding("material"))
@@ -505,7 +508,7 @@ vsg::ref_ptr<vsg::StateGroup> tile::createRoot() const
     return root;
 }
 
-ref_ptr<BindDescriptorSet> tile::createBindDescriptorSet(ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData, Origin& origin) const
+ref_ptr<BindDescriptorSet> tile::createBindDescriptorSet(ref_ptr<Data> imageData, ref_ptr<Data> detailData, ref_ptr<Data> elevationData, Origin& origin, const vec3& displacementMapScale) const
 {
     // create texture image, material and associated DescriptorSets and binding
     ref_ptr<DescriptorImage> imageTexture;
@@ -537,10 +540,13 @@ ref_ptr<BindDescriptorSet> tile::createBindDescriptorSet(ref_ptr<Data> imageData
     {
         origin = Origin(elevationData->properties.origin);
         descriptors.push_back(vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
+        descriptors.push_back(vsg::DescriptorBuffer::create(vsg::vec3Value::create(displacementMapScale), 8, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER));
+
     }
     else if (_elevationFallback)
     {
         descriptors.push_back(_elevationFallback);
+        descriptors.push_back(vsg::DescriptorBuffer::create(vsg::vec3Value::create(displacementMapScale), 8, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER));
     }
 
     descriptors.push_back(_material);
@@ -564,8 +570,6 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 {
     if (!imageData) return {};
 
-    #define DEBUG_TILE 0
-
     vsg::dvec3 center = computeLatitudeLongitudeAltitude((tile_extents.min + tile_extents.max) * 0.5);
 
     uint32_t numRows = 32;
@@ -587,16 +591,28 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
-#if DEBUG_TILE
-    _graphicsPipelineConfig->copyTo(scenegraph, {});
-#endif
-    scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
+
+    double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y) * settings->ellipsoidModel->radiusEquator();
+    vec3 displacementMapScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+
+    if (elevationData)
+    {
+        switch (elevationData->properties.format)
+        {
+        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0; break;
+        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0; break;
+        default: break;
+        }
+    }
+
+    scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin, displacementMapScale));
 
     // set up model transformation node
     auto transform = vsg::MatrixTransform::create(localToWorld);
 
     // add transform to root of the scene graph
     scenegraph->addChild(transform);
+
 
     uint32_t numVertices = numRows * numCols;
     uint32_t numTriangles = (numRows - 1) * (numCols - 1) * 2;
@@ -610,199 +626,198 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         numTriangles += 4 * (numCols + numRows - 2);
     }
 
-    double longitudeOrigin = tile_extents.min.x;
-    double longitudeScale = (tile_extents.max.x - tile_extents.min.x) / double(numCols - 1);
-    double latitudeOrigin = tile_extents.min.y;
-    double latitudeScale = (tile_extents.max.y - tile_extents.min.y) / double(numRows - 1);
+    dvec4 geometryKey{tile_extents.min.y, (tile_extents.max.y - tile_extents.min.y), static_cast<double>(numRows), static_cast<double>(numCols)};
+    ref_ptr<VertexIndexDraw> vid;
 
-    float sCoordScale = 1.0f / float(numCols - 1);
-    float tCoordScale = 1.0f / float(numRows - 1);
-    float tCoordOrigin = 0.0;
-    if (origin == vsg::TOP_LEFT)
+    // check if reusable geometry exists already
     {
-        tCoordScale = -tCoordScale;
-        tCoordOrigin = 1.0f;
-    }
+        std::scoped_lock<std::mutex> lock(_geometryMapMutex);
+        if (auto itr = _geometryMap.find(geometryKey); itr != _geometryMap.end())
+        {
+            vid = itr->second;
+        }
+    };
 
-    double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y) * settings->ellipsoidModel->radiusEquator();
-    vec3 vsg_DisplacementScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
-
-    if (elevationData)
+    // if no usable geometry exist create one
+    if (!vid)
     {
-        switch (elevationData->properties.format)
+        double longitudeOrigin = tile_extents.min.x;
+        double longitudeScale = (tile_extents.max.x - tile_extents.min.x) / double(numCols - 1);
+        double latitudeOrigin = tile_extents.min.y;
+        double latitudeScale = (tile_extents.max.y - tile_extents.min.y) / double(numRows - 1);
+
+        float sCoordScale = 1.0f / float(numCols - 1);
+        float tCoordScale = 1.0f / float(numRows - 1);
+        float tCoordOrigin = 0.0;
+        if (origin == vsg::TOP_LEFT)
         {
-        case (VK_FORMAT_R16_SFLOAT): vsg_DisplacementScale.z = 1.0; break;
-        case (VK_FORMAT_R32_SFLOAT): vsg_DisplacementScale.z = 1.0; break;
-        default: break;
+            tCoordScale = -tCoordScale;
+            tCoordOrigin = 1.0f;
+        }
+
+        vsg::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // set up vertex coords
+        auto vertices = vsg::vec3Array::create(numVertices);
+        auto normals = vsg::vec3Array::create(numVertices);
+        auto texcoords = vsg::vec2Array::create(numVertices);
+        auto colors = vsg::vec4Value::create(color);
+        for (uint32_t r = 0; r < numRows; ++r)
+        {
+            for (uint32_t c = 0; c < numCols; ++c)
+            {
+                vsg::dvec3 location(longitudeOrigin + double(c) * longitudeScale, latitudeOrigin + double(r) * latitudeScale, 0.0);
+                vsg::dvec3 latitudeLongitudeAltitude = computeLatitudeLongitudeAltitude(location);
+
+                auto ecef = settings->ellipsoidModel->convertLatLongAltitudeToECEF(latitudeLongitudeAltitude);
+                vsg::vec3 vertex(worldToLocal * ecef);
+                vsg::vec3 normal(normalize(ecef * normalMatrix));
+                vsg::vec2 texcoord(float(c) * sCoordScale, tCoordOrigin + float(r) * tCoordScale);
+
+                uint32_t vi = c + r * numCols;
+                vertices->set(vi, vertex);
+                texcoords->set(vi, texcoord);
+                normals->set(vi, normal);
+            }
+        }
+
+        // set up indices
+        auto indices = vsg::uintArray::create(numTriangles * 3);
+        auto itr = indices->begin();
+        for (uint32_t r = 0; r < numRows - 1; ++r)
+        {
+            for (uint32_t c = 0; c < numCols - 1; ++c)
+            {
+                uint32_t vi = c + r * numCols;
+                (*itr++) = vi;
+                (*itr++) = vi + 1;
+                (*itr++) = vi + numCols;
+                (*itr++) = vi + numCols;
+                (*itr++) = vi + 1;
+                (*itr++) = vi + numCols + 1;
+            }
+        }
+
+        // add skirt around perimeter to avoid visual gaps between adjacent tiles of different LOD level
+        if (settings->skirtRatio != 0.0)
+        {
+            float skirtHeight = static_cast<float>(tileReferenceSize * settings->skirtRatio);
+
+            // row[0]
+            uint32_t tile_bottom_row = 0;
+            uint32_t skirt_bottom_row = numRows * numCols;
+            uint32_t vi = skirt_bottom_row;
+            for(uint32_t c = 0;  c < numCols; ++c, ++vi)
+            {
+                uint32_t si = tile_bottom_row + c;
+                const auto& normal = normals->at(si);
+                vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+                texcoords->at(vi) = texcoords->at(si);
+                normals->at(vi) = normal;
+            }
+            for(uint32_t c = 0; c < numCols-1 ; ++c)
+            {
+                uint32_t tile_i = tile_bottom_row + c;
+                uint32_t skirt_i = skirt_bottom_row + c;
+                (*itr++) = tile_i;
+                (*itr++) = skirt_i;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = tile_i + 1;
+                (*itr++) = tile_i;
+            }
+
+            // row[numRows-1]
+            uint32_t tile_top_row = (numRows-1) * numCols;
+            uint32_t base_top_row = vi;
+            for(uint32_t c = 0;  c < numCols; ++c, ++vi)
+            {
+                uint32_t si = tile_top_row + c;
+                const auto& normal = normals->at(si);
+                vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+                texcoords->at(vi) = texcoords->at(si);
+                normals->at(vi) = normal;
+            }
+            for(uint32_t c = 0; c < numCols-1 ; ++c)
+            {
+                uint32_t tile_i = tile_top_row + c;
+                uint32_t skirt_i = base_top_row + c;
+                (*itr++) = tile_i;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = skirt_i;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = tile_i;
+                (*itr++) = tile_i + 1;
+            }
+
+            // colum[0]
+            uint32_t tile_left_column = 0;
+            uint32_t skirt_left_column = vi;
+            for(uint32_t r = 0;  r < numRows; ++r, ++vi)
+            {
+                uint32_t si = tile_left_column + r * numCols;
+                const auto& normal = normals->at(si);
+                vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+                texcoords->at(vi) = texcoords->at(si);
+                normals->at(vi) = normal;
+            }
+            for(uint32_t r = 0; r < numRows-1 ; ++r)
+            {
+                uint32_t tile_i = tile_left_column + r * numCols;
+                uint32_t skirt_i = skirt_left_column + r;
+                (*itr++) = tile_i;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = skirt_i;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = tile_i;
+                (*itr++) = tile_i + numCols;
+            }
+
+            // column[numColums-1]
+            uint32_t tile_right_column = numCols - 1;
+            uint32_t skirt_right_column = vi;
+            for(uint32_t r = 0;  r < numRows; ++r, ++vi)
+            {
+                uint32_t si = tile_right_column + r * numCols;
+                const auto& normal = normals->at(si);
+                vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
+                texcoords->at(vi) = texcoords->at(si);
+                normals->at(vi) = normal;
+            }
+            for(uint32_t r = 0; r < numRows-1 ; ++r)
+            {
+                uint32_t tile_i = tile_right_column + r * numCols;
+                uint32_t skirt_i = skirt_right_column + r;
+                (*itr++) = tile_i;
+                (*itr++) = skirt_i;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = skirt_i + 1;
+                (*itr++) = tile_i + numCols;
+                (*itr++) = tile_i;
+            }
+        }
+
+        vsg::DataList arrays{vertices, normals, texcoords, colors};
+
+        if (elevationData)
+        {
+            arrays.push_back(vsg::vec3Value::create(displacementMapScale));
+        }
+
+        // setup geometry
+        vid = vsg::VertexIndexDraw::create();
+        vid->assignArrays(arrays);
+        vid->assignIndices(indices);
+        vid->indexCount = static_cast<uint32_t>(indices->size());
+        vid->instanceCount = 1;
+
+        {
+            std::scoped_lock<std::mutex> lock(_geometryMapMutex);
+            _geometryMap[geometryKey] = vid;
         }
     }
-
-    vsg::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
-
-    // set up vertex coords
-    auto vertices = vsg::vec3Array::create(numVertices);
-    auto normals = vsg::vec3Array::create(numVertices);
-    auto texcoords = vsg::vec2Array::create(numVertices);
-    auto colors = vsg::vec4Value::create(color);
-    for (uint32_t r = 0; r < numRows; ++r)
-    {
-        for (uint32_t c = 0; c < numCols; ++c)
-        {
-            vsg::dvec3 location(longitudeOrigin + double(c) * longitudeScale, latitudeOrigin + double(r) * latitudeScale, 0.0);
-            vsg::dvec3 latitudeLongitudeAltitude = computeLatitudeLongitudeAltitude(location);
-
-            auto ecef = settings->ellipsoidModel->convertLatLongAltitudeToECEF(latitudeLongitudeAltitude);
-            vsg::vec3 vertex(worldToLocal * ecef);
-            vsg::vec3 normal(normalize(ecef * normalMatrix));
-            vsg::vec2 texcoord(float(c) * sCoordScale, tCoordOrigin + float(r) * tCoordScale);
-
-            uint32_t vi = c + r * numCols;
-            vertices->set(vi, vertex);
-            texcoords->set(vi, texcoord);
-            normals->set(vi, normal);
-        }
-    }
-
-    // set up indices
-    auto indices = vsg::uintArray::create(numTriangles * 3);
-    auto itr = indices->begin();
-    for (uint32_t r = 0; r < numRows - 1; ++r)
-    {
-        for (uint32_t c = 0; c < numCols - 1; ++c)
-        {
-            uint32_t vi = c + r * numCols;
-            (*itr++) = vi;
-            (*itr++) = vi + 1;
-            (*itr++) = vi + numCols;
-            (*itr++) = vi + numCols;
-            (*itr++) = vi + 1;
-            (*itr++) = vi + numCols + 1;
-        }
-    }
-
-    // add skirt around perimeter to avoid visual gaps between adjacent tiles of different LOD level
-    if (settings->skirtRatio != 0.0)
-    {
-        float skirtHeight = static_cast<float>(tileReferenceSize * settings->skirtRatio);
-
-        // row[0]
-        uint32_t tile_bottom_row = 0;
-        uint32_t skirt_bottom_row = numRows * numCols;
-        uint32_t vi = skirt_bottom_row;
-        for(uint32_t c = 0;  c < numCols; ++c, ++vi)
-        {
-            uint32_t si = tile_bottom_row + c;
-            const auto& normal = normals->at(si);
-            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
-            texcoords->at(vi) = texcoords->at(si);
-            normals->at(vi) = normal;
-        }
-        for(uint32_t c = 0; c < numCols-1 ; ++c)
-        {
-            uint32_t tile_i = tile_bottom_row + c;
-            uint32_t skirt_i = skirt_bottom_row + c;
-            (*itr++) = tile_i;
-            (*itr++) = skirt_i;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = tile_i + 1;
-            (*itr++) = tile_i;
-        }
-
-        // row[numRows-1]
-        uint32_t tile_top_row = (numRows-1) * numCols;
-        uint32_t base_top_row = vi;
-        for(uint32_t c = 0;  c < numCols; ++c, ++vi)
-        {
-            uint32_t si = tile_top_row + c;
-            const auto& normal = normals->at(si);
-            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
-            texcoords->at(vi) = texcoords->at(si);
-            normals->at(vi) = normal;
-        }
-        for(uint32_t c = 0; c < numCols-1 ; ++c)
-        {
-            uint32_t tile_i = tile_top_row + c;
-            uint32_t skirt_i = base_top_row + c;
-            (*itr++) = tile_i;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = skirt_i;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = tile_i;
-            (*itr++) = tile_i + 1;
-        }
-
-        // colum[0]
-        uint32_t tile_left_column = 0;
-        uint32_t skirt_left_column = vi;
-        for(uint32_t r = 0;  r < numRows; ++r, ++vi)
-        {
-            uint32_t si = tile_left_column + r * numCols;
-            const auto& normal = normals->at(si);
-            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
-            texcoords->at(vi) = texcoords->at(si);
-            normals->at(vi) = normal;
-        }
-        for(uint32_t r = 0; r < numRows-1 ; ++r)
-        {
-            uint32_t tile_i = tile_left_column + r * numCols;
-            uint32_t skirt_i = skirt_left_column + r;
-            (*itr++) = tile_i;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = skirt_i;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = tile_i;
-            (*itr++) = tile_i + numCols;
-        }
-
-        // column[numColums-1]
-        uint32_t tile_right_column = numCols - 1;
-        uint32_t skirt_right_column = vi;
-        for(uint32_t r = 0;  r < numRows; ++r, ++vi)
-        {
-            uint32_t si = tile_right_column + r * numCols;
-            const auto& normal = normals->at(si);
-            vertices->at(vi) = vertices->at(si) - normal * skirtHeight;
-            texcoords->at(vi) = texcoords->at(si);
-            normals->at(vi) = normal;
-        }
-        for(uint32_t r = 0; r < numRows-1 ; ++r)
-        {
-            uint32_t tile_i = tile_right_column + r * numCols;
-            uint32_t skirt_i = skirt_right_column + r;
-            (*itr++) = tile_i;
-            (*itr++) = skirt_i;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = skirt_i + 1;
-            (*itr++) = tile_i + numCols;
-            (*itr++) = tile_i;
-        }
-    }
-
-    vsg::DataList arrays{vertices, normals, texcoords, colors};
-
-    if (elevationData)
-    {
-        arrays.push_back(vsg::vec3Value::create(vsg_DisplacementScale));
-    }
-
-    // setup geometry
-    auto vid = vsg::VertexIndexDraw::create();
-    vid->assignArrays(arrays);
-    vid->assignIndices(indices);
-    vid->indexCount = static_cast<uint32_t>(indices->size());
-    vid->instanceCount = 1;
 
     transform->addChild(vid);
-
-#if DEBUG_TILE
-    {
-        // test purposes only
-        static std::mutex s_mutex;
-        std::scoped_lock<std::mutex> lokc(s_mutex);
-        vsg::write(scenegraph, "tile.vsgt");
-    }
-#endif
 
     return scenegraph;
 }
@@ -813,9 +828,12 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, r
 
     Origin origin = vsg::TOP_LEFT;
 
+    double tileReferenceSize = tile_extents.max.y - tile_extents.min.y;
+    vec3 displacementMapScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
-    scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin));
+    scenegraph->add(createBindDescriptorSet(imageData, detailData, elevationData, origin, displacementMapScale));
 
     // set up model transformation node
     auto transform = vsg::MatrixTransform::create();
