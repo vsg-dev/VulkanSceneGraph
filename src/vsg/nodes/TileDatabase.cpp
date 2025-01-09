@@ -69,6 +69,7 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(elevationLayer, rhs.elevationLayer)) != 0) return result;
     if ((result = compare_value(elevationScale, rhs.elevationScale)) != 0) return result;
     if ((result = compare_value(skirtRatio, rhs.skirtRatio)) != 0) return result;
+    if ((result = compare_value(maxTileDimension, rhs.maxTileDimension)) != 0) return result;
     if ((result = compare_value(mipmapLevelsHint, rhs.mipmapLevelsHint)) != 0) return result;
     if ((result = compare_value(lighting, rhs.lighting)) != 0) return result;
     return compare_pointer(shaderSet, rhs.shaderSet);
@@ -91,6 +92,7 @@ void TileDatabaseSettings::read(vsg::Input& input)
         input.read("elevationLayer", elevationLayer);
         input.read("elevationScale", elevationScale);
         input.read("skirtRatio", skirtRatio);
+        input.read("maxTileDimension", maxTileDimension);
     }
     else
     {
@@ -122,6 +124,7 @@ void TileDatabaseSettings::write(vsg::Output& output) const
         output.write("elevationLayer", elevationLayer);
         output.write("elevationScale", elevationScale);
         output.write("skirtRatio", skirtRatio);
+        output.write("maxTileDimension", maxTileDimension);
     }
     else
     {

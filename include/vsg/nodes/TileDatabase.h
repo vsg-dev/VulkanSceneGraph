@@ -54,6 +54,7 @@ namespace vsg
         ProcessCallback elevationLayerCallback;
         double elevationScale = 32868.0;
         double skirtRatio = 0.02;
+        uint32_t maxTileDimension = 1024;
 
         uint32_t mipmapLevelsHint = 16;
 

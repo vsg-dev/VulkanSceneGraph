@@ -395,7 +395,7 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
         numTilesRead += 1;
         totalTimeReadingTiles += time_to_read_tile;
 
-        info("total numTilesRead = ", numTilesRead, ", time to read tile ", time_to_read_tile);
+        //info("total numTilesRead = ", numTilesRead, ", time to read tile ", time_to_read_tile);
     }
 
     if (group->children.size() != 4)
@@ -579,6 +579,9 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
         numCols = elevationData->width();
         numRows = elevationData->height();
     }
+
+    if (numCols > settings->maxTileDimension) numCols = settings->maxTileDimension;
+    if (numRows > settings->maxTileDimension) numRows = settings->maxTileDimension;
 
     auto localToWorld = settings->ellipsoidModel->computeLocalToWorldTransform(center);
     auto worldToLocal = vsg::inverse(localToWorld);
