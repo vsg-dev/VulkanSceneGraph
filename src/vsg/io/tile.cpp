@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
 #include <vsg/io/read.h>
-#include <vsg/io/write.h>
 #include <vsg/io/tile.h>
+#include <vsg/io/write.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
@@ -541,7 +541,6 @@ ref_ptr<BindDescriptorSet> tile::createBindDescriptorSet(ref_ptr<Data> imageData
         origin = Origin(elevationData->properties.origin);
         descriptors.push_back(vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER));
         descriptors.push_back(vsg::DescriptorBuffer::create(vsg::vec3Value::create(displacementMapScale), 8, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER));
-
     }
     else if (_elevationFallback)
     {
@@ -615,7 +614,6 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
 
     // add transform to root of the scene graph
     scenegraph->addChild(transform);
-
 
     uint32_t numVertices = numRows * numCols;
     uint32_t numTriangles = (numRows - 1) * (numCols - 1) * 2;
@@ -710,7 +708,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
             uint32_t tile_bottom_row = 0;
             uint32_t skirt_bottom_row = numRows * numCols;
             uint32_t vi = skirt_bottom_row;
-            for(uint32_t c = 0;  c < numCols; ++c, ++vi)
+            for (uint32_t c = 0; c < numCols; ++c, ++vi)
             {
                 uint32_t si = tile_bottom_row + c;
                 const auto& normal = normals->at(si);
@@ -718,7 +716,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
                 texcoords->at(vi) = texcoords->at(si);
                 normals->at(vi) = normal;
             }
-            for(uint32_t c = 0; c < numCols-1 ; ++c)
+            for (uint32_t c = 0; c < numCols - 1; ++c)
             {
                 uint32_t tile_i = tile_bottom_row + c;
                 uint32_t skirt_i = skirt_bottom_row + c;
@@ -731,9 +729,9 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
             }
 
             // row[numRows-1]
-            uint32_t tile_top_row = (numRows-1) * numCols;
+            uint32_t tile_top_row = (numRows - 1) * numCols;
             uint32_t base_top_row = vi;
-            for(uint32_t c = 0;  c < numCols; ++c, ++vi)
+            for (uint32_t c = 0; c < numCols; ++c, ++vi)
             {
                 uint32_t si = tile_top_row + c;
                 const auto& normal = normals->at(si);
@@ -741,7 +739,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
                 texcoords->at(vi) = texcoords->at(si);
                 normals->at(vi) = normal;
             }
-            for(uint32_t c = 0; c < numCols-1 ; ++c)
+            for (uint32_t c = 0; c < numCols - 1; ++c)
             {
                 uint32_t tile_i = tile_top_row + c;
                 uint32_t skirt_i = base_top_row + c;
@@ -756,7 +754,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
             // colum[0]
             uint32_t tile_left_column = 0;
             uint32_t skirt_left_column = vi;
-            for(uint32_t r = 0;  r < numRows; ++r, ++vi)
+            for (uint32_t r = 0; r < numRows; ++r, ++vi)
             {
                 uint32_t si = tile_left_column + r * numCols;
                 const auto& normal = normals->at(si);
@@ -764,7 +762,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
                 texcoords->at(vi) = texcoords->at(si);
                 normals->at(vi) = normal;
             }
-            for(uint32_t r = 0; r < numRows-1 ; ++r)
+            for (uint32_t r = 0; r < numRows - 1; ++r)
             {
                 uint32_t tile_i = tile_left_column + r * numCols;
                 uint32_t skirt_i = skirt_left_column + r;
@@ -779,7 +777,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
             // column[numColums-1]
             uint32_t tile_right_column = numCols - 1;
             uint32_t skirt_right_column = vi;
-            for(uint32_t r = 0;  r < numRows; ++r, ++vi)
+            for (uint32_t r = 0; r < numRows; ++r, ++vi)
             {
                 uint32_t si = tile_right_column + r * numCols;
                 const auto& normal = normals->at(si);
@@ -787,7 +785,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
                 texcoords->at(vi) = texcoords->at(si);
                 normals->at(vi) = normal;
             }
-            for(uint32_t r = 0; r < numRows-1 ; ++r)
+            for (uint32_t r = 0; r < numRows - 1; ++r)
             {
                 uint32_t tile_i = tile_right_column + r * numCols;
                 uint32_t skirt_i = skirt_right_column + r;
