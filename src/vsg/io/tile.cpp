@@ -38,6 +38,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/material.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/utils/ComputeBounds.h>
+#include <vsg/utils/ColorSpace.h>
 #include <vsg/vk/ResourceRequirements.h>
 
 using namespace vsg;
@@ -165,21 +166,33 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
             {
                 auto imagePath = getTilePath(settings->imageLayer, x, y, lod);
                 imageData = vsg::read_cast<vsg::Data>(imagePath, options);
-                if (imageData && settings->imageLayerCallback) imageData = settings->imageLayerCallback(imageData);
+                if (imageData)
+                {
+                    imageData->properties.format = vsg::uNorm_to_sRGB(imageData->properties.format);
+                    if (settings->imageLayerCallback) imageData = settings->imageLayerCallback(imageData);
+                }
             }
 
             if (settings->detailLayer)
             {
                 auto detailPath = getTilePath(settings->detailLayer, x, y, lod);
                 detailData = vsg::read_cast<vsg::Data>(detailPath, options);
-                if (detailData && settings->detailLayerCallback) detailData = settings->detailLayerCallback(detailData);
+                if (detailData)
+                {
+                    imageData->properties.format = vsg::uNorm_to_sRGB(imageData->properties.format);
+                    if (settings->detailLayerCallback) detailData = settings->detailLayerCallback(detailData);
+                }
             }
 
             if (settings->elevationLayer)
             {
                 auto terrainPath = getTilePath(settings->elevationLayer, x, y, lod);
                 elevationData = vsg::read_cast<vsg::Data>(terrainPath, options);
-                if (elevationData && settings->elevationLayerCallback) elevationData = settings->elevationLayerCallback(elevationData);
+                if (elevationData)
+                {
+                    // elevationData->properties.format = vsg::sRGB_to_uNorm(elevationData->properties.format);
+                    if (settings->elevationLayerCallback) elevationData = settings->elevationLayerCallback(elevationData);
+                }
             }
 
             auto tile_extents = computeTileExtents(x, y, lod);
@@ -335,14 +348,17 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
             if (tileID.type == 0)
             {
+                data->properties.format = vsg::uNorm_to_sRGB(data->properties.format);
                 entry.imageData = (settings->imageLayerCallback) ? settings->imageLayerCallback(data) : data;
             }
             else if (tileID.type == 1)
             {
+                data->properties.format = vsg::uNorm_to_sRGB(data->properties.format);
                 entry.detailData = (settings->detailLayerCallback) ? settings->detailLayerCallback(data) : data;
             }
             else if (tileID.type == 2)
             {
+                // data->properties.format = vsg::sRGB_to_uNorm(data->properties.format);
                 entry.elevationData = (settings->elevationLayerCallback) ? settings->elevationLayerCallback(data) : data;
             }
         }
