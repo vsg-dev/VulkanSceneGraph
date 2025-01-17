@@ -53,6 +53,12 @@ namespace vsg
     }
 
     template<typename T>
+    constexpr t_vec3<T> linear_to_sRGB(const t_vec3<T>& src)
+    {
+        return t_vec3<T>(linear_to_sRGB_component(src.r), linear_to_sRGB_component(src.g), linear_to_sRGB_component(src.b));
+    }
+
+    template<typename T>
     constexpr t_vec4<T> linear_to_sRGB(const t_vec4<T>& src)
     {
         return t_vec4<T>(linear_to_sRGB_component(src.r), linear_to_sRGB_component(src.g), linear_to_sRGB_component(src.b), src.a);
@@ -62,6 +68,12 @@ namespace vsg
     constexpr t_vec4<T> linear_to_sRGB(T r, T g, T b, T a)
     {
         return t_vec4<T>(linear_to_sRGB_component(r), linear_to_sRGB_component(g), linear_to_sRGB_component(b), a);
+    }
+
+    template<typename T>
+    constexpr t_vec3<T> sRGB_to_linear(const t_vec3<T>& src)
+    {
+        return t_vec3<T>(sRGB_to_linear_component(src.r), sRGB_to_linear_component(src.g), sRGB_to_linear_component(src.b));
     }
 
     template<typename T>
@@ -77,31 +89,10 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr t_vec4<T> linear_to_sRGB_approx(const t_vec4<T>& src)
+    void convert(T& data, ColorSpace source, ColorSpace target)
     {
-        const T exponent = static_cast<T>(1.0 / 2.2);
-        return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), src.a);
-    }
-
-    template<typename T>
-    constexpr t_vec4<T> linear_to_sRGB_approx(T r, T g, T b, T a)
-    {
-        const T exponent = static_cast<T>(1.0 / 2.2);
-        return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), a);
-    }
-
-    template<typename T>
-    constexpr t_vec4<T> sRGB_to_linear_approx(const t_vec4<T>& src)
-    {
-        const T exponent = static_cast<T>(2.2);
-        return t_vec4<T>(std::pow(src.r, exponent), std::pow(src.g, exponent), std::pow(src.b, exponent), src.a);
-    }
-
-    template<typename T>
-    constexpr t_vec4<T> sRGB_to_linear_approx(T r, T g, T b, T a)
-    {
-        const T exponent = static_cast<T>(2.2);
-        return t_vec4<T>(std::pow(r, exponent), std::pow(g, exponent), std::pow(b, exponent), a);
+        if (source==sRGB && target==linearRGB) data = sRGB_to_linear(data);
+        else if (source==linearRGB && target==sRGB) data = linear_to_sRGB(data);
     }
 
     template<typename T>
