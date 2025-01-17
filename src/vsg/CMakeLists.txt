@@ -244,6 +244,7 @@ set(SOURCES
     vk/ResourceRequirements.cpp
 
     utils/CommandLine.cpp
+    utils/ColorSpace.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp
     utils/ShaderSet.cpp
