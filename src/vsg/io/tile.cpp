@@ -168,7 +168,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 imageData = vsg::read_cast<vsg::Data>(imagePath, options);
                 if (imageData)
                 {
-                    imageData->properties.format = vsg::uNorm_to_sRGB(imageData->properties.format);
+                    //imageData->properties.format = vsg::uNorm_to_sRGB(imageData->properties.format);
                     if (settings->imageLayerCallback) imageData = settings->imageLayerCallback(imageData);
                 }
             }
@@ -179,7 +179,7 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 detailData = vsg::read_cast<vsg::Data>(detailPath, options);
                 if (detailData)
                 {
-                    imageData->properties.format = vsg::uNorm_to_sRGB(imageData->properties.format);
+                    //imageData->properties.format = vsg::uNorm_to_sRGB(imageData->properties.format);
                     if (settings->detailLayerCallback) detailData = settings->detailLayerCallback(detailData);
                 }
             }
@@ -348,12 +348,12 @@ vsg::ref_ptr<vsg::Object> tile::read_subtile(uint32_t x, uint32_t y, uint32_t lo
 
             if (tileID.type == 0)
             {
-                data->properties.format = vsg::uNorm_to_sRGB(data->properties.format);
+                //data->properties.format = vsg::uNorm_to_sRGB(data->properties.format);
                 entry.imageData = (settings->imageLayerCallback) ? settings->imageLayerCallback(data) : data;
             }
             else if (tileID.type == 1)
             {
-                data->properties.format = vsg::uNorm_to_sRGB(data->properties.format);
+                //data->properties.format = vsg::uNorm_to_sRGB(data->properties.format);
                 entry.detailData = (settings->detailLayerCallback) ? settings->detailLayerCallback(data) : data;
             }
             else if (tileID.type == 2)
