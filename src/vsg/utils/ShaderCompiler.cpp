@@ -11,8 +11,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Version.h>
-#include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/state/ComputePipeline.h>

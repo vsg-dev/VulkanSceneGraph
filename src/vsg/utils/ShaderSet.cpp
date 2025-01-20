@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/View.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/io/read.h>
 #include <vsg/state/ColorBlendState.h>
