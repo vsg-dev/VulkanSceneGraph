@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/color.h>
 #include <vsg/maths/vec4.h>
 #include <vsg/ui/ApplicationEvent.h>
-#include <vsg/vk/SubmitCommands.h>
 #include <vsg/utils/ColorSpace.h>
+#include <vsg/vk/SubmitCommands.h>
 
 #include <array>
 #include <chrono>

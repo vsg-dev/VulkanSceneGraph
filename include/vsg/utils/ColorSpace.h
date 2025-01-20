@@ -25,7 +25,6 @@ namespace vsg
         linearRGB
     };
 
-
     template<typename T>
     constexpr T linear_to_sRGB_component(T c)
     {
@@ -91,15 +90,19 @@ namespace vsg
     template<typename T>
     void convert(T& data, ColorSpace source, ColorSpace target)
     {
-        if (source==sRGB && target==linearRGB) data = sRGB_to_linear(data);
-        else if (source==linearRGB && target==sRGB) data = linear_to_sRGB(data);
+        if (source == sRGB && target == linearRGB)
+            data = sRGB_to_linear(data);
+        else if (source == linearRGB && target == sRGB)
+            data = linear_to_sRGB(data);
     }
 
     template<typename T>
     void convert(size_t num, T* data, ColorSpace source, ColorSpace target)
     {
-        if (source==sRGB && target==linearRGB) for(size_t i=0; i<num; ++i) data[i] = sRGB_to_linear(data[i]);
-        else if (source==linearRGB && target==sRGB) for(size_t i=0; i<num; ++i) data[i] = linear_to_sRGB(data[i]);
+        if (source == sRGB && target == linearRGB)
+            for (size_t i = 0; i < num; ++i) data[i] = sRGB_to_linear(data[i]);
+        else if (source == linearRGB && target == sRGB)
+            for (size_t i = 0; i < num; ++i) data[i] = linear_to_sRGB(data[i]);
     }
 
     extern VSG_DECLSPEC VkFormat uNorm_to_sRGB(VkFormat format);
