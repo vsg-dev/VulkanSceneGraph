@@ -1,6 +1,6 @@
 
-#include <vsg/io/Options.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/Options.h>
 #include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
