@@ -240,8 +240,6 @@ namespace vsg
             {
                 if (!itr->second) itr->second = ptr->clone(*this);
                 if (itr->second) return itr->second.template cast<T>();
-
-                warn("Unable to clone ", ptr);
             }
         }
         return ptr;
