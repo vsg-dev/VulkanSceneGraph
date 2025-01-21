@@ -19,10 +19,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    enum ColorSpace
+    enum class CoordinateSpace
     {
-        sRGB,
-        linearRGB
+        NO_PREFERENCE = 0,
+        LINEAR = (1 << 0),
+        sRGB = (1 << 1)
     };
 
     template<typename T>
@@ -88,20 +89,20 @@ namespace vsg
     }
 
     template<typename T>
-    void convert(T& data, ColorSpace source, ColorSpace target)
+    void convert(T& data, CoordinateSpace source, CoordinateSpace target)
     {
-        if (source == sRGB && target == linearRGB)
+        if (source == CoordinateSpace::sRGB && target == CoordinateSpace::LINEAR)
             data = sRGB_to_linear(data);
-        else if (source == linearRGB && target == sRGB)
+        else if (source == CoordinateSpace::LINEAR && target == CoordinateSpace::sRGB)
             data = linear_to_sRGB(data);
     }
 
     template<typename T>
-    void convert(size_t num, T* data, ColorSpace source, ColorSpace target)
+    void convert(size_t num, T* data, CoordinateSpace source, CoordinateSpace target)
     {
-        if (source == sRGB && target == linearRGB)
+        if (source == CoordinateSpace::sRGB && target == CoordinateSpace::LINEAR)
             for (size_t i = 0; i < num; ++i) data[i] = sRGB_to_linear(data[i]);
-        else if (source == linearRGB && target == sRGB)
+        else if (source == CoordinateSpace::LINEAR && target == CoordinateSpace::sRGB)
             for (size_t i = 0; i < num; ++i) data[i] = linear_to_sRGB(data[i]);
     }
 

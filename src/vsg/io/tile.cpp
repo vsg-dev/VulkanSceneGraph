@@ -36,7 +36,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/VertexInputState.h>
 #include <vsg/state/material.h>
 #include <vsg/ui/UIEvent.h>
-#include <vsg/utils/ColorSpace.h>
+#include <vsg/utils/CoordinateSpace.h>
 #include <vsg/utils/ComputeBounds.h>
 #include <vsg/vk/ResourceRequirements.h>
 
