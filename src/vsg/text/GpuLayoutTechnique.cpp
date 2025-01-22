@@ -199,9 +199,9 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.value().size()));
 
             auto itr = textArray->begin();
-            for (auto& c : text.value())
+            for (auto c : text.value())
             {
-                assignValue(*(itr++), font.glyphIndexForCharcode(uint16_t(c)), updated);
+                assignValue(*(itr++), font.glyphIndexForCharcode(std::make_unsigned_t<decltype(c)>(c)), updated);
             }
         }
         void apply(const ubyteArray& text) override

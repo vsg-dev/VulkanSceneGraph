@@ -42,9 +42,9 @@ namespace
         }
         void apply(const wstringValue& text) override
         {
-            for (const auto& c : text.value())
+            for (const auto c : text.value())
             {
-                character(uint16_t(c));
+                character(std::make_unsigned_t<decltype(c)>(c));
             }
         }
         void apply(const ubyteArray& text) override
@@ -280,9 +280,9 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
         void apply(const wstringValue& text) override
         {
             reserve(text.value().size());
-            for (auto& c : text.value())
+            for (auto c : text.value())
             {
-                character(uint16_t(c));
+                character(std::make_unsigned_t<decltype(c)>(c));
             }
         }
         void apply(const ubyteArray& text) override
