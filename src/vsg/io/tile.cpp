@@ -610,14 +610,14 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     auto scenegraph = vsg::StateGroup::create();
 
     double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y) * settings->ellipsoidModel->radiusEquator();
-    vec3 displacementMapScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+    vec3 displacementMapScale(static_cast<float>(tileReferenceSize), static_cast<float>(tileReferenceSize), static_cast<float>(settings->elevationScale));
 
     if (elevationData)
     {
         switch (elevationData->properties.format)
         {
-        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0; break;
-        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0; break;
+        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0f; break;
+        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0f; break;
         default: break;
         }
     }
@@ -845,7 +845,17 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, r
     Origin origin = vsg::TOP_LEFT;
 
     double tileReferenceSize = tile_extents.max.y - tile_extents.min.y;
-    vec3 displacementMapScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+    vec3 displacementMapScale(static_cast<float>(tileReferenceSize), static_cast<float>(tileReferenceSize), static_cast<float>(settings->elevationScale));
+
+    if (elevationData)
+    {
+        switch (elevationData->properties.format)
+        {
+        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0f; break;
+        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0f; break;
+        default: break;
+        }
+    }
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();
