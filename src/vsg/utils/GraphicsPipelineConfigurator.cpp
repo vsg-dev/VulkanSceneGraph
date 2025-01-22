@@ -145,8 +145,10 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
 
         if (textureData)
         {
-            if (textureBinding.coordinateSpace==vsg::CoordinateSpace::sRGB) textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
-            else if (textureBinding.coordinateSpace==vsg::CoordinateSpace::LINEAR) textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
+            if (textureBinding.coordinateSpace == vsg::CoordinateSpace::sRGB)
+                textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
+            else if (textureBinding.coordinateSpace == vsg::CoordinateSpace::LINEAR)
+                textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
         }
 
         // create texture image and associated DescriptorSets and binding
