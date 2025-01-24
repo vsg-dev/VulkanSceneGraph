@@ -37,6 +37,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/material.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/utils/ComputeBounds.h>
+#include <vsg/utils/CoordinateSpace.h>
 #include <vsg/vk/ResourceRequirements.h>
 
 using namespace vsg;
@@ -164,21 +165,30 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
             {
                 auto imagePath = getTilePath(settings->imageLayer, x, y, lod);
                 imageData = vsg::read_cast<vsg::Data>(imagePath, options);
-                if (imageData && settings->imageLayerCallback) imageData = settings->imageLayerCallback(imageData);
+                if (imageData && settings->imageLayerCallback)
+                {
+                    imageData = settings->imageLayerCallback(imageData);
+                }
             }
 
             if (settings->detailLayer)
             {
                 auto detailPath = getTilePath(settings->detailLayer, x, y, lod);
                 detailData = vsg::read_cast<vsg::Data>(detailPath, options);
-                if (detailData && settings->detailLayerCallback) detailData = settings->detailLayerCallback(detailData);
+                if (detailData && settings->detailLayerCallback)
+                {
+                    detailData = settings->detailLayerCallback(detailData);
+                }
             }
 
             if (settings->elevationLayer)
             {
                 auto terrainPath = getTilePath(settings->elevationLayer, x, y, lod);
                 elevationData = vsg::read_cast<vsg::Data>(terrainPath, options);
-                if (elevationData && settings->elevationLayerCallback) elevationData = settings->elevationLayerCallback(elevationData);
+                if (elevationData && settings->elevationLayerCallback)
+                {
+                    elevationData = settings->elevationLayerCallback(elevationData);
+                }
             }
 
             auto tile_extents = computeTileExtents(x, y, lod);
@@ -594,14 +604,14 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
     auto scenegraph = vsg::StateGroup::create();
 
     double tileReferenceSize = vsg::radians(tile_extents.max.y - tile_extents.min.y) * settings->ellipsoidModel->radiusEquator();
-    vec3 displacementMapScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+    vec3 displacementMapScale(static_cast<float>(tileReferenceSize), static_cast<float>(tileReferenceSize), static_cast<float>(settings->elevationScale));
 
     if (elevationData)
     {
         switch (elevationData->properties.format)
         {
-        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0; break;
-        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0; break;
+        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0f; break;
+        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0f; break;
         default: break;
         }
     }
@@ -829,7 +839,17 @@ vsg::ref_ptr<vsg::Node> tile::createTextureQuad(const vsg::dbox& tile_extents, r
     Origin origin = vsg::TOP_LEFT;
 
     double tileReferenceSize = tile_extents.max.y - tile_extents.min.y;
-    vec3 displacementMapScale(tileReferenceSize, tileReferenceSize, settings->elevationScale);
+    vec3 displacementMapScale(static_cast<float>(tileReferenceSize), static_cast<float>(tileReferenceSize), static_cast<float>(settings->elevationScale));
+
+    if (elevationData)
+    {
+        switch (elevationData->properties.format)
+        {
+        case (VK_FORMAT_R16_SFLOAT): displacementMapScale.z = 1.0f; break;
+        case (VK_FORMAT_R32_SFLOAT): displacementMapScale.z = 1.0f; break;
+        default: break;
+        }
+    }
 
     // create StateGroup to bind any texture state
     auto scenegraph = vsg::StateGroup::create();

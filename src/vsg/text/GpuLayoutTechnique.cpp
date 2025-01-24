@@ -236,12 +236,12 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         }
     };
 
-    ConvertString convert(*(text->font), textArray, textArrayUpdated, minimumAllocation);
-    text->text->accept(convert);
+    ConvertString converter(*(text->font), textArray, textArrayUpdated, minimumAllocation);
+    text->text->accept(converter);
 
-    if (convert.allocatedSize == 0) return;
+    if (converter.allocatedSize == 0) return;
 
-    uint32_t num_quads = convert.size;
+    uint32_t num_quads = converter.size;
 
     // set up the layout data in a form digestible by the GPU.
     if (!layoutValue)
