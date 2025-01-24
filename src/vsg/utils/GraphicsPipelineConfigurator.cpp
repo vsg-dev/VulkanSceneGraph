@@ -167,6 +167,21 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
 
+        for(auto& imageInfo : imageInfoList)
+        {
+            if (imageInfo->imageView && imageInfo->imageView->image)
+            {
+                auto textureData = imageInfo->imageView->image->data;
+                if (textureData)
+                {
+                    if (textureBinding.coordinateSpace == vsg::CoordinateSpace::sRGB)
+                        textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
+                    else if (textureBinding.coordinateSpace == vsg::CoordinateSpace::LINEAR)
+                        textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
+                }
+            }
+        }
+
         // create texture image and associated DescriptorSets and binding
         return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
                                 DescriptorImage::create(imageInfoList, textureBinding.binding, dstArrayElement, textureBinding.descriptorType));
