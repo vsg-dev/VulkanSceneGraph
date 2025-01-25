@@ -25,6 +25,28 @@ namespace vsg
         LINEAR = (1 << 0),
         sRGB = (1 << 1)
     };
+    VSG_type_name(vsg::CoordinateSpace);
+
+    inline std::istream& operator>>(std::istream& input, CoordinateSpace& coordinateSpace)
+    {
+        std::string value;
+        input >> value;
+
+        if (value == "LINEAR") coordinateSpace = CoordinateSpace::LINEAR;
+        else if (value == "sRGB") coordinateSpace = CoordinateSpace::sRGB;
+        else coordinateSpace = CoordinateSpace::NO_PREFERENCE;
+
+        return input;
+    }
+
+    inline std::ostream& operator<<(std::ostream& output, const CoordinateSpace& coordinateSpace)
+    {
+        if (coordinateSpace==CoordinateSpace::LINEAR) output<<"LINEAR";
+        else if (coordinateSpace==CoordinateSpace::sRGB) output<<"sRGB";
+        else output<<"NO_PREFERENCE";
+
+        return output;
+    }
 
     template<typename T>
     constexpr T linear_to_sRGB_component(T c)
