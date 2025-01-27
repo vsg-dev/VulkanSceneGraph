@@ -12,8 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Array.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/maths/color.h>
 
 namespace vsg
@@ -26,27 +24,6 @@ namespace vsg
         sRGB = (1 << 1)
     };
     VSG_type_name(vsg::CoordinateSpace);
-
-    inline std::istream& operator>>(std::istream& input, CoordinateSpace& coordinateSpace)
-    {
-        std::string value;
-        input >> value;
-
-        if (value == "LINEAR") coordinateSpace = CoordinateSpace::LINEAR;
-        else if (value == "sRGB") coordinateSpace = CoordinateSpace::sRGB;
-        else coordinateSpace = CoordinateSpace::NO_PREFERENCE;
-
-        return input;
-    }
-
-    inline std::ostream& operator<<(std::ostream& output, const CoordinateSpace& coordinateSpace)
-    {
-        if (coordinateSpace==CoordinateSpace::LINEAR) output<<"LINEAR";
-        else if (coordinateSpace==CoordinateSpace::sRGB) output<<"sRGB";
-        else output<<"NO_PREFERENCE";
-
-        return output;
-    }
 
     template<typename T>
     constexpr T linear_to_sRGB_component(T c)
