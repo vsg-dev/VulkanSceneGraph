@@ -259,4 +259,12 @@ namespace vsg
         return dest;
     }
 
+    template<class T>
+    ref_ptr<T> clone(vsg::ref_ptr<T> object)
+    {
+        if (!object) return {};
+        auto new_object = object->clone();
+        return new_object.template cast<T>();
+    }
+
 } // namespace vsg
