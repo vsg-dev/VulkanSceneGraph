@@ -12,8 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Array.h>
-#include <vsg/core/Inherit.h>
 #include <vsg/maths/color.h>
 
 namespace vsg
@@ -25,6 +23,7 @@ namespace vsg
         LINEAR = (1 << 0),
         sRGB = (1 << 1)
     };
+    VSG_type_name(vsg::CoordinateSpace);
 
     template<typename T>
     constexpr T linear_to_sRGB_component(T c)
