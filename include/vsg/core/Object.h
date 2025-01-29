@@ -260,6 +260,14 @@ namespace vsg
     }
 
     template<class T>
+    ref_ptr<T> clone(vsg::ref_ptr<const T> object)
+    {
+        if (!object) return {};
+        auto new_object = object->clone();
+        return new_object.template cast<T>();
+    }
+
+    template<class T>
     ref_ptr<T> clone(vsg::ref_ptr<T> object)
     {
         if (!object) return {};

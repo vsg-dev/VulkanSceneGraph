@@ -187,7 +187,7 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
 
     auto tileReader = tile::create(settings, options);
 
-    auto local_options = options ? vsg::Options::create(*options) : vsg::Options::create();
+    auto local_options = options ? vsg::clone(options) : vsg::Options::create();
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);
 
     auto result = vsg::read("root.tile", local_options);
@@ -255,7 +255,7 @@ ref_ptr<TileDatabaseSettings> vsg::createBingMapsSettings(const std::string& ima
 
         vsg::info("metadata_url = ", metadata_url);
 
-        auto txt_options = vsg::Options::create(*options);
+        auto txt_options = vsg::clone(options);
         txt_options->extensionHint = ".txt";
 
         if (auto metadata = vsg::read_cast<vsg::stringValue>(metadata_url, txt_options))
