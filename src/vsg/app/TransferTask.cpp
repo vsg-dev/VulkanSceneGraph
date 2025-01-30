@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/TransferTask.h>
 #include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/State.h>

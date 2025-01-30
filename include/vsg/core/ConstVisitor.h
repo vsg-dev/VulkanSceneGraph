@@ -265,8 +265,11 @@ namespace vsg
         virtual void apply(const block128Array&);
 
         // Array2Ds
+        virtual void apply(const byteArray2D&);
         virtual void apply(const ubyteArray2D&);
+        virtual void apply(const shortArray2D&);
         virtual void apply(const ushortArray2D&);
+        virtual void apply(const intArray2D&);
         virtual void apply(const uintArray2D&);
         virtual void apply(const floatArray2D&);
         virtual void apply(const doubleArray2D&);
@@ -298,8 +301,11 @@ namespace vsg
         virtual void apply(const block128Array2D&);
 
         // Array3Ds
+        virtual void apply(const byteArray3D&);
         virtual void apply(const ubyteArray3D&);
+        virtual void apply(const shortArray3D&);
         virtual void apply(const ushortArray3D&);
+        virtual void apply(const intArray3D&);
         virtual void apply(const uintArray3D&);
         virtual void apply(const floatArray3D&);
         virtual void apply(const doubleArray3D&);

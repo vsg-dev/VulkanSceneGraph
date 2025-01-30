@@ -36,8 +36,8 @@ Options::Options()
     propagateDynamicObjects = PropagateDynamicObjects::create();
 }
 
-Options::Options(const Options& options) :
-    Inherit(),
+Options::Options(const Options& options, const CopyOp& copyop) :
+    Inherit(options, copyop),
     sharedObjects(options.sharedObjects),
     readerWriters(options.readerWriters),
     operationThreads(options.operationThreads),

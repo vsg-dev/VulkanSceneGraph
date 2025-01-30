@@ -327,11 +327,23 @@ void ConstVisitor::apply(const block128Array& value)
 //
 // Array2Ds
 //
+void ConstVisitor::apply(const byteArray2D& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ubyteArray2D& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const shortArray2D& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ushortArray2D& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const intArray2D& value)
 {
     apply(static_cast<const Data&>(value));
 }
@@ -456,11 +468,23 @@ void ConstVisitor::apply(const block128Array2D& value)
 //
 // Array3Ds
 //
+void ConstVisitor::apply(const byteArray3D& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ubyteArray3D& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const shortArray3D& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const ushortArray3D& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const intArray3D& value)
 {
     apply(static_cast<const Data&>(value));
 }
