@@ -244,6 +244,7 @@ set(SOURCES
     vk/ResourceRequirements.cpp
 
     utils/CommandLine.cpp
+    utils/CoordinateSpace.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp
     utils/ShaderSet.cpp
@@ -268,7 +269,7 @@ set(LIBRARIES PUBLIC
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})
-    list(APPEND LIBRARIES PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+    list(INSERT LIBRARIES 0 PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
 endif()
 
 # Check for std::atomic
@@ -322,7 +323,7 @@ if (VSG_SUPPORTS_Windowing)
         set(LIBRARIES ${LIBRARIES} PRIVATE ${COCOA_LIBRARY} PRIVATE ${QUARTZCORE_LIBRARY})
     elseif (UNIX)
         if(BUILD_WAYLAND)
-            set(SOURCES ${SOURCES} platform/wayland/Wayland_Window.cpp platform/wayland/wayland-xdg-shell-protocol.c platform/wayland/xdg-decoration-client.c)
+            set(SOURCES ${SOURCES} platform/wayland/Wayland_Window.cpp platform/wayland/wayland-xdg-shell-protocol.c platform/wayland/xdg-decoration-client.c platform/wayland/xdg-output-client.c)
             set(LIBRARIES ${LIBRARIES} PRIVATE PkgConfig::wayland-client PkgConfig::wayland-cursor PkgConfig::xkbcommon)
         else()
             set(SOURCES ${SOURCES} platform/xcb/Xcb_Window.cpp)

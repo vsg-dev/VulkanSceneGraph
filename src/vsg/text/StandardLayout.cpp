@@ -37,14 +37,14 @@ namespace
         {
             for (const auto& c : text.value())
             {
-                character(uint8_t(c));
+                character(uint32_t(c));
             }
         }
         void apply(const wstringValue& text) override
         {
             for (const auto& c : text.value())
             {
-                character(uint16_t(c));
+                character(uint32_t(c));
             }
         }
         void apply(const ubyteArray& text) override
@@ -274,7 +274,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             reserve(text.value().size());
             for (auto& c : text.value())
             {
-                character(uint8_t(c));
+                character(uint32_t(c));
             }
         }
         void apply(const wstringValue& text) override
@@ -282,7 +282,7 @@ void StandardLayout::layout(const Data* text, const Font& font, TextQuads& quads
             reserve(text.value().size());
             for (auto& c : text.value())
             {
-                character(uint16_t(c));
+                character(uint32_t(c));
             }
         }
         void apply(const ubyteArray& text) override

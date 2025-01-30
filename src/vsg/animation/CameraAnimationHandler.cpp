@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/TransformSampler.h>
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 #include <vsg/nodes/MatrixTransform.h>

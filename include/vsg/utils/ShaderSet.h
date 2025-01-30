@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/Sampler.h>
 #include <vsg/state/ShaderStage.h>
+#include <vsg/utils/CoordinateSpace.h>
 
 namespace vsg
 {
@@ -27,6 +28,7 @@ namespace vsg
         std::string define;
         uint32_t location = 0;
         VkFormat format = VK_FORMAT_UNDEFINED;
+        CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE;
         ref_ptr<Data> data;
 
         int compare(const AttributeBinding& rhs) const;
@@ -44,6 +46,7 @@ namespace vsg
         VkDescriptorType descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         uint32_t descriptorCount = 0;
         VkShaderStageFlags stageFlags = 0;
+        CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE;
         ref_ptr<Data> data;
 
         int compare(const DescriptorBinding& rhs) const;
@@ -133,10 +136,10 @@ namespace vsg
         std::mutex mutex;
 
         /// add an attribute binding, Not thread safe, should only be called when initially setting up the ShaderSet
-        void addAttributeBinding(const std::string& name, const std::string& define, uint32_t location, VkFormat format, ref_ptr<Data> data);
+        void addAttributeBinding(const std::string& name, const std::string& define, uint32_t location, VkFormat format, ref_ptr<Data> data, CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE);
 
         /// add an uniform binding. Not thread safe, should only be called when initially setting up the ShaderSet
-        void addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data);
+        void addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data, CoordinateSpace coordinateSpace = CoordinateSpace::NO_PREFERENCE);
 
         [[deprecated("use addDescriptorBinding(..)")]] void addUniformBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data) { addDescriptorBinding(name, define, set, binding, descriptorType, descriptorCount, stageFlags, data); }
 

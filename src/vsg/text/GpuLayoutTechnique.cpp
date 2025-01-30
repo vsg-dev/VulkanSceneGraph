@@ -191,7 +191,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             auto itr = textArray->begin();
             for (auto& c : text.value())
             {
-                assignValue(*(itr++), font.glyphIndexForCharcode(uint8_t(c)), updated);
+                assignValue(*(itr++), font.glyphIndexForCharcode(uint32_t(c)), updated);
             }
         }
         void apply(const wstringValue& text) override
@@ -201,7 +201,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             auto itr = textArray->begin();
             for (auto& c : text.value())
             {
-                assignValue(*(itr++), font.glyphIndexForCharcode(uint16_t(c)), updated);
+                assignValue(*(itr++), font.glyphIndexForCharcode(uint32_t(c)), updated);
             }
         }
         void apply(const ubyteArray& text) override
@@ -236,12 +236,12 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         }
     };
 
-    ConvertString convert(*(text->font), textArray, textArrayUpdated, minimumAllocation);
-    text->text->accept(convert);
+    ConvertString converter(*(text->font), textArray, textArrayUpdated, minimumAllocation);
+    text->text->accept(converter);
 
-    if (convert.allocatedSize == 0) return;
+    if (converter.allocatedSize == 0) return;
 
-    uint32_t num_quads = convert.size;
+    uint32_t num_quads = converter.size;
 
     // set up the layout data in a form digestible by the GPU.
     if (!layoutValue)

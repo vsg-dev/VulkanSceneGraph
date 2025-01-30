@@ -2,6 +2,7 @@
 
 #include <vsg/core/Visitor.h>
 #include <vsg/io/FileSystem.h>
+#include <vsg/io/Options.h>
 #include <vsg/state/ShaderStage.h>
 
 namespace vsg

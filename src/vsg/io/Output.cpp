@@ -15,11 +15,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-Output::Output(ref_ptr<const Options> in_options) :
-    options(in_options),
+Output::Output() :
     version{vsgGetVersion()}
 {
     objectIDMap[nullptr] = 0;
+}
+
+Output::Output(ref_ptr<const Options> in_options) :
+    Output()
+{
+    options = in_options;
 }
 
 Output::~Output()

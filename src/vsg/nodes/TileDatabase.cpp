@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/io/tile.h>
 #include <vsg/nodes/TileDatabase.h>
@@ -37,7 +36,13 @@ TileDatabaseSettings::TileDatabaseSettings(const TileDatabaseSettings& rhs, cons
     projection(rhs.projection),
     ellipsoidModel(copyop(rhs.ellipsoidModel)),
     imageLayer(rhs.imageLayer),
-    terrainLayer(rhs.terrainLayer),
+    imageLayerCallback(rhs.imageLayerCallback),
+    detailLayer(rhs.detailLayer),
+    detailLayerCallback(rhs.detailLayerCallback),
+    elevationLayer(rhs.elevationLayer),
+    elevationLayerCallback(rhs.elevationLayerCallback),
+    elevationScale(rhs.elevationScale),
+    skirtRatio(rhs.skirtRatio),
     mipmapLevelsHint(rhs.mipmapLevelsHint),
     lighting(rhs.lighting),
     shaderSet(copyop(rhs.shaderSet))
@@ -59,7 +64,11 @@ int TileDatabaseSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(projection, rhs.projection)) != 0) return result;
     if ((result = compare_pointer(ellipsoidModel, rhs.ellipsoidModel)) != 0) return result;
     if ((result = compare_value(imageLayer, rhs.imageLayer)) != 0) return result;
-    if ((result = compare_value(terrainLayer, rhs.terrainLayer)) != 0) return result;
+    if ((result = compare_value(detailLayer, rhs.detailLayer)) != 0) return result;
+    if ((result = compare_value(elevationLayer, rhs.elevationLayer)) != 0) return result;
+    if ((result = compare_value(elevationScale, rhs.elevationScale)) != 0) return result;
+    if ((result = compare_value(skirtRatio, rhs.skirtRatio)) != 0) return result;
+    if ((result = compare_value(maxTileDimension, rhs.maxTileDimension)) != 0) return result;
     if ((result = compare_value(mipmapLevelsHint, rhs.mipmapLevelsHint)) != 0) return result;
     if ((result = compare_value(lighting, rhs.lighting)) != 0) return result;
     return compare_pointer(shaderSet, rhs.shaderSet);
@@ -76,7 +85,18 @@ void TileDatabaseSettings::read(vsg::Input& input)
     input.read("projection", projection);
     input.readObject("ellipsoidModel", ellipsoidModel);
     input.read("imageLayer", imageLayer);
-    input.read("terrainLayer", terrainLayer);
+    if (input.version_greater_equal(1, 1, 9))
+    {
+        input.read("detailLayer", detailLayer);
+        input.read("elevationLayer", elevationLayer);
+        input.read("elevationScale", elevationScale);
+        input.read("skirtRatio", skirtRatio);
+        input.read("maxTileDimension", maxTileDimension);
+    }
+    else
+    {
+        input.read("terrainLayer", elevationLayer);
+    }
     input.read("mipmapLevelsHint", mipmapLevelsHint);
 
     if (input.version_greater_equal(0, 7, 1))
@@ -97,7 +117,18 @@ void TileDatabaseSettings::write(vsg::Output& output) const
     output.write("projection", projection);
     output.writeObject("ellipsoidModel", ellipsoidModel);
     output.write("imageLayer", imageLayer);
-    output.write("terrainLayer", terrainLayer);
+    if (output.version_greater_equal(1, 1, 9))
+    {
+        output.write("detailLayer", detailLayer);
+        output.write("elevationLayer", elevationLayer);
+        output.write("elevationScale", elevationScale);
+        output.write("skirtRatio", skirtRatio);
+        output.write("maxTileDimension", maxTileDimension);
+    }
+    else
+    {
+        output.write("terrainLayer", elevationLayer);
+    }
     output.write("mipmapLevelsHint", mipmapLevelsHint);
 
     if (output.version_greater_equal(0, 7, 1))
@@ -156,7 +187,7 @@ bool TileDatabase::readDatabase(vsg::ref_ptr<const vsg::Options> options)
 
     auto tileReader = tile::create(settings, options);
 
-    auto local_options = options ? vsg::Options::create(*options) : vsg::Options::create();
+    auto local_options = options ? vsg::clone(options) : vsg::Options::create();
     local_options->readerWriters.insert(local_options->readerWriters.begin(), tileReader);
 
     auto result = vsg::read("root.tile", local_options);
@@ -224,7 +255,7 @@ ref_ptr<TileDatabaseSettings> vsg::createBingMapsSettings(const std::string& ima
 
         vsg::info("metadata_url = ", metadata_url);
 
-        auto txt_options = vsg::Options::create(*options);
+        auto txt_options = vsg::clone(options);
         txt_options->extensionHint = ".txt";
 
         if (auto metadata = vsg::read_cast<vsg::stringValue>(metadata_url, txt_options))

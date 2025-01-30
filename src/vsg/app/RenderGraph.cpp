@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/RenderGraph.h>
 #include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/lighting/Light.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/state/MultisampleState.h>

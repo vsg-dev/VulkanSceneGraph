@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/View.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/io/read.h>
 #include <vsg/state/ColorBlendState.h>
@@ -176,14 +175,14 @@ ShaderSet::~ShaderSet()
 {
 }
 
-void ShaderSet::addAttributeBinding(const std::string& name, const std::string& define, uint32_t location, VkFormat format, ref_ptr<Data> data)
+void ShaderSet::addAttributeBinding(const std::string& name, const std::string& define, uint32_t location, VkFormat format, ref_ptr<Data> data, CoordinateSpace coordinateSpace)
 {
-    attributeBindings.push_back(AttributeBinding{name, define, location, format, data});
+    attributeBindings.push_back(AttributeBinding{name, define, location, format, coordinateSpace, data});
 }
 
-void ShaderSet::addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data)
+void ShaderSet::addDescriptorBinding(const std::string& name, const std::string& define, uint32_t set, uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, ref_ptr<Data> data, CoordinateSpace coordinateSpace)
 {
-    descriptorBindings.push_back(DescriptorBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, data});
+    descriptorBindings.push_back(DescriptorBinding{name, define, set, binding, descriptorType, descriptorCount, stageFlags, coordinateSpace, data});
 }
 
 void ShaderSet::addPushConstantRange(const std::string& name, const std::string& define, VkShaderStageFlags stageFlags, uint32_t offset, uint32_t size)
@@ -322,6 +321,7 @@ void ShaderSet::read(Input& input)
         input.read("define", binding.define);
         input.read("location", binding.location);
         input.readValue<uint32_t>("format", binding.format);
+        if (input.version_greater_equal(1, 1, 10)) input.readValue<uint32_t>("coordinateSpace", binding.coordinateSpace);
         input.readObject("data", binding.data);
     }
 
@@ -336,6 +336,7 @@ void ShaderSet::read(Input& input)
         input.readValue<uint32_t>("descriptorType", binding.descriptorType);
         input.read("descriptorCount", binding.descriptorCount);
         input.readValue<uint32_t>("stageFlags", binding.stageFlags);
+        if (input.version_greater_equal(1, 1, 10)) input.readValue<uint32_t>("coordinateSpace", binding.coordinateSpace);
         input.readObject("data", binding.data);
     }
 
@@ -401,6 +402,7 @@ void ShaderSet::write(Output& output) const
         output.write("define", binding.define);
         output.write("location", binding.location);
         output.writeValue<uint32_t>("format", binding.format);
+        if (output.version_greater_equal(1, 1, 10)) output.writeValue<uint32_t>("coordinateSpace", binding.coordinateSpace);
         output.writeObject("data", binding.data);
     }
 
@@ -414,6 +416,7 @@ void ShaderSet::write(Output& output) const
         output.writeValue<uint32_t>("descriptorType", binding.descriptorType);
         output.write("descriptorCount", binding.descriptorCount);
         output.writeValue<uint32_t>("stageFlags", binding.stageFlags);
+        if (output.version_greater_equal(1, 1, 10)) output.writeValue<uint32_t>("coordinateSpace", binding.coordinateSpace);
         output.writeObject("data", binding.data);
     }
 

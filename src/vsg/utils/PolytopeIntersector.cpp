@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/Transform.h>
 #include <vsg/utils/PolytopeIntersector.h>
@@ -228,6 +227,8 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     {
         eyespace.push_back(pl * projectionMatrix);
     }
+
+    _polytopeStack.push_back(eyespace);
 
     vsg::Polytope worldspace;
     for (auto& pl : eyespace)

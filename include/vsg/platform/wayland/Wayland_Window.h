@@ -8,14 +8,16 @@
 #include <wayland-cursor.h>
 #include <xkbcommon/xkbcommon.h>
 
-#include <vsg/platform/wayland/wayland-xdg-shell-client-protocol.h>
-#include <vsg/platform/wayland/xdg-decoration-client.h>
+#include "wayland-xdg-shell-client-protocol.h"
+#include "xdg-decoration-client.h"
+#include "xdg-output-client.h"
 #include <vsg/ui/PointerEvent.h>
 #include <vulkan/vulkan_wayland.h>
 
+#include <iostream>
+
 namespace vsgWayland
 {
-
     class KeyboardMap : public vsg::Object
     {
     public:
@@ -34,6 +36,115 @@ namespace vsgWayland
     protected:
         KeycodeMap _keycodeMap;
         uint32_t _modifierMask;
+    };
+
+    class Wayland_output : public vsg::Object
+    {
+    public:
+        Wayland_output(struct wl_output *wlOutput, struct zxdg_output_manager_v1 *zxdgOutputManager) : _wlOutput(wlOutput)
+        {
+            wl_output_add_listener(wlOutput, &wl_output_listener, this);
+            if (zxdgOutputManager)
+            {
+                _zxdgOutput = zxdg_output_manager_v1_get_xdg_output(zxdgOutputManager, wlOutput);
+                zxdg_output_v1_add_listener(_zxdgOutput, &zxdg_output_v1_listener, this);
+            }
+        }
+        ~Wayland_output()
+        {
+            if (_zxdgOutput)
+            {
+                zxdg_output_v1_destroy(_zxdgOutput);
+            }
+            wl_output_destroy(_wlOutput);
+        }
+
+        struct wl_output *_wlOutput;
+        std::string _name;
+        std::string _description;
+        int _x, _y;
+        int _physical_width, _physical_height;
+        std::string _make;
+        std::string _model;
+        int _transform;
+        int _flags;
+        int _width, _height;
+        int _refresh;
+        int _factor;
+        bool _done = false;
+        struct zxdg_output_v1 *_zxdgOutput = nullptr;
+        int _logical_width, _logical_height;
+
+        constexpr static struct wl_output_listener wl_output_listener = {
+            .geometry = [](void* data, struct wl_output *, int x, int y, int physical_width, int physical_height, int subpixel, const char *make, const char *model, int transform)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_x = x;
+                output->_y = y;
+                output->_physical_width = physical_width;
+                output->_physical_height = physical_height;
+                output->_make = std::string(make);
+                output->_model = std::string(model);
+                output->_transform = transform;
+            },
+            .mode = [](void* data, struct wl_output *, unsigned int flags, int width, int height, int refresh)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_flags = flags;
+                output->_width = width;
+                output->_height = height;
+                output->_refresh = refresh;
+            },
+            .done = [](void* data, struct wl_output *)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_done = true;
+            },
+            .scale = [](void* data, struct wl_output *, int factor)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_factor = factor;
+            },
+            .name = [](void* data, struct wl_output *, const char *name)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_name = std::string(name);
+            },
+            .description = [](void* data, struct wl_output *, const char *description)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_description = std::string(description);
+            },
+        };
+
+        constexpr static struct zxdg_output_v1_listener zxdg_output_v1_listener = {
+            .logical_position = [](void* data, struct zxdg_output_v1 *, int x, int y)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_x = x;
+                output->_y = y;
+            },
+            .logical_size = [](void* data, struct zxdg_output_v1 *, int width, int height)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_logical_width = width;
+                output->_logical_height = height;
+            },
+#if defined(ZXDG_OUTPUT_V1_NAME_SINCE_VERSION)
+            .name = [](void* data, struct zxdg_output_v1 *, const char *name)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_name = std::string(name);
+            },
+#endif
+#if defined(ZXDG_OUTPUT_V1_DESCRIPTION_SINCE_VERSION)
+            .description = [](void* data, struct zxdg_output_v1 *, const char *description)
+            {
+                Wayland_output *output = static_cast<Wayland_output*>(data);
+                output->_description = std::string(description);
+            },
+#endif
+        };
     };
 
     class Wayland_surface : public vsg::Surface
@@ -90,6 +201,16 @@ namespace vsgWayland
         constexpr static struct xdg_toplevel_listener xdg_toplevel_listener = {
             .configure = xdg_toplevel_handle_configure,
             .close = xdg_toplevel_handle_close,
+#if defined(XDG_TOPLEVEL_CONFIGURE_BOUNDS_SINCE_VERSION)
+            .configure_bounds = [](void *, struct xdg_toplevel *, int32_t, int32_t)
+            {
+            },
+#endif
+#if defined(XDG_TOPLEVEL_WM_CAPABILITIES_SINCE_VERSION)
+            .wm_capabilities = [](void *, struct xdg_toplevel *, struct wl_array *)
+            {
+            },
+#endif
         };
 
         static void xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32_t serial);
@@ -122,18 +243,12 @@ namespace vsgWayland
             &registry_remove_object
         };
 
-        static void shell_surface_ping (void *data, struct wl_shell_surface *shell_surface, uint32_t serial);
-        static void shell_surface_configure(void *data, struct wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height);
-        static void shell_surface_popup_done (void *data, struct wl_shell_surface *shell_surface);
-        constexpr static struct wl_shell_surface_listener shell_surface_listener = {
-            &shell_surface_ping,
-            &shell_surface_configure,
-            &shell_surface_popup_done
-        };
-
+        bool _ownDisplay = true;
         struct wl_display* _wlDisplay = nullptr;
         struct wl_registry* _wlRegistry = nullptr;
         struct wl_compositor* _wlCompositor = nullptr;
+        std::vector<vsg::ref_ptr<Wayland_output>> _outputs;
+        struct zxdg_output_manager_v1 *_zxdgOutputManager = nullptr;
         struct wl_seat* _seat = nullptr;
         struct wl_shm* _shm = nullptr;
         struct wl_cursor_theme* _cursorTheme = nullptr;
@@ -141,6 +256,7 @@ namespace vsgWayland
         struct zxdg_decoration_manager_v1* _decorationManager = nullptr;
         struct xdg_wm_base* _xdgWmBase = nullptr;
         //struct wl_subcompositor *subcompositor;
+        bool _ownSurface = true;
         struct wl_surface* _wlSurface = nullptr;
         struct xdg_surface* _xdgSurface = nullptr;
         struct xdg_toplevel* _xdgToplevel = nullptr;
@@ -152,6 +268,8 @@ namespace vsgWayland
 
         int _width = 256;
         int _height = 256;
+        int _widthRequested = 0;
+        int _heightRequested = 0;
         int cursor_x = -1;
         int cursor_y = -1;
         bool _resize = false;

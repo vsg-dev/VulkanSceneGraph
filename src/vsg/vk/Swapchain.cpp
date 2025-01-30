@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/Surface.h>
 #include <vsg/vk/Swapchain.h>
@@ -54,7 +53,7 @@ VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(const SwapChainSupportDetails& d
     if (details.formats.empty() || (details.formats.size() == 1 && details.formats[0].format == VK_FORMAT_UNDEFINED))
     {
         warn("selectSwapSurfaceFormat() VK_FORMAT_UNDEFINED, so using fallback ");
-        return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+        return {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
     }
 
     // check if requested format is available
@@ -66,10 +65,10 @@ VkSurfaceFormatKHR vsg::selectSwapSurfaceFormat(const SwapChainSupportDetails& d
         }
     }
 
-    // fallback to checking for {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR}
+    // fallback to checking for {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR}
     for (const auto& availableFormat : details.formats)
     {
-        if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             return availableFormat;
         }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.1.9
+    VERSION 1.1.10
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES C CXX
 )
@@ -96,6 +96,8 @@ if (VSG_SUPPORTS_Windowing)
             execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/stable/xdg-shell/xdg-shell.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/wayland-xdg-shell-protocol.c)
             execute_process(COMMAND wayland-scanner client-header ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml ${PROJECT_SOURCE_DIR}/include/vsg/platform/wayland/xdg-decoration-client.h)
             execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/xdg-decoration-client.c)
+            execute_process(COMMAND wayland-scanner client-header ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-output/xdg-output-unstable-v1.xml ${PROJECT_SOURCE_DIR}/include/vsg/platform/wayland/xdg-output-client.h)
+            execute_process(COMMAND wayland-scanner private-code ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-output/xdg-output-unstable-v1.xml ${PROJECT_SOURCE_DIR}/src/vsg/platform/wayland/xdg-output-client.c)
         else()
             set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
             # just use Xcb for native windowing
@@ -182,6 +184,8 @@ set(PBR_DEFINES
     -v "VSG_DIFFUSE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_WORKFLOW_SPECGLOSS"
     -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_LIGHTMAP_MAP VSG_METALLROUGHNESS_MAP VSG_NORMAL_MAP VSG_TWO_SIDED_LIGHTING"
     -v "VSG_DIFFUSE_MAP VSG_EMISSIVE_MAP VSG_LIGHTMAP_MAP VSG_NORMAL_MAP VSG_SPECULAR_MAP VSG_WORKFLOW_SPECGLOSS"
+    -v "VSG_DISPLACEMENT_MAP VSG_DIFFUSE_MAP"
+    -v "VSG_DISPLACEMENT_MAP VSG_DETAIL_MAP VSG_DIFFUSE_MAP"
 )
 
 set(PHONG_DEFINES
@@ -189,6 +193,8 @@ set(PHONG_DEFINES
     -v "VSG_BILLBOARD"
     -v "VSG_DIFFUSE_MAP"
     -v "VSG_BILLBOARD VSG_DIFFUSE_MAP"
+    -v "VSG_DISPLACEMENT_MAP VSG_DIFFUSE_MAP"
+    -v "VSG_DISPLACEMENT_MAP VSG_DETAIL_MAP VSG_DIFFUSE_MAP"
 )
 
 set(FLAT_DEFINES
@@ -196,6 +202,8 @@ set(FLAT_DEFINES
     -v "VSG_BILLBOARD"
     -v "VSG_DIFFUSE_MAP"
     -v "VSG_BILLBOARD VSG_DIFFUSE_MAP"
+    -v "VSG_DISPLACEMENT_MAP VSG_DIFFUSE_MAP"
+    -v "VSG_DISPLACEMENT_MAP VSG_DETAIL_MAP VSG_DIFFUSE_MAP"
 )
 
 set(TEXT_DEFINES

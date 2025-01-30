@@ -282,6 +282,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
                 }
             }
 
+            vsg_shader->module->code.clear();
             glslang::GlslangToSpv(*(program->getIntermediate((EShLanguage)eshl_stage)), vsg_shader->module->code, &logger, &spvOptions);
         }
     }

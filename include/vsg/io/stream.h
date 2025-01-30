@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/utils/CoordinateSpace.h>
 
 #include <istream>
 #include <ostream>
@@ -283,5 +284,28 @@ namespace vsg
         output << "Error code: " << e.result << " | " << e.message;
         return output;
     }
+
+
+    inline std::istream& operator>>(std::istream& input, CoordinateSpace& coordinateSpace)
+    {
+        std::string value;
+        input >> value;
+
+        if (value == "LINEAR") coordinateSpace = CoordinateSpace::LINEAR;
+        else if (value == "sRGB") coordinateSpace = CoordinateSpace::sRGB;
+        else coordinateSpace = CoordinateSpace::NO_PREFERENCE;
+
+        return input;
+    }
+
+    inline std::ostream& operator<<(std::ostream& output, const CoordinateSpace& coordinateSpace)
+    {
+        if (coordinateSpace==CoordinateSpace::LINEAR) output<<"LINEAR";
+        else if (coordinateSpace==CoordinateSpace::sRGB) output<<"sRGB";
+        else output<<"NO_PREFERENCE";
+
+        return output;
+    }
+
 
 } // namespace vsg

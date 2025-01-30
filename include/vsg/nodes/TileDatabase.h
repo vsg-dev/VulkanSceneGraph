@@ -41,8 +41,21 @@ namespace vsg
         std::string projection;
         ref_ptr<EllipsoidModel> ellipsoidModel = EllipsoidModel::create();
 
+        // callback for post processing loading image, detail or terrain layers data after the source data is loaded.
+        using ProcessCallback = std::function<ref_ptr<Data>(ref_ptr<Data>)>;
+
         Path imageLayer;
-        Path terrainLayer;
+        ProcessCallback imageLayerCallback;
+
+        Path detailLayer;
+        ProcessCallback detailLayerCallback;
+
+        Path elevationLayer;
+        ProcessCallback elevationLayerCallback;
+        double elevationScale = 32868.0;
+        double skirtRatio = 0.02;
+        uint32_t maxTileDimension = 1024;
+
         uint32_t mipmapLevelsHint = 16;
 
         /// hint of whether to use flat shaded shaders or with lighting enabled.
