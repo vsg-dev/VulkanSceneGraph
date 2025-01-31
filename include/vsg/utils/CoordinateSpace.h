@@ -26,7 +26,7 @@ namespace vsg
     VSG_type_name(vsg::CoordinateSpace);
 
     template<typename T>
-    constexpr T linear_to_sRGB_component(T c)
+    constexpr T linear_to_sRGB(T c)
     {
         constexpr T cutoff = static_cast<T>(0.04045 / 12.92);
         constexpr T linearFactor = static_cast<T>(12.92);
@@ -39,7 +39,7 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr T sRGB_to_linear_component(T c)
+    constexpr T sRGB_to_linear(T c)
     {
         constexpr T cutoff = static_cast<T>(0.04045);
         constexpr T linearFactor = static_cast<T>(1.0 / 12.92);
@@ -54,37 +54,37 @@ namespace vsg
     template<typename T>
     constexpr t_vec3<T> linear_to_sRGB(const t_vec3<T>& src)
     {
-        return t_vec3<T>(linear_to_sRGB_component(src.r), linear_to_sRGB_component(src.g), linear_to_sRGB_component(src.b));
+        return t_vec3<T>(linear_to_sRGB(src.r), linear_to_sRGB(src.g), linear_to_sRGB(src.b));
     }
 
     template<typename T>
     constexpr t_vec4<T> linear_to_sRGB(const t_vec4<T>& src)
     {
-        return t_vec4<T>(linear_to_sRGB_component(src.r), linear_to_sRGB_component(src.g), linear_to_sRGB_component(src.b), src.a);
+        return t_vec4<T>(linear_to_sRGB(src.r), linear_to_sRGB(src.g), linear_to_sRGB(src.b), src.a);
     }
 
     template<typename T>
     constexpr t_vec4<T> linear_to_sRGB(T r, T g, T b, T a)
     {
-        return t_vec4<T>(linear_to_sRGB_component(r), linear_to_sRGB_component(g), linear_to_sRGB_component(b), a);
+        return t_vec4<T>(linear_to_sRGB(r), linear_to_sRGB(g), linear_to_sRGB(b), a);
     }
 
     template<typename T>
     constexpr t_vec3<T> sRGB_to_linear(const t_vec3<T>& src)
     {
-        return t_vec3<T>(sRGB_to_linear_component(src.r), sRGB_to_linear_component(src.g), sRGB_to_linear_component(src.b));
+        return t_vec3<T>(sRGB_to_linear(src.r), sRGB_to_linear(src.g), sRGB_to_linear(src.b));
     }
 
     template<typename T>
     constexpr t_vec4<T> sRGB_to_linear(const t_vec4<T>& src)
     {
-        return t_vec4<T>(sRGB_to_linear_component(src.r), sRGB_to_linear_component(src.g), sRGB_to_linear_component(src.b), src.a);
+        return t_vec4<T>(sRGB_to_linear(src.r), sRGB_to_linear(src.g), sRGB_to_linear(src.b), src.a);
     }
 
     template<typename T>
     constexpr t_vec4<T> sRGB_to_linear(T r, T g, T b, T a)
     {
-        return t_vec4<T>(sRGB_to_linear_component(r), sRGB_to_linear_component(g), sRGB_to_linear_component(b), a);
+        return t_vec4<T>(sRGB_to_linear(r), sRGB_to_linear(g), sRGB_to_linear(b), a);
     }
 
     template<typename T>
