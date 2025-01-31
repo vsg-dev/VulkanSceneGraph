@@ -136,7 +136,7 @@ namespace vsg
 
         void error(const std::string_view& str)
         {
-            if (level > LOGGER_DEBUG) return;
+            if (level > LOGGER_ERROR) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             error_implementation(str);
@@ -162,7 +162,7 @@ namespace vsg
 
         void fatal(const std::string_view& str)
         {
-            if (level > LOGGER_DEBUG) return;
+            if (level > LOGGER_FATAL) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             fatal_implementation(str);
@@ -171,7 +171,7 @@ namespace vsg
         template<typename... Args>
         void fatal(Args&&... args)
         {
-            if (level > LOGGER_ERROR) return;
+            if (level > LOGGER_FATAL) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
