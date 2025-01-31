@@ -81,6 +81,13 @@ void BinaryOutput::write(size_t num, const Path* value)
     }
 }
 
+void BinaryOutput::write(size_t num, const long double* value)
+{
+    uint32_t write_type = native_long_double_bits();
+    _write(1, &write_type);
+    _write(num, value);
+}
+
 void BinaryOutput::write(const vsg::Object* object)
 {
     if (auto itr = objectIDMap.find(object); itr != objectIDMap.end())

@@ -60,6 +60,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/AbsoluteTransform.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/nodes/Compilable.h>
+#include <vsg/nodes/CoordinateFrame.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/DepthSorted.h>
@@ -84,12 +85,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/Animation.h>
 #include <vsg/animation/AnimationGroup.h>
 #include <vsg/animation/AnimationManager.h>
-#include <vsg/animation/CameraAnimation.h>
+#include <vsg/animation/CameraAnimationHandler.h>
+#include <vsg/animation/CameraSampler.h>
 #include <vsg/animation/FindAnimations.h>
 #include <vsg/animation/Joint.h>
 #include <vsg/animation/JointSampler.h>
 #include <vsg/animation/MorphSampler.h>
 #include <vsg/animation/TransformSampler.h>
+#include <vsg/animation/time_value.h>
 
 // Lighting header files
 #include <vsg/lighting/AmbientLight.h>
@@ -179,6 +182,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/ActivityStatus.h>
 #include <vsg/threading/Affinity.h>
 #include <vsg/threading/Barrier.h>
+#include <vsg/threading/DeleteQueue.h>
 #include <vsg/threading/FrameBlock.h>
 #include <vsg/threading/Latch.h>
 #include <vsg/threading/OperationQueue.h>
@@ -283,6 +287,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/ComputeBounds.h>
+#include <vsg/utils/CoordinateSpace.h>
 #include <vsg/utils/FindDynamicObjects.h>
 #include <vsg/utils/GpuAnnotation.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
@@ -290,6 +295,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 #include <vsg/utils/LoadPagedLOD.h>
+#include <vsg/utils/PolytopeIntersector.h>
+#include <vsg/utils/PrimitiveFunctor.h>
 #include <vsg/utils/Profiler.h>
 #include <vsg/utils/PropagateDynamicObjects.h>
 #include <vsg/utils/ShaderCompiler.h>

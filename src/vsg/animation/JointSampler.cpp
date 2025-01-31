@@ -15,7 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/JointSampler.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/state/DescriptorBuffer.h>
@@ -43,7 +42,7 @@ int JointSampler::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(jointMatrices, rhs.jointMatrices)) != 0) return result;
     if ((result = compare_value_container(offsetMatrices, rhs.offsetMatrices)) != 0) return result;
     return compare_pointer(subgraph, rhs.subgraph);

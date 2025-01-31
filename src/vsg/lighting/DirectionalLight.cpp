@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/lighting/DirectionalLight.h>
 
 using namespace vsg;
@@ -31,7 +30,7 @@ int DirectionalLight::compare(const Object& rhs_object) const
     int result = Light::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(direction, rhs.direction)) != 0) return result;
     return compare_value(angleSubtended, rhs.angleSubtended);
 }

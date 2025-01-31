@@ -69,4 +69,7 @@ namespace vsg
         return start * one_minus_r + end * r;
     }
 
+    /// return the number of bits supported by the long double implementation - VisualStudio by default 64 bits, stored as 8 bytes, & Linux x86_64 defaults to 80 bits stored as 16bytes, some CPU achitectures support full 128 bits/16 bytes.
+    extern VSG_DECLSPEC uint32_t native_long_double_bits();
+
 } // namespace vsg

@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/vk/DeviceFeatures.h>
 
 using namespace vsg;
@@ -26,25 +25,14 @@ DeviceFeatures::~DeviceFeatures()
 
 VkPhysicalDeviceFeatures& DeviceFeatures::get()
 {
-    if (auto itr = _features.find(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2); itr != _features.end())
-    {
-        return reinterpret_cast<VkPhysicalDeviceFeatures2*>(itr->second)->features;
-    }
-
-    VkPhysicalDeviceFeatures2* feature = new VkPhysicalDeviceFeatures2{};
-    feature->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    feature->pNext = nullptr;
-
-    _features[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2] = reinterpret_cast<FeatureHeader*>(feature);
-
-    return feature->features;
+    return get<VkPhysicalDeviceFeatures2, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2>().features;
 }
 
 void DeviceFeatures::clear()
 {
     for (auto& feature : _features)
     {
-        delete feature.second;
+        feature.second.second(feature.second.first);
     }
 
     _features.clear();
@@ -58,10 +46,10 @@ void* DeviceFeatures::data() const
     FeatureHeader* previous = nullptr;
     for (auto itr = _features.rbegin(); itr != _features.rend(); ++itr)
     {
-        itr->second->pNext = previous;
-        previous = itr->second;
+        itr->second.first->pNext = previous;
+        previous = itr->second.first;
     }
 
     // return head of the chain
-    return const_cast<void*>(reinterpret_cast<const void*>(_features.begin()->second));
+    return const_cast<void*>(reinterpret_cast<const void*>(_features.begin()->second.first));
 }

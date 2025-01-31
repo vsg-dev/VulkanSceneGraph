@@ -36,9 +36,14 @@ using namespace vsg;
 //
 // ResourceRequirements
 //
-ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints)
+ResourceRequirements::ResourceRequirements()
 {
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
+}
+
+ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints) :
+    vsg::ResourceRequirements()
+{
     if (hints) apply(*hints);
 }
 
@@ -71,9 +76,15 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
         }
     }
 
-    numLightsRange = resourceHints.numLightsRange;
-    numShadowMapsRange = resourceHints.numShadowMapsRange;
-    shadowMapSize = resourceHints.shadowMapSize;
+    minimumBufferSize = std::max(minimumBufferSize, resourceHints.minimumBufferSize);
+    minimumDeviceMemorySize = std::max(minimumDeviceMemorySize, resourceHints.minimumDeviceMemorySize);
+    minimumStagingBufferSize = std::max(minimumStagingBufferSize, resourceHints.minimumStagingBufferSize);
+
+    numLightsRange = std::max(numLightsRange, resourceHints.numLightsRange);
+    numShadowMapsRange = std::max(numShadowMapsRange, resourceHints.numShadowMapsRange);
+    shadowMapSize = std::max(shadowMapSize, resourceHints.shadowMapSize);
+
+    dataTransferHint = resourceHints.dataTransferHint;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -183,7 +194,7 @@ void CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer
     if (registerDescriptor(descriptorBuffer))
     {
         //info("CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer) ", &descriptorBuffer);
-        for (auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
+        for (const auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
     }
 }
 
@@ -192,7 +203,7 @@ void CollectResourceRequirements::apply(const DescriptorImage& descriptorImage)
     if (registerDescriptor(descriptorImage))
     {
         //info("CollectResourceRequirements::apply(const DescriptorImage& descriptorImage) ", &descriptorImage);
-        for (auto& imageInfo : descriptorImage.imageInfoList) apply(imageInfo);
+        for (const auto& imageInfo : descriptorImage.imageInfoList) apply(imageInfo);
     }
 }
 
@@ -257,24 +268,24 @@ void CollectResourceRequirements::apply(const Bin& bin)
 
 void CollectResourceRequirements::apply(const Geometry& geometry)
 {
-    for (auto& bufferInfo : geometry.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo);
     apply(geometry.indices);
 }
 
 void CollectResourceRequirements::apply(const VertexDraw& vd)
 {
-    for (auto& bufferInfo : vd.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : vd.arrays) apply(bufferInfo);
 }
 
 void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
 {
-    for (auto& bufferInfo : vid.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : vid.arrays) apply(bufferInfo);
     apply(vid.indices);
 }
 
 void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
 {
-    for (auto& bufferInfo : bvb.arrays) apply(bufferInfo);
+    for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo);
 }
 
 void CollectResourceRequirements::apply(const BindIndexBuffer& bib)
@@ -286,14 +297,7 @@ void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo)
 {
     if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
     {
-        if (bufferInfo->data->properties.dataVariance == DYNAMIC_DATA)
-        {
-            requirements.earlyDynamicData.bufferInfos.push_back(bufferInfo);
-        }
-        else // DYNAMIC_DATA_TRANSFER_AFTER_RECORD)
-        {
-            requirements.lateDynamicData.bufferInfos.push_back(bufferInfo);
-        }
+        requirements.dynamicData.bufferInfos.push_back(bufferInfo);
     }
 }
 
@@ -305,14 +309,7 @@ void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
         auto& data = imageInfo->imageView->image->data;
         if (data && data->dynamic())
         {
-            if (data->properties.dataVariance == DYNAMIC_DATA)
-            {
-                requirements.earlyDynamicData.imageInfos.push_back(imageInfo);
-            }
-            else // DYNAMIC_DATA_TRANSFER_AFTER_RECORD)
-            {
-                requirements.lateDynamicData.imageInfos.push_back(imageInfo);
-            }
+            requirements.dynamicData.imageInfos.push_back(imageInfo);
         }
     }
 }

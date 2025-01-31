@@ -34,8 +34,9 @@ namespace vsg
     class StateGroup;
     class CullGroup;
     class CullNode;
-    class MatrixTransform;
     class Transform;
+    class MatrixTransform;
+    class CoordinateFrame;
     class Geometry;
     class VertexDraw;
     class VertexIndexDraw;
@@ -64,6 +65,7 @@ namespace vsg
     class JointSampler;
     class MorphSampler;
     class TransformSampler;
+    class CameraSampler;
     class Joint;
 
     // forward declare vulkan classes
@@ -156,6 +158,7 @@ namespace vsg
     class Viewer;
     class ViewMatrix;
     class LookAt;
+    class LookDirection;
     class RelativeViewMatrix;
     class TrackingViewMatrix;
     class ProjectionMatrix;
@@ -262,8 +265,11 @@ namespace vsg
         virtual void apply(const block128Array&);
 
         // Array2Ds
+        virtual void apply(const byteArray2D&);
         virtual void apply(const ubyteArray2D&);
+        virtual void apply(const shortArray2D&);
         virtual void apply(const ushortArray2D&);
+        virtual void apply(const intArray2D&);
         virtual void apply(const uintArray2D&);
         virtual void apply(const floatArray2D&);
         virtual void apply(const doubleArray2D&);
@@ -295,8 +301,11 @@ namespace vsg
         virtual void apply(const block128Array2D&);
 
         // Array3Ds
+        virtual void apply(const byteArray3D&);
         virtual void apply(const ubyteArray3D&);
+        virtual void apply(const shortArray3D&);
         virtual void apply(const ushortArray3D&);
+        virtual void apply(const intArray3D&);
         virtual void apply(const uintArray3D&);
         virtual void apply(const floatArray3D&);
         virtual void apply(const doubleArray3D&);
@@ -323,8 +332,9 @@ namespace vsg
         virtual void apply(const StateGroup&);
         virtual void apply(const CullGroup&);
         virtual void apply(const CullNode&);
-        virtual void apply(const MatrixTransform&);
         virtual void apply(const Transform&);
+        virtual void apply(const MatrixTransform&);
+        virtual void apply(const CoordinateFrame&);
         virtual void apply(const Geometry&);
         virtual void apply(const VertexDraw&);
         virtual void apply(const VertexIndexDraw&);
@@ -353,6 +363,7 @@ namespace vsg
         virtual void apply(const JointSampler&);
         virtual void apply(const MorphSampler&);
         virtual void apply(const TransformSampler&);
+        virtual void apply(const CameraSampler&);
         virtual void apply(const Joint&);
 
         // Vulkan nodes
@@ -444,6 +455,7 @@ namespace vsg
         virtual void apply(const Viewer&);
         virtual void apply(const ViewMatrix&);
         virtual void apply(const LookAt&);
+        virtual void apply(const LookDirection&);
         virtual void apply(const RelativeViewMatrix&);
         virtual void apply(const TrackingViewMatrix&);
         virtual void apply(const ProjectionMatrix&);

@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/CopyAndReleaseImage.h>
 #include <vsg/core/compare.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/vk/Context.h>
 
@@ -59,7 +58,7 @@ int DescriptorImage::compare(const Object& rhs_object) const
     int result = Descriptor::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     return compare_pointer_container(imageInfoList, rhs.imageInfoList);
 }
@@ -93,7 +92,7 @@ void DescriptorImage::write(Output& output) const
     Descriptor::write(output);
 
     output.writeValue<uint32_t>("images", imageInfoList.size());
-    for (auto& imageInfo : imageInfoList)
+    for (const auto& imageInfo : imageInfoList)
     {
         output.writeObject("sampler", imageInfo->sampler.get());
 
@@ -108,6 +107,8 @@ void DescriptorImage::compile(Context& context)
 {
     if (imageInfoList.empty()) return;
 
+    auto transferTask = context.transferTask.get();
+
     for (auto& imageInfo : imageInfoList)
     {
         if (imageInfo->sampler) imageInfo->sampler->compile(context);
@@ -121,13 +122,15 @@ void DescriptorImage::compile(Context& context)
             auto& imageView = *imageInfo->imageView;
             imageView.compile(context);
 
-            if (imageView.image && imageView.image->syncModifiedCount(context.deviceID))
+            if (!transferTask && imageView.image && imageView.image->syncModifiedCount(context.deviceID))
             {
-                auto& image = *imageView.image;
+                const auto& image = *imageView.image;
                 context.copy(image.data, imageInfo, image.mipLevels);
             }
         }
     }
+
+    if (transferTask) transferTask->assign(imageInfoList);
 }
 
 void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) const

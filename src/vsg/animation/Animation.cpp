@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/Animation.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/nodes/MatrixTransform.h>
 
@@ -34,7 +33,7 @@ int AnimationSampler::compare(const Object& rhs_object) const
     int result = Visitor::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(name, rhs.name);
 }
 
@@ -72,7 +71,7 @@ int Animation::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(mode, rhs.mode)) != 0) return result;
     if ((result = compare_value(speed, rhs.speed)) != 0) return result;
@@ -165,7 +164,7 @@ bool Animation::update(double simulationTime)
         sampler->update(samplerTime);
     }
 
-    if(finished)
+    if (finished)
     {
         stop(simulationTime);
         return false;

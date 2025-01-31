@@ -145,7 +145,7 @@ bool glsl::write(const Object* object, const Path& filename, ref_ptr<const Optio
 
 bool glsl::getFeatures(Features& features) const
 {
-    for (auto& ext : s_extensionToStage)
+    for (const auto& ext : s_extensionToStage)
     {
         features.extensionFeatureMap[ext.first] = static_cast<ReaderWriter::FeatureMask>(ReaderWriter::READ_FILENAME | ReaderWriter::WRITE_FILENAME);
     }

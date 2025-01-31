@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/Joint.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 
 using namespace vsg;
@@ -41,7 +40,7 @@ int Joint::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(index, rhs.index)) != 0) return result;
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(matrix, rhs.matrix)) != 0) return result;

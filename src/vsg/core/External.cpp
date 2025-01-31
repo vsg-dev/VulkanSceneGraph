@@ -105,7 +105,7 @@ void External::read(Input& input)
     // collect the ids from the files
     for (auto itr = entries.begin(); itr != entries.end(); ++itr)
     {
-        auto& objectIDRange = collectIDs.objectIDRangeMap[itr->first];
+        const auto& objectIDRange = collectIDs.objectIDRangeMap[itr->first];
         collectIDs._objectID = objectIDRange.startID;
         if (itr->second)
             itr->second->accept(collectIDs);

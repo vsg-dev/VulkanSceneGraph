@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/Descriptor.h>
 #include <vsg/state/DescriptorSetLayout.h>
 #include <vsg/vk/Context.h>
@@ -148,7 +147,7 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
         }
     }
 
-    for (auto& dsi : _recyclingList)
+    for (const auto& dsi : _recyclingList)
     {
         if (dsi->_descriptorSetLayout)
         {
@@ -197,7 +196,7 @@ void DescriptorPool::report(std::ostream& out, indentation indent) const
     out << indent << "maxSets = " << maxSets << std::endl;
     out << indent << "descriptorPoolSizes = " << descriptorPoolSizes.size() << " {" << std::endl;
     indent += 4;
-    for (auto& dps : descriptorPoolSizes)
+    for (const auto& dps : descriptorPoolSizes)
     {
         out << indent << "VkDescriptorPoolSize { " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
     }
@@ -207,7 +206,7 @@ void DescriptorPool::report(std::ostream& out, indentation indent) const
     out << indent << "_availableDescriptorSet = " << _availableDescriptorSet << std::endl;
     out << indent << "_availableDescriptorPoolSizes = " << _availableDescriptorPoolSizes.size() << " {" << std::endl;
     indent += 4;
-    for (auto& dps : _availableDescriptorPoolSizes)
+    for (const auto& dps : _availableDescriptorPoolSizes)
     {
         out << indent << "VkDescriptorPoolSize { " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
     }
@@ -216,13 +215,13 @@ void DescriptorPool::report(std::ostream& out, indentation indent) const
 
     out << indent << "_recyclingList " << _recyclingList.size() << " {" << std::endl;
     indent += 4;
-    for (auto& dsi : _recyclingList)
+    for (const auto& dsi : _recyclingList)
     {
         out << indent << "DescriptorSet::Implementation " << dsi << ", descriptorSetLayout =  " << dsi->_descriptorSetLayout << " {" << std::endl;
         indent += 4;
         if (dsi->_descriptorSetLayout)
         {
-            for (auto& binding : dsi->_descriptorSetLayout->bindings)
+            for (const auto& binding : dsi->_descriptorSetLayout->bindings)
             {
                 out << indent << "VkDescriptorSetLayoutBinding { " << binding.binding << ", " << binding.descriptorType << ", " << binding.stageFlags << ", " << binding.pImmutableSamplers << " }" << std::endl;
             }

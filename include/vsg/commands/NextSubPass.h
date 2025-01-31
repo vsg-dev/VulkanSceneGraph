@@ -21,7 +21,7 @@ namespace vsg
     class VSG_DECLSPEC NextSubPass : public Inherit<Command, NextSubPass>
     {
     public:
-        NextSubPass(VkSubpassContents in_contents = VK_SUBPASS_CONTENTS_INLINE) :
+        explicit NextSubPass(VkSubpassContents in_contents = VK_SUBPASS_CONTENTS_INLINE) :
             contents(in_contents) {}
 
         void read(Input& input) override;

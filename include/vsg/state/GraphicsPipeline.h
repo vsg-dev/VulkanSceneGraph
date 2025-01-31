@@ -108,7 +108,7 @@ namespace vsg
     class VSG_DECLSPEC BindGraphicsPipeline : public Inherit<StateCommand, BindGraphicsPipeline>
     {
     public:
-        BindGraphicsPipeline(GraphicsPipeline* in_pipeline = nullptr);
+        explicit BindGraphicsPipeline(ref_ptr<GraphicsPipeline> in_pipeline = {});
 
         /// pipeline to pass in the vkCmdBindPipeline call;
         ref_ptr<GraphicsPipeline> pipeline;

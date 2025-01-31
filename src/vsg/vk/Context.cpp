@@ -16,7 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
@@ -24,6 +23,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorSet.h>
 #include <vsg/state/DynamicState.h>
+#include <vsg/ui/UIEvent.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/DescriptorPools.h>
@@ -157,7 +157,10 @@ Context::Context(const Context& context) :
 
 Context::~Context()
 {
-    waitForCompletion();
+    if (requiresWaitForCompletion)
+    {
+        waitForCompletion();
+    }
 }
 
 ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
@@ -208,6 +211,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
 
+    // info("Context::copy(", data, ", ", dest, ") ", this, ", ", transferTask);
+
     if (!copyImageCmd)
     {
         copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
@@ -221,6 +226,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipM
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
 
+    // info("Context::copy(", data, ", ", dest, ") ", this, ", ", transferTask);
+
     if (!copyImageCmd)
     {
         copyImageCmd = CopyAndReleaseImage::create(stagingMemoryBufferPools);
@@ -233,6 +240,8 @@ void Context::copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipM
 void Context::copy(ref_ptr<BufferInfo> src, ref_ptr<BufferInfo> dest)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context copy", COLOR_COMPILE)
+
+    // info("Context::copy(", src, ", ", dest, ") ", this, ", ", transferTask);
 
     if (!copyBufferCmd)
     {
@@ -248,8 +257,6 @@ bool Context::record()
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context record", COLOR_COMPILE)
 
     if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
-
-    //auto before_compile = std::chrono::steady_clock::now();
 
     if (!fence)
     {
@@ -299,6 +306,8 @@ bool Context::record()
     submitInfo.pCommandBuffers = commandBuffer->data();
     if (semaphore)
     {
+        vsg::info("Context::record() semaphore assigned to submitInfo ", semaphore);
+
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = semaphore->data();
         submitInfo.pWaitDstStageMask = &waitDstStageMask;
@@ -311,6 +320,8 @@ bool Context::record()
 
     graphicsQueue->submit(submitInfo, fence);
 
+    requiresWaitForCompletion = true;
+
     return true;
 }
 
@@ -318,15 +329,12 @@ void Context::waitForCompletion()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context waitForCompletion", COLOR_COMPILE)
 
-    if (!commandBuffer || !fence)
+    if (!requiresWaitForCompletion || !commandBuffer || !fence)
     {
         return;
     }
 
-    if (commands.empty() && buildAccelerationStructureCommands.empty())
-    {
-        return;
-    }
+    // auto start_point = vsg::clock::now();
 
     // we must wait for the queue to empty before we can safely clean up the commandBuffer
     uint64_t timeout = 1000000000;
@@ -342,6 +350,9 @@ void Context::waitForCompletion()
         info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
     }
 
+    //vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
+
+    requiresWaitForCompletion = false;
     commands.clear();
     copyImageCmd = nullptr;
     copyBufferCmd = nullptr;

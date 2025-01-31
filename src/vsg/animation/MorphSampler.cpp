@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/animation/MorphSampler.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
+#include <vsg/io/Logger.h>
 #include <vsg/io/Output.h>
 
 using namespace vsg;
@@ -79,7 +79,7 @@ int MorphSampler::compare(const Object& rhs_object) const
     int result = AnimationSampler::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_pointer(keyframes, rhs.keyframes)) != 0) return result;
     return compare_pointer(object, rhs.object);
 }

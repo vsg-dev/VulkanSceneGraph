@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/ViewportState.h>
 #include <vsg/vk/Context.h>
@@ -29,7 +28,7 @@ int GraphicsPipelineState::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(mask, rhs.mask);
 }
 
@@ -71,7 +70,7 @@ void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_Pi
 
 void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, const GraphicsPipelineStates& src_PipelineStates)
 {
-    for (auto& src_PipelineState : src_PipelineStates)
+    for (const auto& src_PipelineState : src_PipelineStates)
     {
         mergeGraphicsPipelineStates(mask, dest_PipelineStates, src_PipelineState);
     }
@@ -102,7 +101,7 @@ int GraphicsPipeline::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer_container(stages, rhs.stages))) return result;
     if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
@@ -142,7 +141,7 @@ void GraphicsPipeline::compile(Context& context)
     {
         // compile shaders if required
         bool requiresShaderCompiler = false;
-        for (auto& shaderStage : stages)
+        for (const auto& shaderStage : stages)
         {
             if (shaderStage->module)
             {
@@ -240,7 +239,7 @@ GraphicsPipeline::Implementation::~Implementation()
 //
 // BindGraphicsPipeline
 //
-BindGraphicsPipeline::BindGraphicsPipeline(GraphicsPipeline* in_pipeline) :
+BindGraphicsPipeline::BindGraphicsPipeline(ref_ptr<GraphicsPipeline> in_pipeline) :
     Inherit(0), // slot 0
     pipeline(in_pipeline)
 {
@@ -255,7 +254,7 @@ int BindGraphicsPipeline::compare(const Object& rhs_object) const
     int result = StateCommand::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer(pipeline, rhs.pipeline);
 }
 

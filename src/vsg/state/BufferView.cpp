@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/BufferView.h>
 #include <vsg/vk/Context.h>
 
@@ -49,7 +48,7 @@ int BufferView::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(buffer, rhs.buffer))) return result;
     if ((result = compare_value(format, rhs.format))) return result;

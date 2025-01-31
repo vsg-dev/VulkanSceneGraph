@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
@@ -100,7 +99,7 @@ int DescriptorConfigurator::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
     if ((result = compare_value(blending, rhs.blending))) return result;
@@ -144,6 +143,14 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
         if (!sampler) sampler = Sampler::create();
 
+        if (textureData)
+        {
+            if (textureBinding.coordinateSpace == vsg::CoordinateSpace::sRGB)
+                textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
+            else if (textureBinding.coordinateSpace == vsg::CoordinateSpace::LINEAR)
+                textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
+        }
+
         // create texture image and associated DescriptorSets and binding
         return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
                                 DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, dstArrayElement, textureBinding.descriptorType));
@@ -159,6 +166,21 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
 
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
+
+        for(auto& imageInfo : imageInfoList)
+        {
+            if (imageInfo->imageView && imageInfo->imageView->image)
+            {
+                auto textureData = imageInfo->imageView->image->data;
+                if (textureData)
+                {
+                    if (textureBinding.coordinateSpace == vsg::CoordinateSpace::sRGB)
+                        textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
+                    else if (textureBinding.coordinateSpace == vsg::CoordinateSpace::LINEAR)
+                        textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
+                }
+            }
+        }
 
         // create texture image and associated DescriptorSets and binding
         return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
@@ -252,7 +274,7 @@ bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedS
             if (descriptorBinding.define.empty() && assigned.count(descriptorBinding.name) == 0)
             {
                 bool set_matched = false;
-                for (auto& cds : shaderSet->customDescriptorSetBindings)
+                for (const auto& cds : shaderSet->customDescriptorSetBindings)
                 {
                     if (cds->set == descriptorBinding.set)
                     {
@@ -310,7 +332,7 @@ int ArrayConfigurator::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
     if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
@@ -493,7 +515,7 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_pointer_container(pipelineStates, rhs.pipelineStates))) return result;
 
@@ -599,7 +621,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
     bool stateAssigned = false;
 
     bool pipelineUnique = true;
-    for (auto& sc : inheritedState)
+    for (const auto& sc : inheritedState)
     {
         if (compare_pointer(sc, bindGraphicsPipeline) == 0) pipelineUnique = false;
     }
@@ -632,7 +654,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
 
                 bool dsUnique = true;
-                for (auto& sc : inheritedState)
+                for (const auto& sc : inheritedState)
                 {
                     if (compare_pointer(sc, bindDescriptorSet) == 0) dsUnique = false;
                 }

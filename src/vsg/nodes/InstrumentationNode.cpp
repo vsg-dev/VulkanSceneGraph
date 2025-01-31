@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/utils/Instrumentation.h>
@@ -56,7 +55,7 @@ int InstrumentationNode::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(_level, rhs._level)) != 0) return result;
     if ((result = compare_memory(_color, rhs._color)) != 0) return result;
     return compare_value(_name, rhs._name);

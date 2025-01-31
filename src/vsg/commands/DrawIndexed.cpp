@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/core/compare.h>
-#include <vsg/io/Options.h>
 
 using namespace vsg;
 
@@ -21,7 +20,7 @@ int DrawIndexed::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_region(indexCount, firstInstance, rhs.indexCount);
 }
 

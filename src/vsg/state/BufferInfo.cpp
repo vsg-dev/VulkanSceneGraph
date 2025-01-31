@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/vk/Context.h>
 
@@ -62,7 +61,7 @@ int BufferInfo::compare(const Object& rhs_object) const
 
     if (data != rhs.data && data && rhs.data)
     {
-        if (data->properties.dataVariance != STATIC_DATA || rhs.data->properties.dataVariance != STATIC_DATA)
+        if (data->dynamic() || rhs.data->dynamic())
         {
             if (data < rhs.data) return -1;
             return 1; // from checks above it must be that data > rhs.data
@@ -177,7 +176,16 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     if (bufferInfoList.empty()) return false;
 
+    Device* device = context.device;
     auto deviceID = context.deviceID;
+    auto transferTask = context.transferTask.get();
+    VkDeviceSize alignment = 4;
+    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+        alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
+
+    //transferTask = nullptr;
 
     ref_ptr<BufferInfo> deviceBufferInfo;
     size_t numBuffersRequired = 0;
@@ -211,17 +219,9 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         return false;
     }
 
-    Device* device = context.device;
-
-    VkDeviceSize alignment = 4;
-    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
-        alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
-    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
-        alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
-
     VkDeviceSize totalSize = 0;
     VkDeviceSize offset = 0;
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         if (bufferInfo->data)
         {
@@ -267,13 +267,29 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
-    debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer.get(), ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
+    debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
 
     // assign the buffer to the bufferData entries and shift the offsets to offset within the buffer
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         bufferInfo->buffer = deviceBufferInfo->buffer;
         bufferInfo->offset += deviceBufferInfo->offset;
+    }
+
+    if (transferTask)
+    {
+        vsg::debug("vsg::createBufferAndTransferData(..)");
+
+        for (auto& bufferInfo : bufferInfoList)
+        {
+            vsg::debug("    ", bufferInfo, ", ", bufferInfo->data, ", ", bufferInfo->buffer, ", ", bufferInfo->offset);
+            bufferInfo->data->dirty();
+            bufferInfo->parent = deviceBufferInfo;
+        }
+
+        transferTask->assign(bufferInfoList);
+
+        return true;
     }
 
     auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -294,12 +310,16 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     debug("    buffer_data ", buffer_data, ", stagingBufferInfo->offset=", stagingBufferInfo->offset, ", ", totalSize);
 
-    for (auto& bufferInfo : bufferInfoList)
+    for (const auto& bufferInfo : bufferInfoList)
     {
         const Data* data = bufferInfo->data;
         if (data)
         {
             std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+            if (data->properties.dataVariance == STATIC_DATA_UNREF_AFTER_TRANSFER)
+            {
+                bufferInfo->data.reset();
+            }
         }
         bufferInfo->parent = deviceBufferInfo;
     }
@@ -341,7 +361,7 @@ BufferInfoList vsg::createHostVisibleBuffer(Device* device, const DataList& data
 
     ref_ptr<Buffer> buffer = vsg::createBufferAndMemory(device, totalSize, usage, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    for (auto& bufferData : bufferInfoList)
+    for (const auto& bufferData : bufferInfoList)
     {
         bufferData->buffer = buffer;
     }
@@ -365,7 +385,7 @@ void vsg::assignVulkanArrayData(uint32_t deviceID, const BufferInfoList& arrays,
 
     for (size_t i = 0; i < arrays.size(); ++i)
     {
-        auto& bufferInfo = arrays[i];
+        const auto& bufferInfo = arrays[i];
         if (bufferInfo->buffer)
         {
             vkd.vkBuffers[i] = bufferInfo->buffer->vk(deviceID);

@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/lighting/AmbientLight.h>
 #include <vsg/lighting/DirectionalLight.h>
 #include <vsg/nodes/AbsoluteTransform.h>
@@ -35,7 +34,7 @@ int Light::compare(const Object& rhs_object) const
     int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     if ((result = compare_value(color, rhs.color)) != 0) return result;
     if ((result = compare_value(intensity, rhs.intensity)) != 0) return result;
@@ -75,12 +74,12 @@ ref_ptr<vsg::Node> vsg::createHeadlight()
     auto ambientLight = vsg::AmbientLight::create();
     ambientLight->name = "ambient";
     ambientLight->color.set(1.0f, 1.0f, 1.0f);
-    ambientLight->intensity = 0.05f;
+    ambientLight->intensity = 0.0044f;
 
     auto directionalLight = vsg::DirectionalLight::create();
     directionalLight->name = "headlight";
     directionalLight->color.set(1.0f, 1.0f, 1.0f);
-    directionalLight->intensity = 0.95f;
+    directionalLight->intensity = 0.9956f;
     directionalLight->direction.set(0.0, 0.0, -1.0);
 
     auto absoluteTransform = vsg::AbsoluteTransform::create();

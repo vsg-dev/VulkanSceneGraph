@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/PagedLOD.h>
 
 using namespace vsg;
@@ -179,7 +178,7 @@ void PagedLODContainer::print(std::ostream& fout)
 
     for (unsigned i = 0; i < total_size; ++i)
     {
-        auto& element = elements[i];
+        const auto& element = elements[i];
         fout << "         element[" << i << "] plod = " << element.plod.get() << ", previous =" << element.previous << ", next = " << element.next << ", list = ";
         if (element.list)
             fout << element.list->name;

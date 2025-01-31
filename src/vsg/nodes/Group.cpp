@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/compare.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/Output.h>
 #include <vsg/nodes/Group.h>
 
@@ -38,7 +37,7 @@ int Group::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_pointer_container(children, rhs.children);
 }
 

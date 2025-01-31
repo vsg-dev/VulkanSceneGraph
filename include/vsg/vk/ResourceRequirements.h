@@ -29,8 +29,9 @@ namespace vsg
     class VSG_DECLSPEC ResourceRequirements
     {
     public:
-        ResourceRequirements(ref_ptr<ResourceHints> hints = {});
+        ResourceRequirements();
         ResourceRequirements(const ResourceRequirements& rhs) = default;
+        explicit ResourceRequirements(ref_ptr<ResourceHints> hints);
 
         ResourceRequirements& operator=(const ResourceRequirements& rhs) = default;
 
@@ -79,8 +80,7 @@ namespace vsg
             }
         };
 
-        DynamicData earlyDynamicData;
-        DynamicData lateDynamicData;
+        DynamicData dynamicData;
 
         Descriptors descriptors;
         DescriptorSets descriptorSets;
@@ -95,9 +95,13 @@ namespace vsg
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
 
+        VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
+
         uivec2 numLightsRange = {8, 1024};
         uivec2 numShadowMapsRange = {0, 64};
         uivec2 shadowMapSize = {2048, 2048};
+
+        DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
     };
     VSG_type_name(vsg::ResourceRequirements);
 

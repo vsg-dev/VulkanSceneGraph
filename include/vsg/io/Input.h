@@ -45,6 +45,7 @@ namespace vsg
     public:
         Input(ref_ptr<ObjectFactory> in_objectFactory, ref_ptr<const Options> in_options = {});
 
+        Input(const Input& output) = delete;
         Input& operator=(const Input& rhs) = delete;
 
         /// return true if property name matches the next token in the stream, or if property names are not required for format
@@ -61,6 +62,7 @@ namespace vsg
         virtual void read(size_t num, uint64_t* value) = 0;
         virtual void read(size_t num, float* value) = 0;
         virtual void read(size_t num, double* value) = 0;
+        virtual void read(size_t num, long double* value) = 0;
         virtual void read(size_t num, std::string* value) = 0;
         virtual void read(size_t num, std::wstring* value) = 0;
         virtual void read(size_t num, Path* value) = 0;
@@ -78,6 +80,9 @@ namespace vsg
         void read(size_t num, vec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dvec3* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ldvec4* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ldvec2* value) { read(num * value->size(), value->data()); }
+        void read(size_t num, ldvec3* value) { read(num * value->size(), value->data()); }
         void read(size_t num, dvec4* value) { read(num * value->size(), value->data()); }
         void read(size_t num, bvec2* value) { read(num * value->size(), value->data()); }
         void read(size_t num, bvec3* value) { read(num * value->size(), value->data()); }

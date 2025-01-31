@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/RegionOfInterest.h>
 
@@ -37,7 +36,7 @@ int RegionOfInterest::compare(const Object& rhs_object) const
     int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(mask, rhs.mask)) != 0) return result;
     if ((result = compare_value(name, rhs.name)) != 0) return result;
     return compare_value_container(points, rhs.points);

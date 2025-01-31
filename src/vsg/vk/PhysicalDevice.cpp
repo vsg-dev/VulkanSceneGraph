@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/vk/PhysicalDevice.h>
 
 using namespace vsg;
@@ -107,7 +106,7 @@ std::vector<VkExtensionProperties> PhysicalDevice::enumerateDeviceExtensionPrope
 bool PhysicalDevice::supportsDeviceExtension(const char* extensionName)
 {
     auto extensionProperties = enumerateDeviceExtensionProperties();
-    for (auto& extensionProperty : extensionProperties)
+    for (const auto& extensionProperty : extensionProperties)
     {
         if (std::strncmp(extensionProperty.extensionName, extensionName, VK_MAX_EXTENSION_NAME_SIZE) == 0)
             return true;

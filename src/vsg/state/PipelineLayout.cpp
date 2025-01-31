@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/PipelineLayout.h>
 #include <vsg/vk/Context.h>
 
@@ -51,7 +50,7 @@ int PipelineLayout::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
 
     if ((result = compare_value(flags, rhs.flags))) return result;
     if ((result = compare_pointer_container(setLayouts, rhs.setLayouts))) return result;
@@ -86,13 +85,13 @@ void PipelineLayout::write(Output& output) const
     output.writeValue<uint32_t>("flags", flags);
 
     output.writeValue<uint32_t>("setLayouts", setLayouts.size());
-    for (auto& descriptorLayout : setLayouts)
+    for (const auto& descriptorLayout : setLayouts)
     {
         output.writeObject("descriptorLayout", descriptorLayout);
     }
 
     output.writeValue<uint32_t>("pushConstantRanges", pushConstantRanges.size());
-    for (auto& pushConstantRange : pushConstantRanges)
+    for (const auto& pushConstantRange : pushConstantRanges)
     {
         output.writeValue<uint32_t>("stageFlags", pushConstantRange.stageFlags);
         output.write("offset", pushConstantRange.offset);

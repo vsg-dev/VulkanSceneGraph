@@ -80,6 +80,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     if (window && !window->visible())
     {
+        //vsg::info("CommandGraph::record() ", frameStamp->frameCount, " window not visible.");
         return;
     }
 

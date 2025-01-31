@@ -125,7 +125,7 @@ PathObjects vsg::read(const Paths& filenames, ref_ptr<const Options> options)
     if (operationThreads && filenames.size() > 1)
     {
         // set up the entries container for operations to write to.
-        for (auto& filename : filenames)
+        for (const auto& filename : filenames)
         {
             entries[filename] = nullptr;
         }

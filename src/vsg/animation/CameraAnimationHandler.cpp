@@ -10,10 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/animation/CameraAnimation.h>
+#include <vsg/animation/CameraAnimationHandler.h>
+#include <vsg/animation/TransformSampler.h>
 #include <vsg/app/Camera.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/io/write.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -22,7 +22,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
+CameraAnimationHandler::CameraAnimationHandler()
+{
+}
+
+CameraAnimationHandler::CameraAnimationHandler(ref_ptr<Object> in_object, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
     options(in_options)
@@ -35,28 +39,46 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
             {
                 for (auto sampler : animation->samplers)
                 {
-                    if (auto ts = sampler.cast<TransformSampler>())
+                    if (auto cs = sampler.cast<CameraSampler>())
                     {
-                        transformSampler = ts;
+                        cameraSampler = cs;
                         break;
                     }
                 }
             }
-            else if ((transformSampler = read_object.cast<TransformSampler>()))
+            else if ((cameraSampler = read_object.cast<CameraSampler>()))
             {
                 animation = Animation::create();
-                animation->samplers.push_back(transformSampler);
+                animation->samplers.push_back(cameraSampler);
+            }
+            else if (auto ts = read_object.cast<TransformSampler>())
+            {
+                auto tkf = ts->keyframes;
+
+                // convert TransformSampler to CameraSampler
+                cameraSampler = CameraSampler::create();
+                cameraSampler->name = ts->name;
+                const auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
+
+                ckf->positions = tkf->positions;
+                ckf->rotations = tkf->rotations;
+
+                animation = Animation::create();
+                animation->samplers.push_back(cameraSampler);
             }
             else if (auto keyframes = read_object.cast<TransformKeyframes>())
             {
-                transformSampler = TransformSampler::create();
-                transformSampler->keyframes = keyframes;
+                cameraSampler = CameraSampler::create();
+                const auto& ckf = cameraSampler->keyframes = CameraKeyframes::create();
+
+                ckf->positions = keyframes->positions;
+                ckf->rotations = keyframes->rotations;
 
                 animation = Animation::create();
-                animation->samplers.push_back(transformSampler);
+                animation->samplers.push_back(cameraSampler);
             }
         }
-        if (object && transformSampler) transformSampler->object = object;
+        if (object && cameraSampler) cameraSampler->object = object;
     }
     else
     {
@@ -64,7 +86,7 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, const Path& in_filen
     }
 }
 
-CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename, ref_ptr<Options> in_options) :
+CameraAnimationHandler::CameraAnimationHandler(ref_ptr<Object> in_object, ref_ptr<Animation> in_animation, const Path& in_filename, ref_ptr<Options> in_options) :
     object(in_object),
     filename(in_filename),
     options(in_options),
@@ -74,50 +96,53 @@ CameraAnimation::CameraAnimation(ref_ptr<Object> in_object, ref_ptr<Animation> i
     {
         for (auto& sampler : animation->samplers)
         {
-            if (auto ts = sampler.cast<TransformSampler>())
+            if (auto ts = sampler.cast<CameraSampler>())
             {
-                transformSampler = ts;
-                transformSampler->object = object;
+                cameraSampler = ts;
+                cameraSampler->object = object;
                 break;
             }
         }
     }
 }
 
-void CameraAnimation::apply(Camera& camera)
+void CameraAnimationHandler::apply(Camera& camera)
 {
-    if (transformSampler)
+    info("CameraAnimationHandler::apply(Camera& camera) ", cameraSampler);
+
+    if (cameraSampler)
     {
-        auto& keyframes = transformSampler->keyframes;
-        if (!keyframes) keyframes = TransformKeyframes::create();
+
+        auto& keyframes = cameraSampler->keyframes;
+        if (!keyframes) keyframes = CameraKeyframes::create();
 
         dvec3 position, scale;
         dquat orientation;
         auto matrix = camera.viewMatrix->inverse();
         if (decompose(matrix, position, orientation, scale))
         {
-            keyframes->add(simulationTime - startTime, position, orientation, scale);
+            keyframes->add(simulationTime - startTime, position, orientation);
         }
     }
 }
 
-void CameraAnimation::apply(MatrixTransform& transform)
+void CameraAnimationHandler::apply(MatrixTransform& transform)
 {
-    if (transformSampler)
+    if (cameraSampler)
     {
-        auto& keyframes = transformSampler->keyframes;
-        if (!keyframes) keyframes = TransformKeyframes::create();
+        auto& keyframes = cameraSampler->keyframes;
+        if (!keyframes) keyframes = CameraKeyframes::create();
 
         dvec3 position, scale;
         dquat orientation;
         if (decompose(transform.matrix, position, orientation, scale))
         {
-            keyframes->add(simulationTime - startTime, position, orientation, scale);
+            keyframes->add(simulationTime - startTime, position, orientation);
         }
     }
 }
 
-void CameraAnimation::play()
+void CameraAnimationHandler::play()
 {
     if (playing) return;
 
@@ -125,7 +150,7 @@ void CameraAnimation::play()
     if (playing) info("Starting playback.");
 }
 
-void CameraAnimation::record()
+void CameraAnimationHandler::record()
 {
     if (recording) return;
 
@@ -137,25 +162,25 @@ void CameraAnimation::record()
     {
         animation = Animation::create();
     }
-    if (!transformSampler)
+    if (!cameraSampler)
     {
-        transformSampler = TransformSampler::create();
-        transformSampler->object = object;
+        cameraSampler = CameraSampler::create();
+        cameraSampler->object = object;
 
-        animation->samplers.push_back(transformSampler);
+        animation->samplers.push_back(cameraSampler);
     }
 
-    if (transformSampler->keyframes)
+    if (cameraSampler->keyframes)
     {
-        transformSampler->keyframes->clear();
+        cameraSampler->keyframes->clear();
     }
     else
     {
-        transformSampler->keyframes = TransformKeyframes::create();
+        cameraSampler->keyframes = CameraKeyframes::create();
     }
 }
 
-void CameraAnimation::stop()
+void CameraAnimationHandler::stop()
 {
     if (playing)
     {
@@ -179,7 +204,7 @@ void CameraAnimation::stop()
     }
 }
 
-void CameraAnimation::apply(KeyPressEvent& keyPress)
+void CameraAnimationHandler::apply(KeyPressEvent& keyPress)
 {
     if (keyPress.keyModified == togglePlaybackKey)
     {
@@ -209,7 +234,7 @@ void CameraAnimation::apply(KeyPressEvent& keyPress)
     }
 }
 
-void CameraAnimation::apply(FrameEvent& frame)
+void CameraAnimationHandler::apply(FrameEvent& frame)
 {
     simulationTime = frame.frameStamp->simulationTime;
 

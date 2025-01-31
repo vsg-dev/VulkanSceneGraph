@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/vk/RenderPass.h>
 
 #include <array>
@@ -23,7 +22,7 @@ using namespace vsg;
 inline VkSampleCountFlagBits computeMaxSamples(const RenderPass::Attachments& attachments)
 {
     VkSampleCountFlagBits maxSamples = VK_SAMPLE_COUNT_1_BIT;
-    for (auto& attachment : attachments)
+    for (const auto& attachment : attachments)
     {
         if (attachment.samples > maxSamples) maxSamples = attachment.samples;
     }

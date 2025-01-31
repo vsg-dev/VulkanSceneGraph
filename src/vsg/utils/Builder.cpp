@@ -91,7 +91,7 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         graphicsPipelineConfig->assignTexture("displacementMap", stateInfo.displacementMap, sampler);
     }
 
-    if (auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
+    if (const auto& materialBinding = activeShaderSet->getDescriptorBinding("material"))
     {
         ref_ptr<Data> mat = materialBinding.data;
         if (!mat) mat = vsg::PhongMaterialValue::create();
@@ -247,12 +247,12 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
             if (auto v3a = info.positions.cast<vec3Array>())
             {
                 box bound;
-                for (auto& v : *v3a)
+                for (const auto& v : *v3a)
                 {
                     bound.add(v);
                 }
                 cullNode->bound.center = (bound.min + bound.max) * 0.5f;
-                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz);
+                cullNode->bound.radius = vsg::length(bound.max - bound.min) * 0.5 + vsg::length(info.dx + info.dy + info.dz) * 0.5;
             }
             else
             {
@@ -263,7 +263,7 @@ ref_ptr<Node> Builder::decorateAndCompileIfRequired(const GeometryInfo& info, co
         else
         {
             cullNode->bound.center = info.position;
-            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz);
+            cullNode->bound.radius = vsg::length(info.dx + info.dy + info.dz) * 0.5;
         }
 
         subgraph = cullNode;
@@ -466,7 +466,7 @@ ref_ptr<Node> Builder::createCapsule(const GeometryInfo& info, const StateInfo& 
     {
         unsigned int vi = c * 2;
         float r = float(c) / float(num_columns - 1);
-        float alpha = (r)*2.0f * PIf;
+        float alpha = (r) * 2.0f * PIf;
         v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
         n = normalize(v);
 
@@ -690,7 +690,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = 1 + c;
             float r = float(c) / float(num_columns);
-            alpha = (r)*2.0f * PIf;
+            alpha = (r) * 2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -750,7 +750,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            alpha = (r)*2.0f * PIf;
+            alpha = (r) * 2.0f * PIf;
             v = edge(alpha);
             n = normal(alpha);
 
@@ -790,7 +790,7 @@ ref_ptr<Node> Builder::createCone(const GeometryInfo& info, const StateInfo& sta
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                alpha = (r)*2.0f * PIf;
+                alpha = (r) * 2.0f * PIf;
                 v = edge(alpha);
 
                 unsigned int vi = bottom_i + c;
@@ -883,7 +883,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0f * PIf;
+            float alpha = (r) * 2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -963,7 +963,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
         {
             unsigned int vi = c * 2;
             float r = float(c) / float(num_columns - 1);
-            float alpha = (r)*2.0f * PIf;
+            float alpha = (r) * 2.0f * PIf;
             v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
             n = normalize(v);
 
@@ -1017,7 +1017,7 @@ ref_ptr<Node> Builder::createCylinder(const GeometryInfo& info, const StateInfo&
             for (unsigned int c = 1; c < num_columns - 1; ++c)
             {
                 float r = float(c) / float(num_columns - 1);
-                float alpha = (r)*2.0f * PIf;
+                float alpha = (r) * 2.0f * PIf;
                 v = dx * (-sinf(alpha)) + dy * (cosf(alpha));
                 n = normalize(v);
 
@@ -1106,7 +1106,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
     for (unsigned int c = 1; c < num_vertices; ++c)
     {
         float r = float(c) / float(num_vertices - 1);
-        float alpha = (r)*2.0f * PIf;
+        float alpha = (r) * 2.0f * PIf;
         float sn = sinf(alpha);
         float cs = cosf(alpha);
         vec3 v = dy * cs - dx * sn;
@@ -1117,7 +1117,7 @@ ref_ptr<Node> Builder::createDisk(const GeometryInfo& info, const StateInfo& sta
 
     if (stateInfo.wireframe)
     {
-        unsigned int num_indices = (num_vertices)*2;
+        unsigned int num_indices = (num_vertices) * 2;
         indices = ushortArray::create(num_indices);
 
         unsigned int i = 0;

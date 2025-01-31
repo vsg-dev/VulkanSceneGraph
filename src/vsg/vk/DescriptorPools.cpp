@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/vk/DescriptorPools.h>
 
 #include <iostream>
@@ -165,7 +164,7 @@ void DescriptorPools::report(std::ostream& out, indentation indent) const
         out << indent << "numSets " << numSets << std::endl;
         out << indent << "descriptorPoolSizes " << descriptorPoolSizes.size() << " {" << std::endl;
         indent += 4;
-        for (auto& dps : descriptorPoolSizes)
+        for (const auto& dps : descriptorPoolSizes)
         {
             out << indent << "VkDescriptorPoolSize{ " << dps.type << ", " << dps.descriptorCount << " }" << std::endl;
         }
@@ -236,7 +235,7 @@ bool DescriptorPools::allocated(uint32_t& numSets, DescriptorPoolSizes& descript
 {
     if (descriptorPools.empty()) return false;
 
-    for (auto& dp : descriptorPools)
+    for (const auto& dp : descriptorPools)
     {
         numSets += dp->maxSets;
         for (auto& dps : dp->descriptorPoolSizes)

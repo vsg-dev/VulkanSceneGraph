@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/CopyAndReleaseBuffer.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/vk/CommandBuffer.h>
 
 using namespace vsg;
@@ -75,7 +74,7 @@ void CopyAndReleaseBuffer::record(CommandBuffer& commandBuffer) const
 
     _readyToClear.swap(_completed);
 
-    for (auto& copyData : _pending)
+    for (const auto& copyData : _pending)
     {
         copyData.record(commandBuffer);
     }

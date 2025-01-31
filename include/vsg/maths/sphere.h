@@ -120,11 +120,13 @@ namespace vsg
         }
     };
 
-    using sphere = t_sphere<float>;   /// float sphere class
-    using dsphere = t_sphere<double>; /// double sphere class
+    using sphere = t_sphere<float>;         /// float sphere class
+    using dsphere = t_sphere<double>;       /// double sphere class
+    using ldsphere = t_sphere<long double>; /// long double sphere class
 
     VSG_type_name(vsg::sphere);
     VSG_type_name(vsg::dsphere);
+    VSG_type_name(vsg::ldsphere);
 
     template<typename T>
     constexpr bool operator==(const t_sphere<T>& lhs, const t_sphere<T>& rhs)

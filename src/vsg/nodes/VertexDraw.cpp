@@ -43,7 +43,7 @@ int VertexDraw::compare(const Object& rhs_object) const
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(vertexCount, rhs.vertexCount)) != 0) return result;
     if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
     if ((result = compare_value(firstVertex, rhs.firstVertex)) != 0) return result;
@@ -91,7 +91,7 @@ void VertexDraw::write(Output& output) const
 
     output.write("firstBinding", firstBinding);
     output.writeValue<uint32_t>("NumArrays", arrays.size());
-    for (auto& array : arrays)
+    for (const auto& array : arrays)
     {
         if (array)
             output.writeObject("Array", array->data.get());

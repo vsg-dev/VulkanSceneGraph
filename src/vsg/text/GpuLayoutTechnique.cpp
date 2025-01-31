@@ -34,6 +34,104 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+class VSG_DECLSPEC GpuLayoutTechniqueArrayState : public Inherit<ArrayState, GpuLayoutTechniqueArrayState>
+{
+public:
+    GpuLayoutTechniqueArrayState(const GpuLayoutTechnique* in_technique, const Text* in_text, bool in_billboard) :
+        technique(in_technique),
+        text(in_text),
+        billboard(in_billboard)
+    {
+    }
+
+    GpuLayoutTechniqueArrayState(const GpuLayoutTechniqueArrayState& rhs) :
+        Inherit(rhs),
+        technique(rhs.technique),
+        text(rhs.text),
+        billboard(rhs.billboard)
+    {
+    }
+
+    explicit GpuLayoutTechniqueArrayState(const ArrayState& rhs) :
+        Inherit(rhs)
+    {
+    }
+
+    ref_ptr<ArrayState> cloneArrayState() override
+    {
+        return GpuLayoutTechniqueArrayState::create(*this);
+    }
+
+    ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override
+    {
+        auto clone = GpuLayoutTechniqueArrayState::create(*arrayState);
+        clone->technique = technique;
+        clone->text = text;
+        clone->billboard = billboard;
+        return clone;
+    }
+
+    ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override
+    {
+        // compute the position of the glyph
+        float horiAdvance = 0.0;
+        float vertAdvance = 0.0;
+        for (uint32_t i = 0; i < instanceIndex; ++i)
+        {
+            uint32_t glyph_index = technique->textArray->at(i);
+            if (glyph_index == 0)
+            {
+                // treat as a newlline
+                vertAdvance -= 1.0;
+                horiAdvance = 0.0;
+            }
+            else
+            {
+                const GlyphMetrics& glyph_metrics = text->font->glyphMetrics->at(glyph_index);
+                horiAdvance += glyph_metrics.horiAdvance;
+            }
+        }
+
+        uint32_t glyph_index = technique->textArray->at(instanceIndex);
+        const GlyphMetrics& glyph_metrics = text->font->glyphMetrics->at(glyph_index);
+
+        // billboard effect
+        auto textLayout = technique->layoutValue->value();
+        dmat4 transform_to_local;
+        if (billboard && !localToWorldStack.empty() && !worldToLocalStack.empty())
+        {
+            const dmat4& mv = localToWorldStack.back();
+            const dmat4& inverse_mv = worldToLocalStack.back();
+            dvec3 center_eye = mv * dvec3(textLayout.position);
+            dmat4 billboard_mv = computeBillboardMatrix(center_eye, (double)textLayout.billboardAutoScaleDistance);
+            transform_to_local = inverse_mv * billboard_mv;
+        }
+        else
+        {
+            transform_to_local = vsg::translate(textLayout.position);
+        }
+
+        auto new_vertices = vsg::vec3Array::create(6);
+        auto src_vertex_itr = vertices->begin();
+        for (auto& v : *new_vertices)
+        {
+            const auto& sv = *(src_vertex_itr++);
+
+            // compute the position of vertex
+            vec3 pos = textLayout.horizontal * (horiAdvance + textLayout.horizontalAlignment + glyph_metrics.horiBearingX + sv.x * glyph_metrics.width) +
+                       textLayout.vertical * (vertAdvance + textLayout.verticalAlignment + glyph_metrics.horiBearingY + (sv.y - 1.f) * glyph_metrics.height);
+
+            v = vec3(transform_to_local * dvec3(pos));
+        }
+
+        return new_vertices;
+    }
+
+    const GpuLayoutTechnique* technique = nullptr;
+    const Text* text = nullptr;
+    bool billboard = false;
+};
+
 template<typename T>
 void assignValue(T& dest, const T& src, bool& updated)
 {
@@ -93,7 +191,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             auto itr = textArray->begin();
             for (auto& c : text.value())
             {
-                assignValue(*(itr++), font.glyphIndexForCharcode(uint8_t(c)), updated);
+                assignValue(*(itr++), font.glyphIndexForCharcode(uint32_t(c)), updated);
             }
         }
         void apply(const wstringValue& text) override
@@ -103,7 +201,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             auto itr = textArray->begin();
             for (auto& c : text.value())
             {
-                assignValue(*(itr++), font.glyphIndexForCharcode(uint16_t(c)), updated);
+                assignValue(*(itr++), font.glyphIndexForCharcode(uint32_t(c)), updated);
             }
         }
         void apply(const ubyteArray& text) override
@@ -111,7 +209,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 assignValue(*(itr++), font.glyphIndexForCharcode(c), updated);
             }
@@ -121,7 +219,7 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 assignValue(*(itr++), font.glyphIndexForCharcode(c), updated);
             }
@@ -131,19 +229,19 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
             allocate(static_cast<uint32_t>(text.valueCount()));
 
             auto itr = textArray->begin();
-            for (auto& c : text)
+            for (const auto& c : text)
             {
                 assignValue(*(itr++), font.glyphIndexForCharcode(c), updated);
             }
         }
     };
 
-    ConvertString convert(*(text->font), textArray, textArrayUpdated, minimumAllocation);
-    text->text->accept(convert);
+    ConvertString converter(*(text->font), textArray, textArrayUpdated, minimumAllocation);
+    text->text->accept(converter);
 
-    if (convert.allocatedSize == 0) return;
+    if (converter.allocatedSize == 0) return;
 
-    uint32_t num_quads = convert.size;
+    uint32_t num_quads = converter.size;
 
     // set up the layout data in a form digestible by the GPU.
     if (!layoutValue)
@@ -176,18 +274,21 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
 
     if (!vertices)
     {
-        vertices = vec3Array::create(4);
+        vertices = vec3Array::create(6);
 
         float leadingEdgeGradient = 0.1f;
 
         vertices->set(0, vec3(0.0f, 1.0f, 2.0f * leadingEdgeGradient));
         vertices->set(1, vec3(0.0f, 0.0f, leadingEdgeGradient));
         vertices->set(2, vec3(1.0f, 1.0f, leadingEdgeGradient));
-        vertices->set(3, vec3(1.0f, 0.0f, 0.0f));
+
+        vertices->set(3, vec3(0.0f, 0.0f, leadingEdgeGradient));
+        vertices->set(4, vec3(1.0f, 0.0f, 0.0f));
+        vertices->set(5, vec3(1.0f, 1.0f, leadingEdgeGradient));
     }
 
     if (!draw)
-        draw = Draw::create(4, num_quads, 0, 0);
+        draw = Draw::create(6, num_quads, 0, 0);
     else
         draw->instanceCount = num_quads;
 
@@ -223,14 +324,6 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         config->assignDescriptor("textLayout", layoutValue);
         config->assignDescriptor("text", textArray);
 
-        // Set the InputAssemblyState.topology
-        struct SetPipelineStates : public Visitor
-        {
-            void apply(Object& object) override { object.traverse(*this); }
-            void apply(InputAssemblyState& ias) override { ias.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP; }
-        };
-        vsg::visit<SetPipelineStates>(config);
-
         if (sharedObjects)
             sharedObjects->share(config, [](auto gpc) { gpc->init(); });
         else
@@ -245,6 +338,9 @@ void GpuLayoutTechnique::setup(Text* text, uint32_t minimumAllocation, ref_ptr<c
         drawCommands->addChild(bindVertexBuffers);
         drawCommands->addChild(draw);
         stateGroup->addChild(drawCommands);
+
+        // Assign ArrayState for CPU mapping of vertices
+        stateGroup->prototypeArrayState = GpuLayoutTechniqueArrayState::create(this, text, billboard);
     }
     else
     {

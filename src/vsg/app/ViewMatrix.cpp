@@ -11,10 +11,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/app/ViewMatrix.h>
-#include <vsg/io/Options.h>
 #include <vsg/maths/transform.h>
 
 using namespace vsg;
+
+void ViewMatrix::read(Input& input)
+{
+    Object::read(input);
+
+    if (input.version_greater_equal(1, 1, 8))
+        input.read("origin", origin);
+    else
+        origin = {};
+}
+
+void ViewMatrix::write(Output& output) const
+{
+    Object::write(output);
+
+    if (output.version_greater_equal(1, 1, 8))
+        output.write("origin", origin);
+}
 
 void LookAt::read(Input& input)
 {
@@ -34,12 +51,48 @@ void LookAt::write(Output& output) const
     output.write("up", up);
 }
 
-dmat4 TrackingViewMatrix::transform() const
+void LookAt::transform(const dmat4& matrix)
 {
-    return matrix * vsg::inverse(computeTransform(objectPath));
+    up = normalize(matrix * (eye + up) - matrix * eye);
+    center = matrix * center;
+    eye = matrix * eye;
 }
 
-dmat4 TrackingViewMatrix::inverse() const
+void LookAt::set(const dmat4& matrix)
 {
-    return computeTransform(objectPath) * vsg::inverse(matrix);
+    up = normalize(matrix * (dvec3(0.0, 0.0, 0.0) + dvec3(0.0, 1.0, 0.0)) - matrix * dvec3(0.0, 0.0, 0.0));
+    center = matrix * dvec3(0.0, 0.0, -1.0);
+    eye = matrix * dvec3(0.0, 0.0, 0.0);
+}
+
+dmat4 LookAt::transform(const dvec3& offset) const
+{
+    dvec3 delta = dvec3(origin - offset);
+    return vsg::lookAt(eye + delta, center + delta, up);
+}
+
+void LookDirection::set(const dmat4& matrix)
+{
+    dvec3 scale;
+    vsg::decompose(matrix, position, rotation, scale);
+}
+
+dmat4 LookDirection::transform(const dvec3& offset) const
+{
+    return vsg::rotate(-rotation) * vsg::translate(dvec3(offset - origin) - position);
+}
+
+dmat4 RelativeViewMatrix::transform(const dvec3& offset) const
+{
+    return matrix * viewMatrix->transform(offset);
+}
+
+dmat4 TrackingViewMatrix::transform(const dvec3& offset) const
+{
+    return matrix * vsg::translate(dvec3(offset - origin)) * vsg::inverse(computeTransform(objectPath));
+}
+
+dmat4 TrackingViewMatrix::inverse(const dvec3& offset) const
+{
+    return vsg::computeTransform(objectPath) * vsg::translate(dvec3(offset - origin)) * vsg::inverse(matrix);
 }

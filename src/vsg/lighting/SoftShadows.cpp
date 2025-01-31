@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/lighting/SoftShadows.h>
 
 using namespace vsg;
@@ -32,7 +31,7 @@ int SoftShadows::compare(const Object& rhs_object) const
     int result = ShadowSettings::compare(rhs_object);
     if (result != 0) return result;
 
-    auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_value(penumbraRadius, rhs.penumbraRadius);
 }
 

@@ -184,7 +184,7 @@ bool VSG::write(const vsg::Object* object, const vsg::Path& filename, ref_ptr<co
     }
     else if (ext == ".vsga" || ext == ".vsgt")
     {
-        std::ofstream fout(filename);
+        std::ofstream fout(filename, std::ios::out | std::ios::binary);
         writeHeader(fout, FormatInfo{ASCII, version});
 
         vsg::AsciiOutput output(fout, options);

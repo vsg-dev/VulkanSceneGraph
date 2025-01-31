@@ -27,7 +27,7 @@ namespace vsg
     class VSG_DECLSPEC EllipsoidModel : public Inherit<Object, EllipsoidModel>
     {
     public:
-        EllipsoidModel(double rEquator = WGS_84_RADIUS_EQUATOR, double rPolar = WGS_84_RADIUS_POLAR);
+        explicit EllipsoidModel(double rEquator = WGS_84_RADIUS_EQUATOR, double rPolar = WGS_84_RADIUS_POLAR);
 
         bool operator==(const EllipsoidModel& rhs) const
         {

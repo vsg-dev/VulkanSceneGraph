@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/Trackball.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 
 #include <algorithm>
 #include <iostream>
@@ -73,7 +72,7 @@ std::pair<int32_t, int32_t> Trackball::cameraRenderAreaCoordinates(const Pointer
         auto itr = windowOffsets.find(pointerEvent.window);
         if (itr != windowOffsets.end())
         {
-            auto& offset = itr->second;
+            const auto& offset = itr->second;
             return {pointerEvent.x + offset.x, pointerEvent.y + offset.y};
         }
     }
@@ -98,7 +97,7 @@ bool Trackball::eventRelevant(const WindowEvent& event) const
 }
 
 /// compute non dimensional window coordinate (-1,1) from event coords
-dvec2 Trackball::ndc(PointerEvent& event)
+dvec2 Trackball::ndc(const PointerEvent& event)
 {
     auto renderArea = _camera->getRenderArea();
     auto [x, y] = cameraRenderAreaCoordinates(event);
@@ -111,7 +110,7 @@ dvec2 Trackball::ndc(PointerEvent& event)
 }
 
 /// compute trackball coordinate from event coords
-dvec3 Trackball::tbc(PointerEvent& event)
+dvec3 Trackball::tbc(const PointerEvent& event)
 {
     dvec2 v = ndc(event);
 
@@ -321,7 +320,7 @@ void Trackball::apply(TouchDownEvent& touchDown)
         _prevZoomTouchDistance = 0.0;
         if (touchDown.id == 0 && _previousTouches.count(1))
         {
-            auto& prevTouch1 = _previousTouches[1];
+            const auto& prevTouch1 = _previousTouches[1];
             auto a = std::abs(static_cast<double>(prevTouch1->x) - touchDown.x);
             auto b = std::abs(static_cast<double>(prevTouch1->y) - touchDown.y);
             if (a > 0 || b > 0)
@@ -373,7 +372,7 @@ void Trackball::apply(TouchMoveEvent& touchMove)
         if (touchMove.id == 0 && _previousTouches.count(0))
         {
             // Zoom
-            auto& prevTouch1 = _previousTouches[1];
+            const auto& prevTouch1 = _previousTouches[1];
             auto a = std::abs(static_cast<double>(prevTouch1->x) - touchMove.x);
             auto b = std::abs(static_cast<double>(prevTouch1->y) - touchMove.y);
             if (a > 0 || b > 0)
