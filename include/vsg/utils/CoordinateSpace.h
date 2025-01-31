@@ -64,7 +64,13 @@ namespace vsg
     }
 
     template<typename T>
-    constexpr t_vec4<T> linear_to_sRGB(T r, T g, T b, T a)
+    constexpr t_vec3<T> linear_to_sRGB(T r, T g, T b)
+    {
+        return t_vec3<T>(linear_to_sRGB(r), linear_to_sRGB(g), linear_to_sRGB(b));
+    }
+
+    template<typename T>
+    constexpr t_vec3<T> linear_to_sRGB(T r, T g, T b, T a)
     {
         return t_vec4<T>(linear_to_sRGB(r), linear_to_sRGB(g), linear_to_sRGB(b), a);
     }
@@ -79,6 +85,12 @@ namespace vsg
     constexpr t_vec4<T> sRGB_to_linear(const t_vec4<T>& src)
     {
         return t_vec4<T>(sRGB_to_linear(src.r), sRGB_to_linear(src.g), sRGB_to_linear(src.b), src.a);
+    }
+
+    template<typename T>
+    constexpr t_vec3<T> sRGB_to_linear(T r, T g, T b)
+    {
+        return t_vec3<T>(sRGB_to_linear(r), sRGB_to_linear(g), sRGB_to_linear(b));
     }
 
     template<typename T>
