@@ -41,9 +41,9 @@ namespace vsg
     class VSG_DECLSPEC Allocator
     {
     public:
-        explicit Allocator(size_t in_defaultAlignment = 4) :
+        explicit Allocator(size_t in_defaultAlignment = 8) :
             defaultAlignment(in_defaultAlignment) {}
-        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 4) :
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 8) :
             defaultAlignment(in_defaultAlignment), nestedAllocator(std::move(in_nestedAllocator)) {}
         virtual ~Allocator() {}
 
@@ -76,7 +76,7 @@ namespace vsg
         virtual void report(std::ostream& out) const = 0;
 
         mutable std::mutex mutex;
-        size_t defaultAlignment = 4;
+        size_t defaultAlignment = 8;
 
     protected:
         // if you are assigning a custom allocator you must retain the old allocator to manage the memory it allocated and needs to delete
