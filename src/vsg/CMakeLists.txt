@@ -272,6 +272,10 @@ if (${VSG_SUPPORTS_ShaderCompiler})
     list(INSERT LIBRARIES 0 PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
 endif()
 
+if (VSG_SUPPORTS_ShaderOptimizer)
+    list(INSERT LIBRARIES 0 PRIVATE SPIRV-Tools-opt)
+endif()
+
 # Check for std::atomic
 if(NOT MSVC AND NOT ANDROID AND NOT APPLE)
   include(CheckCXXSourceCompiles)

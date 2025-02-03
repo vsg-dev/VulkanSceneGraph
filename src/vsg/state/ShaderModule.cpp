@@ -36,6 +36,7 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(target, rhs.target))) return result;
     if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
     if ((result = compare_value(generateDebugInfo, rhs.generateDebugInfo))) return result;
+    if ((result = compare_value(optimize, rhs.optimize))) return result;
     return compare_container(defines, rhs.defines);
 }
 
@@ -53,6 +54,11 @@ void ShaderCompileSettings::read(Input& input)
         input.read("generateDebugInfo", generateDebugInfo);
     }
 
+    if (input.version_greater_equal(1, 1, 10))
+    {
+        input.read("optimize", optimize);
+    }
+
     input.readValues("defines", defines);
 }
 
@@ -68,6 +74,11 @@ void ShaderCompileSettings::write(Output& output) const
     if (output.version_greater_equal(1, 0, 4))
     {
         output.write("generateDebugInfo", generateDebugInfo);
+    }
+
+    if (output.version_greater_equal(1, 1, 10))
+    {
+        output.write("optimize", optimize);
     }
 
     output.writeValues("defines", defines);

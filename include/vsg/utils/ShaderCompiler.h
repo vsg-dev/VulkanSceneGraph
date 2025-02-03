@@ -5,6 +5,13 @@
 #include <vsg/io/Options.h>
 #include <vsg/state/ShaderStage.h>
 
+#if VSG_SUPPORTS_ShaderOptimizer
+namespace spvtools
+{
+    class Optimizer;
+}
+#endif
+
 namespace vsg
 {
 
@@ -24,6 +31,9 @@ namespace vsg
 
         // default ShaderCompileSettings
         ref_ptr<ShaderCompileSettings> defaults;
+#if VSG_SUPPORTS_ShaderOptimizer
+        std::unique_ptr<spvtools::Optimizer> optimizer;
+#endif
 
         bool compile(ShaderStages& shaders, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
         bool compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
