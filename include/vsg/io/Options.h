@@ -47,7 +47,6 @@ namespace vsg
 
         Options& operator=(const Options& rhs) = delete;
 
-
         /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
 
@@ -105,7 +104,6 @@ namespace vsg
         ref_ptr<PropagateDynamicObjects> propagateDynamicObjects;
 
     public:
-
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Options::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
