@@ -19,7 +19,7 @@ void ViewMatrix::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(1, 1, 8))
+    if (input.version_greater_equal(1, 1, 9))
         input.read("origin", origin);
     else
         origin = {};
@@ -29,7 +29,7 @@ void ViewMatrix::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(1, 1, 8))
+    if (output.version_greater_equal(1, 1, 9))
         output.write("origin", origin);
 }
 
