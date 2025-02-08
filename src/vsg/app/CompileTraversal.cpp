@@ -387,14 +387,13 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         auto previousOverridePipelineStates = context->overridePipelineStates;
 
         context->renderPass = renderGraph.getRenderPass();
-        if (renderGraph.window)
+        auto const& ra = renderGraph.renderArea;
+        auto viewportState = ViewportState::create(ra.offset.x, ra.offset.y, ra.extent.width, ra.extent.height);
+        if (auto view{context->view.ref_ptr()}; view && view->camera)
         {
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
+            viewportState->viewports[0] = view->camera->viewportState->viewports[0];
         }
-        else if (renderGraph.framebuffer)
-        {
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
-        }
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, viewportState);
 
         if (context->renderPass)
         {
