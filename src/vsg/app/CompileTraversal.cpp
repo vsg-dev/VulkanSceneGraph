@@ -421,11 +421,13 @@ void CompileTraversal::apply(View& view)
         if (context_view && context_view.get() != &view) continue;
 
         // save previous states
+        auto previous_view = context->view;
         auto previous_viewID = context->viewID;
         auto previous_mask = context->mask;
         auto previous_overridePipelineStates = context->overridePipelineStates;
         auto previous_defaultPipelineStates = context->defaultPipelineStates;
 
+        context->view = &view;
         context->viewID = view.viewID;
         context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
@@ -442,6 +444,7 @@ void CompileTraversal::apply(View& view)
         view.traverse(*this);
 
         // restore previous states
+        context->view = previous_view;
         context->viewID = previous_viewID;
         context->mask = previous_mask;
         context->defaultPipelineStates = previous_defaultPipelineStates;
