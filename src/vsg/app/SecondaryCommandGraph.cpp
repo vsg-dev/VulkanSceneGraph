@@ -14,8 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/RenderGraph.h>
 #include <vsg/app/View.h>
 #include <vsg/commands/ExecuteCommands.h>
-#include <vsg/commands/SetScissor.h>
-#include <vsg/commands/SetViewport.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/lighting/Light.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -157,24 +155,11 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
         inheritanceInfo.framebuffer = VK_NULL_HANDLE;
     }
 
-    if (framebuffer || window)
-    {
-        const VkExtent2D& extent = framebuffer ? framebuffer->extent2D() : window->extent2D();
-        recordTraversal->getState()->scissorStack.push(SetScissor::create(0, Scissors{{{0, 0}, extent}}));
-        recordTraversal->getState()->viewportStack.push(SetViewport::create(0, Viewports{{0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height), 0.0f, 1.0f}}));
-    }
-
     vkBeginCommandBuffer(vk_commandBuffer, &beginInfo);
 
     traverse(*recordTraversal);
 
     vkEndCommandBuffer(vk_commandBuffer);
-
-    if (framebuffer || window)
-    {
-        recordTraversal->getState()->scissorStack.pop();
-        recordTraversal->getState()->viewportStack.pop();
-    }
 
     // pass on this command buffer to connected ExecuteCommands nodes
     for (auto& ec : _executeCommands)

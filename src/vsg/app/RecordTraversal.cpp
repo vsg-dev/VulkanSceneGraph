@@ -16,8 +16,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
-#include <vsg/commands/SetScissor.h>
-#include <vsg/commands/SetViewport.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/stream.h>
