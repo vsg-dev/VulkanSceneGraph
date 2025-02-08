@@ -23,6 +23,7 @@ namespace vsg
 
     /// Utility class for updating a scene graph when a View's camera ViewportState has been updated so that associated GraphicsPipelines in the
     /// scene graph can be recompiled and correctly reflect the new ViewportState.
+    /// As viewport size and scissor is dynamic by default, this is only necessary when opting out of that or when the viewport count has changed.
     class VSG_DECLSPEC UpdateGraphicsPipelines : public Inherit<Visitor, UpdateGraphicsPipelines>
     {
     public:
@@ -43,7 +44,6 @@ namespace vsg
     class VSG_DECLSPEC WindowResizeHandler : public Inherit<Visitor, WindowResizeHandler>
     {
     public:
-        ref_ptr<Context> context;
         VkRect2D renderArea;
         VkExtent2D previous_extent;
         VkExtent2D new_extent;
@@ -63,7 +63,6 @@ namespace vsg
         /// return true if the object was visited
         bool visit(const Object* object, uint32_t index = 0);
 
-        void apply(BindGraphicsPipeline& bindPipeline) override;
         void apply(Object& object) override;
         void apply(ClearAttachments& clearAttachments) override;
         void apply(View& view) override;

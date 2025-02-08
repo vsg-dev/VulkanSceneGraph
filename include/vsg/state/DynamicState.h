@@ -18,6 +18,7 @@ namespace vsg
 {
 
     /// DynamicState encapsulates VkPipelineDynamicStateCreateInfo settings passed when setting up GraphicsPipeline
+    /// By default, viewport and scissor are set to dynamic
     class VSG_DECLSPEC DynamicState : public Inherit<GraphicsPipelineState, DynamicState>
     {
     public:

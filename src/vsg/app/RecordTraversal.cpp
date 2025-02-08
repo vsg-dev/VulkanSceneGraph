@@ -16,6 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
+#include <vsg/commands/SetScissor.h>
+#include <vsg/commands/SetViewport.h>
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/stream.h>
@@ -575,27 +577,39 @@ void RecordTraversal::apply(const View& view)
         _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
         _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
-        if (_viewDependentState && _viewDependentState->viewportData && view.camera->viewportState)
+        if (_viewDependentState && view.camera->viewportState)
         {
             auto& viewportData = _viewDependentState->viewportData;
             auto& viewports = view.camera->viewportState->viewports;
 
-            auto dest_itr = viewportData->begin();
-            for (auto src_itr = viewports.begin();
-                 dest_itr != viewportData->end() && src_itr != viewports.end();
-                 ++dest_itr, ++src_itr)
+            _state->scissorStack.push(vsg::SetScissor::create(0, view.camera->viewportState->scissors));
+            _state->viewportStack.push(vsg::SetViewport::create(0, viewports));
+
+            if (viewportData)
             {
-                auto& dest_viewport = *dest_itr;
-                vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
-                if (dest_viewport != src_viewport)
+                auto dest_itr = viewportData->begin();
+                for (auto src_itr = viewports.begin();
+                     dest_itr != viewportData->end() && src_itr != viewports.end();
+                     ++dest_itr, ++src_itr)
                 {
-                    dest_viewport = src_viewport;
-                    viewportData->dirty();
+                    auto& dest_viewport = *dest_itr;
+                    vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
+                    if (dest_viewport != src_viewport)
+                    {
+                        dest_viewport = src_viewport;
+                        viewportData->dirty();
+                    }
                 }
             }
         }
 
         view.traverse(*this);
+
+        if (_viewDependentState && view.camera->viewportState)
+        {
+            _state->scissorStack.pop();
+            _state->viewportStack.pop();
+        }
     }
     else
     {

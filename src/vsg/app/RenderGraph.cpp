@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/RenderGraph.h>
 #include <vsg/app/View.h>
+#include <vsg/commands/SetScissor.h>
+#include <vsg/commands/SetViewport.h>
 #include <vsg/io/Logger.h>
 #include <vsg/lighting/Light.h>
 #include <vsg/nodes/Bin.h>
@@ -141,6 +143,12 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
+    if (extent.width != invalid_dimension && extent.height != invalid_dimension)
+    {
+        recordTraversal.getState()->scissorStack.push(SetScissor::create(0, Scissors{{{0, 0}, extent}}));
+        recordTraversal.getState()->viewportStack.push(SetViewport::create(0, Viewports{{0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height), 0.0f, 1.0f}}));
+    }
+
     VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
@@ -148,6 +156,12 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     traverse(recordTraversal);
 
     vkCmdEndRenderPass(vk_commandBuffer);
+
+    if (extent.width != invalid_dimension && extent.height != invalid_dimension)
+    {
+        recordTraversal.getState()->scissorStack.pop();
+        recordTraversal.getState()->viewportStack.pop();
+    }
 }
 
 void RenderGraph::resized()
@@ -158,26 +172,12 @@ void RenderGraph::resized()
     auto activeRenderPass = getRenderPass();
     if (!activeRenderPass) return;
 
-    auto device = activeRenderPass->device;
-
-    if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(device);
-
     auto extent = getExtent();
 
-    windowResizeHandler->context->commandPool = nullptr;
-    windowResizeHandler->context->renderPass = activeRenderPass;
     windowResizeHandler->renderArea = renderArea;
     windowResizeHandler->previous_extent = previous_extent;
     windowResizeHandler->new_extent = extent;
     windowResizeHandler->visited.clear();
-
-    if (activeRenderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
-    {
-        windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(activeRenderPass->maxSamples));
-    }
-
-    // make sure the device is idle before we recreate any Vulkan objects
-    vkDeviceWaitIdle(*(device));
 
     traverse(*windowResizeHandler);
 
