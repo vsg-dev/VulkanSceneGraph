@@ -182,4 +182,7 @@ void WindowResizeHandler::apply(vsg::View& view)
     view.traverse(*this);
 
     context->defaultPipelineStates.pop_back();
+
+    // Notify the view about the resize
+    view.resize();
 }

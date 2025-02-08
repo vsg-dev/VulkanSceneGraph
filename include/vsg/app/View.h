@@ -86,6 +86,9 @@ namespace vsg
         /// override states for customization of graphics pipelines for this view
         GraphicsPipelineStates overridePipelineStates;
 
+        // abstract class to notify that the window is resized
+        virtual void resize() {};
+
     protected:
         virtual ~View();
     };
