@@ -109,12 +109,12 @@ void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& res
     }
 }
 
-void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(Window& window, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, viewport, resourceRequirements);
+        ct->add(window, resourceRequirements);
 
         compileTraversals->add(ct);
     }
