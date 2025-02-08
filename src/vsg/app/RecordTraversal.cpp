@@ -577,13 +577,21 @@ void RecordTraversal::apply(const View& view)
         _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
         _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
-        if (_viewDependentState && view.camera->viewportState)
-        {
-            auto& viewportData = _viewDependentState->viewportData;
-            auto& viewports = view.camera->viewportState->viewports;
+        auto& viewportState = view.camera->viewportState;
 
-            _state->scissorStack.push(vsg::SetScissor::create(0, view.camera->viewportState->scissors));
-            _state->viewportStack.push(vsg::SetViewport::create(0, viewports));
+        if (viewportState->slot >= _state->stateStacks.size())
+        {
+            _state->stateStacks.resize(viewportState->slot+1);
+            // info("RecordTraversal::apply(const View& view) _state->stateStacks.size() not big enough, expanding to viewportState->slot+1.");
+        }
+
+        _state->stateStacks[viewportState->slot].push(viewportState);
+        _state->dirty = true;
+
+        if (_viewDependentState && viewportState)
+        {
+            auto& viewports = viewportState->viewports;
+            auto& viewportData = _viewDependentState->viewportData;
 
             if (viewportData)
             {
@@ -605,11 +613,8 @@ void RecordTraversal::apply(const View& view)
 
         view.traverse(*this);
 
-        if (_viewDependentState && view.camera->viewportState)
-        {
-            _state->scissorStack.pop();
-            _state->viewportStack.pop();
-        }
+        _state->stateStacks[viewportState->slot].pop();
+        _state->dirty = true;
     }
     else
     {

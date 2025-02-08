@@ -295,9 +295,6 @@ namespace vsg
                     stateStack.record(*_commandBuffer);
                 }
 
-                scissorStack.record(*_commandBuffer);
-                viewportStack.record(*_commandBuffer);
-
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);
 
