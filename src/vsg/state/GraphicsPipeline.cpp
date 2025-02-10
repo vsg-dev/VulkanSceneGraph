@@ -145,7 +145,7 @@ void GraphicsPipeline::compile(Context& context)
         mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, pipelineStates);
         mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.overridePipelineStates);
 
-        for (auto& imp : _implementation)
+        for (const auto& imp : _implementation)
         {
             if (imp && vsg::compare_pointer_container(imp->_pipelineStates, combined_pipelineStates) == 0)
             {
