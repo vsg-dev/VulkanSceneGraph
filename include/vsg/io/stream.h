@@ -287,12 +287,12 @@ namespace vsg
 
     inline std::istream& operator>>(std::istream& input, CoordinateSpace& coordinateSpace)
     {
-        std::string value;
-        input >> value;
+        std::string str;
+        input >> str;
 
-        if (value == "LINEAR")
+        if (str == "LINEAR")
             coordinateSpace = CoordinateSpace::LINEAR;
-        else if (value == "sRGB")
+        else if (str == "sRGB")
             coordinateSpace = CoordinateSpace::sRGB;
         else
             coordinateSpace = CoordinateSpace::NO_PREFERENCE;
