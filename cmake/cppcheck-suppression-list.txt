@@ -29,6 +29,7 @@ useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
 useStlAlgorithm:*/src/vsg/nodes/Switch.cpp
 useStlAlgorithm:*/src/vsg/nodes/LOD.cpp
 useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
+useStlAlgorithm:*/src/vsg/state/GraphicsPipeline.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
 useStlAlgorithm:*/src/vsg/state/StateSwitch.cpp
 useStlAlgorithm:*/src/vsg/state/ViewDependentState.cpp
@@ -59,7 +60,6 @@ useStlAlgorithm:*/src/vsg//utils/Builder.cpp
 useStlAlgorithm:*/src/vsg/io/Path.cpp
 useStlAlgorithm:*/src/vsg/utils/PolytopeIntersector.cpp
 useStlAlgorithm:*/src/vsg/vk/PhysicalDevice.cpp
-
 
 // suppress the warning about valid C++17 if (init; condition) usage
 syntaxError:*/include/vsg/core/Inherit.h

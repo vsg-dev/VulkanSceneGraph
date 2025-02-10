@@ -25,7 +25,7 @@ namespace vsg
     /// Base class for setting up the various pipeline states with the VkGraphicsPipelineCreateInfo
     /// Subclasses are ColorBlendState, DepthStencilState, DynamicState, InputAssemblyState,
     /// MultisampleState, RasterizationState, TessellationState, VertexInputState and ViewportState.
-    class VSG_DECLSPEC GraphicsPipelineState : public Inherit<Object, GraphicsPipelineState>
+    class VSG_DECLSPEC GraphicsPipelineState : public Inherit<StateCommand, GraphicsPipelineState>
     {
     public:
         GraphicsPipelineState() {}
@@ -36,6 +36,7 @@ namespace vsg
         Mask mask = MASK_ALL;
 
         virtual void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const = 0;
+        void record(CommandBuffer&) const override {};
 
     public:
         int compare(const Object& rhs) const override;
@@ -95,6 +96,7 @@ namespace vsg
 
             virtual ~Implementation();
 
+            GraphicsPipelineStates _pipelineStates;
             VkPipeline _pipeline;
 
             ref_ptr<Device> _device;

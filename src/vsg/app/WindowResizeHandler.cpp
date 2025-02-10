@@ -89,40 +89,6 @@ bool WindowResizeHandler::visit(const Object* object, uint32_t index)
     return true;
 }
 
-void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
-{
-    GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
-
-    if (!visit(graphicsPipeline, context->viewID))
-    {
-        return;
-    }
-
-    if (graphicsPipeline)
-    {
-        struct ContainsViewport : public ConstVisitor
-        {
-            bool foundViewport = false;
-            void apply(const ViewportState&) override { foundViewport = true; }
-            bool operator()(const GraphicsPipeline& gp)
-            {
-                for (auto& pipelineState : gp.pipelineStates)
-                {
-                    pipelineState->accept(*this);
-                }
-                return foundViewport;
-            }
-        } containsViewport;
-
-        bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
-        if (needToRegenerateGraphicsPipeline)
-        {
-            graphicsPipeline->release(context->viewID);
-            graphicsPipeline->compile(*context);
-        }
-    }
-}
-
 void WindowResizeHandler::apply(vsg::Object& object)
 {
     object.traverse(*this);
@@ -142,8 +108,6 @@ void WindowResizeHandler::apply(ClearAttachments& clearAttachments)
 void WindowResizeHandler::apply(vsg::View& view)
 {
     if (!visit(&view)) return;
-
-    context->viewID = view.viewID;
 
     if (!view.camera)
     {
@@ -177,9 +141,5 @@ void WindowResizeHandler::apply(vsg::View& view)
         }
     }
 
-    context->defaultPipelineStates.emplace_back(viewportState);
-
     view.traverse(*this);
-
-    context->defaultPipelineStates.pop_back();
 }

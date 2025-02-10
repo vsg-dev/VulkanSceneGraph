@@ -22,6 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorSet.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
@@ -129,6 +130,8 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     {
         vsg::debug("Context::Context() reusing descriptorPools = ", descriptorPools);
     }
+
+    defaultPipelineStates.push_back(DynamicState::create());
 }
 
 Context::Context(const Context& context) :

@@ -78,9 +78,9 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
         vertexInputState = VertexInputState::create(ias);
         config->pipelineStates.push_back(vertexInputState);
     }
-    void apply(vsg::ViewportState& ias) override
+    void apply(vsg::ViewportState& vs) override
     {
-        viewportState = ViewportState::create(ias);
+        viewportState = ViewportState::create(vs);
         config->pipelineStates.push_back(viewportState);
     }
 };
@@ -167,7 +167,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
 
-        for (auto& imageInfo : imageInfoList)
+        for (const auto& imageInfo : imageInfoList)
         {
             if (imageInfo->imageView && imageInfo->imageView->image)
             {

@@ -36,7 +36,6 @@ namespace vsg
         CompileTraversal() { overrideMask = vsg::MASK_ALL; }
         CompileTraversal(const CompileTraversal& ct);
         explicit CompileTraversal(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
-        explicit CompileTraversal(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
         explicit CompileTraversal(const Viewer& viewer, const ResourceRequirements& resourceRequirements = {});
 
         /// specification of the queue to use
@@ -55,11 +54,11 @@ namespace vsg
         /// add a compile Context for device
         void add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
 
-        /// add a compile Context for Window and associated viewport.
-        void add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
+        /// add a compile Context for Window.
+        void add(Window& window, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements = {});
 
-        /// add a compile Context for Window and associated viewport.
-        void add(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
+        /// add a compile Context for Window.
+        void add(Window& window, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for Window and associated View
         void add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});

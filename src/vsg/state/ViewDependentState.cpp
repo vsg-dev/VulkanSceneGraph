@@ -394,6 +394,8 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     Mask shadowMask = 0x1; // TODO: do we inherit from main scene? how?
 
+    auto viewportState = ViewportState::create(VkExtent2D{shadowWidth, shadowHeight});
+
     ref_ptr<View> first_view;
     shadowMaps.resize(maxShadowMaps);
     for (auto& shadowMap : shadowMaps)
@@ -411,6 +413,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
         shadowMap.view->mask = shadowMask;
         shadowMap.view->camera = Camera::create();
         shadowMap.view->addChild(tcon);
+        shadowMap.view->camera->viewportState = viewportState;
 
         shadowMap.renderGraph = RenderGraph::create();
         shadowMap.renderGraph->addChild(shadowMap.view);
