@@ -139,6 +139,22 @@ void GraphicsPipeline::compile(Context& context)
 
     if (!_implementation[viewID])
     {
+        GraphicsPipelineStates combined_pipelineStates;
+        combined_pipelineStates.reserve(context.defaultPipelineStates.size() + pipelineStates.size() + context.overridePipelineStates.size());
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.defaultPipelineStates);
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, pipelineStates);
+        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.overridePipelineStates);
+
+        for(auto& imp : _implementation)
+        {
+            if (imp && vsg::compare_pointer_container(imp->_pipelineStates, combined_pipelineStates)==0)
+            {
+                _implementation[viewID] = imp;
+                return;
+            }
+        }
+
+
         // compile shaders if required
         bool requiresShaderCompiler = false;
         for (const auto& shaderStage : stages)
@@ -173,12 +189,6 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        GraphicsPipelineStates combined_pipelineStates;
-        combined_pipelineStates.reserve(context.defaultPipelineStates.size() + pipelineStates.size() + context.overridePipelineStates.size());
-        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.defaultPipelineStates);
-        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, pipelineStates);
-        mergeGraphicsPipelineStates(context.mask, combined_pipelineStates, context.overridePipelineStates);
-
         _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
     }
 }
@@ -188,6 +198,7 @@ void GraphicsPipeline::compile(Context& context)
 // GraphicsPipeline::Implementation
 //
 GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, const RenderPass* renderPass, const PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
+    _pipelineStates(pipelineStates),
     _device(device)
 {
     VkGraphicsPipelineCreateInfo pipelineInfo = {};

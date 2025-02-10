@@ -96,6 +96,7 @@ namespace vsg
 
             virtual ~Implementation();
 
+            GraphicsPipelineStates _pipelineStates;
             VkPipeline _pipeline;
 
             ref_ptr<Device> _device;
