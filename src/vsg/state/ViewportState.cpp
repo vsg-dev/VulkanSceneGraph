@@ -28,13 +28,13 @@ ViewportState::ViewportState(const ViewportState& vs) :
 {
 }
 
-ViewportState::ViewportState(const VkExtent2D& extent):
+ViewportState::ViewportState(const VkExtent2D& extent) :
     ViewportState()
 {
     set(0, 0, extent.width, extent.height);
 }
 
-ViewportState::ViewportState(int32_t x, int32_t y, uint32_t width, uint32_t height):
+ViewportState::ViewportState(int32_t x, int32_t y, uint32_t width, uint32_t height) :
     ViewportState()
 {
     set(x, y, width, height);

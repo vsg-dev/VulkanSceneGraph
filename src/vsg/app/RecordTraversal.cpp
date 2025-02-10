@@ -579,7 +579,7 @@ void RecordTraversal::apply(const View& view)
 
         if (viewportState->slot >= _state->stateStacks.size())
         {
-            _state->stateStacks.resize(viewportState->slot+1);
+            _state->stateStacks.resize(viewportState->slot + 1);
             // info("RecordTraversal::apply(const View& view) _state->stateStacks.size() not big enough, expanding to viewportState->slot+1.");
         }
 
