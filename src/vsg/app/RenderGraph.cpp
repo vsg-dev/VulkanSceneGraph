@@ -155,7 +155,7 @@ void RenderGraph::resized()
     if (!windowResizeHandler) return;
     if (!window && !framebuffer) return;
 
-    auto activeRenderPass = getRenderPass();
+    const auto activeRenderPass = getRenderPass();
     if (!activeRenderPass) return;
 
     auto extent = getExtent();

@@ -588,11 +588,10 @@ void RecordTraversal::apply(const View& view)
 
         if (_viewDependentState && viewportState)
         {
-            auto& viewports = viewportState->viewports;
             auto& viewportData = _viewDependentState->viewportData;
-
             if (viewportData)
             {
+                auto& viewports = viewportState->viewports;
                 auto dest_itr = viewportData->begin();
                 for (auto src_itr = viewports.begin();
                      dest_itr != viewportData->end() && src_itr != viewports.end();
