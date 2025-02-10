@@ -167,7 +167,7 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
 
-        for (auto& imageInfo : imageInfoList)
+        for (const auto& imageInfo : imageInfoList)
         {
             if (imageInfo->imageView && imageInfo->imageView->image)
             {
