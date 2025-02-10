@@ -78,9 +78,9 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
         vertexInputState = VertexInputState::create(ias);
         config->pipelineStates.push_back(vertexInputState);
     }
-    void apply(vsg::ViewportState& ias) override
+    void apply(vsg::ViewportState& vs) override
     {
-        viewportState = ViewportState::create(ias);
+        viewportState = ViewportState::create(vs);
         config->pipelineStates.push_back(viewportState);
     }
 };
