@@ -319,12 +319,6 @@ namespace vsg
 
         inline void push(ref_ptr<StateCommand> command)
         {
-            // add resize when required - slower but catches cases where State hasn't been initialized correctly yet.
-            if (command->slot >= stateStacks.size())
-            {
-                stateStacks.resize(command->slot + 1);
-            }
-
             stateStacks[command->slot].push(command);
             dirty = true;
         }
