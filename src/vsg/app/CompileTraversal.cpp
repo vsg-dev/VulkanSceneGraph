@@ -364,7 +364,6 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
             mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
         }
 
-
         renderGraph.traverse(*this);
 
         // restore previous values
