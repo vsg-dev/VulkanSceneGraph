@@ -22,14 +22,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 RenderGraph::RenderGraph() :
+    viewportState(ViewportState::create()),
     windowResizeHandler(WindowResizeHandler::create())
 {
 }
 
 RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
-    window(in_window),
-    windowResizeHandler(WindowResizeHandler::create())
+    RenderGraph()
 {
+    window = in_window;
 
     if (in_view)
     {
@@ -47,6 +48,8 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
         renderArea.offset = {0, 0};
         renderArea.extent = window->extent2D();
     }
+
+    viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
 
     // set up the clearValues based on the RenderPass's attachments.
     setClearValues(window->clearColor(), VkClearDepthStencilValue{0.0f, 0});
@@ -144,7 +147,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
-    auto viewportState = ViewportState::create(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
+    // sync the viewportState and push
+    viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
     recordTraversal.getState()->push(viewportState);
 
     // traverse the subgraph to place commands into the command buffer.

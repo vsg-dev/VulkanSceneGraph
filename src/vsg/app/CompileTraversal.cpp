@@ -356,11 +356,14 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
         auto previousOverridePipelineStates = context->overridePipelineStates;
 
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, renderGraph.viewportState);
+
         context->renderPass = renderGraph.getRenderPass();
         if (context->renderPass)
         {
             mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
         }
+
 
         renderGraph.traverse(*this);
 
