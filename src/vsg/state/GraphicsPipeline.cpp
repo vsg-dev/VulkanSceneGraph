@@ -54,7 +54,7 @@ void GraphicsPipelineState::write(Output& output) const
 
 void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_PipelineStates, ref_ptr<GraphicsPipelineState> src_PipelineState)
 {
-    if ((mask & src_PipelineState->mask) == 0) return;
+    if (!src_PipelineState || (mask & src_PipelineState->mask) == 0) return;
 
     // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState
     for (auto& original_pipelineState : dest_PipelineStates)

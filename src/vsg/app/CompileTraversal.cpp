@@ -399,6 +399,7 @@ void CompileTraversal::apply(View& view)
         }
 
         // assign view specific pipeline states
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
         mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, view.overridePipelineStates);
 
         view.traverse(*this);
