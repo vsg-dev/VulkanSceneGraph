@@ -138,16 +138,23 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
                 , ", renderArea.extent.width = ", renderArea.extent.width, ", renderArea.extent.height = ", renderArea.extent.height);
 #endif
 
+
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
     VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
+    auto viewportState = ViewportState::create(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
+    recordTraversal.getState()->push(viewportState);
+
     // traverse the subgraph to place commands into the command buffer.
     traverse(recordTraversal);
 
+    recordTraversal.getState()->pop(viewportState);
+
     vkCmdEndRenderPass(vk_commandBuffer);
+
 }
 
 void RenderGraph::resized()

@@ -299,6 +299,43 @@ namespace vsg
             }
         }
 
+        inline void push(const StateCommands& commands)
+        {
+            for (auto& command : commands)
+            {
+                stateStacks[command->slot].push(command);
+            }
+            dirty = true;
+        }
+
+        inline void pop(const StateCommands& commands)
+        {
+            for (const auto& command : commands)
+            {
+                stateStacks[command->slot].pop();
+            }
+            dirty = true;
+        }
+
+        inline void push(ref_ptr<StateCommand> command)
+        {
+            // add resize when required - slower but catches cases where State hasn't been initialized correctly yet.
+            if (command->slot >= stateStacks.size())
+            {
+                stateStacks.resize(command->slot + 1);
+            }
+
+            stateStacks[command->slot].push(command);
+            dirty = true;
+        }
+
+        inline void pop(ref_ptr<StateCommand> command)
+        {
+            stateStacks[command->slot].pop();
+            dirty = true;
+        }
+
+
         inline void pushFrustum()
         {
             _frustumStack.push(Frustum(_frustumProjected, modelviewMatrixStack.top()));

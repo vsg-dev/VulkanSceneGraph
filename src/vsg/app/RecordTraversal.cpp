@@ -484,19 +484,11 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     //debug("Visiting StateGroup");
 
-    for (auto& command : stateGroup.stateCommands)
-    {
-        _state->stateStacks[command->slot].push(command);
-    }
-    _state->dirty = true;
+    _state->push(stateGroup.stateCommands);
 
     stateGroup.traverse(*this);
 
-    for (const auto& command : stateGroup.stateCommands)
-    {
-        _state->stateStacks[command->slot].pop();
-    }
-    _state->dirty = true;
+    _state->pop(stateGroup.stateCommands);
 }
 
 void RecordTraversal::apply(const Commands& commands)
@@ -575,43 +567,40 @@ void RecordTraversal::apply(const View& view)
         _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
         _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
-        auto& viewportState = view.camera->viewportState;
-
-        if (viewportState->slot >= _state->stateStacks.size())
+        if (const auto& viewportState = view.camera->viewportState)
         {
-            _state->stateStacks.resize(viewportState->slot + 1);
-            // info("RecordTraversal::apply(const View& view) _state->stateStacks.size() not big enough, expanding to viewportState->slot+1.");
-        }
+            _state->push(viewportState);
 
-        _state->stateStacks[viewportState->slot].push(viewportState);
-        _state->dirty = true;
-
-        if (_viewDependentState && viewportState)
-        {
-            auto& viewportData = _viewDependentState->viewportData;
-            if (viewportData)
+            if (_viewDependentState)
             {
-                auto& viewports = viewportState->viewports;
-                auto dest_itr = viewportData->begin();
-                for (auto src_itr = viewports.begin();
-                     dest_itr != viewportData->end() && src_itr != viewports.end();
-                     ++dest_itr, ++src_itr)
+                auto& viewportData = _viewDependentState->viewportData;
+                if (viewportData)
                 {
-                    auto& dest_viewport = *dest_itr;
-                    vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
-                    if (dest_viewport != src_viewport)
+                    auto& viewports = viewportState->viewports;
+                    auto dest_itr = viewportData->begin();
+                    for (auto src_itr = viewports.begin();
+                        dest_itr != viewportData->end() && src_itr != viewports.end();
+                        ++dest_itr, ++src_itr)
                     {
-                        dest_viewport = src_viewport;
-                        viewportData->dirty();
+                        auto& dest_viewport = *dest_itr;
+                        vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);
+                        if (dest_viewport != src_viewport)
+                        {
+                            dest_viewport = src_viewport;
+                            viewportData->dirty();
+                        }
                     }
                 }
             }
+
+            view.traverse(*this);
+
+            _state->pop(viewportState);
         }
-
-        view.traverse(*this);
-
-        _state->stateStacks[viewportState->slot].pop();
-        _state->dirty = true;
+        else
+        {
+            view.traverse(*this);
+        }
     }
     else
     {
