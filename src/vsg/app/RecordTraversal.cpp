@@ -579,8 +579,8 @@ void RecordTraversal::apply(const View& view)
                     auto& viewports = viewportState->viewports;
                     auto dest_itr = viewportData->begin();
                     for (auto src_itr = viewports.begin();
-                        dest_itr != viewportData->end() && src_itr != viewports.end();
-                        ++dest_itr, ++src_itr)
+                         dest_itr != viewportData->end() && src_itr != viewports.end();
+                         ++dest_itr, ++src_itr)
                     {
                         auto& dest_viewport = *dest_itr;
                         vec4 src_viewport(src_itr->x, src_itr->y, src_itr->width, src_itr->height);

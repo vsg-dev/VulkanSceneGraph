@@ -335,7 +335,6 @@ namespace vsg
             dirty = true;
         }
 
-
         inline void pushFrustum()
         {
             _frustumStack.push(Frustum(_frustumProjected, modelviewMatrixStack.top()));

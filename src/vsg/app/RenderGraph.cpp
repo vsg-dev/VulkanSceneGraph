@@ -138,7 +138,6 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
                 , ", renderArea.extent.width = ", renderArea.extent.width, ", renderArea.extent.height = ", renderArea.extent.height);
 #endif
 
-
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
@@ -154,7 +153,6 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     recordTraversal.getState()->pop(viewportState);
 
     vkCmdEndRenderPass(vk_commandBuffer);
-
 }
 
 void RenderGraph::resized()
