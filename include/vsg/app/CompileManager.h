@@ -49,7 +49,7 @@ namespace vsg
         void add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for Window and associated viewport.
-        void add(Window& window, const ResourceRequirements& resourceRequirements = {});
+        void add(Window& window, ref_ptr<ViewportState> viewport = {}, const ResourceRequirements& resourceRequirements = {});
 
         /// add a compile Context for View
         void add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements = {});

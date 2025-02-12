@@ -45,6 +45,12 @@ CompileTraversal::CompileTraversal(ref_ptr<Device> device, const ResourceRequire
     add(device, resourceRequirements);
 }
 
+CompileTraversal::CompileTraversal(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+{
+    overrideMask = vsg::MASK_ALL;
+    add(window, viewport, resourceRequirements);
+}
+
 CompileTraversal::CompileTraversal(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
 {
     overrideMask = vsg::MASK_ALL;
@@ -71,7 +77,7 @@ void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& r
     add(device, nullptr, resourceRequirements);
 }
 
-void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
     auto device = window.getOrCreateDevice();
     auto renderPass = window.getOrCreateRenderPass();
@@ -88,9 +94,9 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, c
     contexts.push_back(context);
 }
 
-void CompileTraversal::add(Window& window, const ResourceRequirements& resourceRequirements)
+void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
-    add(window, ref_ptr<TransferTask>{}, resourceRequirements);
+    add(window, nullptr, viewport, resourceRequirements);
 }
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
