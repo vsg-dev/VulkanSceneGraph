@@ -18,7 +18,7 @@ using namespace vsg;
 
 ViewportState::ViewportState()
 {
-    slot = 3;
+    slot = 8;
 }
 
 ViewportState::ViewportState(const ViewportState& vs) :
