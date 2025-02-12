@@ -89,6 +89,11 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
     context->graphicsQueue = device->getQueue(queueFamily, queueFamilyIndex);
     context->transferTask = transferTask;
 
+    if (viewport)
+        context->defaultPipelineStates.emplace_back(viewport);
+    else
+        context->defaultPipelineStates.emplace_back(vsg::ViewportState::create(window.extent2D()));
+
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(MultisampleState::create(renderPass->maxSamples));
 
     contexts.push_back(context);
@@ -114,6 +119,11 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
 
     context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
+
+    if (view->camera && view->camera->viewportState)
+        context->defaultPipelineStates.emplace_back(view->camera->viewportState);
+    else
+        context->defaultPipelineStates.emplace_back(vsg::ViewportState::create(window.extent2D()));
 
     context->view = view.get();
     context->viewID = view->viewID;
@@ -148,6 +158,11 @@ void CompileTraversal::add(ref_ptr<Context> context, Framebuffer& framebuffer, r
     auto renderPass = context->renderPass = framebuffer.getRenderPass();
     if (renderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT) context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(renderPass->maxSamples));
     context->overridePipelineStates.insert(context->overridePipelineStates.end(), view->overridePipelineStates.begin(), view->overridePipelineStates.end());
+
+    if (view->camera && view->camera->viewportState)
+        context->defaultPipelineStates.emplace_back(view->camera->viewportState);
+    else
+        context->defaultPipelineStates.emplace_back(vsg::ViewportState::create(framebuffer.extent2D()));
 
     context->view = view.get();
     context->viewID = view->viewID;
@@ -337,6 +352,15 @@ void CompileTraversal::apply(SecondaryCommandGraph& secondaryCommandGraph)
 
         context->renderPass = renderPass;
 
+        if (secondaryCommandGraph.window)
+        {
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(secondaryCommandGraph.window->extent2D()));
+        }
+        else if (secondaryCommandGraph.framebuffer)
+        {
+            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(secondaryCommandGraph.framebuffer->extent2D()));
+        }
+
         if (renderPass)
         {
             mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
@@ -365,6 +389,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, renderGraph.viewportState);
 
         context->renderPass = renderGraph.getRenderPass();
+
         if (context->renderPass)
         {
             mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, MultisampleState::create(context->renderPass->maxSamples));
