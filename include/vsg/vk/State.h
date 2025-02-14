@@ -319,7 +319,7 @@ namespace vsg
             dirty = true;
         }
 
-        void remove_dirty(StateCommandStack* stack)
+        void remove_dirty(const StateCommandStack* stack)
         {
             if (stack == last_dirty)
             {
