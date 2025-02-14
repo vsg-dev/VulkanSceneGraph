@@ -251,6 +251,12 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
+        void reserve(uint32_t maxSlot)
+        {
+            size_t required_size = static_cast<size_t>(maxSlot) + 1;
+            if (required_size > stateStacks.size()) stateStacks.resize(required_size);
+        }
+
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
             inheritedProjectionMatrix = projMatrix;
