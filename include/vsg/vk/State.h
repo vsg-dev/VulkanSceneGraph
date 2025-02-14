@@ -58,7 +58,6 @@ namespace vsg
         size_t size() const { return stack.size(); }
         const T* top() const { return stack.top(); }
 
-
         inline void record(CommandBuffer& commandBuffer)
         {
             stack.top()->record(commandBuffer);
@@ -295,7 +294,6 @@ namespace vsg
                     last_dirty = stack->last_dirty;
                     stack->record(*_commandBuffer);
                     stack->last_dirty = nullptr;
-
                 }
 
                 projectionMatrixStack.record(*_commandBuffer);
@@ -330,10 +328,12 @@ namespace vsg
             else if (stack->last_dirty != nullptr)
             {
                 StateCommandStack* dirty_chain = last_dirty;
-                while(dirty_chain != nullptr)
+                while (dirty_chain != nullptr)
                 {
-                    if (dirty_chain->last_dirty == stack) dirty_chain->last_dirty = stack->last_dirty; // skip connection to dirty stack.
-                    else dirty_chain = dirty_chain->last_dirty;
+                    if (dirty_chain->last_dirty == stack)
+                        dirty_chain->last_dirty = stack->last_dirty; // skip connection to dirty stack.
+                    else
+                        dirty_chain = dirty_chain->last_dirty;
                 }
             }
         }

@@ -65,8 +65,10 @@ void CommandGraph::reset()
 ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 {
     //CPU_INSTRUMENTATION_L1(instrumentation);
-    if (!recordTraversal) recordTraversal = RecordTraversal::create(maxSlot);
-    else recordTraversal->getState()->reserve(maxSlot);
+    if (!recordTraversal)
+        recordTraversal = RecordTraversal::create(maxSlot);
+    else
+        recordTraversal->getState()->reserve(maxSlot);
 
     return recordTraversal;
 }
