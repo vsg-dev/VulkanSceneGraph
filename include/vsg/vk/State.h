@@ -303,12 +303,13 @@ namespace vsg
             }
         }
 
-        inline void push(const StateCommands& commands)
+        template<typename Iterator>
+        inline void push(Iterator begin, Iterator end)
         {
-            for (auto& command : commands)
+            for (auto itr = begin; itr != end; ++itr)
             {
-                StateCommandStack* stack = &stateStacks[command->slot];
-                stack->push(command);
+                StateCommandStack* stack = &stateStacks[(*itr)->slot];
+                stack->push(*itr);
 
                 if (stack->last_dirty == nullptr)
                 {
@@ -317,6 +318,19 @@ namespace vsg
                 }
             }
             dirty = true;
+        }
+
+        template<typename T>
+        inline void push(T command)
+        {
+            StateCommandStack* stack = &stateStacks[command->slot];
+            stack->push(command);
+            if (stack->last_dirty == nullptr)
+            {
+                stack->last_dirty = last_dirty;
+                last_dirty = stack;
+                dirty = true;
+            }
         }
 
         void remove_dirty(const StateCommandStack* stack)
@@ -338,11 +352,12 @@ namespace vsg
             }
         }
 
-        inline void pop(const StateCommands& commands)
+        template<typename Iterator>
+        inline void pop(Iterator begin, Iterator end)
         {
-            for (const auto& command : commands)
+            for (auto itr = begin; itr != end; ++itr)
             {
-                StateCommandStack* stack = &stateStacks[command->slot];
+                StateCommandStack* stack = &stateStacks[(*itr)->slot];
                 stack->pop();
 
                 if (stack->empty())
@@ -358,19 +373,8 @@ namespace vsg
             }
         }
 
-        inline void push(ref_ptr<StateCommand> command)
-        {
-            StateCommandStack* stack = &stateStacks[command->slot];
-            stack->push(command);
-            if (stack->last_dirty == nullptr)
-            {
-                stack->last_dirty = last_dirty;
-                last_dirty = stack;
-                dirty = true;
-            }
-        }
-
-        inline void pop(ref_ptr<StateCommand> command)
+        template<typename T>
+        inline void pop(T command)
         {
             StateCommandStack* stack = &stateStacks[command->slot];
             stack->pop();

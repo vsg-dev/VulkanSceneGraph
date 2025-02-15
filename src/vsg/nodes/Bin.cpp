@@ -90,13 +90,11 @@ void Bin::add(State* state, double value, const Node* node)
 #endif
 
     element.stateCommandIndex = static_cast<uint32_t>(_stateCommands.size());
-    for (const auto& stateStack : state->stateStacks)
+
+    for (const State::StateCommandStack* last_dirty = state->last_dirty; last_dirty != nullptr; last_dirty = last_dirty->last_dirty)
     {
-        if (stateStack.size() > 0)
-        {
-            _stateCommands.push_back(stateStack.top());
-            ++element.stateCommandCount;
-        }
+        _stateCommands.push_back(last_dirty->top());
+        ++element.stateCommandCount;
     }
 
     element.child = node;
@@ -149,20 +147,13 @@ void Bin::traverse(RecordTraversal& rt) const
 
         if (element.stateCommandCount > 0)
         {
-            uint32_t endIndex = element.stateCommandIndex + element.stateCommandCount;
-            for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
-            {
-                auto command = _stateCommands[i];
-                state->stateStacks[command->slot].push(command);
-            }
+            auto begin = _stateCommands.begin() + element.stateCommandIndex;
+            auto end = begin + element.stateCommandCount;
+            state->push(begin, end);
 
             element.child->accept(rt);
 
-            for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
-            {
-                auto command = _stateCommands[i];
-                state->stateStacks[command->slot].pop();
-            }
+            state->pop(begin, end);
         }
         else
         {

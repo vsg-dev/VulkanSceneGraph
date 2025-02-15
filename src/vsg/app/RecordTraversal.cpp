@@ -484,11 +484,14 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
 
     //debug("Visiting StateGroup");
 
-    _state->push(stateGroup.stateCommands);
+    auto begin = stateGroup.stateCommands.begin();
+    auto end = stateGroup.stateCommands.end();
+
+    _state->push(begin, end);
 
     stateGroup.traverse(*this);
 
-    _state->pop(stateGroup.stateCommands);
+    _state->pop(begin, end);
 }
 
 void RecordTraversal::apply(const Commands& commands)
