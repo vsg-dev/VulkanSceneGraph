@@ -130,6 +130,7 @@ namespace vsg
         void apply(const DescriptorImage& descriptorImage) override;
         void apply(const PagedLOD& plod) override;
         void apply(const Light& light) override;
+        void apply(const RenderGraph& rg) override;
         void apply(const View& view) override;
         void apply(const DepthSorted& depthSorted) override;
         void apply(const Layer& layer) override;

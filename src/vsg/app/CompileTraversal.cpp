@@ -386,15 +386,9 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
         auto previousOverridePipelineStates = context->overridePipelineStates;
 
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, renderGraph.viewportState);
+
         context->renderPass = renderGraph.getRenderPass();
-        if (renderGraph.window)
-        {
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
-        }
-        else if (renderGraph.framebuffer)
-        {
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
-        }
 
         if (context->renderPass)
         {
@@ -438,7 +432,7 @@ void CompileTraversal::apply(View& view)
         }
 
         // assign view specific pipeline states
-        if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
         mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, view.overridePipelineStates);
 
         view.traverse(*this);

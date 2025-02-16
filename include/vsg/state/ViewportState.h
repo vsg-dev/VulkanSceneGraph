@@ -51,6 +51,9 @@ namespace vsg
         void write(Output& output) const override;
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
+        /// enable ViewportState to be recorded via vkCmdSetScissor and vkCmdSetViewport
+        void record(CommandBuffer& commandBuffer) const override;
+
     protected:
         virtual ~ViewportState();
     };

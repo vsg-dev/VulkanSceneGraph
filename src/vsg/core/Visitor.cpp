@@ -818,7 +818,7 @@ void Visitor::apply(RayTracingPipeline& value)
 }
 void Visitor::apply(GraphicsPipelineState& value)
 {
-    apply(static_cast<Object&>(value));
+    apply(static_cast<StateCommand&>(value));
 }
 void Visitor::apply(ShaderStage& value)
 {

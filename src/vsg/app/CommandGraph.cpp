@@ -66,9 +66,10 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 {
     //CPU_INSTRUMENTATION_L1(instrumentation);
     if (!recordTraversal)
-    {
         recordTraversal = RecordTraversal::create(maxSlot);
-    }
+    else
+        recordTraversal->getState()->reserve(maxSlot);
+
     return recordTraversal;
 }
 
@@ -84,11 +85,6 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     // create the RecordTraversal if it isn't already created
     getOrCreateRecordTraversal();
-
-    if ((maxSlot + 1) != recordTraversal->getState()->stateStacks.size())
-    {
-        recordTraversal->getState()->stateStacks.resize(maxSlot + 1);
-    }
 
     recordTraversal->recordedCommandBuffers = recordedCommandBuffers;
     recordTraversal->setFrameStamp(frameStamp);
