@@ -91,11 +91,22 @@ void Bin::add(State* state, double value, const Node* node)
 
     element.stateCommandIndex = static_cast<uint32_t>(_stateCommands.size());
 
+#if 0
     for (const State::StateCommandStack* last_dirty = state->last_dirty; last_dirty != nullptr; last_dirty = last_dirty->last_dirty)
     {
         _stateCommands.push_back(last_dirty->top());
         ++element.stateCommandCount;
     }
+#else
+    for(auto& stateStack : state->stateStacks)
+    {
+        if (stateStack.size() > 0)
+        {
+            _stateCommands.push_back(stateStack.top());
+            ++element.stateCommandCount;
+        }
+    }
+#endif
 
     element.child = node;
 
