@@ -32,42 +32,35 @@ namespace vsg
     class StateStack
     {
     public:
-        StateStack() :
-            dirty(false) {}
+        StateStack() {}
 
         using Stack = std::stack<ref_ptr<const T>>;
         Stack stack;
-        bool dirty;
+        StateStack* last_dirty = nullptr;
 
         template<class R>
         inline void push(ref_ptr<R> value)
         {
             stack.push(value);
-            dirty = true;
         }
 
         template<class R>
         inline void push(R* value)
         {
             stack.push(ref_ptr<const T>(value));
-            dirty = true;
         }
 
         inline void pop()
         {
             stack.pop();
-            dirty = !stack.empty();
         }
+        bool empty() const { return stack.empty(); }
         size_t size() const { return stack.size(); }
         const T* top() const { return stack.top(); }
 
         inline void record(CommandBuffer& commandBuffer)
         {
-            if (dirty)
-            {
-                stack.top()->record(commandBuffer);
-                dirty = false;
-            }
+            stack.top()->record(commandBuffer);
         }
     };
 
@@ -233,7 +226,8 @@ namespace vsg
         {
         }
 
-        using StateStacks = std::vector<StateStack<StateCommand>>;
+        using StateCommandStack = StateStack<StateCommand>;
+        using StateStacks = std::vector<StateCommandStack>;
 
         ref_ptr<CommandBuffer> _commandBuffer;
 
@@ -250,10 +244,17 @@ namespace vsg
         dmat4 inheritedViewMatrix;
         dmat4 inheritedViewTransform;
 
+        StateCommandStack* last_dirty = nullptr;
         StateStacks stateStacks;
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
+
+        void reserve(uint32_t maxSlot)
+        {
+            size_t required_size = static_cast<size_t>(maxSlot) + 1;
+            if (required_size > stateStacks.size()) stateStacks.resize(required_size);
+        }
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
@@ -287,15 +288,105 @@ namespace vsg
         {
             if (dirty)
             {
-                for (auto& stateStack : stateStacks)
+                while (last_dirty != nullptr)
                 {
-                    stateStack.record(*_commandBuffer);
+                    StateCommandStack* stack = last_dirty;
+                    last_dirty = stack->last_dirty;
+                    stack->record(*_commandBuffer);
+                    stack->last_dirty = nullptr;
                 }
 
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);
 
                 dirty = false;
+            }
+        }
+
+        template<typename Iterator>
+        inline void push(Iterator begin, Iterator end)
+        {
+            for (auto itr = begin; itr != end; ++itr)
+            {
+                StateCommandStack* stack = &stateStacks[(*itr)->slot];
+                stack->push(*itr);
+
+                if (stack->last_dirty == nullptr)
+                {
+                    stack->last_dirty = last_dirty;
+                    last_dirty = stack;
+                }
+            }
+            dirty = true;
+        }
+
+        template<typename T>
+        inline void push(T command)
+        {
+            StateCommandStack* stack = &stateStacks[command->slot];
+            stack->push(command);
+            if (stack->last_dirty == nullptr)
+            {
+                stack->last_dirty = last_dirty;
+                last_dirty = stack;
+                dirty = true;
+            }
+        }
+
+        void remove_dirty(const StateCommandStack* stack)
+        {
+            if (stack == last_dirty)
+            {
+                last_dirty = nullptr;
+            }
+            else if (stack->last_dirty != nullptr)
+            {
+                StateCommandStack* dirty_chain = last_dirty;
+                while (dirty_chain != nullptr)
+                {
+                    if (dirty_chain->last_dirty == stack)
+                        dirty_chain->last_dirty = stack->last_dirty; // skip connection to dirty stack.
+                    else
+                        dirty_chain = dirty_chain->last_dirty;
+                }
+            }
+        }
+
+        template<typename Iterator>
+        inline void pop(Iterator begin, Iterator end)
+        {
+            for (auto itr = begin; itr != end; ++itr)
+            {
+                StateCommandStack* stack = &stateStacks[(*itr)->slot];
+                stack->pop();
+
+                if (stack->empty())
+                {
+                    remove_dirty(stack);
+                }
+                else if (stack->last_dirty == nullptr)
+                {
+                    stack->last_dirty = last_dirty;
+                    last_dirty = stack;
+                    dirty = true;
+                }
+            }
+        }
+
+        template<typename T>
+        inline void pop(T command)
+        {
+            StateCommandStack* stack = &stateStacks[command->slot];
+            stack->pop();
+            if (stack->empty())
+            {
+                remove_dirty(stack);
+            }
+            else if (stack->last_dirty == nullptr)
+            {
+                stack->last_dirty = last_dirty;
+                last_dirty = stack;
+                dirty = true;
             }
         }
 

@@ -285,27 +285,31 @@ namespace vsg
         return output;
     }
 
-
     inline std::istream& operator>>(std::istream& input, CoordinateSpace& coordinateSpace)
     {
-        std::string value;
-        input >> value;
+        std::string str;
+        input >> str;
 
-        if (value == "LINEAR") coordinateSpace = CoordinateSpace::LINEAR;
-        else if (value == "sRGB") coordinateSpace = CoordinateSpace::sRGB;
-        else coordinateSpace = CoordinateSpace::NO_PREFERENCE;
+        if (str == "LINEAR")
+            coordinateSpace = CoordinateSpace::LINEAR;
+        else if (str == "sRGB")
+            coordinateSpace = CoordinateSpace::sRGB;
+        else
+            coordinateSpace = CoordinateSpace::NO_PREFERENCE;
 
         return input;
     }
 
     inline std::ostream& operator<<(std::ostream& output, const CoordinateSpace& coordinateSpace)
     {
-        if (coordinateSpace==CoordinateSpace::LINEAR) output<<"LINEAR";
-        else if (coordinateSpace==CoordinateSpace::sRGB) output<<"sRGB";
-        else output<<"NO_PREFERENCE";
+        if (coordinateSpace == CoordinateSpace::LINEAR)
+            output << "LINEAR";
+        else if (coordinateSpace == CoordinateSpace::sRGB)
+            output << "sRGB";
+        else
+            output << "NO_PREFERENCE";
 
         return output;
     }
-
 
 } // namespace vsg

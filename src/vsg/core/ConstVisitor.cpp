@@ -818,7 +818,7 @@ void ConstVisitor::apply(const RayTracingPipeline& value)
 }
 void ConstVisitor::apply(const GraphicsPipelineState& value)
 {
-    apply(static_cast<const Object&>(value));
+    apply(static_cast<const StateCommand&>(value));
 }
 void ConstVisitor::apply(const ShaderStage& value)
 {

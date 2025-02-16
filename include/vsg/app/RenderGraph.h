@@ -47,8 +47,11 @@ namespace vsg
         /// Get the Extent2D of the attached Framebuffer or Window.
         VkExtent2D getExtent() const;
 
-        /// RenderArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually matches the ViewportState's scissor
+        /// RenderArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass
         VkRect2D renderArea;
+
+        // Default ViewportState to use for graphics pipelines under this RenderGraph, this be will synced with the renderArea.
+        ref_ptr<ViewportState> viewportState;
 
         /// RenderPass to use passed to the vkCmdBeginRenderPass in place of the framebuffer's or window's renderPass. renderPass must be compatible with the render pass used to create the window or framebuffer.
         ref_ptr<RenderPass> renderPass;

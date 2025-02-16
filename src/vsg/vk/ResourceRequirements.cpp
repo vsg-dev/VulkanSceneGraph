@@ -155,7 +155,6 @@ void CollectResourceRequirements::apply(const PagedLOD& plod)
 void CollectResourceRequirements::apply(const StateCommand& stateCommand)
 {
     if (stateCommand.slot > requirements.maxSlot) requirements.maxSlot = stateCommand.slot;
-
     stateCommand.traverse(*this);
 }
 
@@ -212,8 +211,15 @@ void CollectResourceRequirements::apply(const Light& light)
     requirements.viewDetailsStack.top().lights.insert(&light);
 }
 
+void CollectResourceRequirements::apply(const RenderGraph& rg)
+{
+    if (rg.viewportState) rg.viewportState->accept(*this);
+    rg.traverse(*this);
+}
+
 void CollectResourceRequirements::apply(const View& view)
 {
+    if (view.camera && view.camera->viewportState) view.camera->viewportState->accept(*this);
 
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {
