@@ -98,7 +98,7 @@ void Bin::add(State* state, double value, const Node* node)
         ++element.stateCommandCount;
     }
 #else
-    for(auto& stateStack : state->stateStacks)
+    for (auto& stateStack : state->stateStacks)
     {
         if (stateStack.size() > 0)
         {
