@@ -311,7 +311,7 @@ namespace vsg
                 StateCommandStack* stack = &stateStacks[(*itr)->slot];
                 stack->push(*itr);
 
-                if (stack->last_dirty == nullptr)
+                if (stack->last_dirty == nullptr && last_dirty != stack)
                 {
                     stack->last_dirty = last_dirty;
                     last_dirty = stack;
@@ -325,7 +325,7 @@ namespace vsg
         {
             StateCommandStack* stack = &stateStacks[command->slot];
             stack->push(command);
-            if (stack->last_dirty == nullptr)
+            if (stack->last_dirty == nullptr && last_dirty != stack)
             {
                 stack->last_dirty = last_dirty;
                 last_dirty = stack;
