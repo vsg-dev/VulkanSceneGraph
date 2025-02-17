@@ -81,4 +81,16 @@ namespace vsg
         return lhs.width != rhs.width || lhs.height != rhs.height;
     }
 
+    constexpr bool operator==(const VkRect2D& lhs, const VkRect2D& rhs)
+    {
+        return (lhs.offset.x == rhs.offset.x) && (lhs.offset.y == rhs.offset.y) &&
+               (lhs.extent.width == rhs.extent.width) && (lhs.extent.height == rhs.extent.height);
+    }
+
+    constexpr bool operator!=(const VkRect2D& lhs, const VkRect2D& rhs)
+    {
+        return (lhs.offset.x != rhs.offset.x) || (lhs.offset.y != rhs.offset.y) ||
+               (lhs.extent.width != rhs.extent.width) || (lhs.extent.height != rhs.extent.height);
+    }
+
 } // namespace vsg
