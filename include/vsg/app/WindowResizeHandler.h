@@ -58,7 +58,8 @@ namespace vsg
             return static_cast<T>(static_cast<float>(original) * static_cast<float>(extentNew) / static_cast<float>(extentOriginal) + 0.5f);
         }
 
-        void scale_rect(VkRect2D& rect);
+        virtual void scale_rect(VkRect2D& rect);
+        virtual void scale_viewport(VkViewport& viewport);
 
         /// return true if the object was visited
         bool visit(const Object* object, uint32_t index = 0);
