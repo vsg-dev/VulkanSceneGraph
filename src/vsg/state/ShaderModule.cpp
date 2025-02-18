@@ -54,7 +54,7 @@ void ShaderCompileSettings::read(Input& input)
         input.read("generateDebugInfo", generateDebugInfo);
     }
 
-    if (input.version_greater_equal(1, 1, 10))
+    if (input.version_greater_equal(1, 1, 11))
     {
         input.read("optimize", optimize);
     }
@@ -76,7 +76,7 @@ void ShaderCompileSettings::write(Output& output) const
         output.write("generateDebugInfo", generateDebugInfo);
     }
 
-    if (output.version_greater_equal(1, 1, 10))
+    if (output.version_greater_equal(1, 1, 11))
     {
         output.write("optimize", optimize);
     }
