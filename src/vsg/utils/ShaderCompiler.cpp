@@ -25,6 +25,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    include <glslang/SPIRV/GlslangToSpv.h>
 #endif
 
+#if VSG_SUPPORTS_ShaderOptimizer
+#    include <spirv-tools/optimizer.hpp>
+#endif
+
 #include <algorithm>
 #include <iomanip>
 
@@ -35,26 +39,61 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+namespace
+{
 #if VSG_SUPPORTS_ShaderCompiler
-static std::atomic_uint s_initialized = 0;
+    static std::atomic_uint s_initialized = 0;
 
-static void s_initializeProcess()
-{
-    if (s_initialized.fetch_add(1) == 0)
+    static void s_initializeProcess()
     {
-        glslang::InitializeProcess();
+        if (s_initialized.fetch_add(1) == 0)
+        {
+            glslang::InitializeProcess();
+        }
     }
-}
 
-static void s_finalizeProcess()
-{
-    if (s_initialized.fetch_sub(1) == 1)
+    static void s_finalizeProcess()
     {
-        glslang::FinalizeProcess();
+        if (s_initialized.fetch_sub(1) == 1)
+        {
+            glslang::FinalizeProcess();
+        }
     }
-}
 
 #endif
+
+#if VSG_SUPPORTS_ShaderOptimizer
+    constexpr static spv_target_env selectTargetEnv(const ShaderCompileSettings& settings)
+    {
+        switch (settings.vulkanVersion)
+        {
+            case VK_MAKE_API_VERSION(0, 1, 0, 0):
+                return SPV_ENV_VULKAN_1_0;
+            case VK_MAKE_API_VERSION(0, 1, 1, 0):
+                switch (settings.target)
+                {
+                    case ShaderCompileSettings::SPIRV_1_0:
+                    case ShaderCompileSettings::SPIRV_1_1:
+                    case ShaderCompileSettings::SPIRV_1_2:
+                    case ShaderCompileSettings::SPIRV_1_3:
+                        return SPV_ENV_VULKAN_1_1;
+                    case ShaderCompileSettings::SPIRV_1_4:
+                        return SPV_ENV_VULKAN_1_1_SPIRV_1_4;
+                    default:
+                        return SPV_ENV_VULKAN_1_1;
+                }
+            case VK_MAKE_API_VERSION(0, 1, 2, 0):
+                return SPV_ENV_VULKAN_1_2;
+            case VK_MAKE_API_VERSION(0, 1, 3, 0):
+                return SPV_ENV_VULKAN_1_3;
+            //case VK_MAKE_API_VERSION(0, 1, 4, 0):
+            //    return SPV_ENV_VULKAN_1_4;
+            default:
+                return SPV_ENV_UNIVERSAL_1_0;
+        }
+    }
+#endif
+}
 
 std::string debugFormatShaderSource(const std::string& source)
 {
@@ -74,7 +113,39 @@ std::string debugFormatShaderSource(const std::string& source)
 ShaderCompiler::ShaderCompiler() :
     Inherit(),
     defaults(ShaderCompileSettings::create())
+#if VSG_SUPPORTS_ShaderOptimizer
+    , optimizer(std::make_unique<spvtools::Optimizer>(selectTargetEnv(*defaults)))
+#endif
 {
+#if VSG_SUPPORTS_ShaderOptimizer
+    optimizer->SetMessageConsumer([](spv_message_level_t level, const char* source,
+                                     const spv_position_t& position, const char* message){
+            Logger::Level vsgLevel;
+            switch (level)
+            {
+            case SPV_MSG_FATAL:
+            case SPV_MSG_INTERNAL_ERROR:
+                vsgLevel = Logger::LOGGER_FATAL;
+                break;
+            case SPV_MSG_ERROR:
+                vsgLevel = Logger::LOGGER_ERROR;
+                break;
+            case SPV_MSG_WARNING:
+                vsgLevel = Logger::LOGGER_WARN;
+                break;
+            case SPV_MSG_INFO:
+                vsgLevel = Logger::LOGGER_INFO;
+                break;
+            case SPV_MSG_DEBUG:
+                vsgLevel = Logger::LOGGER_DEBUG;
+                break;
+            default:
+                vsgLevel = Logger::LOGGER_INFO;
+                break;
+            }
+            vsg::log(vsgLevel, "spvtools::Optimizer: ", source ? source : "", ", ", position.line, ", ", position.column, ", ", position.index, ", ", message ? message : "No message");
+        });
+#endif
 }
 
 ShaderCompiler::~ShaderCompiler()
@@ -284,6 +355,21 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
             vsg_shader->module->code.clear();
             glslang::GlslangToSpv(*(program->getIntermediate((EShLanguage)eshl_stage)), vsg_shader->module->code, &logger, &spvOptions);
+
+#if VSG_SUPPORTS_ShaderOptimizer
+            if (settings && optimizer && settings->optimize)
+            {
+                optimizer->SetTargetEnv(selectTargetEnv(*settings));
+                optimizer->RegisterPerformancePasses(true);
+                vsg::ShaderModule::SPIRV unoptimized(std::move(vsg_shader->module->code));
+                bool success = optimizer->Run(unoptimized.data(), unoptimized.size(), &vsg_shader->module->code);
+                if (!success)
+                {
+                    warn("Shader optimisation failed, reverting to unoptimised.");
+                    vsg_shader->module->code = std::move(unoptimized);
+                }
+            }
+#endif
         }
     }
 
