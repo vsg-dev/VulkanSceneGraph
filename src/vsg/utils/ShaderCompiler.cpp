@@ -113,39 +113,7 @@ std::string debugFormatShaderSource(const std::string& source)
 ShaderCompiler::ShaderCompiler() :
     Inherit(),
     defaults(ShaderCompileSettings::create())
-#if VSG_SUPPORTS_ShaderOptimizer
-    , optimizer(std::make_unique<spvtools::Optimizer>(selectTargetEnv(*defaults)))
-#endif
 {
-#if VSG_SUPPORTS_ShaderOptimizer
-    optimizer->SetMessageConsumer([](spv_message_level_t level, const char* source,
-                                     const spv_position_t& position, const char* message){
-            Logger::Level vsgLevel;
-            switch (level)
-            {
-            case SPV_MSG_FATAL:
-            case SPV_MSG_INTERNAL_ERROR:
-                vsgLevel = Logger::LOGGER_FATAL;
-                break;
-            case SPV_MSG_ERROR:
-                vsgLevel = Logger::LOGGER_ERROR;
-                break;
-            case SPV_MSG_WARNING:
-                vsgLevel = Logger::LOGGER_WARN;
-                break;
-            case SPV_MSG_INFO:
-                vsgLevel = Logger::LOGGER_INFO;
-                break;
-            case SPV_MSG_DEBUG:
-                vsgLevel = Logger::LOGGER_DEBUG;
-                break;
-            default:
-                vsgLevel = Logger::LOGGER_INFO;
-                break;
-            }
-            vsg::log(vsgLevel, "spvtools::Optimizer: ", source ? source : "", ", ", position.line, ", ", position.column, ", ", position.index, ", ", message ? message : "No message");
-        });
-#endif
 }
 
 ShaderCompiler::~ShaderCompiler()
@@ -197,6 +165,36 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     TShaders tshaders;
 
     auto builtInResources = GetDefaultResources();
+
+#if VSG_SUPPORTS_ShaderOptimizer
+    auto optimizer = std::make_unique<spvtools::Optimizer>(selectTargetEnv(*defaults));
+    optimizer->SetMessageConsumer([](spv_message_level_t level, const char* source, const spv_position_t& position, const char* message) {
+        Logger::Level vsgLevel;
+        switch (level)
+        {
+        case SPV_MSG_FATAL:
+        case SPV_MSG_INTERNAL_ERROR:
+            vsgLevel = Logger::LOGGER_FATAL;
+            break;
+        case SPV_MSG_ERROR:
+            vsgLevel = Logger::LOGGER_ERROR;
+            break;
+        case SPV_MSG_WARNING:
+            vsgLevel = Logger::LOGGER_WARN;
+            break;
+        case SPV_MSG_INFO:
+            vsgLevel = Logger::LOGGER_INFO;
+            break;
+        case SPV_MSG_DEBUG:
+            vsgLevel = Logger::LOGGER_DEBUG;
+            break;
+        default:
+            vsgLevel = Logger::LOGGER_INFO;
+            break;
+        }
+        vsg::log(vsgLevel, "spvtools::Optimizer: ", source ? source : "", ", ", position.line, ", ", position.column, ", ", position.index, ", ", message ? message : "No message");
+    });
+#endif
 
     StageShaderMap stageShaderMap;
     std::unique_ptr<glslang::TProgram> program(new glslang::TProgram);
