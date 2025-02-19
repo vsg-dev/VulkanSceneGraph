@@ -83,8 +83,8 @@ void WindowResizeHandler::scale_rect(VkRect2D& rect)
 
 void WindowResizeHandler::scale_viewport(VkViewport& viewport)
 {
-    float scale_x =  static_cast<float>(new_extent.width) / static_cast<float>(previous_extent.width);
-    float scale_y =  static_cast<float>(new_extent.height) / static_cast<float>(previous_extent.height);
+    float scale_x = static_cast<float>(new_extent.width) / static_cast<float>(previous_extent.width);
+    float scale_y = static_cast<float>(new_extent.height) / static_cast<float>(previous_extent.height);
 
     viewport.x *= scale_x;
     viewport.y *= scale_y;

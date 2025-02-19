@@ -67,33 +67,33 @@ namespace
     {
         switch (settings.vulkanVersion)
         {
-            case VK_MAKE_API_VERSION(0, 1, 0, 0):
-                return SPV_ENV_VULKAN_1_0;
-            case VK_MAKE_API_VERSION(0, 1, 1, 0):
-                switch (settings.target)
-                {
-                    case ShaderCompileSettings::SPIRV_1_0:
-                    case ShaderCompileSettings::SPIRV_1_1:
-                    case ShaderCompileSettings::SPIRV_1_2:
-                    case ShaderCompileSettings::SPIRV_1_3:
-                        return SPV_ENV_VULKAN_1_1;
-                    case ShaderCompileSettings::SPIRV_1_4:
-                        return SPV_ENV_VULKAN_1_1_SPIRV_1_4;
-                    default:
-                        return SPV_ENV_VULKAN_1_1;
-                }
-            case VK_MAKE_API_VERSION(0, 1, 2, 0):
-                return SPV_ENV_VULKAN_1_2;
-            case VK_MAKE_API_VERSION(0, 1, 3, 0):
-                return SPV_ENV_VULKAN_1_3;
-            //case VK_MAKE_API_VERSION(0, 1, 4, 0):
-            //    return SPV_ENV_VULKAN_1_4;
+        case VK_MAKE_API_VERSION(0, 1, 0, 0):
+            return SPV_ENV_VULKAN_1_0;
+        case VK_MAKE_API_VERSION(0, 1, 1, 0):
+            switch (settings.target)
+            {
+            case ShaderCompileSettings::SPIRV_1_0:
+            case ShaderCompileSettings::SPIRV_1_1:
+            case ShaderCompileSettings::SPIRV_1_2:
+            case ShaderCompileSettings::SPIRV_1_3:
+                return SPV_ENV_VULKAN_1_1;
+            case ShaderCompileSettings::SPIRV_1_4:
+                return SPV_ENV_VULKAN_1_1_SPIRV_1_4;
             default:
-                return SPV_ENV_UNIVERSAL_1_0;
+                return SPV_ENV_VULKAN_1_1;
+            }
+        case VK_MAKE_API_VERSION(0, 1, 2, 0):
+            return SPV_ENV_VULKAN_1_2;
+        case VK_MAKE_API_VERSION(0, 1, 3, 0):
+            return SPV_ENV_VULKAN_1_3;
+        //case VK_MAKE_API_VERSION(0, 1, 4, 0):
+        //    return SPV_ENV_VULKAN_1_4;
+        default:
+            return SPV_ENV_UNIVERSAL_1_0;
         }
     }
 #endif
-}
+} // namespace
 
 std::string debugFormatShaderSource(const std::string& source)
 {
@@ -166,7 +166,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
     auto builtInResources = GetDefaultResources();
 
-#if VSG_SUPPORTS_ShaderOptimizer
+#    if VSG_SUPPORTS_ShaderOptimizer
     auto optimizer = std::make_unique<spvtools::Optimizer>(selectTargetEnv(*defaults));
     optimizer->SetMessageConsumer([](spv_message_level_t level, const char* source, const spv_position_t& position, const char* message) {
         Logger::Level vsgLevel;
@@ -194,7 +194,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         }
         vsg::log(vsgLevel, "spvtools::Optimizer: ", source ? source : "", ", ", position.line, ", ", position.column, ", ", position.index, ", ", message ? message : "No message");
     });
-#endif
+#    endif
 
     StageShaderMap stageShaderMap;
     std::unique_ptr<glslang::TProgram> program(new glslang::TProgram);
@@ -354,7 +354,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
             vsg_shader->module->code.clear();
             glslang::GlslangToSpv(*(program->getIntermediate((EShLanguage)eshl_stage)), vsg_shader->module->code, &logger, &spvOptions);
 
-#if VSG_SUPPORTS_ShaderOptimizer
+#    if VSG_SUPPORTS_ShaderOptimizer
             if (settings && optimizer && settings->optimize)
             {
                 optimizer->SetTargetEnv(selectTargetEnv(*settings));
@@ -367,7 +367,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
                     vsg_shader->module->code = std::move(unoptimized);
                 }
             }
-#endif
+#    endif
         }
     }
 
