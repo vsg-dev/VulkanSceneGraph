@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/State.h>
 
+using namespace vsg;
+
 void State::reserve(uint32_t maxSlot)
 {
     size_t requiredSize = static_cast<size_t>(maxSlot) + 1;
@@ -22,6 +24,8 @@ void State::reserve(uint32_t maxSlot)
         uint32_t numEntries = 1<<requiredSize;
 
         lookup.resize(numEntries);
+
+        stacks.clear();
         stacks.reserve(numEntries*(requiredSize+1)); // +1 as we need space for the end of list nullptr
         stacks.push_back(nullptr); // 0 mask entry maps to a null/empty list.
 

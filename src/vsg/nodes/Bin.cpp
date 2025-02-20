@@ -145,6 +145,8 @@ void Bin::traverse(RecordTraversal& rt) const
 
     state->pushFrustum();
     state->dirty = true;
+    auto saved_dirtyMask = state->dirtyMask;
+    state->dirtyMask = 0;
 
     for (const auto& keyElement : _binElements)
     {
@@ -181,6 +183,7 @@ void Bin::traverse(RecordTraversal& rt) const
 
     state->popFrustum();
     state->dirty = true;
+    state->dirtyMask = saved_dirtyMask;
 }
 
 void Bin::read(Input& input)
