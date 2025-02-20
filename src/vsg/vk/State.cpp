@@ -12,13 +12,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/State.h>
 
-using namespace vsg;
-
 void State::reserve(uint32_t maxSlot)
 {
-    size_t required_size = static_cast<size_t>(maxSlot) + 1;
-    if (required_size > stateStacks.size())
+    size_t requiredSize = static_cast<size_t>(maxSlot) + 1;
+    if (requiredSize > stateStacks.size())
     {
-        stateStacks.resize(required_size);
+        stateStacks.resize(requiredSize);
+
+        uint32_t numEntries = 1<<requiredSize;
+
+        lookup.resize(numEntries);
+        stacks.reserve(numEntries*(requiredSize+1)); // +1 as we need space for the end of list nullptr
+        stacks.push_back(nullptr); // 0 mask entry maps to a null/empty list.
+
+        // build up the lookup and stacks vectors to provide the mapping between mask and StateStacks that will be active for them
+        for(uint32_t mask = 1; mask < numEntries; ++mask)
+        {
+            lookup[mask] = &(*stacks.end());
+            for(uint32_t slot = 0; slot <= maxSlot; ++slot)
+            {
+                if ((mask & (1<<slot)) != 0)
+                {
+                    stacks.push_back(&stateStacks[slot]);
+                }
+            }
+            stacks.push_back(nullptr);
+        }
     }
 }

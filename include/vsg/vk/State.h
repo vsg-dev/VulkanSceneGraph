@@ -238,7 +238,11 @@ namespace vsg
         FrustumStack _frustumStack;
 
         bool dirty = true;
+
         uint32_t dirtyMask = 0;
+        uint32_t activeMask = 263;
+        std::vector<StateCommandStack**> lookup;
+        std::vector<StateCommandStack*> stacks;
 
         bool inheritViewForLODScaling = false;
         dmat4 inheritedProjectionMatrix;
@@ -284,9 +288,11 @@ namespace vsg
         {
             if (dirty)
             {
-                for(uint32_t slot = 0; slot < stateStacks.size(); ++slot)
+                auto stack_ptr = lookup[dirtyMask];
+                while(*stack_ptr)
                 {
-                    if ((dirtyMask & (1<<slot))!=0) stateStacks[slot].record(*_commandBuffer);
+                    (*stack_ptr)->record(*_commandBuffer);
+                    ++stack_ptr;
                 }
 
                 projectionMatrixStack.record(*_commandBuffer);

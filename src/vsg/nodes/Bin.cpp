@@ -90,6 +90,21 @@ void Bin::add(State* state, double value, const Node* node)
 #endif
 
     element.stateCommandIndex = static_cast<uint32_t>(_stateCommands.size());
+
+#if 1
+    auto stack_ptr = state->lookup[state->activeMask];
+    while(*stack_ptr)
+    {
+        auto stateStack = (*stack_ptr);
+        if (stateStack->size() > 0)
+        {
+            _stateCommands.push_back(stateStack->top());
+            ++element.stateCommandCount;
+        }
+
+        ++stack_ptr;
+    }
+#else
     for (const auto& stateStack : state->stateStacks)
     {
         if (stateStack.size() > 0)
@@ -98,6 +113,7 @@ void Bin::add(State* state, double value, const Node* node)
             ++element.stateCommandCount;
         }
     }
+#endif
 
     element.child = node;
 
