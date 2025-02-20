@@ -32,31 +32,27 @@ namespace vsg
     class StateStack
     {
     public:
-        StateStack() :
-            dirty(false) {}
+        StateStack() {}
 
         using Stack = std::stack<ref_ptr<const T>>;
         Stack stack;
-        bool dirty;
 
         template<class R>
         inline void push(ref_ptr<R> value)
         {
             stack.push(value);
-            dirty = true;
         }
 
         template<class R>
         inline void push(R* value)
         {
             stack.push(ref_ptr<const T>(value));
-            dirty = true;
         }
 
-        inline void pop()
+        inline bool pop()
         {
             stack.pop();
-            dirty = !stack.empty();
+            return !stack.empty();
         }
         bool empty() const { return stack.empty(); }
         size_t size() const { return stack.size(); }
@@ -64,11 +60,7 @@ namespace vsg
 
         inline void record(CommandBuffer& commandBuffer)
         {
-            if (dirty)
-            {
-                stack.top()->record(commandBuffer);
-                dirty = false;
-            }
+            stack.top()->record(commandBuffer);
         }
     };
 
@@ -225,13 +217,13 @@ namespace vsg
     };
 
     /// vsg::State is used by vsg::RecordTraversal to manage state stacks, projection and modelview matrices and frustum stacks.
-    class State : public Inherit<Object, State>
+    class VSG_DECLSPEC State : public Inherit<Object, State>
     {
     public:
         explicit State(uint32_t maxSlot) :
-            dirty(false),
-            stateStacks(static_cast<size_t>(maxSlot) + 1)
+            dirty(false)
         {
+            reserve(maxSlot);
         }
 
         using StateCommandStack = StateStack<StateCommand>;
@@ -246,6 +238,7 @@ namespace vsg
         FrustumStack _frustumStack;
 
         bool dirty = true;
+        uint32_t dirtyMask = 0;
 
         bool inheritViewForLODScaling = false;
         dmat4 inheritedProjectionMatrix;
@@ -257,11 +250,7 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void reserve(uint32_t maxSlot)
-        {
-            size_t required_size = static_cast<size_t>(maxSlot) + 1;
-            if (required_size > stateStacks.size()) stateStacks.resize(required_size);
-        }
+        void reserve(uint32_t maxSlot);
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
@@ -295,16 +284,19 @@ namespace vsg
         {
             if (dirty)
             {
-                for (auto& stateStack : stateStacks)
+                for(uint32_t slot = 0; slot < stateStacks.size(); ++slot)
                 {
-                    stateStack.record(*_commandBuffer);
+                    if ((dirtyMask & (1<<slot))!=0) stateStacks[slot].record(*_commandBuffer);
                 }
 
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);
 
                 dirty = false;
+
             }
+            dirtyMask = 0;
+
         }
 
         template<typename Iterator>
@@ -313,6 +305,7 @@ namespace vsg
             for (auto itr = begin; itr != end; ++itr)
             {
                 stateStacks[(*itr)->slot].push((*itr));
+                dirtyMask |= (1<<((*itr)->slot));
             }
             dirty = true;
         }
@@ -328,7 +321,14 @@ namespace vsg
         {
             for (auto itr = begin; itr != end; ++itr)
             {
-                stateStacks[(*itr)->slot].pop();
+                if (stateStacks[(*itr)->slot].pop())
+                {
+                    dirtyMask |= (1<<((*itr)->slot));
+                }
+                else
+                {
+                    dirtyMask &= ~(1<<((*itr)->slot));
+                }
             }
             dirty = true;
         }
@@ -342,11 +342,19 @@ namespace vsg
         {
             stateStacks[command->slot].push(command);
             dirty = true;
+            dirtyMask |= (1<<command->slot);
         }
 
         inline void pop(ref_ptr<StateCommand> command)
         {
-            stateStacks[command->slot].pop();
+            if (stateStacks[command->slot].pop())
+            {
+                dirtyMask |= (1<<command->slot);
+            }
+            else
+            {
+                dirtyMask &= ~(1<<(command->slot));
+            }
             dirty = true;
         }
 

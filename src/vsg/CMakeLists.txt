@@ -239,6 +239,7 @@ set(SOURCES
     vk/Queue.cpp
     vk/RenderPass.cpp
     vk/Semaphore.cpp
+    vk/State.cpp
     vk/Surface.cpp
     vk/Swapchain.cpp
     vk/ResourceRequirements.cpp
