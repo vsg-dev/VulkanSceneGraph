@@ -42,5 +42,10 @@ void State::reserve(uint32_t maxSlot)
             }
             stacks.push_back(nullptr);
         }
+
+        activeMask = (1<<(maxSlot+1))-1;
+        dirtyMask = 0;
+
+        info("State::reserve(", maxSlot,") maxSlot = ", maxSlot, ", activeMask = ", activeMask, ", dirtyMask = ", dirtyMask);
     }
 }

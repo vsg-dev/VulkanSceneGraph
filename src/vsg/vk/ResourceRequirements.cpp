@@ -29,6 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/Context.h>
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceRequirements.h>
+#include <vsg/vk/State.h>
 
 using namespace vsg;
 
@@ -213,13 +214,17 @@ void CollectResourceRequirements::apply(const Light& light)
 
 void CollectResourceRequirements::apply(const RenderGraph& rg)
 {
+#if !LOCAL_VIEWPORT_RECORD
     if (rg.viewportState) rg.viewportState->accept(*this);
+#endif
     rg.traverse(*this);
 }
 
 void CollectResourceRequirements::apply(const View& view)
 {
+#if !LOCAL_VIEWPORT_RECORD
     if (view.camera && view.camera->viewportState) view.camera->viewportState->accept(*this);
+#endif
 
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())
     {

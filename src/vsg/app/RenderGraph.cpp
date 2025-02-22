@@ -149,12 +149,19 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     // sync the viewportState and push
     viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
+
+#if LOCAL_VIEWPORT_RECORD
+    if (viewportState) viewportState->record(*recordTraversal.getCommandBuffer());
+#else
     recordTraversal.getState()->push(viewportState);
+#endif
 
     // traverse the subgraph to place commands into the command buffer.
     traverse(recordTraversal);
 
+#if !LOCAL_VIEWPORT_RECORD
     recordTraversal.getState()->pop(viewportState);
+#endif
 
     vkCmdEndRenderPass(vk_commandBuffer);
 }

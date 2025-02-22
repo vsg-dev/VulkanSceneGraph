@@ -572,8 +572,11 @@ void RecordTraversal::apply(const View& view)
 
         if (const auto& viewportState = view.camera->viewportState)
         {
+#if LOCAL_VIEWPORT_RECORD
+            if (viewportState) viewportState->record(*getCommandBuffer());
+#else
             _state->push(viewportState);
-
+#endif
             if (_viewDependentState)
             {
                 auto& viewportData = _viewDependentState->viewportData;
@@ -598,7 +601,12 @@ void RecordTraversal::apply(const View& view)
 
             view.traverse(*this);
 
+#if LOCAL_VIEWPORT_RECORD
+            // viewportState->record(*getCommandBuffer());
+            // need to record previous state?
+#else
             _state->pop(viewportState);
+#endif
         }
         else
         {

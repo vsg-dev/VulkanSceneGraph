@@ -26,6 +26,7 @@ namespace vsg
 {
 
 #define POLYTOPE_SIZE 5
+#define LOCAL_VIEWPORT_RECORD 1
 
     /// StateStack used internally by vsg::State to manage stack of vsg::StateCommand
     template<class T>
@@ -240,7 +241,7 @@ namespace vsg
         bool dirty = true;
 
         uint32_t dirtyMask = 0;
-        uint32_t activeMask = 263;
+        uint32_t activeMask = 0;
         std::vector<StateCommandStack**> lookup;
         std::vector<StateCommandStack*> stacks;
 
