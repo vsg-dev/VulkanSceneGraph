@@ -36,7 +36,7 @@ jobs:
       shell: bash
       run: |
          if [ "$RUNNER_OS" == "Windows" ]; then
-              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
+              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64 -T ClangCL
               cmake --build .
          elif [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get -qq update
