@@ -46,7 +46,7 @@ namespace vsg
         uint32_t level;
     };
 
-    /// base class for Instrumentation implentations
+    /// base class for Instrumentation implementations
     class VSG_DECLSPEC Instrumentation : public Inherit<Object, Instrumentation>
     {
     public:

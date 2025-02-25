@@ -265,7 +265,7 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
         }
         else
         {
-            vsg::info("CompileTraversal::addViewDependentState(.., ", device, ", ", transferTask, "..) no frameBufer.");
+            vsg::info("CompileTraversal::addViewDependentState(.., ", device, ", ", transferTask, "..) no framebuffer.");
         }
     }
 }

@@ -47,7 +47,7 @@ namespace vsg
         /// create the Querypool
         void compile(Device* device);
 
-        /// call compile(context.deivce)
+        /// call compile(context.device)
         void compile(Context& context);
 
     protected:
