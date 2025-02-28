@@ -120,7 +120,7 @@ namespace vsg
         Presentations presentations;
 
         /// Create RecordAndSubmitTask and Presentation objects configured to manage specified commandGraphs and assign them to the viewer.
-        /// Replace any prexisting setup.
+        /// Replace any preexisting setup.
         virtual void assignRecordAndSubmitTaskAndPresentation(CommandGraphs commandGraphs);
 
         /// Add command graphs creating RecordAndSubmitTask/Presentation objects where appropriate.

@@ -760,7 +760,7 @@ vsg::ref_ptr<vsg::Node> tile::createECEFTile(const vsg::dbox& tile_extents, ref_
                 (*itr++) = tile_i + 1;
             }
 
-            // colum[0]
+            // column[0]
             uint32_t tile_left_column = 0;
             uint32_t skirt_left_column = vi;
             for (uint32_t r = 0; r < numRows; ++r, ++vi)

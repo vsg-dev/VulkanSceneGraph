@@ -100,7 +100,7 @@ namespace vsg
         /// mechanism for finding dynamic objects in loaded scene graph
         ref_ptr<FindDynamicObjects> findDynamicObjects;
 
-        /// mechanism for propogating dynamic objects classification up parental chain so that cloning is done on all dynamic objects to avoid sharing of dyanmic parts.
+        /// mechanism for propagating dynamic objects classification up parental chain so that cloning is done on all dynamic objects to avoid sharing of dynamic parts.
         ref_ptr<PropagateDynamicObjects> propagateDynamicObjects;
 
     public:
