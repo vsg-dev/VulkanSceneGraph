@@ -110,8 +110,8 @@ void WindowTraits::validate()
     {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+    if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     if (synchronizationLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_synchronization2");
 
     requestedLayers = vsg::validateInstancelayerNames(requestedLayers);
