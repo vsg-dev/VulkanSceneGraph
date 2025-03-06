@@ -679,19 +679,41 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
     // set up the light data
     auto light_itr = lightData->begin();
-    lightData->dirty();
+    uint32_t numLightDataChanges = 0;
 
-    (*light_itr++) = vec4(static_cast<float>(ambientLights.size()),
-                          static_cast<float>(directionalLights.size()),
-                          static_cast<float>(pointLights.size()),
-                          static_cast<float>(spotLights.size()));
+    auto assignLightData = [&](const vec4& value) -> void
+    {
+        if (*light_itr != value)
+        {
+            *light_itr = value;
+            ++numLightDataChanges;
+        }
+        ++light_itr;
+    };
+
+    auto assignLightData4 = [&](float x, float y, float z, float w) -> void
+    {
+        vec4 value(x,y,z,w);
+        if (*light_itr != value)
+        {
+            *light_itr = value;
+            ++numLightDataChanges;
+        }
+        ++light_itr;
+    };
+
+    assignLightData4(static_cast<float>(ambientLights.size()),
+                     static_cast<float>(directionalLights.size()),
+                     static_cast<float>(pointLights.size()),
+                     static_cast<float>(spotLights.size()));
+
 
     // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
 
     for (const auto& entry : ambientLights)
     {
         auto light = entry.second;
-        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
+        assignLightData4(light->color.r, light->color.g, light->color.b, light->intensity);
     }
 
     for (auto& [mv, light] : directionalLights)
@@ -700,8 +722,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         // assign basic direction light settings to light data
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
-        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
+        assignLightData4(light->color.r, light->color.g, light->color.b, light->intensity);
+        assignLightData4(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), 0.0f);
 
         auto shadowSettings = getActiveShadowSettings(light);
         uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
@@ -709,20 +731,20 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             if (shadowSettings->type_info() == typeid(HardShadows))
             {
-                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+                assignLightData4(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
             }
             else if (shadowSettings->type_info() == typeid(SoftShadows))
             {
                 const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
-                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+                assignLightData4(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
             }
             else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
             {
-                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(light->angleSubtended / 2), 0.0f);
+                assignLightData4(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, std::tan(light->angleSubtended / 2), 0.0f);
             }
         }
         else
-            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
+            assignLightData4(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (activeNumShadowMaps == 0) continue;
 
@@ -790,19 +812,19 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
 
-            (*light_itr++) = m[0];
-            (*light_itr++) = m[1];
-            (*light_itr++) = m[2];
-            (*light_itr++) = m[3];
+            assignLightData(m[0]);
+            assignLightData(m[1]);
+            assignLightData(m[2]);
+            assignLightData(m[3]);
 
             // info("m = ", m);
 
             m = inverse(m);
 
-            (*light_itr++) = m[0];
-            (*light_itr++) = m[1];
-            (*light_itr++) = m[2];
-            (*light_itr++) = m[3];
+            assignLightData(m[0]);
+            assignLightData(m[1]);
+            assignLightData(m[2]);
+            assignLightData(m[3]);
 
             // advance to the next shadowMap
             shadowMapIndex++;
@@ -849,8 +871,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     for (auto& [mv, light] : pointLights)
     {
         auto eye_position = mv * light->position;
-        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
+        assignLightData4(light->color.r, light->color.g, light->color.b, light->intensity);
+        assignLightData4(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), 0.0f);
     }
 
     for (auto& [mv, light] : spotLights)
@@ -859,9 +881,9 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         auto eye_direction = normalize(light->direction * inverse_3x3(mv));
         float cos_innerAngle = static_cast<float>(cos(light->innerAngle));
         float cos_outerAngle = static_cast<float>(cos(light->outerAngle));
-        (*light_itr++).set(light->color.r, light->color.g, light->color.b, light->intensity);
-        (*light_itr++).set(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
-        (*light_itr++).set(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
+        assignLightData4(light->color.r, light->color.g, light->color.b, light->intensity);
+        assignLightData4(static_cast<float>(eye_position.x), static_cast<float>(eye_position.y), static_cast<float>(eye_position.z), cos_innerAngle);
+        assignLightData4(static_cast<float>(eye_direction.x), static_cast<float>(eye_direction.y), static_cast<float>(eye_direction.z), cos_outerAngle);
 
         auto shadowSettings = getActiveShadowSettings(light);
         uint32_t activeNumShadowMaps = shadowSettings ? std::min(shadowSettings->shadowMapCount, numShadowMaps - shadowMapIndex) : 0;
@@ -869,20 +891,20 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         {
             if (shadowSettings->type_info() == typeid(HardShadows))
             {
-                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
+                assignLightData4(static_cast<float>(activeNumShadowMaps), -1.0f, -1.0f, 0.0f);
             }
             else if (shadowSettings->type_info() == typeid(SoftShadows))
             {
                 const SoftShadows& pcfShadowSettings = static_cast<const SoftShadows&>(*shadowSettings);
-                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
+                assignLightData4(static_cast<float>(activeNumShadowMaps), pcfShadowSettings.penumbraRadius, -1.0f, 0.0f);
             }
             else if (shadowSettings->type_info() == typeid(PercentageCloserSoftShadows))
             {
-                (*light_itr++).set(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, static_cast<float>(light->radius), 0.0f);
+                assignLightData4(static_cast<float>(activeNumShadowMaps), 0.1f /* todo: calculate blocker search radius */, static_cast<float>(light->radius), 0.0f);
             }
         }
         else
-            (*light_itr++).set(0.0f, 0.0f, 0.0f, 0.0f);
+            assignLightData4(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (activeNumShadowMaps == 0) continue;
 
@@ -965,19 +987,19 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
 
-            (*light_itr++) = m[0];
-            (*light_itr++) = m[1];
-            (*light_itr++) = m[2];
-            (*light_itr++) = m[3];
+            assignLightData(m[0]);
+            assignLightData(m[1]);
+            assignLightData(m[2]);
+            assignLightData(m[3]);
 
             // info("m = ", m);
 
             m = inverse(m);
 
-            (*light_itr++) = m[0];
-            (*light_itr++) = m[1];
-            (*light_itr++) = m[2];
-            (*light_itr++) = m[3];
+            assignLightData(m[0]);
+            assignLightData(m[1]);
+            assignLightData(m[2]);
+            assignLightData(m[3]);
 
             // advance to the next shadowMap
             shadowMapIndex++;
@@ -1019,6 +1041,11 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             updateCamera(clip_near.z, clip_far.z, clipToWorld);
         }
+    }
+
+    if (numLightDataChanges > 0)
+    {
+        lightData->dirty();
     }
 
     if (requiresPerRenderShadowMaps && preRenderCommandGraph)
