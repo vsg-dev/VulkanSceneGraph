@@ -26,39 +26,42 @@ void State::reserve(uint32_t maxSlot)
     size_t required_size = static_cast<size_t>(maxSlot) + 1;
     if (required_size > stateStacks.size()) stateStacks.resize(required_size);
 
-    info("State::reserve(", maxSlot, ")");
+    if (required_size > viewStateStacks.size()) viewStateStacks.resize(required_size);
+
+    //info("State::reserve(", maxSlot, ")");
 }
 
 
 void State::pushView(ref_ptr<StateCommand> command)
 {
-    stateStacks[command->slot].push(command);
-    dirty = true;
-
+    viewStateStacks[command->slot].push(command);
     recordView();
 }
 
 void State::popView(ref_ptr<StateCommand> command)
 {
-    stateStacks[command->slot].pop();
-    dirty = true;
-
+    viewStateStacks[command->slot].pop();
     recordView();
 }
 
 void State::pushView(const View& view)
 {
-    info("State::pushView(View&, ", &view, ")");
+    //info("State::pushView(View&, ", &view, ")");
     if (view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
 }
 
 void State::popView(const View& view)
 {
-    info("State::popView(View&, ", &view, ")");
+    //info("State::popView(View&, ", &view, ")");
     if (view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
 }
 
 void State::recordView()
 {
-    info("State::recordView(..)");
+    //info("State::recordView(..)");
+
+    for (auto& stateStack : viewStateStacks)
+    {
+        if (!stateStack.empty()) stateStack.record(*_commandBuffer);
+    }
 }
