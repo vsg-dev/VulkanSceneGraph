@@ -248,8 +248,6 @@ void CollectResourceRequirements::apply(const View& view)
 
     if (view.viewDependentState)
     {
-        if (requirements.maxStateSlot < 2) requirements.maxStateSlot = 2; // TODO change to maxViewSlot?
-
         view.viewDependentState->init(requirements);
 
         view.viewDependentState->accept(*this);
