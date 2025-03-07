@@ -107,7 +107,7 @@ void PipelineLayout::compile(Context& context)
         {
             if (dsl) dsl->compile(context);
         }
-        _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, flags);
+        _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, *this, flags);
     }
 }
 
@@ -115,7 +115,7 @@ void PipelineLayout::compile(Context& context)
 //
 // PipelineLayout::Implementation
 //
-PipelineLayout::Implementation::Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags) :
+PipelineLayout::Implementation::Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, const PipelineLayout& parent, VkPipelineLayoutCreateFlags flags) :
     _device(device)
 {
     std::vector<VkDescriptorSetLayout> layouts;
@@ -139,6 +139,21 @@ PipelineLayout::Implementation::Implementation(Device* device, const DescriptorS
     if (VkResult result = vkCreatePipelineLayout(*device, &pipelineLayoutInfo, _device->getAllocationCallbacks(), &_pipelineLayout); result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create PipelineLayout.", result};
+    }
+
+    if (isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) && device->getInstance()->getExtensions()->vkSetDebugUtilsObjectNameEXT)
+    {
+        std::string name = "A PipelineLayout";
+        parent.getValue("DebugUtilsName", name);
+        std::stringstream nameStream;
+        nameStream << name << " (" << std::hex << _pipelineLayout << ")";
+        name = nameStream.str();
+        VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+        nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        nameInfo.objectType = VK_OBJECT_TYPE_PIPELINE_LAYOUT;
+        nameInfo.objectHandle = reinterpret_cast<uint64_t>(_pipelineLayout);
+        nameInfo.pObjectName = name.c_str();
+        device->getInstance()->getExtensions()->vkSetDebugUtilsObjectNameEXT(*device, &nameInfo);
     }
 }
 

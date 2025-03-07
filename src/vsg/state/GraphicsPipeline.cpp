@@ -188,7 +188,7 @@ void GraphicsPipeline::compile(Context& context)
             shaderStage->compile(context);
         }
 
-        _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass);
+        _implementation[viewID] = GraphicsPipeline::Implementation::create(context, context.device, context.renderPass, layout, stages, combined_pipelineStates, subpass, *this);
     }
 }
 
@@ -196,7 +196,7 @@ void GraphicsPipeline::compile(Context& context)
 //
 // GraphicsPipeline::Implementation
 //
-GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, const RenderPass* renderPass, const PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass) :
+GraphicsPipeline::Implementation::Implementation(Context& context, Device* device, const RenderPass* renderPass, const PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass, const GraphicsPipeline& parent) :
     _pipelineStates(pipelineStates),
     _device(device)
 {
@@ -237,6 +237,21 @@ GraphicsPipeline::Implementation::Implementation(Context& context, Device* devic
     if (result != VK_SUCCESS)
     {
         throw Exception{"Error: vsg::GraphicsPipeline failed to create VkPipeline.", result};
+    }
+
+    if (isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) && device->getInstance()->getExtensions()->vkSetDebugUtilsObjectNameEXT)
+    {
+        std::string name = "A GraphicsPipeline";
+        parent.getValue("DebugUtilsName", name);
+        std::stringstream nameStream;
+        nameStream << name << " (" << std::hex << _pipeline << ")";
+        name = nameStream.str();
+        VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+        nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        nameInfo.objectType = VK_OBJECT_TYPE_PIPELINE;
+        nameInfo.objectHandle = reinterpret_cast<uint64_t>(_pipeline);
+        nameInfo.pObjectName = name.c_str();
+        device->getInstance()->getExtensions()->vkSetDebugUtilsObjectNameEXT(*device, &nameInfo);
     }
 }
 
