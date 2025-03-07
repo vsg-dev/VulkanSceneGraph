@@ -350,7 +350,7 @@ void Context::waitForCompletion()
         info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
     }
 
-    //vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
+    //vsg::info("Context::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
 
     requiresWaitForCompletion = false;
     commands.clear();

@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /// Animation sampler for acumulating vsg::Joint hierarchies and assigned accumulated transform matrices to joinMatrices array passed to GPU
+    /// Animation sampler for accumulating vsg::Joint hierarchies and assigned accumulated transform matrices to joinMatrices array passed to GPU
     class VSG_DECLSPEC JointSampler : public Inherit<AnimationSampler, JointSampler>
     {
     public:

@@ -123,10 +123,10 @@ void DescriptorPools::reserve(const ResourceRequirements& requirements)
             required_descriptorPoolSizes.push_back(VkDescriptorPoolSize{type, adjustedDescriptorCount});
     }
 
-    // check if all the requirements have been met by exisiting availability
+    // check if all the requirements have been met by existing availability
     if (required_maxSets == 0 && required_descriptorPoolSizes.empty())
     {
-        vsg::debug("DescriptorPools::reserve(const ResourceRequirements& requirements) enought resource in existing DescriptorPools");
+        vsg::debug("DescriptorPools::reserve(const ResourceRequirements& requirements) enough resource in existing DescriptorPools");
         return;
     }
 
