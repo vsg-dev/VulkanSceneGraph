@@ -242,6 +242,7 @@ set(SOURCES
     vk/Surface.cpp
     vk/Swapchain.cpp
     vk/ResourceRequirements.cpp
+    vk/State.cpp
 
     utils/CommandLine.cpp
     utils/CoordinateSpace.cpp

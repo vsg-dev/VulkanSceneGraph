@@ -228,11 +228,7 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        explicit State(uint32_t maxSlot) :
-            dirty(false),
-            stateStacks(static_cast<size_t>(maxSlot) + 1)
-        {
-        }
+        explicit State(uint32_t maxSlot);
 
         using StateCommandStack = StateStack<StateCommand>;
         using StateStacks = std::vector<StateCommandStack>;
@@ -253,15 +249,12 @@ namespace vsg
         dmat4 inheritedViewTransform;
 
         StateStacks stateStacks;
+        StateStacks viewStateStacks;
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void reserve(uint32_t maxSlot)
-        {
-            size_t required_size = static_cast<size_t>(maxSlot) + 1;
-            if (required_size > stateStacks.size()) stateStacks.resize(required_size);
-        }
+        void reserve(uint32_t maxSlot);
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
@@ -349,6 +342,18 @@ namespace vsg
             stateStacks[command->slot].pop();
             dirty = true;
         }
+
+
+        void pushView(ref_ptr<StateCommand> command);
+
+        void popView(ref_ptr<StateCommand> command);
+
+        void pushView(const View& view);
+
+        void popView(const View& view);
+
+        void recordView();
+
 
         inline void pushFrustum()
         {
