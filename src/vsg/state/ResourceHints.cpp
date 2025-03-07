@@ -26,7 +26,16 @@ void ResourceHints::read(Input& input)
 {
     Object::read(input);
 
-    input.read("maxSlot", maxSlot);
+    if (input.version_greater_equal(1, 1, 11))
+    {
+        input.read("maxStateSlot", maxStateSlot);
+        input.read("maxViewSlot", maxViewSlot);
+    }
+    else
+    {
+        input.read("maxSlot", maxStateSlot);
+    }
+
     input.read("numDescriptorSets", numDescriptorSets);
 
     if (input.version_greater_equal(0, 7, 3))
@@ -66,7 +75,16 @@ void ResourceHints::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("maxSlot", maxSlot);
+    if (output.version_greater_equal(1, 1, 11))
+    {
+        output.write("maxStateSlot", maxStateSlot);
+        output.write("maxViewSlot", maxViewSlot);
+    }
+    else
+    {
+        output.write("maxSlot", maxStateSlot);
+    }
+
     output.write("numDescriptorSets", numDescriptorSets);
 
     if (output.version_greater_equal(0, 7, 3))

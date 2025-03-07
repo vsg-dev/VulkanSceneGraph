@@ -88,7 +88,8 @@ namespace vsg
         Views views;
         ViewDetailStack viewDetailsStack;
 
-        uint32_t maxSlot = 0;
+        uint32_t maxStateSlot = 0;
+        uint32_t maxViewSlot = 0;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
 

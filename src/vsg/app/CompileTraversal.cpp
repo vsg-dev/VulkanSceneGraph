@@ -323,10 +323,8 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
     for (const auto& context : contexts)
     {
-        if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
-        {
-            commandGraph.maxSlot = context->resourceRequirements.maxSlot;
-        }
+        if (context->resourceRequirements.maxStateSlot > commandGraph.maxStateSlot) commandGraph.maxStateSlot = context->resourceRequirements.maxStateSlot;
+        if (context->resourceRequirements.maxViewSlot > commandGraph.maxViewSlot) commandGraph.maxViewSlot = context->resourceRequirements.maxViewSlot;
     }
 
     commandGraph.traverse(*this);
@@ -340,10 +338,8 @@ void CompileTraversal::apply(SecondaryCommandGraph& secondaryCommandGraph)
 
     for (auto& context : contexts)
     {
-        if (context->resourceRequirements.maxSlot > secondaryCommandGraph.maxSlot)
-        {
-            secondaryCommandGraph.maxSlot = context->resourceRequirements.maxSlot;
-        }
+        if (context->resourceRequirements.maxStateSlot > secondaryCommandGraph.maxStateSlot) secondaryCommandGraph.maxStateSlot = context->resourceRequirements.maxStateSlot;
+        if (context->resourceRequirements.maxViewSlot > secondaryCommandGraph.maxViewSlot) secondaryCommandGraph.maxViewSlot = context->resourceRequirements.maxViewSlot;
 
         // save previous states to be restored after traversal
         auto previousRenderPass = context->renderPass;

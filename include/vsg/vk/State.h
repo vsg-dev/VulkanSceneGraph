@@ -228,7 +228,7 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        explicit State(uint32_t maxSlot);
+        explicit State(uint32_t maxStateSlot, uint32_t maxViewSlot);
 
         using StateCommandStack = StateStack<StateCommand>;
         using StateStacks = std::vector<StateCommandStack>;
@@ -254,7 +254,7 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void reserve(uint32_t maxSlot);
+        void reserve(uint32_t maxStateSlot, uint32_t maxViewSlot);
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {

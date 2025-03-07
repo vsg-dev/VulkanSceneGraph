@@ -30,9 +30,10 @@ namespace vsg
     public:
         ResourceHints();
 
-        bool empty() const noexcept { return maxSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
+        bool empty() const noexcept { return maxStateSlot == 0 && maxViewSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
 
-        uint32_t maxSlot = 0;
+        uint32_t maxStateSlot = 0;
+        uint32_t maxViewSlot = 0;
         uint32_t numDescriptorSets = 0;
         DescriptorPoolSizes descriptorPoolSizes;
 

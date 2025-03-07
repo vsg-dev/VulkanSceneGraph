@@ -39,7 +39,8 @@ namespace vsg
 
         int queueFamily = -1;
         int presentFamily = -1;
-        uint32_t maxSlot = 2;
+        uint32_t maxStateSlot = 0;
+        uint32_t maxViewSlot = 0;
         int submitOrder = 0;
 
         ref_ptr<RecordTraversal> getOrCreateRecordTraversal();

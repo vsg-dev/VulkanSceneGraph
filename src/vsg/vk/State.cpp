@@ -15,20 +15,21 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-State::State(uint32_t maxSlot) :
+State::State(uint32_t maxStateSlot, uint32_t maxViewSlot) :
     dirty(false)
 {
-    reserve(maxSlot);
+    reserve(maxStateSlot, maxViewSlot);
 }
 
-void State::reserve(uint32_t maxSlot)
+void State::reserve(uint32_t maxStateSlot, uint32_t maxViewSlot)
 {
-    size_t required_size = static_cast<size_t>(maxSlot) + 1;
+    //info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
+
+    size_t required_size = static_cast<size_t>(maxStateSlot) + 1;
     if (required_size > stateStacks.size()) stateStacks.resize(required_size);
 
+    required_size = static_cast<size_t>(maxViewSlot) + 1;
     if (required_size > viewStateStacks.size()) viewStateStacks.resize(required_size);
-
-    //info("State::reserve(", maxSlot, ")");
 }
 
 

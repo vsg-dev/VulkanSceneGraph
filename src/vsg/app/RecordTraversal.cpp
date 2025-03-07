@@ -56,8 +56,8 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(uint32_t in_maxSlot, const std::set<Bin*>& in_bins) :
-    _state(new State(in_maxSlot))
+RecordTraversal::RecordTraversal(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot, const std::set<Bin*>& in_bins) :
+    _state(new State(in_maxStateSlot, in_maxViewSlot))
 {
     CPU_INSTRUMENTATION_L1_C(instrumentation, COLOR_RECORD);
 

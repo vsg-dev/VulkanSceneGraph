@@ -423,9 +423,10 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
 void ViewDependentState::update(ResourceRequirements& requirements)
 {
-    if (preRenderCommandGraph && requirements.maxSlot > preRenderCommandGraph->maxSlot)
+    if (preRenderCommandGraph)
     {
-        preRenderCommandGraph->maxSlot = requirements.maxSlot;
+        if (requirements.maxStateSlot > preRenderCommandGraph->maxStateSlot) preRenderCommandGraph->maxStateSlot = requirements.maxStateSlot;
+        if (requirements.maxViewSlot > preRenderCommandGraph->maxViewSlot) preRenderCommandGraph->maxViewSlot = requirements.maxViewSlot;
     }
 }
 
