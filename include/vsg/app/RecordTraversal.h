@@ -69,7 +69,7 @@ namespace vsg
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot, const std::set<Bin*>& in_bins = {});
+        explicit RecordTraversal(uint32_t in_maxStateSlot = 0, uint32_t in_maxViewSlot = 0, const std::set<Bin*>& in_bins = {});
 
         RecordTraversal(const RecordTraversal&) = delete;
         RecordTraversal& operator=(const RecordTraversal& rhs) = delete;
