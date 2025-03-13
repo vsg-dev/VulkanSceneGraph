@@ -44,6 +44,7 @@ namespace vsg
     class VSG_DECLSPEC WindowResizeHandler : public Inherit<Visitor, WindowResizeHandler>
     {
     public:
+        ref_ptr<Context> context;
         VkRect2D renderArea;
         VkExtent2D previous_extent;
         VkExtent2D new_extent;
@@ -64,6 +65,7 @@ namespace vsg
         /// return true if the object was visited
         bool visit(const Object* object, uint32_t index = 0);
 
+        void apply(BindGraphicsPipeline& bindPipeline) override;
         void apply(Object& object) override;
         void apply(ClearAttachments& clearAttachments) override;
         void apply(View& view) override;

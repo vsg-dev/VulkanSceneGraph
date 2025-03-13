@@ -86,6 +86,7 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
     shadowMapSize = std::max(shadowMapSize, resourceHints.shadowMapSize);
 
     dataTransferHint = resourceHints.dataTransferHint;
+    viewportStateHint = resourceHints.viewportStateHint;
 }
 
 //////////////////////////////////////////////////////////////////////

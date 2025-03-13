@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Camera.h>
 #include <vsg/app/Window.h>
 #include <vsg/app/WindowResizeHandler.h>
+#include <vsg/state/ResourceHints.h>
 
 namespace vsg
 {
@@ -66,6 +67,8 @@ namespace vsg
 
         /// Subpass contents setting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
+
+        ViewportStateHint viewportStateHint = STATIC_VIEWPORTSTATE;
 
         /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
         /// By default resize handling is done.

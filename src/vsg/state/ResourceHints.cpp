@@ -69,6 +69,11 @@ void ResourceHints::read(Input& input)
         input.read("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
         input.readValue<uint32_t>("dataTransferHint", dataTransferHint);
     }
+
+    if (input.version_greater_equal(1, 1, 11))
+    {
+        input.readValue<uint32_t>("viewportStateHint", viewportStateHint);
+    }
 }
 
 void ResourceHints::write(Output& output) const
@@ -117,5 +122,10 @@ void ResourceHints::write(Output& output) const
     {
         output.write("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
         output.writeValue<uint32_t>("dataTransferHint", dataTransferHint);
+    }
+
+    if (output.version_greater_equal(1, 1, 11))
+    {
+        output.writeValue<uint32_t>("viewportStateHint", viewportStateHint);
     }
 }

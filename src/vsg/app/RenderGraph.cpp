@@ -149,12 +149,21 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
 
     // sync the viewportState and push
     viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
-    recordTraversal.getState()->pushView(viewportState);
 
-    // traverse the subgraph to place commands into the command buffer.
-    traverse(recordTraversal);
+    if (viewportStateHint == DYNAMIC_VIEWPORTSTATE)
+    {
+        recordTraversal.getState()->pushView(viewportState);
 
-    recordTraversal.getState()->popView(viewportState);
+        // traverse the subgraph to place commands into the command buffer.
+        traverse(recordTraversal);
+
+        recordTraversal.getState()->popView(viewportState);
+    }
+    else
+    {
+        // traverse the subgraph to place commands into the command buffer.
+        traverse(recordTraversal);
+    }
 
     vkCmdEndRenderPass(vk_commandBuffer);
 }
@@ -164,14 +173,36 @@ void RenderGraph::resized()
     if (!windowResizeHandler) return;
     if (!window && !framebuffer) return;
 
-    if (!getRenderPass()) return;
+    auto activeRenderPass = getRenderPass();
+    if (!activeRenderPass) return;
+
+    auto device = activeRenderPass->device;
+
 
     auto extent = getExtent();
+
 
     windowResizeHandler->renderArea = renderArea;
     windowResizeHandler->previous_extent = previous_extent;
     windowResizeHandler->new_extent = extent;
     windowResizeHandler->visited.clear();
+
+    if (viewportStateHint == STATIC_VIEWPORTSTATE)
+    {
+        if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(device);
+
+        windowResizeHandler->context->resourceRequirements.viewportStateHint = STATIC_VIEWPORTSTATE;
+        windowResizeHandler->context->commandPool = nullptr;
+        windowResizeHandler->context->renderPass = activeRenderPass;
+
+        if (activeRenderPass->maxSamples != VK_SAMPLE_COUNT_1_BIT)
+        {
+            windowResizeHandler->context->overridePipelineStates.emplace_back(vsg::MultisampleState::create(activeRenderPass->maxSamples));
+        }
+
+        // make sure the device is idle before we recreate any Vulkan objects
+        vkDeviceWaitIdle(*(device));
+    }
 
     traverse(*windowResizeHandler);
 

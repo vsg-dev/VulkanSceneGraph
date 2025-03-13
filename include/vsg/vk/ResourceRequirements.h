@@ -103,6 +103,7 @@ namespace vsg
         uivec2 shadowMapSize = {2048, 2048};
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
+        ViewportStateHint viewportStateHint = STATIC_VIEWPORTSTATE;
     };
     VSG_type_name(vsg::ResourceRequirements);
 

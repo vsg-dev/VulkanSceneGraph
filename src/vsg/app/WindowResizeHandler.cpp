@@ -100,6 +100,42 @@ bool WindowResizeHandler::visit(const Object* object, uint32_t index)
     return true;
 }
 
+void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
+{
+    if (!context) return;
+
+    GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
+
+    if (!visit(graphicsPipeline, context->viewID))
+    {
+        return;
+    }
+
+    if (graphicsPipeline)
+    {
+        struct ContainsViewport : public ConstVisitor
+        {
+            bool foundViewport = false;
+            void apply(const ViewportState&) override { foundViewport = true; }
+            bool operator()(const GraphicsPipeline& gp)
+            {
+                for (auto& pipelineState : gp.pipelineStates)
+                {
+                    pipelineState->accept(*this);
+                }
+                return foundViewport;
+            }
+        } containsViewport;
+
+        bool needToRegenerateGraphicsPipeline = !containsViewport(*graphicsPipeline);
+        if (needToRegenerateGraphicsPipeline)
+        {
+            graphicsPipeline->release(context->viewID);
+            graphicsPipeline->compile(*context);
+        }
+    }
+}
+
 void WindowResizeHandler::apply(vsg::Object& object)
 {
     object.traverse(*this);
@@ -128,21 +164,48 @@ void WindowResizeHandler::apply(vsg::View& view)
 
     view.camera->projectionMatrix->changeExtent(previous_extent, new_extent);
 
-    auto viewportState = view.camera->viewportState;
-
-    size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
-    for (size_t i = 0; i < num_viewports; ++i)
+    if (auto viewportState = view.camera->viewportState)
     {
-        auto& viewport = viewportState->viewports[i];
-        auto& scissor = viewportState->scissors[i];
+        size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
+        for (size_t i = 0; i < num_viewports; ++i)
+        {
+            auto& viewport = viewportState->viewports[i];
+            auto& scissor = viewportState->scissors[i];
 
-        bool renderAreaMatches = (renderArea == scissor);
+            bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
+                                    (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
 
-        scale_rect(scissor);
-        scale_viewport(viewport);
+            if (new_extent != scissor.extent) scale_rect(scissor);
 
-        if (renderAreaMatches) renderArea = scissor;
+            viewport.x = static_cast<float>(scissor.offset.x);
+            viewport.y = static_cast<float>(scissor.offset.y);
+            viewport.width = static_cast<float>(scissor.extent.width);
+            viewport.height = static_cast<float>(scissor.extent.height);
+
+            if (renderAreaMatches)
+            {
+                renderArea = scissor;
+            }
+        }
+
+        if (context)
+        {
+            uint32_t previous_viewID = context->viewID;
+            context->viewID = view.viewID;
+            context->defaultPipelineStates.emplace_back(viewportState);
+
+            view.traverse(*this);
+
+            context->defaultPipelineStates.pop_back();
+            context->viewID = previous_viewID;
+        }
+        else
+        {
+            view.traverse(*this);
+        }
     }
-
-    view.traverse(*this);
+    else
+    {
+        view.traverse(*this);
+    }
 }

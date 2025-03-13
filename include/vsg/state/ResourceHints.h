@@ -24,6 +24,12 @@ namespace vsg
         COMPILE_TRAVERSAL_USE_TRANSFER_TASK
     };
 
+    enum ViewportStateHint
+    {
+        STATIC_VIEWPORTSTATE,
+        DYNAMIC_VIEWPORTSTATE
+    };
+
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
     class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {
@@ -49,6 +55,7 @@ namespace vsg
         uint32_t numDatabasePagerReadThreads = 4;
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
+        ViewportStateHint viewportStateHint = STATIC_VIEWPORTSTATE;
 
     public:
         void read(Input& input) override;
