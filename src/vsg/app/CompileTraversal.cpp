@@ -383,7 +383,7 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         auto previousOverridePipelineStates = context->overridePipelineStates;
 
         // enable dynamic viewport state handling if required.
-        if (context->resourceRequirements.viewportStateHint == DYNAMIC_VIEWPORTSTATE) renderGraph.viewportStateHint = DYNAMIC_VIEWPORTSTATE;
+        renderGraph.viewportStateHint = context->resourceRequirements.viewportStateHint;
 
         mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, renderGraph.viewportState);
 

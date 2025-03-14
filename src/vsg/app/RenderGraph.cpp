@@ -189,9 +189,13 @@ void RenderGraph::resized()
 
     if (viewportStateHint == STATIC_VIEWPORTSTATE)
     {
-        if (!windowResizeHandler->context) windowResizeHandler->context = vsg::Context::create(device);
+        if (!windowResizeHandler->context)
+        {
+            ResourceRequirements resourceRequirements;
+            resourceRequirements.viewportStateHint = viewportStateHint;
+            windowResizeHandler->context = vsg::Context::create(device, resourceRequirements);
+        }
 
-        windowResizeHandler->context->resourceRequirements.viewportStateHint = STATIC_VIEWPORTSTATE;
         windowResizeHandler->context->commandPool = nullptr;
         windowResizeHandler->context->renderPass = activeRenderPass;
 
