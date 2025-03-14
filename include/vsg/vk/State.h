@@ -249,6 +249,8 @@ namespace vsg
         dmat4 inheritedViewTransform;
 
         StateStacks stateStacks;
+
+        uint32_t viewportStateHint = 0;
         StateStacks viewStateStacks;
 
         MatrixStack projectionMatrixStack{0};

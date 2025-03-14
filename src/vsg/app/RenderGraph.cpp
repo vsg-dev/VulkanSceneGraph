@@ -144,13 +144,15 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
+    recordTraversal.getState()->viewportStateHint = viewportStateHint;
+
     VkCommandBuffer vk_commandBuffer = *(recordTraversal.getState()->_commandBuffer);
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
     // sync the viewportState and push
     viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
 
-    if (viewportStateHint == DYNAMIC_VIEWPORTSTATE)
+    if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE))
     {
         recordTraversal.getState()->pushView(viewportState);
 
@@ -187,7 +189,7 @@ void RenderGraph::resized()
     windowResizeHandler->new_extent = extent;
     windowResizeHandler->visited.clear();
 
-    if (viewportStateHint == STATIC_VIEWPORTSTATE)
+    if ((viewportStateHint & STATIC_VIEWPORTSTATE))
     {
         if (!windowResizeHandler->context)
         {

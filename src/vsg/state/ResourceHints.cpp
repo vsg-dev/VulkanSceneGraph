@@ -72,7 +72,7 @@ void ResourceHints::read(Input& input)
 
     if (input.version_greater_equal(1, 1, 11))
     {
-        input.readValue<uint32_t>("viewportStateHint", viewportStateHint);
+        input.read("viewportStateHint", viewportStateHint);
     }
 }
 
@@ -126,6 +126,6 @@ void ResourceHints::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 11))
     {
-        output.writeValue<uint32_t>("viewportStateHint", viewportStateHint);
+        output.write("viewportStateHint", viewportStateHint);
     }
 }

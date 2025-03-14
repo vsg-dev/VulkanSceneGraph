@@ -68,7 +68,7 @@ namespace vsg
         /// Subpass contents setting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
-        ViewportStateHint viewportStateHint = STATIC_VIEWPORTSTATE;
+        uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
 
         /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
         /// By default resize handling is done.

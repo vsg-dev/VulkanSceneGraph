@@ -131,15 +131,9 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
         vsg::debug("Context::Context() reusing descriptorPools = ", descriptorPools);
     }
 
-    if (resourceRequirements.viewportStateHint == DYNAMIC_VIEWPORTSTATE)
+    if ((resourceRequirements.viewportStateHint & DYNAMIC_VIEWPORTSTATE))
     {
-        info("dynamic viewport state");
         defaultPipelineStates.push_back(DynamicState::create(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR));
-    }
-    else
-    {
-        info("static viewport state");
-        //defaultPipelineStates.push_back(DynamicState::create());
     }
 }
 

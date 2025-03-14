@@ -11,6 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/vk/State.h>
+#include <vsg/state/ResourceHints.h>
 #include <vsg/app/View.h>
 
 using namespace vsg;
@@ -48,13 +49,13 @@ void State::popView(ref_ptr<StateCommand> command)
 void State::pushView(const View& view)
 {
     //info("State::pushView(View&, ", &view, ")");
-    if (view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
+    if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) &&  view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
 }
 
 void State::popView(const View& view)
 {
     //info("State::popView(View&, ", &view, ")");
-    if (view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
+    if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
 }
 
 void State::recordView()

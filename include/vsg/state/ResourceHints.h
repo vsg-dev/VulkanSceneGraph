@@ -24,10 +24,10 @@ namespace vsg
         COMPILE_TRAVERSAL_USE_TRANSFER_TASK
     };
 
-    enum ViewportStateHint
+    enum ViewportStateMask : uint32_t
     {
-        STATIC_VIEWPORTSTATE,
-        DYNAMIC_VIEWPORTSTATE
+        STATIC_VIEWPORTSTATE = 1 << 0,
+        DYNAMIC_VIEWPORTSTATE = 1 << 1
     };
 
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
@@ -55,7 +55,7 @@ namespace vsg
         uint32_t numDatabasePagerReadThreads = 4;
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
-        ViewportStateHint viewportStateHint = STATIC_VIEWPORTSTATE;
+        uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
 
     public:
         void read(Input& input) override;
