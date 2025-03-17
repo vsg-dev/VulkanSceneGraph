@@ -35,7 +35,7 @@ Viewer::Viewer() :
     _start_point(clock::now()),
     _frameStamp(FrameStamp::create(_start_point, 0, 0.0))
 {
-    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer costructor", COLOR_VIEWER);
+    CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer constructor", COLOR_VIEWER);
 }
 
 Viewer::~Viewer()
@@ -750,7 +750,7 @@ void Viewer::setupThreading()
                 if (i == 0)
                     threads.emplace_back(run_primary, sharedData, task->commandGraphs[i], make_string("Viewer primary thread"));
                 else
-                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i], make_string("Viewer seconary thread ", i));
+                    threads.emplace_back(run_secondary, sharedData, task->commandGraphs[i], make_string("Viewer secondary thread ", i));
             }
 
             if (task->transferTask)

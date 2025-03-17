@@ -57,7 +57,7 @@ void DeleteQueue::wait_then_clear()
         }
         auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObectToDelete& otd) { return otd.frameCount > frameCount; });
 
-        // use a swap of the container to keep the time the mutex is aquired as short as possible
+        // use a swap of the container to keep the time the mutex is acquired as short as possible
         objectsToDelete.splice(objectsToDelete.end(), _objectsToDelete, _objectsToDelete.begin(), last_itr);
     }
 
@@ -68,7 +68,7 @@ void DeleteQueue::clear()
 {
     ObjectsToDelete objectsToDelete;
 
-    // use a swap of the container to keep the time the mutex is aquired as short as possible
+    // use a swap of the container to keep the time the mutex is acquired as short as possible
     {
         std::scoped_lock lock(_mutex);
         objectsToDelete.swap(objectsToDelete);
