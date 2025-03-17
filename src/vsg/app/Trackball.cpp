@@ -192,7 +192,9 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 
     if (!windowOffsets.empty() && windowOffsets.count(buttonRelease.window) == 0) return;
 
-    if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
+    if (supportsThrow) _thrown = _previousPointerEvent && 
+        (std::chrono::duration_cast<std::chrono::milliseconds>(
+            buttonRelease.time - _previousPointerEvent->time).count() == 0);
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease);
     _hasPointerFocus = false;
