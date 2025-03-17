@@ -589,7 +589,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     };
 
     // clip against near plane
-    // Converting between homogeneous coordinates and Cartesian coordinates can turn internal line segements
+    // Converting between homogeneous coordinates and Cartesian coordinates can turn internal line segments
     // (the section of the line between two points) into external line segments (the line except the part
     // between the points). In particular, this happens for ones that cross the near plane of a perspective
     // projection. This function therefore excludes the section of the frustum on the wrong side of the near

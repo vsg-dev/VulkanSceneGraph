@@ -116,7 +116,7 @@ namespace vsg
             Element* memory = nullptr;
             Element* memoryEnd = nullptr;
 
-            size_t alignment = 8; // min aligment is 4 { sizeof(Element) }
+            size_t alignment = 8; // min alignment is 4 { sizeof(Element) }
             size_t blockAlignment = 16;
             size_t blockSize = 0;
             size_t maximumAllocationSize = 0;
