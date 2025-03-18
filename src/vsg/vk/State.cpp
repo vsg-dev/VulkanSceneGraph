@@ -33,6 +33,19 @@ void State::reserve(uint32_t maxStateSlot, uint32_t maxViewSlot)
     if (required_size > viewStateStacks.size()) viewStateStacks.resize(required_size);
 }
 
+void State::reset()
+{
+    //info("State::reset()");
+    for (auto& stateStack : stateStacks)
+    {
+        stateStack.previous = nullptr;
+    }
+
+    for (auto& stateStack : viewStateStacks)
+    {
+        stateStack.previous = nullptr;
+    }
+}
 
 void State::pushView(ref_ptr<StateCommand> command)
 {

@@ -38,6 +38,7 @@ namespace vsg
         using Stack = std::stack<ref_ptr<const T>>;
         Stack stack;
         bool dirty;
+        const T* previous = nullptr;
 
         template<class R>
         inline void push(ref_ptr<R> value)
@@ -66,7 +67,10 @@ namespace vsg
         {
             if (dirty)
             {
-                stack.top()->record(commandBuffer);
+                const T* current = stack.top();
+                if (current != previous) current->record(commandBuffer);
+                previous = current;
+
                 dirty = false;
             }
         }
@@ -257,6 +261,8 @@ namespace vsg
         MatrixStack modelviewMatrixStack{64};
 
         void reserve(uint32_t maxStateSlot, uint32_t maxViewSlot);
+
+        void reset();
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {
