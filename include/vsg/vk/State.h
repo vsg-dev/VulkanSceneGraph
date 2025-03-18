@@ -26,46 +26,43 @@ namespace vsg
 {
 
 #define POLYTOPE_SIZE 5
+#define STATESTACK_SIZE 16
 
     /// StateStack used internally by vsg::State to manage stack of vsg::StateCommand
     template<class T>
     class StateStack
     {
     public:
-        StateStack() :
-            dirty(false) {}
+        StateStack() {}
 
-        using Stack = std::stack<const T*>;
+        using Stack = std::array<const T*, STATESTACK_SIZE>;
         Stack stack;
-        bool dirty;
-        const T* previous = nullptr;
+        size_t pos = 0;
 
+        inline void reset()
+        {
+            pos = 0;
+        }
 
         inline void push(const T* value)
         {
-            stack.push(value);
-            dirty = true;
+            stack[++pos] = value;
         }
 
         inline void pop()
         {
-            stack.pop();
-            dirty = !stack.empty();
+            --pos;
         }
-        bool empty() const { return stack.empty(); }
-        size_t size() const { return stack.size(); }
-        const T* top() const { return stack.top(); }
+
+        bool empty() const { return pos==0; }
+        size_t size() const { return pos; }
+        const T* top() const { return stack[pos]; }
 
         inline void record(CommandBuffer& commandBuffer)
         {
-            if (dirty)
-            {
-                const T* current = stack.top();
-                if (current != previous) current->record(commandBuffer);
-                previous = current;
-
-                dirty = false;
-            }
+            const T* current = stack[pos];
+            if (current != stack[0]) current->record(commandBuffer);
+            stack[0] = current;
         }
     };
 

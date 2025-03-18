@@ -38,12 +38,12 @@ void State::reset()
     //info("State::reset()");
     for (auto& stateStack : stateStacks)
     {
-        stateStack.previous = nullptr;
+        stateStack.reset();
     }
 
     for (auto& stateStack : viewStateStacks)
     {
-        stateStack.previous = nullptr;
+        stateStack.reset();
     }
 }
 
