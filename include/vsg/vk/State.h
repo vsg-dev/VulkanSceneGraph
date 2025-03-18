@@ -32,47 +32,37 @@ namespace vsg
     class StateStack
     {
     public:
-        StateStack() :
-            dirty(false) {}
+        StateStack() { stack.reserve(4); }
 
-        using Stack = std::stack<ref_ptr<const T>>;
+        using Stack = std::vector<ref_ptr<const T>>;
         Stack stack;
-        bool dirty;
         const T* previous = nullptr;
 
         template<class R>
         inline void push(ref_ptr<R> value)
         {
-            stack.push(value);
-            dirty = true;
+            stack.push_back(value);
         }
 
         template<class R>
         inline void push(R* value)
         {
-            stack.push(ref_ptr<const T>(value));
-            dirty = true;
+            stack.push_back(ref_ptr<const T>(value));
         }
 
         inline void pop()
         {
-            stack.pop();
-            dirty = !stack.empty();
+            stack.pop_back();
         }
         bool empty() const { return stack.empty(); }
         size_t size() const { return stack.size(); }
-        const T* top() const { return stack.top(); }
+        const T* top() const { return stack.back(); }
 
         inline void record(CommandBuffer& commandBuffer)
         {
-            if (dirty)
-            {
-                const T* current = stack.top();
-                if (current != previous) current->record(commandBuffer);
-                previous = current;
-
-                dirty = false;
-            }
+            const T* current = stack.back();
+            if (current != previous) current->record(commandBuffer);
+            previous = current;
         }
     };
 
@@ -252,6 +242,7 @@ namespace vsg
         dmat4 inheritedViewMatrix;
         dmat4 inheritedViewTransform;
 
+        ref_ptr<StateCommand> fallback;
         StateStacks stateStacks;
 
         uint32_t viewportStateHint = 0;

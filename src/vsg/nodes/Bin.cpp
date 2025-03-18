@@ -108,7 +108,7 @@ void Bin::add(State* state, double value, const Node* node)
 
 void Bin::traverse(RecordTraversal& rt) const
 {
-    //debug("Bin::traverse(RecordTraversal& visitor) ", sortOrder, " ", _binElements.size());
+    info("Bin::traverse(RecordTraversal& visitor) ", sortOrder, " ", _binElements.size());
 
     auto state = rt.getState();
 

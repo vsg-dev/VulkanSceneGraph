@@ -17,33 +17,57 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 State::State(uint32_t maxStateSlot, uint32_t maxViewSlot) :
-    dirty(false)
+    dirty(false),
+    fallback(StateCommand::create())
 {
     reserve(maxStateSlot, maxViewSlot);
 }
 
 void State::reserve(uint32_t maxStateSlot, uint32_t maxViewSlot)
 {
-    //info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
+    info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
+
 
     size_t required_size = static_cast<size_t>(maxStateSlot) + 1;
-    if (required_size > stateStacks.size()) stateStacks.resize(required_size);
+    if (required_size > stateStacks.size())
+    {
+        stateStacks.resize(required_size);
+
+        for (auto& stateStack : stateStacks)
+        {
+            stateStack.previous = fallback;
+            stateStack.stack.clear();
+            stateStack.push(fallback);
+        }
+    }
 
     required_size = static_cast<size_t>(maxViewSlot) + 1;
-    if (required_size > viewStateStacks.size()) viewStateStacks.resize(required_size);
+    if (required_size > viewStateStacks.size())
+    {
+        viewStateStacks.resize(required_size);
+
+        for (auto& stateStack : viewStateStacks)
+        {
+            stateStack.previous = fallback;
+            stateStack.stack.clear();
+            stateStack.push(fallback);
+        }
+    }
 }
 
 void State::reset()
 {
-    //info("State::reset()");
+    info("State::reset()");
     for (auto& stateStack : stateStacks)
     {
-        stateStack.previous = nullptr;
+        stateStack.previous = fallback;
+        stateStack.stack.resize(1);
     }
 
     for (auto& stateStack : viewStateStacks)
     {
-        stateStack.previous = nullptr;
+        stateStack.previous = fallback;
+        stateStack.stack.resize(1);
     }
 }
 

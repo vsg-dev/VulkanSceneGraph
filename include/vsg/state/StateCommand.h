@@ -33,6 +33,8 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
+        void record(CommandBuffer& commandBuffer) const override;
+
         uint32_t slot = 0;
 
     protected:

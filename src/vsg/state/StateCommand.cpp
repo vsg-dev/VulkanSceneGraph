@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/compare.h>
 #include <vsg/state/StateCommand.h>
+#include <vsg/io/Logger.h>
 
 using namespace vsg;
 
@@ -19,13 +20,6 @@ StateCommand::StateCommand(const StateCommand& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     slot(rhs.slot)
 {
-}
-
-void StateCommand::read(Input& input)
-{
-    Command::read(input);
-
-    input.read("slot", slot);
 }
 
 int StateCommand::compare(const Object& rhs_object) const
@@ -37,9 +31,22 @@ int StateCommand::compare(const Object& rhs_object) const
     return compare_value(slot, rhs.slot);
 }
 
+void StateCommand::read(Input& input)
+{
+    Command::read(input);
+
+    input.read("slot", slot);
+}
+
 void StateCommand::write(Output& output) const
 {
     Command::write(output);
 
     output.write("slot", slot);
+}
+
+void StateCommand::record(CommandBuffer&) const
+{
+    info("StateCommand::record() ", this);
+    throw "help";
 }
