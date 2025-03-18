@@ -35,22 +35,15 @@ namespace vsg
         StateStack() :
             dirty(false) {}
 
-        using Stack = std::stack<ref_ptr<const T>>;
+        using Stack = std::stack<const T*>;
         Stack stack;
         bool dirty;
         const T* previous = nullptr;
 
-        template<class R>
-        inline void push(ref_ptr<R> value)
+
+        inline void push(const T* value)
         {
             stack.push(value);
-            dirty = true;
-        }
-
-        template<class R>
-        inline void push(R* value)
-        {
-            stack.push(ref_ptr<const T>(value));
             dirty = true;
         }
 
