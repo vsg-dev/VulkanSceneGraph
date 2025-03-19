@@ -68,7 +68,7 @@ void State::pushView(const View& view)
 void State::popView(const View& view)
 {
     //info("State::popView(View&, ", &view, ")");
-    if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) pushView(view.camera->viewportState);
+    if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) popView(view.camera->viewportState);
 }
 
 void State::recordView()
