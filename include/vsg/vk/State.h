@@ -42,6 +42,7 @@ namespace vsg
         inline void reset()
         {
             pos = 0;
+            stack[0] = nullptr;
         }
 
         inline void push(const T* value)
@@ -61,8 +62,11 @@ namespace vsg
         inline void record(CommandBuffer& commandBuffer)
         {
             const T* current = stack[pos];
-            if (current != stack[0]) current->record(commandBuffer);
-            stack[0] = current;
+            if (current != stack[0])
+            {
+                current->record(commandBuffer);
+                stack[0] = current;
+            }
         }
     };
 
