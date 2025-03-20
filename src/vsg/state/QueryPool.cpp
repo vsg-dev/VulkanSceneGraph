@@ -111,6 +111,8 @@ void QueryPool::compile(Device* device)
     {
         throw Exception{"Error: Failed to create QueryPool.", res};
     }
+
+    reset();
 }
 
 void QueryPool::compile(Context& context)
