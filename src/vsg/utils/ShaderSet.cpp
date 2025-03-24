@@ -278,6 +278,10 @@ ShaderStages ShaderSet::getShaderStages(ref_ptr<ShaderCompileSettings> scs)
             new_stage->flags = stage->flags;
             new_stage->stage = stage->stage;
             new_stage->module = ShaderModule::create(stage->module->source, scs);
+            if (stage->module->getObject("DebugUtilsName"))
+            {
+                new_stage->module->setObject("DebugUtilsName", stage->module->getRefObject("DebugUtilsName"));
+            }
             new_stage->entryPointName = stage->entryPointName;
             new_stage->specializationConstants = stage->specializationConstants;
             new_stages.push_back(new_stage);
@@ -599,5 +603,24 @@ ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::stri
         if (pcb.define.empty() || defines.count(pcb.define) != 0) activePushConstantRanges.push_back(pcb.range);
     }
 
-    return vsg::PipelineLayout::create(descriptorSetLayouts, activePushConstantRanges);
+    auto layout = vsg::PipelineLayout::create(descriptorSetLayouts, activePushConstantRanges);
+
+    std::stringstream nameStream;
+    std::string name = "Layout";
+    layout->getValue("DebugUtilsName", name);
+    nameStream << name << " for ";
+    name = "a ShaderSet";
+    getValue("DebugUtilsName", name);
+    nameStream << name;
+    if (!defines.empty())
+    {
+        nameStream << " with defines:";
+        for (const auto& define : defines)
+        {
+            nameStream << " " << define;
+        }
+    }
+    layout->setValue("DebugUtilsName", nameStream.str());
+
+    return layout;
 }
