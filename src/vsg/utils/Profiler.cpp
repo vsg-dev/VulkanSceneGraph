@@ -172,7 +172,7 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
             }
             else
             {
-                info("query failed with results = ", result);
+                info("Profiler::getGpuResults() query failed with result = ", result);
             }
             gpuStats->queryIndex = 0;
         }
@@ -258,6 +258,7 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
             frameStats.perDeviceGpuStats.resize(deviceID + 1);
         }
 
+        uint32_t numQueries = settings->gpu_timestamp_size;
         auto& gpuStats = frameStats.perDeviceGpuStats[deviceID];
         if (!gpuStats)
         {
@@ -273,12 +274,10 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
 
                 gpuStats = GPUStatsCollection::create();
 
-                uint32_t numQueries = settings->gpu_timestamp_size;
                 gpuStats->device = commandBuffer.getDevice();
                 gpuStats->queryPool = QueryPool::create(commandBuffer.getDevice(), VkQueryPoolCreateFlags{0}, VK_QUERY_TYPE_TIMESTAMP, numQueries, VkQueryPipelineStatisticFlags{0});
                 gpuStats->references.resize(numQueries);
                 gpuStats->timestamps.resize(numQueries);
-                gpuStats->queryIndex = 0;
             }
             else
             {
@@ -289,6 +288,9 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         auto& entry = log->enter(reference, ProfileLog::COMMAND_BUFFER);
         entry.sourceLocation = sl;
         entry.object = &commandBuffer;
+
+        vkCmdResetQueryPool(commandBuffer, gpuStats->queryPool->vk(), 0, numQueries);
+        gpuStats->queryIndex = 0;
 
         writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
     }
