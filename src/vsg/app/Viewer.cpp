@@ -858,6 +858,7 @@ void Viewer::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
     Viewer::deviceWaitIdle();
 
     instrumentation = in_instrumentation;
+    if (instrumentation) instrumentation->instrument(*this);
 
     // assign instrumentation after settings up recordAndSubmitTasks, but before compile() to allow compile to initialize the Instrumentation with the approach queue etc.
     for (auto& task : recordAndSubmitTasks)

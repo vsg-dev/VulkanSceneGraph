@@ -203,11 +203,13 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (earlyDataTransferredSemaphore)
     {
+        info("    adding earlyDataTransferredSemaphore ", earlyDataTransferredSemaphore);
         vk_waitSemaphores.emplace_back(*earlyDataTransferredSemaphore);
         vk_waitStages.emplace_back(earlyDataTransferredSemaphore->pipelineStageFlags());
     }
     if (lateDataTransferredSemaphore)
     {
+        info("    adding lateDataTransferredSemaphore ", lateDataTransferredSemaphore);
         vk_waitSemaphores.emplace_back(*lateDataTransferredSemaphore);
         vk_waitStages.emplace_back(lateDataTransferredSemaphore->pipelineStageFlags());
     }
@@ -222,15 +224,22 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
         auto& semaphore = window->frame(imageIndex).imageAvailableSemaphore;
 
+        info("    adding window->frame(", imageIndex, ").imageAvailableSemaphore ", semaphore);
+
         vk_waitSemaphores.emplace_back(*semaphore);
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
+    info("RecordAndSubmitTask::finish()");
+
+
     for (auto& semaphore : waitSemaphores)
     {
+        info("    adding waitSemaphore ", semaphore);
         vk_waitSemaphores.emplace_back(*(semaphore));
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
+
 
     current_fence->dependentSemaphores() = signalSemaphores;
     for (auto& semaphore : signalSemaphores)
@@ -240,14 +249,18 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
     if (earlyDataTransferredSemaphore)
     {
+        info("    adding earlyDataTransferredSemaphore ", earlyDataTransferredSemaphore);
         vk_signalSemaphores.emplace_back(earlyTransferConsumerCompletedSemaphore->vk());
         current_fence->dependentSemaphores().push_back(earlyTransferConsumerCompletedSemaphore);
     }
     if (lateDataTransferredSemaphore)
     {
+        info("    adding lateDataTransferredSemaphore ", lateDataTransferredSemaphore);
         vk_signalSemaphores.emplace_back(lateTransferConsumerCompletedSemaphore->vk());
         current_fence->dependentSemaphores().push_back(lateTransferConsumerCompletedSemaphore);
     }
+
+    info("    vk_waitSemaphores.size() = ", vk_waitSemaphores.size(), ", vk_signalSemaphores.size() = ", vk_signalSemaphores.size());
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -262,12 +275,15 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     submitInfo.signalSemaphoreCount = static_cast<uint32_t>(vk_signalSemaphores.size());
     submitInfo.pSignalSemaphores = vk_signalSemaphores.data();
 
+    info("RecordAndSubmitTask::record() submit ", current_fence);
+
     return queue->submit(submitInfo, current_fence);
 }
 
 void RecordAndSubmitTask::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
     instrumentation = in_instrumentation;
+    if (instrumentation) instrumentation->instrument(*this);
 
     if (databasePager) databasePager->assignInstrumentation(instrumentation);
     if (transferTask) transferTask->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);

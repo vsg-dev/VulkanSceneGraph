@@ -21,6 +21,7 @@ AnimationManager::AnimationManager()
 void AnimationManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
     instrumentation = in_instrumentation;
+    if (instrumentation) instrumentation->instrument(*this);
 }
 
 bool AnimationManager::play(vsg::ref_ptr<vsg::Animation> animation, double startTime)

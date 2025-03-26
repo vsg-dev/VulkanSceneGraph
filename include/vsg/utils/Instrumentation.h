@@ -54,6 +54,8 @@ namespace vsg
 
         virtual ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety() { return ref_ptr<Instrumentation>(this); }
 
+        virtual void instrument(Object& /*object*/) {};
+
         virtual void setThreadName(const std::string& /*name*/) const {};
 
         virtual void enterFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const {};

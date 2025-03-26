@@ -273,6 +273,8 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
 void CompileTraversal::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
     instrumentation = in_instrumentation;
+    if (instrumentation) instrumentation->instrument(*this);
+
     for (const auto& context : contexts)
     {
         context->instrumentation = shareOrDuplicateForThreadSafety(instrumentation);

@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/stream.h>
 #include <vsg/ui/FrameStamp.h>
 #include <vsg/utils/Instrumentation.h>
+#include <vsg/app/RecordAndSubmitTask.h>
 #include <vsg/vk/Device.h>
 
 namespace vsg
@@ -96,7 +97,7 @@ namespace vsg
     };
     VSG_type_name(ProfileLog)
 
-        class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
+    class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
     {
     public:
         struct Settings : public Inherit<Object, Settings>
@@ -112,6 +113,12 @@ namespace vsg
         ref_ptr<Settings> settings;
         mutable ref_ptr<ProfileLog> log;
 
+        struct QueryResult
+        {
+            uint64_t result;
+            uint64_t availability;
+        };
+
         /// resources for collecting GPU stats for a single device on a single frame
         struct GPUStatsCollection : public Inherit<Object, GPUStatsCollection>
         {
@@ -119,7 +126,7 @@ namespace vsg
             mutable ref_ptr<QueryPool> queryPool;
             mutable std::atomic<uint32_t> queryIndex = 0;
             std::vector<uint64_t> references;
-            std::vector<uint64_t> timestamps;
+            std::vector<QueryResult> results;
         };
 
         /// resources for collecting GPU stats for all devices for a single frame
@@ -134,10 +141,15 @@ namespace vsg
         mutable size_t frameIndex = 0;
         mutable std::vector<FrameStatsCollection> perFrameGPUStats;
 
+        std::vector<observer_ptr<RecordAndSubmitTask>> tasksBeingInstrumented;
+
         void writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage) const;
         VkResult getGpuResults(FrameStatsCollection& frameStats) const;
 
     public:
+
+        void instrument(Object& object) override;
+
         void setThreadName(const std::string& /*name*/) const override;
 
         void enterFrame(const SourceLocation* /*sl*/, uint64_t& /*reference*/, FrameStamp& /*frameStamp*/) const override;

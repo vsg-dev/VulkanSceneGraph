@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/FrameStamp.h>
 #include <vsg/utils/Profiler.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/app/RecordAndSubmitTask.h>
 
 using namespace vsg;
 
@@ -143,9 +144,9 @@ void Profiler::writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t referenc
     const auto& frameStats = perFrameGPUStats[frameIndex];
     const auto& gpuStats = frameStats.perDeviceGpuStats[commandBuffer.deviceID];
     auto index = gpuStats->queryIndex.fetch_add(1);
-    if (index < gpuStats->timestamps.size())
+    if (index < gpuStats->results.size())
     {
-        gpuStats->timestamps[index] = 0;
+        gpuStats->results[index] = {0, 0};
         gpuStats->references[index] = reference;
         return vkCmdWriteTimestamp(commandBuffer, pipelineStage, gpuStats->queryPool->vk(), index);
     }
@@ -155,20 +156,55 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
 {
     VkResult result = VK_SUCCESS;
 
+#if 0
+    int64_t timeout = 1000000000;
+    for(auto task : tasksBeingInstrumented)
+    {
+        auto ref_task = task.ref_ptr();
+        if (ref_task)
+        {
+            info("Profiler::getGpuResults() need to wait for ", ref_task);
+
+            if (auto fence = ref_task->fence(2))
+            {
+                info("   Wait on ", fence);
+                fence->wait(timeout);
+                info("   finished waiting for ", fence);
+            }
+        }
+    }
+#endif
+
     for (auto& gpuStats : frameStats.perDeviceGpuStats)
     {
-        if (gpuStats && gpuStats->timestamps.size() > 0)
+        if (gpuStats && gpuStats->results.size() > 0 && gpuStats->queryIndex.load() > 0)
         {
-            VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT | VK_QUERY_RESULT_64_BIT;
-            auto count = std::min(static_cast<uint32_t>(gpuStats->timestamps.size()), gpuStats->queryIndex.load());
-            result = vkGetQueryPoolResults(gpuStats->device->vk(), gpuStats->queryPool->vk(), 0, count, count * sizeof(uint64_t), gpuStats->timestamps.data(), sizeof(uint64_t), resultsFlags);
+#if 1
+            VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT | VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
+#else
+            //vkDeviceWaitIdle(*(gpuStats->device));
+            VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
+#endif
+            auto count = std::min(static_cast<uint32_t>(gpuStats->results.size()), gpuStats->queryIndex.load());
+
+
+            result = vkGetQueryPoolResults(gpuStats->device->vk(), gpuStats->queryPool->vk(), 0, count, count * sizeof(QueryResult), gpuStats->results.data(), sizeof(QueryResult), resultsFlags);
+            info("vkGetQueryPoolResults(..) count = ", count, ", result = ", result);
             if (result == VK_SUCCESS)
             {
                 for (uint32_t i = 0; i < count; ++i)
                 {
                     auto& gpu_entry = log->entry(gpuStats->references[i]);
-                    gpu_entry.gpuTime = gpuStats->timestamps[i];
+                    gpu_entry.gpuTime = gpuStats->results[i].result;
+                    info("   gpuStats->results[i] = { ", gpuStats->results[i].result, ", ", gpuStats->results[i].availability, "}");
                 }
+
+                //gpuStats->queryPool->reset();
+                info("query succeed results = ", result);
+            }
+            else if (result == VK_NOT_READY)
+            {
+                info("query not ready = " , result);
             }
             else
             {
@@ -181,6 +217,23 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
     return result;
 }
 
+void Profiler::instrument(Object& object)
+{
+    info("Profiler::instrument(", object.className(), ")");
+
+    if (auto task = object.cast<RecordAndSubmitTask>())
+    {
+        info("    need to track task : ", task);
+
+        tasksBeingInstrumented.push_back(observer_ptr<RecordAndSubmitTask>(task));
+    }
+
+    for(auto task : tasksBeingInstrumented)
+    {
+        info("  task being instrumented ", task.ref_ptr());
+    }
+}
+
 void Profiler::setThreadName(const std::string& name) const
 {
     log->threadNames[std::this_thread::get_id()] = name;
@@ -188,9 +241,13 @@ void Profiler::setThreadName(const std::string& name) const
 
 void Profiler::enterFrame(const SourceLocation* sl, uint64_t& reference, FrameStamp& frameStamp) const
 {
+    info("Profiler::enterFrame() frameIndex = ", frameIndex);
+
     auto& entry = log->enter(reference, ProfileLog::FRAME);
     entry.sourceLocation = sl;
     entry.object = &frameStamp;
+
+    // TODO wait on vsg::Fence(s) before commensing.  Use RecordAndSubmitTasks's fence(index)?
 
     getGpuResults(perFrameGPUStats[frameIndex]);
 }
@@ -225,6 +282,8 @@ void Profiler::leaveFrame(const SourceLocation* sl, uint64_t& reference, FrameSt
     // advance the frame index to the next frame position in the perFrameGPUStats container
     ++frameIndex;
     if (frameIndex >= perFrameGPUStats.size()) frameIndex = 0;
+
+    info("Profiler::leaveFrame()");
 }
 
 void Profiler::enter(const SourceLocation* sl, uint64_t& reference, const Object* object) const
@@ -277,7 +336,7 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
                 gpuStats->device = commandBuffer.getDevice();
                 gpuStats->queryPool = QueryPool::create(commandBuffer.getDevice(), VkQueryPoolCreateFlags{0}, VK_QUERY_TYPE_TIMESTAMP, numQueries, VkQueryPipelineStatisticFlags{0});
                 gpuStats->references.resize(numQueries);
-                gpuStats->timestamps.resize(numQueries);
+                gpuStats->results.resize(numQueries);
                 gpuStats->queryIndex = 0;
             }
             else
@@ -290,7 +349,12 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         entry.sourceLocation = sl;
         entry.object = &commandBuffer;
 
-        writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+        if (gpuStats->queryPool)
+        {
+            vkCmdResetQueryPool(commandBuffer, gpuStats->queryPool->vk(), 0, gpuStats->results.size());
+
+            writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+        }
     }
 }
 
@@ -332,6 +396,8 @@ void Profiler::leave(const SourceLocation* sl, uint64_t& reference, CommandBuffe
 
 void Profiler::finish() const
 {
+    info("Profiler::finish()");
+
     for (auto& gpuStats : perFrameGPUStats)
     {
         getGpuResults(gpuStats);

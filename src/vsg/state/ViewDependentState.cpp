@@ -1044,7 +1044,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         }
     }
 
-    if (numLightDataChanges > 0)
+    //if (numLightDataChanges > 0)
     {
         lightData->dirty();
     }

@@ -157,6 +157,8 @@ void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resou
 
 void CompileManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation)
 {
+    if (in_instrumentation) in_instrumentation->instrument(*this);
+
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
