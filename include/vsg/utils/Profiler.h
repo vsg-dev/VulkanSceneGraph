@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/stream.h>
 #include <vsg/ui/FrameStamp.h>
 #include <vsg/utils/Instrumentation.h>
-#include <vsg/vk/Device.h>
+#include <vsg/state/QueryPool.h>
 
 namespace vsg
 {
