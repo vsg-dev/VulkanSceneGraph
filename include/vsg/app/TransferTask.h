@@ -100,6 +100,7 @@ namespace vsg
             ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
+            bool requiresCopy(uint32_t deviceID) const;
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
         };
 
