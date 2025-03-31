@@ -173,7 +173,6 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
                     gpu_entry.gpuTime = gpuStats->timestamps[i];
                 }
                 gpuStats->queryIndex = 0;
-                info("Profiler::getGpuResults() ", gpuStats, ", sucess = ", result);
             }
             else
             {
@@ -193,8 +192,6 @@ void Profiler::setThreadName(const std::string& name) const
 
 void Profiler::enterFrame(const SourceLocation* sl, uint64_t& reference, FrameStamp& frameStamp) const
 {
-    info("\nenterFrame() ", frameIndex);
-
     auto& entry = log->enter(reference, ProfileLog::FRAME);
     entry.sourceLocation = sl;
     entry.object = &frameStamp;
@@ -264,18 +261,6 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
 
         auto& gpuStats = commandBuffer.gpuStats;
 
-        if (gpuStats)
-        {
-            if (gpuStats->queryIndex.load()==0)
-            {
-                info("Reading to reuse ", gpuStats);
-            }
-            else
-            {
-                info("Not ready ", gpuStats);
-                gpuStats.reset();
-            }
-        }
 
         if (!gpuStats)
         {
@@ -309,8 +294,6 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
 
         if (gpuStats)
         {
-            info("Profiler::enterCommandBuffer(", &commandBuffer, ") ", gpuStats);
-
             vkCmdResetQueryPool(commandBuffer, gpuStats->queryPool->vk(), 0, numQueries);
             gpuStats->queryIndex = 0;
 
@@ -328,7 +311,6 @@ void Profiler::leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         entry.object = &commandBuffer;
 
         if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
-        info("Profiler::leaveCommandBuffer(", &commandBuffer, ") ", commandBuffer.gpuStats);
     }
 }
 
@@ -346,7 +328,7 @@ void Profiler::enter(const SourceLocation* sl, uint64_t& reference, CommandBuffe
 
 void Profiler::leave(const SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer, const Object* object) const
 {
-    if (settings->gpu_instrumentation_level >= sl->level && commandBuffer.gpuStats)
+    if (settings->gpu_instrumentation_level >= sl->level)
     {
         auto& entry = log->leave(reference, ProfileLog::GPU);
         entry.sourceLocation = sl;
