@@ -129,6 +129,21 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// GPUStatsCollection
+//
+void GPUStatsCollection::writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage)
+{
+    auto index = queryIndex.fetch_add(1);
+    if (index < timestamps.size())
+    {
+        timestamps[index] = 0;
+        references[index] = reference;
+        return vkCmdWriteTimestamp(commandBuffer, pipelineStage, queryPool->vk(), index);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Profiler
 //
 Profiler::Profiler(ref_ptr<Settings> in_settings) :
@@ -138,28 +153,16 @@ Profiler::Profiler(ref_ptr<Settings> in_settings) :
 {
 }
 
-void Profiler::writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage) const
-{
-    const auto& frameStats = perFrameGPUStats[frameIndex];
-    const auto& gpuStats = frameStats.perDeviceGpuStats[commandBuffer.deviceID];
-    auto index = gpuStats->queryIndex.fetch_add(1);
-    if (index < gpuStats->timestamps.size())
-    {
-        gpuStats->timestamps[index] = 0;
-        gpuStats->references[index] = reference;
-        return vkCmdWriteTimestamp(commandBuffer, pipelineStage, gpuStats->queryPool->vk(), index);
-    }
-}
 
 VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
 {
     VkResult result = VK_SUCCESS;
 
-    for (auto& gpuStats : frameStats.perDeviceGpuStats)
+    for (auto& gpuStats : frameStats.gpuStats)
     {
-        if (gpuStats && gpuStats->timestamps.size() > 0)
+        if (gpuStats && gpuStats->queryIndex.load() > 0)
         {
-            VkQueryResultFlags resultsFlags = VK_QUERY_RESULT_WAIT_BIT | VK_QUERY_RESULT_64_BIT;
+            VkQueryResultFlags resultsFlags = /*VK_QUERY_RESULT_WAIT_BIT | */VK_QUERY_RESULT_64_BIT;
             auto count = std::min(static_cast<uint32_t>(gpuStats->timestamps.size()), gpuStats->queryIndex.load());
             result = vkGetQueryPoolResults(gpuStats->device->vk(), gpuStats->queryPool->vk(), 0, count, count * sizeof(uint64_t), gpuStats->timestamps.data(), sizeof(uint64_t), resultsFlags);
             if (result == VK_SUCCESS)
@@ -169,12 +172,13 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
                     auto& gpu_entry = log->entry(gpuStats->references[i]);
                     gpu_entry.gpuTime = gpuStats->timestamps[i];
                 }
+                gpuStats->queryIndex = 0;
             }
             else
             {
-                info("query failed with results = ", result);
+                info("Profiler::getGpuResults() ", gpuStats, ", query failed with result = ", result);
             }
-            gpuStats->queryIndex = 0;
+
         }
     }
 
@@ -251,14 +255,13 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
 {
     if (settings->gpu_instrumentation_level >= sl->level)
     {
-        auto deviceID = commandBuffer.deviceID;
         auto& frameStats = perFrameGPUStats[frameIndex];
-        if (deviceID >= frameStats.perDeviceGpuStats.size())
-        {
-            frameStats.perDeviceGpuStats.resize(deviceID + 1);
-        }
 
-        auto& gpuStats = frameStats.perDeviceGpuStats[deviceID];
+        uint32_t numQueries = settings->gpu_timestamp_size;
+
+        auto& gpuStats = commandBuffer.gpuStats;
+
+
         if (!gpuStats)
         {
             auto physicalDevice = commandBuffer.getDevice()->getPhysicalDevice();
@@ -267,18 +270,17 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
             if (limits.timestampComputeAndGraphics)
             {
                 // limits.timestampPeriod is in nanoseconds
-                vsg::info("limits.timestampPeriod = ", limits.timestampPeriod);
 
                 log->timestampScaleToMilliseconds = 1e-6 * static_cast<double>(limits.timestampPeriod);
 
                 gpuStats = GPUStatsCollection::create();
 
-                uint32_t numQueries = settings->gpu_timestamp_size;
                 gpuStats->device = commandBuffer.getDevice();
                 gpuStats->queryPool = QueryPool::create(commandBuffer.getDevice(), VkQueryPoolCreateFlags{0}, VK_QUERY_TYPE_TIMESTAMP, numQueries, VkQueryPipelineStatisticFlags{0});
                 gpuStats->references.resize(numQueries);
                 gpuStats->timestamps.resize(numQueries);
-                gpuStats->queryIndex = 0;
+
+                frameStats.gpuStats.push_back(gpuStats);
             }
             else
             {
@@ -290,7 +292,13 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         entry.sourceLocation = sl;
         entry.object = &commandBuffer;
 
-        writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+        if (gpuStats)
+        {
+            vkCmdResetQueryPool(commandBuffer, gpuStats->queryPool->vk(), 0, numQueries);
+            gpuStats->queryIndex = 0;
+
+            gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+        }
     }
 }
 
@@ -302,7 +310,7 @@ void Profiler::leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         entry.sourceLocation = sl;
         entry.object = &commandBuffer;
 
-        writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+        if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }
 }
 
@@ -314,7 +322,7 @@ void Profiler::enter(const SourceLocation* sl, uint64_t& reference, CommandBuffe
         entry.sourceLocation = sl;
         entry.object = object;
 
-        writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+        if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }
 }
 
@@ -326,7 +334,7 @@ void Profiler::leave(const SourceLocation* sl, uint64_t& reference, CommandBuffe
         entry.sourceLocation = sl;
         entry.object = object;
 
-        writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+        if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }
 }
 

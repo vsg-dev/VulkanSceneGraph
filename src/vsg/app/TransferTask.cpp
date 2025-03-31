@@ -80,6 +80,27 @@ void TransferTask::assign(const BufferInfoList& bufferInfoList)
     }
 }
 
+bool TransferTask::DataToCopy::requiresCopy(uint32_t deviceID) const
+{
+    for (auto buffer_itr = dataMap.begin(); buffer_itr != dataMap.end(); ++buffer_itr)
+    {
+        auto& bufferInfos = buffer_itr->second;
+        for (auto bufferInfo_itr = bufferInfos.begin(); bufferInfo_itr != bufferInfos.end(); ++bufferInfo_itr)
+        {
+            auto& bufferInfo = bufferInfo_itr->second;
+            if ((bufferInfo->referenceCount() > 1) && bufferInfo->requiresCopy(deviceID)) return true;
+        }
+    }
+
+    for (auto imageInfo_itr = imageInfoSet.begin(); imageInfo_itr != imageInfoSet.end(); ++imageInfo_itr)
+    {
+        auto& imageInfo = *imageInfo_itr;
+        if ((imageInfo->referenceCount() > 1) && imageInfo->requiresCopy(deviceID)) return true;
+    }
+
+    return false;
+}
+
 void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset)
 {
     CPU_INSTRUMENTATION_L1(instrumentation);
@@ -333,6 +354,15 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     log(level, "TransferTask::_transferData( ", dataToCopy.name, " ) ", this, ", frameIndex = ", dataToCopy.frameIndex);
 
+    uint32_t deviceID = device->deviceID;
+
+    // check to see if any copies are require.
+    if (!dataToCopy.requiresCopy(deviceID))
+    {
+        return TransferResult{VK_SUCCESS, {}};
+    }
+
+
     //
     // begin compute total data size
     //
@@ -384,7 +414,6 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     log(level, "    totalSize = ", totalSize);
 
-    uint32_t deviceID = device->deviceID;
     auto& frame = *(dataToCopy.frames[dataToCopy.frameIndex]);
     auto& fence = frame.fence;
     auto& staging = frame.staging;
