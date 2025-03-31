@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/stream.h>
 #include <vsg/ui/FrameStamp.h>
 #include <vsg/utils/Instrumentation.h>
-#include <vsg/vk/Device.h>
+#include <vsg/state/QueryPool.h>
 
 namespace vsg
 {
@@ -96,7 +96,21 @@ namespace vsg
     };
     VSG_type_name(ProfileLog)
 
-        class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
+    /// resources for collecting GPU stats for a single device on a single frame
+    class VSG_DECLSPEC GPUStatsCollection : public Inherit<Object, GPUStatsCollection>
+    {
+    public:
+        ref_ptr<Device> device;
+        mutable ref_ptr<QueryPool> queryPool;
+        mutable std::atomic<uint32_t> queryIndex = 0;
+        std::vector<uint64_t> references;
+        std::vector<uint64_t> timestamps;
+
+        void writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage);
+    };
+    VSG_type_name(GPUStatsCollection)
+
+    class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
     {
     public:
         struct Settings : public Inherit<Object, Settings>
@@ -112,29 +126,18 @@ namespace vsg
         ref_ptr<Settings> settings;
         mutable ref_ptr<ProfileLog> log;
 
-        /// resources for collecting GPU stats for a single device on a single frame
-        struct GPUStatsCollection : public Inherit<Object, GPUStatsCollection>
-        {
-            ref_ptr<Device> device;
-            mutable ref_ptr<QueryPool> queryPool;
-            mutable std::atomic<uint32_t> queryIndex = 0;
-            std::vector<uint64_t> references;
-            std::vector<uint64_t> timestamps;
-        };
 
         /// resources for collecting GPU stats for all devices for a single frame
         struct FrameStatsCollection
         {
-            FrameStatsCollection() :
-                perDeviceGpuStats(VSG_MAX_DEVICES) {}
+            FrameStatsCollection() {}
 
-            std::vector<ref_ptr<GPUStatsCollection>> perDeviceGpuStats;
+            std::vector<ref_ptr<GPUStatsCollection>> gpuStats;
         };
 
         mutable size_t frameIndex = 0;
         mutable std::vector<FrameStatsCollection> perFrameGPUStats;
 
-        void writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage) const;
         VkResult getGpuResults(FrameStatsCollection& frameStats) const;
 
     public:
