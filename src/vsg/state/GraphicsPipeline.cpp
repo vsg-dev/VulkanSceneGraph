@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/ViewportState.h>
-#include <vsg/state/DynamicState.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -74,11 +74,11 @@ void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_Pi
                 else if (original_DynamicState->dynamicStates != src_DynamicState->dynamicStates)
                 {
                     auto new_DynamicState = DynamicState::create(original_DynamicState->dynamicStates);
-                    for(auto state : src_DynamicState->dynamicStates)
+                    for (auto state : src_DynamicState->dynamicStates)
                     {
                         if (std::find(new_DynamicState->dynamicStates.begin(), new_DynamicState->dynamicStates.end(), state) == new_DynamicState->dynamicStates.end())
                         {
-                             new_DynamicState->dynamicStates.push_back(state);
+                            new_DynamicState->dynamicStates.push_back(state);
                         }
                     }
 

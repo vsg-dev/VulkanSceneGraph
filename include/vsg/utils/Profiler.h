@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #pragma once
 
 #include <vsg/io/stream.h>
+#include <vsg/state/QueryPool.h>
 #include <vsg/ui/FrameStamp.h>
 #include <vsg/utils/Instrumentation.h>
-#include <vsg/state/QueryPool.h>
 
 namespace vsg
 {
@@ -94,7 +94,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
-    VSG_type_name(ProfileLog)
+    VSG_type_name(ProfileLog);
 
     /// resources for collecting GPU stats for a single device on a single frame
     class VSG_DECLSPEC GPUStatsCollection : public Inherit<Object, GPUStatsCollection>
@@ -108,7 +108,7 @@ namespace vsg
 
         void writeGpuTimestamp(CommandBuffer& commandBuffer, uint64_t reference, VkPipelineStageFlagBits pipelineStage);
     };
-    VSG_type_name(GPUStatsCollection)
+    VSG_type_name(GPUStatsCollection);
 
     class VSG_DECLSPEC Profiler : public Inherit<Instrumentation, Profiler>
     {
@@ -125,7 +125,6 @@ namespace vsg
 
         ref_ptr<Settings> settings;
         mutable ref_ptr<ProfileLog> log;
-
 
         /// resources for collecting GPU stats for all devices for a single frame
         struct FrameStatsCollection
@@ -157,5 +156,6 @@ namespace vsg
 
         void finish() const override;
     };
-    VSG_type_name(Profiler)
+    VSG_type_name(Profiler);
+
 } // namespace vsg

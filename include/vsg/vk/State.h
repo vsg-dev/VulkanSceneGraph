@@ -55,7 +55,7 @@ namespace vsg
             --pos;
         }
 
-        bool empty() const { return pos==0; }
+        bool empty() const { return pos == 0; }
         size_t size() const { return pos; }
         const T* top() const { return stack[pos]; }
 
@@ -317,7 +317,6 @@ namespace vsg
             push(commands.begin(), commands.end());
         }
 
-
         template<typename Iterator>
         inline void pop(Iterator begin, Iterator end)
         {
@@ -345,7 +344,6 @@ namespace vsg
             dirty = true;
         }
 
-
         void pushView(ref_ptr<StateCommand> command);
 
         void popView(ref_ptr<StateCommand> command);
@@ -355,7 +353,6 @@ namespace vsg
         void popView(const View& view);
 
         void recordView();
-
 
         inline void pushFrustum()
         {

@@ -173,7 +173,7 @@ void WindowResizeHandler::apply(vsg::View& view)
             auto& scissor = viewportState->scissors[i];
 
             bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
-                                    (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
+                                     (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
 
             if (new_extent != scissor.extent) scale_rect(scissor);
 

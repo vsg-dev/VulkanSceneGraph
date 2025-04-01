@@ -180,9 +180,7 @@ void RenderGraph::resized()
 
     auto device = activeRenderPass->device;
 
-
     auto extent = getExtent();
-
 
     windowResizeHandler->renderArea = renderArea;
     windowResizeHandler->previous_extent = previous_extent;

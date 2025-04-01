@@ -153,7 +153,6 @@ Profiler::Profiler(ref_ptr<Settings> in_settings) :
 {
 }
 
-
 VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
 {
     VkResult result = VK_SUCCESS;
@@ -162,7 +161,7 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
     {
         if (gpuStats && gpuStats->queryIndex.load() > 0)
         {
-            VkQueryResultFlags resultsFlags = /*VK_QUERY_RESULT_WAIT_BIT | */VK_QUERY_RESULT_64_BIT;
+            VkQueryResultFlags resultsFlags = /*VK_QUERY_RESULT_WAIT_BIT | */ VK_QUERY_RESULT_64_BIT;
             auto count = std::min(static_cast<uint32_t>(gpuStats->timestamps.size()), gpuStats->queryIndex.load());
             result = vkGetQueryPoolResults(gpuStats->device->vk(), gpuStats->queryPool->vk(), 0, count, count * sizeof(uint64_t), gpuStats->timestamps.data(), sizeof(uint64_t), resultsFlags);
             if (result == VK_SUCCESS)
@@ -178,7 +177,6 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
             {
                 info("Profiler::getGpuResults() ", gpuStats, ", query failed with result = ", result);
             }
-
         }
     }
 
@@ -260,7 +258,6 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         uint32_t numQueries = settings->gpu_timestamp_size;
 
         auto& gpuStats = commandBuffer.gpuStats;
-
 
         if (!gpuStats)
         {

@@ -362,7 +362,6 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         return TransferResult{VK_SUCCESS, {}};
     }
 
-
     //
     // begin compute total data size
     //
