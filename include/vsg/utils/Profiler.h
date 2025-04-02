@@ -130,7 +130,6 @@ namespace vsg
         struct FrameStatsCollection
         {
             FrameStatsCollection() {}
-
             std::vector<ref_ptr<GPUStatsCollection>> gpuStats;
         };
 
