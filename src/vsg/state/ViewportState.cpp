@@ -141,7 +141,6 @@ void ViewportState::apply(Context& context, VkGraphicsPipelineCreateInfo& pipeli
 
 void ViewportState::record(CommandBuffer& commandBuffer) const
 {
-    //    info("ViewportState::record() ", &commandBuffer);
     vkCmdSetScissor(commandBuffer, 0, static_cast<uint32_t>(scissors.size()), scissors.data());
     vkCmdSetViewport(commandBuffer, 0, static_cast<uint32_t>(viewports.size()), viewports.data());
 }

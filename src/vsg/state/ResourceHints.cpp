@@ -28,8 +28,7 @@ void ResourceHints::read(Input& input)
 
     if (input.version_greater_equal(1, 1, 11))
     {
-        input.read("maxSlots.state", maxSlots.state);
-        input.read("maxSlots.view", maxSlots.view);
+        input.read("maxSlots", maxSlots.state, maxSlots.view);
     }
     else
     {
@@ -83,8 +82,7 @@ void ResourceHints::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 11))
     {
-        output.write("maxSlots.state", maxSlots.state);
-        output.write("maxSlots.view", maxSlots.view);
+        output.write("maxSlots", maxSlots.state, maxSlots.view);
     }
     else
     {
