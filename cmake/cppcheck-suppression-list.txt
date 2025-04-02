@@ -115,6 +115,7 @@ unusedStructMember:*/include/vsg/state/BufferInfo.h
 unusedStructMember:*/include/vsg/utils/Instrumentation.h
 unusedStructMember:*/include/vsg/utils/ShaderSet.h
 unusedStructMember:*/include/vsg/utils/LoadPagedLOD.h
+unusedStructMember:*/include/vsg/utils/Profiler.h
 
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp

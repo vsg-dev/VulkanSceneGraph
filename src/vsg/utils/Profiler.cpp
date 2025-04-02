@@ -255,13 +255,8 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
 {
     if (settings->gpu_instrumentation_level >= sl->level)
     {
-        auto& frameStats = perFrameGPUStats[frameIndex];
-
         uint32_t numQueries = settings->gpu_timestamp_size;
-
         auto& gpuStats = commandBuffer.gpuStats;
-
-
         if (!gpuStats)
         {
             auto physicalDevice = commandBuffer.getDevice()->getPhysicalDevice();
@@ -280,6 +275,7 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
                 gpuStats->references.resize(numQueries);
                 gpuStats->timestamps.resize(numQueries);
 
+                auto& frameStats = perFrameGPUStats[frameIndex];
                 frameStats.gpuStats.push_back(gpuStats);
             }
             else
