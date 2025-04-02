@@ -16,17 +16,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-State::State(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot) :
+State::State(const Slots& in_maxSlots) :
     dirty(false)
 {
-    reserve(in_maxStateSlot, in_maxViewSlot);
+    reserve(in_maxSlots);
 }
 
-void State::reserve(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot)
+void State::reserve(const Slots& in_maxSlots)
 {
-    maxStateSlot = in_maxStateSlot;
-    maxViewSlot = in_maxViewSlot;
-    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
+    maxSlots = in_maxSlots;
+    activeMaxStateSlot = maxSlots.max();
 
     size_t required_size = static_cast<size_t>(activeMaxStateSlot) + 1;
     if (required_size > stateStacks.size()) stateStacks.resize(required_size);
@@ -42,19 +41,19 @@ void State::reset()
         stateStack.reset();
     }
 
-    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
+    activeMaxStateSlot = maxSlots.max();
 }
 
 void State::pushView(ref_ptr<StateCommand> command)
 {
     stateStacks[command->slot].push(command);
-    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
+    activeMaxStateSlot = maxSlots.max();
 }
 
 void State::popView(ref_ptr<StateCommand> command)
 {
     stateStacks[command->slot].pop();
-    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
+    activeMaxStateSlot = maxSlots.max();
 }
 
 void State::pushView(const View& view)

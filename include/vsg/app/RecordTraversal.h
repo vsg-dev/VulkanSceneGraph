@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/core/type_name.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/vk/Slots.h>
 
 #include <set>
 #include <vector>
@@ -69,7 +70,7 @@ namespace vsg
     class VSG_DECLSPEC RecordTraversal : public Object
     {
     public:
-        explicit RecordTraversal(uint32_t in_maxStateSlot = 0, uint32_t in_maxViewSlot = 0, const std::set<Bin*>& in_bins = {});
+        explicit RecordTraversal(const Slots& in_maxSlots = {}, const std::set<Bin*>& in_bins = {});
 
         RecordTraversal(const RecordTraversal&) = delete;
         RecordTraversal& operator=(const RecordTraversal& rhs) = delete;

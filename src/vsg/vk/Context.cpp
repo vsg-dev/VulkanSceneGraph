@@ -197,8 +197,7 @@ void Context::reserve(const ResourceRequirements& requirements)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context reserve", COLOR_COMPILE)
 
-    if (requirements.maxStateSlot > resourceRequirements.maxStateSlot) resourceRequirements.maxStateSlot = requirements.maxStateSlot;
-    if (requirements.maxViewSlot > resourceRequirements.maxViewSlot) resourceRequirements.maxViewSlot = requirements.maxViewSlot;
+    resourceRequirements.maxSlots.merge(requirements.maxSlots);
 
     descriptorPools->reserve(requirements);
 }

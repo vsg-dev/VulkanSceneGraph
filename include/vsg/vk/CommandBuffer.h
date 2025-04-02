@@ -23,6 +23,7 @@ namespace vsg
     class ViewDependentState;
     class GPUStatsCollection;
 
+
     /// CommandBuffer encapsulates VkCommandBuffer
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {

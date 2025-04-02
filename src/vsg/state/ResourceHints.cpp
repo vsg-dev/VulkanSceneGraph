@@ -28,12 +28,13 @@ void ResourceHints::read(Input& input)
 
     if (input.version_greater_equal(1, 1, 11))
     {
-        input.read("maxStateSlot", maxStateSlot);
-        input.read("maxViewSlot", maxViewSlot);
+        input.read("maxSlots.state", maxSlots.state);
+        input.read("maxSlots.view", maxSlots.view);
     }
     else
     {
-        input.read("maxSlot", maxStateSlot);
+        input.read("maxSlot", maxSlots.state);
+        maxSlots.view = maxSlots.state;
     }
 
     input.read("numDescriptorSets", numDescriptorSets);
@@ -82,12 +83,12 @@ void ResourceHints::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 11))
     {
-        output.write("maxStateSlot", maxStateSlot);
-        output.write("maxViewSlot", maxViewSlot);
+        output.write("maxSlots.state", maxSlots.state);
+        output.write("maxSlots.view", maxSlots.view);
     }
     else
     {
-        output.write("maxSlot", maxStateSlot);
+        output.write("maxSlot", maxSlots.state);
     }
 
     output.write("numDescriptorSets", numDescriptorSets);

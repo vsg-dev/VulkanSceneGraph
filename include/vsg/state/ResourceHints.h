@@ -30,16 +30,16 @@ namespace vsg
         DYNAMIC_VIEWPORTSTATE = 1 << 1
     };
 
+
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
     class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {
     public:
         ResourceHints();
 
-        bool empty() const noexcept { return maxStateSlot == 0 && maxViewSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
+        bool empty() const noexcept { return maxSlots.state == 0 && maxSlots.view == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
 
-        uint32_t maxStateSlot = 0;
-        uint32_t maxViewSlot = 0;
+        Slots maxSlots;
         uint32_t numDescriptorSets = 0;
         DescriptorPoolSizes descriptorPoolSizes;
 

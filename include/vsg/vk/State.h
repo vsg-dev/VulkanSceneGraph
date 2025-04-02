@@ -226,7 +226,7 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        explicit State(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot);
+        explicit State(const Slots& in_maxSlots);
 
         using StateCommandStack = StateStack<StateCommand>;
         using StateStacks = std::vector<StateCommandStack>;
@@ -246,9 +246,8 @@ namespace vsg
         dmat4 inheritedViewMatrix;
         dmat4 inheritedViewTransform;
 
+        Slots maxSlots;
         uint32_t activeMaxStateSlot = 0;
-        uint32_t maxStateSlot = 0;
-        uint32_t maxViewSlot = 0;
 
         StateStacks stateStacks;
 
@@ -257,7 +256,7 @@ namespace vsg
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void reserve(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot);
+        void reserve(const Slots& in_maxSlots);
 
         void reset();
 
@@ -299,7 +298,7 @@ namespace vsg
                 }
 
                 // reset the active maxslot to the minimum required
-                activeMaxStateSlot = maxStateSlot;
+                activeMaxStateSlot = maxSlots.state;
 
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);

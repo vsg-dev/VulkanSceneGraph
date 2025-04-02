@@ -64,8 +64,7 @@ DescriptorPoolSizes ResourceRequirements::computeDescriptorPoolSizes() const
 
 void ResourceRequirements::apply(const ResourceHints& resourceHints)
 {
-    if (resourceHints.maxStateSlot > maxStateSlot) maxStateSlot = resourceHints.maxStateSlot;
-    if (resourceHints.maxViewSlot > maxViewSlot) maxViewSlot = resourceHints.maxViewSlot;
+    maxSlots.merge(resourceHints.maxSlots);
 
     if (!resourceHints.descriptorPoolSizes.empty() || resourceHints.numDescriptorSets > 0)
     {
@@ -97,8 +96,7 @@ ref_ptr<ResourceHints> CollectResourceRequirements::createResourceHints(uint32_t
 {
     auto resourceHints = vsg::ResourceHints::create();
 
-    resourceHints->maxStateSlot = requirements.maxStateSlot;
-    resourceHints->maxViewSlot = requirements.maxViewSlot;
+    resourceHints->maxSlots = requirements.maxSlots;
     resourceHints->numDescriptorSets = static_cast<uint32_t>(requirements.computeNumDescriptorSets() * tileMultiplier);
     resourceHints->descriptorPoolSizes = requirements.computeDescriptorPoolSizes();
 
@@ -157,7 +155,7 @@ void CollectResourceRequirements::apply(const PagedLOD& plod)
 
 void CollectResourceRequirements::apply(const StateCommand& stateCommand)
 {
-    if (stateCommand.slot > requirements.maxStateSlot) requirements.maxStateSlot = stateCommand.slot;
+    if (stateCommand.slot > requirements.maxSlots.state) requirements.maxSlots.state = stateCommand.slot;
     stateCommand.traverse(*this);
 }
 
@@ -216,7 +214,7 @@ void CollectResourceRequirements::apply(const Light& light)
 
 void CollectResourceRequirements::apply(const RenderGraph& rg)
 {
-    if (rg.viewportState) requirements.maxViewSlot = std::max(requirements.maxViewSlot, rg.viewportState->slot);
+    if (rg.viewportState) requirements.maxSlots.view = std::max(requirements.maxSlots.view, rg.viewportState->slot);
     rg.traverse(*this);
 }
 
@@ -224,7 +222,7 @@ void CollectResourceRequirements::apply(const View& view)
 {
     if (view.camera && view.camera->viewportState)
     {
-        requirements.maxViewSlot = std::max(requirements.maxViewSlot, view.camera->viewportState->slot);
+        requirements.maxSlots.view = std::max(requirements.maxSlots.view, view.camera->viewportState->slot);
     }
 
     if (auto itr = requirements.views.find(&view); itr != requirements.views.end())

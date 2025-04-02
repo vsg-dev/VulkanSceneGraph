@@ -361,8 +361,7 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
         for (const auto& commandGraph : task->commandGraphs)
         {
-            commandGraph->maxStateSlot = resourceRequirements.maxStateSlot;
-            commandGraph->maxViewSlot = resourceRequirements.maxViewSlot;
+            commandGraph->maxSlots = resourceRequirements.maxSlots;
             if (resourceRequirements.containsPagedLOD) task_containsPagedLOD = true;
         }
 

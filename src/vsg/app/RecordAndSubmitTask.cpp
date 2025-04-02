@@ -298,8 +298,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     {
         for (const auto& commandGraph : task->commandGraphs)
         {
-            if (compileResult.maxStateSlot > commandGraph->maxStateSlot) commandGraph->maxStateSlot = compileResult.maxStateSlot;
-            if (compileResult.maxViewSlot > commandGraph->maxViewSlot) commandGraph->maxViewSlot = compileResult.maxViewSlot;
+            commandGraph->maxSlots.merge(compileResult.maxSlots);
         }
     }
 
