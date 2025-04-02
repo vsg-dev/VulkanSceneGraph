@@ -681,8 +681,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
     auto light_itr = lightData->begin();
     uint32_t numLightDataChanges = 0;
 
-    auto assignLightData = [&](const vec4& value) -> void
-    {
+    auto assignLightData = [&](const vec4& value) -> void {
         if (*light_itr != value)
         {
             *light_itr = value;
@@ -691,9 +690,8 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         ++light_itr;
     };
 
-    auto assignLightData4 = [&](float x, float y, float z, float w) -> void
-    {
-        vec4 value(x,y,z,w);
+    auto assignLightData4 = [&](float x, float y, float z, float w) -> void {
+        vec4 value(x, y, z, w);
         if (*light_itr != value)
         {
             *light_itr = value;
@@ -706,7 +704,6 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
                      static_cast<float>(directionalLights.size()),
                      static_cast<float>(pointLights.size()),
                      static_cast<float>(spotLights.size()));
-
 
     // lightData requirements = vec4 * (num_ambientLights + 3 * num_directionLights + 3 * num_pointLights + 4 * num_spotLights + 4 * num_shadow_maps)
 

@@ -322,7 +322,6 @@ namespace vsg
             push(commands.begin(), commands.end());
         }
 
-
         template<typename Iterator>
         inline void pop(Iterator begin, Iterator end)
         {
