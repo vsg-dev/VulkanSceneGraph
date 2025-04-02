@@ -292,7 +292,7 @@ namespace vsg
         {
             if (dirty)
             {
-                for(uint32_t slot = 0; slot <= activeMaxStateSlot; ++slot)
+                for (uint32_t slot = 0; slot <= activeMaxStateSlot; ++slot)
                 {
                     stateStacks[slot].record(*_commandBuffer);
                 }

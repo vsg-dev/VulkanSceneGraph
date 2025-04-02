@@ -30,7 +30,6 @@ namespace vsg
         DYNAMIC_VIEWPORTSTATE = 1 << 1
     };
 
-
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
     class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {

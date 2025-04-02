@@ -30,7 +30,7 @@ void State::reserve(const Slots& in_maxSlots)
     size_t required_size = static_cast<size_t>(activeMaxStateSlot) + 1;
     if (required_size > stateStacks.size()) stateStacks.resize(required_size);
 
-//    info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
+    //    info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
 }
 
 void State::reset()
