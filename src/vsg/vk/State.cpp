@@ -16,21 +16,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-State::State(uint32_t maxStateSlot, uint32_t maxViewSlot) :
+State::State(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot) :
     dirty(false)
 {
-    reserve(maxStateSlot, maxViewSlot);
+    reserve(in_maxStateSlot, in_maxViewSlot);
 }
 
-void State::reserve(uint32_t maxStateSlot, uint32_t maxViewSlot)
+void State::reserve(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot)
 {
-    //info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
+    maxStateSlot = in_maxStateSlot;
+    maxViewSlot = in_maxViewSlot;
+    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
 
-    size_t required_size = static_cast<size_t>(maxStateSlot) + 1;
+    size_t required_size = static_cast<size_t>(activeMaxStateSlot) + 1;
     if (required_size > stateStacks.size()) stateStacks.resize(required_size);
 
-    required_size = static_cast<size_t>(maxViewSlot) + 1;
-    if (required_size > viewStateStacks.size()) viewStateStacks.resize(required_size);
+//    info("State::reserve(", maxStateSlot, ", ", maxViewSlot, ")");
 }
 
 void State::reset()
@@ -41,22 +42,19 @@ void State::reset()
         stateStack.reset();
     }
 
-    for (auto& stateStack : viewStateStacks)
-    {
-        stateStack.reset();
-    }
+    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
 }
 
 void State::pushView(ref_ptr<StateCommand> command)
 {
-    viewStateStacks[command->slot].push(command);
-    recordView();
+    stateStacks[command->slot].push(command);
+    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
 }
 
 void State::popView(ref_ptr<StateCommand> command)
 {
-    viewStateStacks[command->slot].pop();
-    recordView();
+    stateStacks[command->slot].pop();
+    activeMaxStateSlot = std::max(maxViewSlot, maxStateSlot);
 }
 
 void State::pushView(const View& view)
@@ -69,14 +67,4 @@ void State::popView(const View& view)
 {
     //info("State::popView(View&, ", &view, ")");
     if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) popView(view.camera->viewportState);
-}
-
-void State::recordView()
-{
-    //info("State::recordView(..)");
-
-    for (auto& stateStack : viewStateStacks)
-    {
-        if (!stateStack.empty()) stateStack.record(*_commandBuffer);
-    }
 }

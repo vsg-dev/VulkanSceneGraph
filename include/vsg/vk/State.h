@@ -226,7 +226,7 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        explicit State(uint32_t maxStateSlot, uint32_t maxViewSlot);
+        explicit State(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot);
 
         using StateCommandStack = StateStack<StateCommand>;
         using StateStacks = std::vector<StateCommandStack>;
@@ -246,15 +246,18 @@ namespace vsg
         dmat4 inheritedViewMatrix;
         dmat4 inheritedViewTransform;
 
+        uint32_t activeMaxStateSlot = 0;
+        uint32_t maxStateSlot = 0;
+        uint32_t maxViewSlot = 0;
+
         StateStacks stateStacks;
 
         uint32_t viewportStateHint = 0;
-        StateStacks viewStateStacks;
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void reserve(uint32_t maxStateSlot, uint32_t maxViewSlot);
+        void reserve(uint32_t in_maxStateSlot, uint32_t in_maxViewSlot);
 
         void reset();
 
@@ -290,10 +293,13 @@ namespace vsg
         {
             if (dirty)
             {
-                for (auto& stateStack : stateStacks)
+                for(uint32_t slot = 0; slot <= activeMaxStateSlot; ++slot)
                 {
-                    stateStack.record(*_commandBuffer);
+                    stateStacks[slot].record(*_commandBuffer);
                 }
+
+                // reset the active maxslot to the minimum required
+                activeMaxStateSlot = maxStateSlot;
 
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);
@@ -351,8 +357,6 @@ namespace vsg
         void pushView(const View& view);
 
         void popView(const View& view);
-
-        void recordView();
 
         inline void pushFrustum()
         {
