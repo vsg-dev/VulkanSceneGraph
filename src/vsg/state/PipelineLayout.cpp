@@ -56,6 +56,9 @@ std::pair<bool, uint32_t> vsg::PipelineLayout::computeCompatibility(const Pipeli
 #endif
     for (result.second = 0; result.second < std::min(setLayouts.size(), other.setLayouts.size()); ++result.second)
     {
+        // if this is a partial layout for a graphics pipeline library, it may be made compatible later
+        if (!setLayouts[result.second] || !other.setLayouts[result.second])
+            continue;
         if (compare_value_container(setLayouts[result.second]->bindings, other.setLayouts[result.second]->bindings) != 0)
             break;
     }
