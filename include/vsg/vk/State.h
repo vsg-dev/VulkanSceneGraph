@@ -263,6 +263,8 @@ namespace vsg
 
         void reserve(const Slots& in_maxSlots);
 
+        void connect(ref_ptr<CommandBuffer> commandBuffer);
+
         void reset();
 
         inline void dirtyStateStacks()

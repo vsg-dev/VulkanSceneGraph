@@ -44,6 +44,13 @@ void State::reset()
     activeMaxStateSlot = maxSlots.max();
 }
 
+void State::connect(ref_ptr<CommandBuffer> commandBuffer)
+{
+    _commandBuffer = commandBuffer;
+    commandBuffer->state = this;
+    reset();
+}
+
 void State::pushView(ref_ptr<StateCommand> command)
 {
     stateStacks[command->slot].push(command);
