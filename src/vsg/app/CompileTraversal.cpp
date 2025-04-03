@@ -323,10 +323,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
     for (const auto& context : contexts)
     {
-        if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
-        {
-            commandGraph.maxSlot = context->resourceRequirements.maxSlot;
-        }
+        commandGraph.maxSlots.merge(context->resourceRequirements.maxSlots);
     }
 
     commandGraph.traverse(*this);
@@ -340,10 +337,7 @@ void CompileTraversal::apply(SecondaryCommandGraph& secondaryCommandGraph)
 
     for (auto& context : contexts)
     {
-        if (context->resourceRequirements.maxSlot > secondaryCommandGraph.maxSlot)
-        {
-            secondaryCommandGraph.maxSlot = context->resourceRequirements.maxSlot;
-        }
+        secondaryCommandGraph.maxSlots.merge(context->resourceRequirements.maxSlots);
 
         // save previous states to be restored after traversal
         auto previousRenderPass = context->renderPass;
@@ -385,6 +379,9 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         auto previousRenderPass = context->renderPass;
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
         auto previousOverridePipelineStates = context->overridePipelineStates;
+
+        // enable dynamic viewport state handling if required.
+        renderGraph.viewportStateHint = context->resourceRequirements.viewportStateHint;
 
         mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, renderGraph.viewportState);
 

@@ -24,7 +24,7 @@ using namespace vsg;
 void CompileResult::reset()
 {
     result = VK_INCOMPLETE;
-    maxSlot = 0;
+    maxSlots = {};
     containsPagedLOD = false;
     views.clear();
     dynamicData.clear();
@@ -37,7 +37,8 @@ void CompileResult::add(const CompileResult& cr)
         result = cr.result;
     }
 
-    if (cr.maxSlot > maxSlot) maxSlot = cr.maxSlot;
+    maxSlots.merge(cr.maxSlots);
+
     if (!containsPagedLOD) containsPagedLOD = cr.containsPagedLOD;
 
     for (auto& [src_view, src_binDetails] : cr.views)
@@ -175,7 +176,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     auto& viewDetailsStack = requirements.viewDetailsStack;
 
     CompileResult result;
-    result.maxSlot = requirements.maxSlot;
+    result.maxSlots = requirements.maxSlots;
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
     result.dynamicData = requirements.dynamicData;

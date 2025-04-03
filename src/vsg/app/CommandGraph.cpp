@@ -66,9 +66,9 @@ ref_ptr<RecordTraversal> CommandGraph::getOrCreateRecordTraversal()
 {
     //CPU_INSTRUMENTATION_L1(instrumentation);
     if (!recordTraversal)
-        recordTraversal = RecordTraversal::create(maxSlot);
+        recordTraversal = RecordTraversal::create(maxSlots);
     else
-        recordTraversal->getState()->reserve(maxSlot);
+        recordTraversal->getState()->reserve(maxSlots);
 
     return recordTraversal;
 }
@@ -114,7 +114,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
-    recordTraversal->getState()->_commandBuffer = commandBuffer;
+    recordTraversal->getState()->connect(commandBuffer);
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;

@@ -56,8 +56,8 @@ using namespace vsg;
 
 #define INLINE_TRAVERSE 0
 
-RecordTraversal::RecordTraversal(uint32_t in_maxSlot, const std::set<Bin*>& in_bins) :
-    _state(new State(in_maxSlot))
+RecordTraversal::RecordTraversal(const Slots& in_maxSlots, const std::set<Bin*>& in_bins) :
+    _state(new State(in_maxSlots))
 {
     CPU_INSTRUMENTATION_L1_C(instrumentation, COLOR_RECORD);
 
@@ -565,6 +565,8 @@ void RecordTraversal::apply(const View& view)
         _viewDependentState->clear();
     }
 
+    _state->pushView(view);
+
     if (view.camera)
     {
         _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
@@ -572,8 +574,6 @@ void RecordTraversal::apply(const View& view)
 
         if (const auto& viewportState = view.camera->viewportState)
         {
-            _state->push(viewportState);
-
             if (_viewDependentState)
             {
                 auto& viewportData = _viewDependentState->viewportData;
@@ -597,8 +597,6 @@ void RecordTraversal::apply(const View& view)
             }
 
             view.traverse(*this);
-
-            _state->pop(viewportState);
         }
         else
         {
@@ -609,6 +607,8 @@ void RecordTraversal::apply(const View& view)
     {
         view.traverse(*this);
     }
+
+    _state->popView(view);
 
     for (auto& bin : view.bins)
     {

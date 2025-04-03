@@ -131,7 +131,10 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
         vsg::debug("Context::Context() reusing descriptorPools = ", descriptorPools);
     }
 
-    defaultPipelineStates.push_back(DynamicState::create());
+    if ((resourceRequirements.viewportStateHint & DYNAMIC_VIEWPORTSTATE))
+    {
+        defaultPipelineStates.push_back(DynamicState::create(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR));
+    }
 }
 
 Context::Context(const Context& context) :
@@ -194,10 +197,7 @@ void Context::reserve(const ResourceRequirements& requirements)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context reserve", COLOR_COMPILE)
 
-    if (requirements.maxSlot > resourceRequirements.maxSlot)
-    {
-        resourceRequirements.maxSlot = requirements.maxSlot;
-    }
+    resourceRequirements.maxSlots.merge(requirements.maxSlots);
 
     descriptorPools->reserve(requirements);
 }

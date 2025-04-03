@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/utils/Profiler.h>
 #include <vsg/vk/CommandBuffer.h>
+#include <vsg/vk/State.h>
 
 using namespace vsg;
 
@@ -47,6 +48,22 @@ void CommandBuffer::reset()
     _currentPushConstantStageFlags = 0;
 
     _commandPool->reset();
+}
+
+void CommandBuffer::setCurrentPipelineLayout(const PipelineLayout* pipelineLayout)
+{
+    VkPipelineLayout newLayout = pipelineLayout->vk(deviceID);
+    if (_currentPipelineLayout != newLayout)
+    {
+        // have to assume that all DescriptorSets will need to be rebound.
+        state->dirtyStateStacks();
+
+        _currentPipelineLayout = newLayout;
+        if (pipelineLayout->pushConstantRanges.empty())
+            _currentPushConstantStageFlags = 0;
+        else
+            _currentPushConstantStageFlags = pipelineLayout->pushConstantRanges.front().stageFlags;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -88,7 +88,7 @@ namespace vsg
         Views views;
         ViewDetailStack viewDetailsStack;
 
-        uint32_t maxSlot = 0;
+        Slots maxSlots;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
 
@@ -102,6 +102,7 @@ namespace vsg
         uivec2 shadowMapSize = {2048, 2048};
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
+        uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
     };
     VSG_type_name(vsg::ResourceRequirements);
 

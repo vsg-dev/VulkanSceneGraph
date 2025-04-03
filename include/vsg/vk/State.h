@@ -26,48 +26,51 @@ namespace vsg
 {
 
 #define POLYTOPE_SIZE 5
+#define STATESTACK_SIZE 16
 
     /// StateStack used internally by vsg::State to manage stack of vsg::StateCommand
     template<class T>
     class StateStack
     {
     public:
-        StateStack() :
-            dirty(false) {}
+        StateStack() {}
 
-        using Stack = std::stack<ref_ptr<const T>>;
+        using Stack = std::array<const T*, STATESTACK_SIZE>;
         Stack stack;
-        bool dirty;
+        size_t pos = 0;
 
-        template<class R>
-        inline void push(ref_ptr<R> value)
+        inline void reset()
         {
-            stack.push(value);
-            dirty = true;
+            pos = 0;
+            stack[0] = nullptr;
         }
 
-        template<class R>
-        inline void push(R* value)
+        inline void dirty()
         {
-            stack.push(ref_ptr<const T>(value));
-            dirty = true;
+            stack[0] = nullptr;
+        }
+
+        inline void push(const T* value)
+        {
+            stack[++pos] = value;
         }
 
         inline void pop()
         {
-            stack.pop();
-            dirty = !stack.empty();
+            --pos;
         }
-        bool empty() const { return stack.empty(); }
-        size_t size() const { return stack.size(); }
-        const T* top() const { return stack.top(); }
+
+        bool empty() const { return pos == 0; }
+        size_t size() const { return pos; }
+        const T* top() const { return stack[pos]; }
 
         inline void record(CommandBuffer& commandBuffer)
         {
-            if (dirty)
+            const T* current = stack[pos];
+            if (current != stack[0])
             {
-                stack.top()->record(commandBuffer);
-                dirty = false;
+                current->record(commandBuffer);
+                stack[0] = current;
             }
         }
     };
@@ -228,11 +231,7 @@ namespace vsg
     class State : public Inherit<Object, State>
     {
     public:
-        explicit State(uint32_t maxSlot) :
-            dirty(false),
-            stateStacks(static_cast<size_t>(maxSlot) + 1)
-        {
-        }
+        explicit State(const Slots& in_maxSlots);
 
         using StateCommandStack = StateStack<StateCommand>;
         using StateStacks = std::vector<StateCommandStack>;
@@ -252,15 +251,28 @@ namespace vsg
         dmat4 inheritedViewMatrix;
         dmat4 inheritedViewTransform;
 
+        Slots maxSlots;
+        uint32_t activeMaxStateSlot = 0;
+
         StateStacks stateStacks;
+
+        uint32_t viewportStateHint = 0;
 
         MatrixStack projectionMatrixStack{0};
         MatrixStack modelviewMatrixStack{64};
 
-        void reserve(uint32_t maxSlot)
+        void reserve(const Slots& in_maxSlots);
+
+        void connect(ref_ptr<CommandBuffer> commandBuffer);
+
+        void reset();
+
+        inline void dirtyStateStacks()
         {
-            size_t required_size = static_cast<size_t>(maxSlot) + 1;
-            if (required_size > stateStacks.size()) stateStacks.resize(required_size);
+            for (auto& stateStack : stateStacks)
+            {
+                stateStack.dirty();
+            }
         }
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
@@ -295,10 +307,13 @@ namespace vsg
         {
             if (dirty)
             {
-                for (auto& stateStack : stateStacks)
+                for (uint32_t slot = 0; slot <= activeMaxStateSlot; ++slot)
                 {
-                    stateStack.record(*_commandBuffer);
+                    stateStacks[slot].record(*_commandBuffer);
                 }
+
+                // reset the active maxslot to the minimum required
+                activeMaxStateSlot = maxSlots.state;
 
                 projectionMatrixStack.record(*_commandBuffer);
                 modelviewMatrixStack.record(*_commandBuffer);
@@ -348,6 +363,14 @@ namespace vsg
             stateStacks[command->slot].pop();
             dirty = true;
         }
+
+        void pushView(ref_ptr<StateCommand> command);
+
+        void popView(ref_ptr<StateCommand> command);
+
+        void pushView(const View& view);
+
+        void popView(const View& view);
 
         inline void pushFrustum()
         {

@@ -27,7 +27,7 @@ namespace vsg
     {
         int result = VK_INCOMPLETE;
         std::string message;
-        uint32_t maxSlot = 0;
+        Slots maxSlots;
         bool containsPagedLOD = false;
         ResourceRequirements::Views views;
         ResourceRequirements::DynamicData dynamicData;

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/ViewportState.h>
 #include <vsg/vk/Context.h>
@@ -56,12 +57,38 @@ void vsg::mergeGraphicsPipelineStates(Mask mask, GraphicsPipelineStates& dest_Pi
 {
     if (!src_PipelineState || (mask & src_PipelineState->mask) == 0) return;
 
+    auto* src_DynamicState = src_PipelineState->cast<DynamicState>();
+
     // replace any entries in the dest_PipelineStates that have the same type as src_PipelineState
     for (auto& original_pipelineState : dest_PipelineStates)
     {
         if (original_pipelineState->type_info() == src_PipelineState->type_info())
         {
-            original_pipelineState = src_PipelineState;
+            if (src_DynamicState)
+            {
+                auto original_DynamicState = original_pipelineState->cast<DynamicState>();
+                if (original_DynamicState->dynamicStates.empty())
+                {
+                    original_pipelineState = src_PipelineState;
+                }
+                else if (original_DynamicState->dynamicStates != src_DynamicState->dynamicStates)
+                {
+                    auto new_DynamicState = DynamicState::create(original_DynamicState->dynamicStates);
+                    for (auto state : src_DynamicState->dynamicStates)
+                    {
+                        if (std::find(new_DynamicState->dynamicStates.begin(), new_DynamicState->dynamicStates.end(), state) == new_DynamicState->dynamicStates.end())
+                        {
+                            new_DynamicState->dynamicStates.push_back(state);
+                        }
+                    }
+
+                    original_pipelineState = new_DynamicState;
+                }
+            }
+            else
+            {
+                original_pipelineState = src_PipelineState;
+            }
             return;
         }
     }

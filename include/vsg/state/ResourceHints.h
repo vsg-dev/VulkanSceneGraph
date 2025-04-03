@@ -24,15 +24,21 @@ namespace vsg
         COMPILE_TRAVERSAL_USE_TRANSFER_TASK
     };
 
+    enum ViewportStateMask : uint32_t
+    {
+        STATIC_VIEWPORTSTATE = 1 << 0,
+        DYNAMIC_VIEWPORTSTATE = 1 << 1
+    };
+
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
     class VSG_DECLSPEC ResourceHints : public Inherit<Object, ResourceHints>
     {
     public:
         ResourceHints();
 
-        bool empty() const noexcept { return maxSlot == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
+        bool empty() const noexcept { return maxSlots.state == 0 && maxSlots.view == 0 && numDescriptorSets == 0 && descriptorPoolSizes.empty(); }
 
-        uint32_t maxSlot = 0;
+        Slots maxSlots;
         uint32_t numDescriptorSets = 0;
         DescriptorPoolSizes descriptorPoolSizes;
 
@@ -48,6 +54,7 @@ namespace vsg
         uint32_t numDatabasePagerReadThreads = 4;
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
+        uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
 
     public:
         void read(Input& input) override;
