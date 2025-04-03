@@ -45,6 +45,11 @@ namespace vsg
             stack[0] = nullptr;
         }
 
+        inline void dirty()
+        {
+            stack[0] = nullptr;
+        }
+
         inline void push(const T* value)
         {
             stack[++pos] = value;
@@ -259,6 +264,14 @@ namespace vsg
         void reserve(const Slots& in_maxSlots);
 
         void reset();
+
+        inline void dirtyStateStacks()
+        {
+            for (auto& stateStack : stateStacks)
+            {
+                stateStack.dirty();
+            }
+        }
 
         void setInhertiedViewProjectionAndViewMatrix(const dmat4& projMatrix, const dmat4& viewMatrix)
         {

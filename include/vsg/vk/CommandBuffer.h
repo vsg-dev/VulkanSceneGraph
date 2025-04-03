@@ -22,6 +22,7 @@ namespace vsg
     // forward declare
     class ViewDependentState;
     class GPUStatsCollection;
+    class State;
 
     /// CommandBuffer encapsulates VkCommandBuffer
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
@@ -38,6 +39,7 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
         ViewDependentState* viewDependentState = nullptr;
+        State* state = nullptr;
         ref_ptr<GPUStatsCollection> gpuStats;
 
         VkCommandBufferLevel level() const { return _level; }
@@ -51,14 +53,7 @@ namespace vsg
         CommandPool* getCommandPool() { return _commandPool; }
         const CommandPool* getCommandPool() const { return _commandPool; }
 
-        void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout)
-        {
-            _currentPipelineLayout = pipelineLayout->vk(deviceID);
-            if (pipelineLayout->pushConstantRanges.empty())
-                _currentPushConstantStageFlags = 0;
-            else
-                _currentPushConstantStageFlags = pipelineLayout->pushConstantRanges.front().stageFlags;
-        }
+        void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout);
 
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
         VkShaderStageFlags getCurrentPushConstantStageFlags() const { return _currentPushConstantStageFlags; }
