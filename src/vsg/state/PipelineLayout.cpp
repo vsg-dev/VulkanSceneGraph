@@ -45,6 +45,26 @@ PipelineLayout::~PipelineLayout()
 {
 }
 
+std::pair<bool, uint32_t> vsg::PipelineLayout::computeCompatibility(const PipelineLayout& other)
+{
+    auto result = std::make_pair<bool, uint32_t>(compare_value_container(pushConstantRanges, other.pushConstantRanges) == 0, 0);
+    if (!result.first)
+        return result;
+#ifdef VK_EXT_graphics_pipeline_library
+    if ((flags & VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT) != (other.flags & VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT))
+        return result;
+#endif
+    for (result.second = 0; result.second < std::min(setLayouts.size(), other.setLayouts.size()); ++result.second)
+    {
+        // if this is a partial layout for a graphics pipeline library, it may be made compatible later
+        if (!setLayouts[result.second] || !other.setLayouts[result.second])
+            continue;
+        if (compare_value_container(setLayouts[result.second]->bindings, other.setLayouts[result.second]->bindings) != 0)
+            break;
+    }
+    return result;
+}
+
 int PipelineLayout::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);

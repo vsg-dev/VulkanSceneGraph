@@ -43,6 +43,9 @@ namespace vsg
         void release(uint32_t deviceID) { _implementation[deviceID] = {}; }
         void release() { _implementation.clear(); }
 
+        // returns whether the layouts are push-constant-compatible and the lowest N for which the layouts are not compatible for descriptor set N
+        std::pair<bool, uint32_t> computeCompatibility(const PipelineLayout& other);
+
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return PipelineLayout::create(*this, copyop); }
         int compare(const Object& rhs) const override;
