@@ -165,6 +165,22 @@ void ConstVisitor::apply(const uivec4Value& value)
 {
     apply(static_cast<const Data&>(value));
 }
+void ConstVisitor::apply(const mat2Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dmat2Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const mat3Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
+void ConstVisitor::apply(const dmat3Value& value)
+{
+    apply(static_cast<const Data&>(value));
+}
 void ConstVisitor::apply(const mat4Value& value)
 {
     apply(static_cast<const Data&>(value));

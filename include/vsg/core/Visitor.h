@@ -223,6 +223,10 @@ namespace vsg
         virtual void apply(uivec2Value&);
         virtual void apply(uivec3Value&);
         virtual void apply(uivec4Value&);
+        virtual void apply(mat2Value&);
+        virtual void apply(dmat2Value&);
+        virtual void apply(mat3Value&);
+        virtual void apply(dmat3Value&);
         virtual void apply(mat4Value&);
         virtual void apply(dmat4Value&);
 
