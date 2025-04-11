@@ -141,9 +141,10 @@ set(SOURCES
     io/Path.cpp
     io/ReaderWriter.cpp
     io/VSG.cpp
+    io/glsl.cpp
+    io/json.cpp
     io/spirv.cpp
     io/tile.cpp
-    io/glsl.cpp
     io/txt.cpp
     io/read.cpp
     io/write.cpp
