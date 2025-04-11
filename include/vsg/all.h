@@ -45,6 +45,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/clamp.h>
 #include <vsg/maths/color.h>
 #include <vsg/maths/common.h>
+#include <vsg/maths/mat2.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
 #include <vsg/maths/plane.h>
@@ -250,6 +251,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceRequirements.h>
 #include <vsg/vk/Semaphore.h>
+#include <vsg/vk/Slots.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
@@ -274,6 +276,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/VSG.h>
 #include <vsg/io/convert_utf.h>
 #include <vsg/io/glsl.h>
+#include <vsg/io/json.h>
 #include <vsg/io/mem_stream.h>
 #include <vsg/io/read.h>
 #include <vsg/io/read_line.h>
