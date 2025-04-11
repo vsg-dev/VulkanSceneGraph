@@ -41,7 +41,7 @@ namespace vsg
 
         inline bool white_space(char c) const
         {
-            return (c==' ' || c=='\t' || c=='\r' || c=='\n');
+            return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
         }
 
         bool read_string(std::string& value);
@@ -49,7 +49,7 @@ namespace vsg
         vsg::ref_ptr<vsg::Object> read_array();
         vsg::ref_ptr<vsg::Object> read_object();
     };
-    VSG_type_name(vsg::JSONParser)
+    VSG_type_name(vsg::JSONParser);
 
     /// json ReaderWriter
     class json : public vsg::Inherit<vsg::ReaderWriter, json>
@@ -67,6 +67,6 @@ namespace vsg
 
         bool getFeatures(Features& features) const override;
     };
-    VSG_type_name(vsg::json)
+    VSG_type_name(vsg::json);
 
-}
+} // namespace vsg

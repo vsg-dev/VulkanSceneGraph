@@ -13,8 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Objects.h>
 #include <vsg/core/Value.h>
 #include <vsg/io/Path.h>
-#include <vsg/io/mem_stream.h>
 #include <vsg/io/json.h>
+#include <vsg/io/mem_stream.h>
 
 #include <fstream>
 
@@ -34,14 +34,14 @@ bool JSONParser::read_string(std::string& value)
     if (buffer[pos] != '"') return false;
 
     // read string
-    auto end_of_value = buffer.find('"', pos+1);
+    auto end_of_value = buffer.find('"', pos + 1);
     if (end_of_value == std::string::npos) return false;
 
     // could have escape characters.
 
-    value = buffer.substr(pos+1, end_of_value-pos-1);
+    value = buffer.substr(pos + 1, end_of_value - pos - 1);
 
-    pos = end_of_value+1;
+    pos = end_of_value + 1;
 
     return true;
 }
@@ -58,7 +58,7 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_array()
 
     // buffer[pos] == '['
     // advance past open bracket
-    pos = buffer.find_first_not_of(" \t\r\n", pos+1);
+    pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
     if (pos == std::string::npos)
     {
         vsg::info(indent, "read_array() contents after [");
@@ -69,7 +69,7 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_array()
 
     auto objects = vsg::Objects::create();
 
-    while(pos != std::string::npos && pos < buffer.size() && buffer[pos] != ']')
+    while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != ']')
     {
         // now look to pair with value after " : "
         if (buffer[pos] == '{')
@@ -95,27 +95,27 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_array()
         }
         else
         {
-            auto end_of_field = buffer.find_first_of(",}]", pos+1);
+            auto end_of_field = buffer.find_first_of(",}]", pos + 1);
             if (end_of_field == std::string::npos) break;
 
             auto end_of_value = end_of_field - 1;
-            while(end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
+            while (end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
 
-            if (buffer.compare(pos, end_of_value-pos, "null")==0)
+            if (buffer.compare(pos, end_of_value - pos, "null") == 0)
             {
                 objects->children.push_back(nullptr);
             }
-            else if (buffer.compare(pos, end_of_value-pos, "true")==0)
+            else if (buffer.compare(pos, end_of_value - pos, "true") == 0)
             {
                 objects->children.push_back(vsg::boolValue::create(true));
             }
-            else if (buffer.compare(pos, end_of_value-pos, "false")==0)
+            else if (buffer.compare(pos, end_of_value - pos, "false") == 0)
             {
                 objects->children.push_back(vsg::boolValue::create(false));
             }
             else
             {
-                mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value-pos+1);
+                mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value - pos + 1);
 
                 double value;
                 mstr >> value;
@@ -146,25 +146,24 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
 
     // buffer[pos] == '{'
     // advance past open bracket
-    pos = buffer.find_first_not_of(" \t\r\n", pos+1);
+    pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
     if (pos == std::string::npos) return {};
 
     indent += 4;
 
-
     auto object = vsg::Object::create();
 
-    while(pos != std::string::npos && pos < buffer.size() && buffer[pos] != '}')
+    while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != '}')
     {
         if (buffer[pos] == '"')
         {
-            auto end_of_string = buffer.find('"', pos+1);
+            auto end_of_string = buffer.find('"', pos + 1);
             if (end_of_string == std::string::npos) break;
 
-            std::string_view name(&buffer[pos+1], end_of_string-pos-1);
+            std::string_view name(&buffer[pos + 1], end_of_string - pos - 1);
 
             // skip white space
-            pos = buffer.find_first_not_of(" \t\r\n", end_of_string+1);
+            pos = buffer.find_first_not_of(" \t\r\n", end_of_string + 1);
             if (pos == std::string::npos)
             {
                 vsg::info(indent, "read_object()  deliminator error end of buffer.");
@@ -174,12 +173,12 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
             // make sure next charater is the {name : value} deliminator
             if (buffer[pos] != ':')
             {
-                vsg::info(indent, "read_object()  deliminator error buffer[",pos,"] = ", buffer[pos]);
+                vsg::info(indent, "read_object()  deliminator error buffer[", pos, "] = ", buffer[pos]);
                 break;
             }
 
             // skip white space
-            pos = buffer.find_first_not_of(" \t\r\n", pos+1);
+            pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
             if (pos == std::string::npos)
             {
                 break;
@@ -207,28 +206,28 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
             }
             else
             {
-                auto end_of_field = buffer.find_first_of(",}]", pos+1);
+                auto end_of_field = buffer.find_first_of(",}]", pos + 1);
                 if (end_of_field == std::string::npos) break;
 
                 auto end_of_value = end_of_field - 1;
-                while(end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
+                while (end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
 
-                if (buffer.compare(pos, end_of_value-pos, "null")==0)
+                if (buffer.compare(pos, end_of_value - pos, "null") == 0)
                 {
                     // non op?
                     object->setObject(std::string(name), nullptr);
                 }
-                else if (buffer.compare(pos, end_of_value-pos, "true")==0)
+                else if (buffer.compare(pos, end_of_value - pos, "true") == 0)
                 {
                     object->setValue(std::string(name), true);
                 }
-                else if (buffer.compare(pos, end_of_value-pos, "false")==0)
+                else if (buffer.compare(pos, end_of_value - pos, "false") == 0)
                 {
                     object->setValue(std::string(name), false);
                 }
                 else
                 {
-                    mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value-pos+1);
+                    mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value - pos + 1);
 
                     double value;
                     mstr >> value;
@@ -238,7 +237,6 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
                 // skip to end of field
                 pos = end_of_field;
             }
-
         }
         else if (buffer[pos] == ',')
         {
@@ -280,7 +278,7 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
     fin.seekg(0, fin.end);
     size_t fileSize = fin.tellg();
 
-    if (fileSize==0) return {};
+    if (fileSize == 0) return {};
 
     JSONParser parser;
 
@@ -295,13 +293,13 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
     parser.pos = parser.buffer.find_first_not_of(" \t\r\n", 0);
     if (parser.pos == std::string::npos) return {};
 
-    if (parser.buffer[parser.pos]=='{')
+    if (parser.buffer[parser.pos] == '{')
     {
-        result =  parser.read_object();
+        result = parser.read_object();
     }
-    else if (parser.buffer[parser.pos]=='[')
+    else if (parser.buffer[parser.pos] == '[')
     {
-        result =  parser.read_array();
+        result = parser.read_array();
     }
     else
     {
@@ -311,10 +309,9 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
     return result;
 }
 
-
 vsg::ref_ptr<vsg::Object> json::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
 {
-    vsg::Path ext  = (options && options->extensionHint) ? options->extensionHint : vsg::lowerCaseFileExtension(filename);
+    vsg::Path ext = (options && options->extensionHint) ? options->extensionHint : vsg::lowerCaseFileExtension(filename);
     if (!supportedExtension(ext)) return {};
 
     vsg::Path filenameToUse = vsg::findFile(filename, options);
@@ -340,7 +337,6 @@ vsg::ref_ptr<vsg::Object> json::read(const uint8_t* ptr, size_t size, vsg::ref_p
     vsg::mem_stream fin(ptr, size);
     return _read(fin, options);
 }
-
 
 bool json::getFeatures(Features& features) const
 {
