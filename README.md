@@ -6,7 +6,7 @@ This repository contains C++ headers and source and CMake build scripts to build
 
 ## Links to further information
 
-The [vulkanscenegraph.org website](https://www.vulkanscenegraph.org) provides a detailed list of features, tutorials and reference documentation, while this repository provides the source code and build support for creating the VulkanSceneGraph library. Quick links to resources hosted on the website:
+The [vsg-dev.github.io/vsg-dev.io website](https://vsg-dev.github.io/vsg-dev.io) provides a detailed list of features, tutorials and reference documentation, while this repository provides the source code and build support for creating the VulkanSceneGraph library. Quick links to resources hosted on the website:
 * [Features](https://vsg-dev.github.io/vsg-dev.io/features) - tour of features you'll find in the VulkanSceneGraph and companion projects.
 * [Screenshots](https://vsg-dev.github.io/vsg-dev.io/screenshots) - screenshots from VulkanSceneGraph examples and 3rd party libraries and applications
 * [Tutorials](https://vsg-dev.github.io/vsg-dev.io/tutorials) - mulit-part tutorial that takes you from introduction to scene graphs to multi-threading and optimization.
