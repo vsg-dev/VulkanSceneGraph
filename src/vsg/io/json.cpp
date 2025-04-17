@@ -24,15 +24,15 @@ using namespace vsg;
 //
 // JSONParser::Schema
 //
-void JSONParser::Schema::read_array(JSONParser& )
+void JSONParser::Schema::read_array(JSONParser&)
 {
 }
 
-void JSONParser::Schema::read_object(JSONParser& )
+void JSONParser::Schema::read_object(JSONParser&)
 {
 }
 
-void JSONParser::Schema::read_string(JSONParser& )
+void JSONParser::Schema::read_string(JSONParser&)
 {
 }
 
@@ -200,7 +200,6 @@ bool JSONParser::read_string(std::string& value)
 
     return true;
 }
-
 
 void JSONParser::read_object(JSONParser::Schema& schema)
 {
@@ -400,7 +399,6 @@ void JSONParser::read_array(JSONParser::Schema& schema)
         ++pos;
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

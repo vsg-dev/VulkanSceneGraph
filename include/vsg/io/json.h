@@ -74,7 +74,6 @@ namespace vsg
         {
             return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
         }
-
     };
     VSG_type_name(vsg::JSONParser);
 
