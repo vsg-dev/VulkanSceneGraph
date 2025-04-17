@@ -24,51 +24,51 @@ using namespace vsg;
 //
 // JSONParser::Schema
 //
-void JSONParser::Schema::read_array(JSONParser& parser)
+void JSONParser::Schema::read_array(JSONParser& )
 {
 }
 
-void JSONParser::Schema::read_object(JSONParser& parser)
+void JSONParser::Schema::read_object(JSONParser& )
 {
 }
 
-void JSONParser::Schema::read_string(JSONParser& parser)
+void JSONParser::Schema::read_string(JSONParser& )
 {
 }
 
-void JSONParser::Schema::read_number(JSONParser& parser, std::istream& input)
+void JSONParser::Schema::read_number(JSONParser&, std::istream&)
 {
 }
 
-void JSONParser::Schema::read_bool(JSONParser& parser, bool value)
+void JSONParser::Schema::read_bool(JSONParser&, bool)
 {
 }
 
-void JSONParser::Schema::read_null(JSONParser& parser)
+void JSONParser::Schema::read_null(JSONParser&)
 {
 }
 
-void JSONParser::Schema::read_array(JSONParser& parser, const std::string_view& name)
+void JSONParser::Schema::read_array(JSONParser&, const std::string_view&)
 {
 }
 
-void JSONParser::Schema::read_object(JSONParser& parser, const std::string_view& name)
+void JSONParser::Schema::read_object(JSONParser&, const std::string_view&)
 {
 }
 
-void JSONParser::Schema::read_string(JSONParser& parser, const std::string_view& name)
+void JSONParser::Schema::read_string(JSONParser&, const std::string_view&)
 {
 }
 
-void JSONParser::Schema::read_number(JSONParser& parser, const std::string_view& name, std::istream& input)
+void JSONParser::Schema::read_number(JSONParser&, const std::string_view&, std::istream&)
 {
 }
 
-void JSONParser::Schema::read_bool(JSONParser& parser, const std::string_view& name, bool value)
+void JSONParser::Schema::read_bool(JSONParser&, const std::string_view&, bool)
 {
 }
 
-void JSONParser::Schema::read_null(JSONParser& parser, const std::string_view& name)
+void JSONParser::Schema::read_null(JSONParser&, const std::string_view&)
 {
 }
 
@@ -77,19 +77,19 @@ void JSONParser::Schema::read_null(JSONParser& parser, const std::string_view& n
 // JSONtoMetaDataSchema
 //
 
-void JSONtoMetaDataSchema::addToArray(vsg::ref_ptr<vsg::Object> in_object)
+void JSONtoMetaDataSchema::addToArray(ref_ptr<Object> in_object)
 {
     if (!in_object) return;
 
-    if (!objects) objects = vsg::Objects::create();
+    if (!objects) objects = Objects::create();
     objects->addChild(in_object);
 }
 
-void JSONtoMetaDataSchema::addToObject(const std::string_view& name, vsg::ref_ptr<vsg::Object> in_object)
+void JSONtoMetaDataSchema::addToObject(const std::string_view& name, ref_ptr<Object> in_object)
 {
     if (!in_object) return;
 
-    if (!object) object = vsg::Object::create();
+    if (!object) object = Object::create();
     object->setObject(std::string(name), in_object);
 }
 
@@ -114,23 +114,23 @@ void JSONtoMetaDataSchema::read_string(JSONParser& parser)
     std::string value;
     parser.read_string(value);
 
-    addToArray(vsg::stringValue::create(value));
+    addToArray(stringValue::create(value));
 }
 
-void JSONtoMetaDataSchema::read_number(JSONParser& parser, std::istream& input)
+void JSONtoMetaDataSchema::read_number(JSONParser&, std::istream& input)
 {
     double value;
     input >> value;
 
-    addToArray(vsg::doubleValue::create(value));
+    addToArray(doubleValue::create(value));
 }
 
-void JSONtoMetaDataSchema::read_bool(JSONParser& parser, bool value)
+void JSONtoMetaDataSchema::read_bool(JSONParser&, bool value)
 {
-    addToArray(vsg::boolValue::create(value));
+    addToArray(boolValue::create(value));
 }
 
-void JSONtoMetaDataSchema::read_null(JSONParser& parser)
+void JSONtoMetaDataSchema::read_null(JSONParser&)
 {
 }
 
@@ -155,23 +155,23 @@ void JSONtoMetaDataSchema::read_string(JSONParser& parser, const std::string_vie
     std::string value;
     parser.read_string(value);
 
-    addToObject(name, vsg::stringValue::create(value));
+    addToObject(name, stringValue::create(value));
 }
 
-void JSONtoMetaDataSchema::read_number(JSONParser& parser, const std::string_view& name, std::istream& input)
+void JSONtoMetaDataSchema::read_number(JSONParser&, const std::string_view& name, std::istream& input)
 {
     double value;
     input >> value;
 
-    addToObject(name, vsg::doubleValue::create(value));
+    addToObject(name, doubleValue::create(value));
 }
 
-void JSONtoMetaDataSchema::read_bool(JSONParser& parser, const std::string_view& name, bool value)
+void JSONtoMetaDataSchema::read_bool(JSONParser&, const std::string_view& name, bool value)
 {
-    addToObject(name, vsg::boolValue::create(value));
+    addToObject(name, boolValue::create(value));
 }
 
-void JSONtoMetaDataSchema::read_null(JSONParser& parser, const std::string_view& name)
+void JSONtoMetaDataSchema::read_null(JSONParser&, const std::string_view&)
 {
 }
 
@@ -212,8 +212,6 @@ void JSONParser::read_object(JSONParser::Schema& schema)
     pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
     if (pos == std::string::npos) return;
 
-    indent += 4;
-
     while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != '}')
     {
         auto previous_position = pos;
@@ -229,14 +227,14 @@ void JSONParser::read_object(JSONParser::Schema& schema)
             pos = buffer.find_first_not_of(" \t\r\n", end_of_string + 1);
             if (pos == std::string::npos)
             {
-                vsg::info(indent, "read_object()  deliminator error end of buffer.");
+                warning("read_object()  deliminator error end of buffer.");
                 break;
             }
 
             // make sure next charater is the {name : value} deliminator
             if (buffer[pos] != ':')
             {
-                vsg::info(indent, "read_object()  deliminator error buffer[", pos, "] = ", buffer[pos]);
+                warning("read_object()  deliminator error buffer[", pos, "] = ", buffer[pos]);
                 break;
             }
 
@@ -296,7 +294,7 @@ void JSONParser::read_object(JSONParser::Schema& schema)
         }
         else
         {
-            vsg::info(indent, "read_object() buffer[", pos, "] = ", buffer[pos]);
+            warning("read_object() buffer[", pos, "] = ", buffer[pos]);
         }
 
         pos = buffer.find_first_not_of(" \t\r\n", pos);
@@ -312,8 +310,6 @@ void JSONParser::read_object(JSONParser::Schema& schema)
     {
         ++pos;
     }
-
-    indent -= 4;
 }
 
 void JSONParser::read_array(JSONParser::Schema& schema)
@@ -322,7 +318,7 @@ void JSONParser::read_array(JSONParser::Schema& schema)
     if (pos == std::string::npos) return;
     if (buffer[pos] != '[')
     {
-        vsg::info(indent, "read_array() could not match opening [");
+        warning("read_array() could not match opening [");
         return;
     }
 
@@ -331,11 +327,9 @@ void JSONParser::read_array(JSONParser::Schema& schema)
     pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
     if (pos == std::string::npos)
     {
-        vsg::info(indent, "read_array() contents after [");
+        warning("read_array() contents after [");
         return;
     }
-
-    indent += 4;
 
     while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != ']')
     {
@@ -405,8 +399,6 @@ void JSONParser::read_array(JSONParser::Schema& schema)
     {
         ++pos;
     }
-
-    indent -= 4;
 }
 
 
@@ -418,12 +410,12 @@ json::json()
 {
 }
 
-bool json::supportedExtension(const vsg::Path& ext) const
+bool json::supportedExtension(const Path& ext) const
 {
     return ext == ".json";
 }
 
-vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg::Options>) const
+ref_ptr<Object> json::_read(std::istream& fin, ref_ptr<const Options>) const
 {
     fin.seekg(0, fin.end);
     size_t fileSize = fin.tellg();
@@ -437,7 +429,7 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
     fin.seekg(0);
     fin.read(reinterpret_cast<char*>(parser.buffer.data()), fileSize);
 
-    vsg::ref_ptr<vsg::Object> result;
+    ref_ptr<Object> result;
 
     // skip white space
     parser.pos = parser.buffer.find_first_not_of(" \t\r\n", 0);
@@ -449,7 +441,7 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
         parser.read_object(schema);
         result = schema.object;
 
-        vsg::info("Read JSON object, result = ", result);
+        info("Read JSON object, result = ", result);
     }
     else if (parser.buffer[parser.pos] == '[')
     {
@@ -457,29 +449,29 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
         parser.read_array(schema);
         result = schema.objects;
 
-        vsg::info("Read JSON array, result = ", result);
+        info("Read JSON array, result = ", result);
     }
     else
     {
-        vsg::info("Parsing error, could not find opening { or [.");
+        warn("Parsing error, could not find opening { or [.");
     }
 
     return result;
 }
 
-vsg::ref_ptr<vsg::Object> json::read(const vsg::Path& filename, vsg::ref_ptr<const vsg::Options> options) const
+ref_ptr<Object> json::read(const Path& filename, ref_ptr<const Options> options) const
 {
-    vsg::Path ext = (options && options->extensionHint) ? options->extensionHint : vsg::lowerCaseFileExtension(filename);
+    Path ext = (options && options->extensionHint) ? options->extensionHint : lowerCaseFileExtension(filename);
     if (!supportedExtension(ext)) return {};
 
-    vsg::Path filenameToUse = vsg::findFile(filename, options);
+    Path filenameToUse = findFile(filename, options);
     if (!filenameToUse) return {};
 
     std::ifstream fin(filenameToUse, std::ios::ate | std::ios::binary);
     return _read(fin, options);
 }
 
-vsg::ref_ptr<vsg::Object> json::read(std::istream& fin, vsg::ref_ptr<const vsg::Options> options) const
+ref_ptr<Object> json::read(std::istream& fin, ref_ptr<const Options> options) const
 {
     if (!options || !options->extensionHint) return {};
     if (!supportedExtension(options->extensionHint)) return {};
@@ -487,18 +479,18 @@ vsg::ref_ptr<vsg::Object> json::read(std::istream& fin, vsg::ref_ptr<const vsg::
     return _read(fin, options);
 }
 
-vsg::ref_ptr<vsg::Object> json::read(const uint8_t* ptr, size_t size, vsg::ref_ptr<const vsg::Options> options) const
+ref_ptr<Object> json::read(const uint8_t* ptr, size_t size, ref_ptr<const Options> options) const
 {
     if (!options || !options->extensionHint) return {};
     if (!supportedExtension(options->extensionHint)) return {};
 
-    vsg::mem_stream fin(ptr, size);
+    mem_stream fin(ptr, size);
     return _read(fin, options);
 }
 
 bool json::getFeatures(Features& features) const
 {
-    vsg::ReaderWriter::FeatureMask supported_features = static_cast<vsg::ReaderWriter::FeatureMask>(vsg::ReaderWriter::READ_FILENAME | vsg::ReaderWriter::READ_ISTREAM | vsg::ReaderWriter::READ_MEMORY);
+    ReaderWriter::FeatureMask supported_features = static_cast<ReaderWriter::FeatureMask>(ReaderWriter::READ_FILENAME | ReaderWriter::READ_ISTREAM | ReaderWriter::READ_MEMORY);
     features.extensionFeatureMap[".json"] = supported_features;
 
     return true;
