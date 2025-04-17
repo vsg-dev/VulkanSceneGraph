@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 </editor-fold> */
 
+#include <vsg/core/Objects.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/mem_stream.h>
 
@@ -30,7 +31,7 @@ namespace vsg
 {
 
     /// JSON parser based on spec: https://www.json.org/json-en.html
-    struct JSONParser
+    struct VSG_DECLSPEC JSONParser
     {
         std::string buffer;
         std::size_t pos = 0;
@@ -44,12 +45,68 @@ namespace vsg
             return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
         }
 
-        bool read_string(std::string& value);
+        struct Schema
+        {
+            // array elements [ value, value.. ]
+            virtual void read_array(JSONParser& parser);
+            virtual void read_object(JSONParser& parser);
+            virtual void read_string(JSONParser& parser);
+            virtual void read_number(JSONParser& parser, std::istream& input);
+            virtual void read_bool(JSONParser& parser, bool value);
+            virtual void read_null(JSONParser& parser);
 
-        vsg::ref_ptr<vsg::Object> read_array();
-        vsg::ref_ptr<vsg::Object> read_object();
+            // object properties { name, value; ... }
+            virtual void read_array(JSONParser& parser, const std::string_view& name);
+            virtual void read_object(JSONParser& parser, const std::string_view& name);
+            virtual void read_string(JSONParser& parser, const std::string_view& name);
+            virtual void read_number(JSONParser& parser, const std::string_view& name, std::istream& input);
+            virtual void read_bool(JSONParser& parser, const std::string_view& name, bool value);
+            virtual void read_null(JSONParser& parser, const std::string_view& name);
+        };
+
+        bool read_string(std::string& value);
+        void read_object(Schema& schema);
+        void read_array(Schema& schema);
+
+        template<typename... Args>
+        void warning(Args&&... args)
+        {
+            vsg::warn("Parsing error at pos = ", pos, ". ", std::forward<Args>(args)...);
+        }
     };
     VSG_type_name(vsg::JSONParser);
+
+    /// Default support for mapping standard JSON types directly to VSG.
+    /// JSON objects are mapped to vsg::Object metadata.
+    /// JSON arrays to vsg::Objects.
+    /// string, number and bool are mapped to stringValue, doubleValue and boolValue.
+    struct VSG_DECLSPEC JSONtoMetaDataSchema : public JSONParser::Schema
+    {
+        // object created when parsing JSON file
+        vsg::ref_ptr<vsg::Object> object;
+        vsg::ref_ptr<vsg::Objects> objects;
+
+        void addToArray(vsg::ref_ptr<vsg::Object> in_object);
+        void addToObject(const std::string_view& name, vsg::ref_ptr<vsg::Object> in_object);
+
+        // array elements [ value, value.. ]
+        void read_array(JSONParser& parser) override;
+        void read_object(JSONParser& parser) override;
+        void read_string(JSONParser& parser) override;
+        void read_number(JSONParser& parser, std::istream& input) override;
+        void read_bool(JSONParser& parser, bool value) override;
+        void read_null(JSONParser& parser) override;
+
+        // object properties { name, value; ... }
+        void read_array(JSONParser& parser, const std::string_view& name) override;
+        void read_object(JSONParser& parser, const std::string_view& name) override;
+        void read_string(JSONParser& parser, const std::string_view& name) override;
+        void read_number(JSONParser& parser, const std::string_view& name, std::istream& input) override;
+        void read_bool(JSONParser& parser, const std::string_view& name, bool value) override;
+        void read_null(JSONParser& parser, const std::string_view& name) override;
+    };
+    VSG_type_name(vsg::JSONtoMetaDataSchema);
+
 
     /// json ReaderWriter
     class json : public vsg::Inherit<vsg::ReaderWriter, json>

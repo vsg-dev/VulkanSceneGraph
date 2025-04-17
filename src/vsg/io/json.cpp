@@ -22,6 +22,161 @@ using namespace vsg;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// JSONParser::Schema
+//
+void JSONParser::Schema::read_array(JSONParser& parser)
+{
+}
+
+void JSONParser::Schema::read_object(JSONParser& parser)
+{
+}
+
+void JSONParser::Schema::read_string(JSONParser& parser)
+{
+}
+
+void JSONParser::Schema::read_number(JSONParser& parser, std::istream& input)
+{
+}
+
+void JSONParser::Schema::read_bool(JSONParser& parser, bool value)
+{
+}
+
+void JSONParser::Schema::read_null(JSONParser& parser)
+{
+}
+
+void JSONParser::Schema::read_array(JSONParser& parser, const std::string_view& name)
+{
+}
+
+void JSONParser::Schema::read_object(JSONParser& parser, const std::string_view& name)
+{
+}
+
+void JSONParser::Schema::read_string(JSONParser& parser, const std::string_view& name)
+{
+}
+
+void JSONParser::Schema::read_number(JSONParser& parser, const std::string_view& name, std::istream& input)
+{
+}
+
+void JSONParser::Schema::read_bool(JSONParser& parser, const std::string_view& name, bool value)
+{
+}
+
+void JSONParser::Schema::read_null(JSONParser& parser, const std::string_view& name)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// JSONtoMetaDataSchema
+//
+
+void JSONtoMetaDataSchema::addToArray(vsg::ref_ptr<vsg::Object> in_object)
+{
+    if (!in_object) return;
+
+    if (!objects) objects = vsg::Objects::create();
+    objects->addChild(in_object);
+}
+
+void JSONtoMetaDataSchema::addToObject(const std::string_view& name, vsg::ref_ptr<vsg::Object> in_object)
+{
+    if (!in_object) return;
+
+    if (!object) object = vsg::Object::create();
+    object->setObject(std::string(name), in_object);
+}
+
+void JSONtoMetaDataSchema::read_array(JSONParser& parser)
+{
+    JSONtoMetaDataSchema nested;
+    parser.read_array(nested);
+
+    addToArray(nested.objects);
+}
+
+void JSONtoMetaDataSchema::read_object(JSONParser& parser)
+{
+    JSONtoMetaDataSchema nested;
+    parser.read_object(nested);
+
+    addToArray(nested.object);
+}
+
+void JSONtoMetaDataSchema::read_string(JSONParser& parser)
+{
+    std::string value;
+    parser.read_string(value);
+
+    addToArray(vsg::stringValue::create(value));
+}
+
+void JSONtoMetaDataSchema::read_number(JSONParser& parser, std::istream& input)
+{
+    double value;
+    input >> value;
+
+    addToArray(vsg::doubleValue::create(value));
+}
+
+void JSONtoMetaDataSchema::read_bool(JSONParser& parser, bool value)
+{
+    addToArray(vsg::boolValue::create(value));
+}
+
+void JSONtoMetaDataSchema::read_null(JSONParser& parser)
+{
+}
+
+void JSONtoMetaDataSchema::read_array(JSONParser& parser, const std::string_view& name)
+{
+    JSONtoMetaDataSchema nested;
+    parser.read_array(nested);
+
+    addToObject(name, nested.objects);
+}
+
+void JSONtoMetaDataSchema::read_object(JSONParser& parser, const std::string_view& name)
+{
+    JSONtoMetaDataSchema nested;
+    parser.read_object(nested);
+
+    addToObject(name, nested.object);
+}
+
+void JSONtoMetaDataSchema::read_string(JSONParser& parser, const std::string_view& name)
+{
+    std::string value;
+    parser.read_string(value);
+
+    addToObject(name, vsg::stringValue::create(value));
+}
+
+void JSONtoMetaDataSchema::read_number(JSONParser& parser, const std::string_view& name, std::istream& input)
+{
+    double value;
+    input >> value;
+
+    addToObject(name, vsg::doubleValue::create(value));
+}
+
+void JSONtoMetaDataSchema::read_bool(JSONParser& parser, const std::string_view& name, bool value)
+{
+    addToObject(name, vsg::boolValue::create(value));
+}
+
+void JSONtoMetaDataSchema::read_null(JSONParser& parser, const std::string_view& name)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // json parser
 //
 JSONParser::JSONParser() :
@@ -46,115 +201,23 @@ bool JSONParser::read_string(std::string& value)
     return true;
 }
 
-vsg::ref_ptr<vsg::Object> JSONParser::read_array()
+
+void JSONParser::read_object(JSONParser::Schema& schema)
 {
-    pos = buffer.find_first_not_of(" \t\r\n", pos);
-    if (pos == std::string::npos) return {};
-    if (buffer[pos] != '[')
-    {
-        vsg::info(indent, "read_array() could not match opening [");
-        return {};
-    }
-
-    // buffer[pos] == '['
-    // advance past open bracket
-    pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
-    if (pos == std::string::npos)
-    {
-        vsg::info(indent, "read_array() contents after [");
-        return {};
-    }
-
-    indent += 4;
-
-    auto objects = vsg::Objects::create();
-
-    while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != ']')
-    {
-        // now look to pair with value after " : "
-        if (buffer[pos] == '{')
-        {
-            auto value = read_object();
-            if (value) objects->children.push_back(value);
-        }
-        else if (buffer[pos] == '[')
-        {
-            auto value = read_array();
-            if (value) objects->children.push_back(value);
-        }
-        else if (buffer[pos] == '"')
-        {
-            if (std::string value; read_string(value))
-            {
-                objects->children.push_back(vsg::stringValue::create(value));
-            }
-        }
-        else if (buffer[pos] == ',')
-        {
-            ++pos;
-        }
-        else
-        {
-            auto end_of_field = buffer.find_first_of(",}]", pos + 1);
-            if (end_of_field == std::string::npos) break;
-
-            auto end_of_value = end_of_field - 1;
-            while (end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
-
-            if (buffer.compare(pos, end_of_value - pos, "null") == 0)
-            {
-                objects->children.push_back(nullptr);
-            }
-            else if (buffer.compare(pos, end_of_value - pos, "true") == 0)
-            {
-                objects->children.push_back(vsg::boolValue::create(true));
-            }
-            else if (buffer.compare(pos, end_of_value - pos, "false") == 0)
-            {
-                objects->children.push_back(vsg::boolValue::create(false));
-            }
-            else
-            {
-                mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value - pos + 1);
-
-                double value;
-                mstr >> value;
-                objects->children.push_back(vsg::doubleValue::create(value));
-            }
-
-            // skip to end of field
-            pos = end_of_field;
-        }
-
-        pos = buffer.find_first_not_of(" \t\r\n", pos);
-    }
-
-    if (pos < buffer.size() && buffer[pos] == ']')
-    {
-        ++pos;
-    }
-
-    indent -= 4;
-
-    return objects;
-}
-
-vsg::ref_ptr<vsg::Object> JSONParser::read_object()
-{
-    if (pos == std::string::npos) return {};
-    if (buffer[pos] != '{') return {};
+    if (pos == std::string::npos) return;
+    if (buffer[pos] != '{') return;
 
     // buffer[pos] == '{'
     // advance past open bracket
     pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
-    if (pos == std::string::npos) return {};
+    if (pos == std::string::npos) return;
 
     indent += 4;
 
-    auto object = vsg::Object::create();
-
     while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != '}')
     {
+        auto previous_position = pos;
+
         if (buffer[pos] == '"')
         {
             auto end_of_string = buffer.find('"', pos + 1);
@@ -187,22 +250,15 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
             // now look to pair with value after " : "
             if (buffer[pos] == '{')
             {
-                auto value = read_object();
-
-                object->setObject(std::string(name), value);
+                schema.read_object(*this, name);
             }
             else if (buffer[pos] == '[')
             {
-                auto value = read_array();
-
-                object->setObject(std::string(name), value);
+                schema.read_array(*this, name);
             }
             else if (buffer[pos] == '"')
             {
-                if (std::string value; read_string(value))
-                {
-                    object->setValue(std::string(name), value);
-                }
+                schema.read_string(*this, name);
             }
             else
             {
@@ -214,24 +270,20 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
 
                 if (buffer.compare(pos, end_of_value - pos, "null") == 0)
                 {
-                    // non op?
-                    object->setObject(std::string(name), nullptr);
+                    schema.read_null(*this, name);
                 }
                 else if (buffer.compare(pos, end_of_value - pos, "true") == 0)
                 {
-                    object->setValue(std::string(name), true);
+                    schema.read_bool(*this, name, true);
                 }
                 else if (buffer.compare(pos, end_of_value - pos, "false") == 0)
                 {
-                    object->setValue(std::string(name), false);
+                    schema.read_bool(*this, name, false);
                 }
                 else
                 {
                     mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value - pos + 1);
-
-                    double value;
-                    mstr >> value;
-                    object->setValue(std::string(name), value);
+                    schema.read_number(*this, name, mstr);
                 }
 
                 // skip to end of field
@@ -248,6 +300,12 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
         }
 
         pos = buffer.find_first_not_of(" \t\r\n", pos);
+
+        if (pos <= previous_position)
+        {
+            warning("Parser stuck when reading object.");
+            break;
+        }
     }
 
     if (pos < buffer.size() && buffer[pos] == '}')
@@ -256,9 +314,101 @@ vsg::ref_ptr<vsg::Object> JSONParser::read_object()
     }
 
     indent -= 4;
-
-    return object;
 }
+
+void JSONParser::read_array(JSONParser::Schema& schema)
+{
+    pos = buffer.find_first_not_of(" \t\r\n", pos);
+    if (pos == std::string::npos) return;
+    if (buffer[pos] != '[')
+    {
+        vsg::info(indent, "read_array() could not match opening [");
+        return;
+    }
+
+    // buffer[pos] == '['
+    // advance past open bracket
+    pos = buffer.find_first_not_of(" \t\r\n", pos + 1);
+    if (pos == std::string::npos)
+    {
+        vsg::info(indent, "read_array() contents after [");
+        return;
+    }
+
+    indent += 4;
+
+    while (pos != std::string::npos && pos < buffer.size() && buffer[pos] != ']')
+    {
+        auto previous_position = pos;
+
+        // now look to pair with value after " : "
+        if (buffer[pos] == '{')
+        {
+            schema.read_object(*this);
+        }
+        else if (buffer[pos] == '[')
+        {
+            schema.read_array(*this);
+        }
+        else if (buffer[pos] == '"')
+        {
+            if (std::string value; read_string(value))
+            {
+                schema.read_string(*this);
+            }
+        }
+        else if (buffer[pos] == ',')
+        {
+            ++pos;
+        }
+        else
+        {
+            auto end_of_field = buffer.find_first_of(",}]", pos + 1);
+            if (end_of_field == std::string::npos) break;
+
+            auto end_of_value = end_of_field - 1;
+            while (end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
+
+            if (buffer.compare(pos, end_of_value - pos, "null") == 0)
+            {
+                schema.read_null(*this);
+            }
+            else if (buffer.compare(pos, end_of_value - pos, "true") == 0)
+            {
+                schema.read_bool(*this, true);
+            }
+            else if (buffer.compare(pos, end_of_value - pos, "false") == 0)
+            {
+                schema.read_bool(*this, false);
+            }
+            else
+            {
+                mstr.set(reinterpret_cast<const uint8_t*>(&buffer.at(pos)), end_of_value - pos + 1);
+
+                schema.read_number(*this, mstr);
+            }
+
+            // skip to end of field
+            pos = end_of_field;
+        }
+
+        pos = buffer.find_first_not_of(" \t\r\n", pos);
+
+        if (pos <= previous_position)
+        {
+            warning("Parser stuck when reading array.");
+            break;
+        }
+    }
+
+    if (pos < buffer.size() && buffer[pos] == ']')
+    {
+        ++pos;
+    }
+
+    indent -= 4;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -295,11 +445,19 @@ vsg::ref_ptr<vsg::Object> json::_read(std::istream& fin, vsg::ref_ptr<const vsg:
 
     if (parser.buffer[parser.pos] == '{')
     {
-        result = parser.read_object();
+        JSONtoMetaDataSchema schema;
+        parser.read_object(schema);
+        result = schema.object;
+
+        vsg::info("Read JSON object, result = ", result);
     }
     else if (parser.buffer[parser.pos] == '[')
     {
-        result = parser.read_array();
+        JSONtoMetaDataSchema schema;
+        parser.read_array(schema);
+        result = schema.objects;
+
+        vsg::info("Read JSON array, result = ", result);
     }
     else
     {
