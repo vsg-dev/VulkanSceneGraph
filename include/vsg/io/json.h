@@ -67,10 +67,12 @@ namespace vsg
         std::size_t lineNumberAtPosition(std::size_t postion) const;
         std::string_view lineEnclosingPosition(std::size_t postion) const;
 
+        Logger::Level level = Logger::LOGGER_WARN;
+
         template<typename... Args>
         void warning(Args&&... args)
         {
-            warn("Parsing error at line ", lineNumberAtPosition(pos), " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...);
+            log(level, "Parsing error at line ", lineNumberAtPosition(pos), " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...);
         }
 
         inline bool white_space(char c) const
