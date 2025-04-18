@@ -613,6 +613,22 @@ void GraphicsPipelineConfigurator::init()
 
     layout = shaderSet->createPipelineLayout(shaderHints->defines);
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
+    if (shaderSet->getObject("DebugUtilsName"))
+    {
+        std::string name = "A ShaderSet";
+        shaderSet->getValue("DebugUtilsName", name);
+        if (!shaderHints->defines.empty())
+        {
+            name += " with defines:";
+            for (const auto& define : shaderHints->defines)
+            {
+                name += " ";
+                name += define;
+            }
+        }
+
+        graphicsPipeline->setValue("DebugUtilsName", name);
+    }
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
 }
 
