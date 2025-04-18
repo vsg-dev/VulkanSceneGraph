@@ -400,6 +400,34 @@ void JSONParser::read_array(JSONParser::Schema& schema)
     }
 }
 
+std::size_t JSONParser::lineNumberAtPosition(std::size_t position) const
+{
+    std::size_t lineNumber = 1;
+    auto end_of_line = buffer.find_first_of("\n\r", 0);
+    while(end_of_line != std::string::npos && (end_of_line < position) && (end_of_line+1)<buffer.size())
+    {
+        if (buffer[end_of_line]=='\n') ++end_of_line;
+        if (buffer[end_of_line]=='\r') ++end_of_line;
+
+        end_of_line = buffer.find_first_of("\n\r", end_of_line);
+        if (end_of_line != std::string::npos && end_of_line < buffer.size()) ++lineNumber;
+    }
+    return lineNumber;
+}
+
+std::string_view JSONParser::lineEnclosingPosition(std::size_t position) const
+{
+    auto start_of_line = buffer.find_last_of("\n\r", position);
+    auto end_of_line = buffer.find_first_of("\n\r", position);
+
+    if (start_of_line == std::string::npos) start_of_line = 0;
+    else start_of_line = buffer.find_first_not_of("\n\r", start_of_line);
+
+    if (end_of_line == std::string::npos) start_of_line = buffer.size();
+
+    return std::string_view(&buffer[start_of_line], end_of_line - start_of_line);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // json ReaderWriter
