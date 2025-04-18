@@ -64,10 +64,13 @@ namespace vsg
         void read_object(Schema& schema);
         void read_array(Schema& schema);
 
+        std::size_t lineNumberAtPosition(std::size_t postion) const;
+        std::string_view lineEnclosingPosition(std::size_t postion) const;
+
         template<typename... Args>
         void warning(Args&&... args)
         {
-            warn("Parsing error at pos = ", pos, ". ", std::forward<Args>(args)...);
+            warn("Parsing error at line ", lineNumberAtPosition(pos), " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...);
         }
 
         inline bool white_space(char c) const
