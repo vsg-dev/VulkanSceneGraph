@@ -140,7 +140,7 @@ namespace vsg
 
         void report()
         {
-            for(auto& value : values) value.report();
+            for (auto& value : values) value.report();
         }
     };
 

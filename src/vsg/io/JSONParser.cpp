@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Objects.h>
 #include <vsg/core/Value.h>
-#include <vsg/io/Path.h>
 #include <vsg/io/JSONParser.h>
+#include <vsg/io/Path.h>
 #include <vsg/io/mem_stream.h>
 
 #include <fstream>
@@ -264,15 +264,15 @@ void JSONParser::read_object(JSONParser::Schema& schema)
                 auto end_of_value = end_of_field - 1;
                 while (end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
 
-                if (buffer.compare(pos, end_of_value - pos+1, "null") == 0)
+                if (buffer.compare(pos, end_of_value - pos + 1, "null") == 0)
                 {
                     schema.read_null(*this, name);
                 }
-                else if (buffer.compare(pos, end_of_value - pos+1, "true") == 0)
+                else if (buffer.compare(pos, end_of_value - pos + 1, "true") == 0)
                 {
                     schema.read_bool(*this, name, true);
                 }
-                else if (buffer.compare(pos, end_of_value - pos+1, "false") == 0)
+                else if (buffer.compare(pos, end_of_value - pos + 1, "false") == 0)
                 {
                     schema.read_bool(*this, name, false);
                 }
@@ -361,15 +361,15 @@ void JSONParser::read_array(JSONParser::Schema& schema)
             auto end_of_value = end_of_field - 1;
             while (end_of_value > 0 && white_space(buffer[end_of_value])) --end_of_value;
 
-            if (buffer.compare(pos, end_of_value - pos+1, "null") == 0)
+            if (buffer.compare(pos, end_of_value - pos + 1, "null") == 0)
             {
                 schema.read_null(*this);
             }
-            else if (buffer.compare(pos, end_of_value - pos+1, "true") == 0)
+            else if (buffer.compare(pos, end_of_value - pos + 1, "true") == 0)
             {
                 schema.read_bool(*this, true);
             }
-            else if (buffer.compare(pos, end_of_value - pos+1, "false") == 0)
+            else if (buffer.compare(pos, end_of_value - pos + 1, "false") == 0)
             {
                 schema.read_bool(*this, false);
             }

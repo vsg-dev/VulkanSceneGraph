@@ -12,9 +12,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Objects.h>
 #include <vsg/core/Value.h>
+#include <vsg/io/JSONParser.h>
 #include <vsg/io/Path.h>
 #include <vsg/io/json.h>
-#include <vsg/io/JSONParser.h>
 #include <vsg/io/mem_stream.h>
 
 #include <fstream>
