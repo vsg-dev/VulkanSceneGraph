@@ -31,7 +31,7 @@ namespace vsg
 {
 
     /// JSON parser based on spec: https://www.json.org/json-en.html
-    struct VSG_DECLSPEC JSONParser
+    struct VSG_DECLSPEC JSONParser : public Inherit<Object, JSONParser>
     {
         std::string buffer;
         std::size_t pos = 0;
@@ -41,7 +41,7 @@ namespace vsg
 
         /// Schema base class to provides a mechanism for customizing the json parsing to handle
         /// mapping between json schema's and user data/scene graph objects
-        struct Schema
+        struct Schema : public Inherit<Object, Schema>
         {
             // array elements [ value, value.. ]
             virtual void read_array(JSONParser& parser);
@@ -86,7 +86,7 @@ namespace vsg
     /// JSON objects are mapped to Object metadata.
     /// JSON arrays to Objects.
     /// string, number and bool are mapped to stringValue, doubleValue and boolValue.
-    struct VSG_DECLSPEC JSONtoMetaDataSchema : public JSONParser::Schema
+    struct VSG_DECLSPEC JSONtoMetaDataSchema : public Inherit<JSONParser::Schema, JSONtoMetaDataSchema>
     {
         // object created when parsing JSON file
         ref_ptr<Object> object;
@@ -115,7 +115,7 @@ namespace vsg
 
     /// Template class for reading an array of values
     template<typename T>
-    struct ValuesSchema : public JSONParser::Schema
+    struct ValuesSchema : public Inherit<JSONParser::Schema, ValuesSchema<T>>
     {
         std::vector<T> values;
         void read_number(vsg::JSONParser& parser, std::istream& input) override
@@ -128,19 +128,19 @@ namespace vsg
 
     /// Template class for reading an array of objects
     template<typename T>
-    struct ObjectsSchema : public JSONParser::Schema
+    struct ObjectsSchema : public Inherit<JSONParser::Schema, ObjectsSchema<T>>
     {
-        std::vector<T> values;
+        std::vector<ref_ptr<T>> values;
 
         void read_object(vsg::JSONParser& parser) override
         {
-            values.emplace_back();
-            parser.read_object(values.back());
+            values.push_back(T::create());
+            parser.read_object(*values.back());
         }
 
         void report()
         {
-            for (auto& value : values) value.report();
+            for (auto& value : values) value->report();
         }
     };
 
