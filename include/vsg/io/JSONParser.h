@@ -31,7 +31,7 @@ namespace vsg
 {
 
     /// JSON parser based on spec: https://www.json.org/json-en.html
-    struct VSG_DECLSPEC JSONParser
+    struct VSG_DECLSPEC JSONParser : public Inherit<Object, JSONParser>
     {
         std::string buffer;
         std::size_t pos = 0;
@@ -41,7 +41,7 @@ namespace vsg
 
         /// Schema base class to provides a mechanism for customizing the json parsing to handle
         /// mapping between json schema's and user data/scene graph objects
-        struct Schema : public vsg::Object
+        struct Schema : public Inherit<Object, Schema>
         {
             // array elements [ value, value.. ]
             virtual void read_array(JSONParser& parser);
