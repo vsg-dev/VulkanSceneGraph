@@ -143,6 +143,7 @@ set(SOURCES
     io/VSG.cpp
     io/glsl.cpp
     io/json.cpp
+    io/JSONParser.cpp
     io/spirv.cpp
     io/tile.cpp
     io/txt.cpp
