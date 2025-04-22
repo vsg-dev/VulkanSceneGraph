@@ -192,8 +192,6 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
     auto end_of_value = buffer.find('"', pos + 1);
     if (end_of_value == std::string::npos) return false;
 
-    vsg::info("read_uri(", pos, ")");
-
     auto size_of_value = end_of_value - pos - 1;
     if (size_of_value >= 5)
     {
