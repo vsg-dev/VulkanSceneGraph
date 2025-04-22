@@ -33,6 +33,7 @@ namespace vsg
     /// JSON parser based on spec: https://www.json.org/json-en.html
     struct VSG_DECLSPEC JSONParser : public Inherit<Object, JSONParser>
     {
+        ref_ptr<const Options> options;
         std::string buffer;
         std::size_t pos = 0;
         mem_stream mstr;
@@ -60,6 +61,7 @@ namespace vsg
             virtual void read_null(JSONParser& parser, const std::string_view& name);
         };
 
+        bool read_uri(std::string& value, ref_ptr<Object>& object);
         bool read_string(std::string& value);
         void read_object(Schema& schema);
         void read_array(Schema& schema);

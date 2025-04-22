@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/JSONParser.h>
 #include <vsg/io/Path.h>
 #include <vsg/io/mem_stream.h>
+#include <vsg/io/read.h>
 
 #include <fstream>
 
@@ -183,6 +184,59 @@ JSONParser::JSONParser() :
 {
 }
 
+bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
+{
+    if (buffer[pos] != '"') return false;
+
+    // read string
+    auto end_of_value = buffer.find('"', pos + 1);
+    if (end_of_value == std::string::npos) return false;
+
+    vsg::info("read_uri(", pos, ")");
+
+    auto size_of_value = end_of_value - pos - 1;
+    if (size_of_value >= 5)
+    {
+        if (buffer.compare(pos + 1, 5, "data:")==0)
+        {
+            vsg::info("We have a data URI");
+
+            auto semicolon = buffer.find(';', pos+6);
+
+            std::string memeType = buffer.substr(pos+6, semicolon-pos-6);
+
+            vsg::info("memeType = ", memeType);
+
+            auto comma = buffer.find(',', semicolon+1);
+
+            std::string encoding = buffer.substr(semicolon+1, comma - semicolon-1);
+
+            vsg::info("encoding = ", encoding);
+
+            // value = buffer.substr(comma+1, end_of_value - comma -1);
+
+            value = memeType;
+            object = vsg::stringValue::create(buffer.substr(comma+1, end_of_value - comma -1));
+
+            pos = end_of_value + 1;
+
+            vsg::info("value = ", value, ", object = ", object);
+
+            return true;
+        }
+    }
+
+    value = buffer.substr(pos + 1, end_of_value - pos - 1);
+
+    object = vsg::read(value, options);
+
+    vsg::info("read_uri(", pos, ") -> value = [", value,"] & object = ", object);
+
+    pos = end_of_value + 1;
+
+    return true;
+}
+
 bool JSONParser::read_string(std::string& value)
 {
     if (buffer[pos] != '"') return false;
@@ -191,7 +245,7 @@ bool JSONParser::read_string(std::string& value)
     auto end_of_value = buffer.find('"', pos + 1);
     if (end_of_value == std::string::npos) return false;
 
-    // could have escape characters.
+    // TODO: need to add support for escape characters.
 
     value = buffer.substr(pos + 1, end_of_value - pos - 1);
 
