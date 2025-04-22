@@ -62,6 +62,7 @@ namespace vsg
         };
 
         bool read_uri(std::string& value, ref_ptr<Object>& object);
+        bool read_string_view(std::string_view& value);
         bool read_string(std::string& value);
         void read_object(Schema& schema);
         void read_array(Schema& schema);

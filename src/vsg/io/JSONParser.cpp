@@ -235,6 +235,21 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
     return true;
 }
 
+bool JSONParser::read_string_view(std::string_view& value)
+{
+    if (buffer[pos] != '"') return false;
+
+    // read string
+    auto end_of_value = buffer.find('"', pos + 1);
+    if (end_of_value == std::string::npos) return false;
+
+    value = std::string_view(&buffer[pos + 1], end_of_value - pos - 1);
+
+    pos = end_of_value + 1;
+
+    return true;
+}
+
 bool JSONParser::read_string(std::string& value)
 {
     if (buffer[pos] != '"') return false;
