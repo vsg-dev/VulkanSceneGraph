@@ -44,6 +44,17 @@ namespace vsg
             return {};
         }
 
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
+        {
+            if constexpr (std::is_constructible_v<Subclass, const Subclass&, const CopyOp&>)
+                return ref_ptr<Object>(new Subclass(static_cast<const Subclass&>(*this), copyop));
+            else if constexpr (std::is_copy_constructible_v<Subclass>)
+                return ref_ptr<Object>(new Subclass(static_cast<const Subclass&>(*this)));
+            else if constexpr (std::is_default_constructible_v<Subclass>)
+                return ref_ptr<Object>(new Subclass());
+            else return {};
+        }
+
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
         const char* className() const noexcept override { return type_name<Subclass>(); }
         const std::type_info& type_info() const noexcept override { return typeid(Subclass); }
