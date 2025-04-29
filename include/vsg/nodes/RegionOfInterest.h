@@ -30,7 +30,6 @@ namespace vsg
         std::vector<dvec3> points;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return RegionOfInterest::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void accept(Visitor& visitor) override

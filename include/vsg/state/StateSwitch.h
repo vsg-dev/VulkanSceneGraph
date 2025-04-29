@@ -50,7 +50,6 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return StateSwitch::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;

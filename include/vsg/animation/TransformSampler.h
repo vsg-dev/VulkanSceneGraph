@@ -86,7 +86,6 @@ namespace vsg
         inline dmat4 transform() const { return translate(position) * vsg::rotate(rotation) * vsg::scale(scale); }
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TransformSampler::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

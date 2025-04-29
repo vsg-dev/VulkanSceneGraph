@@ -26,7 +26,6 @@ namespace vsg
         float penumbraRadius = 0.05f;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return SoftShadows::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

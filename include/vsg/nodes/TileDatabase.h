@@ -65,7 +65,6 @@ namespace vsg
         ref_ptr<ShaderSet> shaderSet;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TileDatabaseSettings::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         // read/write of TileReader settings
@@ -86,7 +85,6 @@ namespace vsg
         ref_ptr<Node> child;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return TileDatabase::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

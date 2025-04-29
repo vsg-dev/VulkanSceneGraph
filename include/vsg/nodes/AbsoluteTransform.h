@@ -32,7 +32,6 @@ namespace vsg
         dmat4 transform(const dmat4&) const override { return matrix; }
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return AbsoluteTransform::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

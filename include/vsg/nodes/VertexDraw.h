@@ -40,7 +40,6 @@ namespace vsg
         void assignArrays(const DataList& in_arrays);
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return VertexDraw::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

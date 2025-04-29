@@ -44,7 +44,6 @@ namespace vsg
         VkDescriptorSet vk(uint32_t deviceID) const;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorSet::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         template<class N, class V>

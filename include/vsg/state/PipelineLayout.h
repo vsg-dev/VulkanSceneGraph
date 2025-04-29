@@ -47,7 +47,6 @@ namespace vsg
         std::pair<bool, uint32_t> computeCompatibility(const PipelineLayout& other);
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return PipelineLayout::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

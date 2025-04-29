@@ -35,7 +35,6 @@ namespace vsg
         ref_ptr<Node> child;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DepthSorted::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void traverse(Visitor& visitor) override { child->accept(visitor); }

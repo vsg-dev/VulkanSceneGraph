@@ -39,7 +39,6 @@ namespace vsg
         void copyDataListToBuffers();
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorBuffer::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;

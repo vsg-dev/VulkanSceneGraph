@@ -85,8 +85,6 @@ namespace vsg
             return *this;
         }
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookAt::create(*this, copyop); }
-
         void transform(const dmat4& matrix);
 
         void set(const dmat4& matrix);
@@ -118,8 +116,6 @@ namespace vsg
             rotation(view.rotation)
         {
         }
-
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LookDirection::create(*this, copyop); }
 
         dvec3 position;
         dquat rotation;

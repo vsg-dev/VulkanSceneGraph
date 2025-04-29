@@ -42,7 +42,6 @@ namespace vsg
         void add(State* state, double value, const Node* node);
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Bin::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void traverse(RecordTraversal& visitor) const override;

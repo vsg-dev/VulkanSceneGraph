@@ -18,6 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 
+#include <iostream>
+
 namespace vsg
 {
 
@@ -47,12 +49,25 @@ namespace vsg
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
             if constexpr (std::is_constructible_v<Subclass, const Subclass&, const CopyOp&>)
+            {
+                std::cout<<"clone A "<<className()<<std::endl;
                 return ref_ptr<Object>(new Subclass(static_cast<const Subclass&>(*this), copyop));
+            }
             else if constexpr (std::is_copy_constructible_v<Subclass>)
+            {
+                std::cout<<"clone B "<<className()<<std::endl;
                 return ref_ptr<Object>(new Subclass(static_cast<const Subclass&>(*this)));
+            }
             else if constexpr (std::is_default_constructible_v<Subclass>)
+            {
+                std::cout<<"clone C "<<className()<<std::endl;
                 return ref_ptr<Object>(new Subclass());
-            else return {};
+            }
+            else
+            {
+                std::cout<<"Unable to clone "<<className()<<std::endl;
+                return {};
+            }
         }
 
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }

@@ -34,8 +34,6 @@ namespace vsg
 
         WindowTraits& operator=(const WindowTraits&) = delete;
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return WindowTraits::create(*this, copyop); }
-
         /// set default values, called by all constructors except copy constructor
         void defaults();
 

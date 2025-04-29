@@ -34,7 +34,6 @@ namespace vsg
         ref_ptr<ShadowSettings> shadowSettings;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Light::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

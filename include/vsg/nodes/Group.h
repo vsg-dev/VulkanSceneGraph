@@ -42,7 +42,6 @@ namespace vsg
         }
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Group::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

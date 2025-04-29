@@ -74,8 +74,6 @@ namespace vsg
         {
         }
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Perspective::create(*this, copyop); }
-
         dmat4 transform() const override { return perspective(radians(fieldOfViewY), aspectRatio, nearDistance, farDistance); }
 
         void changeExtent(const VkExtent2D& prevExtent, const VkExtent2D& newExtent) override
@@ -131,8 +129,6 @@ namespace vsg
             farDistance(fd)
         {
         }
-
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Orthographic::create(*this, copyop); }
 
         dmat4 transform() const override { return orthographic(left, right, bottom, top, nearDistance, farDistance); }
 

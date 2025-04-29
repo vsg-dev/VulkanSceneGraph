@@ -26,7 +26,6 @@ namespace vsg
         uint32_t shadowMapCount = 1;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShadowSettings::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;

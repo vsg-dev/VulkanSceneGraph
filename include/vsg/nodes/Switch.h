@@ -49,7 +49,6 @@ namespace vsg
         void setSingleChildOn(size_t index);
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Switch::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

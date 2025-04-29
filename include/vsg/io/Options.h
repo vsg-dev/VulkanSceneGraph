@@ -110,7 +110,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-    protected:
+    //protected:
         virtual ~Options();
     };
     VSG_type_name(vsg::Options);

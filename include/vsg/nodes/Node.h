@@ -26,8 +26,6 @@ namespace vsg
         Node();
         Node(const Node& rhs, const CopyOp& copyop = {});
 
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Node::create(*this, copyop); }
-
         /// provide new and delete to enable custom memory management via the vsg::Allocator singleton, using the MEMORY_NODES_OBJECTS
         static void* operator new(std::size_t count);
         static void operator delete(void* ptr);

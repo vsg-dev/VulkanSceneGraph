@@ -49,7 +49,6 @@ namespace vsg
         void addChild(const Child& lodChild) { children.push_back(lodChild); }
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return LOD::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         template<class N, class V>

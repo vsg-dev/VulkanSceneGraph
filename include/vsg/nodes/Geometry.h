@@ -44,7 +44,6 @@ namespace vsg
         void assignIndices(ref_ptr<vsg::Data> in_indices);
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Geometry::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
