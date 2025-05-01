@@ -42,7 +42,7 @@ namespace vsg
 
         /// Schema base class to provides a mechanism for customizing the json parsing to handle
         /// mapping between json schema's and user data/scene graph objects
-        struct Schema : public Inherit<Object, Schema>
+        struct VSG_DECLSPEC Schema : public Inherit<Object, Schema>
         {
             // array elements [ value, value.. ]
             virtual void read_array(JSONParser& parser);
