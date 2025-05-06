@@ -411,10 +411,7 @@ void JSONParser::read_array(JSONParser::Schema& schema)
         }
         else if (buffer[pos] == '"')
         {
-            if (std::string value; read_string(value))
-            {
-                schema.read_string(*this);
-            }
+            schema.read_string(*this);
         }
         else if (buffer[pos] == ',')
         {
