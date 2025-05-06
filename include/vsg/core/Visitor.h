@@ -231,6 +231,7 @@ namespace vsg
         virtual void apply(dmat4Value&);
 
         // Arrays
+        virtual void apply(stringArray&);
         virtual void apply(byteArray&);
         virtual void apply(ubyteArray&);
         virtual void apply(shortArray&);

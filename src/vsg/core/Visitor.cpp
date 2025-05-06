@@ -194,6 +194,10 @@ void Visitor::apply(dmat4Value& value)
 //
 // Arrays
 //
+void Visitor::apply(stringArray& value)
+{
+    apply(static_cast<Data&>(value));
+}
 void Visitor::apply(byteArray& value)
 {
     apply(static_cast<Data&>(value));
