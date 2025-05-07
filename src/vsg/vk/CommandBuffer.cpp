@@ -30,6 +30,7 @@ CommandBuffer::CommandBuffer(CommandPool* commandPool, VkCommandBuffer commandBu
     _device(commandPool->getDevice()),
     _commandPool(commandPool),
     _currentPipelineLayout(VK_NULL_HANDLE),
+    _currentDescriptorSetSlots(),
     _currentPushConstantStageFlags(0)
 {
 }
@@ -45,6 +46,7 @@ CommandBuffer::~CommandBuffer()
 void CommandBuffer::reset()
 {
     _currentPipelineLayout = VK_NULL_HANDLE;
+    _currentDescriptorSetSlots.clear();
     _currentPushConstantStageFlags = 0;
 
     _commandPool->reset();
@@ -59,6 +61,7 @@ void CommandBuffer::setCurrentPipelineLayout(const PipelineLayout* pipelineLayou
         state->dirtyStateStacks();
 
         _currentPipelineLayout = newLayout;
+        _currentDescriptorSetSlots = pipelineLayout->descriptorSetSlots;
         if (pipelineLayout->pushConstantRanges.empty())
             _currentPushConstantStageFlags = 0;
         else
