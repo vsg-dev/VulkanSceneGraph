@@ -415,5 +415,4 @@ namespace vsg
     VSG_array(block64Array, block64);
     VSG_array(block128Array, block128);
 
-
 } // namespace vsg

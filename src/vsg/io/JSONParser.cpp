@@ -195,26 +195,26 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
     auto size_of_value = end_of_value - pos - 1;
     if (size_of_value >= 5)
     {
-        if (buffer.compare(pos + 1, 5, "data:")==0)
+        if (buffer.compare(pos + 1, 5, "data:") == 0)
         {
             vsg::info("We have a data URI");
 
-            auto semicolon = buffer.find(';', pos+6);
+            auto semicolon = buffer.find(';', pos + 6);
 
-            std::string memeType = buffer.substr(pos+6, semicolon-pos-6);
+            std::string memeType = buffer.substr(pos + 6, semicolon - pos - 6);
 
             vsg::info("memeType = ", memeType);
 
-            auto comma = buffer.find(',', semicolon+1);
+            auto comma = buffer.find(',', semicolon + 1);
 
-            std::string encoding = buffer.substr(semicolon+1, comma - semicolon-1);
+            std::string encoding = buffer.substr(semicolon + 1, comma - semicolon - 1);
 
             vsg::info("encoding = ", encoding);
 
             // value = buffer.substr(comma+1, end_of_value - comma -1);
 
             value = memeType;
-            object = vsg::stringValue::create(buffer.substr(comma+1, end_of_value - comma -1));
+            object = vsg::stringValue::create(buffer.substr(comma + 1, end_of_value - comma - 1));
 
             pos = end_of_value + 1;
 
@@ -228,7 +228,7 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
 
     object = vsg::read(value, options);
 
-    vsg::info("read_uri(", pos, ") -> value = [", value,"] & object = ", object);
+    vsg::info("read_uri(", pos, ") -> value = [", value, "] & object = ", object);
 
     pos = end_of_value + 1;
 
@@ -463,7 +463,7 @@ void JSONParser::read_array(JSONParser::Schema& schema)
     }
 }
 
-std::pair<std::size_t,std::size_t> JSONParser::lineAndColumnAtPosition(std::size_t position) const
+std::pair<std::size_t, std::size_t> JSONParser::lineAndColumnAtPosition(std::size_t position) const
 {
     std::size_t lineNumber = 1;
     std::size_t startOfLine = 0;

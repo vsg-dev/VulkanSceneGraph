@@ -316,16 +316,17 @@ namespace vsg
     template<typename T>
     std::ostream& operator<<(std::ostream& output, const std::vector<T>& values)
     {
-        if (values.empty()) output << "{}";
+        if (values.empty())
+            output << "{}";
         else
         {
             output << "{ ";
             if (!values.empty())
             {
                 output << values.front();
-                for(size_t i = 1; i < values.size(); ++i)
+                for (size_t i = 1; i < values.size(); ++i)
                 {
-                    output << ", "<<values[i];
+                    output << ", " << values[i];
                 }
             }
 

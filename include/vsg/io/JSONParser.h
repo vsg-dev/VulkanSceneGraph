@@ -67,7 +67,7 @@ namespace vsg
         void read_object(Schema& schema);
         void read_array(Schema& schema);
 
-        std::pair<std::size_t,std::size_t> lineAndColumnAtPosition(std::size_t position) const;
+        std::pair<std::size_t, std::size_t> lineAndColumnAtPosition(std::size_t position) const;
         std::string_view lineEnclosingPosition(std::size_t position) const;
 
         Logger::Level level = Logger::LOGGER_WARN;

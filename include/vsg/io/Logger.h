@@ -410,7 +410,7 @@ namespace vsg
         int step = 4;
 
         template<typename... Args>
-        void operator() (Args... args) const
+        void operator()(Args... args) const
         {
             Logger::instance()->log(level, indent, (args)...);
         }
@@ -419,7 +419,5 @@ namespace vsg
         void out() { indent -= step; }
     };
     VSG_type_name(vsg::LogOutput);
-
-
 
 } // namespace vsg
