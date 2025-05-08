@@ -463,19 +463,21 @@ void JSONParser::read_array(JSONParser::Schema& schema)
     }
 }
 
-std::size_t JSONParser::lineNumberAtPosition(std::size_t position) const
+std::pair<std::size_t,std::size_t> JSONParser::lineAndColumnAtPosition(std::size_t position) const
 {
     std::size_t lineNumber = 1;
+    std::size_t startOfLine = 0;
     auto end_of_line = buffer.find_first_of("\n\r", 0);
     while (end_of_line != std::string::npos && (end_of_line < position) && (end_of_line + 1) < buffer.size())
     {
         if (buffer[end_of_line] == '\n') ++end_of_line;
         if (buffer[end_of_line] == '\r') ++end_of_line;
+        startOfLine = end_of_line;
 
         end_of_line = buffer.find_first_of("\n\r", end_of_line);
         if (end_of_line != std::string::npos && end_of_line < buffer.size()) ++lineNumber;
     }
-    return lineNumber;
+    return {lineNumber, position - startOfLine};
 }
 
 std::string_view JSONParser::lineEnclosingPosition(std::size_t position) const
@@ -488,7 +490,7 @@ std::string_view JSONParser::lineEnclosingPosition(std::size_t position) const
     else
         start_of_line = buffer.find_first_not_of("\n\r", start_of_line);
 
-    if (end_of_line == std::string::npos) start_of_line = buffer.size();
+    if (end_of_line == std::string::npos) end_of_line = buffer.size();
 
     return std::string_view(&buffer[start_of_line], end_of_line - start_of_line);
 }

@@ -67,8 +67,8 @@ namespace vsg
         void read_object(Schema& schema);
         void read_array(Schema& schema);
 
-        std::size_t lineNumberAtPosition(std::size_t postion) const;
-        std::string_view lineEnclosingPosition(std::size_t postion) const;
+        std::pair<std::size_t,std::size_t> lineAndColumnAtPosition(std::size_t position) const;
+        std::string_view lineEnclosingPosition(std::size_t position) const;
 
         Logger::Level level = Logger::LOGGER_WARN;
         uint32_t warningCount = 0;
@@ -77,7 +77,9 @@ namespace vsg
         void warning(Args&&... args)
         {
             ++warningCount;
-            log(level, "Parsing error at line ", lineNumberAtPosition(pos), " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...);
+
+            auto [line, column] = lineAndColumnAtPosition(pos);
+            log(level, "Parsing error at [", line, ":", column, "], pos = ", pos, " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...);
         }
 
         inline bool white_space(char c) const
