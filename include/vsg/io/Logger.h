@@ -402,4 +402,24 @@ namespace vsg
     };
     VSG_type_name(vsg::NullLogger);
 
+    /// Helper class for recording a set of indented log output
+    struct LogOutput
+    {
+        Logger::Level level = Logger::LOGGER_INFO;
+        indentation indent;
+        int step = 4;
+
+        template<typename... Args>
+        void operator() (Args... args) const
+        {
+            Logger::instance()->log(level, indent, (args)...);
+        }
+
+        void in() { indent += step; }
+        void out() { indent -= step; }
+    };
+    VSG_type_name(vsg::LogOutput);
+
+
+
 } // namespace vsg
