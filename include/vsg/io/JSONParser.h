@@ -118,7 +118,19 @@ namespace vsg
     };
     VSG_type_name(vsg::JSONtoMetaDataSchema);
 
-    /// Template class for reading an array of values
+    /// class for reading array of strings.
+    struct StringsSchema : public Inherit<JSONParser::Schema, StringsSchema>
+    {
+        std::vector<std::string> values;
+        void read_string(JSONParser& parser) override
+        {
+            std::string value;
+            parser.read_string(value);
+            values.push_back(value);
+        }
+    };
+
+    /// Template class for reading an array of numeric values
     template<typename T>
     struct ValuesSchema : public Inherit<JSONParser::Schema, ValuesSchema<T>>
     {
