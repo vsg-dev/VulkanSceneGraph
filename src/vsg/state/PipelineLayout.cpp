@@ -130,7 +130,7 @@ void PipelineLayout::compile(Context& context)
         for (auto dsl : setLayouts)
         {
             if (dsl) dsl->compile(context);
-            descriptorSetSlots.push_back(dsl != nullptr);
+            descriptorSetSlots.push_back(dsl != nullptr && !dsl->empty());
         }
         _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, flags);
     }
