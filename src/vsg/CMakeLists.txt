@@ -411,7 +411,7 @@ ASSIGN_SOURCE_GROUPS("Header Files" "${VSG_SOURCE_DIR}/include/vsg" ${HEADERS})
 set_property(TARGET vsg PROPERTY VERSION ${VSG_VERSION_MAJOR}.${VSG_VERSION_MINOR}.${VSG_VERSION_PATCH})
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
+target_compile_features(vsg PUBLIC cxx_std_17)
 if(WIN32)
     set_property(TARGET vsg PROPERTY RUNTIME_OUTPUT_NAME vsg-${VSG_SOVERSION})
 endif()
@@ -424,6 +424,13 @@ if (CMAKE_VERSION VERSION_LESS 3.23)
             $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include>
             $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>
     )
+endif()
+
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+    option(SELF_SUFFICIENT_HEADER_CHECK "Adds a target which compiles headers individually to ensure they include all their dependencies" OFF)
+    if (SELF_SUFFICIENT_HEADER_CHECK)
+        set_target_properties(vsg PROPERTIES VERIFY_INTERFACE_HEADER_SETS ON)
+    endif()
 endif()
 
 target_link_libraries(vsg ${LIBRARIES})
