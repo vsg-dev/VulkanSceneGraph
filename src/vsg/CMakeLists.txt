@@ -334,7 +334,13 @@ if (VSG_SUPPORTS_Windowing)
     endif()
 endif()
 
-add_library(vsg ${HEADERS} ${SOURCES})
+add_library(vsg ${SOURCES})
+if(CMAKE_VERSION VERSION_LESS 3.23)
+    target_sources(vsg PRIVATE ${HEADERS})
+else()
+    # make VERIFY_INTERFACE_HEADER_SETS work
+    target_sources(vsg PUBLIC FILE_SET HEADERS BASE_DIRS ${VSG_SOURCE_DIR}/include ${VSG_BINARY_DIR}/include FILES ${HEADERS})
+endif()
 
 # add definitions to enable building VulkanSceneGraph as part of submodule
 add_library(vsg::vsg ALIAS vsg)
@@ -411,11 +417,14 @@ if(WIN32)
 endif()
 
 target_compile_definitions(vsg PRIVATE ${EXTRA_DEFINES})
-target_include_directories(vsg
-    PUBLIC
-        $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>
-)
+
+if (CMAKE_VERSION VERSION_LESS 3.23)
+    target_include_directories(vsg
+        PUBLIC
+            $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>
+    )
+endif()
 
 target_link_libraries(vsg ${LIBRARIES})
 
@@ -423,15 +432,19 @@ if (BUILD_SHARED_LIBS)
     target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
 endif()
 
-# install headers
-install(DIRECTORY ${VSG_SOURCE_DIR}/include/vsg DESTINATION include)
+if (CMAKE_VERSION VERSION_LESS 3.23)
+    # install headers
+    install(DIRECTORY ${VSG_SOURCE_DIR}/include/vsg DESTINATION include)
 
-if (NOT(${VSG_BINARY_DIR} STREQUAL ${VSG_SOURCE_DIR}))
-    install(DIRECTORY ${VSG_BINARY_DIR}/include/vsg DESTINATION include)
+    if (NOT(${VSG_BINARY_DIR} STREQUAL ${VSG_SOURCE_DIR}))
+        install(DIRECTORY ${VSG_BINARY_DIR}/include/vsg DESTINATION include)
+    endif()
+
+    # install lib
+    install(TARGETS vsg ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
+else()
+    install(TARGETS vsg ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS} FILE_SET HEADERS)
 endif()
-
-# install lib
-install(TARGETS vsg ${VSG_INSTALL_TARGETS_DEFAULT_FLAGS})
 
 # install cmake config files.
 install(
