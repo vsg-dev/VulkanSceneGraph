@@ -12,12 +12,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#ifdef TRACY_ENABLE
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyVulkan.hpp>
+#endif
 
 #include <vsg/utils/Instrumentation.h>
 
+#ifdef TRACY_ENABLE
 using namespace tracy;
+#endif
 
 namespace vsg
 {
