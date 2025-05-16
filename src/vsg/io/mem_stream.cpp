@@ -57,11 +57,11 @@ std::streambuf::pos_type mem_stream::mem_buffer::seekoff(std::streambuf::off_typ
         setg(eback(), gptr() + offset, egptr());
     }
 
-    return pos_type(_M_in_cur - _M_in_beg);
+    return pos_type(gptr() - eback());
 }
 
 std::streambuf::pos_type mem_stream::mem_buffer::seekpos(std::streambuf::pos_type pos, std::ios_base::openmode /*mode*/)
 {
-    _M_in_cur = _M_in_beg + pos;
+    setg(eback(), eback() + pos, egptr());
     return pos_type(pos);
 }
