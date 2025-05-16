@@ -49,6 +49,7 @@ void Descriptor::read(Input& input)
 
     input.read("dstBinding", dstBinding);
     input.read("dstArrayElement", dstArrayElement);
+    input.read("descriptorType", descriptorType);
 }
 
 void Descriptor::write(Output& output) const
@@ -57,6 +58,7 @@ void Descriptor::write(Output& output) const
 
     output.write("dstBinding", dstBinding);
     output.write("dstArrayElement", dstArrayElement);
+    output.write("descriptorType", descriptorType);
 }
 
 void Descriptor::assignTo(Context& /*context*/, VkWriteDescriptorSet& wds) const
