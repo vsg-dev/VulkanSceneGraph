@@ -46,15 +46,15 @@ std::streambuf::pos_type mem_stream::mem_buffer::seekoff(std::streambuf::off_typ
 {
     if (dir == std::ios_base::beg)
     {
-        _M_in_cur = _M_in_beg + offset;
+        setg(eback(), eback()+offset, egptr());
     }
     else if (dir == std::ios_base::end)
     {
-        _M_in_cur = _M_in_end - offset;
+        setg(eback(), egptr() - offset, egptr());
     }
     else // dir == std::ios_base::cur
     {
-        _M_in_cur += offset;
+        setg(eback(), gptr() + offset, egptr());
     }
 
     return pos_type(_M_in_cur - _M_in_beg);
