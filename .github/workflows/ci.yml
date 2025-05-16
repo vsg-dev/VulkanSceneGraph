@@ -36,17 +36,19 @@ jobs:
       shell: bash
       run: |
          if [ "$RUNNER_OS" == "Windows" ]; then
-              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
+              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DSELF_SUFFICIENT_HEADER_CHECK=ON -A x64
               cmake --build .
          elif [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get -qq update
               sudo apt-get -qq install libxcb1-dev
-              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
+              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DSELF_SUFFICIENT_HEADER_CHECK=ON
               make -j 3 && sudo make install
          elif [ "$RUNNER_OS" == "macOS" ]; then
-              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
+              cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -DSELF_SUFFICIENT_HEADER_CHECK=ON
               make -j 4 && sudo make install
          else
               echo "$RUNNER_OS not supported"
               exit 1
          fi
+    - name: Self-sufficient header check
+      run: cmake --build . --target all_verify_interface_header_sets
