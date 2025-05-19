@@ -117,8 +117,10 @@ vsg_add_target_cppcheck(
     SUPPRESSIONS_LIST
         "${VSG_SOURCE_DIR}/cmake/cppcheck-suppression-list.txt"
     FILES
-        ${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
-        ${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
+        ${CMAKE_SOURCE_DIR}/include/
+        --file-filter=${CMAKE_SOURCE_DIR}/include/vsg/*/*.h
+        ${VSG_SOURCE_DIR}/src/
+        --file-filter=${VSG_SOURCE_DIR}/src/vsg/*/*.cpp
         -I ${VSG_SOURCE_DIR}/include/
 )
 vsg_add_target_uninstall()
