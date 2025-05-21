@@ -409,11 +409,10 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     auto& frame = *(dataToCopy.frames[frameIndex]);
     auto& stagingOffsets = frame.stagingOffsets;
 
-    const auto createNewStagingOffsets = [&](VkDeviceSize regionSize){
-        // allocate a vector of offsets for the new staging buffer with
-        // the first offset initialized to zero for the new entry
+    // Allocate a vector of offsets for the new staging buffer with the first offset initialized to
+    // zero for the new entry, returning the end offset of the new entry.
+    const auto addRegionToNewStagingBuffer = [&](VkDeviceSize regionSize){
         stagingOffsets.push_back(std::vector<VkDeviceSize>(1,VkDeviceSize(0)));
-        // calculate the end of the first entry in the new staging buffer
         return alignOffset(regionSize, alignment);
     };
 
@@ -422,8 +421,8 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     // fit within a single staging buffer, additional staging buffers are created to accommodate the
     // transfer. Any single ImageInfo data must fit within the maximum allocation size for a single
     // staging buffer, however some drivers do permit overallocation so if there is a single allocation
-    // larger that the maximum we rely on the memory allocation request to throwing if it is unable
-    // to honor the request. Ideally the client code should create smaller buffers.
+    // larger that the maximum we rely on the memory allocation request throwing an exception if it
+    // is unable to honor the request. Ideally the client code should create smaller buffers.
     //
     VkDeviceSize offset = 0;
     stagingOffsets.clear();
@@ -459,7 +458,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
                 // allocation in the buffer, in which case permit the overallocation to reside
                 // in this staging buffer.
                 if (offset >= maxMemoryAllocationSize && stagingOffsets.back().size() > 1)
-                    offset = createNewStagingOffsets(imageSize);
+                    offset = addRegionToNewStagingBuffer(imageSize);
             }
         }
     }
@@ -472,9 +471,9 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     // do not fit within a single staging buffer, additional staging buffers are created to
     // accommodate the transfer. Any single data buffer must fit within the maximum allocation size
     // for a single staging buffer, however some drivers do permit overallocation so if there is a
-    // single allocation larger that the maximum we rely on the memory allocation request to
-    // throwing if it is unable to honor the request. Ideally the client code should create smaller
-    // buffers.
+    // single allocation larger that the maximum we rely on the memory allocation request throwing
+    // an exception if it is unable to honor the request. Ideally the client code should create
+    // smaller buffers.
     //
     dataToCopy.dataTotalRegions = 0;
     if (!dataToCopy.dataMap.empty())
@@ -503,7 +502,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
                     // allocation in the buffer, in which case permit the overallocation to reside
                     // in this staging buffer.
                     if (offset >= maxMemoryAllocationSize && stagingOffsets.back().size() > 1)
-                        offset = createNewStagingOffsets(bufferInfo->range);
+                        offset = addRegionToNewStagingBuffer(bufferInfo->range);
                 }
             }
         }
@@ -518,7 +517,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
         // allocation in the buffer, in which case permit the overallocation to reside
         // in this staging buffer.
         if (offset >= maxMemoryAllocationSize && stagingOffsets.back().size() > 1)
-            offset = createNewStagingOffsets(offset - stagingOffsets.back().back());
+            offset = addRegionToNewStagingBuffer(offset - stagingOffsets.back().back());
 
         stagingOffsets.back().push_back(offset);
     }
