@@ -267,7 +267,14 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         // convert Vulkan version to glsLang equivalent
         glslang::EShTargetClientVersion targetClientVersion = static_cast<glslang::EShTargetClientVersion>((VK_API_VERSION_MAJOR(settings->vulkanVersion) << 22) | (VK_API_VERSION_MINOR(settings->vulkanVersion) << 12));
 
-        shader->setEnvInput(static_cast<glslang::EShSource>(settings->language), envStage, glslang::EShClientVulkan, settings->clientInputVersion);
+        glslang::EShSource language = glslang::EShSourceNone;
+        switch(settings->language)
+        {
+            case(ShaderCompileSettings::GLSL): language = glslang::EShSourceGlsl; break;
+            case(ShaderCompileSettings::HLSL): language = glslang::EShSourceHlsl; break;
+        }
+
+        shader->setEnvInput(language, envStage, glslang::EShClientVulkan, settings->clientInputVersion);
         shader->setEnvClient(glslang::EShClientVulkan, targetClientVersion);
         shader->setEnvTarget(glslang::EShTargetSpv, targetLanguageVersion);
 
