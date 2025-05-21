@@ -138,16 +138,16 @@ namespace vsg
     }
 
     template<typename T>
-    t_vec3<T> operator*(const t_mat2<T>& lhs, const t_vec2<T>& rhs)
+    t_vec2<T> operator*(const t_mat2<T>& lhs, const t_vec2<T>& rhs)
     {
-        return t_vec3<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1]),
+        return t_vec2<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1]),
                          (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1]));
     }
 
     template<typename T>
-    t_vec3<T> operator*(const t_vec2<T>& lhs, const t_mat2<T>& rhs)
+    t_vec2<T> operator*(const t_vec2<T>& lhs, const t_mat2<T>& rhs)
     {
-        return t_vec3<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1],
+        return t_vec2<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1],
                          lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1]);
     }
 } // namespace vsg
