@@ -26,6 +26,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <vsg/core/Objects.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/io/mem_stream.h>
+#include <vsg/io/stream.h>
+
+#include <list>
 
 namespace vsg
 {
@@ -70,16 +73,13 @@ namespace vsg
         std::pair<std::size_t, std::size_t> lineAndColumnAtPosition(std::size_t position) const;
         std::string_view lineEnclosingPosition(std::size_t position) const;
 
-        Logger::Level level = Logger::LOGGER_WARN;
-        uint32_t warningCount = 0;
+        std::list<std::string> warnings;
 
         template<typename... Args>
         void warning(Args&&... args)
         {
-            ++warningCount;
-
             auto [line, column] = lineAndColumnAtPosition(pos);
-            log(level, "Parsing error at [", line, ":", column, "], pos = ", pos, " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...);
+            warnings.push_back(vsg::make_string("Parsing error at [", line, ":", column, "], pos = ", pos, " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...));
         }
 
         inline bool white_space(char c) const
