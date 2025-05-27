@@ -33,6 +33,7 @@ ObjectFactory::ObjectFactory()
     // values
     add<vsg::stringValue>();
     add<vsg::wstringValue>();
+    add<vsg::pathValue>();
     add<vsg::boolValue>();
     add<vsg::intValue>();
     add<vsg::uintValue>();
