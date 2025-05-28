@@ -376,6 +376,8 @@ if(MSVC)
         target_compile_definitions(vsg PUBLIC "_ITERATOR_DEBUG_LEVEL=0")
     endif()
 
+    # MSVC assumes system-wide eight-bit code page (e.g. CP1252, CP1250) if there's no BOM
+    target_compile_options(vsg PRIVATE "/utf-8")
 endif()
 
 
