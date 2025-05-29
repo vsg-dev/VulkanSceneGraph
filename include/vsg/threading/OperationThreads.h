@@ -29,15 +29,15 @@ namespace vsg
         OperationThreads(const OperationThreads&) = delete;
         OperationThreads& operator=(const OperationThreads& rhs) = delete;
 
-        void add(ref_ptr<Operation> operation)
+        void add(ref_ptr<Operation> operation, InsertionPosition insertionPosition = INSERT_BACK)
         {
-            queue->add(operation);
+            queue->add(operation, insertionPosition);
         }
 
         template<typename Iterator>
-        void add(Iterator begin, Iterator end)
+        void add(Iterator begin, Iterator end, InsertionPosition insertionPosition = INSERT_BACK)
         {
-            queue->add(begin, end);
+            queue->add(begin, end, insertionPosition);
         }
 
         /// use this thread to run operations till the queue is empty as well
