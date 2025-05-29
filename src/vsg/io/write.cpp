@@ -58,11 +58,12 @@ bool vsg::write(ref_ptr<Object> object, const Path& filename, ref_ptr<const Opti
             fileWritten = rw.write(object, filename, options);
         }
     }
-
+#if 0
     if (fileWritten && options && options->sharedObjects)
     {
         options->sharedObjects->add(object, filename, options);
     }
+#endif
 
     return fileWritten;
 }
