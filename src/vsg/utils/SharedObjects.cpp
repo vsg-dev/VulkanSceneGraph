@@ -154,24 +154,38 @@ void SharedObjects::prune()
 
 void SharedObjects::report(std::ostream& out)
 {
+    vsg::indentation indent;
+
     std::scoped_lock<std::recursive_mutex> lock(_mutex);
     out << "SharedObjects::report(..) " << this << std::endl;
     out << "SharedObjects::_defaults " << _defaults.size() << std::endl;
+    indent += 4;
     for (auto& [type, object] : _defaults)
     {
-        out << "    " << type.name() << ", object = " << object << " " << object->referenceCount() << std::endl;
+        out << indent << type.name() << ", object = " << object << " " << object->referenceCount() << std::endl;
     }
+    indent -= 4;
 
     out << "SharedObjects::_sharedObjects " << SharedObjects::_sharedObjects.size() << std::endl;
+    indent += 4;
     for (auto& [type, objects] : _sharedObjects)
     {
-        out << "    " << type.name() << ", objects = " << objects.size() << std::endl;
+        out << indent << type.name() << ", objects = " << objects.size() << std::endl;
+        indent += 4;
         for (auto& object : objects)
         {
-            out << "        object = " << object << " "
-                << " " << object->referenceCount() << std::endl;
+            if (auto loadedObject = object.cast<LoadedObject>())
+            {
+                out << indent<<"loadedObject = " << loadedObject << " " << object->referenceCount() << " "<<loadedObject->filename<<std::endl;
+            }
+            else
+            {
+                out << indent<<"object = " << object << " " << object->referenceCount() << std::endl;
+            }
         }
+        indent -= 4;
     }
+    indent -= 4;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
