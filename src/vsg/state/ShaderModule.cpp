@@ -166,6 +166,35 @@ ShaderModule::Implementation::Implementation(Device* device, ShaderModule* shade
     {
         throw Exception{"Error: vsg::ShaderModule::create(...) failed to create shader module.", result};
     }
+
+    if (isExtensionSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) && device->getInstance()->getExtensions()->vkSetDebugUtilsObjectNameEXT)
+    {
+        std::string name = "A shader module";
+        shaderModule->getValue("DebugUtilsName", name);
+        std::stringstream nameStream;
+        nameStream << name;
+        if (shaderModule->hints && !shaderModule->hints->defines.empty())
+        {
+            nameStream << " with defines: ";
+            for (const auto& define : shaderModule->hints->defines)
+            {
+                nameStream << define << " ";
+            }
+        }
+        else
+        {
+            nameStream << " ";
+        }
+        nameStream << "(" << std::hex << _shaderModule << ")";
+        name = nameStream.str();
+
+        VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+        nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        nameInfo.objectType = VK_OBJECT_TYPE_SHADER_MODULE;
+        nameInfo.objectHandle = reinterpret_cast<uint64_t>(_shaderModule);
+        nameInfo.pObjectName = name.c_str();
+        device->getInstance()->getExtensions()->vkSetDebugUtilsObjectNameEXT(*device, &nameInfo);
+    }
 }
 
 ShaderModule::Implementation::~Implementation()

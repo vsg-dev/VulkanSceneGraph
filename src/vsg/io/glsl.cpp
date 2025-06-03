@@ -58,6 +58,8 @@ ref_ptr<Object> glsl::createShader(const Path& found_filename, std::string& sour
 
     auto sm = ShaderModule::create(source);
 
+    sm->setValue("DebugUtilsName", found_filename.string());
+
     if (stageFlagBits != VK_SHADER_STAGE_ALL)
     {
         return ShaderStage::create(stageFlagBits, "main", sm);
