@@ -80,6 +80,6 @@ namespace vsg
     };
     VSG_type_name(vsg::Buffer);
 
-    extern VSG_DECLSPEC ref_ptr<Buffer> createBufferAndMemory(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode, VkMemoryPropertyFlags memoryProperties);
+    extern VSG_DECLSPEC ref_ptr<Buffer> createBufferAndMemory(Device* device, VkDeviceSize in_size, VkBufferUsageFlags in_usage, VkSharingMode in_sharingMode, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
 
 } // namespace vsg

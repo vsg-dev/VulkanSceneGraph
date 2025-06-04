@@ -153,13 +153,13 @@ size_t Buffer::totalReservedSize() const
     return _memorySlots.totalReservedSize();
 }
 
-ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
+ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo)
 {
     auto buffer = vsg::Buffer::create(size, usage, sharingMode);
     buffer->compile(device);
 
     auto memRequirements = buffer->getMemoryRequirements(device->deviceID);
-    auto memory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties);
+    auto memory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
 
     buffer->bind(memory, 0);
     return buffer;
