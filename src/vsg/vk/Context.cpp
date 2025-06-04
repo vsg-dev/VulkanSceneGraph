@@ -286,7 +286,10 @@ bool Context::record()
         // create scratch buffer and issue build acceleration structure commands
         if (scratchBufferSize > 0)
         {
-            ref_ptr<Buffer> scratchBuffer = vsg::createBufferAndMemory(device, scratchBufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            VkMemoryAllocateFlagsInfo memFlags = {};
+            memFlags.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+            memFlags.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+            ref_ptr<Buffer> scratchBuffer = vsg::createBufferAndMemory(device, scratchBufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memFlags);
 
             for (auto& command : buildAccelerationStructureCommands)
             {
