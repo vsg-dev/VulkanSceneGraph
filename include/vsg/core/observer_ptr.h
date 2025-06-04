@@ -114,6 +114,15 @@ namespace vsg
         template<class R>
         bool operator!=(const R* rhs) const { return (rhs != _ptr); }
 
+        template<class R>
+        bool operator<(const vsg::ref_ptr<R> rhs) const { return (rhs.get() < _ptr); }
+
+        template<class R>
+        bool operator==(const vsg::ref_ptr<R> rhs) const { return (rhs.get() == _ptr); }
+
+        template<class R>
+        bool operator!=(const vsg::ref_ptr<R> rhs) const { return (rhs.get() != _ptr); }
+
         bool valid() const noexcept { return _auxiliary.valid() && _auxiliary->getConnectedObject() != nullptr; }
 
         explicit operator bool() const noexcept { return valid(); }
