@@ -100,10 +100,10 @@ namespace vsg
         bool operator<(const observer_ptr<R>& rhs) const { return (rhs._ptr < _ptr) || (rhs._ptr == _ptr && rhs._auxiliary < _auxiliary); }
 
         template<class R>
-        bool operator==(const observer_ptr<R>& rhs) const { return (rhs._ptr == _ptr) && (rhs._auxiliary == _auxiliary); }
+        bool operator==(const observer_ptr<R>& rhs) const { return (rhs._auxiliary == _auxiliary); }
 
         template<class R>
-        bool operator!=(const observer_ptr<R>& rhs) const { return (rhs._ptr != _ptr) || (rhs._auxiliary != _auxiliary); }
+        bool operator!=(const observer_ptr<R>& rhs) const { return (rhs._auxiliary != _auxiliary); }
 
         template<class R>
         bool operator<(const R* rhs) const
