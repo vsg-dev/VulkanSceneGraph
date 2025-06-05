@@ -136,7 +136,7 @@ namespace vsg
         }
 
         template<class R>
-        bool operator<(const vsg::ref_ptr<R> rhs) const
+        bool operator<(const vsg::ref_ptr<R>& rhs) const
         {
             if (rhs.get() < _ptr)
                 return true;
@@ -146,7 +146,7 @@ namespace vsg
         }
 
         template<class R>
-        bool operator==(const vsg::ref_ptr<R> rhs) const
+        bool operator==(const vsg::ref_ptr<R>& rhs) const
         {
             if (rhs.get() != _ptr)
                 return false;
@@ -156,7 +156,7 @@ namespace vsg
         }
 
         template<class R>
-        bool operator!=(const vsg::ref_ptr<R> rhs) const
+        bool operator!=(const vsg::ref_ptr<R>& rhs) const
         {
             if (rhs.get() != _ptr)
                 return true;
