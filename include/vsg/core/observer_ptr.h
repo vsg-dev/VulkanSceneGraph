@@ -97,22 +97,73 @@ namespace vsg
         }
 
         template<class R>
-        bool operator<(const observer_ptr<R>& rhs) const { return (rhs._ptr < _ptr); }
+        bool operator<(const observer_ptr<R>& rhs) const { return (rhs._ptr < _ptr) || (rhs._ptr == _ptr && rhs._auxiliary < _auxiliary); }
 
         template<class R>
-        bool operator==(const observer_ptr<R>& rhs) const { return (rhs._ptr == _ptr); }
+        bool operator==(const observer_ptr<R>& rhs) const { return (rhs._auxiliary == _auxiliary); }
 
         template<class R>
-        bool operator!=(const observer_ptr<R>& rhs) const { return (rhs._ptr != _ptr); }
+        bool operator!=(const observer_ptr<R>& rhs) const { return (rhs._auxiliary != _auxiliary); }
 
         template<class R>
-        bool operator<(const R* rhs) const { return (rhs < _ptr); }
+        bool operator<(const R* rhs) const
+        {
+            if (rhs < _ptr)
+                return true;
+            if (_ptr == nullptr)
+                return false;
+            return rhs->getAuxiliary() < _auxiliary;
+        }
 
         template<class R>
-        bool operator==(const R* rhs) const { return (rhs == _ptr); }
+        bool operator==(const R* rhs) const
+        {
+            if (rhs != _ptr)
+                return false;
+            if (rhs == nullptr)
+                return true;
+            return rhs->getAuxiliary() == _auxiliary;
+        }
 
         template<class R>
-        bool operator!=(const R* rhs) const { return (rhs != _ptr); }
+        bool operator!=(const R* rhs) const
+        {
+            if (rhs != _ptr)
+                return true;
+            if (rhs == nullptr)
+                return false;
+            return rhs->getAuxiliary() != _auxiliary;
+        }
+
+        template<class R>
+        bool operator<(const vsg::ref_ptr<R> rhs) const
+        {
+            if (rhs.get() < _ptr)
+                return true;
+            if (_ptr == nullptr)
+                return false;
+            return rhs->getAuxiliary() < _auxiliary;
+        }
+
+        template<class R>
+        bool operator==(const vsg::ref_ptr<R> rhs) const
+        {
+            if (rhs.get() != _ptr)
+                return false;
+            if (rhs == nullptr)
+                return true;
+            return rhs->getAuxiliary() == _auxiliary;
+        }
+
+        template<class R>
+        bool operator!=(const vsg::ref_ptr<R> rhs) const
+        {
+            if (rhs.get() != _ptr)
+                return true;
+            if (rhs == nullptr)
+                return false;
+            return rhs->getAuxiliary() != _auxiliary;
+        }
 
         bool valid() const noexcept { return _auxiliary.valid() && _auxiliary->getConnectedObject() != nullptr; }
 
