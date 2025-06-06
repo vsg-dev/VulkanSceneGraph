@@ -103,6 +103,14 @@ namespace vsg
             return ref_ptr<Array2D>(new Array2D(std::forward<Args>(args)...));
         }
 
+
+        template<typename... Args>
+        static ref_ptr<Array2D> create_if(bool flag, Args&&... args)
+        {
+            if (flag) return ref_ptr<Array2D>(new Array2D(std::forward<Args>(args)...));
+            else return {};
+        }
+
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
             return ref_ptr<Array2D>(new Array2D(*this, copyop));
