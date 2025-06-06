@@ -552,9 +552,9 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
         void apply(const BindDescriptorSet& bds) override
         {
-            if (!bds.descriptorSet || !bds.descriptorSet->setLayout || !gpc.descriptorConfigurator) return;
+            if (!bds.layout || !gpc.descriptorConfigurator) return;
 
-            if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
+            if (gpc.shaderSet->partiallyCompatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines, false, bds.firstSet))
             {
                 gpc.inheritedSets.insert(bds.firstSet);
             }
@@ -562,9 +562,9 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
         void apply(const BindDescriptorSets& bds) override
         {
-            if (!gpc.descriptorConfigurator) return;
+            if (!bds.layout || !gpc.descriptorConfigurator) return;
 
-            if (gpc.shaderSet->compatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines))
+            if (gpc.shaderSet->partiallyCompatiblePipelineLayout(*bds.layout, gpc.shaderHints->defines, false, bds.firstSet + static_cast<uint32_t>(bds.descriptorSets.size()) - 1))
             {
                 for (size_t i = 0; i < bds.descriptorSets.size(); ++i)
                 {
@@ -575,7 +575,7 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
         void apply(const BindViewDescriptorSets& bvds) override
         {
-            if (!gpc.shaderSet->compatiblePipelineLayout(*bvds.layout, gpc.shaderHints->defines))
+            if (!gpc.shaderSet->partiallyCompatiblePipelineLayout(*bvds.layout, gpc.shaderHints->defines, false, bvds.firstSet))
             {
                 return;
             }
