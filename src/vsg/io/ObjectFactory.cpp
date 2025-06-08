@@ -188,6 +188,8 @@ ObjectFactory::ObjectFactory()
     add<vsg::TileDatabase>();
     add<vsg::TileDatabaseSettings>();
     add<vsg::InstrumentationNode>();
+    add<vsg::InstanceNode>();
+    add<vsg::InstanceDraw>();
 
     // lighting
     add<vsg::Light>();

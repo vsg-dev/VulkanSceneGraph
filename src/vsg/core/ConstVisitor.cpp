@@ -677,6 +677,14 @@ void ConstVisitor::apply(const RegionOfInterest& value)
 {
     apply(static_cast<const Node&>(value));
 }
+void ConstVisitor::apply(const InstanceNode& value)
+{
+    apply(static_cast<const Node&>(value));
+}
+void ConstVisitor::apply(const InstanceDraw& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

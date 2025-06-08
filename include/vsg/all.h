@@ -67,6 +67,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
@@ -267,6 +269,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
+#include <vsg/io/JSONParser.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/ObjectFactory.h>
 #include <vsg/io/Options.h>

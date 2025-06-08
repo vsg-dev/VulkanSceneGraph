@@ -43,6 +43,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/nodes/InstanceNode.h>
+#include <vsg/nodes/InstanceDraw.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
@@ -475,6 +477,25 @@ void RecordTraversal::apply(const Joint&)
     CPU_INSTRUMENTATION_L2(instrumentation);
 
     // non op for RiggedJoint as it's designed not to have any renderable children
+}
+
+void RecordTraversal::apply(const InstanceNode& instanceNode)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ")");
+
+    if (instanceNode.child) instanceNode.child->accept(*this);
+}
+
+void RecordTraversal::apply(const InstanceDraw& instanceDraw)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    vsg::info("RecordTraversal::apply(const InstanceDraw& ", &instanceDraw, ")");
+
+    _state->record();
+    instanceDraw.record(*(_state->_commandBuffer));
 }
 
 // Vulkan nodes

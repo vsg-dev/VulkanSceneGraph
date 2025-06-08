@@ -51,6 +51,8 @@ namespace vsg
     class SpotLight;
     class InstrumentationNode;
     class RegionOfInterest;
+    class InstanceNode;
+    class InstanceDraw;
 
     // forward declare text classes
     class Text;
@@ -354,6 +356,8 @@ namespace vsg
         virtual void apply(const SpotLight&);
         virtual void apply(const InstrumentationNode&);
         virtual void apply(const RegionOfInterest&);
+        virtual void apply(const InstanceNode&);
+        virtual void apply(const InstanceDraw&);
 
         // text
         virtual void apply(const Text&);
