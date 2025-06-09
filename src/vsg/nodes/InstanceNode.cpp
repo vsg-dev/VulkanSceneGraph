@@ -22,6 +22,10 @@ InstanceNode::InstanceNode()
 InstanceNode::InstanceNode(const InstanceNode& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     bound(rhs.bound),
+    translations(copyop(rhs.translations)),
+    rotations(copyop(rhs.rotations)),
+    scales(copyop(rhs.scales)),
+    colors(copyop(rhs.colors)),
     child(copyop(rhs.child))
 {
 }
@@ -43,6 +47,10 @@ int InstanceNode::compare(const Object& rhs_object) const
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(bound, rhs.bound)) != 0) return result;
+    if ((result = compare_pointer(translations, rhs.translations)) != 0) return result;
+    if ((result = compare_pointer(rotations, rhs.rotations)) != 0) return result;
+    if ((result = compare_pointer(scales, rhs.scales)) != 0) return result;
+    if ((result = compare_pointer(colors, rhs.colors)) != 0) return result;
     return compare_pointer(child, rhs.child);
 }
 
@@ -55,6 +63,7 @@ void InstanceNode::read(Input& input)
     input.read("translations", translations);
     input.read("rotations", rotations);
     input.read("scales", scales);
+    input.read("colors", colors);
 
     input.read("child", child);
 }
@@ -63,10 +72,12 @@ void InstanceNode::write(Output& output) const
 {
     Node::write(output);
 
+    output.write("bound", bound);
+
     output.write("translations", translations);
     output.write("rotations", rotations);
     output.write("scales", scales);
+    output.write("colors", colors);
 
-    output.write("bound", bound);
     output.write("child", child);
 }
