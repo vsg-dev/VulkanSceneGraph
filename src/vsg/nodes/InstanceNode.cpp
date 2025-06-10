@@ -10,8 +10,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/stream.h>
 #include <vsg/nodes/InstanceNode.h>
+#include <vsg/vk/Context.h>
 
 using namespace vsg;
 
@@ -60,10 +60,22 @@ void InstanceNode::read(Input& input)
 
     input.read("bound", bound);
 
-    input.read("translations", translations);
-    input.read("rotations", rotations);
-    input.read("scales", scales);
-    input.read("colors", colors);
+    vsg::ref_ptr<Data> data;
+    input.readObject("translations", data);
+    if (data) translations = vsg::BufferInfo::create(data);
+    else translations = {};
+
+    input.readObject("rotations", data);
+    if (data) rotations = vsg::BufferInfo::create(data);
+    else rotations = {};
+
+    input.readObject("scales", scales);
+    if (data) scales = vsg::BufferInfo::create(data);
+    else scales = {};
+
+    input.readObject("colors", colors);
+    if (data) colors = vsg::BufferInfo::create(data);
+    else colors = {};
 
     input.read("child", child);
 }
@@ -74,10 +86,39 @@ void InstanceNode::write(Output& output) const
 
     output.write("bound", bound);
 
-    output.write("translations", translations);
-    output.write("rotations", rotations);
-    output.write("scales", scales);
-    output.write("colors", colors);
+    if (translations) output.writeObject("translations", translations->data);
+    else output.writeObject("translations", nullptr);
+
+    if (rotations) output.writeObject("rotations", rotations->data);
+    else output.writeObject("rotations", nullptr);
+
+    if (scales) output.writeObject("scales", scales->data);
+    else output.writeObject("scales", nullptr);
+
+    if (colors) output.writeObject("colors", colors);
+    else output.writeObject("colors", nullptr);
 
     output.write("child", child);
+}
+
+void InstanceNode::compile(Context& context)
+{
+    auto deviceID = context.deviceID;
+    bool requiresCreateAndCopy = false;
+
+    if (translations && translations->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    if (rotations && rotations->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    if (scales && scales->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+    if (colors && colors->requiresCopy(deviceID)) requiresCreateAndCopy = true;
+
+    if (requiresCreateAndCopy)
+    {
+        BufferInfoList combinedBufferInfos;
+        if (translations) combinedBufferInfos.push_back(translations);
+        if (rotations) combinedBufferInfos.push_back(rotations);
+        if (scales) combinedBufferInfos.push_back(scales);
+        if (colors) combinedBufferInfos.push_back(colors);
+
+        createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    }
 }

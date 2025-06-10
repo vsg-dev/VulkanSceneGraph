@@ -483,9 +483,19 @@ void RecordTraversal::apply(const InstanceNode& instanceNode)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
+    if (instanceNode.bound && !_state->intersect(instanceNode.bound))
+    {
+        vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ") culled.");
+        return;
+    }
+
     vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ")");
 
-    if (instanceNode.child) instanceNode.child->accept(*this);
+    if (instanceNode.child)
+    {
+        _state->_commandBuffer->instanceNode = &instanceNode;
+        instanceNode.child->accept(*this);
+    }
 }
 
 void RecordTraversal::apply(const InstanceDraw& instanceDraw)

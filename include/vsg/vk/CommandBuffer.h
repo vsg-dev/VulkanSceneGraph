@@ -22,6 +22,7 @@ namespace vsg
     // forward declare
     class ViewDependentState;
     class GPUStatsCollection;
+    class InstanceNode;
     class State;
 
     /// CommandBuffer encapsulates VkCommandBuffer
@@ -40,6 +41,7 @@ namespace vsg
         Mask overrideMask = MASK_OFF;
         ViewDependentState* viewDependentState = nullptr;
         State* state = nullptr;
+        const InstanceNode* instanceNode = nullptr;
         ref_ptr<GPUStatsCollection> gpuStats;
 
         VkCommandBufferLevel level() const { return _level; }

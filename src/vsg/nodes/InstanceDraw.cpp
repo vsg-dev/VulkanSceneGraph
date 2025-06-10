@@ -169,6 +169,10 @@ void InstanceDraw::compile(Context& context)
 
 void InstanceDraw::record(CommandBuffer& commandBuffer) const
 {
+    vsg::info("InstanceDraw::record() commandBuffer.instanceNode = ", commandBuffer.instanceNode);
+
+    return;
+
     auto& vkd = _vulkanData[commandBuffer.deviceID];
 
     VkCommandBuffer cmdBuffer{commandBuffer};

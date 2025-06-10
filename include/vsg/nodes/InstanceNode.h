@@ -14,7 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Array.h>
 #include <vsg/maths/sphere.h>
-#include <vsg/nodes/Node.h>
+#include <vsg/nodes/Compilable.h>
+#include <vsg/state/BufferInfo.h>
 
 namespace vsg
 {
@@ -29,7 +30,7 @@ namespace vsg
     /// 3. Do not contain any InstanceNode nodes
     /// 4. Do not contain any standard vsg::Geometry/VertexDraw/VertexIndexDraw leaf nodes, only InstanceDraw leaf nodes.
     ///
-    class VSG_DECLSPEC InstanceNode : public Inherit<Node, InstanceNode>
+    class VSG_DECLSPEC InstanceNode : public Inherit<Compilable, InstanceNode>
     {
     public:
         InstanceNode();
@@ -38,10 +39,26 @@ namespace vsg
 
         dsphere bound;
 
-        vsg::ref_ptr<vec3Array> translations;
-        vsg::ref_ptr<quatArray> rotations;
-        vsg::ref_ptr<vec3Array> scales;
-        vsg::ref_ptr<vec4Array> colors;
+        vsg::ref_ptr<BufferInfo> translations;
+        vsg::ref_ptr<BufferInfo> rotations;
+        vsg::ref_ptr<BufferInfo> scales;
+        vsg::ref_ptr<BufferInfo> colors;
+
+        void setTranslations(vsg::ref_ptr<vec3Array> data) { translations = BufferInfo::create(data); }
+        vsg::ref_ptr<vec3Array> getTranslations() { return (translations && translations->data) ? translations->data.cast<vec3Array>() : vsg::ref_ptr<vec3Array>{}; }
+        const vsg::ref_ptr<vec3Array> getTranslations() const { return (translations && translations->data) ? translations->data.cast<vec3Array>() : vsg::ref_ptr<vec3Array>{}; }
+
+        void setRotations(vsg::ref_ptr<quatArray> data) { rotations = BufferInfo::create(data); }
+        vsg::ref_ptr<quatArray> getRotations() { return (rotations && rotations->data) ? rotations->data.cast<quatArray>() : vsg::ref_ptr<quatArray>{}; }
+        const vsg::ref_ptr<quatArray> getRotations() const { return (rotations && rotations->data) ? rotations->data.cast<quatArray>() : vsg::ref_ptr<quatArray>{}; }
+
+        void setScales(vsg::ref_ptr<vec3Array> data) { scales = BufferInfo::create(data); }
+        vsg::ref_ptr<vec3Array> getScales() { return (scales && scales->data) ? scales->data.cast<vec3Array>() : vsg::ref_ptr<vec3Array>{}; }
+        const vsg::ref_ptr<vec3Array> getScales() const { return (scales && scales->data) ? scales->data.cast<vec3Array>() : vsg::ref_ptr<vec3Array>{}; }
+
+        void setColors(vsg::ref_ptr<vec3Array> data) { colors = BufferInfo::create(data); }
+        vsg::ref_ptr<vec3Array> getColors() { return (colors && colors->data) ? colors->data.cast<vec3Array>() : vsg::ref_ptr<vec3Array>{}; }
+        const vsg::ref_ptr<vec3Array> getColors() const { return (colors && colors->data) ? colors->data.cast<vec3Array>() : vsg::ref_ptr<vec3Array>{}; }
 
         ref_ptr<vsg::Node> child;
 
@@ -55,6 +72,8 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+        void compile(Context& context) override;
 
     protected:
         virtual ~InstanceNode();
