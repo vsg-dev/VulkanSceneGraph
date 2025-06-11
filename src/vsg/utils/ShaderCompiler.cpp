@@ -284,6 +284,9 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         for (auto& define : settings->defines) combinedDefines.push_back(define);
         if (!combinedDefines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, combinedDefines);
 
+        vsg::debug("ShaderCompiler::compile() combinedDefines = ", combinedDefines);
+
+
         const char* str = finalShaderSource.c_str();
         shader->setStrings(&str, 1);
 
