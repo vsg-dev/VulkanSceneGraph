@@ -55,7 +55,7 @@ void DeleteQueue::wait_then_clear()
         {
             _cv.wait_for(lock, waitDuration);
         }
-        auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObectToDelete& otd) { return otd.frameCount > frameCount; });
+        auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObjectToDelete& otd) { return otd.frameCount > frameCount; });
 
         // use a swap of the container to keep the time the mutex is acquired as short as possible
         objectsToDelete.splice(objectsToDelete.end(), _objectsToDelete, _objectsToDelete.begin(), last_itr);

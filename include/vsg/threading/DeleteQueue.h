@@ -26,13 +26,13 @@ namespace vsg
     public:
         explicit DeleteQueue(ref_ptr<ActivityStatus> status);
 
-        struct ObectToDelete
+        struct ObjectToDelete
         {
             uint64_t frameCount = 0;
             ref_ptr<Object> object;
         };
 
-        using ObjectsToDelete = std::list<ObectToDelete>;
+        using ObjectsToDelete = std::list<ObjectToDelete>;
 
         std::atomic_uint64_t frameCount = 0;
         uint64_t retainForFrameCount = 3;
@@ -45,7 +45,7 @@ namespace vsg
         void add(ref_ptr<Object> object)
         {
             std::scoped_lock lock(_mutex);
-            _objectsToDelete.push_back(ObectToDelete{frameCount + retainForFrameCount, object});
+            _objectsToDelete.push_back(ObjectToDelete{frameCount + retainForFrameCount, object});
             _cv.notify_one();
         }
 
@@ -55,7 +55,7 @@ namespace vsg
             std::scoped_lock lock(_mutex);
             for (auto& object : objects)
             {
-                _objectsToDelete.emplace_back(ObectToDelete{frameCount + retainForFrameCount, object});
+                _objectsToDelete.emplace_back(ObjectToDelete{frameCount + retainForFrameCount, object});
             }
             _cv.notify_one();
         }
