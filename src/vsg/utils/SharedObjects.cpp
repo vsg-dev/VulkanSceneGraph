@@ -113,6 +113,7 @@ void SharedObjects::prune()
                 {
                     if ((*object_itr)->referenceCount() == 1)
                     {
+                        // vsg::info("pruning ", *object_itr);
                         object_itr = objects.erase(object_itr);
                         prunedObjects = true;
                     }
@@ -132,6 +133,7 @@ void SharedObjects::prune()
         loadedObject.object = *(observedLoadedObject_itr++);
         if (!loadedObject.object)
         {
+            // vsg::info("pruning loadedObject ", *object_itr);
             object_itr = loadedObjects.erase(object_itr);
         }
         else

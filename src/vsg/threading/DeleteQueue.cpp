@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/threading/DeleteQueue.h>
 #include <vsg/ui/FrameStamp.h>
 
+#include <vsg/io/Logger.h>
+
 using namespace vsg;
 
 /////////////////////////////////////////////////////////////////////////
@@ -43,6 +45,7 @@ void DeleteQueue::advance(ref_ptr<FrameStamp> frameStamp)
 void DeleteQueue::wait_then_clear()
 {
     ObjectsToDelete objectsToDelete;
+    std::list<ref_ptr<SharedObjects>> sharedObjectsToPrune;
 
     {
         std::chrono::duration waitDuration = std::chrono::milliseconds(100);
@@ -59,9 +62,22 @@ void DeleteQueue::wait_then_clear()
 
         // use a swap of the container to keep the time the mutex is acquired as short as possible
         objectsToDelete.splice(objectsToDelete.end(), _objectsToDelete, _objectsToDelete.begin(), last_itr);
+
+        sharedObjectsToPrune.swap(_sharedObjectsToPrune);
     }
 
+    size_t numObjectsToDelete = objectsToDelete.size();
+
     objectsToDelete.clear();
+
+    if (numObjectsToDelete > 0)
+    {
+        for(auto& sharedObjects : sharedObjectsToPrune)
+        {
+            sharedObjects->prune();
+        }
+        sharedObjectsToPrune.clear();
+    }
 }
 
 void DeleteQueue::clear()
@@ -74,6 +90,17 @@ void DeleteQueue::clear()
         objectsToDelete.swap(objectsToDelete);
     }
 
+    size_t numObjectsToDelete = objectsToDelete.size();
+
     //vsg::info("DeleteQueue::clear(), releasing ", nodesToRelease.size());
     objectsToDelete.clear();
+
+    if (numObjectsToDelete > 0)
+    {
+        for(auto& sharedObjects : _sharedObjectsToPrune)
+        {
+            sharedObjects->prune();
+        }
+        _sharedObjectsToPrune.clear();
+    }
 }
