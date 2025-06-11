@@ -483,13 +483,22 @@ void RecordTraversal::apply(const InstanceNode& instanceNode)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
-    if (instanceNode.bound && !_state->intersect(instanceNode.bound))
+    if (instanceNode.bound)
     {
-        vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ") culled.");
-        return;
+         if (!_state->intersect(instanceNode.bound))
+         {
+            // vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ") culled.");
+            return;
+         }
+         else
+         {
+            // vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ") passed cull test.");
+         }
     }
-
-    vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ")");
+    else
+    {
+        // vsg::info("RecordTraversal::apply(const InstanceNode& ", &instanceNode, ") no valid bounds");
+    }
 
     if (instanceNode.child)
     {
@@ -501,8 +510,6 @@ void RecordTraversal::apply(const InstanceNode& instanceNode)
 void RecordTraversal::apply(const InstanceDraw& instanceDraw)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
-
-    vsg::info("RecordTraversal::apply(const InstanceDraw& ", &instanceDraw, ")");
 
     _state->record();
     instanceDraw.record(*(_state->_commandBuffer));

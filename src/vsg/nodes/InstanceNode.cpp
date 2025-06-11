@@ -22,6 +22,8 @@ InstanceNode::InstanceNode()
 InstanceNode::InstanceNode(const InstanceNode& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     bound(rhs.bound),
+    firstInstance(rhs.firstInstance),
+    instanceCount(rhs.instanceCount),
     translations(copyop(rhs.translations)),
     rotations(copyop(rhs.rotations)),
     scales(copyop(rhs.scales)),
@@ -47,6 +49,8 @@ int InstanceNode::compare(const Object& rhs_object) const
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     if ((result = compare_value(bound, rhs.bound)) != 0) return result;
+    if ((result = compare_value(firstInstance, rhs.firstInstance)) != 0) return result;
+    if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
     if ((result = compare_pointer(translations, rhs.translations)) != 0) return result;
     if ((result = compare_pointer(rotations, rhs.rotations)) != 0) return result;
     if ((result = compare_pointer(scales, rhs.scales)) != 0) return result;
@@ -59,6 +63,8 @@ void InstanceNode::read(Input& input)
     Node::read(input);
 
     input.read("bound", bound);
+    input.read("firstInstance", firstInstance);
+    input.read("instanceCount", instanceCount);
 
     vsg::ref_ptr<Data> data;
     input.readObject("translations", data);
@@ -85,6 +91,8 @@ void InstanceNode::write(Output& output) const
     Node::write(output);
 
     output.write("bound", bound);
+    output.write("firstInstance", firstInstance);
+    output.write("instanceCount", instanceCount);
 
     if (translations) output.writeObject("translations", translations->data);
     else output.writeObject("translations", nullptr);

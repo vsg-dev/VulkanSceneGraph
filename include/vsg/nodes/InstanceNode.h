@@ -39,6 +39,9 @@ namespace vsg
 
         dsphere bound;
 
+        uint32_t firstInstance = 0;
+        uint32_t instanceCount = 0;
+
         vsg::ref_ptr<BufferInfo> translations;
         vsg::ref_ptr<BufferInfo> rotations;
         vsg::ref_ptr<BufferInfo> scales;

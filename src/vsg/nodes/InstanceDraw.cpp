@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
 #include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
@@ -128,7 +129,7 @@ void InstanceDraw::write(Output& output) const
 
 void InstanceDraw::compile(Context& context)
 {
-    if (arrays.empty() || !indices)
+    if (arrays.empty())
     {
         // InstanceDraw does not contain required arrays and indices
         return;
@@ -137,7 +138,7 @@ void InstanceDraw::compile(Context& context)
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    if (indices->requiresCopy(deviceID))
+    if (indices && indices->requiresCopy(deviceID))
         requiresCreateAndCopy = true;
     else
     {
@@ -154,7 +155,7 @@ void InstanceDraw::compile(Context& context)
     if (requiresCreateAndCopy)
     {
         BufferInfoList combinedBufferInfos(arrays);
-        combinedBufferInfos.push_back(indices);
+        if (indices) combinedBufferInfos.push_back(indices);
         createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
         // info("InstanceDraw::compile() create and copy ", this);
@@ -169,22 +170,52 @@ void InstanceDraw::compile(Context& context)
 
 void InstanceDraw::record(CommandBuffer& commandBuffer) const
 {
-    vsg::info("InstanceDraw::record() commandBuffer.instanceNode = ", commandBuffer.instanceNode);
+    auto instanceNode = commandBuffer.instanceNode;
+    if (!instanceNode)
+    {
+        vsg::info("InstanceDraw::record() required vsg::InstanceNode not provided.");
+        return;
+    }
 
-    return;
-
-    auto& vkd = _vulkanData[commandBuffer.deviceID];
-
+    auto deviceID = commandBuffer.deviceID;
     VkCommandBuffer cmdBuffer{commandBuffer};
 
+    std::vector<VkBuffer> vkBuffers;
+    std::vector<VkDeviceSize> offsets;
+
+    vkBuffers.reserve(8);
+    offsets.reserve(8);
+
+    auto assignBufferInfo = [&](const ref_ptr<BufferInfo>& bufferInfo) -> void
+    {
+        vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
+        offsets.push_back(bufferInfo->offset);
+    };
+
+    for(auto& bi : arrays)
+    {
+        assignBufferInfo(bi);
+    }
+
+    if (instanceNode->colors) assignBufferInfo(instanceNode->colors);
+    if (instanceNode->translations) assignBufferInfo(instanceNode->translations);
+    if (instanceNode->rotations) assignBufferInfo(instanceNode->rotations);
+    if (instanceNode->scales) assignBufferInfo(instanceNode->scales);
+
     // TODO: will need to get the values to apply by combing the inherited InstanceNode values with local arrays
-    vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
+    vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkBuffers.size()), vkBuffers.data(), offsets.data());
 
-    vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(commandBuffer.deviceID), indices->offset, indexType);
+    if (indices)
+    {
+        // vsg::info("InstanceDraw::record(CommandBuffer& commandBuffer) vkCmdDrawIndexed vkBuffers.size() = ", vkBuffers.size(), ", indexCount = ", indexCount, ", instanceNode->instanceCount = ", instanceNode->instanceCount);
 
-    // TODO: hardwire for now, will need to get details from the inherited InstanceNode
-    uint32_t instanceCount = 1;
-    uint32_t firstInstance = 0;
+        vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(deviceID), indices->offset, indexType);
+        vkCmdDrawIndexed(cmdBuffer, indexCount, instanceNode->instanceCount, firstIndex, vertexOffset, instanceNode->firstInstance);
+    }
+    else
+    {
+        // vsg::info("InstanceDraw::record(CommandBuffer& commandBuffer) vkCmdDraw vkBuffers.size() = ", vkBuffers.size(), ", indexCount = ", indexCount, ", instanceNode->instanceCount = ", instanceNode->instanceCount);
+        vkCmdDraw(cmdBuffer, indexCount, instanceNode->instanceCount, firstIndex, instanceNode->firstInstance);
+    }
 
-    vkCmdDrawIndexed(cmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
