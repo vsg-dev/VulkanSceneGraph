@@ -21,7 +21,6 @@ InstanceNode::InstanceNode()
 
 InstanceNode::InstanceNode(const InstanceNode& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    bound(rhs.bound),
     firstInstance(rhs.firstInstance),
     instanceCount(rhs.instanceCount),
     translations(copyop(rhs.translations)),
@@ -29,12 +28,6 @@ InstanceNode::InstanceNode(const InstanceNode& rhs, const CopyOp& copyop) :
     scales(copyop(rhs.scales)),
     colors(copyop(rhs.colors)),
     child(copyop(rhs.child))
-{
-}
-
-InstanceNode::InstanceNode(const dsphere& in_bound, Node* in_child) :
-    bound(in_bound),
-    child(in_child)
 {
 }
 
@@ -48,7 +41,6 @@ int InstanceNode::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    if ((result = compare_value(bound, rhs.bound)) != 0) return result;
     if ((result = compare_value(firstInstance, rhs.firstInstance)) != 0) return result;
     if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
     if ((result = compare_pointer(translations, rhs.translations)) != 0) return result;
@@ -62,7 +54,6 @@ void InstanceNode::read(Input& input)
 {
     Node::read(input);
 
-    input.read("bound", bound);
     input.read("firstInstance", firstInstance);
     input.read("instanceCount", instanceCount);
 
@@ -90,7 +81,6 @@ void InstanceNode::write(Output& output) const
 {
     Node::write(output);
 
-    output.write("bound", bound);
     output.write("firstInstance", firstInstance);
     output.write("instanceCount", instanceCount);
 

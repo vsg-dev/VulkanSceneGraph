@@ -35,9 +35,6 @@ namespace vsg
     public:
         InstanceNode();
         InstanceNode(const InstanceNode& rhs, const CopyOp& copyop = {});
-        InstanceNode(const dsphere& in_bound, Node* in_child);
-
-        dsphere bound;
 
         uint32_t firstInstance = 0;
         uint32_t instanceCount = 0;
