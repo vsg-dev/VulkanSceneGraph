@@ -202,41 +202,41 @@ void NullArrayState::apply(const vsg::Data&)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PositionArrayState
+// TranslationArrayState
 //
-PositionArrayState::PositionArrayState()
+TranslationArrayState::TranslationArrayState()
 {
 }
 
-PositionArrayState::PositionArrayState(const PositionArrayState& rhs) :
+TranslationArrayState::TranslationArrayState(const TranslationArrayState& rhs) :
     Inherit(rhs),
-    position_attribute_location(rhs.position_attribute_location),
+    translation_attribute_location(rhs.translation_attribute_location),
     positionAttribute(rhs.positionAttribute)
 {
 }
 
-PositionArrayState::PositionArrayState(const ArrayState& rhs) :
+TranslationArrayState::TranslationArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-ref_ptr<ArrayState> PositionArrayState::cloneArrayState()
+ref_ptr<ArrayState> TranslationArrayState::cloneArrayState()
 {
-    return PositionArrayState::create(*this);
+    return TranslationArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> TranslationArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
-    return PositionArrayState::create(*arrayState);
+    return TranslationArrayState::create(*arrayState);
 }
 
-void PositionArrayState::apply(const VertexInputState& vas)
+void TranslationArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
-    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+    getAttributeDetails(vas, translation_attribute_location, positionAttribute);
 }
 
-ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
+ref_ptr<const vec3Array> TranslationArrayState::vertexArray(uint32_t instanceIndex)
 {
     auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
 
@@ -364,41 +364,41 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PositionAndDisplacementMapArrayState
+// TranslationAndDisplacementMapArrayState
 //
-PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState()
+TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState()
 {
 }
 
-PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs) :
+TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState(const TranslationAndDisplacementMapArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const ArrayState& rhs) :
+TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState()
+ref_ptr<ArrayState> TranslationAndDisplacementMapArrayState::cloneArrayState()
 {
-    return PositionAndDisplacementMapArrayState::create(*this);
+    return TranslationAndDisplacementMapArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> TranslationAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
-    return PositionAndDisplacementMapArrayState::create(*arrayState);
+    return TranslationAndDisplacementMapArrayState::create(*arrayState);
 }
 
-void PositionAndDisplacementMapArrayState::apply(const VertexInputState& vas)
+void TranslationAndDisplacementMapArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
     getAttributeDetails(vas, normal_attribute_location, normalAttribute);
     getAttributeDetails(vas, texcoord_attribute_location, texcoordAttribute);
-    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+    getAttributeDetails(vas, translation_attribute_location, positionAttribute);
 }
 
-ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint32_t instanceIndex)
+ref_ptr<const vec3Array> TranslationAndDisplacementMapArrayState::vertexArray(uint32_t instanceIndex)
 {
     auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
 
@@ -447,7 +447,7 @@ BillboardArrayState::BillboardArrayState()
 
 BillboardArrayState::BillboardArrayState(const BillboardArrayState& rhs) :
     Inherit(rhs),
-    position_attribute_location(rhs.position_attribute_location),
+    translation_attribute_location(rhs.translation_attribute_location),
     positionAttribute(rhs.positionAttribute)
 {
 }
@@ -470,7 +470,7 @@ ref_ptr<ArrayState> BillboardArrayState::cloneArrayState(ref_ptr<ArrayState> arr
 void BillboardArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
-    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+    getAttributeDetails(vas, translation_attribute_location, positionAttribute);
 }
 
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
@@ -486,7 +486,7 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
         void apply(const vec4Array& data) override { value = data[index]; }
     } gv(instanceIndex);
 
-    // get the position_distanceScale value
+    // get the translation_distanceScale value
     arrays[positionAttribute.binding]->accept(gv);
     dvec3 position(gv.value.xyz);
     double autoDistanceScale = gv.value.w;

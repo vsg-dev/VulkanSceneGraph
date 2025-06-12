@@ -325,9 +325,9 @@ ObjectFactory::ObjectFactory()
     // utils
     add<vsg::ShaderSet>();
     add<vsg::ViewDependentStateBinding>();
-    add<vsg::PositionAndDisplacementMapArrayState>();
+    add<vsg::TranslationAndDisplacementMapArrayState>();
     add<vsg::DisplacementMapArrayState>();
-    add<vsg::PositionArrayState>();
+    add<vsg::TranslationArrayState>();
     add<vsg::BillboardArrayState>();
     add<vsg::SharedObjects>();
     add<vsg::ProfileLog>();
