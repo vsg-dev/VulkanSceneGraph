@@ -66,11 +66,11 @@ void InstanceNode::read(Input& input)
     if (data) rotations = vsg::BufferInfo::create(data);
     else rotations = {};
 
-    input.readObject("scales", scales);
+    input.readObject("scales", data);
     if (data) scales = vsg::BufferInfo::create(data);
     else scales = {};
 
-    input.readObject("colors", colors);
+    input.readObject("colors", data);
     if (data) colors = vsg::BufferInfo::create(data);
     else colors = {};
 
@@ -93,7 +93,7 @@ void InstanceNode::write(Output& output) const
     if (scales) output.writeObject("scales", scales->data);
     else output.writeObject("scales", nullptr);
 
-    if (colors) output.writeObject("colors", colors);
+    if (colors) output.writeObject("colors", colors->data);
     else output.writeObject("colors", nullptr);
 
     output.write("child", child);

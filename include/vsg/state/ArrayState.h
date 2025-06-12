@@ -74,6 +74,8 @@ namespace vsg
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;
         void apply(const VertexIndexDraw& vid) override;
+        void apply(const InstanceNode& in) override;
+        void apply(const InstanceDraw& id) override;
         void apply(const BindVertexBuffers& bvb) override;
         void apply(const BufferInfo& bufferInfo) override;
 
@@ -82,6 +84,10 @@ namespace vsg
 
         virtual void applyArrays(uint32_t firstBinding, const BufferInfoList& in_arrays);
         virtual void applyArrays(uint32_t firstBinding, const DataList& in_arrays);
+
+        virtual void applyArray(uint32_t binding, const ref_ptr<BufferInfo>& in_array);
+        virtual void applyArray(uint32_t binding, const ref_ptr<Data>& in_array);
+
         virtual ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex);
 
     protected:
@@ -121,7 +127,7 @@ namespace vsg
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 4;
-        AttributeDetails positionAttribute;
+        AttributeDetails translationAttribute;
 
         using ArrayState::apply;
 
@@ -129,6 +135,31 @@ namespace vsg
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
     VSG_type_name(vsg::TranslationArrayState);
+
+    /// TranslationRotationScaleArrayState is an ArrayState subclass for mapping vertex array data for instanced geometries.
+    class VSG_DECLSPEC TranslationRotationScaleArrayState : public Inherit<ArrayState, TranslationRotationScaleArrayState>
+    {
+    public:
+        TranslationRotationScaleArrayState();
+        TranslationRotationScaleArrayState(const TranslationRotationScaleArrayState& rhs);
+        explicit TranslationRotationScaleArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
+
+        uint32_t translation_attribute_location = 4;
+        uint32_t rotation_attribute_location = 5;
+        uint32_t scale_attribute_location = 6;
+        AttributeDetails translationAttribute;
+        AttributeDetails rotationAttribute;
+        AttributeDetails scaleAttribute;
+
+        using ArrayState::apply;
+
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
+    };
+    VSG_type_name(vsg::TranslationRotationScaleArrayState);
 
     /// DisplacementMapArrayState is an ArrayState subclass for mapping vertex array data for displacement mapped geometries.
     class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
@@ -173,7 +204,7 @@ namespace vsg
         explicit TranslationAndDisplacementMapArrayState(const ArrayState& rhs);
 
         uint32_t translation_attribute_location = 4;
-        AttributeDetails positionAttribute;
+        AttributeDetails translationAttribute;
 
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
@@ -195,7 +226,7 @@ namespace vsg
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 4;
-        AttributeDetails positionAttribute;
+        AttributeDetails translationAttribute;
 
         using ArrayState::apply;
 
