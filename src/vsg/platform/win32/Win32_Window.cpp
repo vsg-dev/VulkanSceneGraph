@@ -221,6 +221,7 @@ KeyboardMap::KeyboardMap()
             {VK_F22                               ,              KEY_F22},
             {VK_F23                               ,              KEY_F23},
             {VK_F24                               ,              KEY_F24},
+#if _WIN32_WINNT >= 0x0604
             {VK_NAVIGATION_VIEW                   ,              KEY_Undefined},   // reserved
             {VK_NAVIGATION_MENU                   ,              KEY_Undefined},   // reserved
             {VK_NAVIGATION_UP                     ,              KEY_Undefined},   // reserved
@@ -229,6 +230,7 @@ KeyboardMap::KeyboardMap()
             {VK_NAVIGATION_RIGHT                  ,              KEY_Undefined},   // reserved
             {VK_NAVIGATION_ACCEPT                 ,              KEY_Undefined},   // reserved
             {VK_NAVIGATION_CANCEL                 ,              KEY_Undefined},   // reserved
+#endif
             {VK_NUMLOCK                           ,              KEY_Undefined},
             {VK_SCROLL                            ,              KEY_Scroll_Lock},
             {VK_LSHIFT                            ,              KEY_Shift_L},
@@ -262,6 +264,7 @@ KeyboardMap::KeyboardMap()
             {VK_OEM_PERIOD                        ,              KEY_Period   },    // '.' any country
             {VK_OEM_2                             ,              KEY_Slash    },    // '/?' for US
             {VK_OEM_3                             ,              KEY_Tilde    },    // '`~' for US
+#if _WIN32_WINNT >= 0x0604
             {VK_GAMEPAD_A                         ,              KEY_Undefined},
             {VK_GAMEPAD_B                         ,              KEY_Undefined},
             {VK_GAMEPAD_X                         ,              KEY_Undefined},
@@ -286,6 +289,7 @@ KeyboardMap::KeyboardMap()
             {VK_GAMEPAD_RIGHT_THUMBSTICK_DOWN     ,              KEY_Undefined},
             {VK_GAMEPAD_RIGHT_THUMBSTICK_RIGHT    ,              KEY_Undefined},
             {VK_GAMEPAD_RIGHT_THUMBSTICK_LEFT     ,              KEY_Undefined},
+#endif
             {VK_OEM_4                             ,              KEY_Leftbracket},  //  '[{' for US
             {VK_OEM_5                             ,              KEY_Backslash},    //  '\|' for US
             {VK_OEM_6                             ,              KEY_Rightbracket}, //  ']}' for US
