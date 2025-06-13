@@ -12,15 +12,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
+#include <vsg/maths/quat.h>
 #include <vsg/maths/sample.h>
 #include <vsg/maths/transform.h>
-#include <vsg/maths/quat.h>
 #include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/VertexDraw.h>
-#include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/InstanceDraw.h>
 #include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
+#include <vsg/nodes/VertexDraw.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/ArrayState.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorImage.h>
@@ -138,16 +138,15 @@ void ArrayState::applyArray(uint32_t binding, const ref_ptr<BufferInfo>& in_arra
 
 void ArrayState::applyArray(uint32_t binding, const ref_ptr<Data>& in_array)
 {
-   if (arrays.size() <= binding) arrays.resize(binding+1);
-   arrays[binding] = in_array;
+    if (arrays.size() <= binding) arrays.resize(binding + 1);
+    arrays[binding] = in_array;
 
     // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
-    if ((vertexAttribute.binding==binding) && arrays[vertexAttribute.binding])
+    if ((vertexAttribute.binding == binding) && arrays[vertexAttribute.binding])
     {
         arrays[vertexAttribute.binding]->accept(*this);
     }
 }
-
 
 void ArrayState::applyArrays(uint32_t firstBinding, const BufferInfoList& in_arrays)
 {
@@ -175,7 +174,6 @@ void ArrayState::applyArrays(uint32_t firstBinding, const DataList& in_arrays)
         arrays[vertexAttribute.binding]->accept(*this);
     }
 }
-
 
 void ArrayState::apply(const vsg::BufferInfo& bufferInfo)
 {

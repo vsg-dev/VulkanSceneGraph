@@ -59,20 +59,28 @@ void InstanceNode::read(Input& input)
 
     vsg::ref_ptr<Data> data;
     input.readObject("translations", data);
-    if (data) translations = vsg::BufferInfo::create(data);
-    else translations = {};
+    if (data)
+        translations = vsg::BufferInfo::create(data);
+    else
+        translations = {};
 
     input.readObject("rotations", data);
-    if (data) rotations = vsg::BufferInfo::create(data);
-    else rotations = {};
+    if (data)
+        rotations = vsg::BufferInfo::create(data);
+    else
+        rotations = {};
 
     input.readObject("scales", data);
-    if (data) scales = vsg::BufferInfo::create(data);
-    else scales = {};
+    if (data)
+        scales = vsg::BufferInfo::create(data);
+    else
+        scales = {};
 
     input.readObject("colors", data);
-    if (data) colors = vsg::BufferInfo::create(data);
-    else colors = {};
+    if (data)
+        colors = vsg::BufferInfo::create(data);
+    else
+        colors = {};
 
     input.read("child", child);
 }
@@ -84,17 +92,25 @@ void InstanceNode::write(Output& output) const
     output.write("firstInstance", firstInstance);
     output.write("instanceCount", instanceCount);
 
-    if (translations) output.writeObject("translations", translations->data);
-    else output.writeObject("translations", nullptr);
+    if (translations)
+        output.writeObject("translations", translations->data);
+    else
+        output.writeObject("translations", nullptr);
 
-    if (rotations) output.writeObject("rotations", rotations->data);
-    else output.writeObject("rotations", nullptr);
+    if (rotations)
+        output.writeObject("rotations", rotations->data);
+    else
+        output.writeObject("rotations", nullptr);
 
-    if (scales) output.writeObject("scales", scales->data);
-    else output.writeObject("scales", nullptr);
+    if (scales)
+        output.writeObject("scales", scales->data);
+    else
+        output.writeObject("scales", nullptr);
 
-    if (colors) output.writeObject("colors", colors->data);
-    else output.writeObject("colors", nullptr);
+    if (colors)
+        output.writeObject("colors", colors->data);
+    else
+        output.writeObject("colors", nullptr);
 
     output.write("child", child);
 }

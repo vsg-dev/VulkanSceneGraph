@@ -344,7 +344,7 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
 
                     if (plod->options->sharedObjects)
                     {
-                        if (std::find(sharedObjectsToPrune.begin(), sharedObjectsToPrune.end(), plod->options->sharedObjects)==sharedObjectsToPrune.end())
+                        if (std::find(sharedObjectsToPrune.begin(), sharedObjectsToPrune.end(), plod->options->sharedObjects) == sharedObjectsToPrune.end())
                         {
                             sharedObjectsToPrune.push_back(plod->options->sharedObjects);
                         }

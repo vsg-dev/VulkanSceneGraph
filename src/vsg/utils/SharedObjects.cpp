@@ -178,11 +178,11 @@ void SharedObjects::report(std::ostream& out)
         {
             if (auto loadedObject = object.cast<LoadedObject>())
             {
-                out << indent<<"loadedObject = " << loadedObject << " " << object->referenceCount() << " "<<loadedObject->filename<<std::endl;
+                out << indent << "loadedObject = " << loadedObject << " " << object->referenceCount() << " " << loadedObject->filename << std::endl;
             }
             else
             {
-                out << indent<<"object = " << object << " " << object->referenceCount() << std::endl;
+                out << indent << "object = " << object << " " << object->referenceCount() << std::endl;
             }
         }
         indent -= 4;

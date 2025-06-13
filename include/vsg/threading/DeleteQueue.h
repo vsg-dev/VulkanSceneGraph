@@ -69,7 +69,7 @@ namespace vsg
             std::scoped_lock lock(_mutex);
 
             // register the SharedObjects to call prune on
-            if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects)==_sharedObjectsToPrune.end())
+            if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects) == _sharedObjectsToPrune.end())
             {
                 _sharedObjectsToPrune.push_back(sharedObjects);
             }
@@ -85,8 +85,8 @@ namespace vsg
             // register the Objects to delete
             for (auto& sharedObjects : sharedObjectsList)
             {
-                if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects)==_sharedObjectsToPrune.end())
-                _sharedObjectsToPrune.push_back(sharedObjects);
+                if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects) == _sharedObjectsToPrune.end())
+                    _sharedObjectsToPrune.push_back(sharedObjects);
             }
 
             _cv.notify_one();
@@ -106,12 +106,11 @@ namespace vsg
             // register the SharedObjects to call prune on
             for (auto& sharedObjects : sharedObjectsList)
             {
-                if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects)==_sharedObjectsToPrune.end())
-                _sharedObjectsToPrune.push_back(sharedObjects);
+                if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects) == _sharedObjectsToPrune.end())
+                    _sharedObjectsToPrune.push_back(sharedObjects);
             }
             _cv.notify_one();
         }
-
 
         void wait_then_clear();
 

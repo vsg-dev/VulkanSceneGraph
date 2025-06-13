@@ -146,13 +146,12 @@ void InstanceDraw::record(CommandBuffer& commandBuffer) const
     vkBuffers.reserve(8);
     offsets.reserve(8);
 
-    auto assignBufferInfo = [&](const ref_ptr<BufferInfo>& bufferInfo) -> void
-    {
+    auto assignBufferInfo = [&](const ref_ptr<BufferInfo>& bufferInfo) -> void {
         vkBuffers.push_back(bufferInfo->buffer->vk(deviceID));
         offsets.push_back(bufferInfo->offset);
     };
 
-    for(auto& bi : arrays)
+    for (auto& bi : arrays)
     {
         assignBufferInfo(bi);
     }
@@ -167,5 +166,4 @@ void InstanceDraw::record(CommandBuffer& commandBuffer) const
 
     // vsg::info("InstanceDraw::record(CommandBuffer& commandBuffer) vkCmdDraw vkBuffers.size() = ", vkBuffers.size(), ", vertexCount = ", vertexCount, ", instanceNode->instanceCount = ", instanceNode->instanceCount);
     vkCmdDraw(cmdBuffer, vertexCount, instanceNode->instanceCount, firstVertex, instanceNode->firstInstance);
-
 }

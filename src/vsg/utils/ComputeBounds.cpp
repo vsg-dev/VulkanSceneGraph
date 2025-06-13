@@ -19,15 +19,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/nodes/InstanceNode.h>
-#include <vsg/nodes/InstanceDraw.h>
-#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/TextGroup.h>
 #include <vsg/utils/ComputeBounds.h>
@@ -172,7 +172,6 @@ void ComputeBounds::apply(const vsg::InstanceDraw& id)
 
     applyDraw(id.firstVertex, id.vertexCount, instanceNode->firstInstance, instanceNode->instanceCount);
 }
-
 
 void ComputeBounds::apply(const vsg::InstanceDrawIndexed& idi)
 {

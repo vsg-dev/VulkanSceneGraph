@@ -71,7 +71,7 @@ void DeleteQueue::wait_then_clear()
 
     if (numObjectsToDelete > 0)
     {
-        for(auto& sharedObjects : sharedObjectsToPrune)
+        for (auto& sharedObjects : sharedObjectsToPrune)
         {
             sharedObjects->prune();
         }
@@ -96,7 +96,7 @@ void DeleteQueue::clear()
 
     if (numObjectsToDelete > 0)
     {
-        for(auto& sharedObjects : _sharedObjectsToPrune)
+        for (auto& sharedObjects : _sharedObjectsToPrune)
         {
             sharedObjects->prune();
         }
