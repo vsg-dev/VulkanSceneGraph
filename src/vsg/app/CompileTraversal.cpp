@@ -294,6 +294,8 @@ void CompileTraversal::apply(Compilable& node)
     {
         node.compile(*context);
     }
+
+    node.traverse(*this);
 }
 
 void CompileTraversal::apply(Commands& commands)

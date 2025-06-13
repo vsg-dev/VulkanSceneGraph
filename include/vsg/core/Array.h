@@ -118,8 +118,10 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<Array> create_if(bool flag, Args&&... args)
         {
-            if (flag) return ref_ptr<Array>(new Array(std::forward<Args>(args)...));
-            else return {};
+            if (flag)
+                return ref_ptr<Array>(new Array(std::forward<Args>(args)...));
+            else
+                return {};
         }
 
         static ref_ptr<Array> create(std::initializer_list<value_type> l)

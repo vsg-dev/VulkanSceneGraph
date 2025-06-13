@@ -46,7 +46,7 @@ std::streambuf::pos_type mem_stream::mem_buffer::seekoff(std::streambuf::off_typ
 {
     if (dir == std::ios_base::beg)
     {
-        setg(eback(), eback()+offset, egptr());
+        setg(eback(), eback() + offset, egptr());
     }
     else if (dir == std::ios_base::end)
     {

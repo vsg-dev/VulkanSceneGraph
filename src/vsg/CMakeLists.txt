@@ -47,6 +47,9 @@ set(SOURCES
     nodes/TileDatabase.cpp
     nodes/InstrumentationNode.cpp
     nodes/RegionOfInterest.cpp
+    nodes/InstanceNode.cpp
+    nodes/InstanceDraw.cpp
+    nodes/InstanceDrawIndexed.cpp
 
     lighting/Light.cpp
     lighting/AmbientLight.cpp

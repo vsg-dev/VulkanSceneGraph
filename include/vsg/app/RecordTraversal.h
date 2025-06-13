@@ -63,6 +63,9 @@ namespace vsg
     class CommandGraph;
     class RecordedCommandBuffers;
     class Instrumentation;
+    class InstanceNode;
+    class InstanceDraw;
+    class InstanceDrawIndexed;
 
     VSG_type_name(vsg::RecordTraversal);
 
@@ -141,6 +144,11 @@ namespace vsg
 
         // Animation nodes
         void apply(const Joint& joint);
+
+        // instance nodes
+        void apply(const InstanceNode& instanceNode);
+        void apply(const InstanceDraw& instanceDraw);
+        void apply(const InstanceDrawIndexed& instanceDrawIndexed);
 
         // Vulkan nodes
         void apply(const StateGroup& object);

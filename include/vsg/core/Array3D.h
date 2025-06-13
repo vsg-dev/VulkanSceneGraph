@@ -111,8 +111,10 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<Array3D> create_if(bool flag, Args&&... args)
         {
-            if (flag) return ref_ptr<Array3D>(new Array3D(std::forward<Args>(args)...));
-            else return {};
+            if (flag)
+                return ref_ptr<Array3D>(new Array3D(std::forward<Args>(args)...));
+            else
+                return {};
         }
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
