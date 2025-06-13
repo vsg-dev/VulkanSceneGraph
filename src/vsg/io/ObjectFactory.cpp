@@ -192,6 +192,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::InstrumentationNode>();
     add<vsg::InstanceNode>();
     add<vsg::InstanceDraw>();
+    add<vsg::InstanceDrawIndexed>();
 
     // lighting
     add<vsg::Light>();

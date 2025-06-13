@@ -685,6 +685,10 @@ void Visitor::apply(InstanceDraw& value)
 {
     apply(static_cast<Command&>(value));
 }
+void Visitor::apply(InstanceDrawIndexed& value)
+{
+    apply(static_cast<Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

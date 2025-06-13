@@ -19,26 +19,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    /** InstanceDraw provides a lightweight way of binding vertex arrays, indices and then issuing a vkCmdDraw command.
-      * Higher performance equivalent to use of individual vsg::BindVertexBuffers, vsg::BindIndexBuffer and vsg::Draw commands.*/
-    class VSG_DECLSPEC InstanceDraw : public Inherit<Command, InstanceDraw>
+    /** InstanceDrawIndexed provides a lightweight way of binding vertex arrays, indices and then issuing a vkCmdDrawIndexed command.
+      * Higher performance equivalent to use of individual vsg::BindVertexBuffers, vsg::BindIndexBuffer and vsg::DrawIndexed commands.*/
+    class VSG_DECLSPEC InstanceDrawIndexed : public Inherit<Command, InstanceDrawIndexed>
     {
     public:
-        InstanceDraw();
-        InstanceDraw(const InstanceDraw& rhs, const CopyOp& copyop = {});
+        InstanceDrawIndexed();
+        InstanceDrawIndexed(const InstanceDrawIndexed& rhs, const CopyOp& copyop = {});
 
-        // vkCmdDraw settings
-        // vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
-        uint32_t vertexCount = 0;
-        uint32_t firstVertex = 0;
+        // vkCmdDrawIndexed settings
+        // vkCmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+        uint32_t indexCount = 0;
+        uint32_t firstIndex = 0;
+        uint32_t vertexOffset = 0;
 
         uint32_t firstBinding = 0;
         BufferInfoList arrays;
+        ref_ptr<BufferInfo> indices;
 
         void assignArrays(const DataList& in_arrays);
+        void assignIndices(ref_ptr<Data> in_indices);
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return InstanceDraw::create(*this, copyop); }
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return InstanceDrawIndexed::create(*this, copyop); }
         int compare(const Object& rhs) const override;
 
         void read(Input& input) override;
@@ -48,8 +51,10 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~InstanceDraw();
+        virtual ~InstanceDrawIndexed();
+
+        VkIndexType indexType = VK_INDEX_TYPE_UINT16;
     };
-    VSG_type_name(vsg::InstanceDraw)
+    VSG_type_name(vsg::InstanceDrawIndexed)
 
 } // namespace vsg

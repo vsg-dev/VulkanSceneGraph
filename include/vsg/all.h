@@ -68,6 +68,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>

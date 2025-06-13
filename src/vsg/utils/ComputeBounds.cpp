@@ -27,6 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/text/Text.h>
 #include <vsg/text/TextGroup.h>
 #include <vsg/utils/ComputeBounds.h>
@@ -169,15 +170,21 @@ void ComputeBounds::apply(const vsg::InstanceDraw& id)
     auto& arrayState = *arrayStateStack.back();
     arrayState.apply(id);
 
-    if (id.indices)
-    {
-        id.indices->accept(*this);
-        applyDrawIndexed(id.firstIndex, id.indexCount, instanceNode->firstInstance, instanceNode->instanceCount);
-    }
-    else
-    {
-        applyDraw(id.firstIndex, id.indexCount, instanceNode->firstInstance, instanceNode->instanceCount);
-    }
+    applyDraw(id.firstVertex, id.vertexCount, instanceNode->firstInstance, instanceNode->instanceCount);
+}
+
+
+void ComputeBounds::apply(const vsg::InstanceDrawIndexed& idi)
+{
+    vsg::info("ComputeBounds::apply(const vsg::InstanceDraw& ", &idi, ") instanceNode = ", instanceNode);
+
+    if (!instanceNode) return;
+
+    auto& arrayState = *arrayStateStack.back();
+    arrayState.apply(idi);
+
+    idi.indices->accept(*this);
+    applyDrawIndexed(idi.firstIndex, idi.indexCount, instanceNode->firstInstance, instanceNode->instanceCount);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)

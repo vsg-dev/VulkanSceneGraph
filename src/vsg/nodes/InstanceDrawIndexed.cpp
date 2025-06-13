@@ -13,42 +13,46 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
-#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/nodes/InstanceNode.h>
 #include <vsg/vk/Context.h>
 
 using namespace vsg;
 
-InstanceDraw::InstanceDraw()
+InstanceDrawIndexed::InstanceDrawIndexed()
 {
 }
 
-InstanceDraw::InstanceDraw(const InstanceDraw& rhs, const CopyOp& copyop) :
+InstanceDrawIndexed::InstanceDrawIndexed(const InstanceDrawIndexed& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    vertexCount(rhs.vertexCount),
-    firstVertex(rhs.firstVertex),
+    indexCount(rhs.indexCount),
+    firstIndex(rhs.firstIndex),
+    vertexOffset(rhs.vertexOffset),
     firstBinding(rhs.firstBinding),
-    arrays(copyop(rhs.arrays))
+    arrays(copyop(rhs.arrays)),
+    indices(copyop(rhs.indices))
 {
 }
 
-InstanceDraw::~InstanceDraw()
+InstanceDrawIndexed::~InstanceDrawIndexed()
 {
 }
 
-int InstanceDraw::compare(const Object& rhs_object) const
+int InstanceDrawIndexed::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    if ((result = compare_value(vertexCount, rhs.vertexCount)) != 0) return result;
-    if ((result = compare_value(firstVertex, rhs.firstVertex)) != 0) return result;
+    if ((result = compare_value(indexCount, rhs.indexCount)) != 0) return result;
+    if ((result = compare_value(firstIndex, rhs.firstIndex)) != 0) return result;
+    if ((result = compare_value(vertexOffset, rhs.vertexOffset)) != 0) return result;
     if ((result = compare_value(firstBinding, rhs.firstBinding)) != 0) return result;
-    return compare_pointer_container(arrays, rhs.arrays);
+    if ((result = compare_pointer_container(arrays, rhs.arrays)) != 0) return result;
+    return compare_pointer(indices, rhs.indices);
 }
 
-void InstanceDraw::assignArrays(const DataList& arrayData)
+void InstanceDrawIndexed::assignArrays(const DataList& arrayData)
 {
     arrays.clear();
     arrays.reserve(arrayData.size());
@@ -58,7 +62,20 @@ void InstanceDraw::assignArrays(const DataList& arrayData)
     }
 }
 
-void InstanceDraw::read(Input& input)
+void InstanceDrawIndexed::assignIndices(ref_ptr<vsg::Data> indexData)
+{
+    if (indexData)
+    {
+        indices = BufferInfo::create(indexData);
+        indexType = computeIndexType(indices->data);
+    }
+    else
+    {
+        indices = {};
+    }
+}
+
+void InstanceDrawIndexed::read(Input& input)
 {
     Command::read(input);
 
@@ -72,12 +89,18 @@ void InstanceDraw::read(Input& input)
     }
     assignArrays(dataList);
 
-    // vkCmdDraw settings
-    input.read("vertexCount", vertexCount);
-    input.read("firstVertex", firstVertex);
+    ref_ptr<vsg::Data> indices_data;
+    input.readObject("Indices", indices_data);
+
+    assignIndices(indices_data);
+
+    // vkCmdDrawIndexed settings
+    input.read("indexCount", indexCount);
+    input.read("firstIndex", firstIndex);
+    input.read("vertexOffset", vertexOffset);
 }
 
-void InstanceDraw::write(Output& output) const
+void InstanceDrawIndexed::write(Output& output) const
 {
     Command::write(output);
 
@@ -91,49 +114,62 @@ void InstanceDraw::write(Output& output) const
             output.writeObject("Array", nullptr);
     }
 
+    if (indices)
+        output.writeObject("Indices", indices->data.get());
+    else
+        output.writeObject("Indices", nullptr);
+
     // vkCmdDrawIndexed settings
-    output.write("vertexCount", vertexCount);
-    output.write("firstVertex", firstVertex);
+    output.write("indexCount", indexCount);
+    output.write("firstIndex", firstIndex);
+    output.write("vertexOffset", vertexOffset);
 }
 
-void InstanceDraw::compile(Context& context)
+void InstanceDrawIndexed::compile(Context& context)
 {
     if (arrays.empty())
     {
-        // InstanceDraw does not contain required arrays and indices
+        // InstanceDrawIndexed does not contain required arrays and indices
         return;
     }
 
     auto deviceID = context.deviceID;
 
     bool requiresCreateAndCopy = false;
-    for (auto& array : arrays)
+    if (indices && indices->requiresCopy(deviceID))
+        requiresCreateAndCopy = true;
+    else
     {
-        if (array->requiresCopy(deviceID))
+        for (auto& array : arrays)
         {
-            requiresCreateAndCopy = true;
-            break;
+            if (array->requiresCopy(deviceID))
+            {
+                requiresCreateAndCopy = true;
+                break;
+            }
         }
     }
 
     if (requiresCreateAndCopy)
     {
-        createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        BufferInfoList combinedBufferInfos(arrays);
+        if (indices) combinedBufferInfos.push_back(indices);
+        createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
-        // info("InstanceDraw::compile() create and copy ", this);
+        // info("InstanceDrawIndexed::compile() create and copy ", this);
     }
     else
     {
-        // info("InstanceDraw::compile() no need to create and copy ", this);
+        // info("InstanceDrawIndexed::compile() no need to create and copy ", this);
     }
 }
 
-void InstanceDraw::record(CommandBuffer& commandBuffer) const
+void InstanceDrawIndexed::record(CommandBuffer& commandBuffer) const
 {
     auto instanceNode = commandBuffer.instanceNode;
     if (!instanceNode)
     {
-        vsg::info("InstanceDraw::record() required vsg::InstanceNode not provided.");
+        vsg::info("InstanceDrawIndexed::record() required vsg::InstanceNode not provided.");
         return;
     }
 
@@ -165,7 +201,8 @@ void InstanceDraw::record(CommandBuffer& commandBuffer) const
     // TODO: will need to get the values to apply by combing the inherited InstanceNode values with local arrays
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkBuffers.size()), vkBuffers.data(), offsets.data());
 
-    // vsg::info("InstanceDraw::record(CommandBuffer& commandBuffer) vkCmdDraw vkBuffers.size() = ", vkBuffers.size(), ", vertexCount = ", vertexCount, ", instanceNode->instanceCount = ", instanceNode->instanceCount);
-    vkCmdDraw(cmdBuffer, vertexCount, instanceNode->instanceCount, firstVertex, instanceNode->firstInstance);
+    // vsg::info("InstanceDrawIndexed::record(CommandBuffer& commandBuffer) vkCmdDrawIndexed vkBuffers.size() = ", vkBuffers.size(), ", indexCount = ", indexCount, ", instanceNode->instanceCount = ", instanceNode->instanceCount);
 
+    vkCmdBindIndexBuffer(cmdBuffer, indices->buffer->vk(deviceID), indices->offset, indexType);
+    vkCmdDrawIndexed(cmdBuffer, indexCount, instanceNode->instanceCount, firstIndex, vertexOffset, instanceNode->firstInstance);
 }

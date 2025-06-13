@@ -20,6 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/state/ArrayState.h>
 #include <vsg/state/BindDescriptorSet.h>
 #include <vsg/state/DescriptorImage.h>
@@ -116,6 +117,11 @@ void ArrayState::apply(const vsg::InstanceNode& id)
 }
 
 void ArrayState::apply(const vsg::InstanceDraw& id)
+{
+    applyArrays(id.firstBinding, id.arrays);
+}
+
+void ArrayState::apply(const vsg::InstanceDrawIndexed& id)
 {
     applyArrays(id.firstBinding, id.arrays);
 }

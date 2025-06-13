@@ -76,6 +76,7 @@ namespace vsg
         void apply(const VertexIndexDraw& vid) override;
         void apply(const InstanceNode& in) override;
         void apply(const InstanceDraw& id) override;
+        void apply(const InstanceDrawIndexed& id) override;
         void apply(const BindVertexBuffers& bvb) override;
         void apply(const BufferInfo& bufferInfo) override;
 

@@ -49,6 +49,7 @@ set(SOURCES
     nodes/RegionOfInterest.cpp
     nodes/InstanceNode.cpp
     nodes/InstanceDraw.cpp
+    nodes/InstanceDrawIndexed.cpp
 
     lighting/Light.cpp
     lighting/AmbientLight.cpp
