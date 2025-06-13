@@ -498,6 +498,14 @@ void RecordTraversal::apply(const InstanceDraw& instanceDraw)
     instanceDraw.record(*(_state->_commandBuffer));
 }
 
+void RecordTraversal::apply(const InstanceDraw& instanceDrawIndexed)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    _state->record();
+    instanceDrawIndexed.record(*(_state->_commandBuffer));
+}
+
 // Vulkan nodes
 void RecordTraversal::apply(const StateGroup& stateGroup)
 {
