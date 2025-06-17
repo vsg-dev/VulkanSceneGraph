@@ -62,7 +62,7 @@ void AccelerationGeometry::compile(Context& context)
 	VK_SHARING_MODE_EXCLUSIVE);
     vsg::copyDataListToBuffers(context.device, vertexBufferInfo);
     auto indexBufferInfo = vsg::createHostVisibleBuffer(context.device, indexDataList,
-	VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+	VK_BUFFER_USAGE_INDEX_BUFFER_BIT | 
 	VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
 	VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
 	VK_SHARING_MODE_EXCLUSIVE);

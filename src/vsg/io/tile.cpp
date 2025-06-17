@@ -169,6 +169,10 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 {
                     imageData = settings->imageLayerCallback(imageData);
                 }
+                else if (!imageData)
+                {
+                    vsg::warn("tile::read_root() unable read image data, imagePath = ", imagePath);
+                }
             }
 
             if (settings->detailLayer)
@@ -179,6 +183,10 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 {
                     detailData = settings->detailLayerCallback(detailData);
                 }
+                else if (!detailData)
+                {
+                    vsg::warn("tile::read_root() unable read detail data, detailPath = ", detailPath);
+                }
             }
 
             if (settings->elevationLayer)
@@ -188,6 +196,10 @@ vsg::ref_ptr<vsg::Object> tile::read_root(vsg::ref_ptr<const vsg::Options> optio
                 if (elevationData && settings->elevationLayerCallback)
                 {
                     elevationData = settings->elevationLayerCallback(elevationData);
+                }
+                else if (!elevationData)
+                {
+                    vsg::warn("tile::read_root() unable read elevation data, terrainPath = ", terrainPath);
                 }
             }
 

@@ -103,6 +103,17 @@ namespace vsg
         /// mechanism for propagating dynamic objects classification up parental chain so that cloning is done on all dynamic objects to avoid sharing of dynamic parts.
         ref_ptr<PropagateDynamicObjects> propagateDynamicObjects;
 
+        enum InstanceNodeHint
+        {
+            INSTANCE_NONE = 0,
+            INSTANCE_TRANSLATIONS = 1 << 0,
+            INSTANCE_ROTATIONS = 1 << 1,
+            INSTANCE_SCALES = 1 << 2,
+            INSTANCE_COLORS = 1 << 3
+        };
+
+        int instanceNodeHint = INSTANCE_NONE;
+
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Options::create(*this, copyop); }
         int compare(const Object& rhs) const override;

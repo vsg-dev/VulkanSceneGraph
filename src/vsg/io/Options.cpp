@@ -53,7 +53,8 @@ Options::Options(const Options& options, const CopyOp& copyop) :
     inheritedState(options.inheritedState),
     instrumentation(options.instrumentation),
     findDynamicObjects(options.findDynamicObjects),
-    propagateDynamicObjects(options.propagateDynamicObjects)
+    propagateDynamicObjects(options.propagateDynamicObjects),
+    instanceNodeHint(options.instanceNodeHint)
 {
     getOrCreateAuxiliary();
     // copy any meta data.

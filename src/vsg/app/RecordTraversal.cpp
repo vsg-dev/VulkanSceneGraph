@@ -32,6 +32,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
 #include <vsg/nodes/MatrixTransform.h>
@@ -475,6 +478,33 @@ void RecordTraversal::apply(const Joint&)
     CPU_INSTRUMENTATION_L2(instrumentation);
 
     // non op for RiggedJoint as it's designed not to have any renderable children
+}
+
+void RecordTraversal::apply(const InstanceNode& instanceNode)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    if (instanceNode.child)
+    {
+        _state->_commandBuffer->instanceNode = &instanceNode;
+        instanceNode.child->accept(*this);
+    }
+}
+
+void RecordTraversal::apply(const InstanceDraw& instanceDraw)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    _state->record();
+    instanceDraw.record(*(_state->_commandBuffer));
+}
+
+void RecordTraversal::apply(const InstanceDrawIndexed& instanceDrawIndexed)
+{
+    CPU_INSTRUMENTATION_L2(instrumentation);
+
+    _state->record();
+    instanceDrawIndexed.record(*(_state->_commandBuffer));
 }
 
 // Vulkan nodes

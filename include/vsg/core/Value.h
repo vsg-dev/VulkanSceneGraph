@@ -58,6 +58,15 @@ namespace vsg
             return ref_ptr<Value>(new Value(std::forward<Args>(args)...));
         }
 
+        template<typename... Args>
+        static ref_ptr<Value> create_if(bool flag, Args&&... args)
+        {
+            if (flag)
+                return ref_ptr<Value>(new Value(std::forward<Args>(args)...));
+            else
+                return {};
+        }
+
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override
         {
             return ref_ptr<Value>(new Value(*this, copyop));

@@ -59,12 +59,12 @@ ObjectFactory::ObjectFactory()
     add<vsg::materialValue>();
     add<vsg::PhongMaterialValue>();
     add<vsg::PbrMaterialValue>();
-    add<vsg::sphereValue>();
-    add<vsg::boxValue>();
     add<vsg::quatValue>();
-    add<vsg::dsphereValue>();
-    add<vsg::dboxValue>();
     add<vsg::dquatValue>();
+    add<vsg::sphereValue>();
+    add<vsg::dsphereValue>();
+    add<vsg::boxValue>();
+    add<vsg::dboxValue>();
 
     // arrays
     add<vsg::byteArray>();
@@ -107,6 +107,8 @@ ObjectFactory::ObjectFactory()
     add<vsg::PhongMaterialArray>();
     add<vsg::PbrMaterialArray>();
     add<vsg::DrawIndirectCommandArray>();
+    add<vsg::quatArray>();
+    add<vsg::dquatValue>();
 
     // array2Ds
     add<vsg::byteArray2D>();
@@ -188,6 +190,9 @@ ObjectFactory::ObjectFactory()
     add<vsg::TileDatabase>();
     add<vsg::TileDatabaseSettings>();
     add<vsg::InstrumentationNode>();
+    add<vsg::InstanceNode>();
+    add<vsg::InstanceDraw>();
+    add<vsg::InstanceDrawIndexed>();
 
     // lighting
     add<vsg::Light>();
@@ -321,10 +326,11 @@ ObjectFactory::ObjectFactory()
     // utils
     add<vsg::ShaderSet>();
     add<vsg::ViewDependentStateBinding>();
-    add<vsg::PositionAndDisplacementMapArrayState>();
-    add<vsg::DisplacementMapArrayState>();
-    add<vsg::PositionArrayState>();
     add<vsg::BillboardArrayState>();
+    add<vsg::TranslationArrayState>();
+    add<vsg::TranslationRotationScaleArrayState>();
+    add<vsg::TranslationAndDisplacementMapArrayState>();
+    add<vsg::DisplacementMapArrayState>();
     add<vsg::SharedObjects>();
     add<vsg::ProfileLog>();
 

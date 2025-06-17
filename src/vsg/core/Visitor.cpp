@@ -677,6 +677,18 @@ void Visitor::apply(RegionOfInterest& value)
 {
     apply(static_cast<Node&>(value));
 }
+void Visitor::apply(InstanceNode& value)
+{
+    apply(static_cast<Compilable&>(value));
+}
+void Visitor::apply(InstanceDraw& value)
+{
+    apply(static_cast<Command&>(value));
+}
+void Visitor::apply(InstanceDrawIndexed& value)
+{
+    apply(static_cast<Command&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

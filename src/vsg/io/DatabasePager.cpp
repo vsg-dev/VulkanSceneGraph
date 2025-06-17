@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/threading/atomics.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/utils/SharedObjects.h>
 
 using namespace vsg;
 
@@ -267,6 +268,8 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
     auto nodes = _toMergeQueue->take_all(cr);
 
     std::list<ref_ptr<Object>> deleteList;
+    std::list<ref_ptr<SharedObjects>> sharedObjectsToPrune;
+
     if (culledPagedLODs)
     {
         auto previous_statusList_count = pagedLODContainer->activeList.count;
@@ -339,6 +342,14 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
                     deleteList.push_back(plod);
                     pagedLODContainer->remove(plod);
 
+                    if (plod->options->sharedObjects)
+                    {
+                        if (std::find(sharedObjectsToPrune.begin(), sharedObjectsToPrune.end(), plod->options->sharedObjects) == sharedObjectsToPrune.end())
+                        {
+                            sharedObjectsToPrune.push_back(plod->options->sharedObjects);
+                        }
+                    }
+
                     debug("    trimming ", plod, " ", plod->filename);
                 }
             }
@@ -376,5 +387,5 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
         debug("DatabasePager::updateSceneGraph() nothing to merge");
     }
 
-    if (!deleteList.empty()) _deleteQueue->add(deleteList);
+    if (!deleteList.empty() || !sharedObjectsToPrune.empty()) _deleteQueue->add_prune(deleteList, sharedObjectsToPrune);
 }

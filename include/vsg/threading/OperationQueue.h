@@ -46,8 +46,10 @@ namespace vsg
         void add(value_type operation, InsertionPosition insertionPosition = INSERT_BACK)
         {
             std::scoped_lock lock(_mutex);
-            if (insertionPosition==INSERT_BACK) _queue.emplace_back(operation);
-            else  _queue.emplace_front(operation);
+            if (insertionPosition == INSERT_BACK)
+                _queue.emplace_back(operation);
+            else
+                _queue.emplace_front(operation);
             _cv.notify_one();
         }
 
@@ -59,8 +61,10 @@ namespace vsg
             std::scoped_lock lock(_mutex);
             for (auto itr = begin; itr != end; ++itr)
             {
-                if (insertionPosition==INSERT_BACK) _queue.emplace_back(*itr);
-                else _queue.emplace_front(*itr);
+                if (insertionPosition == INSERT_BACK)
+                    _queue.emplace_back(*itr);
+                else
+                    _queue.emplace_front(*itr);
                 ++numAdditions;
             }
 
