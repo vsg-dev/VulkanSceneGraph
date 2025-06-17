@@ -117,7 +117,7 @@ bool decode_utf16(Iterator itr, size_t count, Func op)
         auto c0 = *itr++;
         --count;
 
-        if ((c0 >= 0x0000 && c0 <= 0xD7FF) || (c0 >= 0xE000 && c0 <= 0xFFFF )) // 2-byte UCS2 character
+        if ((c0 >= 0x0000 && c0 <= 0xD7FF) || (c0 >= 0xE000 && c0 <= 0xFFFF)) // 2-byte UCS2 character
         {
             op(c0);
             continue;
@@ -133,7 +133,8 @@ bool decode_utf16(Iterator itr, size_t count, Func op)
             op((((c0 - 0xD800) << 10) | (c1 - 0xDC00)) + 0x10000);
             continue;
         }
-        else return false; // unpaired surrogate
+        else
+            return false; // unpaired surrogate
     }
 
     return true;
@@ -145,18 +146,19 @@ bool encode_utf16(Iterator itr, Iterator end, Func op)
     while (itr != end)
     {
         uint32_t c = *itr++;
-        if ((c >= 0x0000 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFF )) // 2-byte UCS2 character
+        if ((c >= 0x0000 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFF)) // 2-byte UCS2 character
         {
             op(c);
             continue;
         }
 
         // unpaired surrogate
-        if (c < 0x10000) return false;
+        if (c < 0x10000)
+            return false;
         else // 4-byte surrogate pair
         {
             op(0xD800 + (((c - 0x10000) >> 10) & 0x3FF)); // high surrogate
-            op(0xDC00 + ((c - 0x10000) & 0x3FF));  // low surrogate
+            op(0xDC00 + ((c - 0x10000) & 0x3FF));         // low surrogate
             continue;
         }
     }
