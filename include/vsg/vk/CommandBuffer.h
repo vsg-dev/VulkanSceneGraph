@@ -58,6 +58,7 @@ namespace vsg
         void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout);
 
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
+        const std::vector<bool>& getCurrentDescriptorSetSlots() const { return _currentDescriptorSetSlots; }
         VkShaderStageFlags getCurrentPushConstantStageFlags() const { return _currentPushConstantStageFlags; }
 
         ref_ptr<ScratchMemory> scratchMemory;
@@ -75,6 +76,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         VkPipelineLayout _currentPipelineLayout;
+        std::vector<bool> _currentDescriptorSetSlots;
         VkShaderStageFlags _currentPushConstantStageFlags;
     };
     VSG_type_name(vsg::CommandBuffer);

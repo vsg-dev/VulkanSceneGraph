@@ -30,7 +30,8 @@ PipelineLayout::PipelineLayout(const PipelineLayout& rhs, const CopyOp& copyop) 
     Inherit(rhs, copyop),
     flags(rhs.flags),
     setLayouts(rhs.setLayouts),
-    pushConstantRanges(rhs.pushConstantRanges)
+    pushConstantRanges(rhs.pushConstantRanges),
+    descriptorSetSlots(rhs.descriptorSetSlots)
 {
 }
 
@@ -123,9 +124,13 @@ void PipelineLayout::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
+        descriptorSetSlots.clear();
+        descriptorSetSlots.reserve(setLayouts.size());
+
         for (auto dsl : setLayouts)
         {
             if (dsl) dsl->compile(context);
+            descriptorSetSlots.push_back(dsl != nullptr && !dsl->empty());
         }
         _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, flags);
     }
