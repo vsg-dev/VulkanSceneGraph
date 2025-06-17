@@ -63,19 +63,13 @@ namespace vsg
 
         inline bool enabled(uint32_t firstSet, uint32_t numSets) const
         {
-            if (static_cast<uint32_t>(_currentDescriptorSetSlots.size()) < firstSet + numSets)
-                return false;
-            for (uint32_t slot = firstSet; slot < firstSet + numSets; ++slot)
-            {
-                if (!_currentDescriptorSetSlots[slot])
-                    return false;
-            }
-            return true;
+            const uint32_t enabledSets = ((1 << numSets)-1) << firstSet;
+            return (_currentDescriptorSetSlots & enabledSets) == enabledSets;
         }
 
         inline bool enabled(uint32_t firstSet) const
         {
-            return static_cast<uint32_t>(_currentDescriptorSetSlots.size()) > firstSet && _currentDescriptorSetSlots[firstSet];
+            return _currentDescriptorSetSlots & (1<<firstSet);
         }
 
         ref_ptr<ScratchMemory> scratchMemory;
@@ -93,7 +87,7 @@ namespace vsg
         ref_ptr<Device> _device;
         ref_ptr<CommandPool> _commandPool;
         VkPipelineLayout _currentPipelineLayout;
-        std::vector<bool> _currentDescriptorSetSlots;
+        uint32_t _currentDescriptorSetSlots = 0;
         VkShaderStageFlags _currentPushConstantStageFlags;
     };
     VSG_type_name(vsg::CommandBuffer);
