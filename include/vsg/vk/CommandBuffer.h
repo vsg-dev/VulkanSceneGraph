@@ -58,8 +58,25 @@ namespace vsg
         void setCurrentPipelineLayout(const PipelineLayout* pipelineLayout);
 
         VkPipelineLayout getCurrentPipelineLayout() const { return _currentPipelineLayout; }
-        const std::vector<bool>& getCurrentDescriptorSetSlots() const { return _currentDescriptorSetSlots; }
         VkShaderStageFlags getCurrentPushConstantStageFlags() const { return _currentPushConstantStageFlags; }
+
+
+        inline bool enabled(uint32_t firstSet, uint32_t numSets) const
+        {
+            if (static_cast<uint32_t>(_currentDescriptorSetSlots.size()) < firstSet + numSets)
+                return false;
+            for (uint32_t slot = firstSet; slot < firstSet + numSets; ++slot)
+            {
+                if (!_currentDescriptorSetSlots[slot])
+                    return false;
+            }
+            return true;
+        }
+
+        inline bool enabled(uint32_t firstSet) const
+        {
+            return static_cast<uint32_t>(_currentDescriptorSetSlots.size()) > firstSet && _currentDescriptorSetSlots[firstSet];
+        }
 
         ref_ptr<ScratchMemory> scratchMemory;
 
