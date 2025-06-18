@@ -124,18 +124,20 @@ void PipelineLayout::compile(Context& context)
 {
     if (!_implementation[context.deviceID])
     {
-        uint32_t setSlots = 0;
+        uint32_t dsSlots = 0;
+        uint32_t currentSlot = 1;
         for (auto dsl : setLayouts)
         {
-            setSlots <<= 1;
             if (dsl)
             {
                 dsl->compile(context);
-                if (!dsl->empty()) setSlots |= 1;
+                if (!dsl->empty()) dsSlots |= currentSlot;
             }
+            currentSlot <<= 1;
         }
 
-        descriptorSetSlots = setSlots;
+        descriptorSetSlots = dsSlots;
+
         _implementation[context.deviceID] = PipelineLayout::Implementation::create(context.device, setLayouts, pushConstantRanges, flags);
     }
 }
