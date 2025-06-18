@@ -338,8 +338,6 @@ ref_ptr<const vec3Array> TranslationRotationScaleArrayState::vertexArray(uint32_
     auto rotations = arrays[rotationAttribute.binding].cast<quatArray>();
     auto scales = arrays[scaleAttribute.binding].cast<vec3Array>();
 
-    vsg::info("TranslationRotationScaleArrayState::vertexArray(", instanceIndex, ") translations = ", translations, ", rotations = ", rotations, ", scales = ", scales);
-
     if (translations && (instanceIndex < translations->size()) &&
         rotations && (instanceIndex < rotations->size()) &&
         scales && (instanceIndex < scales->size()))
