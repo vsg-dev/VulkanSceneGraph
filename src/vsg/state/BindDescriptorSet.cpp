@@ -113,6 +113,13 @@ void BindDescriptorSets::compile(Context& context)
 void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
     //info("BindDescriptorSets::record() ", dynamicOffsets.size(), ", ", dynamicOffsets.data());
+    if (commandBuffer.getCurrentDescriptorSetSlots().size() < firstSet + descriptorSets.size())
+        return;
+    for (size_t slot = firstSet; slot < firstSet + descriptorSets.size(); ++slot)
+    {
+        if (!commandBuffer.getCurrentDescriptorSetSlots()[slot])
+            return;
+    }
     auto& vkd = _vulkanData[commandBuffer.deviceID];
     vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet,
                             static_cast<uint32_t>(vkd._vkDescriptorSets.size()), vkd._vkDescriptorSets.data(),
@@ -209,8 +216,11 @@ void BindDescriptorSet::compile(Context& context)
 void BindDescriptorSet::record(CommandBuffer& commandBuffer) const
 {
     //info("BindDescriptorSet::record() ", dynamicOffsets.size(), ", ", dynamicOffsets.data());
-    auto& vkd = _vulkanData[commandBuffer.deviceID];
-    vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet,
-                            1, &(vkd._vkDescriptorSet),
-                            static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());
+    if (commandBuffer.getCurrentDescriptorSetSlots().size() > firstSet && commandBuffer.getCurrentDescriptorSetSlots()[firstSet])
+    {
+        auto& vkd = _vulkanData[commandBuffer.deviceID];
+        vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, vkd._vkPipelineLayout, firstSet,
+                                1, &(vkd._vkDescriptorSet),
+                                static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());
+    }
 }
