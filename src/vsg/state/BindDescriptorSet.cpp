@@ -115,9 +115,9 @@ void BindDescriptorSets::record(CommandBuffer& commandBuffer) const
     //info("BindDescriptorSets::record() ", dynamicOffsets.size(), ", ", dynamicOffsets.data());
     if (commandBuffer.getCurrentDescriptorSetSlots().size() < firstSet + descriptorSets.size())
         return;
-    for (size_t slot = firstSet; slot < firstSet + descriptorSets.size(); ++slot)
+    for (size_t si = firstSet; si < firstSet + descriptorSets.size(); ++si)
     {
-        if (!commandBuffer.getCurrentDescriptorSetSlots()[slot])
+        if (!commandBuffer.getCurrentDescriptorSetSlots()[si])
             return;
     }
     auto& vkd = _vulkanData[commandBuffer.deviceID];
