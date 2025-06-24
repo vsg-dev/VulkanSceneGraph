@@ -405,6 +405,7 @@ namespace vsg
     /// Helper class for recording a set of indented log output
     struct LogOutput
     {
+        ref_ptr<Logger> logger;
         Logger::Level level = Logger::LOGGER_INFO;
         indentation indent;
         int step = 4;
@@ -412,7 +413,8 @@ namespace vsg
         template<typename... Args>
         void operator()(Args... args) const
         {
-            Logger::instance()->log(level, indent, (args)...);
+            if (logger) logger->log(level, indent, (args)...);
+            else Logger::instance()->log(level, indent, (args)...);
         }
 
         void in() { indent += step; }
