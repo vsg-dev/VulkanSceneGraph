@@ -321,13 +321,11 @@ namespace vsg
         else
         {
             output << "{ ";
-            if (!values.empty())
+
+            output << values.front();
+            for (size_t i = 1; i < values.size(); ++i)
             {
-                output << values.front();
-                for (size_t i = 1; i < values.size(); ++i)
-                {
-                    output << ", " << values[i];
-                }
+                output << ", " << values[i];
             }
 
             output << " }";
