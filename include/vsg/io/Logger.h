@@ -421,26 +421,26 @@ namespace vsg
         void out() { indent -= step; }
 
         template<typename... Args>
-        void open(Args... args)
+        void enter(Args... args)
         {
             operator()(args...);
             in();
         }
 
-        void open()
+        void enter()
         {
             operator()("{");
             in();
         }
 
         template<typename... Args>
-        void close(Args... args)
+        void leave(Args... args)
         {
             out();
             operator()(args...);
         }
 
-        void close()
+        void leave()
         {
             out();
             operator()("}");
