@@ -419,6 +419,33 @@ namespace vsg
 
         void in() { indent += step; }
         void out() { indent -= step; }
+
+        template<typename... Args>
+        void open(Args... args)
+        {
+            operator()(args...);
+            in();
+        }
+
+        void open()
+        {
+            operator()("{");
+            in();
+        }
+
+        template<typename... Args>
+        void close(Args... args)
+        {
+            out();
+            operator()(args...);
+        }
+
+        void close()
+        {
+            out();
+            operator()("}");
+        }
+
     };
     VSG_type_name(vsg::LogOutput);
 
