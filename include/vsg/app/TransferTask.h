@@ -60,6 +60,9 @@ namespace vsg
         /// minimum size to use when allocating staging buffers.
         VkDeviceSize minimumStagingBufferSize = 16 * 1024 * 1024;
 
+        // allocation chunk size
+        VkDeviceSize stagingBufferSizeChunkSize = 64 * 1024;
+
         /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
 
@@ -78,8 +81,9 @@ namespace vsg
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
             ref_ptr<Fence> fence;
-            ref_ptr<Buffer> staging;
-            void* buffer_data = nullptr;
+            std::vector<ref_ptr<Buffer>> stagingBuffers;
+            std::vector<std::vector<VkDeviceSize>> stagingOffsets;
+            std::vector<void*> buffer_data;
             std::vector<VkBufferCopy> copyRegions;
             bool waitOnFence = false;
         };
@@ -94,8 +98,6 @@ namespace vsg
             std::vector<ref_ptr<TransferBlock>> frames;
 
             VkDeviceSize dataTotalRegions = 0;
-            VkDeviceSize dataTotalSize = 0;
-            VkDeviceSize imageTotalSize = 0;
 
             ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
@@ -111,10 +113,10 @@ namespace vsg
 
         TransferResult _transferData(DataToCopy& dataToCopy);
 
-        void _transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
+        void _transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, size_t stagingBufferOffsetBegin, size_t regionOffsetBegin);
 
-        void _transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset);
-        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
+        void _transferImageInfos(DataToCopy& dataToCopy, VkCommandBuffer vk_commandBuffer, TransferBlock& frame, size_t stagingBufferOffsetBegin, size_t regionOffsetBegin);
+        void _transferImageInfo(VkCommandBuffer vk_commandBuffer, TransferBlock& frame, size_t stagingBufferOffset, size_t regionOffset, ImageInfo& imageInfo);
     };
     VSG_type_name(vsg::TransferTask);
 
