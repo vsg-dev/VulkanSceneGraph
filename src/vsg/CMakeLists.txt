@@ -383,6 +383,11 @@ if(MSVC)
     target_compile_options(vsg PRIVATE "/utf-8")
 endif()
 
+# disable extra-qualification warnings with AppleClang
+if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    target_compile_options(vsg PUBLIC "-Wno-extra-qualification")
+endif()
+
 
 # place header and source files into group folders to help IDE's present the files in a logical manner
 function(ASSIGN_SOURCE_GROUPS GROUP_NAME ROOT_FOLDER)
