@@ -146,7 +146,7 @@ bool encode_utf16(Iterator itr, Iterator end, Func op)
     while (itr != end)
     {
         uint32_t c = *itr++;
-        if ((c >= 0x0000 && c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFF)) // 2-byte UCS2 character
+        if ((/*c >= 0x0000 &&*/ c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFF)) // 2-byte UCS2 character
         {
             op(c);
             continue;
