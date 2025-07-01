@@ -413,8 +413,10 @@ namespace vsg
         template<typename... Args>
         void operator()(Args... args) const
         {
-            if (logger) logger->log(level, indent, (args)...);
-            else Logger::instance()->log(level, indent, (args)...);
+            if (logger)
+                logger->log(level, indent, (args)...);
+            else
+                Logger::instance()->log(level, indent, (args)...);
         }
 
         void in() { indent += step; }
@@ -445,7 +447,6 @@ namespace vsg
             out();
             operator()("}");
         }
-
     };
     VSG_type_name(vsg::LogOutput);
 

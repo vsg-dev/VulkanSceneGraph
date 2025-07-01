@@ -53,7 +53,6 @@ namespace vsg
     template<typename T>
     std::string space_type_name(const T&) { return std::string(" ") + type_name<T>(); }
 
-
     // clang-format on
 
 } // namespace vsg
