@@ -561,6 +561,13 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
         ++set;
     }
 
+#ifdef VK_EXT_graphics_pipeline_library
+    if (layout.flags & VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT)
+    {
+        return false;
+    }
+#endif
+
     PushConstantRanges ranges;
     for (auto& pcr : pushConstantRanges)
     {
@@ -573,6 +580,45 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
     if (compare_value_container(layout.pushConstantRanges, ranges) != 0)
     {
         return false;
+    }
+
+    return true;
+}
+
+bool vsg::ShaderSet::partiallyCompatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines, bool onlyPushConstants, uint32_t descriptorSet) const
+{
+    PushConstantRanges ranges;
+    for (auto& pcr : pushConstantRanges)
+    {
+        if (pcr.define.empty() || defines.count(pcr.define) == 1)
+        {
+            ranges.push_back(pcr.range);
+        }
+    }
+
+    if (compare_value_container(layout.pushConstantRanges, ranges) != 0)
+    {
+        return false;
+    }
+
+    if (onlyPushConstants)
+    {
+        return true;
+    }
+
+#ifdef VK_EXT_graphics_pipeline_library
+    if (layout.flags & VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT)
+    {
+        return false;
+    }
+#endif
+
+    for (uint32_t set = 0; set <= std::min(layout.setLayouts.size() - 1, size_t(descriptorSet)); ++set)
+    {
+        if (layout.setLayouts[set] && !compatibleDescriptorSetLayout(*layout.setLayouts[set], defines, set))
+        {
+            return false;
+        }
     }
 
     return true;
