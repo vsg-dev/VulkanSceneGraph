@@ -157,9 +157,9 @@ namespace vsg
             parser.read_object(*values.back());
         }
 
-        void report()
+        void report(vsg::LogOutput& output)
         {
-            for (auto& value : values) value->report();
+            for (auto& value : values) value->report(output);
         }
     };
 

@@ -18,6 +18,7 @@ useStlAlgorithm:*/include/vsg/core/Value.h
 useStlAlgorithm:*/include/vsg/core/Array.h
 useStlAlgorithm:*/include/vsg/core/Array2D.h
 useStlAlgorithm:*/include/vsg/core/Array3D.h
+useStlAlgorithm:*/include/vsg/nodes/Array3D.h
 useStlAlgorithm:*/include/vsg/threading/DeleteQueue.h
 useStlAlgorithm:*/include/vsg/vk/vk_buffer.h
 useStlAlgorithm:*/include/vsg/utils/CommandLine.h
@@ -28,6 +29,8 @@ useStlAlgorithm:*/src/vsg/nodes/Geometry.cpp
 useStlAlgorithm:*/src/vsg/nodes/VertexIndexDraw.cpp
 useStlAlgorithm:*/src/vsg/nodes/Switch.cpp
 useStlAlgorithm:*/src/vsg/nodes/LOD.cpp
+useStlAlgorithm:*/src/vsg/nodes/InstanceDraw.cpp
+useStlAlgorithm:*/src/vsg/nodes/InstanceDrawIndexed.cpp
 useStlAlgorithm:*/src/vsg/state/DescriptorBuffer.cpp
 useStlAlgorithm:*/src/vsg/state/GraphicsPipeline.cpp
 useStlAlgorithm:*/src/vsg/state/PipelineLayout.cpp
@@ -77,46 +80,47 @@ syntaxError:*/include/vsg/utils/CommandLine.h
 syntaxError:*/include/vsg/core/Data.h:51
 
 // suppress warnings about never used variables that are used in .cpp's
-unusedStructMember:*/include/vsg/core/Data.h
-unusedStructMember:*/include/vsg/core/Exception.h
-unusedStructMember:*/include/vsg/core/Version.h
-unusedStructMember:*/include/vsg/core/IntrusiveAllocator.h
-unusedStructMember:*/include/vsg/io/ObjectCache.h
-unusedStructMember:*/include/vsg/nodes/Bin.h
-unusedStructMember:*/include/vsg/nodes/LOD.h
-unusedStructMember:*/include/vsg/nodes/PagedLOD.h
-unusedStructMember:*/include/vsg/state/ArrayState.h
-unusedStructMember:*/include/vsg/utils/LineSegmentIntersector.h
-unusedStructMember:*/include/vsg/app/Trackball.h
-unusedStructMember:*/include/vsg/vk/ResourceRequirements.h
-unusedStructMember:*/include/vsg/vk/Device.h
-unusedStructMember:*/include/vsg/vk/RenderPass.h
-unusedStructMember:*/include/vsg/vk/Swapchain.h
-unusedStructMember:*/include/vsg/vk/vulkan.h
-unusedStructMember:*/include/vsg/nodes/Switch.h
-unusedStructMember:*/include/vsg/text/TextLayout.h
-unusedStructMember:*/include/vsg/introspection/c_interface.h
-unusedStructMember:*/include/vsg/utils/Builder.h
-unusedStructMember:*/src/vsg/core/External.cpp#
+
 unusedStructMember:*/include/vsg/animation/MorphSampler.h
 unusedStructMember:*/include/vsg/app/CompileManager.h
 unusedStructMember:*/include/vsg/app/RecordTraversal.h
+unusedStructMember:*/include/vsg/app/Trackball.h
 unusedStructMember:*/include/vsg/app/TransferTask.h
+unusedStructMember:*/include/vsg/app/Viewer.h
 unusedStructMember:*/include/vsg/commands/CopyAndReleaseImage.h
+unusedStructMember:*/include/vsg/core/Data.h
+unusedStructMember:*/include/vsg/core/Exception.h
+unusedStructMember:*/include/vsg/core/IntrusiveAllocator.h
 unusedStructMember:*/include/vsg/core/MemorySlots.h
+unusedStructMember:*/include/vsg/core/Version.h
+unusedStructMember:*/include/vsg/introspection/c_interface.h
 unusedStructMember:*/include/vsg/io/AsciiInput.h
 unusedStructMember:*/include/vsg/io/Input.h
+unusedStructMember:*/include/vsg/io/ObjectCache.h
 unusedStructMember:*/include/vsg/io/Output.h
 unusedStructMember:*/include/vsg/io/Path.h
 unusedStructMember:*/include/vsg/io/ReaderWriter.h
+unusedStructMember:*/include/vsg/nodes/Bin.h
+unusedStructMember:*/include/vsg/nodes/LOD.h
+unusedStructMember:*/include/vsg/nodes/PagedLOD.h
+unusedStructMember:*/include/vsg/nodes/Switch.h
 unusedStructMember:*/include/vsg/raytracing/BuildAccelerationStructureTraversal.h
+unusedStructMember:*/include/vsg/state/ArrayState.h
 unusedStructMember:*/include/vsg/state/BindDescriptorSet.h
 unusedStructMember:*/include/vsg/state/BufferInfo.h
+unusedStructMember:*/include/vsg/text/TextLayout.h
+unusedStructMember:*/include/vsg/utils/Builder.h
 unusedStructMember:*/include/vsg/utils/Instrumentation.h
-unusedStructMember:*/include/vsg/utils/ShaderSet.h
+unusedStructMember:*/include/vsg/utils/LineSegmentIntersector.h
 unusedStructMember:*/include/vsg/utils/LoadPagedLOD.h
 unusedStructMember:*/include/vsg/utils/Profiler.h
-
+unusedStructMember:*/include/vsg/utils/ShaderSet.h
+unusedStructMember:*/include/vsg/vk/Device.h
+unusedStructMember:*/include/vsg/vk/RenderPass.h
+unusedStructMember:*/include/vsg/vk/ResourceRequirements.h
+unusedStructMember:*/include/vsg/vk/Swapchain.h
+unusedStructMember:*/include/vsg/vk/vulkan.h
+unusedStructMember:*/src/vsg/core/External.cpp#
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp
 unusedVariable:*/src/vsg/app/CompileManager.cpp
@@ -191,6 +195,7 @@ duplInheritedMember:*/src/vsg/nodes/Node.cpp
 
 // suppress unhelpful warning of shadowFunction
 shadowFunction:*/include/vsg/maths/transform.h
+shadowFunction:*/include/vsg/io/JSONParser.h
 shadowFunction:*/src/io/Path.cpp
 shadowFunction:*/src/vsg/animation/CameraAnimationHandler.cpp
 shadowFunction:*/src/vsg/animation/CameraSampler.cpp
@@ -198,6 +203,7 @@ shadowFunction:*/src/vsg/animation/TransformSampler.cpp
 shadowFunction:*/src/vsg/io/tile.cpp
 shadowFunction:*/src/vsg/io/FileSystem.cpp
 shadowFunction:*/src/vsg/io/Path.cpp
+shadowFunction:*/src/vsg/io/JSONParser.cpp
 shadowFunction:*/src/vsg/app/Trackball.cpp
 shadowFunction:*/src/vsg/app/RecordTraversal.cpp
 shadowFunction:*/src/vsg/commands/PipelineBarrier.cpp

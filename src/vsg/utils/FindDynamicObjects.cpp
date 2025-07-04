@@ -79,7 +79,7 @@ void FindDynamicObjects::apply(const JointSampler& sampler)
     tag(&sampler);
     tag(sampler.jointMatrices);
     tag(sampler.subgraph);
-    sampler.subgraph->traverse(*this);
+    if (sampler.subgraph) sampler.subgraph->traverse(*this);
 }
 
 void FindDynamicObjects::apply(const BufferInfo& info)

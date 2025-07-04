@@ -29,7 +29,7 @@ namespace vsg
 
         dmat4 matrix;
 
-        dmat4 transform(const dmat4& mv) const override { return mv * matrix; }
+        dmat4 transform(const dmat4& mv) const final { return mv * matrix; }
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return MatrixTransform::create(*this, copyop); }
