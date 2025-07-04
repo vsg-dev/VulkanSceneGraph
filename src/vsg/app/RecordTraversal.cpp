@@ -558,7 +558,7 @@ void RecordTraversal::apply(const View& view)
 
     // Reset the state at the start of a new view traversal.
     _state->reset();
-    
+
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
     _state->_commandBuffer->traversalMask = traversalMask;

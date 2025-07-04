@@ -140,7 +140,7 @@ namespace vsg
                     }
                     else
                     {
-                        std::string parameters = ((match + " ") + ... + type_name(args));
+                        std::string parameters = (match + ... + space_type_name(args));
                         std::string errorMessage = std::string("Failed to match command line required parameters for ") + parameters;
                         _errorMessages.push_back(errorMessage);
                     }
