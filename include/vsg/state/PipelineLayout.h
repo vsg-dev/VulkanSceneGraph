@@ -34,6 +34,7 @@ namespace vsg
         VkPipelineLayoutCreateFlags flags = 0;
         DescriptorSetLayouts setLayouts;
         PushConstantRanges pushConstantRanges;
+        std::vector<bool> descriptorSetSlots;
 
         /// Vulkan VkPipelineLayout handle
         VkPipelineLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipelineLayout; }
