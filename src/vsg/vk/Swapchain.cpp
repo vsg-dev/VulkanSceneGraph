@@ -192,9 +192,9 @@ Swapchain::Swapchain(PhysicalDevice* physicalDevice, Device* device, Surface* su
     createInfo.imageUsage = preferences.imageUsage;
 
     auto [graphicsFamily, presentFamily] = physicalDevice->getQueueFamily(VK_QUEUE_GRAPHICS_BIT, surface);
+    uint32_t queueFamilyIndices[] = {uint32_t(graphicsFamily), uint32_t(presentFamily)};
     if (graphicsFamily != presentFamily)
     {
-        uint32_t queueFamilyIndices[] = {uint32_t(graphicsFamily), uint32_t(presentFamily)};
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;
