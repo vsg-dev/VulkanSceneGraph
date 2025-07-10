@@ -150,8 +150,6 @@ void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 
 void ComputeBounds::apply(const vsg::InstanceNode& in)
 {
-    vsg::info("ComputeBounds::apply(const vsg::InstanceNode& ", &in, ")");
-
     auto& arrayState = *arrayStateStack.back();
 
     arrayState.apply(in);
@@ -163,8 +161,6 @@ void ComputeBounds::apply(const vsg::InstanceNode& in)
 
 void ComputeBounds::apply(const vsg::InstanceDraw& id)
 {
-    vsg::info("ComputeBounds::apply(const vsg::InstanceDraw& ", &id, ") instanceNode = ", instanceNode);
-
     if (!instanceNode) return;
 
     auto& arrayState = *arrayStateStack.back();
@@ -175,8 +171,6 @@ void ComputeBounds::apply(const vsg::InstanceDraw& id)
 
 void ComputeBounds::apply(const vsg::InstanceDrawIndexed& idi)
 {
-    vsg::info("ComputeBounds::apply(const vsg::InstanceDraw& ", &idi, ") instanceNode = ", instanceNode);
-
     if (!instanceNode) return;
 
     auto& arrayState = *arrayStateStack.back();
