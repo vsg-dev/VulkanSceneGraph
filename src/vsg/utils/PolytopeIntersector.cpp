@@ -322,7 +322,9 @@ bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t ind
     auto& arrayState = *arrayStateStack.back();
 
     vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimtives(*this, arrayState, _polytopeStack.back());
-    if (ushort_indices)
+    if (ubyte_indices)
+        printPrimtives.drawIndexed(arrayState.topology, ubyte_indices, firstIndex, indexCount, firstInstance, instanceCount);
+    else if (ushort_indices)
         printPrimtives.drawIndexed(arrayState.topology, ushort_indices, firstIndex, indexCount, firstInstance, instanceCount);
     else if (uint_indices)
         printPrimtives.drawIndexed(arrayState.topology, uint_indices, firstIndex, indexCount, firstInstance, instanceCount);
