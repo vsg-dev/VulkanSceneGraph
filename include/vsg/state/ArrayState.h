@@ -127,7 +127,7 @@ namespace vsg
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
-        uint32_t translation_attribute_location = 4;
+        uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
 
         using ArrayState::apply;
@@ -148,9 +148,9 @@ namespace vsg
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
-        uint32_t translation_attribute_location = 4;
-        uint32_t rotation_attribute_location = 5;
-        uint32_t scale_attribute_location = 6;
+        uint32_t translation_attribute_location = 7;
+        uint32_t rotation_attribute_location = 8;
+        uint32_t scale_attribute_location = 9;
         AttributeDetails translationAttribute;
         AttributeDetails rotationAttribute;
         AttributeDetails scaleAttribute;
@@ -177,7 +177,7 @@ namespace vsg
         uint32_t normal_attribute_location = 1;
         uint32_t texcoord_attribute_location = 2;
         uint32_t dm_set = 0;
-        uint32_t dm_binding = 6;
+        uint32_t dm_binding = 7;
 
         // displacement map found during traversal
         ref_ptr<floatArray2D> displacementMap;
@@ -204,7 +204,7 @@ namespace vsg
         TranslationAndDisplacementMapArrayState(const TranslationAndDisplacementMapArrayState& rhs);
         explicit TranslationAndDisplacementMapArrayState(const ArrayState& rhs);
 
-        uint32_t translation_attribute_location = 4;
+        uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
 
         ref_ptr<ArrayState> cloneArrayState() override;

@@ -59,6 +59,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::materialValue>();
     add<vsg::PhongMaterialValue>();
     add<vsg::PbrMaterialValue>();
+    add<vsg::TexCoordIndicesValue>();
     add<vsg::quatValue>();
     add<vsg::dquatValue>();
     add<vsg::sphereValue>();
