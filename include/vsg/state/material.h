@@ -134,4 +134,43 @@ namespace vsg
     VSG_value(PbrMaterialValue, PbrMaterial);
     VSG_array(PbrMaterialArray, PbrMaterial);
 
+    /// texCoord[] array indices for each texture type
+    struct TexCoordIndices
+    {
+        int32_t diffuseMap{0};
+        int32_t detailMap{0};
+        int32_t normalMap{0};
+        int32_t aoMap{0};
+        int32_t emissiveMap{0};
+        int32_t specularMap{0};
+        int32_t mrMap{0};
+
+        void read(vsg::Input& input)
+        {
+            input.read("diffuseMap", diffuseMap);
+            input.read("detailMap", detailMap);
+            input.read("normalMap", normalMap);
+            input.read("aoMap", aoMap);
+            input.read("emissiveMap", emissiveMap);
+            input.read("specularMap", specularMap);
+            input.read("mrMap", mrMap);
+        }
+
+        void write(vsg::Output& output) const
+        {
+            output.write("diffuseMap", diffuseMap);
+            output.write("detailMap", detailMap);
+            output.write("normalMap", normalMap);
+            output.write("aoMap", aoMap);
+            output.write("emissiveMap", emissiveMap);
+            output.write("specularMap", specularMap);
+            output.write("mrMap", mrMap);
+        }
+    };
+
+    template<>
+    constexpr bool has_read_write<TexCoordIndices>() { return true; }
+
+    VSG_value(TexCoordIndicesValue, TexCoordIndices);
+
 } // namespace vsg
