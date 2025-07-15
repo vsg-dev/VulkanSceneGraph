@@ -254,6 +254,21 @@ bool JSONParser::read_string(std::string& value)
 {
     if (buffer[pos] != '"') return false;
 
+/*
+    https://www.json.org/json-en.html
+
+    Control characters:
+    \" -> "
+    \\ -> \
+    \/ -> /
+    \b -> backspace
+    \f -> formfeed
+    \n -> linefeed
+    \r -> carraige return
+    \t -> horizontal tab
+    \u -> 4 hex digits
+*/
+
     // read string
     auto end_of_value = buffer.find('"', pos + 1);
     if (end_of_value == std::string::npos) return false;
