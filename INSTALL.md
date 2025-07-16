@@ -45,7 +45,7 @@ Command line instructions for default build of static library (.a) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
-    cmake .c
+    cmake .
     cmake --build . -j 16 -t install
 
 Command line instructions for building shared library (.so) out of source:
