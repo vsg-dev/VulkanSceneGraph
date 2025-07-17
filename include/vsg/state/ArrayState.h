@@ -226,7 +226,7 @@ namespace vsg
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
-        uint32_t translation_attribute_location = 4;
+        uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
 
         using ArrayState::apply;
