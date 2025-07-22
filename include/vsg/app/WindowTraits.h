@@ -21,12 +21,14 @@ namespace vsg
 
     // forward declare
     class Window;
+    class CommandLine;
 
     /// WindowTraits specifies the settings required when creating windows/vulkan instance/device.
     class VSG_DECLSPEC WindowTraits : public Inherit<Object, WindowTraits>
     {
     public:
         WindowTraits();
+        WindowTraits(CommandLine& arguments);
         explicit WindowTraits(const WindowTraits& traits, const CopyOp& copyop = {});
         explicit WindowTraits(const std::string& title);
         WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height, const std::string& title = "vsg window");
