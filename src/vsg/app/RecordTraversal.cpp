@@ -556,8 +556,9 @@ void RecordTraversal::apply(const View& view)
 {
     GPU_INSTRUMENTATION_L1_NCO(instrumentation, *getCommandBuffer(), "View", COLOR_RECORD_L1, &view);
 
-    // Reset the state at the start of a new view traversal.
-    _state->reset();
+    // Reset the state at the start of a new top-level view traversal.
+    if(_viewCounter == 0) _state->reset();
+    ++_viewCounter;
 
     // note, View::accept() updates the RecordTraversal's traversalMask
     auto cached_traversalMask = _state->_commandBuffer->traversalMask;
@@ -659,6 +660,8 @@ void RecordTraversal::apply(const View& view)
     cached_regionsOfInterest.swap(regionsOfInterest);
     _state->_commandBuffer->traversalMask = cached_traversalMask;
     _viewDependentState = cached_viewDependentState;
+
+    --_viewCounter;
 }
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)

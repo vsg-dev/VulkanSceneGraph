@@ -183,6 +183,9 @@ namespace vsg
         int32_t _minimumBinNumber = 0;
         std::vector<ref_ptr<Bin>> _bins;
         ref_ptr<ViewDependentState> _viewDependentState;
+
+        // Increment and decrement the view counter so we know if we are traversing a top-level view.
+        int32_t _viewCounter = 0;
     };
 
 } // namespace vsg
