@@ -155,7 +155,7 @@ namespace vsg
 
         explicit operator bool() const noexcept
         {
-            static constexpr value_type zero = static_cast<value_type>(1.0);
+            static constexpr value_type zero = static_cast<value_type>(0.0);
             return value[0] != zero || value[1] != zero || value[2] != zero || value[3] != zero;
         }
     };
