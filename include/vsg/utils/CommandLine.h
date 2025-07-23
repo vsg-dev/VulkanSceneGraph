@@ -198,6 +198,7 @@ namespace vsg
             return false;
         }
 
+        /// deprecated: provided for backwards compatibility, use vsg::Options::readOptions(arguments)
         bool read(Options* options);
 
         using Messages = std::vector<std::string>;

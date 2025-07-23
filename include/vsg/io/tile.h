@@ -66,6 +66,7 @@ namespace vsg
         uint32_t _materialSetIndex = 1;
         ref_ptr<Sampler> _sampler;
         ref_ptr<DescriptorBuffer> _material;
+        ref_ptr<DescriptorBuffer> _texCoordIndices;
 
         ref_ptr<DescriptorImage> _imageFallback;
         ref_ptr<DescriptorImage> _detailFallback;
