@@ -12,8 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/WindowTraits.h>
 #include <vsg/io/Logger.h>
-#include <vsg/vk/vulkan.h>
 #include <vsg/utils/CommandLine.h>
+#include <vsg/vk/vulkan.h>
 
 #include <iostream>
 
@@ -28,7 +28,7 @@ WindowTraits::WindowTraits(CommandLine& arguments)
 {
     defaults();
 
-    if (arguments.read("--args")) std::cout<<arguments<<std::endl;
+    if (arguments.read("--args")) std::cout << arguments << std::endl;
 
     windowTitle = vsg::make_string(arguments);
     debugLayer = arguments.read({"--debug", "-d"});
@@ -54,7 +54,6 @@ WindowTraits::WindowTraits(CommandLine& arguments)
     arguments.read("--screen", screenNum);
     arguments.read("--display", display);
     arguments.read("--samples", samples);
-
 }
 
 WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
