@@ -482,7 +482,7 @@ void tile::init(vsg::ref_ptr<const vsg::Options> options)
         _graphicsPipelineConfig->enableTexture("displacementMap");
         _graphicsPipelineConfig->enableDescriptor("displacementMapScale");
 
-        auto elevationData = vsg::floatValue::create(0.0f);
+        auto elevationData = vsg::floatArray2D::create(1, 1, 0.0f);
         elevationData->properties.format = VK_FORMAT_R32_SFLOAT;
         _elevationFallback = vsg::DescriptorImage::create(_sampler, elevationData, 7, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     }
