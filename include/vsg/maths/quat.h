@@ -93,7 +93,13 @@ namespace vsg
 
         void set(value_type angle_radians, const t_vec3<value_type>& axis)
         {
-            const value_type epsilon = 1e-7;
+            //@todo epsilon might have to be made value_type dependent
+            static constexpr value_type epsilon = static_cast<value_type>(1e-7);
+            // avoid implicit conversions. 
+            // a performance optimization for the sin / cos calls below which otherwise operate in double precision.
+            static constexpr value_type one = static_cast<value_type>(1.0);
+            static constexpr value_type half = static_cast<value_type>(0.5);
+
             value_type len = length(axis);
             if (len < epsilon)
             {
@@ -102,9 +108,9 @@ namespace vsg
                 return;
             }
 
-            value_type inversenorm = 1.0 / len;
-            value_type coshalfangle = cos(0.5 * angle_radians);
-            value_type sinhalfangle = sin(0.5 * angle_radians);
+            value_type inversenorm =  one / len;
+            value_type coshalfangle = cos(half * angle_radians);
+            value_type sinhalfangle = sin(half * angle_radians);
 
             x = axis.x * sinhalfangle * inversenorm;
             y = axis.y * sinhalfangle * inversenorm;
@@ -114,7 +120,12 @@ namespace vsg
 
         void set(const t_vec3<value_type>& from, const t_vec3<value_type>& to)
         {
-            const value_type epsilon = 1e-7;
+            //@todo epsilon might have to be made value_type dependent
+            static constexpr value_type epsilon = static_cast<value_type>(1e-7);
+            // avoid implicit conversions.
+            // a performance optimization for the sin / cos calls below which otherwise operate in double precision.
+            static constexpr value_type one = static_cast<value_type>(1.0);
+            static constexpr value_type half = static_cast<value_type>(0.5);
 
             value_type dot_pd = vsg::dot(from, to);
             value_type div = std::sqrt(length2(from) * length2(to));
@@ -132,9 +143,9 @@ namespace vsg
 
             double angle_radians = acos(dot_pd / div);
 
-            value_type inversenorm = 1.0 / len;
-            value_type coshalfangle = cos(0.5 * angle_radians);
-            value_type sinhalfangle = sin(0.5 * angle_radians);
+            value_type inversenorm = one / len;
+            value_type coshalfangle = cos(half * angle_radians);
+            value_type sinhalfangle = sin(half * angle_radians);
 
             x = axis.x * sinhalfangle * inversenorm;
             y = axis.y * sinhalfangle * inversenorm;
@@ -142,7 +153,11 @@ namespace vsg
             w = coshalfangle;
         }
 
-        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
+        explicit operator bool() const noexcept
+        {
+            static constexpr value_type zero = static_cast<value_type>(1.0);
+            return value[0] != zero || value[1] != zero || value[2] != zero || value[3] != zero;
+        }
     };
 
     using quat = t_quat<float>;         /// float quaternion
@@ -275,7 +290,7 @@ namespace vsg
         T one(1.0);
 
         T cosomega = dot(from, to);
-        if (cosomega < 0.0)
+        if (cosomega < static_cast<T>(0.0))
         {
             cosomega = -cosomega;
             to.x = -to.x;
