@@ -23,6 +23,8 @@ namespace vsg
         static constexpr T half() { return static_cast<T>(0.5); }
         static constexpr T one() { return static_cast<T>(1.0); }
         static constexpr T two() { return static_cast<T>(2.0); }
+        static constexpr T three() { return static_cast<T>(3.0); }
+
         static constexpr T minus_one() { return static_cast<T>(-1.0); }
 
         static constexpr T epsilon() { return std::numeric_limits<T>::epsilon(); }

@@ -265,7 +265,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec3<T> mix(const t_vec3<T>& start, const t_vec3<T>& end, T r)
     {
-        T one_minus_r = 1 - r;
+        T one_minus_r = numbers<T>::one() - r;
         return t_vec3<T>(start[0] * one_minus_r + end[0] * r,
                          start[1] * one_minus_r + end[1] * r,
                          start[2] * one_minus_r + end[2] * r);
