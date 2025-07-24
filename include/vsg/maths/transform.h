@@ -30,27 +30,29 @@ namespace vsg
         T qwy(q.w * q.y);
         T qwz(q.w * q.z);
 
-        T zero(0.0);
-        T one(1.0);
-        T two(2.0);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        const T two(numbers<T>::two());
 
         return t_mat4<T>(one - two * (qyy + qzz), two * (qxy + qwz), two * (qxz - qwy), zero,
                          two * (qxy - qwz), one - two * (qxx + qzz), two * (qyz + qwx), zero,
                          two * (qxz + qwy), two * (qyz - qwx), one - two * (qxx + qyy), zero,
-                         zero, zero, zero, 1.0);
+                         zero, zero, zero, one);
     }
 
     /// create a 4x4 matrix that represents the rotation by a radian angle around an x, y, z axis
     template<typename T>
     t_mat4<T> rotate(T angle_radians, T x, T y, T z)
     {
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
         const T c = std::cos(angle_radians);
         const T s = std::sin(angle_radians);
-        const T one_minus_c = 1 - c;
-        return t_mat4<T>(x * x * one_minus_c + c, y * x * one_minus_c + z * s, x * z * one_minus_c - y * s, 0,
-                         x * y * one_minus_c - z * s, y * y * one_minus_c + c, y * z * one_minus_c + x * s, 0,
-                         x * z * one_minus_c + y * s, y * z * one_minus_c - x * s, z * z * one_minus_c + c, 0,
-                         0, 0, 0, 1);
+        const T one_minus_c = one - c;
+        return t_mat4<T>(x * x * one_minus_c + c, y * x * one_minus_c + z * s, x * z * one_minus_c - y * s, zero,
+                         x * y * one_minus_c - z * s, y * y * one_minus_c + c, y * z * one_minus_c + x * s, zero,
+                         x * z * one_minus_c + y * s, y * z * one_minus_c - x * s, z * z * one_minus_c + c, zero,
+                         zero, zero, zero, one);
     }
 
     /// create a 4x4 matrix that represents the rotation by a radian angle around a vec3 axis
@@ -64,10 +66,12 @@ namespace vsg
     template<typename T>
     constexpr t_mat4<T> translate(T x, T y, T z)
     {
-        return t_mat4<T>(1, 0, 0, 0,
-                         0, 1, 0, 0,
-                         0, 0, 1, 0,
-                         x, y, z, 1);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        return t_mat4<T>(one, zero, zero, zero,
+                         zero, one, zero, zero,
+                         zero, zero, one, zero,
+                         x, y, z, one);
     }
 
     /// create a 4x4 matrix that represents the translation by vec3
@@ -81,20 +85,24 @@ namespace vsg
     template<typename T>
     constexpr t_mat4<T> scale(T s)
     {
-        return t_mat4<T>(s, 0, 0, 0,
-                         0, s, 0, 0,
-                         0, 0, s, 0,
-                         0, 0, 0, 1);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        return t_mat4<T>(s, zero, zero, zero,
+                         zero, s, zero, zero,
+                         zero, zero, s, zero,
+                         zero, zero, zero, one);
     }
 
     /// create a 4x4 matrix that represents the scale by sx, sy, zz
     template<typename T>
     constexpr t_mat4<T> scale(T sx, T sy, T sz)
     {
-        return t_mat4<T>(sx, 0, 0, 0,
-                         0, sy, 0, 0,
-                         0, 0, sz, 0,
-                         0, 0, 0, 1);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        return t_mat4<T>(sx, zero, zero, zero,
+                         zero, sy, zero, zero,
+                         zero, zero, sz, zero,
+                         zero, zero, zero, one);
     }
 
     /// create a 4x4 matrix that represents the scale by vec3
@@ -131,32 +139,40 @@ namespace vsg
     template<typename T>
     constexpr t_mat4<T> perspective(T fovy_radians, T aspectRatio, T zNear, T zFar)
     {
-        T f = static_cast<T>(1.0 / std::tan(fovy_radians * 0.5));
-        T r = static_cast<T>(1.0 / (zFar - zNear));
-        return t_mat4<T>(f / aspectRatio, 0, 0, 0,
-                         0, -f, 0, 0,
-                         0, 0, zNear * r, -1,
-                         0, 0, (zFar * zNear) * r, 0);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        T f = static_cast<T>(one / std::tan(fovy_radians * numbers<T>::half()));
+        T r = static_cast<T>(one / (zFar - zNear));
+        return t_mat4<T>(f / aspectRatio, zero, zero, zero,
+                         zero, -f, zero, zero,
+                         zero, zero, zNear * r, -one,
+                         zero, zero, (zFar * zNear) * r, zero);
     }
 
     /// create a 4x4 matrix for a Reverse depth perspective matrix, convention: 1 to 0 depth range. Y NDC coordinates are inverted in Vulkan.
     template<typename T>
     constexpr t_mat4<T> perspective(T left, T right, T bottom, T top, T zNear, T zFar)
     {
-        return t_mat4<T>(2.0 * zNear / (right - left), 0.0, 0.0, 0.0,
-                         0.0, 2.0 * zNear / (bottom - top), 0.0, 0.0,
-                         (right + left) / (right - left), (bottom + top) / (bottom - top), zNear / (zFar - zNear), -1.0,
-                         0.0, 0.0, zNear * zFar / (zFar - zNear), 0.0);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        const T two(numbers<T>::two());
+        return t_mat4<T>(two * zNear / (right - left), zero, zero, zero,
+                         zero, two * zNear / (bottom - top), zero, zero,
+                         (right + left) / (right - left), (bottom + top) / (bottom - top), zNear / (zFar - zNear), -one,
+                         zero, zero, zNear * zFar / (zFar - zNear), zero);
     }
 
     /// create a 4x4 matrix for an orthographic projection, from vulkan cookbook with reverse depth
     template<typename T>
     constexpr t_mat4<T> orthographic(T left, T right, T bottom, T top, T zNear, T zFar)
     {
-        return t_mat4<T>(2.0 / (right - left), 0.0, 0.0, 0.0,
-                         0.0, 2.0 / (bottom - top), 0.0, 0.0,
-                         0.0, 0.0, 1.0 / (zFar - zNear), 0.0,
-                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zFar / (zFar - zNear), 1.0);
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+        const T two(numbers<T>::two());
+        return t_mat4<T>(two / (right - left), zero, zero, zero,
+                         zero, two / (bottom - top), zero, zero,
+                         zero, zero, one / (zFar - zNear), zero,
+                         -(right + left) / (right - left), -(bottom + top) / (bottom - top), zFar / (zFar - zNear), one);
     }
 
     template<typename T>
@@ -164,33 +180,38 @@ namespace vsg
     {
         using vec_type = t_vec3<T>;
 
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+
         vec_type forward = normalize(center - eye);
         vec_type up_normal = normalize(up);
         vec_type side = normalize(cross(forward, up_normal));
         vec_type u = normalize(cross(side, forward));
 
-        return t_mat4<T>(side[0], u[0], -forward[0], 0,
-                         side[1], u[1], -forward[1], 0,
-                         side[2], u[2], -forward[2], 0,
-                         0, 0, 0, 1) *
+        return t_mat4<T>(side[0], u[0], -forward[0], zero,
+                         side[1], u[1], -forward[1], zero,
+                         side[2], u[2], -forward[2], zero,
+                         zero, zero, zero, one) *
                vsg::translate(-eye.x, -eye.y, -eye.z);
     }
 
     template<typename T>
     constexpr t_mat4<T> computeBillboardMatrix(const t_vec3<T>& centerEye, T autoscaleDistance)
     {
+        const T zero(numbers<T>::zero());
+        const T one(numbers<T>::one());
+
         auto distance = -centerEye.z;
+        auto scale = (distance < autoscaleDistance) ? distance / autoscaleDistance : one;
+        t_mat4<T> mS(scale, zero, zero, zero,
+                     zero, scale, zero, zero,
+                     zero, zero, scale, zero,
+                     zero, zero, zero, one);
 
-        auto scale = (distance < autoscaleDistance) ? distance / autoscaleDistance : 1.0;
-        t_mat4<T> mS(scale, 0.0, 0.0, 0.0,
-                     0.0, scale, 0.0, 0.0,
-                     0.0, 0.0, scale, 0.0,
-                     0.0, 0.0, 0.0, 1.0);
-
-        t_mat4<T> mT(1.0, 0.0, 0.0, 0.0,
-                     0.0, 1.0, 0.0, 0.0,
-                     0.0, 0.0, 1.0, 0.0,
-                     centerEye.x, centerEye.y, centerEye.z, 1.0);
+        t_mat4<T> mT(one, zero, zero, zero,
+                     zero, one, zero, zero,
+                     zero, zero, one, zero,
+                     centerEye.x, centerEye.y, centerEye.z, one);
 
         return mT * mS;
     }
