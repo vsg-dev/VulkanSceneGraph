@@ -127,7 +127,7 @@ namespace vsg
         {
             if constexpr (std::is_floating_point_v<value_type>)
             {
-                value_type inv = static_cast<value_type>(1.0) / rhs;
+                value_type inv = numbers<value_type>::one() / rhs;
                 value[0] *= inv;
                 value[1] *= inv;
                 value[2] *= inv;
