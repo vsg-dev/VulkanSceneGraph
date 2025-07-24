@@ -52,7 +52,7 @@ namespace vsg
         };
 
         constexpr t_vec3() :
-            value{0, 0, 0} {}
+            value{} {}
         constexpr t_vec3(const t_vec3& v) :
             value{v.x, v.y, v.z} {}
         constexpr t_vec3& operator=(const t_vec3&) = default;
@@ -141,7 +141,7 @@ namespace vsg
             return *this;
         }
 
-        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0; }
+        explicit operator bool() const noexcept { return value[0] != numbers<value_type>::zero() || value[1] != numbers<value_type>::zero() || value[2] != numbers<value_type>::zero(); }
     };
 
     using vec3 = t_vec3<float>;         // float 3D vector
@@ -221,7 +221,7 @@ namespace vsg
     {
         if constexpr (std::is_floating_point_v<T>)
         {
-            T inv = static_cast<T>(1.0) / rhs;
+            T inv = numbers<T>::one() / rhs;
             return t_vec3<T>(lhs[0] * inv, lhs[1] * inv, lhs[2] * inv);
         }
         else
@@ -280,13 +280,13 @@ namespace vsg
         auto abs_z = fabs(v.z);
         if (abs_x < abs_y)
         {
-            if (abs_x < abs_z) return {0.0, v.z, -v.y}; // v.x shortest, use cross with x axis
+            if (abs_x < abs_z) return {numbers<T>::zero(), v.z, -v.y}; // v.x shortest, use cross with x axis
         }
         else if (abs_y < abs_z)
         {
-            return {-v.z, 0.0, v.x}; // v.y shortest, use cross with y axis
+            return {-v.z, numbers<T>::zero(), v.x}; // v.y shortest, use cross with y axis
         }
-        return {v.y, -v.x, 0.0}; // v.z shortest, use cross with z axis
+        return {v.y, -v.x, numbers<T>::zero()}; // v.z shortest, use cross with z axis
     }
 
 } // namespace vsg

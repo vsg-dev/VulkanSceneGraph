@@ -30,16 +30,16 @@ namespace vsg
         column_type value[4];
 
         constexpr t_mat4() :
-            value{{1, 0, 0, 0},
-                  {0, 1, 0, 0},
-                  {0, 0, 1, 0},
-                  {0, 0, 0, 1}} {}
+            value{{numbers<value_type>::one(), numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::one(), numbers<value_type>::zero(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::one(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::one()}} {}
 
         constexpr explicit t_mat4(value_type v) :
-            value{{v, 0, 0, 0},
-                  {0, v, 0, 0},
-                  {0, 0, v, 0},
-                  {0, 0, 0, v}} {}
+            value{{v, numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), v, numbers<value_type>::zero(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::zero(), v, numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::zero(), v}} {}
 
         constexpr t_mat4(value_type v0, value_type v1, value_type v2, value_type v3,   /* column 0 */
                          value_type v4, value_type v5, value_type v6, value_type v7,   /* column 1 */
@@ -219,14 +219,14 @@ namespace vsg
                                lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + lhs[3] * rhs[1][3],
                                lhs[0] * rhs[2][0] + lhs[1] * rhs[2][1] + lhs[2] * rhs[2][2] + lhs[3] * rhs[2][3],
                                lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + lhs[3] * rhs[3][3]);
-        T inv = static_cast<T>(1.0) / length(transformed.n);
+        T inv = numbers<T>::one() / length(transformed.n);
         return t_plane<T>(transformed[0] * inv, transformed[1] * inv, transformed[2] * inv, transformed[3] * inv);
     }
 
     template<typename T>
     t_vec3<T> operator*(const t_mat4<T>& lhs, const t_vec3<T>& rhs)
     {
-        T inv = static_cast<T>(1.0) / (lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3]);
+        T inv = numbers<T>::one() / (lhs[0][3] * rhs[0] + lhs[1][3] * rhs[1] + lhs[2][3] * rhs[2] + lhs[3][3]);
         return t_vec3<T>((lhs[0][0] * rhs[0] + lhs[1][0] * rhs[1] + lhs[2][0] * rhs[2] + lhs[3][0]) * inv,
                          (lhs[0][1] * rhs[0] + lhs[1][1] * rhs[1] + lhs[2][1] * rhs[2] + lhs[3][1]) * inv,
                          (lhs[0][2] * rhs[0] + lhs[1][2] * rhs[1] + lhs[2][2] * rhs[2] + lhs[3][2]) * inv);
@@ -235,7 +235,7 @@ namespace vsg
     template<typename T>
     t_vec3<T> operator*(const t_vec3<T>& lhs, const t_mat4<T>& rhs)
     {
-        T inv = static_cast<T>(1.0) / (lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + rhs[3][3]);
+        T inv = numbers<T>::one() / (lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + rhs[3][3]);
         return t_vec3<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + rhs[0][3] * inv,
                          lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + rhs[1][3] * inv,
                          lhs[0] * rhs[2][0] + lhs[1] * rhs[2][1] + lhs[2] * rhs[2][2] + rhs[2][3] * inv);

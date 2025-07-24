@@ -24,16 +24,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    constexpr float PIf = 3.14159265358979323846f;
-    constexpr double PI = 3.14159265358979323846;
+    constexpr float PIf = numbers<float>::PI();
+    constexpr double PI = numbers<double>::PI();
 
     /// convert degrees to radians
-    constexpr float radians(float degrees) noexcept { return degrees * (PIf / 180.0f); }
-    constexpr double radians(double degrees) noexcept { return degrees * (PI / 180.0); }
+    constexpr float radians(float degrees) noexcept { return degrees * numbers<float>::degrees_to_radians(); }
+    constexpr double radians(double degrees) noexcept { return degrees * numbers<double>::degrees_to_radians(); }
 
     /// convert radians to degrees
-    constexpr float degrees(float radians) noexcept { return radians * (180.0f / PIf); }
-    constexpr double degrees(double radians) noexcept { return radians * (180.0 / PI); }
+    constexpr float degrees(float radians) noexcept { return radians * numbers<float>::radians_to_degrees(); }
+    constexpr double degrees(double radians) noexcept { return radians * numbers<double>::radians_to_degrees(); }
 
     /// compute value^2
     constexpr float square(float v) noexcept { return v * v; };
