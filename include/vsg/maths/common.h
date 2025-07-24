@@ -23,16 +23,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    constexpr float PIf = 3.14159265358979323846f;
-    constexpr double PI = 3.14159265358979323846;
+
+    constexpr float PIf = numbers<float>::PI();
+    constexpr double PI = numbers<double>::PI();
 
     /// convert degrees to radians
-    constexpr float radians(float degrees) noexcept { return degrees * (PIf / 180.0f); }
-    constexpr double radians(double degrees) noexcept { return degrees * (PI / 180.0); }
+    constexpr float radians(float degrees) noexcept { return degrees * numbers<float>::degrees_to_radians(); }
+    constexpr double radians(double degrees) noexcept { return degrees * numbers<double>::degrees_to_radians(); }
 
     /// convert radians to degrees
-    constexpr float degrees(float radians) noexcept { return radians * (180.0f / PIf); }
-    constexpr double degrees(double radians) noexcept { return radians * (180.0 / PI); }
+    constexpr float degrees(float radians) noexcept { return radians * numbers<float>::radians_to_degrees(); }
+    constexpr double degrees(double radians) noexcept { return radians * numbers<double>::radians_to_degrees(); }
 
     /// compute value^2
     constexpr float square(float v) noexcept { return v * v; };
@@ -46,26 +47,26 @@ namespace vsg
             return edge0;
         else if (x >= edge1)
             return edge1;
-        double r = (x - edge0) / (edge1 - edge0);
-        return edge0 + (r * r * (3.0 - 2.0 * r)) * (edge1 - edge0);
+        T r = (x - edge0) / (edge1 - edge0);
+        return edge0 + (r * r * (numbers<T>::three() - numbers<T>::two() * r)) * (edge1 - edge0);
     }
 
     /// Hermite interpolation between 0.0 and 1.0
     template<typename T>
     T smoothstep(T r)
     {
-        if (r <= 0.0)
-            return 0.0;
-        else if (r >= 1.0)
-            return 1.0;
-        return r * r * (3.0 - 2.0 * r);
+        if (r <= numbers<T>::zero())
+            return numbers<T>::zero();
+        else if (r >= numbers<T>::one())
+            return numbers<T>::one();
+        return r * r * (numbers<T>::three() - numbers<T>::two() * r);
     }
 
     /// interpolate between two values
     template<typename T>
     T mix(T start, T end, T r)
     {
-        T one_minus_r = 1.0 - r;
+        T one_minus_r = numbers<T>::one() - r;
         return start * one_minus_r + end * r;
     }
 

@@ -50,7 +50,7 @@ namespace vsg
         };
 
         constexpr t_plane() :
-            value{0.0, 0.0, 0.0, 0.0} {}
+            value{numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::zero()} {}
 
         constexpr t_plane(const t_plane& pl) :
             value{pl[0], pl[1], pl[2], pl[3]} {}
@@ -100,7 +100,7 @@ namespace vsg
             value[3] = in_d;
         }
 
-        bool valid() const { return n.x != 0.0 && n.y != 0.0 && n.z != 0.0; }
+        bool valid() const { return n.x != numbers<value_type>::zero() && n.y != numbers<value_type>::zero() && n.z != numbers<value_type>::zero(); }
 
         explicit operator bool() const noexcept { return valid(); }
 

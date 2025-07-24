@@ -28,14 +28,14 @@ namespace vsg
         column_type value[3];
 
         constexpr t_mat3() :
-            value{{1, 0, 0},
-                  {0, 1, 0},
-                  {0, 0, 1}} {}
+            value{{numbers<value_type>::one(), numbers<value_type>::zero(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::one(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::zero(), numbers<value_type>::one()}} {}
 
         constexpr explicit t_mat3(value_type v) :
-            value{{v, 0, 0},
-                  {0, v, 0},
-                  {0, 0, v}} {}
+            value{{v, numbers<value_type>::zero(), numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), v, numbers<value_type>::zero()},
+                  {numbers<value_type>::zero(), numbers<value_type>::zero(), v}} {}
 
         constexpr t_mat3(value_type v0, value_type v1, value_type v2, /* column 0 */
                          value_type v3, value_type v4, value_type v5, /* column 1 */
