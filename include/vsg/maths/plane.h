@@ -100,7 +100,7 @@ namespace vsg
             value[3] = in_d;
         }
 
-        bool valid() const { return n.x != numbers<value_type>::zero() && n.y != numbers<value_type>::zero() && n.z != numbers<value_type>::zero(); }
+        bool valid() const { return n.x != numbers<value_type>::zero() || n.y != numbers<value_type>::zero() || n.z != numbers<value_type>::zero(); }
 
         explicit operator bool() const noexcept { return valid(); }
 
