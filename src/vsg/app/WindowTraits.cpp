@@ -44,7 +44,7 @@ WindowTraits::WindowTraits(CommandLine& arguments)
 
     if (arguments.read({"--fullscreen", "--fs"})) fullscreen = true;
     if (arguments.read({"--window", "-w"}, width, height)) { fullscreen = false; }
-    if (arguments.read({"--no-frame", "--nf"})) decoration = false;
+    if (arguments.read({"--no-frame"})) decoration = false;
     if (arguments.read("--or")) overrideRedirect = true;
 
     if (arguments.read("--d32")) depthFormat = VK_FORMAT_D32_SFLOAT;
