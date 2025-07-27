@@ -91,7 +91,7 @@ namespace vsg
         Mask overrideMask = MASK_OFF;
 
         /// Light::intensity minimum value for a light to be passed to GPU.
-        float intensityMinimum = 0.00001;
+        float intensityMinimum = 0.001f;
 
         ref_ptr<Instrumentation> instrumentation;
 
