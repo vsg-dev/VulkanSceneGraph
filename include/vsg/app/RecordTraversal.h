@@ -90,6 +90,9 @@ namespace vsg
         Mask traversalMask = MASK_ALL;
         Mask overrideMask = MASK_OFF;
 
+        /// Light::intensity minimum value for a light to be passed to GPU.
+        float intensityMinimum = 0.00001;
+
         ref_ptr<Instrumentation> instrumentation;
 
         /// Container for CommandBuffers that have been recorded in current frame

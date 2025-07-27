@@ -366,7 +366,7 @@ void RecordTraversal::apply(const AmbientLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(AmbientLight) ", light.className());
-    if (_viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const DirectionalLight& light)
@@ -374,7 +374,7 @@ void RecordTraversal::apply(const DirectionalLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(DirectionalLight) ", light.className());
-    if (_viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const PointLight& light)
@@ -382,7 +382,7 @@ void RecordTraversal::apply(const PointLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(PointLight) ", light.className());
-    if (_viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const SpotLight& light)
@@ -390,7 +390,7 @@ void RecordTraversal::apply(const SpotLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(SpotLight) ", light.className());
-    if (_viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
 }
 
 // transform nodes
