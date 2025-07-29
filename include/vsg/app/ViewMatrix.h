@@ -27,7 +27,8 @@ namespace vsg
         }
 
         explicit ViewMatrix(const ViewMatrix& vm, const CopyOp& copyop = {}) :
-            Inherit(vm, copyop)
+            Inherit(vm, copyop),
+            origin(vm.origin)
         {
         }
 
