@@ -156,8 +156,6 @@ void SharedObjects::prune()
 
 void SharedObjects::report(vsg::LogOutput& output)
 {
-    vsg::indentation indent;
-
     std::scoped_lock<std::recursive_mutex> lock(_mutex);
     output("SharedObjects::report(..) ", this, " {");
     output.in();
