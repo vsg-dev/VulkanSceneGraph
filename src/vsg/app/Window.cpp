@@ -401,7 +401,6 @@ void Window::buildSwapchain()
         // ensure image attachments are setup on GPU.
         auto commandPool = CommandPool::create(_device, graphicsFamily);
         submitCommandsToQueue(commandPool, _device->getQueue(graphicsFamily), [&](CommandBuffer& commandBuffer) {
-
             auto depthImageBarrier = ImageMemoryBarrier::create(
                 0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
                 VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
