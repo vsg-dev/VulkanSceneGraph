@@ -45,8 +45,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/clamp.h>
 #include <vsg/maths/color.h>
 #include <vsg/maths/common.h>
+#include <vsg/maths/mat2.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
+#include <vsg/maths/numbers.h>
 #include <vsg/maths/plane.h>
 #include <vsg/maths/quat.h>
 #include <vsg/maths/sample.h>
@@ -66,6 +68,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
@@ -250,6 +255,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/RenderPass.h>
 #include <vsg/vk/ResourceRequirements.h>
 #include <vsg/vk/Semaphore.h>
+#include <vsg/vk/Slots.h>
 #include <vsg/vk/State.h>
 #include <vsg/vk/SubmitCommands.h>
 #include <vsg/vk/Surface.h>
@@ -265,6 +271,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/DatabasePager.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Input.h>
+#include <vsg/io/JSONParser.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/ObjectFactory.h>
 #include <vsg/io/Options.h>
@@ -274,6 +281,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/VSG.h>
 #include <vsg/io/convert_utf.h>
 #include <vsg/io/glsl.h>
+#include <vsg/io/json.h>
 #include <vsg/io/mem_stream.h>
 #include <vsg/io/read.h>
 #include <vsg/io/read_line.h>
@@ -287,6 +295,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/CommandLine.h>
 #include <vsg/utils/ComputeBounds.h>
+#include <vsg/utils/CoordinateSpace.h>
 #include <vsg/utils/FindDynamicObjects.h>
 #include <vsg/utils/GpuAnnotation.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>

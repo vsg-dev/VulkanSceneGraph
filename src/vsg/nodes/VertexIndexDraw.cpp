@@ -48,6 +48,7 @@ int VertexIndexDraw::compare(const Object& rhs_object) const
     if ((result = compare_value(indexCount, rhs.indexCount)) != 0) return result;
     if ((result = compare_value(instanceCount, rhs.instanceCount)) != 0) return result;
     if ((result = compare_value(firstIndex, rhs.firstIndex)) != 0) return result;
+    if ((result = compare_value(firstInstance, rhs.firstInstance)) != 0) return result;
     if ((result = compare_value(vertexOffset, rhs.vertexOffset)) != 0) return result;
     if ((result = compare_value(firstBinding, rhs.firstBinding)) != 0) return result;
     if ((result = compare_pointer_container(arrays, rhs.arrays)) != 0) return result;

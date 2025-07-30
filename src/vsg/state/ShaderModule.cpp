@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
-#include <vsg/io/Options.h>
 #include <vsg/io/read.h>
 #include <vsg/state/ShaderModule.h>
 #include <vsg/vk/Context.h>
@@ -37,6 +36,7 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(target, rhs.target))) return result;
     if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
     if ((result = compare_value(generateDebugInfo, rhs.generateDebugInfo))) return result;
+    if ((result = compare_value(optimize, rhs.optimize))) return result;
     return compare_container(defines, rhs.defines);
 }
 
@@ -54,6 +54,11 @@ void ShaderCompileSettings::read(Input& input)
         input.read("generateDebugInfo", generateDebugInfo);
     }
 
+    if (input.version_greater_equal(1, 1, 11))
+    {
+        input.read("optimize", optimize);
+    }
+
     input.readValues("defines", defines);
 }
 
@@ -69,6 +74,11 @@ void ShaderCompileSettings::write(Output& output) const
     if (output.version_greater_equal(1, 0, 4))
     {
         output.write("generateDebugInfo", generateDebugInfo);
+    }
+
+    if (output.version_greater_equal(1, 1, 11))
+    {
+        output.write("optimize", optimize);
     }
 
     output.writeValues("defines", defines);

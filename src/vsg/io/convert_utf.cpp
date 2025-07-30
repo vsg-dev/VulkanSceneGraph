@@ -1,6 +1,6 @@
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2022 Robert Osfield
+Copyright(c) 2022-2025 Robert Osfield, Chris Djali
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -10,8 +10,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/convert_utf.h>
+
+#include <cstdint>
+#include <limits>
 
 using namespace vsg;
 
@@ -107,14 +109,81 @@ bool encode_utf8(Iterator itr, Iterator end, Func op)
     return true;
 }
 
+template<typename Iterator, class Func>
+bool decode_utf16(Iterator itr, size_t count, Func op)
+{
+    while (count > 0)
+    {
+        auto c0 = *itr++;
+        --count;
+
+        if ((c0 >= 0x0000 && c0 <= 0xD7FF) || (c0 >= 0xE000 && c0 <= 0xFFFF)) // 2-byte UCS2 character
+        {
+            op(c0);
+            continue;
+        }
+
+        // unpaired surrogate
+        if (count == 0 || c0 >= 0xDC00) return false;
+
+        auto c1 = *itr++;
+        --count;
+        if (c1 >= 0xDC00 && c1 <= 0xDFFF) // 4-byte surrogate pair
+        {
+            op((((c0 - 0xD800) << 10) | (c1 - 0xDC00)) + 0x10000);
+            continue;
+        }
+        else
+            return false; // unpaired surrogate
+    }
+
+    return true;
+}
+
+template<typename Iterator, class Func>
+bool encode_utf16(Iterator itr, Iterator end, Func op)
+{
+    while (itr != end)
+    {
+        uint32_t c = *itr++;
+        if ((/*c >= 0x0000 &&*/ c <= 0xD7FF) || (c >= 0xE000 && c <= 0xFFFF)) // 2-byte UCS2 character
+        {
+            op(c);
+            continue;
+        }
+
+        // unpaired surrogate
+        if (c < 0x10000)
+            return false;
+        else // 4-byte surrogate pair
+        {
+            op(0xD800 + (((c - 0x10000) >> 10) & 0x3FF)); // high surrogate
+            op(0xDC00 + ((c - 0x10000) & 0x3FF));         // low surrogate
+            continue;
+        }
+    }
+
+    return true;
+}
+
 void vsg::convert_utf(const std::string& utf8, std::wstring& dst)
 {
     dst.clear();
-    decode_utf8(utf8.begin(), utf8.size(), [&dst](uint32_t c) { dst.push_back(c); });
+    if constexpr (std::numeric_limits<wchar_t>::max() == 0xFFFF)
+        decode_utf8(utf8.begin(), utf8.size(), [&dst](uint32_t c) { encode_utf16(&c, (&c) + 1, [&dst](uint32_t cu) { dst.push_back(cu); }); });
+    else
+        decode_utf8(utf8.begin(), utf8.size(), [&dst](uint32_t c) { dst.push_back(c); });
 }
 
 void vsg::convert_utf(const std::wstring& src, std::string& utf8)
 {
     utf8.clear();
-    encode_utf8(src.begin(), src.end(), [&utf8](uint32_t c) { utf8.push_back(static_cast<char>(c)); });
+    if constexpr (std::numeric_limits<wchar_t>::max() == 0xFFFF)
+    {
+        std::u32string intermediate;
+        decode_utf16(src.begin(), src.size(), [&intermediate](char32_t c) { intermediate.push_back(c); });
+        encode_utf8(intermediate.begin(), intermediate.end(), [&utf8](char32_t c) { utf8.push_back(static_cast<char>(c)); });
+    }
+    else
+        encode_utf8(src.begin(), src.end(), [&utf8](uint32_t c) { utf8.push_back(static_cast<char>(c)); });
 }

@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/Camera.h>
 #include <vsg/app/Window.h>
 #include <vsg/app/WindowResizeHandler.h>
+#include <vsg/state/ResourceHints.h>
 
 namespace vsg
 {
@@ -47,8 +48,11 @@ namespace vsg
         /// Get the Extent2D of the attached Framebuffer or Window.
         VkExtent2D getExtent() const;
 
-        /// RenderArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass, usually matches the ViewportState's scissor
+        /// RenderArea settings for VkRenderPassBeginInfo.renderArea passed to the vkCmdBeginRenderPass
         VkRect2D renderArea;
+
+        // Default ViewportState to use for graphics pipelines under this RenderGraph, this be will synced with the renderArea.
+        ref_ptr<ViewportState> viewportState;
 
         /// RenderPass to use passed to the vkCmdBeginRenderPass in place of the framebuffer's or window's renderPass. renderPass must be compatible with the render pass used to create the window or framebuffer.
         ref_ptr<RenderPass> renderPass;
@@ -63,6 +67,8 @@ namespace vsg
 
         /// Subpass contents setting passed to vkCmdBeginRenderPass
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
+
+        uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
 
         /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
         /// By default resize handling is done.

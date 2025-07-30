@@ -21,12 +21,14 @@ namespace vsg
 
     // forward declare
     class Window;
+    class CommandLine;
 
     /// WindowTraits specifies the settings required when creating windows/vulkan instance/device.
     class VSG_DECLSPEC WindowTraits : public Inherit<Object, WindowTraits>
     {
     public:
         WindowTraits();
+        explicit WindowTraits(CommandLine& arguments);
         explicit WindowTraits(const WindowTraits& traits, const CopyOp& copyop = {});
         explicit WindowTraits(const std::string& title);
         WindowTraits(int32_t in_x, int32_t in_y, uint32_t in_width, uint32_t in_height, const std::string& title = "vsg window");
@@ -71,7 +73,7 @@ namespace vsg
         std::vector<float> queuePiorities{1.0, 0.0};
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        // hints to which extenstion to enable during Instance/Device setup
+        // hints to which extension to enable during Instance/Device setup
         bool debugLayer = false;           // VK_LAYER_KHRONOS_validation
         bool synchronizationLayer = false; // VK_LAYER_KHRONOS_synchronization2
         bool apiDumpLayer = false;         // VK_LAYER_LUNARG_api_dump

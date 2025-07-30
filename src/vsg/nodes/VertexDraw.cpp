@@ -148,5 +148,5 @@ void VertexDraw::record(CommandBuffer& commandBuffer) const
     VkCommandBuffer cmdBuffer{commandBuffer};
 
     vkCmdBindVertexBuffers(cmdBuffer, firstBinding, static_cast<uint32_t>(vkd.vkBuffers.size()), vkd.vkBuffers.data(), vkd.offsets.data());
-    vkCmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+    vkCmdDraw(cmdBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 }

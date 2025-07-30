@@ -47,6 +47,9 @@ set(SOURCES
     nodes/TileDatabase.cpp
     nodes/InstrumentationNode.cpp
     nodes/RegionOfInterest.cpp
+    nodes/InstanceNode.cpp
+    nodes/InstanceDraw.cpp
+    nodes/InstanceDrawIndexed.cpp
 
     lighting/Light.cpp
     lighting/AmbientLight.cpp
@@ -141,9 +144,11 @@ set(SOURCES
     io/Path.cpp
     io/ReaderWriter.cpp
     io/VSG.cpp
+    io/glsl.cpp
+    io/json.cpp
+    io/JSONParser.cpp
     io/spirv.cpp
     io/tile.cpp
-    io/glsl.cpp
     io/txt.cpp
     io/read.cpp
     io/write.cpp
@@ -242,8 +247,10 @@ set(SOURCES
     vk/Surface.cpp
     vk/Swapchain.cpp
     vk/ResourceRequirements.cpp
+    vk/State.cpp
 
     utils/CommandLine.cpp
+    utils/CoordinateSpace.cpp
     utils/Builder.cpp
     utils/SharedObjects.cpp
     utils/ShaderSet.cpp
@@ -268,7 +275,11 @@ set(LIBRARIES PUBLIC
 )
 
 if (${VSG_SUPPORTS_ShaderCompiler})
-    list(APPEND LIBRARIES PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+    list(INSERT LIBRARIES 0 PRIVATE glslang::glslang glslang::glslang-default-resource-limits glslang::SPIRV)
+endif()
+
+if (VSG_SUPPORTS_ShaderOptimizer)
+    list(INSERT LIBRARIES 0 PRIVATE SPIRV-Tools-opt)
 endif()
 
 # Check for std::atomic
@@ -368,6 +379,8 @@ if(MSVC)
         target_compile_definitions(vsg PUBLIC "_ITERATOR_DEBUG_LEVEL=0")
     endif()
 
+    # MSVC assumes system-wide eight-bit code page (e.g. CP1252, CP1250) if there's no BOM
+    target_compile_options(vsg PRIVATE "/utf-8")
 endif()
 
 

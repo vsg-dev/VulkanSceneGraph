@@ -44,6 +44,7 @@ void DeleteQueue::advance(ref_ptr<FrameStamp> frameStamp)
 void DeleteQueue::wait_then_clear()
 {
     ObjectsToDelete objectsToDelete;
+    std::list<ref_ptr<SharedObjects>> sharedObjectsToPrune;
 
     {
         std::chrono::duration waitDuration = std::chrono::milliseconds(100);
@@ -56,25 +57,49 @@ void DeleteQueue::wait_then_clear()
         {
             _cv.wait_for(lock, waitDuration);
         }
-        auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObectToDelete& otd) { return otd.frameCount > frameCount; });
+        auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObjectToDelete& otd) { return otd.frameCount > frameCount; });
 
-        // use a swap of the container to keep the time the mutex is aquired as short as possible
+        // use a swap of the container to keep the time the mutex is acquired as short as possible
         objectsToDelete.splice(objectsToDelete.end(), _objectsToDelete, _objectsToDelete.begin(), last_itr);
+
+        sharedObjectsToPrune.swap(_sharedObjectsToPrune);
     }
 
+    size_t numObjectsToDelete = objectsToDelete.size();
+
     objectsToDelete.clear();
+
+    if (numObjectsToDelete > 0)
+    {
+        for (auto& sharedObjects : sharedObjectsToPrune)
+        {
+            sharedObjects->prune();
+        }
+        sharedObjectsToPrune.clear();
+    }
 }
 
 void DeleteQueue::clear()
 {
     ObjectsToDelete objectsToDelete;
 
-    // use a swap of the container to keep the time the mutex is aquired as short as possible
+    // use a swap of the container to keep the time the mutex is acquired as short as possible
     {
         std::scoped_lock lock(_mutex);
         objectsToDelete.swap(objectsToDelete);
     }
 
+    size_t numObjectsToDelete = objectsToDelete.size();
+
     //vsg::info("DeleteQueue::clear(), releasing ", nodesToRelease.size());
     objectsToDelete.clear();
+
+    if (numObjectsToDelete > 0)
+    {
+        for (auto& sharedObjects : _sharedObjectsToPrune)
+        {
+            sharedObjects->prune();
+        }
+        _sharedObjectsToPrune.clear();
+    }
 }

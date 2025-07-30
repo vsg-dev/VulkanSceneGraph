@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/View.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
@@ -79,9 +78,9 @@ struct AssignGraphicsPipelineStates : public vsg::Visitor
         vertexInputState = VertexInputState::create(ias);
         config->pipelineStates.push_back(vertexInputState);
     }
-    void apply(vsg::ViewportState& ias) override
+    void apply(vsg::ViewportState& vs) override
     {
-        viewportState = ViewportState::create(ias);
+        viewportState = ViewportState::create(vs);
         config->pipelineStates.push_back(viewportState);
     }
 };
@@ -144,9 +143,23 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, ref_ptr<Data
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
         if (!sampler) sampler = Sampler::create();
 
+        if (textureData)
+        {
+            if (textureBinding.coordinateSpace == vsg::CoordinateSpace::sRGB)
+                textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
+            else if (textureBinding.coordinateSpace == vsg::CoordinateSpace::LINEAR)
+                textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
+        }
+
+        auto descriptorImage = DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, dstArrayElement, textureBinding.descriptorType);
+
+        for (auto& imageInfo : descriptorImage->imageInfoList)
+        {
+            imageInfo->computeNumMipMapLevels();
+        }
+
         // create texture image and associated DescriptorSets and binding
-        return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
-                                DescriptorImage::create(sampler, textureData ? textureData : textureBinding.data, textureBinding.binding, dstArrayElement, textureBinding.descriptorType));
+        return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, descriptorImage);
     }
     return false;
 }
@@ -160,9 +173,30 @@ bool DescriptorConfigurator::assignTexture(const std::string& name, const ImageI
         // set up bindings
         if (!textureBinding.define.empty()) defines.insert(textureBinding.define);
 
+        for (const auto& imageInfo : imageInfoList)
+        {
+            if (imageInfo->imageView && imageInfo->imageView->image)
+            {
+                auto textureData = imageInfo->imageView->image->data;
+                if (textureData)
+                {
+                    if (textureBinding.coordinateSpace == vsg::CoordinateSpace::sRGB)
+                        textureData->properties.format = vsg::uNorm_to_sRGB(textureData->properties.format);
+                    else if (textureBinding.coordinateSpace == vsg::CoordinateSpace::LINEAR)
+                        textureData->properties.format = vsg::sRGB_to_uNorm(textureData->properties.format);
+                }
+            }
+        }
+
+        auto descriptorImage = DescriptorImage::create(imageInfoList, textureBinding.binding, dstArrayElement, textureBinding.descriptorType);
+
+        for (auto& imageInfo : descriptorImage->imageInfoList)
+        {
+            imageInfo->computeNumMipMapLevels();
+        }
+
         // create texture image and associated DescriptorSets and binding
-        return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags,
-                                DescriptorImage::create(imageInfoList, textureBinding.binding, dstArrayElement, textureBinding.descriptorType));
+        return assignDescriptor(textureBinding.set, textureBinding.binding, textureBinding.descriptorType, textureBinding.descriptorCount, textureBinding.stageFlags, descriptorImage);
     }
     return false;
 }

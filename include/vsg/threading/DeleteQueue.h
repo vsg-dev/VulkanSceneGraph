@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/threading/ActivityStatus.h>
+#include <vsg/utils/SharedObjects.h>
 
 #include <condition_variable>
 #include <list>
@@ -26,13 +27,13 @@ namespace vsg
     public:
         explicit DeleteQueue(ref_ptr<ActivityStatus> status);
 
-        struct ObectToDelete
+        struct ObjectToDelete
         {
             uint64_t frameCount = 0;
             ref_ptr<Object> object;
         };
 
-        using ObjectsToDelete = std::list<ObectToDelete>;
+        using ObjectsToDelete = std::list<ObjectToDelete>;
 
         std::atomic_uint64_t frameCount = 0;
         uint64_t retainForFrameCount = 3;
@@ -45,7 +46,7 @@ namespace vsg
         void add(ref_ptr<Object> object)
         {
             std::scoped_lock lock(_mutex);
-            _objectsToDelete.push_back(ObectToDelete{frameCount + retainForFrameCount, object});
+            _objectsToDelete.push_back(ObjectToDelete{frameCount + retainForFrameCount, object});
             _cv.notify_one();
         }
 
@@ -53,9 +54,60 @@ namespace vsg
         void add(T& objects)
         {
             std::scoped_lock lock(_mutex);
+
+            // register the Objects to delete
             for (auto& object : objects)
             {
-                _objectsToDelete.emplace_back(ObectToDelete{frameCount + retainForFrameCount, object});
+                _objectsToDelete.emplace_back(ObjectToDelete{frameCount + retainForFrameCount, object});
+            }
+
+            _cv.notify_one();
+        }
+
+        void prune(ref_ptr<SharedObjects> sharedObjects)
+        {
+            std::scoped_lock lock(_mutex);
+
+            // register the SharedObjects to call prune on
+            if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects) == _sharedObjectsToPrune.end())
+            {
+                _sharedObjectsToPrune.push_back(sharedObjects);
+            }
+
+            _cv.notify_one();
+        }
+
+        template<typename T>
+        void prune(T& sharedObjectsList)
+        {
+            std::scoped_lock lock(_mutex);
+
+            // register the Objects to delete
+            for (auto& sharedObjects : sharedObjectsList)
+            {
+                if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects) == _sharedObjectsToPrune.end())
+                    _sharedObjectsToPrune.push_back(sharedObjects);
+            }
+
+            _cv.notify_one();
+        }
+
+        template<typename T, typename R>
+        void add_prune(T& objects, R& sharedObjectsList)
+        {
+            std::scoped_lock lock(_mutex);
+
+            // register the Objects to delete
+            for (auto& object : objects)
+            {
+                _objectsToDelete.emplace_back(ObjectToDelete{frameCount + retainForFrameCount, object});
+            }
+
+            // register the SharedObjects to call prune on
+            for (auto& sharedObjects : sharedObjectsList)
+            {
+                if (std::find(_sharedObjectsToPrune.begin(), _sharedObjectsToPrune.end(), sharedObjects) == _sharedObjectsToPrune.end())
+                    _sharedObjectsToPrune.push_back(sharedObjects);
             }
             _cv.notify_one();
         }
@@ -70,6 +122,8 @@ namespace vsg
         std::mutex _mutex;
         std::condition_variable _cv;
         ObjectsToDelete _objectsToDelete;
+        std::list<ref_ptr<SharedObjects>> _sharedObjectsToPrune;
+
         ref_ptr<ActivityStatus> _status;
     };
     VSG_type_name(vsg::DeleteQueue);

@@ -37,7 +37,7 @@ namespace vsg
     {
     public:
         Options();
-        explicit Options(const Options& options);
+        Options(const Options& rhs, const CopyOp& copyop = {});
 
         template<typename... Args>
         explicit Options(Args... args)
@@ -47,13 +47,8 @@ namespace vsg
 
         Options& operator=(const Options& rhs) = delete;
 
-        int compare(const Object& rhs) const override;
-
         /// read command line options, assign values to this options object to later use with reading/writing files
         virtual bool readOptions(CommandLine& arguments);
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
 
         void add(ref_ptr<ReaderWriter> rw = {});
         void add(const ReaderWriters& rws);
@@ -105,8 +100,26 @@ namespace vsg
         /// mechanism for finding dynamic objects in loaded scene graph
         ref_ptr<FindDynamicObjects> findDynamicObjects;
 
-        /// mechanism for propogating dynamic objects classification up parental chain so that cloning is done on all dynamic objects to avoid sharing of dyanmic parts.
+        /// mechanism for propagating dynamic objects classification up parental chain so that cloning is done on all dynamic objects to avoid sharing of dynamic parts.
         ref_ptr<PropagateDynamicObjects> propagateDynamicObjects;
+
+        enum InstanceNodeHint
+        {
+            INSTANCE_NONE = 0,
+            INSTANCE_TRANSLATIONS = 1 << 0,
+            INSTANCE_ROTATIONS = 1 << 1,
+            INSTANCE_SCALES = 1 << 2,
+            INSTANCE_COLORS = 1 << 3
+        };
+
+        int instanceNodeHint = INSTANCE_NONE;
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Options::create(*this, copyop); }
+        int compare(const Object& rhs) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~Options();

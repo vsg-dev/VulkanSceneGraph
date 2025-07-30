@@ -31,6 +31,11 @@ namespace vsg
         using Children = std::vector<ref_ptr<Node>, allocator_affinity_nodes<ref_ptr<Node>>>;
         Children children;
 
+        void addChild(vsg::ref_ptr<Node> child)
+        {
+            children.push_back(child);
+        }
+
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return Joint::create(*this, copyop); }
         int compare(const Object& rhs) const override;

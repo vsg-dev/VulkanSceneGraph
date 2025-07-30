@@ -23,6 +23,7 @@ namespace vsg
 
     /// Utility class for updating a scene graph when a View's camera ViewportState has been updated so that associated GraphicsPipelines in the
     /// scene graph can be recompiled and correctly reflect the new ViewportState.
+    /// As viewport size and scissor is dynamic by default, this is only necessary when opting out of that or when the viewport count has changed.
     class VSG_DECLSPEC UpdateGraphicsPipelines : public Inherit<Visitor, UpdateGraphicsPipelines>
     {
     public:
@@ -58,7 +59,8 @@ namespace vsg
             return static_cast<T>(static_cast<float>(original) * static_cast<float>(extentNew) / static_cast<float>(extentOriginal) + 0.5f);
         }
 
-        void scale_rect(VkRect2D& rect);
+        virtual void scale_rect(VkRect2D& rect);
+        virtual void scale_viewport(VkViewport& viewport);
 
         /// return true if the object was visited
         bool visit(const Object* object, uint32_t index = 0);

@@ -14,7 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/io/FileSystem.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -223,7 +222,7 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
                         freeList.head = nextFreePosition;
                     }
 
-                    // one list free slot availalbe
+                    // one list free slot available
                     --freeList.count;
                 }
 
@@ -403,7 +402,7 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
                 }
             }
 
-            // N slot is nolonger a seperate free slot so decrement free count
+            // N slot is nolonger a separate free slot so decrement free count
             --freeList.count;
 
 #if DEBUG_ALLOCATOR

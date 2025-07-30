@@ -115,11 +115,11 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
     if (stateInfo.billboard)
     {
-        graphicsPipelineConfig->enableArray("vsg_position_scaleDistance", VK_VERTEX_INPUT_RATE_INSTANCE, 16);
+        graphicsPipelineConfig->enableArray("vsg_Translation_scaleDistance", VK_VERTEX_INPUT_RATE_INSTANCE, 16);
     }
     else if (stateInfo.instance_positions_vec3)
     {
-        graphicsPipelineConfig->enableArray("vsg_position", VK_VERTEX_INPUT_RATE_INSTANCE, 12);
+        graphicsPipelineConfig->enableArray("vsg_Translation", VK_VERTEX_INPUT_RATE_INSTANCE, 12);
     }
 
     struct SetPipelineStates : public Visitor

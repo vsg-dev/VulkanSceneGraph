@@ -46,9 +46,13 @@ namespace vsg
         CommandLine(int* argc, char** argv);
 
         int& argc() { return *_argc; }
+        const int& argc() const { return *_argc; }
+
         char** argv() { return _argv; }
+        const char* const* argv() const { return _argv; }
 
         char* operator[](int i) { return _argv[i]; }
+        const char* operator[](int i) const { return _argv[i]; }
 
         template<typename T>
         bool read(int& i, T& v)
@@ -136,7 +140,7 @@ namespace vsg
                     }
                     else
                     {
-                        std::string parameters = ((match + " ") + ... + type_name(args));
+                        std::string parameters = (match + ... + space_type_name(args));
                         std::string errorMessage = std::string("Failed to match command line required parameters for ") + parameters;
                         _errorMessages.push_back(errorMessage);
                     }
@@ -194,6 +198,7 @@ namespace vsg
             return false;
         }
 
+        /// deprecated: provided for backwards compatibility, use vsg::Options::readOptions(arguments)
         bool read(Options* options);
 
         using Messages = std::vector<std::string>;
@@ -265,6 +270,16 @@ namespace vsg
             }
         }
         return false;
+    }
+
+    inline std::ostream& operator<<(std::ostream& output, const CommandLine& arguments)
+    {
+        for (int i = 0; i < arguments.argc(); ++i)
+        {
+            if (i > 0) output << ' ';
+            output << arguments[i];
+        }
+        return output;
     }
 
 } // namespace vsg

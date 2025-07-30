@@ -28,7 +28,7 @@
 
 ### Installing dependencies
 
-VulkanSceneGraph build requires C++ 17, CMake and vulkan as a required dependency, and has an optional dependency of glslang 14.0 or later which is used for applications that required runtime shader compilation. Latest Linux releases, such as Ubuntu 24.04, have a modern enough version of glslang out of the box so the following instructions will work out of the box, but wiht older distributions the glslang version will predate 14 and is not supported by the VulkanSceneGraph, so if you require runtime shader compilation you will need to either use the version provided by a recent [VulkanSDK](https://vulkan.lunarg.com/) distribution or compile and install [glslang](https://github.com/KhronosGroup/glslang) from source.
+VulkanSceneGraph build requires C++ 17, CMake and vulkan as a required dependency, and has an optional dependency of glslang 14.0 or later which is used for applications that required runtime shader compilation. Latest Linux releases, such as Ubuntu 24.04, have a modern enough version of glslang out of the box so the following instructions will work out of the box, but with older distributions the glslang version will predate 14 and is not supported by the VulkanSceneGraph, so if you require runtime shader compilation you will need to either use the version provided by a recent [VulkanSDK](https://vulkan.lunarg.com/) distribution or compile and install [glslang](https://github.com/KhronosGroup/glslang) from source.
 
 * Ubuntu family:
 	`sudo apt-get install cmake-curses-gui g++ git libvulkan-dev glslang-dev glslang-tools`
@@ -45,7 +45,7 @@ Command line instructions for default build of static library (.a) in source:
 
     git clone https://github.com/vsg-dev/VulkanSceneGraph.git
     cd VulkanSceneGraph
-    cmake .c
+    cmake .
     cmake --build . -j 16 -t install
 
 Command line instructions for building shared library (.so) out of source:
@@ -322,7 +322,7 @@ macOS does not natively support Vulkan. However the excellent MoltenVK library h
 
 [Vulkan Downloads](https://vulkan.lunarg.com/sdk/home#mac)
 
-Download the sdk and unpack it. There's no form of installer but you're able to place the root sdk folder anywhere on your machine. The sdk contains detailed instuctions on how to setup MoltenVK to work on your machine as well as how to redistribute your application contained in the /Documentation/getting_started_macos.md file.
+Download the sdk and unpack it. There's no form of installer but you're able to place the root sdk folder anywhere on your machine. The sdk contains detailed instructions on how to setup MoltenVK to work on your machine as well as how to redistribute your application contained in the /Documentation/getting_started_macos.md file.
 
 As with other platforms we need the VULKAN_SDK variable which should point to your downloaded sdk folder. Specifically the macOS subfolder of the sdk. This is needed so CMake can find the sdk. Unique to macOS we also need to set environment variables pointing to a few files within the sdk. Again the getting started document in the sdk has detailed information relating to these. A quick cheat sheet is provided here, if you use a .bash_profile file in your user folder you can add the following.
 

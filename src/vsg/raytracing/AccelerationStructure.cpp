@@ -12,10 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 
-#include <vsg/raytracing/AccelerationStructure.h>
-
 #include <vsg/core/Exception.h>
-#include <vsg/io/Options.h>
+#include <vsg/raytracing/AccelerationStructure.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
 
@@ -64,8 +62,10 @@ void AccelerationStructure::compile(Context& context)
         _geometryPrimitiveCounts.data(),
         &accelerationStructureBuildSizesInfo);
 
-    _buffer = vsg::createBufferAndMemory(context.device, accelerationStructureBuildSizesInfo.accelerationStructureSize,
-                                         VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    VkMemoryAllocateFlagsInfo memFlags = {};
+    memFlags.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+    memFlags.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+    _buffer = vsg::createBufferAndMemory(context.device, accelerationStructureBuildSizesInfo.accelerationStructureSize, VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memFlags);
 
     _accelerationStructureInfo.buffer = _buffer->vk(context.deviceID);
     _accelerationStructureInfo.size = accelerationStructureBuildSizesInfo.accelerationStructureSize;

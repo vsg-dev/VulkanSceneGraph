@@ -51,6 +51,9 @@ namespace vsg
     class SpotLight;
     class InstrumentationNode;
     class RegionOfInterest;
+    class InstanceNode;
+    class InstanceDraw;
+    class InstanceDrawIndexed;
 
     // forward declare text classes
     class Text;
@@ -223,10 +226,15 @@ namespace vsg
         virtual void apply(uivec2Value&);
         virtual void apply(uivec3Value&);
         virtual void apply(uivec4Value&);
+        virtual void apply(mat2Value&);
+        virtual void apply(dmat2Value&);
+        virtual void apply(mat3Value&);
+        virtual void apply(dmat3Value&);
         virtual void apply(mat4Value&);
         virtual void apply(dmat4Value&);
 
         // Arrays
+        virtual void apply(stringArray&);
         virtual void apply(byteArray&);
         virtual void apply(ubyteArray&);
         virtual void apply(shortArray&);
@@ -265,8 +273,11 @@ namespace vsg
         virtual void apply(block128Array&);
 
         // Array2Ds
+        virtual void apply(byteArray2D&);
         virtual void apply(ubyteArray2D&);
+        virtual void apply(shortArray2D&);
         virtual void apply(ushortArray2D&);
+        virtual void apply(intArray2D&);
         virtual void apply(uintArray2D&);
         virtual void apply(floatArray2D&);
         virtual void apply(doubleArray2D&);
@@ -298,8 +309,11 @@ namespace vsg
         virtual void apply(block128Array2D&);
 
         // Array3Ds
+        virtual void apply(byteArray3D&);
         virtual void apply(ubyteArray3D&);
+        virtual void apply(shortArray3D&);
         virtual void apply(ushortArray3D&);
+        virtual void apply(intArray3D&);
         virtual void apply(uintArray3D&);
         virtual void apply(floatArray3D&);
         virtual void apply(doubleArray3D&);
@@ -343,6 +357,9 @@ namespace vsg
         virtual void apply(SpotLight&);
         virtual void apply(InstrumentationNode&);
         virtual void apply(RegionOfInterest&);
+        virtual void apply(InstanceNode&);
+        virtual void apply(InstanceDraw&);
+        virtual void apply(InstanceDrawIndexed&);
 
         // text
         virtual void apply(Text&);

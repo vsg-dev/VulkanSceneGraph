@@ -113,6 +113,7 @@ void SharedObjects::prune()
                 {
                     if ((*object_itr)->referenceCount() == 1)
                     {
+                        // vsg::info("pruning ", *object_itr);
                         object_itr = objects.erase(object_itr);
                         prunedObjects = true;
                     }
@@ -132,6 +133,7 @@ void SharedObjects::prune()
         loadedObject.object = *(observedLoadedObject_itr++);
         if (!loadedObject.object)
         {
+            // vsg::info("pruning loadedObject ", *object_itr);
             object_itr = loadedObjects.erase(object_itr);
         }
         else
@@ -152,26 +154,44 @@ void SharedObjects::prune()
     }
 }
 
-void SharedObjects::report(std::ostream& out)
+void SharedObjects::report(vsg::LogOutput& output)
 {
     std::scoped_lock<std::recursive_mutex> lock(_mutex);
-    out << "SharedObjects::report(..) " << this << std::endl;
-    out << "SharedObjects::_defaults " << _defaults.size() << std::endl;
+    output("SharedObjects::report(..) ", this, " {");
+    output.in();
+    output("SharedObjects::_defaults ", _defaults.size(), " {");
+    output.in();
     for (auto& [type, object] : _defaults)
     {
-        out << "    " << type.name() << ", object = " << object << " " << object->referenceCount() << std::endl;
+        output(type.name(), ", object = ", object, " ", object->referenceCount());
     }
+    output.out();
+    output("}");
 
-    out << "SharedObjects::_sharedObjects " << SharedObjects::_sharedObjects.size() << std::endl;
+    output("SharedObjects::_sharedObjects ", SharedObjects::_sharedObjects.size(), " {");
+    output.in();
     for (auto& [type, objects] : _sharedObjects)
     {
-        out << "    " << type.name() << ", objects = " << objects.size() << std::endl;
+        output(type.name(), ", objects = ", objects.size(), " {");
+        output.in();
         for (auto& object : objects)
         {
-            out << "        object = " << object << " "
-                << " " << object->referenceCount() << std::endl;
+            if (auto loadedObject = object.cast<LoadedObject>())
+            {
+                output("loadedObject = ", loadedObject, " ", object->referenceCount(), " ", loadedObject->filename);
+            }
+            else
+            {
+                output("object = ", object, " ", object->referenceCount());
+            }
         }
+        output.out();
+        output("}");
     }
+    output.out();
+    output("}");
+    output.out();
+    output("}");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

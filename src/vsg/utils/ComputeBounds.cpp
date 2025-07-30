@@ -16,10 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/CullGroup.h>
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/MatrixTransform.h>
 #include <vsg/nodes/PagedLOD.h>
@@ -144,6 +146,38 @@ void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
     if (vid.indices) vid.indices->accept(*this);
 
     applyDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
+}
+
+void ComputeBounds::apply(const vsg::InstanceNode& in)
+{
+    auto& arrayState = *arrayStateStack.back();
+
+    arrayState.apply(in);
+
+    instanceNode = &in;
+
+    in.traverse(*this);
+}
+
+void ComputeBounds::apply(const vsg::InstanceDraw& id)
+{
+    if (!instanceNode) return;
+
+    auto& arrayState = *arrayStateStack.back();
+    arrayState.apply(id);
+
+    applyDraw(id.firstVertex, id.vertexCount, instanceNode->firstInstance, instanceNode->instanceCount);
+}
+
+void ComputeBounds::apply(const vsg::InstanceDrawIndexed& idi)
+{
+    if (!instanceNode) return;
+
+    auto& arrayState = *arrayStateStack.back();
+    arrayState.apply(idi);
+
+    idi.indices->accept(*this);
+    applyDrawIndexed(idi.firstIndex, idi.indexCount, instanceNode->firstInstance, instanceNode->instanceCount);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)

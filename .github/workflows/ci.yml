@@ -39,6 +39,8 @@ jobs:
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}} -A x64
               cmake --build .
          elif [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt-get -qq update
+              sudo apt-get -qq install libxcb1-dev
               cmake . -DBUILD_SHARED_LIBS=${{matrix.build-shared}}
               make -j 3 && sudo make install
          elif [ "$RUNNER_OS" == "macOS" ]; then

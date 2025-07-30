@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/View.h>
 #include <vsg/app/WindowResizeHandler.h>
 #include <vsg/commands/ClearAttachments.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/vk/Context.h>
 #include <vsg/vk/State.h>
@@ -82,6 +81,17 @@ void WindowResizeHandler::scale_rect(VkRect2D& rect)
     rect.extent.height = static_cast<uint32_t>(scale_parameter(edge_y, previous_extent.height, new_extent.height) - rect.offset.y);
 }
 
+void WindowResizeHandler::scale_viewport(VkViewport& viewport)
+{
+    float scale_x = static_cast<float>(new_extent.width) / static_cast<float>(previous_extent.width);
+    float scale_y = static_cast<float>(new_extent.height) / static_cast<float>(previous_extent.height);
+
+    viewport.x *= scale_x;
+    viewport.y *= scale_y;
+    viewport.width *= scale_x;
+    viewport.height *= scale_y;
+}
+
 bool WindowResizeHandler::visit(const Object* object, uint32_t index)
 {
     decltype(visited)::value_type objectIndex(object, index);
@@ -92,6 +102,8 @@ bool WindowResizeHandler::visit(const Object* object, uint32_t index)
 
 void WindowResizeHandler::apply(vsg::BindGraphicsPipeline& bindPipeline)
 {
+    if (!context) return;
+
     GraphicsPipeline* graphicsPipeline = bindPipeline.pipeline;
 
     if (!visit(graphicsPipeline, context->viewID))
@@ -144,8 +156,6 @@ void WindowResizeHandler::apply(vsg::View& view)
 {
     if (!visit(&view)) return;
 
-    context->viewID = view.viewID;
-
     if (!view.camera)
     {
         view.traverse(*this);
@@ -154,33 +164,48 @@ void WindowResizeHandler::apply(vsg::View& view)
 
     view.camera->projectionMatrix->changeExtent(previous_extent, new_extent);
 
-    auto viewportState = view.camera->viewportState;
-
-    size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
-    for (size_t i = 0; i < num_viewports; ++i)
+    if (auto viewportState = view.camera->viewportState)
     {
-        auto& viewport = viewportState->viewports[i];
-        auto& scissor = viewportState->scissors[i];
-
-        bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
-                                 (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
-
-        if (new_extent != scissor.extent) scale_rect(scissor);
-
-        viewport.x = static_cast<float>(scissor.offset.x);
-        viewport.y = static_cast<float>(scissor.offset.y);
-        viewport.width = static_cast<float>(scissor.extent.width);
-        viewport.height = static_cast<float>(scissor.extent.height);
-
-        if (renderAreaMatches)
+        size_t num_viewports = std::min(viewportState->viewports.size(), viewportState->scissors.size());
+        for (size_t i = 0; i < num_viewports; ++i)
         {
-            renderArea = scissor;
+            auto& viewport = viewportState->viewports[i];
+            auto& scissor = viewportState->scissors[i];
+
+            bool renderAreaMatches = (renderArea.offset.x == scissor.offset.x) && (renderArea.offset.y == scissor.offset.y) &&
+                                     (renderArea.extent.width == scissor.extent.width) && (renderArea.extent.height == scissor.extent.height);
+
+            if (new_extent != scissor.extent) scale_rect(scissor);
+
+            viewport.x = static_cast<float>(scissor.offset.x);
+            viewport.y = static_cast<float>(scissor.offset.y);
+            viewport.width = static_cast<float>(scissor.extent.width);
+            viewport.height = static_cast<float>(scissor.extent.height);
+
+            if (renderAreaMatches)
+            {
+                renderArea = scissor;
+            }
+        }
+
+        if (context)
+        {
+            uint32_t previous_viewID = context->viewID;
+            context->viewID = view.viewID;
+            context->defaultPipelineStates.emplace_back(viewportState);
+
+            view.traverse(*this);
+
+            context->defaultPipelineStates.pop_back();
+            context->viewID = previous_viewID;
+        }
+        else
+        {
+            view.traverse(*this);
         }
     }
-
-    context->defaultPipelineStates.emplace_back(viewportState);
-
-    view.traverse(*this);
-
-    context->defaultPipelineStates.pop_back();
+    else
+    {
+        view.traverse(*this);
+    }
 }

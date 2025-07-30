@@ -33,7 +33,7 @@ namespace vsg
 
         /// origin value provides a means of translating the view matrix relative to the origin of any CoordinateFrame subgraphs
         /// to maximize the precision when moving around the CoordinateFrame subgraph.  This is helpful for astronmically large
-        /// scenes where standrd double precision is insufficient for avoiding visually significant numerical errors.
+        /// scenes where standard double precision is insufficient for avoiding visually significant numerical errors.
         dvec3 origin;
 
         virtual dmat4 transform(const dvec3& offset = {}) const = 0;

@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <algorithm>
 
 #include <vsg/commands/BindIndexBuffer.h>
-#include <vsg/io/Options.h>
 #include <vsg/raytracing/AccelerationGeometry.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
@@ -56,9 +55,17 @@ void AccelerationGeometry::compile(Context& context)
     auto vertexBufferInfo = vsg::createBufferAndTransferData(context, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
     auto indexBufferInfo = vsg::createBufferAndTransferData(context, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 #else
-    auto vertexBufferInfo = vsg::createHostVisibleBuffer(context.device, vertexDataList, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto vertexBufferInfo = vsg::createHostVisibleBuffer(context.device, vertexDataList,
+                                                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+                                                             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+                                                             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
+                                                         VK_SHARING_MODE_EXCLUSIVE);
     vsg::copyDataListToBuffers(context.device, vertexBufferInfo);
-    auto indexBufferInfo = vsg::createHostVisibleBuffer(context.device, indexDataList, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE);
+    auto indexBufferInfo = vsg::createHostVisibleBuffer(context.device, indexDataList,
+                                                        VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+                                                            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+                                                            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
+                                                        VK_SHARING_MODE_EXCLUSIVE);
     vsg::copyDataListToBuffers(context.device, indexBufferInfo);
 #endif
 

@@ -20,6 +20,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    enum InsertionPosition
+    {
+        INSERT_FRONT,
+        INSERT_BACK
+    };
 
     /// Template thread safe queue
     template<class T>
@@ -38,22 +43,28 @@ namespace vsg
         const ActivityStatus* getStatus() const { return _status; }
 
         /// add a single object to the back of the queue
-        void add(value_type operation)
+        void add(value_type operation, InsertionPosition insertionPosition = INSERT_BACK)
         {
             std::scoped_lock lock(_mutex);
-            _queue.emplace_back(operation);
+            if (insertionPosition == INSERT_BACK)
+                _queue.emplace_back(operation);
+            else
+                _queue.emplace_front(operation);
             _cv.notify_one();
         }
 
         /// add multiple objects to the back of the queue
         template<typename Iterator>
-        void add(Iterator begin, Iterator end)
+        void add(Iterator begin, Iterator end, InsertionPosition insertionPosition = INSERT_BACK)
         {
             size_t numAdditions = 0;
             std::scoped_lock lock(_mutex);
             for (auto itr = begin; itr != end; ++itr)
             {
-                _queue.emplace_back(*itr);
+                if (insertionPosition == INSERT_BACK)
+                    _queue.emplace_back(*itr);
+                else
+                    _queue.emplace_front(*itr);
                 ++numAdditions;
             }
 

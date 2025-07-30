@@ -25,6 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec2.h>
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
+#include <vsg/utils/CoordinateSpace.h>
 
 #include <istream>
 #include <ostream>
@@ -281,6 +282,54 @@ namespace vsg
     inline std::ostream& operator<<(std::ostream& output, const vsg::Exception& e)
     {
         output << "Error code: " << e.result << " | " << e.message;
+        return output;
+    }
+
+    inline std::istream& operator>>(std::istream& input, CoordinateSpace& coordinateSpace)
+    {
+        std::string str;
+        input >> str;
+
+        if (str == "LINEAR")
+            coordinateSpace = CoordinateSpace::LINEAR;
+        else if (str == "sRGB")
+            coordinateSpace = CoordinateSpace::sRGB;
+        else
+            coordinateSpace = CoordinateSpace::NO_PREFERENCE;
+
+        return input;
+    }
+
+    inline std::ostream& operator<<(std::ostream& output, const CoordinateSpace& coordinateSpace)
+    {
+        if (coordinateSpace == CoordinateSpace::LINEAR)
+            output << "LINEAR";
+        else if (coordinateSpace == CoordinateSpace::sRGB)
+            output << "sRGB";
+        else
+            output << "NO_PREFERENCE";
+
+        return output;
+    }
+
+    /// output stream support for std::vector<T>
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const std::vector<T>& values)
+    {
+        if (values.empty())
+            output << "{}";
+        else
+        {
+            output << "{ ";
+
+            output << values.front();
+            for (size_t i = 1; i < values.size(); ++i)
+            {
+                output << ", " << values[i];
+            }
+
+            output << " }";
+        }
         return output;
     }
 

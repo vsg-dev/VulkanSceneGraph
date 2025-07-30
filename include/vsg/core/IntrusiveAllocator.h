@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Allocator.h>
 
 #include <list>
+#include <string>
 #include <vector>
 
 namespace vsg
@@ -44,8 +45,8 @@ namespace vsg
     class VSG_DECLSPEC IntrusiveAllocator : public Allocator
     {
     public:
-        explicit IntrusiveAllocator(size_t in_defaultAlignment = 4);
-        explicit IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 4);
+        explicit IntrusiveAllocator(size_t in_defaultAlignment = 8);
+        explicit IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 8);
 
         ~IntrusiveAllocator();
 
@@ -116,7 +117,7 @@ namespace vsg
             Element* memory = nullptr;
             Element* memoryEnd = nullptr;
 
-            size_t alignment = 4; // min aligment is 4 { sizeof(Element) }
+            size_t alignment = 8; // min alignment is 4 { sizeof(Element) }
             size_t blockAlignment = 16;
             size_t blockSize = 0;
             size_t maximumAllocationSize = 0;
@@ -175,7 +176,7 @@ namespace vsg
 
             IntrusiveAllocator* parent = nullptr;
             std::string name;
-            size_t alignment = 4;
+            size_t alignment = 8;
             size_t blockSize = 0;
             size_t maximumAllocationSize = 0;
             std::vector<std::shared_ptr<MemoryBlock>> memoryBlocks;

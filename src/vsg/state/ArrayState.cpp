@@ -12,9 +12,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/commands/BindVertexBuffers.h>
-#include <vsg/io/Options.h>
+#include <vsg/maths/quat.h>
 #include <vsg/maths/sample.h>
+#include <vsg/maths/transform.h>
 #include <vsg/nodes/Geometry.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/ArrayState.h>
@@ -104,18 +108,42 @@ void ArrayState::apply(const vsg::VertexIndexDraw& vid)
     applyArrays(vid.firstBinding, vid.arrays);
 }
 
+void ArrayState::apply(const vsg::InstanceNode& id)
+{
+    // bindings set by Phong/PBR ShaderSets.
+    if (id.colors) applyArray(6, id.colors);
+    if (id.translations) applyArray(7, id.translations);
+    if (id.rotations) applyArray(8, id.rotations);
+    if (id.scales) applyArray(9, id.scales);
+}
+
+void ArrayState::apply(const vsg::InstanceDraw& id)
+{
+    applyArrays(id.firstBinding, id.arrays);
+}
+
+void ArrayState::apply(const vsg::InstanceDrawIndexed& id)
+{
+    applyArrays(id.firstBinding, id.arrays);
+}
+
 void ArrayState::apply(const vsg::BindVertexBuffers& bvb)
 {
     applyArrays(bvb.firstBinding, bvb.arrays);
 }
 
-void ArrayState::applyArrays(uint32_t firstBinding, const DataList& in_arrays)
+void ArrayState::applyArray(uint32_t binding, const ref_ptr<BufferInfo>& in_array)
 {
-    if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
-    std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
+    if (in_array && in_array->data) applyArray(binding, in_array->data);
+}
+
+void ArrayState::applyArray(uint32_t binding, const ref_ptr<Data>& in_array)
+{
+    if (arrays.size() <= binding) arrays.resize(binding + 1);
+    arrays[binding] = in_array;
 
     // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
-    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && arrays[vertexAttribute.binding])
+    if ((vertexAttribute.binding == binding) && arrays[vertexAttribute.binding])
     {
         arrays[vertexAttribute.binding]->accept(*this);
     }
@@ -128,6 +156,18 @@ void ArrayState::applyArrays(uint32_t firstBinding, const BufferInfoList& in_arr
     {
         arrays[firstBinding + i] = in_arrays[i]->data;
     }
+
+    // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
+    if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && arrays[vertexAttribute.binding])
+    {
+        arrays[vertexAttribute.binding]->accept(*this);
+    }
+}
+
+void ArrayState::applyArrays(uint32_t firstBinding, const DataList& in_arrays)
+{
+    if (arrays.size() < (in_arrays.size() + firstBinding)) arrays.resize(in_arrays.size() + firstBinding);
+    std::copy(in_arrays.begin(), in_arrays.end(), arrays.begin() + firstBinding);
 
     // if the required vertexAttribute is within the new arrays apply the appropriate array to set up the vertices array
     if ((vertexAttribute.binding >= firstBinding) && ((vertexAttribute.binding - firstBinding) < arrays.size()) && arrays[vertexAttribute.binding])
@@ -202,52 +242,117 @@ void NullArrayState::apply(const vsg::Data&)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PositionArrayState
+// TranslationArrayState
 //
-PositionArrayState::PositionArrayState()
+TranslationArrayState::TranslationArrayState()
 {
 }
 
-PositionArrayState::PositionArrayState(const PositionArrayState& rhs) :
+TranslationArrayState::TranslationArrayState(const TranslationArrayState& rhs) :
     Inherit(rhs),
-    position_attribute_location(rhs.position_attribute_location),
-    positionAttribute(rhs.positionAttribute)
+    translation_attribute_location(rhs.translation_attribute_location),
+    translationAttribute(rhs.translationAttribute)
 {
 }
 
-PositionArrayState::PositionArrayState(const ArrayState& rhs) :
+TranslationArrayState::TranslationArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-ref_ptr<ArrayState> PositionArrayState::cloneArrayState()
+ref_ptr<ArrayState> TranslationArrayState::cloneArrayState()
 {
-    return PositionArrayState::create(*this);
+    return TranslationArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> TranslationArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
-    return PositionArrayState::create(*arrayState);
+    return TranslationArrayState::create(*arrayState);
 }
 
-void PositionArrayState::apply(const VertexInputState& vas)
+void TranslationArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
-    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+    getAttributeDetails(vas, translation_attribute_location, translationAttribute);
 }
 
-ref_ptr<const vec3Array> PositionArrayState::vertexArray(uint32_t instanceIndex)
+ref_ptr<const vec3Array> TranslationArrayState::vertexArray(uint32_t instanceIndex)
 {
-    auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
+    auto translations = arrays[translationAttribute.binding].cast<vec3Array>();
 
-    if (positions && (instanceIndex < positions->size()))
+    if (translations && (instanceIndex < translations->size()))
     {
-        auto position = positions->at(instanceIndex);
+        auto translation = translations->at(instanceIndex);
         auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
         auto src_vertex_itr = vertices->begin();
         for (auto& v : *new_vertices)
         {
-            v = *(src_vertex_itr++) + position;
+            v = *(src_vertex_itr++) + translation;
+        }
+        return new_vertices;
+    }
+
+    return vertices;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// TranslationRotationScaleArrayState
+//
+TranslationRotationScaleArrayState::TranslationRotationScaleArrayState()
+{
+}
+
+TranslationRotationScaleArrayState::TranslationRotationScaleArrayState(const TranslationRotationScaleArrayState& rhs) :
+    Inherit(rhs),
+    translation_attribute_location(rhs.translation_attribute_location),
+    translationAttribute(rhs.translationAttribute)
+{
+}
+
+TranslationRotationScaleArrayState::TranslationRotationScaleArrayState(const ArrayState& rhs) :
+    Inherit(rhs)
+{
+}
+
+ref_ptr<ArrayState> TranslationRotationScaleArrayState::cloneArrayState()
+{
+    return TranslationRotationScaleArrayState::create(*this);
+}
+
+ref_ptr<ArrayState> TranslationRotationScaleArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
+{
+    return TranslationRotationScaleArrayState::create(*arrayState);
+}
+
+void TranslationRotationScaleArrayState::apply(const VertexInputState& vas)
+{
+    getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
+    getAttributeDetails(vas, translation_attribute_location, translationAttribute);
+    getAttributeDetails(vas, rotation_attribute_location, rotationAttribute);
+    getAttributeDetails(vas, scale_attribute_location, scaleAttribute);
+}
+
+ref_ptr<const vec3Array> TranslationRotationScaleArrayState::vertexArray(uint32_t instanceIndex)
+{
+    auto translations = arrays[translationAttribute.binding].cast<vec3Array>();
+    auto rotations = arrays[rotationAttribute.binding].cast<quatArray>();
+    auto scales = arrays[scaleAttribute.binding].cast<vec3Array>();
+
+    // vsg::info("TranslationRotationScaleArrayState::vertexArray(", instanceIndex, ") translations = ", translations, ", rotations = ", rotations, ", scales = ", scales);
+
+    if (translations && (instanceIndex < translations->size()) &&
+        rotations && (instanceIndex < rotations->size()) &&
+        scales && (instanceIndex < scales->size()))
+    {
+        auto translation = translations->at(instanceIndex);
+        auto rotation = rotations->at(instanceIndex);
+        auto scale = scales->at(instanceIndex);
+        auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));
+        auto src_vertex_itr = vertices->begin();
+        for (auto& v : *new_vertices)
+        {
+            v = translation + rotation * (scale * (*(src_vertex_itr++)));
         }
         return new_vertices;
     }
@@ -364,48 +469,48 @@ ref_ptr<const vec3Array> DisplacementMapArrayState::vertexArray(uint32_t /*insta
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PositionAndDisplacementMapArrayState
+// TranslationAndDisplacementMapArrayState
 //
-PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState()
+TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState()
 {
 }
 
-PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs) :
+TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState(const TranslationAndDisplacementMapArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-PositionAndDisplacementMapArrayState::PositionAndDisplacementMapArrayState(const ArrayState& rhs) :
+TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState()
+ref_ptr<ArrayState> TranslationAndDisplacementMapArrayState::cloneArrayState()
 {
-    return PositionAndDisplacementMapArrayState::create(*this);
+    return TranslationAndDisplacementMapArrayState::create(*this);
 }
 
-ref_ptr<ArrayState> PositionAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
+ref_ptr<ArrayState> TranslationAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
 {
-    return PositionAndDisplacementMapArrayState::create(*arrayState);
+    return TranslationAndDisplacementMapArrayState::create(*arrayState);
 }
 
-void PositionAndDisplacementMapArrayState::apply(const VertexInputState& vas)
+void TranslationAndDisplacementMapArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
     getAttributeDetails(vas, normal_attribute_location, normalAttribute);
     getAttributeDetails(vas, texcoord_attribute_location, texcoordAttribute);
-    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+    getAttributeDetails(vas, translation_attribute_location, translationAttribute);
 }
 
-ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint32_t instanceIndex)
+ref_ptr<const vec3Array> TranslationAndDisplacementMapArrayState::vertexArray(uint32_t instanceIndex)
 {
-    auto positions = arrays[positionAttribute.binding].cast<vec3Array>();
+    auto translations = arrays[translationAttribute.binding].cast<vec3Array>();
 
-    vec3 position;
-    if (positions && (instanceIndex < positions->size()))
+    vec3 translation;
+    if (translations && (instanceIndex < translations->size()))
     {
-        position = positions->at(instanceIndex);
+        translation = translations->at(instanceIndex);
     }
 
     if (displacementMap)
@@ -429,7 +534,7 @@ ref_ptr<const vec3Array> PositionAndDisplacementMapArrayState::vertexArray(uint3
             const auto& tc = *(src_teccoord_itr++);
             const auto& n = *(src_normal_itr++);
             float d = sample(*sampler, *displacementMap, tc);
-            v = *(src_vertex_itr++) + n * d + position;
+            v = *(src_vertex_itr++) + n * d + translation;
         }
         return new_vertices;
     }
@@ -447,8 +552,8 @@ BillboardArrayState::BillboardArrayState()
 
 BillboardArrayState::BillboardArrayState(const BillboardArrayState& rhs) :
     Inherit(rhs),
-    position_attribute_location(rhs.position_attribute_location),
-    positionAttribute(rhs.positionAttribute)
+    translation_attribute_location(rhs.translation_attribute_location),
+    translationAttribute(rhs.translationAttribute)
 {
 }
 
@@ -470,7 +575,7 @@ ref_ptr<ArrayState> BillboardArrayState::cloneArrayState(ref_ptr<ArrayState> arr
 void BillboardArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
-    getAttributeDetails(vas, position_attribute_location, positionAttribute);
+    getAttributeDetails(vas, translation_attribute_location, translationAttribute);
 }
 
 ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex)
@@ -486,9 +591,9 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
         void apply(const vec4Array& data) override { value = data[index]; }
     } gv(instanceIndex);
 
-    // get the position_distanceScale value
-    arrays[positionAttribute.binding]->accept(gv);
-    dvec3 position(gv.value.xyz);
+    // get the translation_distanceScale value
+    arrays[translationAttribute.binding]->accept(gv);
+    dvec3 translation(gv.value.xyz);
     double autoDistanceScale = gv.value.w;
 
     dmat4 billboard_to_local;
@@ -496,13 +601,13 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     {
         const auto& mv = localToWorldStack.back();
         const auto& inverse_mv = worldToLocalStack.back();
-        auto center_eye = mv * position;
+        auto center_eye = mv * translation;
         auto billboard_mv = computeBillboardMatrix(center_eye, autoDistanceScale);
         billboard_to_local = inverse_mv * billboard_mv;
     }
     else
     {
-        billboard_to_local = vsg::translate(position);
+        billboard_to_local = vsg::translate(translation);
     }
 
     auto new_vertices = vsg::vec3Array::create(static_cast<uint32_t>(vertices->size()));

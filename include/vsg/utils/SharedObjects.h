@@ -70,7 +70,7 @@ namespace vsg
         void prune();
 
         /// write out stats of objects held, types of objects and their reference counts
-        void report(std::ostream& out);
+        void report(vsg::LogOutput& output);
 
     protected:
         virtual ~SharedObjects();

@@ -115,6 +115,15 @@ namespace vsg
             return ref_ptr<Array>(new Array(std::forward<Args>(args)...));
         }
 
+        template<typename... Args>
+        static ref_ptr<Array> create_if(bool flag, Args&&... args)
+        {
+            if (flag)
+                return ref_ptr<Array>(new Array(std::forward<Args>(args)...));
+            else
+                return {};
+        }
+
         static ref_ptr<Array> create(std::initializer_list<value_type> l)
         {
             return ref_ptr<Array>(new Array(l));
@@ -364,6 +373,10 @@ namespace vsg
         ref_ptr<Data> _storage;
     };
 
+    /// useful for CPU work only.
+    VSG_array(stringArray, std::string);
+
+    /// useful for CPU and GPU work.
     VSG_array(byteArray, int8_t);
     VSG_array(ubyteArray, uint8_t);
     VSG_array(shortArray, int16_t);
@@ -372,6 +385,9 @@ namespace vsg
     VSG_array(uintArray, uint32_t);
     VSG_array(floatArray, float);
     VSG_array(doubleArray, double);
+
+    VSG_array(quatArray, quat);
+    VSG_array(dquatArray, dquat);
 
     VSG_array(vec2Array, vec2);
     VSG_array(vec3Array, vec3);

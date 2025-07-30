@@ -27,7 +27,7 @@ namespace vsg
     };
 
     extern VSG_DECLSPEC SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
-    extern VSG_DECLSPEC VkSurfaceFormatKHR selectSwapSurfaceFormat(const SwapChainSupportDetails& details, VkSurfaceFormatKHR preferredSurfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR});
+    extern VSG_DECLSPEC VkSurfaceFormatKHR selectSwapSurfaceFormat(const SwapChainSupportDetails& details, VkSurfaceFormatKHR preferredSurfaceFormat = {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR});
     extern VSG_DECLSPEC VkExtent2D selectSwapExtent(const SwapChainSupportDetails& details, uint32_t width, uint32_t height);
     extern VSG_DECLSPEC VkPresentModeKHR selectSwapPresentMode(const SwapChainSupportDetails& details, VkPresentModeKHR preferredPresentMode = VK_PRESENT_MODE_MAILBOX_KHR);
 
@@ -35,7 +35,7 @@ namespace vsg
     struct SwapchainPreferences
     {
         uint32_t imageCount = 3; // default to triple buffering
-        VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+        VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
         VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
         VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     };
@@ -79,6 +79,18 @@ namespace vsg
     constexpr bool operator!=(const VkExtent2D& lhs, const VkExtent2D& rhs)
     {
         return lhs.width != rhs.width || lhs.height != rhs.height;
+    }
+
+    constexpr bool operator==(const VkRect2D& lhs, const VkRect2D& rhs)
+    {
+        return (lhs.offset.x == rhs.offset.x) && (lhs.offset.y == rhs.offset.y) &&
+               (lhs.extent.width == rhs.extent.width) && (lhs.extent.height == rhs.extent.height);
+    }
+
+    constexpr bool operator!=(const VkRect2D& lhs, const VkRect2D& rhs)
+    {
+        return (lhs.offset.x != rhs.offset.x) || (lhs.offset.y != rhs.offset.y) ||
+               (lhs.extent.width != rhs.extent.width) || (lhs.extent.height != rhs.extent.height);
     }
 
 } // namespace vsg

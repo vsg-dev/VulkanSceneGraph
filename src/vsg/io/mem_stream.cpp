@@ -41,3 +41,27 @@ mem_stream::mem_buffer::mem_buffer(const uint8_t* ptr, size_t length)
 {
     setg((char*)(ptr), (char*)(ptr), (char*)(ptr) + length);
 }
+
+std::streambuf::pos_type mem_stream::mem_buffer::seekoff(std::streambuf::off_type offset, std::ios_base::seekdir dir, std::ios_base::openmode /*mode*/)
+{
+    if (dir == std::ios_base::beg)
+    {
+        setg(eback(), eback() + offset, egptr());
+    }
+    else if (dir == std::ios_base::end)
+    {
+        setg(eback(), egptr() - offset, egptr());
+    }
+    else // dir == std::ios_base::cur
+    {
+        setg(eback(), gptr() + offset, egptr());
+    }
+
+    return pos_type(gptr() - eback());
+}
+
+std::streambuf::pos_type mem_stream::mem_buffer::seekpos(std::streambuf::pos_type pos, std::ios_base::openmode /*mode*/)
+{
+    setg(eback(), eback() + pos, egptr());
+    return pos_type(pos);
+}

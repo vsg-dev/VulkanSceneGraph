@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/io/stream.h>
 #include <vsg/nodes/Transform.h>
 #include <vsg/utils/PolytopeIntersector.h>
@@ -229,6 +228,8 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
         eyespace.push_back(pl * projectionMatrix);
     }
 
+    _polytopeStack.push_back(eyespace);
+
     vsg::Polytope worldspace;
     for (auto& pl : eyespace)
     {
@@ -321,7 +322,9 @@ bool PolytopeIntersector::intersectDrawIndexed(uint32_t firstIndex, uint32_t ind
     auto& arrayState = *arrayStateStack.back();
 
     vsg::PrimitiveFunctor<vsg::PolytopePrimitiveIntersection> printPrimtives(*this, arrayState, _polytopeStack.back());
-    if (ushort_indices)
+    if (ubyte_indices)
+        printPrimtives.drawIndexed(arrayState.topology, ubyte_indices, firstIndex, indexCount, firstInstance, instanceCount);
+    else if (ushort_indices)
         printPrimtives.drawIndexed(arrayState.topology, ushort_indices, firstIndex, indexCount, firstInstance, instanceCount);
     else if (uint_indices)
         printPrimtives.drawIndexed(arrayState.topology, uint_indices, firstIndex, indexCount, firstInstance, instanceCount);

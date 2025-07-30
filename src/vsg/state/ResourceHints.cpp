@@ -10,7 +10,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/io/Options.h>
 #include <vsg/state/ResourceHints.h>
 
 using namespace vsg;
@@ -27,7 +26,16 @@ void ResourceHints::read(Input& input)
 {
     Object::read(input);
 
-    input.read("maxSlot", maxSlot);
+    if (input.version_greater_equal(1, 1, 11))
+    {
+        input.read("maxSlots", maxSlots.state, maxSlots.view);
+    }
+    else
+    {
+        input.read("maxSlot", maxSlots.state);
+        maxSlots.view = maxSlots.state;
+    }
+
     input.read("numDescriptorSets", numDescriptorSets);
 
     if (input.version_greater_equal(0, 7, 3))
@@ -61,13 +69,26 @@ void ResourceHints::read(Input& input)
         input.read("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
         input.readValue<uint32_t>("dataTransferHint", dataTransferHint);
     }
+
+    if (input.version_greater_equal(1, 1, 11))
+    {
+        input.read("viewportStateHint", viewportStateHint);
+    }
 }
 
 void ResourceHints::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("maxSlot", maxSlot);
+    if (output.version_greater_equal(1, 1, 11))
+    {
+        output.write("maxSlots", maxSlots.state, maxSlots.view);
+    }
+    else
+    {
+        output.write("maxSlot", maxSlots.state);
+    }
+
     output.write("numDescriptorSets", numDescriptorSets);
 
     if (output.version_greater_equal(0, 7, 3))
@@ -100,5 +121,10 @@ void ResourceHints::write(Output& output) const
     {
         output.write("numDatabasePagerReadThreads", numDatabasePagerReadThreads);
         output.writeValue<uint32_t>("dataTransferHint", dataTransferHint);
+    }
+
+    if (output.version_greater_equal(1, 1, 11))
+    {
+        output.write("viewportStateHint", viewportStateHint);
     }
 }

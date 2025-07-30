@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/Trackball.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 
 #include <algorithm>
 #include <iostream>
@@ -193,7 +192,10 @@ void Trackball::apply(ButtonReleaseEvent& buttonRelease)
 
     if (!windowOffsets.empty() && windowOffsets.count(buttonRelease.window) == 0) return;
 
-    if (supportsThrow) _thrown = _previousPointerEvent && (buttonRelease.time == _previousPointerEvent->time);
+    if (supportsThrow)
+    {
+        _thrown = _previousPointerEvent && (std::chrono::duration_cast<std::chrono::milliseconds>(buttonRelease.time - _previousPointerEvent->time).count() == 0);
+    }
 
     _lastPointerEventWithinRenderArea = withinRenderArea(buttonRelease);
     _hasPointerFocus = false;

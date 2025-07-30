@@ -24,6 +24,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 #include <vsg/core/type_name.h>
+#include <vsg/maths/numbers.h>
 
 #include <cmath>
 #include <cstdint>
@@ -121,7 +122,7 @@ namespace vsg
         {
             if constexpr (std::is_floating_point_v<value_type>)
             {
-                value_type inv = static_cast<value_type>(1.0) / rhs;
+                value_type inv = numbers<value_type>::one() / rhs;
                 value[0] *= inv;
                 value[1] *= inv;
             }
@@ -133,7 +134,7 @@ namespace vsg
             return *this;
         }
 
-        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0; }
+        explicit operator bool() const noexcept { return value[0] != numbers<value_type>::zero() || value[1] != numbers<value_type>::zero(); }
     };
 
     using vec2 = t_vec2<float>;         // float 2D vector
@@ -210,7 +211,7 @@ namespace vsg
     {
         if constexpr (std::is_floating_point_v<T>)
         {
-            T inv = static_cast<T>(1.0) / rhs;
+            T inv = numbers<T>::one() / rhs;
             return t_vec2<T>(lhs[0] * inv, lhs[1] * inv);
         }
         else
@@ -254,7 +255,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec2<T> mix(const t_vec2<T>& start, const t_vec2<T>& end, T r)
     {
-        T one_minus_r = 1 - r;
+        T one_minus_r = numbers<T>::one() - r;
         return t_vec2<T>(start[0] * one_minus_r + end[0] * r,
                          start[1] * one_minus_r + end[1] * r);
     }

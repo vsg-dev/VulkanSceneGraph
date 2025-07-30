@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/compare.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/RasterizationState.h>
 #include <vsg/vk/Context.h>
 
@@ -59,7 +58,12 @@ void RasterizationState::read(Input& input)
     input.readValue<uint32_t>("cullMode", cullMode);
     input.readValue<uint32_t>("frontFace", frontFace);
     input.readValue<uint32_t>("depthBiasEnable", depthBiasEnable);
-    input.readValue<uint32_t>("depthBiasConstantFactor", depthBiasConstantFactor);
+
+    if (input.version_greater_equal(1, 1, 11))
+        input.read("depthBiasConstantFactor", depthBiasConstantFactor);
+    else
+        input.readValue<uint32_t>("depthBiasConstantFactor", depthBiasConstantFactor);
+
     input.read("depthBiasClamp", depthBiasClamp);
     input.read("depthBiasSlopeFactor", depthBiasSlopeFactor);
     input.read("lineWidth", lineWidth);
@@ -75,7 +79,12 @@ void RasterizationState::write(Output& output) const
     output.writeValue<uint32_t>("cullMode", cullMode);
     output.writeValue<uint32_t>("frontFace", frontFace);
     output.writeValue<uint32_t>("depthBiasEnable", depthBiasEnable);
-    output.writeValue<uint32_t>("depthBiasConstantFactor", depthBiasConstantFactor);
+
+    if (output.version_greater_equal(1, 1, 11))
+        output.write("depthBiasConstantFactor", depthBiasConstantFactor);
+    else
+        output.writeValue<uint32_t>("depthBiasConstantFactor", depthBiasConstantFactor);
+
     output.write("depthBiasClamp", depthBiasClamp);
     output.write("depthBiasSlopeFactor", depthBiasSlopeFactor);
     output.write("lineWidth", lineWidth);

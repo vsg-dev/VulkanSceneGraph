@@ -194,14 +194,23 @@ void Intersector::apply(const BufferInfo& bufferInfo)
     if (bufferInfo.data) bufferInfo.data->accept(*this);
 }
 
+void Intersector::apply(const ubyteArray& array)
+{
+    ubyte_indices = &array;
+    ushort_indices = nullptr;
+    uint_indices = nullptr;
+}
+
 void Intersector::apply(const ushortArray& array)
 {
+    ubyte_indices = nullptr;
     ushort_indices = &array;
     uint_indices = nullptr;
 }
 
 void Intersector::apply(const uintArray& array)
 {
+    ubyte_indices = nullptr;
     ushort_indices = nullptr;
     uint_indices = &array;
 }

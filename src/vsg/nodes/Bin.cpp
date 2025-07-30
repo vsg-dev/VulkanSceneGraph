@@ -11,7 +11,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/Bin.h>
 #include <vsg/vk/State.h>
 
@@ -150,20 +149,13 @@ void Bin::traverse(RecordTraversal& rt) const
 
         if (element.stateCommandCount > 0)
         {
-            uint32_t endIndex = element.stateCommandIndex + element.stateCommandCount;
-            for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
-            {
-                auto command = _stateCommands[i];
-                state->stateStacks[command->slot].push(command);
-            }
+            auto begin = _stateCommands.begin() + element.stateCommandIndex;
+            auto end = begin + element.stateCommandCount;
+            state->push(begin, end);
 
             element.child->accept(rt);
 
-            for (uint32_t i = element.stateCommandIndex; i < endIndex; ++i)
-            {
-                auto command = _stateCommands[i];
-                state->stateStacks[command->slot].pop();
-            }
+            state->pop(begin, end);
         }
         else
         {

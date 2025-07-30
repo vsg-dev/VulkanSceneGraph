@@ -153,7 +153,7 @@ namespace vsg
         {
             if constexpr (std::is_floating_point_v<value_type>)
             {
-                value_type inv = static_cast<value_type>(1.0) / rhs;
+                value_type inv = numbers<value_type>::one() / rhs;
                 value[0] *= inv;
                 value[1] *= inv;
                 value[2] *= inv;
@@ -171,7 +171,7 @@ namespace vsg
 
         operator VkClearColorValue() const noexcept { return VkClearColorValue{{r, g, b, a}}; }
 
-        explicit operator bool() const noexcept { return value[0] != 0.0 || value[1] != 0.0 || value[2] != 0.0 || value[3] != 0.0; }
+        explicit operator bool() const noexcept { return value[0] != numbers<value_type>::zero() || value[1] != numbers<value_type>::zero() || value[2] != numbers<value_type>::zero() || value[3] != numbers<value_type>::zero(); }
     };
 
     using vec4 = t_vec4<float>;         // float 4D vector
@@ -253,7 +253,7 @@ namespace vsg
     {
         if constexpr (std::is_floating_point_v<T>)
         {
-            T inv = static_cast<T>(1.0) / rhs;
+            T inv = numbers<T>::one() / rhs;
             return t_vec4<T>(lhs[0] * inv, lhs[1] * inv, lhs[2] * inv, lhs[3] * inv);
         }
         else
@@ -283,7 +283,7 @@ namespace vsg
     template<typename T>
     constexpr t_vec4<T> mix(const t_vec4<T>& start, const t_vec4<T>& end, T r)
     {
-        T one_minus_r = 1 - r;
+        T one_minus_r = numbers<T>::one() - r;
         return t_vec4<T>(start[0] * one_minus_r + end[0] * r,
                          start[1] * one_minus_r + end[1] * r,
                          start[2] * one_minus_r + end[2] * r,

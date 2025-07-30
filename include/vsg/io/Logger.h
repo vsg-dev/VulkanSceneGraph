@@ -136,7 +136,7 @@ namespace vsg
 
         void error(const std::string_view& str)
         {
-            if (level > LOGGER_DEBUG) return;
+            if (level > LOGGER_ERROR) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             error_implementation(str);
@@ -162,7 +162,7 @@ namespace vsg
 
         void fatal(const std::string_view& str)
         {
-            if (level > LOGGER_DEBUG) return;
+            if (level > LOGGER_FATAL) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             fatal_implementation(str);
@@ -171,7 +171,7 @@ namespace vsg
         template<typename... Args>
         void fatal(Args&&... args)
         {
-            if (level > LOGGER_ERROR) return;
+            if (level > LOGGER_FATAL) return;
 
             std::scoped_lock<std::mutex> lock(_mutex);
             _stream.str({});
@@ -401,5 +401,53 @@ namespace vsg
         void fatal_implementation(const std::string_view&) override;
     };
     VSG_type_name(vsg::NullLogger);
+
+    /// Helper class for recording a set of indented log output
+    struct LogOutput
+    {
+        ref_ptr<Logger> logger;
+        Logger::Level level = Logger::LOGGER_INFO;
+        indentation indent;
+        int step = 4;
+
+        template<typename... Args>
+        void operator()(Args... args) const
+        {
+            if (logger)
+                logger->log(level, indent, (args)...);
+            else
+                Logger::instance()->log(level, indent, (args)...);
+        }
+
+        void in() { indent += step; }
+        void out() { indent -= step; }
+
+        template<typename... Args>
+        void enter(Args... args)
+        {
+            operator()(args...);
+            in();
+        }
+
+        void enter()
+        {
+            operator()("{");
+            in();
+        }
+
+        template<typename... Args>
+        void leave(Args... args)
+        {
+            out();
+            operator()(args...);
+        }
+
+        void leave()
+        {
+            out();
+            operator()("}");
+        }
+    };
+    VSG_type_name(vsg::LogOutput);
 
 } // namespace vsg

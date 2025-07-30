@@ -63,7 +63,7 @@ namespace vsg
         /// hook for assigning Instrumentation to enable profiling of record traversal.
         ref_ptr<Instrumentation> instrumentation;
 
-        /// control for the level of debug infomation emitted by the TransferTask
+        /// control for the level of debug information emitted by the TransferTask
         Logger::Level level = Logger::LOGGER_DEBUG;
 
         void assignTransferConsumedCompletedSemaphore(TransferMask transferMask, ref_ptr<Semaphore> semaphore);
@@ -100,6 +100,7 @@ namespace vsg
             ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
+            bool requiresCopy(uint32_t deviceID) const;
             bool containsDataToTransfer() const { return !dataMap.empty() || !imageInfoSet.empty(); }
         };
 

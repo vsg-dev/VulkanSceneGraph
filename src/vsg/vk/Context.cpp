@@ -16,13 +16,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/PipelineBarrier.h>
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/QuadGroup.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/state/DescriptorSet.h>
+#include <vsg/state/DynamicState.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
@@ -130,6 +130,11 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     {
         vsg::debug("Context::Context() reusing descriptorPools = ", descriptorPools);
     }
+
+    if ((resourceRequirements.viewportStateHint & DYNAMIC_VIEWPORTSTATE))
+    {
+        defaultPipelineStates.push_back(DynamicState::create(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR));
+    }
 }
 
 Context::Context(const Context& context) :
@@ -192,10 +197,7 @@ void Context::reserve(const ResourceRequirements& requirements)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context reserve", COLOR_COMPILE)
 
-    if (requirements.maxSlot > resourceRequirements.maxSlot)
-    {
-        resourceRequirements.maxSlot = requirements.maxSlot;
-    }
+    resourceRequirements.maxSlots.merge(requirements.maxSlots);
 
     descriptorPools->reserve(requirements);
 }
@@ -284,7 +286,10 @@ bool Context::record()
         // create scratch buffer and issue build acceleration structure commands
         if (scratchBufferSize > 0)
         {
-            ref_ptr<Buffer> scratchBuffer = vsg::createBufferAndMemory(device, scratchBufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            VkMemoryAllocateFlagsInfo memFlags = {};
+            memFlags.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+            memFlags.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+            ref_ptr<Buffer> scratchBuffer = vsg::createBufferAndMemory(device, scratchBufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memFlags);
 
             for (auto& command : buildAccelerationStructureCommands)
             {
@@ -348,7 +353,7 @@ void Context::waitForCompletion()
         info("Context::waitForCompletion()  ", this, " fence->wait() failed with error. VkResult = ", result);
     }
 
-    //vsg::info("Conext::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
+    //vsg::info("Context::waitForCompletion() ", std::chrono::duration<double, std::chrono::milliseconds::period>(vsg::clock::now() - start_point).count());
 
     requiresWaitForCompletion = false;
     commands.clear();

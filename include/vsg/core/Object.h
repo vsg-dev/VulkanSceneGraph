@@ -240,8 +240,6 @@ namespace vsg
             {
                 if (!itr->second) itr->second = ptr->clone(*this);
                 if (itr->second) return itr->second.template cast<T>();
-
-                warn("Unable to clone ", ptr);
             }
         }
         return ptr;
@@ -259,6 +257,22 @@ namespace vsg
             dest.push_back(operator()(ptr));
         }
         return dest;
+    }
+
+    template<class T>
+    ref_ptr<T> clone(vsg::ref_ptr<const T> object)
+    {
+        if (!object) return {};
+        auto new_object = object->clone();
+        return new_object.template cast<T>();
+    }
+
+    template<class T>
+    ref_ptr<T> clone(vsg::ref_ptr<T> object)
+    {
+        if (!object) return {};
+        auto new_object = object->clone();
+        return new_object.template cast<T>();
     }
 
 } // namespace vsg

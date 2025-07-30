@@ -265,7 +265,7 @@ void CompileTraversal::addViewDependentState(ViewDependentState& viewDependentSt
         }
         else
         {
-            vsg::info("CompileTraversal::addViewDependentState(.., ", device, ", ", transferTask, "..) no frameBufer.");
+            vsg::info("CompileTraversal::addViewDependentState(.., ", device, ", ", transferTask, "..) no framebuffer.");
         }
     }
 }
@@ -294,6 +294,8 @@ void CompileTraversal::apply(Compilable& node)
     {
         node.compile(*context);
     }
+
+    node.traverse(*this);
 }
 
 void CompileTraversal::apply(Commands& commands)
@@ -323,10 +325,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
     for (const auto& context : contexts)
     {
-        if (context->resourceRequirements.maxSlot > commandGraph.maxSlot)
-        {
-            commandGraph.maxSlot = context->resourceRequirements.maxSlot;
-        }
+        commandGraph.maxSlots.merge(context->resourceRequirements.maxSlots);
     }
 
     commandGraph.traverse(*this);
@@ -340,10 +339,7 @@ void CompileTraversal::apply(SecondaryCommandGraph& secondaryCommandGraph)
 
     for (auto& context : contexts)
     {
-        if (context->resourceRequirements.maxSlot > secondaryCommandGraph.maxSlot)
-        {
-            secondaryCommandGraph.maxSlot = context->resourceRequirements.maxSlot;
-        }
+        secondaryCommandGraph.maxSlots.merge(context->resourceRequirements.maxSlots);
 
         // save previous states to be restored after traversal
         auto previousRenderPass = context->renderPass;
@@ -386,15 +382,12 @@ void CompileTraversal::apply(RenderGraph& renderGraph)
         auto previousDefaultPipelineStates = context->defaultPipelineStates;
         auto previousOverridePipelineStates = context->overridePipelineStates;
 
+        // enable dynamic viewport state handling if required.
+        renderGraph.viewportStateHint = context->resourceRequirements.viewportStateHint;
+
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, renderGraph.viewportState);
+
         context->renderPass = renderGraph.getRenderPass();
-        if (renderGraph.window)
-        {
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.window->extent2D()));
-        }
-        else if (renderGraph.framebuffer)
-        {
-            mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, ViewportState::create(renderGraph.framebuffer->extent2D()));
-        }
 
         if (context->renderPass)
         {
@@ -421,11 +414,13 @@ void CompileTraversal::apply(View& view)
         if (context_view && context_view.get() != &view) continue;
 
         // save previous states
+        auto previous_view = context->view;
         auto previous_viewID = context->viewID;
         auto previous_mask = context->mask;
         auto previous_overridePipelineStates = context->overridePipelineStates;
         auto previous_defaultPipelineStates = context->defaultPipelineStates;
 
+        context->view = &view;
         context->viewID = view.viewID;
         context->mask = view.mask;
         context->viewDependentState = view.viewDependentState.get();
@@ -436,12 +431,13 @@ void CompileTraversal::apply(View& view)
         }
 
         // assign view specific pipeline states
-        if (view.camera && view.camera->viewportState) mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
+        mergeGraphicsPipelineStates(context->mask, context->defaultPipelineStates, view.camera->viewportState);
         mergeGraphicsPipelineStates(context->mask, context->overridePipelineStates, view.overridePipelineStates);
 
         view.traverse(*this);
 
         // restore previous states
+        context->view = previous_view;
         context->viewID = previous_viewID;
         context->mask = previous_mask;
         context->defaultPipelineStates = previous_defaultPipelineStates;

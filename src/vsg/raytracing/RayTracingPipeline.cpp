@@ -13,7 +13,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/raytracing/RayTracingPipeline.h>
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/Context.h>
@@ -180,9 +179,12 @@ RayTracingPipeline::Implementation::Implementation(Context& context, RayTracingP
         //auto bindingTableBuffer = bindingTableBufferInfo.buffer;
         //auto bindingTableMemory = bindingTableBuffer->getDeviceMemory(context.deviceID);
         std::vector<ref_ptr<Buffer>> bindingTableBuffers(rayTracingShaderGroups.size());
+        VkMemoryAllocateFlagsInfo memFlags = {};
+        memFlags.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+        memFlags.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
         for (size_t i = 0; i < bindingTableBuffers.size(); ++i)
         {
-            bindingTableBuffers[i] = createBufferAndMemory(_device, handleSizeAligned, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            bindingTableBuffers[i] = createBufferAndMemory(_device, handleSizeAligned, VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_SHARING_MODE_EXCLUSIVE, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &memFlags);
         }
 
         std::vector<uint8_t> shaderHandleStorage(sbtSize);

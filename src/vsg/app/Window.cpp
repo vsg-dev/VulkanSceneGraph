@@ -15,10 +15,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/maths/color.h>
 #include <vsg/maths/vec4.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/utils/CoordinateSpace.h>
 #include <vsg/vk/SubmitCommands.h>
 
 #include <array>
@@ -41,8 +41,7 @@ Window::Window(ref_ptr<WindowTraits> traits) :
 {
     if (_traits && (_traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8A8_SRGB || _traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8_SRGB))
     {
-        _clearColor = linear_to_sRGB(_clearColor);
-        info("Selected sRGB window ", _clearColor);
+        _clearColor = sRGB_to_linear(_clearColor);
     }
 }
 

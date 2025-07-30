@@ -12,14 +12,48 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/WindowTraits.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
+#include <vsg/utils/CommandLine.h>
 #include <vsg/vk/vulkan.h>
+
+#include <iostream>
 
 using namespace vsg;
 
 WindowTraits::WindowTraits()
 {
     defaults();
+}
+
+WindowTraits::WindowTraits(CommandLine& arguments)
+{
+    defaults();
+
+    if (arguments.read("--args")) std::cout << arguments << std::endl;
+
+    windowTitle = vsg::make_string(arguments);
+    debugLayer = arguments.read({"--debug", "-d"});
+    apiDumpLayer = arguments.read({"--api", "-a"});
+    synchronizationLayer = arguments.read("--sync");
+
+    if (arguments.read("--double-buffer")) swapchainPreferences.imageCount = 2;
+    if (arguments.read("--triple-buffer")) swapchainPreferences.imageCount = 3; // default
+    if (arguments.read("--IMMEDIATE")) { swapchainPreferences.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; }
+    if (arguments.read("--FIFO")) swapchainPreferences.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+    if (arguments.read("--FIFO_RELAXED")) swapchainPreferences.presentMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+    if (arguments.read("--MAILBOX")) swapchainPreferences.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+
+    if (arguments.read({"--fullscreen", "--fs"})) fullscreen = true;
+    if (arguments.read({"--window", "-w"}, width, height)) { fullscreen = false; }
+    if (arguments.read({"--no-frame"})) decoration = false;
+    if (arguments.read("--or")) overrideRedirect = true;
+
+    if (arguments.read("--d32")) depthFormat = VK_FORMAT_D32_SFLOAT;
+    if (arguments.read("--sRGB")) swapchainPreferences.surfaceFormat = {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+    if (arguments.read("--RGB")) swapchainPreferences.surfaceFormat = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+
+    arguments.read("--screen", screenNum);
+    arguments.read("--display", display);
+    arguments.read("--samples", samples);
 }
 
 WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
@@ -111,8 +145,8 @@ void WindowTraits::validate()
     {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     if (apiDumpLayer) requestedLayers.push_back("VK_LAYER_LUNARG_api_dump");
+    if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     if (synchronizationLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_synchronization2");
 
     requestedLayers = vsg::validateInstancelayerNames(requestedLayers);

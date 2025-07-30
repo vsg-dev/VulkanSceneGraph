@@ -81,15 +81,8 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
         return;
     }
 
-    if (!recordTraversal)
-    {
-        recordTraversal = RecordTraversal::create(maxSlot);
-    }
-
-    if ((maxSlot + 1) != recordTraversal->getState()->stateStacks.size())
-    {
-        recordTraversal->getState()->stateStacks.resize(maxSlot + 1);
-    }
+    // create the RecordTraversal if it isn't already created
+    getOrCreateRecordTraversal();
 
     recordTraversal->recordedCommandBuffers = recordedCommandBuffers;
     recordTraversal->setFrameStamp(frameStamp);

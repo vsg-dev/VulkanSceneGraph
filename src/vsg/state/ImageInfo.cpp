@@ -12,7 +12,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/compare.h>
 #include <vsg/io/Logger.h>
-#include <vsg/io/Options.h>
 #include <vsg/state/ImageInfo.h>
 
 #include <algorithm>
@@ -117,6 +116,26 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numBitsPerComponent = 40;
         traits.numComponents = 1;
         traits.size = 5;
+    }
+    else if (VK_FORMAT_BC1_RGB_UNORM_BLOCK <= format && format <= VK_FORMAT_BC1_RGBA_SRGB_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 64;
+        traits.numComponents = 1;
+        traits.size = 8;
+    }
+    else if (VK_FORMAT_BC2_UNORM_BLOCK <= format && format <= VK_FORMAT_BC3_SRGB_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
     }
     else
     {

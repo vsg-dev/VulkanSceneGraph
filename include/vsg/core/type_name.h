@@ -49,6 +49,10 @@ namespace vsg
         template<> constexpr const char* vsg::type_name<T>() noexcept { return #T; } \
         template<> constexpr const char* vsg::type_name<const T>() noexcept { return "const "#T; }
 
+    /// convinience function for adding a space in front of the type_name string.
+    template<typename T>
+    std::string space_type_name(const T&) { return std::string(" ") + type_name<T>(); }
+
     // clang-format on
 
 } // namespace vsg

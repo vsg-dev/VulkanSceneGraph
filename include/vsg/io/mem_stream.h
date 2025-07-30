@@ -47,6 +47,9 @@ namespace vsg
             {
                 setg((char*)(ptr), (char*)(ptr), (char*)(ptr) + length);
             }
+
+            std::streambuf::pos_type seekoff(std::streambuf::off_type offset, std::ios_base::seekdir dir, std::ios_base::openmode mode = ios_base::in | ios_base::out) override;
+            std::streambuf::pos_type seekpos(std::streambuf::pos_type pos, std::ios_base::openmode mode = ios_base::in | ios_base::out) override;
         };
 
         mem_buffer _buffer;

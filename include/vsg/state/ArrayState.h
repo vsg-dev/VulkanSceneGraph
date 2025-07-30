@@ -74,6 +74,9 @@ namespace vsg
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;
         void apply(const VertexIndexDraw& vid) override;
+        void apply(const InstanceNode& in) override;
+        void apply(const InstanceDraw& id) override;
+        void apply(const InstanceDrawIndexed& id) override;
         void apply(const BindVertexBuffers& bvb) override;
         void apply(const BufferInfo& bufferInfo) override;
 
@@ -82,6 +85,10 @@ namespace vsg
 
         virtual void applyArrays(uint32_t firstBinding, const BufferInfoList& in_arrays);
         virtual void applyArrays(uint32_t firstBinding, const DataList& in_arrays);
+
+        virtual void applyArray(uint32_t binding, const ref_ptr<BufferInfo>& in_array);
+        virtual void applyArray(uint32_t binding, const ref_ptr<Data>& in_array);
+
         virtual ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex);
 
     protected:
@@ -109,26 +116,51 @@ namespace vsg
     };
     VSG_type_name(vsg::NullArrayState);
 
-    /// PositionArrayState is an ArrayState subclass for mapping vertex array data for instanced geometries.
-    class VSG_DECLSPEC PositionArrayState : public Inherit<ArrayState, PositionArrayState>
+    /// TranslationArrayState is an ArrayState subclass for mapping vertex array data for instanced geometries.
+    class VSG_DECLSPEC TranslationArrayState : public Inherit<ArrayState, TranslationArrayState>
     {
     public:
-        PositionArrayState();
-        PositionArrayState(const PositionArrayState& rhs);
-        explicit PositionArrayState(const ArrayState& rhs);
+        TranslationArrayState();
+        TranslationArrayState(const TranslationArrayState& rhs);
+        explicit TranslationArrayState(const ArrayState& rhs);
 
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
-        uint32_t position_attribute_location = 4;
-        AttributeDetails positionAttribute;
+        uint32_t translation_attribute_location = 7;
+        AttributeDetails translationAttribute;
 
         using ArrayState::apply;
 
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
-    VSG_type_name(vsg::PositionArrayState);
+    VSG_type_name(vsg::TranslationArrayState);
+
+    /// TranslationRotationScaleArrayState is an ArrayState subclass for mapping vertex array data for instanced geometries.
+    class VSG_DECLSPEC TranslationRotationScaleArrayState : public Inherit<ArrayState, TranslationRotationScaleArrayState>
+    {
+    public:
+        TranslationRotationScaleArrayState();
+        TranslationRotationScaleArrayState(const TranslationRotationScaleArrayState& rhs);
+        explicit TranslationRotationScaleArrayState(const ArrayState& rhs);
+
+        ref_ptr<ArrayState> cloneArrayState() override;
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
+
+        uint32_t translation_attribute_location = 7;
+        uint32_t rotation_attribute_location = 8;
+        uint32_t scale_attribute_location = 9;
+        AttributeDetails translationAttribute;
+        AttributeDetails rotationAttribute;
+        AttributeDetails scaleAttribute;
+
+        using ArrayState::apply;
+
+        void apply(const VertexInputState& vas) override;
+        ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
+    };
+    VSG_type_name(vsg::TranslationRotationScaleArrayState);
 
     /// DisplacementMapArrayState is an ArrayState subclass for mapping vertex array data for displacement mapped geometries.
     class VSG_DECLSPEC DisplacementMapArrayState : public Inherit<ArrayState, DisplacementMapArrayState>
@@ -145,7 +177,7 @@ namespace vsg
         uint32_t normal_attribute_location = 1;
         uint32_t texcoord_attribute_location = 2;
         uint32_t dm_set = 0;
-        uint32_t dm_binding = 6;
+        uint32_t dm_binding = 7;
 
         // displacement map found during traversal
         ref_ptr<floatArray2D> displacementMap;
@@ -164,16 +196,16 @@ namespace vsg
     };
     VSG_type_name(vsg::DisplacementMapArrayState);
 
-    /// PositionAndDisplacementMapArrayState is an ArrayState subclass for mapping vertex array data for instanced, displacement mapped geometries.
-    class VSG_DECLSPEC PositionAndDisplacementMapArrayState : public Inherit<DisplacementMapArrayState, PositionAndDisplacementMapArrayState>
+    /// TranslationAndDisplacementMapArrayState is an ArrayState subclass for mapping vertex array data for instanced, displacement mapped geometries.
+    class VSG_DECLSPEC TranslationAndDisplacementMapArrayState : public Inherit<DisplacementMapArrayState, TranslationAndDisplacementMapArrayState>
     {
     public:
-        PositionAndDisplacementMapArrayState();
-        PositionAndDisplacementMapArrayState(const PositionAndDisplacementMapArrayState& rhs);
-        explicit PositionAndDisplacementMapArrayState(const ArrayState& rhs);
+        TranslationAndDisplacementMapArrayState();
+        TranslationAndDisplacementMapArrayState(const TranslationAndDisplacementMapArrayState& rhs);
+        explicit TranslationAndDisplacementMapArrayState(const ArrayState& rhs);
 
-        uint32_t position_attribute_location = 4;
-        AttributeDetails positionAttribute;
+        uint32_t translation_attribute_location = 7;
+        AttributeDetails translationAttribute;
 
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
@@ -181,7 +213,7 @@ namespace vsg
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
-    VSG_type_name(vsg::PositionAndDisplacementMapArrayState);
+    VSG_type_name(vsg::TranslationAndDisplacementMapArrayState);
 
     /// BillboardArrayState is an ArrayState subclass for mapping vertex array data for billboard instanced geometries.
     class VSG_DECLSPEC BillboardArrayState : public Inherit<ArrayState, BillboardArrayState>
@@ -194,8 +226,8 @@ namespace vsg
         ref_ptr<ArrayState> cloneArrayState() override;
         ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
-        uint32_t position_attribute_location = 4;
-        AttributeDetails positionAttribute;
+        uint32_t translation_attribute_location = 7;
+        AttributeDetails translationAttribute;
 
         using ArrayState::apply;
 

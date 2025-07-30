@@ -37,6 +37,9 @@ namespace vsg
         using MatrixStack = std::vector<dmat4>;
         MatrixStack matrixStack;
 
+        /// last instanceNode encountered (used by InstanceDraw)
+        const InstanceNode* instanceNode = nullptr;
+
         ref_ptr<const ushortArray> ushort_indices;
         ref_ptr<const uintArray> uint_indices;
 
@@ -51,6 +54,9 @@ namespace vsg
         void apply(const Geometry& geometry) override;
         void apply(const VertexDraw& vid) override;
         void apply(const VertexIndexDraw& vid) override;
+        void apply(const InstanceNode& in) override;
+        void apply(const InstanceDraw& id) override;
+        void apply(const InstanceDrawIndexed& id) override;
         void apply(const BindVertexBuffers& bvb) override;
         void apply(const BindIndexBuffer& bib) override;
         void apply(const StateCommand& statecommand) override;

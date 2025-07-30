@@ -40,8 +40,10 @@ namespace vsg
     class VSG_DECLSPEC Output
     {
     public:
-        Output(ref_ptr<const Options> in_options = {});
+        Output();
+        Output(ref_ptr<const Options> in_options);
 
+        Output(const Output& output) = delete;
         Output& operator=(const Output& rhs) = delete;
 
         /// write property name if appropriate for format
