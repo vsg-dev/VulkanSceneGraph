@@ -424,17 +424,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
         }
     }
 
-    info("Viewer::assignRecordAndSubmitTaskAndPresentation() databasePager = ", databasePager);
-    size_t numDatabasePagerReadThreads = 0;
-#if 0
-    if (databasePager)
-    {
-        numDatabasePagerReadThreads = databasePager->threads.size();
-        if (numDatabasePagerReadThreads>2) --numDatabasePagerReadThreads;
-        databasePager->stop();
-    }
-#endif
-
     presentations.clear();
     recordAndSubmitTasks.clear();
 
@@ -510,7 +499,7 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
         // get an appropriate transfer queue
         ref_ptr<Queue> transferQueue = mainQueue;
-#if 1
+
         VkQueueFlags transferQueueFlags = VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT; // use VK_QUEUE_GRAPHICS_BIT to ensure we can blit images
         for (auto& queue : device->getQueues())
         {
@@ -523,7 +512,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
                 }
             }
         }
-#endif
 
         if (deviceQueueFamily.presentFamily >= 0)
         {
@@ -574,8 +562,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             if (instrumentation) recordAndSubmitTask->assignInstrumentation(instrumentation);
         }
     }
-
-    // if (databasePager) databasePager->start(numDatabasePagerReadThreads);
 
     if (needToStartThreading) setupThreading();
 }
