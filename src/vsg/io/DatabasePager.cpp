@@ -220,7 +220,6 @@ void DatabasePager::stop()
 {
     _status->set(false);
 
-
     for (auto& thread : threads)
     {
         thread.join();
