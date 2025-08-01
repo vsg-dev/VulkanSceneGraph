@@ -198,19 +198,13 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
     {
         if (buffer.compare(pos + 1, 5, "data:") == 0)
         {
-            vsg::info("We have a data URI");
-
             auto semicolon = buffer.find(';', pos + 6);
 
             std::string memeType = buffer.substr(pos + 6, semicolon - pos - 6);
 
-            vsg::info("memeType = ", memeType);
-
             auto comma = buffer.find(',', semicolon + 1);
 
             std::string encoding = buffer.substr(semicolon + 1, comma - semicolon - 1);
-
-            vsg::info("encoding = ", encoding);
 
             // value = buffer.substr(comma+1, end_of_value - comma -1);
 
@@ -219,8 +213,6 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
 
             pos = end_of_value + 1;
 
-            vsg::info("value = ", value, ", object = ", object);
-
             return true;
         }
     }
@@ -228,8 +220,6 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
     value = buffer.substr(pos + 1, end_of_value - pos - 1);
 
     object = vsg::read(value, options);
-
-    vsg::info("read_uri(", pos, ") -> value = [", value, "] & object = ", object);
 
     pos = end_of_value + 1;
 
@@ -321,8 +311,6 @@ bool JSONParser::read_string(std::string& value)
                 {
                     number = number * 16;
                     auto c = buffer[end_of_value + i + 2];
-                    vsg::info("c = ", c, ", v = ", int(c));
-
                     if (c >= '0' && c <= '9')
                         number += (c - '0');
                     else if (c >= 'a' && c <= 'f')
