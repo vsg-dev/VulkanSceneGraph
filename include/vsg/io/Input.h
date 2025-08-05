@@ -177,11 +177,32 @@ namespace vsg
             uint32_t numElements = 0;
             read(1, &numElements);
 
+            values.clear();
+
             for (uint32_t i = 0; i < numElements; ++i)
             {
                 T v;
                 read("element", v);
                 values.insert(v);
+            }
+        }
+
+        template<typename K, typename V>
+        void readValues(const char* propertyName, std::map<K, V>& values)
+        {
+            if (!matchPropertyName(propertyName)) return;
+
+            uint32_t numElements = 0;
+            read(1, &numElements);
+
+            values.clear();
+
+            for (uint32_t i = 0; i < numElements; ++i)
+            {
+                K k;
+                V v;
+                read("element", k, v);
+                values[k] = v;
             }
         }
 

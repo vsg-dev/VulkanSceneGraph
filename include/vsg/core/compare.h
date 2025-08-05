@@ -102,6 +102,24 @@ namespace vsg
         return 0;
     }
 
+    template<typename T>
+    int compare_map(const T& lhs, const T& rhs)
+    {
+        if (lhs.size() < rhs.size()) return -1;
+        if (lhs.size() > rhs.size()) return 1;
+        if (lhs.empty()) return 0;
+
+        auto rhs_itr = rhs.begin();
+        for(auto lhs_itr = lhs.begin(); lhs_itr != lhs.end(); ++lhs_itr)
+        {
+            if (lhs_itr->first < rhs_itr->first) return -1;
+            if (rhs_itr->first < lhs_itr->first) return 1;
+            if (lhs_itr->second < rhs_itr->second) return -1;
+            if (rhs_itr->second < lhs_itr->second) return 1;
+        }
+        return 0;
+    }
+
     /// less functor for comparing ref_ptr<Object> typically used with std::set<> etc.
     struct DereferenceLess
     {

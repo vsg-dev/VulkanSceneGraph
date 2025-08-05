@@ -22,6 +22,59 @@ namespace vsg
     // forward declare
     class Context;
 
+
+    /// Inputs to #pragma(tic) shader composition
+    class DefineMap
+    {
+    public:
+        using Map = std::map<std::string, std::string>;
+        using iterator = Map::iterator;
+        using const_iterator = Map::const_iterator;
+
+        DefineMap() {}
+        DefineMap(const DefineMap& rhs) : values(rhs.values) {}
+
+        Map values;
+
+        iterator begin() { return values.begin(); }
+        iterator end() { return values.end(); }
+
+        const_iterator begin() const { return values.begin(); }
+        const_iterator end() const { return values.end(); }
+
+        void insert(const std::string& str) { values[str] = ""; }
+        void insert(const std::string& str, const std::string& value) { values[str] = value; }
+
+        void clear() { values.clear(); }
+        bool empty() const { return values.empty(); }
+        Map::size_type size() const { return values.size(); }
+
+        bool operator < (const DefineMap& rhs) const { return values < rhs.values; }
+        bool operator == (const DefineMap& rhs) const { return values == rhs.values; }
+
+        Map::size_type count(const std::string& key) const { return values.count(key); }
+
+        DefineMap& operator = (const DefineMap& rhs)
+        {
+            values = rhs.values;
+            return *this;
+        }
+
+        DefineMap& operator = (const std::set<std::string>& rhs)
+        {
+            values.clear();
+            for(auto& value : rhs) insert(value);
+            return *this;
+        }
+
+        std::set<std::string> keys() const
+        {
+            std::set<std::string> key_values;
+            for(auto itr = values.begin(); itr != values.end(); ++itr) key_values.insert(itr->first);
+            return key_values;
+        }
+    };
+
     /// Settings passed to glsLang when compiling GLSL/HLSL shader source to SPIR-V
     /// Provides the values to pass to glsLang::TShader::setEnvInput, setEnvClient and setEnvTarget.
     class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
@@ -52,7 +105,7 @@ namespace vsg
         bool generateDebugInfo = false; // maps to SpvOptions::generateDebugInfo
         bool optimize = false;
 
-        std::set<std::string> defines;
+        DefineMap defines;
 
     public:
         int compare(const Object& rhs_object) const override;

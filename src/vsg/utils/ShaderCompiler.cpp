@@ -280,8 +280,8 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         std::string finalShaderSource = vsg::insertIncludes(vsg_shader->module->source, options);
 
-        std::vector<std::string> combinedDefines(defines);
-        for (auto& define : settings->defines) combinedDefines.push_back(define);
+        std::map<std::string, std::string> combinedDefines(defines);
+        for (auto& define : settings->defines) combinedDefines.insert(define);
         if (!combinedDefines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, combinedDefines);
 
         vsg::debug("ShaderCompiler::compile() combinedDefines = ", combinedDefines);

@@ -28,7 +28,7 @@ namespace vsg
         bool compile(ShaderStages& shaders, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
         bool compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
 
-        std::string combineSourceAndDefines(const std::string& source, const std::vector<std::string>& defines);
+        std::string combineSourceAndDefines(const std::string& source, const std::map<std::string, std::string>& defines);
 
         void apply(Node& node) override;
         void apply(BindGraphicsPipeline& bgp) override;

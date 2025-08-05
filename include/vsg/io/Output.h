@@ -175,6 +175,19 @@ namespace vsg
             }
         }
 
+
+        template<typename K, typename V>
+        void writeValues(const char* propertyName, const std::map<K, V>& values)
+        {
+            uint32_t numElements = static_cast<uint32_t>(values.size());
+            write(propertyName, numElements);
+
+            for (const auto& [k, v] : values)
+            {
+                write("element", k, v);
+            }
+        }
+
         /// match propertyname and write value(s)
         template<typename... Args>
         void write(const char* propertyName, Args&... args)

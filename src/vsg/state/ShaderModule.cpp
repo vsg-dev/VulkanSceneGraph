@@ -37,7 +37,7 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
     if ((result = compare_value(generateDebugInfo, rhs.generateDebugInfo))) return result;
     if ((result = compare_value(optimize, rhs.optimize))) return result;
-    return compare_container(defines, rhs.defines);
+    return compare_map(defines.values, rhs.defines.values);
 }
 
 void ShaderCompileSettings::read(Input& input)
@@ -59,7 +59,16 @@ void ShaderCompileSettings::read(Input& input)
         input.read("optimize", optimize);
     }
 
-    input.readValues("defines", defines);
+    if (input.version_greater_equal(1, 1, 12))
+    {
+        input.readValues("defines", defines.values);
+    }
+    else
+    {
+        std::set<std::string> old_defines;
+        input.readValues("defines", old_defines);
+        defines = old_defines;
+    }
 }
 
 void ShaderCompileSettings::write(Output& output) const
@@ -81,7 +90,15 @@ void ShaderCompileSettings::write(Output& output) const
         output.write("optimize", optimize);
     }
 
-    output.writeValues("defines", defines);
+    if (output.version_greater_equal(1, 1, 12))
+    {
+        output.writeValues("defines", defines.values);
+    }
+    else
+    {
+        // Older version of VSG don't support map, so convert to std::set just retaining the key
+        output.writeValues("defines", defines.keys());
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
