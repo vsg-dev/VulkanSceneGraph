@@ -137,6 +137,46 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numComponents = 1;
         traits.size = 16;
     }
+    else if (VK_FORMAT_BC4_UNORM_BLOCK <= format && format <= VK_FORMAT_BC4_SNORM_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 64;
+        traits.numComponents = 1;
+        traits.size = 8;
+    }
+    else if (VK_FORMAT_BC5_UNORM_BLOCK <= format && format <= VK_FORMAT_BC5_SNORM_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
+    }
+    else if (VK_FORMAT_BC6H_UFLOAT_BLOCK <= format && format <= VK_FORMAT_BC6H_SFLOAT_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
+    }
+    else if (VK_FORMAT_BC7_UNORM_BLOCK <= format && format <= VK_FORMAT_BC7_SRGB_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
+    }
     else
     {
         info("getFormatTraits(", format, ") unhandled.");
