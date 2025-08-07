@@ -39,7 +39,6 @@ namespace vsg
         Windows windows;
         Semaphores waitSemaphores;   // assign in application setup
         CommandGraphs commandGraphs; // assign in application setup
-        Semaphores signalSemaphores; // connect to Presentation.waitSemaphores
 
         ref_ptr<TransferTask> transferTask; // data is transferred for this frame
 

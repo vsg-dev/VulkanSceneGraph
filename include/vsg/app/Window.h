@@ -122,6 +122,7 @@ namespace vsg
             ref_ptr<ImageView> imageView;
             ref_ptr<Framebuffer> framebuffer;
             ref_ptr<Semaphore> imageAvailableSemaphore;
+            ref_ptr<Semaphore> renderFinishedSemaphore;
         };
 
         using Frames = std::vector<Frame>;

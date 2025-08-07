@@ -20,10 +20,6 @@ VkResult Presentation::present()
     //debug("Presentation::present()");
 
     std::vector<VkSemaphore> vk_semaphores;
-    for (auto& semaphore : waitSemaphores)
-    {
-        vk_semaphores.emplace_back(*(semaphore));
-    }
 
     std::vector<VkSwapchainKHR> vk_swapchains;
     std::vector<uint32_t> indices;
@@ -34,6 +30,9 @@ VkResult Presentation::present()
         {
             vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
             indices.emplace_back(static_cast<uint32_t>(imageIndex));
+
+            auto& renderFinishedSemaphore = window->frame(imageIndex).renderFinishedSemaphore;
+            vk_semaphores.push_back(*renderFinishedSemaphore);
         }
     }
 

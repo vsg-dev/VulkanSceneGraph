@@ -215,6 +215,8 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     if (earlyDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, earlyTransferConsumerCompletedSemaphore);
     if (lateDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, lateTransferConsumerCompletedSemaphore);
 
+    current_fence->dependentSemaphores().clear();
+
     for (auto& window : windows)
     {
         auto imageIndex = window->imageIndex();
@@ -224,18 +226,16 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
 
         vk_waitSemaphores.emplace_back(*semaphore);
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+
+        auto& renderFinishedSemaphore = window->frame(imageIndex).renderFinishedSemaphore;
+        vk_signalSemaphores.emplace_back(*renderFinishedSemaphore);
+        current_fence->dependentSemaphores().push_back(renderFinishedSemaphore);
     }
 
     for (auto& semaphore : waitSemaphores)
     {
         vk_waitSemaphores.emplace_back(*(semaphore));
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
-    }
-
-    current_fence->dependentSemaphores() = signalSemaphores;
-    for (auto& semaphore : signalSemaphores)
-    {
-        vk_signalSemaphores.emplace_back(*(semaphore));
     }
 
     if (earlyDataTransferredSemaphore)
