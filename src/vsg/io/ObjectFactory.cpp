@@ -102,14 +102,15 @@ ObjectFactory::ObjectFactory()
     add<vsg::uivec4Array>();
     add<vsg::mat4Array>();
     add<vsg::dmat4Array>();
+    add<vsg::quatArray>();
+    add<vsg::dquatValue>();
     add<vsg::block64Array>();
     add<vsg::block128Array>();
     add<vsg::materialArray>();
     add<vsg::PhongMaterialArray>();
     add<vsg::PbrMaterialArray>();
     add<vsg::DrawIndirectCommandArray>();
-    add<vsg::quatArray>();
-    add<vsg::dquatValue>();
+    add<vsg::DrawIndexedIndirectCommandArray>();
 
     // array2Ds
     add<vsg::byteArray2D>();

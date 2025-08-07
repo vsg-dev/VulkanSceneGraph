@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2018 Robert Osfield
+Copyright(c) 2025 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -18,34 +18,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-    /// Equivalent to VkDrawIndirectCommand that adds read/write support
-    struct DrawIndirectCommand
+    /// Equivalent to VkDrawIndexedIndirectCommand that adds read/write support
+    struct DrawIndexedIndirectCommand
     {
-        uint32_t vertexCount = 0;
+        uint32_t indexCount = 0;
         uint32_t instanceCount = 0;
-        uint32_t firstVertex = 0;
+        uint32_t firstIndex = 0;
+        int32_t vertexOffset = 0;
         uint32_t firstInstance = 0;
 
         void read(vsg::Input& input)
         {
-            input.read("vertexCount", vertexCount);
+            input.read("indexCount", indexCount);
             input.read("instanceCount", instanceCount);
-            input.read("firstVertex", firstVertex);
+            input.read("firstIndex", firstIndex);
+            input.read("vertexOffset", vertexOffset);
             input.read("firstInstance", firstInstance);
         }
 
         void write(vsg::Output& output) const
         {
-            output.write("vertexCount", vertexCount);
+            output.write("indexCount", indexCount);
             output.write("instanceCount", instanceCount);
-            output.write("firstVertex", firstVertex);
+            output.write("firstIndex", firstIndex);
+            output.write("vertexOffset", vertexOffset);
             output.write("firstInstance", firstInstance);
         }
     };
 
     template<>
-    constexpr bool has_read_write<DrawIndirectCommand>() { return true; }
+    constexpr bool has_read_write<DrawIndexedIndirectCommand>() { return true; }
 
-    VSG_array(DrawIndirectCommandArray, DrawIndirectCommand);
+    VSG_array(DrawIndexedIndirectCommandArray, DrawIndexedIndirectCommand);
 
 } // namespace vsg
