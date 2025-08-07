@@ -129,6 +129,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/commands/DrawIndexedIndirect.h>
+#include <vsg/commands/DrawIndexedIndirectCommand.h>
 #include <vsg/commands/DrawIndirect.h>
 #include <vsg/commands/DrawIndirectCommand.h>
 #include <vsg/commands/EndQuery.h>
