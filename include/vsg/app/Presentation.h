@@ -24,7 +24,6 @@ namespace vsg
         VkResult present();
 
         Windows windows;
-        Semaphores waitSemaphores; // taken from RecordAndSubmitTasks.signalSemaphores
 
         ref_ptr<Queue> queue; // assign in application for GraphicsQueue from device
     };
