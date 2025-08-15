@@ -33,6 +33,8 @@ namespace vsg
     public:
         ViewDescriptorSetLayout();
 
+        bool empty() const override { return false; }
+
         VkDescriptorSetLayout vk(uint32_t deviceID) const override { return _viewDescriptorSetLayout ? _viewDescriptorSetLayout->vk(deviceID) : 0; }
 
         int compare(const Object& rhs_object) const override;
