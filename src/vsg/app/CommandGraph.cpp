@@ -109,7 +109,8 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
     }
     else
     {
-        commandBuffer->reset();
+        // comment out, assume the vkBeginCommandBuffer call will correctly reset the command buffer.
+        // commandBuffer->reset();
     }
 
     commandBuffer->numDependentSubmissions().fetch_add(1);
