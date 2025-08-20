@@ -531,7 +531,7 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
                 assert(nameValueDefElems.size() == 1 || nameValueDefElems.size() == 2);
 
                 auto finditr = std::find(importedDefines.begin(), importedDefines.end(), nameValueDefElems.front());
-                if (finditr != defines.end())
+                if (finditr != importedDefines.end())
                 {
                     // output the pre-processor define directive with its name and optional value
                     addLine(headerstream, "#define " + nameValueDefElems.front() +
