@@ -39,6 +39,15 @@ namespace vsg
         Stack stack;
         size_t pos = 0;
 
+        StateStack& operator = (const StateStack& rhs)
+        {
+            stack = rhs.stack;
+            pos = rhs.pos;
+            dirty();
+
+            return *this;
+        }
+
         inline void reset()
         {
             pos = 0;
@@ -92,6 +101,15 @@ namespace vsg
         std::stack<dmat4> matrixStack;
         uint32_t offset = 0;
         bool dirty = false;
+
+        MatrixStack& operator = (const MatrixStack& rhs)
+        {
+            matrixStack = rhs.matrixStack;
+            offset = rhs.offset;
+            dirty = true;
+
+            return *this;
+        }
 
         inline void set(const mat4& matrix)
         {
@@ -149,6 +167,7 @@ namespace vsg
                 {
                     return;
                 }
+
 
                 // make sure matrix is a float matrix.
                 mat4 newmatrix(matrixStack.top());
@@ -267,8 +286,11 @@ namespace vsg
 
         void reset();
 
+        void inherit(State& state);
+
         inline void dirtyStateStacks()
         {
+            dirty = true;
             for (auto& stateStack : stateStacks)
             {
                 stateStack.dirty();
@@ -307,6 +329,7 @@ namespace vsg
         {
             if (dirty)
             {
+
                 for (uint32_t slot = 0; slot <= activeMaxStateSlot; ++slot)
                 {
                     stateStacks[slot].record(*_commandBuffer);

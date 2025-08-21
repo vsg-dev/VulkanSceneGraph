@@ -35,7 +35,6 @@ void State::reserve(const Slots& in_maxSlots)
 
 void State::reset()
 {
-    //info("State::reset()");
     for (auto& stateStack : stateStacks)
     {
         stateStack.reset();
@@ -48,7 +47,11 @@ void State::connect(ref_ptr<CommandBuffer> commandBuffer)
 {
     _commandBuffer = commandBuffer;
     commandBuffer->state = this;
+#if 0
     reset();
+#else
+    dirtyStateStacks();
+#endif
 }
 
 void State::pushView(ref_ptr<StateCommand> command)
@@ -73,4 +76,29 @@ void State::popView(const View& view)
 {
     //info("State::popView(View&, ", &view, ")");
     if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) popView(view.camera->viewportState);
+}
+
+void State::inherit(State& state)
+{
+    dirty = true;
+
+    _frustumUnit = state._frustumUnit;
+    _frustumProjected = state._frustumProjected;
+
+    _frustumStack = state._frustumStack;
+
+    inheritViewForLODScaling = state.inheritViewForLODScaling;
+    inheritedProjectionMatrix = state.inheritedProjectionMatrix;
+    inheritedViewMatrix = state.inheritedViewMatrix;
+    inheritedViewTransform = state.inheritedViewTransform;
+
+    maxSlots = state.maxSlots;
+    activeMaxStateSlot = state.activeMaxStateSlot;
+
+    stateStacks = state.stateStacks;
+
+    viewportStateHint = state.viewportStateHint;
+
+    projectionMatrixStack = state.projectionMatrixStack;
+    modelviewMatrixStack = state.modelviewMatrixStack;
 }
