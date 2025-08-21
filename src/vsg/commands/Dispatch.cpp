@@ -31,3 +31,8 @@ void Dispatch::write(Output& output) const
     output.write("groupCountY", groupCountY);
     output.write("groupCountZ", groupCountZ);
 }
+
+void Dispatch::record(CommandBuffer& commandBuffer) const
+{
+    vkCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
+}

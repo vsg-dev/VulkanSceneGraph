@@ -32,10 +32,7 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void record(CommandBuffer& commandBuffer) const override
-        {
-            vkCmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
-        }
+        void record(CommandBuffer& commandBuffer) const override;
 
         uint32_t groupCountX = 0;
         uint32_t groupCountY = 0;
