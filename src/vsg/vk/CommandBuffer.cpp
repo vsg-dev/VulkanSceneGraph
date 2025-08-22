@@ -42,12 +42,12 @@ CommandBuffer::~CommandBuffer()
     }
 }
 
-void CommandBuffer::reset()
+void CommandBuffer::reset(VkCommandBufferResetFlags flags)
 {
     _currentPipelineLayout = VK_NULL_HANDLE;
     _currentPushConstantStageFlags = 0;
 
-    _commandPool->reset();
+    vkResetCommandBuffer(_commandBuffer, flags);
 }
 
 void CommandBuffer::setCurrentPipelineLayout(const PipelineLayout* pipelineLayout)
