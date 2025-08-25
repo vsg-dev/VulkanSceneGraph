@@ -47,11 +47,7 @@ void State::connect(ref_ptr<CommandBuffer> commandBuffer)
 {
     _commandBuffer = commandBuffer;
     commandBuffer->state = this;
-#if 0
-    reset();
-#else
     dirtyStateStacks();
-#endif
 }
 
 void State::pushView(ref_ptr<StateCommand> command)
