@@ -80,25 +80,37 @@ void State::popView(const View& view)
 
 void State::inherit(State& state)
 {
+    reset();
+
     dirty = true;
-
-    _frustumUnit = state._frustumUnit;
-    _frustumProjected = state._frustumProjected;
-
-    _frustumStack = state._frustumStack;
-
-    inheritViewForLODScaling = state.inheritViewForLODScaling;
-    inheritedProjectionMatrix = state.inheritedProjectionMatrix;
-    inheritedViewMatrix = state.inheritedViewMatrix;
-    inheritedViewTransform = state.inheritedViewTransform;
-
     maxSlots = state.maxSlots;
     activeMaxStateSlot = state.activeMaxStateSlot;
 
-    stateStacks = state.stateStacks;
+    if ((inheritMask & INHERIT_VIEWPOINT) !=0)
+    {
+        inheritViewForLODScaling = state.inheritViewForLODScaling;
+        inheritedProjectionMatrix = state.inheritedProjectionMatrix;
+        inheritedViewMatrix = state.inheritedViewMatrix;
+        inheritedViewTransform = state.inheritedViewTransform;
+    }
 
-    viewportStateHint = state.viewportStateHint;
+    if ((inheritMask & INHERIT_STATE)!=0)
+    {
+        stateStacks = state.stateStacks;
+    }
 
-    projectionMatrixStack = state.projectionMatrixStack;
-    modelviewMatrixStack = state.modelviewMatrixStack;
+    if ((inheritMask & INHERIT_VIEWPORT_STATE_HINT)!=0)
+    {
+        viewportStateHint = state.viewportStateHint;
+    }
+
+    if ((inheritMask & INHERIT_MATRICES)!=0)
+    {
+        projectionMatrixStack = state.projectionMatrixStack;
+        modelviewMatrixStack = state.modelviewMatrixStack;
+
+        _frustumUnit = state._frustumUnit;
+        _frustumProjected = state._frustumProjected;
+        _frustumStack = state._frustumStack;
+    }
 }
