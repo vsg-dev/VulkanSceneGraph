@@ -444,7 +444,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     if (!commandBuffer)
     {
-        auto cp = CommandPool::create(device, transferQueue->queueFamilyIndex());
+        auto cp = CommandPool::create(device, transferQueue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
         commandBuffer = cp->allocate(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     }
     else
