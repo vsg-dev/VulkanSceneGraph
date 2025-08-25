@@ -41,7 +41,6 @@ namespace vsg
         int presentFamily = -1;
         int submitOrder = 0;
         Slots maxSlots;
-        StateInheritanceMask stateInheritanceMask = StateInheritanceMask::INHERIT_ALL;
 
         ref_ptr<RecordTraversal> getOrCreateRecordTraversal();
 

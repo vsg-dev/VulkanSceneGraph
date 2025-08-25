@@ -25,15 +25,6 @@ namespace vsg
     class InstanceNode;
     class State;
 
-    enum StateInheritanceMask : unsigned int
-    {
-        INHERIT_STATE = (1 << 0),
-        INHERIT_VIEWPORT_STATE_HINT = (1 << 1),
-        INHERIT_VIEWPOINTS = (1 << 2),
-        INHERIT_MATRICES = (1 << 4),
-        INHERIT_ALL = INHERIT_STATE | INHERIT_VIEWPORT_STATE_HINT | INHERIT_VIEWPOINTS | INHERIT_MATRICES
-    };
-
     /// CommandBuffer encapsulates VkCommandBuffer
     class VSG_DECLSPEC CommandBuffer : public Inherit<Object, CommandBuffer>
     {

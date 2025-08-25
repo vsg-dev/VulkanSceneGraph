@@ -670,7 +670,7 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
         auto cg = const_cast<CommandGraph*>(&commandGraph);
         if (cg->device)
         {
-            cg->getOrCreateRecordTraversal()->_state->inherit(*_state, cg->stateInheritanceMask);
+            cg->getOrCreateRecordTraversal()->_state->inherit(*_state);
 
             if (_viewDependentState && _viewDependentState->view && (_viewDependentState->view->features & INHERIT_VIEWPOINT) != 0)
                 {
