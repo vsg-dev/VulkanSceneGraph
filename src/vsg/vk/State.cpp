@@ -78,7 +78,7 @@ void State::popView(const View& view)
     if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) popView(view.camera->viewportState);
 }
 
-void State::inherit(State& state)
+void State::inherit(State& state, StateInheritanceMask inheritanceMask)
 {
     reset();
 
@@ -86,7 +86,7 @@ void State::inherit(State& state)
     maxSlots = state.maxSlots;
     activeMaxStateSlot = state.activeMaxStateSlot;
 
-    if ((inheritMask & INHERIT_VIEWPOINT) !=0)
+    if ((inheritanceMask & StateInheritanceMask::INHERIT_VIEWPOINTS) != 0)
     {
         inheritViewForLODScaling = state.inheritViewForLODScaling;
         inheritedProjectionMatrix = state.inheritedProjectionMatrix;
@@ -94,17 +94,17 @@ void State::inherit(State& state)
         inheritedViewTransform = state.inheritedViewTransform;
     }
 
-    if ((inheritMask & INHERIT_STATE)!=0)
+    if ((inheritanceMask & StateInheritanceMask::INHERIT_STATE) != 0)
     {
         stateStacks = state.stateStacks;
     }
 
-    if ((inheritMask & INHERIT_VIEWPORT_STATE_HINT)!=0)
+    if ((inheritanceMask & StateInheritanceMask::INHERIT_VIEWPORT_STATE_HINT) != 0)
     {
         viewportStateHint = state.viewportStateHint;
     }
 
-    if ((inheritMask & INHERIT_MATRICES)!=0)
+    if ((inheritanceMask & StateInheritanceMask::INHERIT_MATRICES) != 0)
     {
         projectionMatrixStack = state.projectionMatrixStack;
         modelviewMatrixStack = state.modelviewMatrixStack;

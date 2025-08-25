@@ -39,7 +39,7 @@ namespace vsg
         Stack stack;
         size_t pos = 0;
 
-        StateStack& operator = (const StateStack& rhs)
+        StateStack& operator=(const StateStack& rhs)
         {
             stack = rhs.stack;
             pos = rhs.pos;
@@ -102,7 +102,7 @@ namespace vsg
         uint32_t offset = 0;
         bool dirty = false;
 
-        MatrixStack& operator = (const MatrixStack& rhs)
+        MatrixStack& operator=(const MatrixStack& rhs)
         {
             matrixStack = rhs.matrixStack;
             offset = rhs.offset;
@@ -167,7 +167,6 @@ namespace vsg
                 {
                     return;
                 }
-
 
                 // make sure matrix is a float matrix.
                 mat4 newmatrix(matrixStack.top());
@@ -286,16 +285,8 @@ namespace vsg
 
         void reset();
 
-        enum InheritanceMask
-        {
-            INHERIT_STATE = (1<<0),
-            INHERIT_VIEWPORT_STATE_HINT = (1<<1),
-            INHERIT_VIEWPOINT = (1<<2),
-            INHERIT_MATRICES = (1<<4)
-            INHERIT_ALL = INHERIT_STATE | INHERIT_VIEWPORT_STATE_HINT | INHERIT_VIEWPOINT | INHERIT_MATRICES;
-        };
 
-        void inherit(State& state, InheritanceMask inheritanceMask = INHERIT_ALL);
+        void inherit(State& state, StateInheritanceMask inheritanceMask = StateInheritanceMask::INHERIT_ALL);
 
         inline void dirtyStateStacks()
         {
