@@ -673,10 +673,10 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
             cg->getOrCreateRecordTraversal()->_state->inherit(*_state);
 
             if (_viewDependentState && _viewDependentState->view && (_viewDependentState->view->features & INHERIT_VIEWPOINT) != 0)
-                {
-                    auto camera = _viewDependentState->view->camera;
-                    if (camera) cg->getOrCreateRecordTraversal()->_state->setInhertiedViewProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
-                }
+            {
+                auto camera = _viewDependentState->view->camera;
+                if (camera) cg->getOrCreateRecordTraversal()->_state->setInhertiedViewProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
+            }
 
             cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
         }
