@@ -24,6 +24,7 @@ namespace vsg
     {
     public:
         ShaderStage();
+        ShaderStage(const ShaderStage& rhs, const CopyOp& copyop = {});
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, ref_ptr<ShaderModule> shaderModule);
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const std::string& source, ref_ptr<ShaderCompileSettings> hints = {});
         ShaderStage(VkShaderStageFlagBits stage, const std::string& entryPointName, const ShaderModule::SPIRV& spirv);
@@ -44,15 +45,17 @@ namespace vsg
         static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, const Path& filename, ref_ptr<const Options> options = {});
         static ref_ptr<ShaderStage> read(VkShaderStageFlagBits stage, const std::string& entryPointName, std::istream& fin, ref_ptr<const Options> options = {});
 
-        int compare(const Object& rhs_object) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-
         void apply(Context& context, VkPipelineShaderStageCreateInfo& stageInfo) const;
 
         // compile the Vulkan object, context parameter used for Device
         void compile(Context& context);
+
+    public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderStage::create(*this, copyop); }
+        int compare(const Object& rhs_object) const override;
+
+        void read(Input& input) override;
+        void write(Output& output) const override;
 
     protected:
         virtual ~ShaderStage();
