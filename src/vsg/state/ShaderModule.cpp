@@ -22,6 +22,25 @@ using namespace vsg;
 //
 // ShaderCompileSettings
 //
+ShaderCompileSettings::ShaderCompileSettings()
+{
+}
+
+ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    vulkanVersion(rhs.vulkanVersion),
+    clientInputVersion(rhs.clientInputVersion),
+    language(rhs.language),
+    defaultVersion(rhs.defaultVersion),
+    target(rhs.target),
+    forwardCompatible(rhs.forwardCompatible),
+    generateDebugInfo(rhs.generateDebugInfo),
+    optimize(rhs.optimize),
+    defines(rhs.defines)
+{
+    vsg::info("ShaderCompileSettings::ShaderCompileSettings(", &rhs, ", copyop)");
+}
+
 int ShaderCompileSettings::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
@@ -90,6 +109,15 @@ void ShaderCompileSettings::write(Output& output) const
 //
 ShaderModule::ShaderModule()
 {
+}
+
+ShaderModule::ShaderModule(const ShaderModule& rhs, const CopyOp& copyop):
+    Inherit(rhs, copyop),
+    source(rhs.source),
+    hints(copyop(rhs.hints)),
+    code(rhs.code)
+{
+    vsg::info("ShaderModule::ShaderModule(", &rhs, ", copyop) ");
 }
 
 ShaderModule::ShaderModule(const std::string& in_source, ref_ptr<ShaderCompileSettings> in_hints) :

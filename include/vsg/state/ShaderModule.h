@@ -27,6 +27,10 @@ namespace vsg
     class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
     {
     public:
+
+        ShaderCompileSettings();
+        ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop = {});
+
         enum Language
         {
             GLSL,
@@ -55,6 +59,7 @@ namespace vsg
         std::set<std::string> defines;
 
     public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderCompileSettings::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
@@ -70,6 +75,7 @@ namespace vsg
         using SPIRV = std::vector<uint32_t>;
 
         ShaderModule();
+        ShaderModule(const ShaderModule& rhs, const CopyOp& copyop = {});
         explicit ShaderModule(const std::string& in_source, ref_ptr<ShaderCompileSettings> in_hints = {});
         explicit ShaderModule(const SPIRV& in_code);
         ShaderModule(const std::string& source, const SPIRV& in_code);
@@ -91,6 +97,7 @@ namespace vsg
         void release() { _implementation.clear(); }
 
     public:
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderModule::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
