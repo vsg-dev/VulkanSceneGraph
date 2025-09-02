@@ -717,6 +717,14 @@ bool Xcb_Window::pollEvents(UIEvents& events)
                 {
                     bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(0.0f, -1.0f, 0.0f)));
                 }
+                else if (button_press->detail == 6)
+                {
+                    bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(1.0f, 0.0f, 0.0f)));
+                }
+                else if (button_press->detail == 7)
+                {
+                    bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3(-1.0f, 0.0f, 0.0f)));
+                }
                 else
                 {
                     uint16_t button = button_press->detail;
