@@ -219,8 +219,7 @@ namespace vsg
         {
             if (!matchPropertyName(propertyName)) return;
 
-            ref_ptr<Object> object = read();
-            arg = ref_ptr<T>(dynamic_cast<T*>(object.get()));
+            arg = read().cast<T>();
         }
 
         /// read a value of particular type
