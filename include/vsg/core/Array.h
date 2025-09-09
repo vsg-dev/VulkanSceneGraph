@@ -24,7 +24,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #define VSG_array(N, T)                                                  \
     using N = Array<T>;                                                  \
-    extern template class VSG_DECLSPEC vsg::Array<T>;                    \
     template<>                                                           \
     constexpr const char* type_name<N>() noexcept { return "vsg::" #N; } \
     template<>                                                           \
@@ -34,7 +33,7 @@ namespace vsg
 {
 
     template<typename T>
-    class Array : public Data
+    class VSG_DECLSPEC Array : public Data
     {
     public:
         using value_type = T;

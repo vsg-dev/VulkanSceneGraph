@@ -11,7 +11,6 @@ endif()
 set(SOURCES
 
     core/Allocator.cpp
-    core/ArrayInstantiations.cpp
     core/IntrusiveAllocator.cpp
     core/Auxiliary.cpp
     core/ConstVisitor.cpp
@@ -427,6 +426,14 @@ target_link_libraries(vsg ${LIBRARIES})
 
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
+else()
+    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        if (VSG_USE_DYNAMIC_CAST)
+            target_compile_definitions(vsg PRIVATE VSG_USE_DYNAMIC_CAST)
+        else ()
+            target_compile_definitions(vsg PRIVATE VSG_EXPORTS)
+        endif ()
+    endif()
 endif()
 
 # install headers
