@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Exception.h>
 #include <vsg/core/Version.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/Options.h>
@@ -30,6 +31,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 #include <algorithm>
+#include <cassert>
 #include <iomanip>
 
 #ifndef VK_API_VERSION_MAJOR
@@ -444,7 +446,8 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
         return str.substr(start + 1, (end - start) - 1);
     };
 
-    auto split = [](const std::string& str, const char& separator) {
+    // returns the string split into sanitized tokens
+    auto split = [&sanitise](const std::string& str, const char& separator) {
         std::vector<std::string> elements;
 
         std::string::size_type prev_pos = 0, pos = 0;
@@ -453,10 +456,12 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
         {
             auto substring = str.substr(prev_pos, pos - prev_pos);
             elements.push_back(substring);
+            sanitise(elements.back());
             prev_pos = ++pos;
         }
 
         elements.push_back(str.substr(prev_pos, pos - prev_pos));
+        sanitise(elements.back());
 
         return elements;
     };
@@ -464,6 +469,31 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
     auto addLine = [](std::ostringstream& ss, const std::string& line) {
         ss << line << "\n";
     };
+
+    /*
+     * Verify that all the shader compiler defines are of the form "name" or "name=value" and that
+     * the set doesn't contain entries with the same name and different values. This check is only
+     * a temporary stopgap until the shader compiler defines container is updated from a
+     * std::set<std::string>, to a std::map<std::string,std::string> to more properly manage defines
+     * with optional values.
+     */
+    std::set<std::string> uniqueDefines;
+    for (auto nameValueDef : defines)
+    {
+        auto nameValueDefElems = split(nameValueDef, '=');
+        // simple check for formatting issues
+        if (nameValueDefElems.size() != 1 && nameValueDefElems.size() != 2)
+        {
+            throw Exception{"Error: Incorrectly formatted shader compile define. Acceptable formats are either a name or name=value."};
+        }
+        // verify that a valueless define or a name=value define with the same name has not already been encountered
+        if (uniqueDefines.count(nameValueDefElems.front()) != 0)
+        {
+            throw Exception{"Error: Found two shader compiler defines with the same name and different values."};
+        }
+        // keep track that we have seen this define name
+        uniqueDefines.insert(nameValueDefElems.front());
+    }
 
     std::istringstream iss(source);
     std::ostringstream headerstream;
@@ -493,16 +523,20 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
 
             addLine(headerstream, line);
 
-            // loop the imported defines and see if it's also requested in defines, if so insert a define line
-            for (auto importedDef : importedDefines)
+            // loop over the requested defines and see if it's also in the imported defines, if so insert a define line
+            for (auto nameValueDef : defines)
             {
-                auto sanitiesedImportDef = importedDef;
-                sanitise(sanitiesedImportDef);
+                // separate the define name from its optional value
+                auto nameValueDefElems = split(nameValueDef, '=');
+                assert(nameValueDefElems.size() == 1 || nameValueDefElems.size() == 2);
 
-                auto finditr = std::find(defines.begin(), defines.end(), sanitiesedImportDef);
-                if (finditr != defines.end())
+                auto finditr = std::find(importedDefines.begin(), importedDefines.end(), nameValueDefElems.front());
+                if (finditr != importedDefines.end())
                 {
-                    addLine(headerstream, "#define " + sanitiesedImportDef);
+                    // output the pre-processor define directive with its name and optional value
+                    addLine(headerstream, "#define " + nameValueDefElems.front() +
+                                (nameValueDefElems.size() == 2
+                                     ? " "+nameValueDefElems.back() : std::string()));
                 }
             }
         }
