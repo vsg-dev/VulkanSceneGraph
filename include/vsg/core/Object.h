@@ -22,6 +22,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 
+#ifdef VSG_USE_DYNAMIC_CAST
+    #define VSG_CAST_DYNAMIC
+#else
+    #undef VSG_CAST_DYNAMIC
+#endif
+
 namespace vsg
 {
 
@@ -85,11 +91,19 @@ namespace vsg
         virtual const std::type_info& type_info() const noexcept { return typeid(Object); }
         virtual bool is_compatible(const std::type_info& type) const noexcept { return typeid(Object) == type; }
 
-        template<class T>
-        T* cast() { return is_compatible(typeid(T)) ? static_cast<T*>(this) : nullptr; }
+        #ifdef VSG_CAST_DYNAMIC  
+            template<class T>
+            T* cast() { return dynamic_cast<T*>(this); }
 
-        template<class T>
-        const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
+            template<class T>
+            const T* cast() const { return dynamic_cast<const T*>(this); }
+        #else
+            template<class T>
+            T* cast() { return is_compatible(typeid(T)) ? static_cast<T*>(this) : nullptr; }
+
+            template<class T>
+            const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
+        #endif
 
         /// clone this object using CopyOp's duplicates map to decide whether to clone or to return the original object.
         /// The default clone(CopyOp&) implementation simply returns ref_ptr<> to this object rather attempt to clone.
