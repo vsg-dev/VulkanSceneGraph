@@ -33,7 +33,7 @@ namespace vsg
 {
 
     template<typename T>
-    class Array : public Data
+    class VSG_DECLSPEC Array : public Data
     {
     public:
         using value_type = T;
@@ -101,7 +101,7 @@ namespace vsg
             _data(nullptr),
             _size(0)
         {
-            assign(data, offset, stride, l.size());
+            assign(data, offset, stride, static_cast<uint32_t>(l.size()));
 
             iterator itr = begin();
             for (const value_type& v : l) { (*itr++) = v; }
