@@ -566,10 +566,12 @@ void RecordTraversal::apply(const View& view)
     state->_commandBuffer->viewDependentState = view.viewDependentState.get();
 
     // cache the previous bins
-    int32_t cachedminimumBinNumber = minimumBinNumber;
+    int32_t cached_minimumBinNumber = minimumBinNumber;
+
     decltype(bins) cached_bins;
     cached_bins.swap(bins);
-    auto cachedviewDependentState = viewDependentState;
+
+    auto cached_viewDependentState = viewDependentState;
 
     decltype(regionsOfInterest) cached_regionsOfInterest;
     cached_regionsOfInterest.swap(regionsOfInterest);
@@ -654,11 +656,11 @@ void RecordTraversal::apply(const View& view)
     }
 
     // swap back previous bin setup.
-    minimumBinNumber = cachedminimumBinNumber;
+    minimumBinNumber = cached_minimumBinNumber;
     cached_bins.swap(bins);
     cached_regionsOfInterest.swap(regionsOfInterest);
     state->_commandBuffer->traversalMask = cached_traversalMask;
-    viewDependentState = cachedviewDependentState;
+    viewDependentState = cached_viewDependentState;
 }
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
