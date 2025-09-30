@@ -60,23 +60,23 @@ using namespace vsg;
 #define INLINE_TRAVERSE 0
 
 RecordTraversal::RecordTraversal(const Slots& in_maxSlots, const std::set<Bin*>& in_bins) :
-    _state(new State(in_maxSlots))
+    state(new State(in_maxSlots))
 {
     CPU_INSTRUMENTATION_L1_C(instrumentation, COLOR_RECORD);
 
-    _minimumBinNumber = 0;
+    minimumBinNumber = 0;
     int32_t maximumBinNumber = 0;
     for (const auto& bin : in_bins)
     {
-        if (bin->binNumber < _minimumBinNumber) _minimumBinNumber = bin->binNumber;
+        if (bin->binNumber < minimumBinNumber) minimumBinNumber = bin->binNumber;
         if (bin->binNumber > maximumBinNumber) maximumBinNumber = bin->binNumber;
     }
 
-    _bins.resize((maximumBinNumber - _minimumBinNumber) + 1);
+    bins.resize((maximumBinNumber - minimumBinNumber) + 1);
 
     for (auto& bin : in_bins)
     {
-        _bins[bin->binNumber - _minimumBinNumber] = bin;
+        bins[bin->binNumber - minimumBinNumber] = bin;
     }
 }
 
@@ -87,32 +87,32 @@ RecordTraversal::~RecordTraversal()
 
 CommandBuffer* RecordTraversal::getCommandBuffer()
 {
-    return _state->_commandBuffer;
+    return state->_commandBuffer;
 }
 
 uint32_t RecordTraversal::deviceID() const
 {
-    return _state->_commandBuffer->deviceID;
+    return state->_commandBuffer->deviceID;
 }
 
 void RecordTraversal::setFrameStamp(FrameStamp* fs)
 {
-    _frameStamp = fs;
+    frameStamp = fs;
 }
 
 void RecordTraversal::setDatabasePager(DatabasePager* dp)
 {
-    if (dp == _databasePager) return;
+    if (dp == databasePager) return;
 
-    _databasePager = dp;
-    _culledPagedLODs = dp ? dp->culledPagedLODs.get() : nullptr;
+    databasePager = dp;
+    culledPagedLODs = dp ? dp->culledPagedLODs.get() : nullptr;
 }
 
 void RecordTraversal::clearBins()
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "RecordTraversal clearBins", COLOR_RECORD_L2);
 
-    for (auto& bin : _bins)
+    for (auto& bin : bins)
     {
         if (bin) bin->clear();
     }
@@ -157,7 +157,7 @@ void RecordTraversal::apply(const LOD& lod)
     const auto& sphere = lod.bound;
 
     // check if lod bounding sphere is in view frustum.
-    auto lodDistance = _state->lodDistance(sphere);
+    auto lodDistance = state->lodDistance(sphere);
     if (lodDistance < 0.0)
     {
         return;
@@ -180,15 +180,15 @@ void RecordTraversal::apply(const PagedLOD& plod)
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "PagedLOD", COLOR_PAGER, &plod);
 
     const auto& sphere = plod.bound;
-    auto frameCount = _frameStamp->frameCount;
+    auto frameCount = frameStamp->frameCount;
 
     // check if lod bounding sphere is in view frustum.
-    auto lodDistance = _state->lodDistance(sphere);
+    auto lodDistance = state->lodDistance(sphere);
     if (lodDistance < 0.0)
     {
-        if ((frameCount - plod.frameHighResLastUsed) > 1 && _culledPagedLODs)
+        if ((frameCount - plod.frameHighResLastUsed) > 1 && culledPagedLODs)
         {
-            _culledPagedLODs->highresCulled.emplace_back(&plod);
+            culledPagedLODs->highresCulled.emplace_back(&plod);
         }
 
         return;
@@ -203,9 +203,9 @@ void RecordTraversal::apply(const PagedLOD& plod)
         if (child_visible)
         {
             auto previousHighResUsed = plod.frameHighResLastUsed.exchange(frameCount);
-            if (_culledPagedLODs && ((frameCount - previousHighResUsed) > 1))
+            if (culledPagedLODs && ((frameCount - previousHighResUsed) > 1))
             {
-                _culledPagedLODs->newHighresRequired.emplace_back(&plod);
+                culledPagedLODs->newHighresRequired.emplace_back(&plod);
             }
 
             if (child.node)
@@ -214,7 +214,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 child.node->accept(*this);
                 return;
             }
-            else if (_databasePager)
+            else if (databasePager)
             {
                 auto priority = sphere.r / cutoff;
                 exchange_if_greater(plod.priority, priority);
@@ -223,7 +223,7 @@ void RecordTraversal::apply(const PagedLOD& plod)
                 if (previousRequestCount == 0)
                 {
                     // we are the first request so tell the databasePager about it
-                    _databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
+                    databasePager->request(ref_ptr<PagedLOD>(const_cast<PagedLOD*>(&plod)));
                 }
                 else
                 {
@@ -233,9 +233,9 @@ void RecordTraversal::apply(const PagedLOD& plod)
         }
         else
         {
-            if (_culledPagedLODs && ((frameCount - plod.frameHighResLastUsed) <= 1))
+            if (culledPagedLODs && ((frameCount - plod.frameHighResLastUsed) <= 1))
             {
-                _culledPagedLODs->highresCulled.emplace_back(&plod);
+                culledPagedLODs->highresCulled.emplace_back(&plod);
             }
         }
     }
@@ -266,7 +266,7 @@ void RecordTraversal::apply(const CullGroup& cullGroup)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CullGroup", COLOR_RECORD_L2, &cullGroup);
 
-    if (_state->intersect(cullGroup.bound))
+    if (state->intersect(cullGroup.bound))
     {
         // debug("Passed node");
         cullGroup.traverse(*this);
@@ -277,7 +277,7 @@ void RecordTraversal::apply(const CullNode& cullNode)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CullNode", COLOR_RECORD_L2, &cullNode);
 
-    if (_state->intersect(cullNode.bound))
+    if (state->intersect(cullNode.bound))
     {
         //debug("Passed node");
         cullNode.traverse(*this);
@@ -301,16 +301,16 @@ void RecordTraversal::apply(const RegionOfInterest& roi)
 {
     CPU_INSTRUMENTATION_L2_NCO(instrumentation, "RegionOfInterest", COLOR_RECORD_L2, &roi);
 
-    regionsOfInterest.emplace_back(_state->modelviewMatrixStack.top(), &roi);
+    regionsOfInterest.emplace_back(state->modelviewMatrixStack.top(), &roi);
 }
 
 void RecordTraversal::apply(const DepthSorted& depthSorted)
 {
     CPU_INSTRUMENTATION_L2_NCO(instrumentation, "DepthSorted", COLOR_RECORD_L2, &depthSorted);
 
-    if (_state->intersect(depthSorted.bound))
+    if (state->intersect(depthSorted.bound))
     {
-        const auto& mv = _state->modelviewMatrixStack.top();
+        const auto& mv = state->modelviewMatrixStack.top();
         const auto& center = depthSorted.bound.center;
         auto distance = -(mv[0][2] * center.x + mv[1][2] * center.y + mv[2][2] * center.z + mv[3][2]);
 
@@ -332,8 +332,8 @@ void RecordTraversal::apply(const VertexDraw& vd)
     GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "VertexDraw", COLOR_GPU, &vd);
 
     //debug("Visiting VertexDraw");
-    _state->record();
-    vd.record(*(_state->_commandBuffer));
+    state->record();
+    vd.record(*(state->_commandBuffer));
 }
 
 void RecordTraversal::apply(const VertexIndexDraw& vid)
@@ -341,8 +341,8 @@ void RecordTraversal::apply(const VertexIndexDraw& vid)
     GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "VertexIndexDraw", COLOR_GPU, &vid);
 
     //debug("Visiting VertexIndexDraw");
-    _state->record();
-    vid.record(*(_state->_commandBuffer));
+    state->record();
+    vid.record(*(state->_commandBuffer));
 }
 
 void RecordTraversal::apply(const Geometry& geometry)
@@ -350,8 +350,8 @@ void RecordTraversal::apply(const Geometry& geometry)
     GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Geometry", COLOR_GPU, &geometry);
 
     //debug("Visiting Geometry");
-    _state->record();
-    geometry.record(*(_state->_commandBuffer));
+    state->record();
+    geometry.record(*(state->_commandBuffer));
 }
 
 void RecordTraversal::apply(const Light&)
@@ -366,7 +366,7 @@ void RecordTraversal::apply(const AmbientLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(AmbientLight) ", light.className());
-    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->ambientLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && viewDependentState) viewDependentState->ambientLights.emplace_back(state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const DirectionalLight& light)
@@ -374,7 +374,7 @@ void RecordTraversal::apply(const DirectionalLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(DirectionalLight) ", light.className());
-    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->directionalLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && viewDependentState) viewDependentState->directionalLights.emplace_back(state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const PointLight& light)
@@ -382,7 +382,7 @@ void RecordTraversal::apply(const PointLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(PointLight) ", light.className());
-    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->pointLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && viewDependentState) viewDependentState->pointLights.emplace_back(state->modelviewMatrixStack.top(), &light);
 }
 
 void RecordTraversal::apply(const SpotLight& light)
@@ -390,7 +390,7 @@ void RecordTraversal::apply(const SpotLight& light)
     CPU_INSTRUMENTATION_L2_O(instrumentation, &light);
 
     //debug("RecordTraversal::apply(SpotLight) ", light.className());
-    if (light.intensity >= intensityMinimum && _viewDependentState) _viewDependentState->spotLights.emplace_back(_state->modelviewMatrixStack.top(), &light);
+    if (light.intensity >= intensityMinimum && viewDependentState) viewDependentState->spotLights.emplace_back(state->modelviewMatrixStack.top(), &light);
 }
 
 // transform nodes
@@ -398,78 +398,78 @@ void RecordTraversal::apply(const Transform& transform)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "Transform", COLOR_RECORD_L2, &transform);
 
-    _state->modelviewMatrixStack.push(transform);
-    _state->dirty = true;
+    state->modelviewMatrixStack.push(transform);
+    state->dirty = true;
 
     if (transform.subgraphRequiresLocalFrustum)
     {
-        _state->pushFrustum();
+        state->pushFrustum();
         transform.traverse(*this);
-        _state->popFrustum();
+        state->popFrustum();
     }
     else
     {
         transform.traverse(*this);
     }
 
-    _state->modelviewMatrixStack.pop();
-    _state->dirty = true;
+    state->modelviewMatrixStack.pop();
+    state->dirty = true;
 }
 
 void RecordTraversal::apply(const MatrixTransform& mt)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "MatrixTransform", COLOR_RECORD_L2, &mt);
 
-    _state->modelviewMatrixStack.push(mt);
-    _state->dirty = true;
+    state->modelviewMatrixStack.push(mt);
+    state->dirty = true;
 
     if (mt.subgraphRequiresLocalFrustum)
     {
-        _state->pushFrustum();
+        state->pushFrustum();
         mt.traverse(*this);
-        _state->popFrustum();
+        state->popFrustum();
     }
     else
     {
         mt.traverse(*this);
     }
 
-    _state->modelviewMatrixStack.pop();
-    _state->dirty = true;
+    state->modelviewMatrixStack.pop();
+    state->dirty = true;
 }
 
 void RecordTraversal::apply(const CoordinateFrame& cf)
 {
     GPU_INSTRUMENTATION_L2_NCO(instrumentation, *getCommandBuffer(), "CoordinateFrame", COLOR_RECORD_L2, &cf);
 
-    const View* parentView = _viewDependentState ? _viewDependentState->view : nullptr;
+    const View* parentView = viewDependentState ? viewDependentState->view : nullptr;
     const Camera* camera = parentView ? parentView->camera : nullptr;
     const ViewMatrix* viewMatrix = camera ? camera->viewMatrix : nullptr;
 
     if (viewMatrix)
     {
-        _state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin) * vsg::rotate(cf.rotation));
+        state->modelviewMatrixStack.push(viewMatrix->transform(cf.origin) * vsg::rotate(cf.rotation));
     }
     else
     {
-        _state->modelviewMatrixStack.push(cf);
+        state->modelviewMatrixStack.push(cf);
     }
 
-    _state->dirty = true;
+    state->dirty = true;
 
     if (cf.subgraphRequiresLocalFrustum)
     {
-        _state->pushFrustum();
+        state->pushFrustum();
         cf.traverse(*this);
-        _state->popFrustum();
+        state->popFrustum();
     }
     else
     {
         cf.traverse(*this);
     }
 
-    _state->modelviewMatrixStack.pop();
-    _state->dirty = true;
+    state->modelviewMatrixStack.pop();
+    state->dirty = true;
 }
 
 // Animation nodes
@@ -486,7 +486,7 @@ void RecordTraversal::apply(const InstanceNode& instanceNode)
 
     if (instanceNode.child)
     {
-        _state->_commandBuffer->instanceNode = &instanceNode;
+        state->_commandBuffer->instanceNode = &instanceNode;
         instanceNode.child->accept(*this);
     }
 }
@@ -495,16 +495,16 @@ void RecordTraversal::apply(const InstanceDraw& instanceDraw)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
-    _state->record();
-    instanceDraw.record(*(_state->_commandBuffer));
+    state->record();
+    instanceDraw.record(*(state->_commandBuffer));
 }
 
 void RecordTraversal::apply(const InstanceDrawIndexed& instanceDrawIndexed)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
-    _state->record();
-    instanceDrawIndexed.record(*(_state->_commandBuffer));
+    state->record();
+    instanceDrawIndexed.record(*(state->_commandBuffer));
 }
 
 // Vulkan nodes
@@ -517,21 +517,21 @@ void RecordTraversal::apply(const StateGroup& stateGroup)
     auto begin = stateGroup.stateCommands.begin();
     auto end = stateGroup.stateCommands.end();
 
-    _state->push(begin, end);
+    state->push(begin, end);
 
     stateGroup.traverse(*this);
 
-    _state->pop(begin, end);
+    state->pop(begin, end);
 }
 
 void RecordTraversal::apply(const Commands& commands)
 {
     GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Commands", COLOR_GPU, &commands);
 
-    _state->record();
+    state->record();
     for (auto& command : commands.children)
     {
-        command->record(*(_state->_commandBuffer));
+        command->record(*(state->_commandBuffer));
     }
 }
 
@@ -540,8 +540,8 @@ void RecordTraversal::apply(const Command& command)
     GPU_INSTRUMENTATION_L3_NCO(instrumentation, *getCommandBuffer(), "Command", COLOR_GPU, &command);
 
     //debug("Visiting Command");
-    _state->record();
-    command.record(*(_state->_commandBuffer));
+    state->record();
+    command.record(*(state->_commandBuffer));
 }
 
 void RecordTraversal::apply(const Bin& bin)
@@ -557,19 +557,19 @@ void RecordTraversal::apply(const View& view)
     GPU_INSTRUMENTATION_L1_NCO(instrumentation, *getCommandBuffer(), "View", COLOR_RECORD_L1, &view);
 
     // dirty the state stacks to ensure state is newly applied for the View.
-    _state->dirtyStateStacks();
+    state->dirtyStateStacks();
 
     // note, View::accept() updates the RecordTraversal's traversalMask
-    auto cached_traversalMask = _state->_commandBuffer->traversalMask;
-    _state->_commandBuffer->traversalMask = traversalMask;
-    _state->_commandBuffer->viewID = view.viewID;
-    _state->_commandBuffer->viewDependentState = view.viewDependentState.get();
+    auto cached_traversalMask = state->_commandBuffer->traversalMask;
+    state->_commandBuffer->traversalMask = traversalMask;
+    state->_commandBuffer->viewID = view.viewID;
+    state->_commandBuffer->viewDependentState = view.viewDependentState.get();
 
     // cache the previous bins
-    int32_t cached_minimumBinNumber = _minimumBinNumber;
-    decltype(_bins) cached_bins;
-    cached_bins.swap(_bins);
-    auto cached_viewDependentState = _viewDependentState;
+    int32_t cachedminimumBinNumber = minimumBinNumber;
+    decltype(bins) cachedbins;
+    cachedbins.swap(bins);
+    auto cachedviewDependentState = viewDependentState;
 
     decltype(regionsOfInterest) cached_regionsOfInterest;
     cached_regionsOfInterest.swap(regionsOfInterest);
@@ -583,33 +583,33 @@ void RecordTraversal::apply(const View& view)
         if (bin->binNumber > max_binNumber) max_binNumber = bin->binNumber;
     }
 
-    _minimumBinNumber = min_binNumber;
-    _bins.resize(max_binNumber - min_binNumber + 1);
+    minimumBinNumber = min_binNumber;
+    bins.resize(max_binNumber - min_binNumber + 1);
     for (auto& bin : view.bins)
     {
-        _bins[bin->binNumber - min_binNumber] = bin;
+        bins[bin->binNumber - min_binNumber] = bin;
         bin->clear();
     }
 
     // assign and clear the View's ViewDependentState
-    _viewDependentState = view.viewDependentState;
-    if (_viewDependentState)
+    viewDependentState = view.viewDependentState;
+    if (viewDependentState)
     {
-        _viewDependentState->clear();
+        viewDependentState->clear();
     }
 
-    _state->pushView(view);
+    state->pushView(view);
 
     if (view.camera)
     {
-        _state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
-        _state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
+        state->inheritViewForLODScaling = (view.features & INHERIT_VIEWPOINT) != 0;
+        state->setProjectionAndViewMatrix(view.camera->projectionMatrix->transform(), view.camera->viewMatrix->transform());
 
         if (const auto& viewportState = view.camera->viewportState)
         {
-            if (_viewDependentState)
+            if (viewDependentState)
             {
-                auto& viewportData = _viewDependentState->viewportData;
+                auto& viewportData = viewDependentState->viewportData;
                 if (viewportData)
                 {
                     auto& viewports = viewportState->viewports;
@@ -641,24 +641,24 @@ void RecordTraversal::apply(const View& view)
         view.traverse(*this);
     }
 
-    _state->popView(view);
+    state->popView(view);
 
     for (auto& bin : view.bins)
     {
         bin->accept(*this);
     }
 
-    if (_viewDependentState)
+    if (viewDependentState)
     {
-        _viewDependentState->traverse(*this);
+        viewDependentState->traverse(*this);
     }
 
     // swap back previous bin setup.
-    _minimumBinNumber = cached_minimumBinNumber;
-    cached_bins.swap(_bins);
+    minimumBinNumber = cachedminimumBinNumber;
+    cachedbins.swap(bins);
     cached_regionsOfInterest.swap(regionsOfInterest);
-    _state->_commandBuffer->traversalMask = cached_traversalMask;
-    _viewDependentState = cached_viewDependentState;
+    state->_commandBuffer->traversalMask = cached_traversalMask;
+    viewDependentState = cachedviewDependentState;
 }
 
 void RecordTraversal::apply(const CommandGraph& commandGraph)
@@ -670,15 +670,15 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
         auto cg = const_cast<CommandGraph*>(&commandGraph);
         if (cg->device)
         {
-            cg->getOrCreateRecordTraversal()->_state->inherit(*_state);
+            cg->getOrCreateRecordTraversal()->state->inherit(*state);
 
-            if (_viewDependentState && _viewDependentState->view && (_viewDependentState->view->features & INHERIT_VIEWPOINT) != 0)
+            if (viewDependentState && viewDependentState->view && (viewDependentState->view->features & INHERIT_VIEWPOINT) != 0)
             {
-                auto camera = _viewDependentState->view->camera;
-                if (camera) cg->getOrCreateRecordTraversal()->_state->setInhertiedViewProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
+                auto camera = viewDependentState->view->camera;
+                if (camera) cg->getOrCreateRecordTraversal()->state->setInhertiedViewProjectionAndViewMatrix(camera->projectionMatrix->transform(), camera->viewMatrix->transform());
             }
 
-            cg->record(recordedCommandBuffers, _frameStamp, _databasePager);
+            cg->record(recordedCommandBuffers, frameStamp, databasePager);
         }
         else
         {
@@ -693,5 +693,5 @@ void RecordTraversal::apply(const CommandGraph& commandGraph)
 
 void RecordTraversal::addToBin(int32_t binNumber, double value, const Node* node)
 {
-    _bins[binNumber - _minimumBinNumber]->add(_state, value, node);
+    bins[binNumber - minimumBinNumber]->add(state, value, node);
 }
