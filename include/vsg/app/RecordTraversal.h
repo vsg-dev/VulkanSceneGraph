@@ -99,7 +99,7 @@ namespace vsg
         ref_ptr<RecordedCommandBuffers> recordedCommandBuffers;
 
         /// get the current State object used to track state and projection/modelview matrices for the current subgraph being traversed
-        State* getState() { return _state; }
+        State* getState() { return state; }
 
         /// get the current CommandBuffer for the current subgraph being traversed
         CommandBuffer* getCommandBuffer();
@@ -108,10 +108,10 @@ namespace vsg
         uint32_t deviceID() const;
 
         void setFrameStamp(FrameStamp* fs);
-        FrameStamp* getFrameStamp() { return _frameStamp; }
+        FrameStamp* getFrameStamp() { return frameStamp; }
 
         void setDatabasePager(DatabasePager* dp);
-        DatabasePager* getDatabasePager() { return _databasePager; }
+        DatabasePager* getDatabasePager() { return databasePager; }
 
         void apply(const Object& object);
 
@@ -170,22 +170,23 @@ namespace vsg
         // clear the bins to record a new frame.
         void clearBins();
 
+
         // list of pairs of modelview matrix & region of interest
         std::vector<std::pair<dmat4, const RegionOfInterest*>> regionsOfInterest;
 
-    protected:
-        virtual ~RecordTraversal();
-
-        ref_ptr<FrameStamp> _frameStamp;
-        ref_ptr<State> _state;
+        ref_ptr<FrameStamp> frameStamp;
+        ref_ptr<State> state;
 
         // used to handle loading of PagedLOD external children.
-        ref_ptr<DatabasePager> _databasePager;
-        ref_ptr<CulledPagedLODs> _culledPagedLODs;
+        ref_ptr<DatabasePager> databasePager;
+        ref_ptr<CulledPagedLODs> culledPagedLODs;
 
-        int32_t _minimumBinNumber = 0;
-        std::vector<ref_ptr<Bin>> _bins;
-        ref_ptr<ViewDependentState> _viewDependentState;
+        int32_t minimumBinNumber = 0;
+        std::vector<ref_ptr<Bin>> bins;
+        ref_ptr<ViewDependentState> viewDependentState;
+
+    protected:
+        virtual ~RecordTraversal();
     };
 
 } // namespace vsg
