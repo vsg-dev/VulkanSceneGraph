@@ -73,6 +73,18 @@ namespace vsg
         std::vector<Leaf, allocator_affinity_data<Leaf>> leaves;
         box bounds;
         NodeRef boundingVolumeHeirarchy;
+
+        struct TriangleMetadata
+        {
+            uint32_t index;
+            uint32_t instance;
+        };
+        struct LeafMetadata
+        {
+            std::array<TriangleMetadata, trisPerLeaf> tris;
+        };
+
+        std::vector<LeafMetadata, allocator_affinity_data<LeafMetadata>> leafMetadata;
     };
     VSG_type_name(vsg::IntersectionOptimizedVertexDraw)
 

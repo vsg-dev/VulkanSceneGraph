@@ -50,6 +50,8 @@ void vsg::IntersectionOptimizedVertexDraw::rebuild(vsg::ArrayState& arrayState)
     // if instancing is used, accessing the nth triangle is a hassle, so grab them upfront
     std::vector<Triangle> triangles;
     triangles.reserve(instanceCount * vertexCount / 3);
+    std::vector<TriangleMetadata> metadata;
+    metadata.reserve(triangles.size());
 
     for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
     {
@@ -58,6 +60,7 @@ void vsg::IntersectionOptimizedVertexDraw::rebuild(vsg::ArrayState& arrayState)
             for (uint32_t i = firstVertex; (i + 2) < endVertex; i += 3)
             {
                 triangles.emplace_back(Triangle{vertices->at(i), vertices->at(i + 1), vertices->at(i + 2)});
+                metadata.emplace_back(TriangleMetadata{i, instanceIndex});
             }
         }
     }
@@ -85,6 +88,7 @@ void vsg::IntersectionOptimizedVertexDraw::rebuild(vsg::ArrayState& arrayState)
         if (std::distance(first, last) < trisPerLeaf)
         {
             leaves.emplace_back();
+            leafMetadata.emplace_back();
             box bound;
             itr_t itr = first;
             for (size_t i = 0; i < trisPerLeaf; ++i)
@@ -95,6 +99,7 @@ void vsg::IntersectionOptimizedVertexDraw::rebuild(vsg::ArrayState& arrayState)
                     bound.add(triangles[*itr].vertex0);
                     bound.add(triangles[*itr].vertex1);
                     bound.add(triangles[*itr].vertex2);
+                    leafMetadata.back().tris[i] = metadata[*itr];
                     ++itr;
                 }
                 else
@@ -208,8 +213,8 @@ void vsg::IntersectionOptimizedVertexDraw::intersect(LineSegmentIntersector& lin
 
             const auto& triangle = leaves[index].tris[i];
             dvec3 intersection = dvec3(triangle.vertex0) * double(r0[i]) + dvec3(triangle.vertex1) * double(r1[i]) + dvec3(triangle.vertex2) * double(r2[i]);
-            // todo: track original triangle indices and index
-            lineSegmentIntersector.add(intersection, double(r[i]), {}, 0);
+            const auto& metadata = leafMetadata[index].tris[i];
+            lineSegmentIntersector.add(intersection, double(r[i]), {{metadata.index, r0[i]}, {metadata.index + 1, r1[i]}, {metadata.index + 2, r2[i]}}, metadata.instance);
         }
     };
 
