@@ -68,12 +68,15 @@ namespace vsg
         bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount) override;
         bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) override;
 
-    protected:
         struct LineSegment
         {
             dvec3 start;
             dvec3 end;
         };
+
+        const LineSegment& lineSegment() { return _lineSegmentStack.back(); }
+
+    protected:
 
         std::vector<LineSegment> _lineSegmentStack;
     };
