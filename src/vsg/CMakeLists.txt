@@ -50,6 +50,7 @@ set(SOURCES
     nodes/InstanceNode.cpp
     nodes/InstanceDraw.cpp
     nodes/InstanceDrawIndexed.cpp
+    nodes/IntersectionOptimizedVertexDraw.cpp
 
     lighting/Light.cpp
     lighting/AmbientLight.cpp
