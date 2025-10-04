@@ -447,6 +447,9 @@ VkResult Window::acquireNextImage(uint64_t timeout)
         // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set its entry to the one to use for the next frame by swapping ref_ptr<>'s
         _availableSemaphore.swap(_frames[nextImageIndex].imageAvailableSemaphore);
 
+        if (!_frames[nextImageIndex].renderFinishedSemaphore)
+            _frames[nextImageIndex].renderFinishedSemaphore = vsg::Semaphore::create(_device);
+
         // shift up previous frame indices
         for (size_t i = _indices.size() - 1; i > 0; --i)
         {
