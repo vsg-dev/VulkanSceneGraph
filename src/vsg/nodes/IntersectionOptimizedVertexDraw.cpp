@@ -174,9 +174,6 @@ void vsg::IntersectionOptimizedVertexDraw::intersect(LineSegmentIntersector& lin
     vec_type dInvZ = d.z != 0.0 ? d / d.z : vec_type{0.0, 0.0, 0.0};
 
     auto intersectLeaf = [&](uint32_t index) {
-        // using different but consecutive addresses for different triangle results should encourage vectorisation
-        std::array<value_type, trisPerLeaf> r, r0, r1, r2;
-        r.fill(std::numeric_limits<value_type>::quiet_NaN());
         for (size_t i = 0; i < trisPerLeaf; ++i)
         {
             const auto& triangle = leaves[index].tris[i];
@@ -199,22 +196,14 @@ void vsg::IntersectionOptimizedVertexDraw::intersect(LineSegmentIntersector& lin
 
             value_type t = inv_det * dot(Q, E2);
             if (t < epsilon) continue;
-            
-            r0[i] = 1.0 - u - v;
-            r1[i] = u;
-            r2[i] = v;
-            r[i] = t * inverseLength;
-        }
 
-        // this loop is separate because the intersector modification won't vectorise
-        for (size_t i = 0; i < trisPerLeaf; ++i)
-        {
-            if (std::isnan(r[i])) continue;
+            value_type r0 = 1.0 - u - v;
+            value_type r1 = u;
+            value_type r2 = v;
 
-            const auto& triangle = leaves[index].tris[i];
-            dvec3 intersection = dvec3(triangle.vertex0) * double(r0[i]) + dvec3(triangle.vertex1) * double(r1[i]) + dvec3(triangle.vertex2) * double(r2[i]);
+            dvec3 intersection = dvec3(triangle.vertex0) * double(r0) + dvec3(triangle.vertex1) * double(r1) + dvec3(triangle.vertex2) * double(r2);
             const auto& metadata = leafMetadata[index].tris[i];
-            lineSegmentIntersector.add(intersection, double(r[i]), {{metadata.index, r0[i]}, {metadata.index + 1, r1[i]}, {metadata.index + 2, r2[i]}}, metadata.instance);
+            lineSegmentIntersector.add(intersection, double(t * inverseLength), {{metadata.index, r0}, {metadata.index + 1, r1}, {metadata.index + 2, r2}}, metadata.instance);
         }
     };
 
