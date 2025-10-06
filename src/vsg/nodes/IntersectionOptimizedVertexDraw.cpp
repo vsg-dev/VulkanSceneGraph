@@ -142,8 +142,8 @@ void vsg::IntersectionOptimizedVertexDraw::intersect(LineSegmentIntersector& lin
     using vec_type = t_vec3<value_type>;
     const value_type epsilon = 1e-10;
 
-    vec_type start = ls.start;
-    vec_type end = ls.end;
+    vec_type start(ls.start);
+    vec_type end(ls.end);
 
     vec_type d = end - start;
 
