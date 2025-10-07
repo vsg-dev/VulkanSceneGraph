@@ -165,6 +165,54 @@ LineSegmentIntersector::LineSegmentIntersector(const Camera& camera, int32_t x, 
     _lineSegmentStack.push_back(LineSegment{eyeToWorld * eye_near, eyeToWorld * eye_far});
 }
 
+void LineSegmentIntersector::reset(ref_ptr<ArrayState> initialArrayData)
+{
+    Intersector::reset(initialArrayData);
+
+    intersections.clear();
+}
+
+void LineSegmentIntersector::reset(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData)
+{
+    reset(initialArrayData);
+
+    _lineSegmentStack.resize(1);
+    _lineSegmentStack.front() = {s, e};
+}
+
+void LineSegmentIntersector::reset(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData)
+{
+    reset(initialArrayData);
+
+    _lineSegmentStack.resize(2);
+
+    auto viewport = camera.getViewport();
+
+    vsg::vec2 ndc(0.0f, 0.0f);
+    if ((viewport.width > 0) && (viewport.height > 0))
+    {
+        ndc.set((static_cast<float>(x) - viewport.x) / viewport.width, (static_cast<float>(y) - viewport.y) / viewport.height);
+    }
+
+    auto projectionMatrix = camera.projectionMatrix->transform();
+    auto viewMatrix = camera.viewMatrix->transform();
+
+    bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
+
+    vsg::dvec3 ndc_near(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.maxDepth : viewport.minDepth);
+    vsg::dvec3 ndc_far(ndc.x * 2.0 - 1.0, ndc.y * 2.0 - 1.0, reverse_depth ? viewport.minDepth : viewport.maxDepth);
+
+    auto inv_projectionMatrix = vsg::inverse(projectionMatrix);
+    vsg::dvec3 eye_near = inv_projectionMatrix * ndc_near;
+    vsg::dvec3 eye_far = inv_projectionMatrix * ndc_far;
+    _lineSegmentStack.front() = LineSegment{eye_near, eye_far};
+
+    dmat4 eyeToWorld = inverse(viewMatrix);
+    localToWorldStack().push_back(viewMatrix);
+    worldToLocalStack().push_back(eyeToWorld);
+    _lineSegmentStack.back() = LineSegment{eyeToWorld * eye_near, eyeToWorld * eye_far};
+}
+
 LineSegmentIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, double in_ratio, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const IndexRatios& in_indexRatios, uint32_t in_instanceIndex) :
     localIntersection(in_localIntersection),
     worldIntersection(in_worldIntersection),
