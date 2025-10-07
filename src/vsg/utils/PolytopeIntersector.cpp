@@ -243,6 +243,71 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     worldToLocalStack().push_back(eyeToWorld);
 }
 
+void vsg::PolytopeIntersector::reset(ref_ptr<ArrayState> initialArrayData)
+{
+    Intersector::reset(initialArrayData);
+
+    intersections.clear();
+}
+
+void vsg::PolytopeIntersector::reset(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData)
+{
+    reset(initialArrayData);
+
+    _polytopeStack.resize(1);
+    _polytopeStack.front() = in_polytope;
+}
+
+void vsg::PolytopeIntersector::reset(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData)
+{
+    reset(initialArrayData);
+
+    _polytopeStack.resize(2);
+
+    auto viewport = camera.getViewport();
+
+    auto projectionMatrix = camera.projectionMatrix->transform();
+    auto viewMatrix = camera.viewMatrix->transform();
+    bool reverse_depth = (projectionMatrix(2, 2) > 0.0);
+
+    double ndc_xMin = (viewport.width > 0) ? (2.0 * (xMin - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width) - 1.0) : xMin;
+    double ndc_xMax = (viewport.width > 0) ? (2.0 * (xMax - static_cast<double>(viewport.x)) / static_cast<double>(viewport.width) - 1.0) : xMax;
+
+    double ndc_yMin = (viewport.height > 0) ? (2.0 * (yMin - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height) - 1.0) : yMin;
+    double ndc_yMax = (viewport.height > 0) ? (2.0 * (yMax - static_cast<double>(viewport.y)) / static_cast<double>(viewport.height) - 1.0) : yMax;
+
+    double ndc_near = reverse_depth ? viewport.maxDepth : viewport.minDepth;
+    double ndc_far = reverse_depth ? viewport.minDepth : viewport.maxDepth;
+
+    vsg::Polytope clipspace;
+    clipspace.push_back(dplane(1.0, 0.0, 0.0, -ndc_xMin)); // left
+    clipspace.push_back(dplane(-1.0, 0.0, 0.0, ndc_xMax)); // right
+    clipspace.push_back(dplane(0.0, 1.0, 0.0, -ndc_yMin)); // bottom
+    clipspace.push_back(dplane(0.0, -1.0, 0.0, ndc_yMax)); // top
+    clipspace.push_back(dplane(0.0, 0.0, -1.0, ndc_near)); // near
+    clipspace.push_back(dplane(0.0, 0.0, 1.0, ndc_far));   // far
+
+    vsg::Polytope eyespace;
+    for (auto& pl : clipspace)
+    {
+        eyespace.push_back(pl * projectionMatrix);
+    }
+
+    _polytopeStack.front() = eyespace;
+
+    vsg::Polytope worldspace;
+    for (auto& pl : eyespace)
+    {
+        worldspace.push_back(pl * viewMatrix);
+    }
+
+    _polytopeStack.back() = worldspace;
+
+    dmat4 eyeToWorld = inverse(viewMatrix);
+    localToWorldStack().push_back(viewMatrix);
+    worldToLocalStack().push_back(eyeToWorld);
+}
+
 PolytopeIntersector::Intersection::Intersection(const dvec3& in_localIntersection, const dvec3& in_worldIntersection, const dmat4& in_localToWorld, const NodePath& in_nodePath, const DataList& in_arrays, const std::vector<uint32_t>& in_indices, uint32_t in_instanceIndex) :
     localIntersection(in_localIntersection),
     worldIntersection(in_worldIntersection),
