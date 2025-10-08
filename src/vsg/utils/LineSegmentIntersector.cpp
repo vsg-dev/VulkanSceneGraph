@@ -10,6 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/nodes/IntersectionProxy.h>
 #include <vsg/nodes/Transform.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 
@@ -234,6 +235,18 @@ ref_ptr<LineSegmentIntersector::Intersection> LineSegmentIntersector::add(const 
     intersections.emplace_back(intersection);
 
     return intersection;
+}
+
+void LineSegmentIntersector::apply(const IntersectionProxy& intersectionProxy)
+{
+    if (intersectionProxy.valid())
+    {
+        intersectionProxy.intersect(*this);
+    }
+    else
+    {
+        Intersector::apply(intersectionProxy);
+    }
 }
 
 void LineSegmentIntersector::pushTransform(const Transform& transform)

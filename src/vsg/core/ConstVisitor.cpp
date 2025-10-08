@@ -694,6 +694,10 @@ void ConstVisitor::apply(const InstanceDrawIndexed& value)
 {
     apply(static_cast<const Command&>(value));
 }
+void ConstVisitor::apply(const IntersectionProxy& value)
+{
+    apply(static_cast<const Node&>(value));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

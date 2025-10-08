@@ -12,35 +12,47 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/nodes/VertexDraw.h>
+#include <vsg/nodes/Node.h>
 #include <vsg/state/ArrayState.h>
 
 namespace vsg
 {
     class LineSegmentIntersector;
 
-    /** IntersectionOptimizedVertexDraw extends VertexDraw with a BVH to accelerate vsg::Intersector operations */
-    class VSG_DECLSPEC IntersectionOptimizedVertexDraw : public Inherit<VertexDraw, IntersectionOptimizedVertexDraw>
+    /** IntersectionProxy wraps a node with a BVH to accelerate vsg::Intersector operations */
+    class VSG_DECLSPEC IntersectionProxy : public Inherit<Node, IntersectionProxy>
     {
     public:
-        IntersectionOptimizedVertexDraw(const VertexDraw& rhs, const CopyOp& copyop = {});
-        IntersectionOptimizedVertexDraw(const IntersectionOptimizedVertexDraw& rhs, const CopyOp& copyop = {});
+        IntersectionProxy(Node* in_original);
+        IntersectionProxy(const IntersectionProxy& rhs, const CopyOp& copyop = {});
 
         void rebuild(ArrayState& arrayState);
+
+        bool valid() const;
 
         void intersect(LineSegmentIntersector& lineSegmentIntersector) const;
 
     public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return IntersectionOptimizedVertexDraw::create(*this, copyop); }
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return IntersectionProxy::create(*this, copyop); }
         int compare(const Object& rhs) const override;
+
+        template<class N, class V>
+        static void t_traverse(N& node, V& visitor)
+        {
+            node.original->accept(visitor);
+        }
+
+        void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
+        void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
 
-        void accept(ConstVisitor& visitor) const override;
+        ref_ptr<Node> original;
 
     protected:
-        virtual ~IntersectionOptimizedVertexDraw();
+        virtual ~IntersectionProxy();
 
         struct Triangle
         {
@@ -86,7 +98,7 @@ namespace vsg
 
         std::vector<LeafMetadata, allocator_affinity_data<LeafMetadata>> leafMetadata;
     };
-    VSG_type_name(vsg::IntersectionOptimizedVertexDraw)
+    VSG_type_name(vsg::IntersectionProxy)
 
     class VSG_DECLSPEC IntersectionOptimizeVisitor : public Inherit<Visitor, IntersectionOptimizeVisitor>
     {

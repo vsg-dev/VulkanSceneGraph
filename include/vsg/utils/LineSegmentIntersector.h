@@ -63,6 +63,8 @@ namespace vsg
 
         ref_ptr<Intersection> add(const dvec3& coord, double ratio, const IndexRatios& indexRatios, uint32_t instanceIndex);
 
+        void apply(const IntersectionProxy& intersectionproxy) override;
+
         void pushTransform(const Transform& transform) override;
         void popTransform() override;
 
