@@ -71,7 +71,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/InstanceDraw.h>
 #include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/nodes/InstanceNode.h>
-#include <vsg/nodes/IntersectionOptimizedVertexDraw.h>
+#include <vsg/nodes/IntersectionProxy.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>

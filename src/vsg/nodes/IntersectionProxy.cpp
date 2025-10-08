@@ -13,15 +13,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/BindIndexBuffer.h>
 #include <vsg/io/Logger.h>
 #include <vsg/io/ReaderWriter.h>
-#include <vsg/nodes/IntersectionOptimizedVertexDraw.h>
+#include <vsg/nodes/IntersectionProxy.h>
 #include <vsg/nodes/StateGroup.h>
+#include <vsg/nodes/VertexDraw.h>
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 
 using namespace vsg;
 
-IntersectionOptimizedVertexDraw::IntersectionOptimizedVertexDraw(const VertexDraw& vertexDraw, const CopyOp& copyop) :
-    Inherit(vertexDraw, copyop),
+IntersectionProxy::IntersectionProxy(Node* in_original) :
+    Inherit(),
+    original(in_original),
     internalNodes(),
     leaves(),
     bounds(),
@@ -29,8 +31,9 @@ IntersectionOptimizedVertexDraw::IntersectionOptimizedVertexDraw(const VertexDra
 {
 }
 
-IntersectionOptimizedVertexDraw::IntersectionOptimizedVertexDraw(const IntersectionOptimizedVertexDraw& rhs, const CopyOp& copyop) :
+IntersectionProxy::IntersectionProxy(const IntersectionProxy& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
+    original(rhs.original),
     internalNodes(rhs.internalNodes),
     leaves(rhs.leaves),
     bounds(rhs.bounds),
@@ -38,31 +41,47 @@ IntersectionOptimizedVertexDraw::IntersectionOptimizedVertexDraw(const Intersect
 {
 }
 
-void vsg::IntersectionOptimizedVertexDraw::rebuild(vsg::ArrayState& arrayState)
+void vsg::IntersectionProxy::rebuild(vsg::ArrayState& arrayState)
 {
     leaves.clear();
     internalNodes.clear();
 
-    arrayState.apply(*this);
-    uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
-    uint32_t endVertex = firstVertex + vertexCount;
+    if (!original)
+    {
+        warn("Attempting to build IntersectionProxy for null node.");
+        return;
+    }
 
     // if instancing is used, accessing the nth triangle is a hassle, so grab them upfront
     std::vector<Triangle> triangles;
-    triangles.reserve(instanceCount * vertexCount / 3);
     std::vector<TriangleMetadata> metadata;
-    metadata.reserve(triangles.size());
 
-    for (uint32_t instanceIndex = firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+    if (auto* vertexDraw = ::cast<VertexDraw>(original))
     {
-        if (auto vertices = arrayState.vertexArray(instanceIndex))
+        arrayState.apply(*vertexDraw);
+
+        uint32_t lastIndex = vertexDraw->instanceCount > 1 ? (vertexDraw->firstInstance + vertexDraw->instanceCount) : vertexDraw->firstInstance + 1;
+        uint32_t endVertex = vertexDraw->firstVertex + vertexDraw->vertexCount;
+
+        triangles.reserve(vertexDraw->instanceCount * vertexDraw->vertexCount / 3);
+        metadata.reserve(triangles.size());
+
+        for (uint32_t instanceIndex = vertexDraw->firstInstance; instanceIndex < lastIndex; ++instanceIndex)
         {
-            for (uint32_t i = firstVertex; (i + 2) < endVertex; i += 3)
+            if (auto vertices = arrayState.vertexArray(instanceIndex))
             {
-                triangles.emplace_back(Triangle{vertices->at(i), vertices->at(i + 1), vertices->at(i + 2)});
-                metadata.emplace_back(TriangleMetadata{i, instanceIndex});
+                for (uint32_t i = vertexDraw->firstVertex; (i + 2) < endVertex; i += 3)
+                {
+                    triangles.emplace_back(Triangle{vertices->at(i), vertices->at(i + 1), vertices->at(i + 2)});
+                    metadata.emplace_back(TriangleMetadata{i, instanceIndex});
+                }
             }
         }
+    }
+    else
+    {
+        warn("Unsupported node type when building IntersectionProxy: ", original->className());
+        return;
     }
 
     std::vector<vec3> barycenters;
@@ -134,7 +153,12 @@ void vsg::IntersectionOptimizedVertexDraw::rebuild(vsg::ArrayState& arrayState)
     std::tie(bounds, boundingVolumeHeirarchy) = computeKDTree(indices.begin(), indices.end(), computeKDTree);
 }
 
-void vsg::IntersectionOptimizedVertexDraw::intersect(LineSegmentIntersector& lineSegmentIntersector) const
+bool IntersectionProxy::valid() const
+{
+    return boundingVolumeHeirarchy.type != NodeRef::INVALID;
+}
+
+void vsg::IntersectionProxy::intersect(LineSegmentIntersector& lineSegmentIntersector) const
 {
     const auto& ls = lineSegmentIntersector.lineSegment();
 
@@ -228,41 +252,34 @@ void vsg::IntersectionOptimizedVertexDraw::intersect(LineSegmentIntersector& lin
     intersectNode(boundingVolumeHeirarchy, intersectNode);
 }
 
-IntersectionOptimizedVertexDraw::~IntersectionOptimizedVertexDraw() = default;
+IntersectionProxy::~IntersectionProxy() = default;
 
-int IntersectionOptimizedVertexDraw::compare(const Object& rhs_object) const
+int IntersectionProxy::compare(const Object& rhs_object) const
 {
-    int result = VertexDraw::compare(rhs_object);
+    int result = Node::compare(rhs_object);
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
+    if ((result = compare_pointer(original, rhs.original)) != 0) return result;
     // computation of BVH should be deterministic, so if the input is the same and it's actually been computed, we shouldn't need to scan all the nodes
     if ((result = compare_value(boundingVolumeHeirarchy.type, rhs.boundingVolumeHeirarchy.type)) != 0) return result;
     return compare_value(boundingVolumeHeirarchy.index, boundingVolumeHeirarchy.index);
 }
 
-void IntersectionOptimizedVertexDraw::read(Input& input)
+void IntersectionProxy::read(Input& input)
 {
-    VertexDraw::read(input);
+    Node::read(input);
+
+    input.read("original", original);
+    // todo: deserialise BVH
 }
 
-void IntersectionOptimizedVertexDraw::write(Output& output) const
+void IntersectionProxy::write(Output& output) const
 {
-    VertexDraw::write(output);
-}
+    Node::write(output);
 
-void vsg::IntersectionOptimizedVertexDraw::accept(ConstVisitor& visitor) const
-{
-    if (boundingVolumeHeirarchy.type != NodeRef::INVALID && visitor.is_compatible(typeid(Intersector)))
-    {
-        auto* lineSegmentIntersector = dynamic_cast<LineSegmentIntersector*>(&visitor);
-        if (lineSegmentIntersector)
-        {
-            intersect(*lineSegmentIntersector);
-            return;
-        }
-    }
-    Inherit::accept(visitor);
+    output.write("original", original);
+    // todo: serialise BVH
 }
 
 vsg::IntersectionOptimizeVisitor::IntersectionOptimizeVisitor(ref_ptr<ArrayState> initialArrayState)
@@ -293,7 +310,7 @@ void vsg::IntersectionOptimizeVisitor::apply(StateGroup& stategroup)
     {
         if (child->className() == "vsg::VertexDraw")
         {
-            auto optimized = vsg::IntersectionOptimizedVertexDraw::create(static_cast<VertexDraw&>(*child));
+            auto optimized = vsg::IntersectionProxy::create(child);
             optimized->rebuild(*arrayStateStack.back());
             child = optimized;
         }
