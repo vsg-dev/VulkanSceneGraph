@@ -88,7 +88,9 @@ namespace vsg
 
         struct TriangleMetadata
         {
-            uint32_t index;
+            uint32_t index0;
+            uint32_t index1;
+            uint32_t index2;
             uint32_t instance;
         };
         struct LeafMetadata

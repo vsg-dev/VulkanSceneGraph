@@ -16,10 +16,52 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/IntersectionProxy.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
+#include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/utils/Intersector.h>
 #include <vsg/utils/LineSegmentIntersector.h>
 
 using namespace vsg;
+
+namespace
+{
+    struct GetIndicesVisitor : public ConstVisitor
+    {
+        ref_ptr<const ubyteArray> ubyte_indices;
+        ref_ptr<const ushortArray> ushort_indices;
+        ref_ptr<const uintArray> uint_indices;
+
+        void apply(const BufferInfo& bufferInfo) override
+        {
+            bufferInfo.data->accept(*this);
+        }
+
+        void apply(const ubyteArray& array) override
+        {
+            ubyte_indices = &array;
+            ushort_indices = nullptr;
+            uint_indices = nullptr;
+        }
+        void apply(const ushortArray& array) override
+        {
+            ubyte_indices = nullptr;
+            ushort_indices = &array;
+            uint_indices = nullptr;
+        }
+        void apply(const uintArray& array) override
+        {
+            ubyte_indices = nullptr;
+            ushort_indices = nullptr;
+            uint_indices = &array;
+        }
+
+        uint32_t operator[](size_t index)
+        {
+            if (ubyte_indices) return ubyte_indices->at(index);
+            if (ushort_indices) return ushort_indices->at(index);
+            return uint_indices->at(index);
+        }
+    };
+}
 
 IntersectionProxy::IntersectionProxy(Node* in_original) :
     Inherit(),
@@ -73,7 +115,38 @@ void vsg::IntersectionProxy::rebuild(vsg::ArrayState& arrayState)
                 for (uint32_t i = vertexDraw->firstVertex; (i + 2) < endVertex; i += 3)
                 {
                     triangles.emplace_back(Triangle{vertices->at(i), vertices->at(i + 1), vertices->at(i + 2)});
-                    metadata.emplace_back(TriangleMetadata{i, instanceIndex});
+                    metadata.emplace_back(TriangleMetadata{i, i + 1, i + 2, instanceIndex});
+                }
+            }
+        }
+    }
+    else if (auto* vertexIndexDraw = ::cast<VertexIndexDraw>(original))
+    {
+        arrayState.apply(*vertexIndexDraw);
+
+        uint32_t lastIndex = vertexIndexDraw->instanceCount > 1 ? (vertexIndexDraw->firstInstance + vertexIndexDraw->instanceCount) : vertexIndexDraw->firstInstance + 1;
+        uint32_t endIndex = vertexIndexDraw->firstIndex + ((vertexIndexDraw->indexCount + 2) / 3) * 3;
+
+        triangles.reserve(vertexIndexDraw->instanceCount * vertexIndexDraw->indexCount / 3);
+        metadata.reserve(triangles.size());
+
+        if (!vertexIndexDraw->indices || !vertexIndexDraw->indices->data)
+        {
+            warn("Attempting to build IntersectionProxy for VertexIndexDraw with no indices.");
+            return;
+        }
+
+        GetIndicesVisitor indices;
+        vertexIndexDraw->indices->accept(indices);
+
+        for (uint32_t instanceIndex = vertexIndexDraw->firstInstance; instanceIndex < lastIndex; ++instanceIndex)
+        {
+            if (auto vertices = arrayState.vertexArray(instanceIndex))
+            {
+                for (uint32_t i = vertexIndexDraw->firstIndex; i < endIndex; i += 3)
+                {
+                    triangles.emplace_back(Triangle{vertices->at(indices[i]), vertices->at(indices[i + 1]), vertices->at(indices[i + 2])});
+                    metadata.emplace_back(TriangleMetadata{indices[i], indices[i + 1], indices[i + 2], instanceIndex});
                 }
             }
         }
@@ -227,7 +300,7 @@ void vsg::IntersectionProxy::intersect(LineSegmentIntersector& lineSegmentInters
 
             dvec3 intersection = dvec3(triangle.vertex0) * double(r0) + dvec3(triangle.vertex1) * double(r1) + dvec3(triangle.vertex2) * double(r2);
             const auto& metadata = leafMetadata[index].tris[i];
-            lineSegmentIntersector.add(intersection, double(t * inverseLength), {{metadata.index, r0}, {metadata.index + 1, r1}, {metadata.index + 2, r2}}, metadata.instance);
+            lineSegmentIntersector.add(intersection, double(t * inverseLength), {{metadata.index0, r0}, {metadata.index1 + 1, r1}, {metadata.index2 + 2, r2}}, metadata.instance);
         }
     };
 
