@@ -267,6 +267,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/vulkan.h>
 
 // Input/Output header files
+#include <vsg/io/ApplyVisitorReader.h>
 #include <vsg/io/AsciiInput.h>
 #include <vsg/io/AsciiOutput.h>
 #include <vsg/io/BinaryInput.h>
