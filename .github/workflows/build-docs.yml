@@ -9,7 +9,7 @@ jobs:
       - name: Install Doxygen
         run: sudo apt install doxygen graphviz
       - name: Install Vulkan
-        uses: humbletim/install-vulkan-sdk@v1.1.1
+        uses: humbletim/install-vulkan-sdk@v1.2
         with:
           version: latest
       - name: Configure VulkanSceneGraph
