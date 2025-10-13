@@ -12,6 +12,10 @@ jobs:
         os: [ubuntu-latest]
         vulkan-version: [1.4.328.1]
         build-shared: [OFF]
+        include:
+          - build-shared: ON
+            os: windows-latest
+            vulkan-version: 1.4.328.1
     continue-on-error: ${{ matrix.vulkan-version == 'latest' }}
 
     steps:
