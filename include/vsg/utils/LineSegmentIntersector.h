@@ -34,6 +34,10 @@ namespace vsg
         LineSegmentIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
         LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
 
+        void reset(ref_ptr<ArrayState> initialArrayData = {}) override;
+        virtual void reset(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
+        virtual void reset(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
+
         class VSG_DECLSPEC Intersection : public Inherit<Object, Intersection>
         {
         public:
@@ -59,6 +63,8 @@ namespace vsg
 
         ref_ptr<Intersection> add(const dvec3& coord, double ratio, const IndexRatios& indexRatios, uint32_t instanceIndex);
 
+        void apply(const IntersectionProxy& intersectionproxy) override;
+
         void pushTransform(const Transform& transform) override;
         void popTransform() override;
 
@@ -68,12 +74,15 @@ namespace vsg
         bool intersectDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount) override;
         bool intersectDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount) override;
 
-    protected:
         struct LineSegment
         {
             dvec3 start;
             dvec3 end;
         };
+
+        const LineSegment& lineSegment() { return _lineSegmentStack.back(); }
+
+    protected:
 
         std::vector<LineSegment> _lineSegmentStack;
     };

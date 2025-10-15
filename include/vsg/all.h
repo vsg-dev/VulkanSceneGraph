@@ -71,6 +71,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/InstanceDraw.h>
 #include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/nodes/InstanceNode.h>
+#include <vsg/nodes/IntersectionProxy.h>
 #include <vsg/nodes/InstrumentationNode.h>
 #include <vsg/nodes/LOD.h>
 #include <vsg/nodes/Layer.h>
@@ -265,6 +266,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/vulkan.h>
 
 // Input/Output header files
+#include <vsg/io/ApplyVisitorReader.h>
 #include <vsg/io/AsciiInput.h>
 #include <vsg/io/AsciiOutput.h>
 #include <vsg/io/BinaryInput.h>

@@ -28,6 +28,8 @@ namespace vsg
 
         Intersector(ref_ptr<ArrayState> initialArrayState = {});
 
+        virtual void reset(ref_ptr<ArrayState> initialArrayState = {});
+
         //
         // handle traverse of the scene graph
         //
