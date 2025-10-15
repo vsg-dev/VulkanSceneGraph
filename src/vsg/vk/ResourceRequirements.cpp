@@ -23,7 +23,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/state/MultisampleState.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
 #include <vsg/vk/Context.h>
