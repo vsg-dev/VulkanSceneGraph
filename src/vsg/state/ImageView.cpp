@@ -240,7 +240,21 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     const auto valueSize = properties.stride; // data->valueSize();
 
     bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
-    bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+
+    ref_ptr<uivec4Array> mipmapData;
+    if (imageView->image && imageView->image->data) mipmapData = imageView->image->data->getObject<uivec4Array>("mipmapData");
+    if (mipmapData)
+    {
+        mipLevels = mipmapData->size();
+        useDataMipmaps = true;
+    }
+
+    vsg::info("transferImageData() mipmapData = ", mipmapData, ", mipLevels = ", mipLevels);
+
+    bool generateMipmaps = (mipLevels > 1) && !useDataMipmaps;
+
+    vsg::info("   useDataMipmaps = ", useDataMipmaps);
+    vsg::info("   generateMipmaps = ", generateMipmaps);
 
     auto vk_textureImage = textureImage->vk(device->deviceID);
 
@@ -282,39 +296,67 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     if (useDataMipmaps)
     {
-        size_t offset = 0u;
         regions.resize(mipLevels * arrayLayers);
 
-        uint32_t mipWidth = destWidth;
-        uint32_t mipHeight = destHeight;
-        uint32_t mipDepth = destDepth;
-
-        for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
+        if (mipmapData)
         {
-            const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
+            auto mipmapItr = mipmapData->begin();
 
-            for (uint32_t face = 0; face < arrayLayers; ++face)
+            for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
             {
-                auto& region = regions[mipLevel * arrayLayers + face];
-                region.bufferOffset = stagingBufferOffset + offset;
-                region.bufferRowLength = 0;
-                region.bufferImageHeight = 0;
-                region.imageSubresource.aspectMask = aspectMask;
-                region.imageSubresource.mipLevel = mipLevel;
-                region.imageSubresource.baseArrayLayer = face;
-                region.imageSubresource.layerCount = 1;
-                region.imageOffset = {0, 0, 0};
-                region.imageExtent = {mipWidth, mipHeight, mipDepth};
+                for (uint32_t face = 0; face < arrayLayers; ++face)
+                {
+                    const auto& mipmap = (*mipmapItr++);
 
-                offset += faceSize;
+                    auto& region = regions[mipLevel * arrayLayers + face];
+                    region.bufferOffset = stagingBufferOffset + mipmap.w;
+                    region.bufferRowLength = 0;
+                    region.bufferImageHeight = 0;
+                    region.imageSubresource.aspectMask = aspectMask;
+                    region.imageSubresource.mipLevel = mipLevel;
+                    region.imageSubresource.baseArrayLayer = face;
+                    region.imageSubresource.layerCount = 1;
+                    region.imageOffset = {0, 0, 0};
+                    region.imageExtent = {mipmap.x, mipmap.y, mipmap.z};
+
+                    vsg::info("    mipmap = ", mipmap);
+                }
             }
+        }
+        else
+        {
+            size_t offset = 0u;
+            uint32_t mipWidth = destWidth;
+            uint32_t mipHeight = destHeight;
+            uint32_t mipDepth = destDepth;
 
-            if (mipWidth > 1) mipWidth /= 2;
-            if (mipHeight > 1) mipHeight /= 2;
-            if (mipDepth > 1) mipDepth /= 2;
-            if (faceWidth > 1) faceWidth /= 2;
-            if (faceHeight > 1) faceHeight /= 2;
-            if (faceDepth > 1) faceDepth /= 2;
+            for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
+            {
+                const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
+
+                for (uint32_t face = 0; face < arrayLayers; ++face)
+                {
+                    auto& region = regions[mipLevel * arrayLayers + face];
+                    region.bufferOffset = stagingBufferOffset + offset;
+                    region.bufferRowLength = 0;
+                    region.bufferImageHeight = 0;
+                    region.imageSubresource.aspectMask = aspectMask;
+                    region.imageSubresource.mipLevel = mipLevel;
+                    region.imageSubresource.baseArrayLayer = face;
+                    region.imageSubresource.layerCount = 1;
+                    region.imageOffset = {0, 0, 0};
+                    region.imageExtent = {mipWidth, mipHeight, mipDepth};
+
+                    offset += faceSize;
+                }
+
+                if (mipWidth > 1) mipWidth /= 2;
+                if (mipHeight > 1) mipHeight /= 2;
+                if (mipDepth > 1) mipDepth /= 2;
+                if (faceWidth > 1) faceWidth /= 2;
+                if (faceHeight > 1) faceHeight /= 2;
+                if (faceDepth > 1) faceDepth /= 2;
+            }
         }
     }
     else

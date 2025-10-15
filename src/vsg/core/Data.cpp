@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Data.h>
+#include <vsg/core/Array.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
@@ -116,9 +117,19 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
 {
     if (properties.maxNumMipmaps <= 1) return {};
 
-    uint32_t numMipmaps = properties.maxNumMipmaps;
-
     MipmapOffsets offsets;
+
+    auto mipmapData = getObject<uivec4Array>("mipmapData");
+    if (mipmapData)
+    {
+        for(auto& mipmap : *mipmapData)
+        {
+            offsets.push_back(mipmap.w);
+        }
+        return offsets;
+    }
+
+    uint32_t numMipmaps = properties.maxNumMipmaps;
 
     std::size_t w = width();
     std::size_t h = height();
