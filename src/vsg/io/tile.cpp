@@ -26,14 +26,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/TileDatabase.h>
 #include <vsg/nodes/VertexIndexDraw.h>
 #include <vsg/state/BindDescriptorSet.h>
-#include <vsg/state/ColorBlendState.h>
-#include <vsg/state/DepthStencilState.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/InputAssemblyState.h>
-#include <vsg/state/MultisampleState.h>
-#include <vsg/state/RasterizationState.h>
-#include <vsg/state/VertexInputState.h>
 #include <vsg/state/material.h>
 #include <vsg/ui/UIEvent.h>
 #include <vsg/utils/ComputeBounds.h>
