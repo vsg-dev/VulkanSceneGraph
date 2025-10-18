@@ -43,7 +43,7 @@ extern "C"
     #cmakedefine01 VSG_SUPPORTS_ShaderOptimizer
 
     /// Native Windowing support provided with vsg::Window::create(windowTraits) enabled when 1, disabled when 0
-    #define VSG_SUPPORTS_Windowing @VSG_SUPPORTS_Windowing@
+    #cmakedefine01 VSG_SUPPORTS_Windowing
 
     struct VsgVersion
     {

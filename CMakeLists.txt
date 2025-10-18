@@ -75,7 +75,7 @@ if (VSG_SUPPORTS_ShaderCompiler)
     endif()
 endif()
 
-set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )
+option(VSG_SUPPORTS_Windowing "Optional native windowing support providing a default implementation of vsg::Window::create()" ON)
 if (VSG_SUPPORTS_Windowing)
     if (ANDROID)
         set(FIND_DEPENDENCY_WINDOWING "")
