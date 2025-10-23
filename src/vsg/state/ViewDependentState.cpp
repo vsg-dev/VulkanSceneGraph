@@ -151,7 +151,7 @@ void BindViewDescriptorSets::compile(Context& context)
 
 void BindViewDescriptorSets::record(CommandBuffer& commandBuffer) const
 {
-    if (commandBuffer.viewDependentState)
+    if (commandBuffer.viewDependentState && commandBuffer.getCurrentDescriptorSetSlots().size() > firstSet && commandBuffer.getCurrentDescriptorSetSlots()[firstSet])
     {
         commandBuffer.viewDependentState->bindDescriptorSets(commandBuffer, pipelineBindPoint, layout->vk(commandBuffer.deviceID), firstSet);
     }

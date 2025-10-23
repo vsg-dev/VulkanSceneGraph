@@ -37,6 +37,8 @@ namespace vsg
         /// VkDescriptorSetLayoutCreateInfo settings
         DescriptorSetLayoutBindings bindings;
 
+        virtual bool empty() const { return bindings.empty(); }
+
         /// map the descriptor bindings to the descriptor pool sizes that will be required to represent them.
         void getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes);
 
