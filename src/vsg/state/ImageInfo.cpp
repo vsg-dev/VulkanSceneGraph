@@ -177,6 +177,26 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numComponents = 1;
         traits.size = 16;
     }
+    else if (VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 64;
+        traits.numComponents = 1;
+        traits.size = 8;
+    }
+    else if (VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
+    }
     else if (VK_FORMAT_ASTC_4x4_UNORM_BLOCK <= format && format <= VK_FORMAT_ASTC_12x12_SRGB_BLOCK)
     {
         traits.packed = true;
