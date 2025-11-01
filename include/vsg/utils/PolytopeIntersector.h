@@ -32,6 +32,10 @@ namespace vsg
         /// create intersector for a polytope with window space dimensions, projected into world coords using the Camera's projection and view matrices.
         PolytopeIntersector(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData = {});
 
+        void reset(ref_ptr<ArrayState> initialArrayData = {}) override;
+        virtual void reset(const Polytope& in_polytope, ref_ptr<ArrayState> initialArrayData = {});
+        virtual void reset(const Camera& camera, double xMin, double yMin, double xMax, double yMax, ref_ptr<ArrayState> initialArrayData = {});
+
         class VSG_DECLSPEC Intersection : public Inherit<Object, Intersection>
         {
         public:

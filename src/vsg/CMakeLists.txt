@@ -50,6 +50,7 @@ set(SOURCES
     nodes/InstanceNode.cpp
     nodes/InstanceDraw.cpp
     nodes/InstanceDrawIndexed.cpp
+    nodes/IntersectionProxy.cpp
 
     lighting/Light.cpp
     lighting/AmbientLight.cpp
@@ -153,6 +154,7 @@ set(SOURCES
     io/read.cpp
     io/write.cpp
     io/mem_stream.cpp
+    io/ApplyVisitorReader.cpp
 
     text/CpuLayoutTechnique.cpp
     text/GpuLayoutTechnique.cpp

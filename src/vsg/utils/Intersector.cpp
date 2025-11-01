@@ -48,6 +48,23 @@ Intersector::Intersector(ref_ptr<ArrayState> initialArrayState)
     arrayStateStack.emplace_back(initialArrayState ? initialArrayState : ArrayState::create());
 }
 
+void Intersector::reset(ref_ptr<ArrayState> initialArrayState)
+{
+    // don't reset arrayStateStack if we don't have to.
+    // it should be back in its initial state after a traversal has finished.
+    if (initialArrayState)
+    {
+        arrayStateStack.resize(1);
+        arrayStateStack.front() = initialArrayState;
+    }
+
+    ubyte_indices.reset();
+    ushort_indices.reset();
+    uint_indices.reset();
+
+    _nodePath.clear();
+}
+
 void Intersector::apply(const Node& node)
 {
     PushPopNode ppn(_nodePath, &node);
