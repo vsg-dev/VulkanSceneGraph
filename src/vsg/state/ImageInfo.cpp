@@ -101,21 +101,52 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
     }
     else if (format == VK_FORMAT_D16_UNORM_S8_UINT)
     {
+        traits.packed = true;
         traits.numBitsPerComponent = 24;
         traits.numComponents = 1;
         traits.size = 3;
     }
     else if (format == VK_FORMAT_D24_UNORM_S8_UINT)
     {
+        traits.packed = true;
         traits.numBitsPerComponent = 32;
         traits.numComponents = 1;
         traits.size = 4;
     }
     else if (format == VK_FORMAT_D32_SFLOAT_S8_UINT)
     {
+        traits.packed = true;
         traits.numBitsPerComponent = 40;
         traits.numComponents = 1;
         traits.size = 5;
+    }
+    else if (VK_FORMAT_A8B8G8R8_UNORM_PACK32 <= format && format <= VK_FORMAT_A8B8G8R8_SRGB_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 8;
+        traits.numComponents = 4;
+        traits.size = 4;
+    }
+    else if (VK_FORMAT_A2R10G10B10_UNORM_PACK32 <= format && format <= VK_FORMAT_A2B10G10R10_SINT_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 32; // Perhaps should be 10, except alpha is 2, will treat as one packed components
+        traits.numComponents = 1;
+        traits.size = 4;
+    }
+    else if (VK_FORMAT_B10G11R11_UFLOAT_PACK32 <= format && format <= VK_FORMAT_E5B9G9R9_UFLOAT_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 32; // Perhaps should be 10, except R is 11, will treat as one packed components
+        traits.numComponents = 1;
+        traits.size = 4;
+    }
+    else if (format == VK_FORMAT_X8_D24_UNORM_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 32;
+        traits.numComponents = 1;
+        traits.size = 4;
     }
     else if (VK_FORMAT_BC1_RGB_UNORM_BLOCK <= format && format <= VK_FORMAT_BC1_RGBA_SRGB_BLOCK)
     {
