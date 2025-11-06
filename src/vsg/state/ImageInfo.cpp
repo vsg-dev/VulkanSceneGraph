@@ -208,7 +208,8 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numComponents = 1;
         traits.size = 16;
     }
-    else if (VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK)
+    else if ((VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK) ||
+             (VK_FORMAT_EAC_R11_UNORM_BLOCK  <= format && format <= VK_FORMAT_EAC_R11_SNORM_BLOCK))
     {
         traits.packed = true;
         traits.blockWidth = 4;
@@ -218,7 +219,8 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numComponents = 1;
         traits.size = 8;
     }
-    else if (VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK)
+    else if ((VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK) ||
+             (VK_FORMAT_EAC_R11G11_UNORM_BLOCK <= format && format <= VK_FORMAT_EAC_R11G11_SNORM_BLOCK))
     {
         traits.packed = true;
         traits.blockWidth = 4;

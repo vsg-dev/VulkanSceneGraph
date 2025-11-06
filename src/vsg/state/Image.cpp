@@ -95,7 +95,7 @@ Image::Image(ref_ptr<Data> in_data) :
         mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
         extent = VkExtent3D{width, height, depth};
 
-        vsg::info("Image::Image(", data, ") mpipLevels = ", mipLevels);
+        // vsg::info("Image::Image(", data, ") mpipLevels = ", mipLevels);
 
         // remap RGB to RGBA
         if (format >= VK_FORMAT_R8G8B8_UNORM && format <= VK_FORMAT_B8G8R8_SRGB)
@@ -200,7 +200,7 @@ void Image::compile(Device* device)
     info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
 
-    vsg::info("Image::compile(), mipLevels = ", mipLevels);
+    // vsg::info("Image::compile(), mipLevels = ", mipLevels);
 
     vd.device = device;
 

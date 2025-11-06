@@ -249,12 +249,13 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         useDataMipmaps = true;
     }
 
-    vsg::info("transferImageData() mipmapData = ", mipmapData, ", mipLevels = ", mipLevels);
-
     bool generateMipmaps = (mipLevels > 1) && !useDataMipmaps;
 
+#if 0
+    vsg::info("transferImageData() mipmapData = ", mipmapData, ", mipLevels = ", mipLevels);
     vsg::info("   useDataMipmaps = ", useDataMipmaps);
     vsg::info("   generateMipmaps = ", generateMipmaps);
+#endif
 
     auto vk_textureImage = textureImage->vk(device->deviceID);
 
