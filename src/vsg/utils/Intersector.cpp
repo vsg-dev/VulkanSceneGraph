@@ -83,7 +83,7 @@ void Intersector::apply(const StateGroup& stategroup)
         statecommand->accept(*arrayState);
     }
 
-    arrayStateStack.emplace_back(arrayState);
+    arrayStateStack.emplace_back(std::move(arrayState));
 
     stategroup.traverse(*this);
 
