@@ -200,7 +200,7 @@ void Image::compile(Device* device)
     info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
 
-    // vsg::info("Image::compile(), mipLevels = ", mipLevels);
+    // vsg::info("Image::compile(), data = ",data, ", mipLevels = ", mipLevels, ", arrayLayers = ", arrayLayers, ", extent = {", extent.width, ", ", extent.height, ", ", extent.depth, "}");
 
     vd.device = device;
 

@@ -137,35 +137,53 @@ Data::MipmapOffsets Data::computeMipmapOffsets() const
 
     std::size_t lastPosition = 0;
     offsets.push_back(lastPosition);
-    while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
+    while (numMipmaps > 1)
     {
         lastPosition += (w * h * d);
         offsets.push_back(lastPosition);
 
         --numMipmaps;
-        if (w > 1) w /= 2;
-        if (h > 1) h /= 2;
-        if (d > 1) d /= 2;
+        if (w > 1) w = (w+1)/2;
+        if (h > 1) h = (h+1)/2;
+        if (d > 1) d = (d+1)/2;
     }
 
     return offsets;
 }
 
-std::size_t Data::computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t numMipmaps)
+std::size_t Data::computeValueCountIncludingMipmaps() const
 {
-    if (numMipmaps <= 1) return w * h * d;
+    std::size_t count = 0;
 
-    std::size_t lastPosition = (w * h * d);
-    while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
+    auto mipmapData = getObject<uivec4Array>("mipmapData");
+    if (mipmapData)
     {
-        --numMipmaps;
+        for(auto& mipmap : *mipmapData)
+        {
+            std::size_t w = (mipmap.x+properties.blockWidth-1)/properties.blockWidth;
+            std::size_t h = (mipmap.y+properties.blockHeight-1)/properties.blockHeight;
+            std::size_t d = (mipmap.z+properties.blockDepth-1)/properties.blockDepth;
 
-        if (w > 1) w /= 2;
-        if (h > 1) h /= 2;
-        if (d > 1) d /= 2;
+            count += w*h*d;
+        }
+    }
+    else
+    {
+        std::size_t w = width();
+        std::size_t h = height();
+        std::size_t d = depth();
 
-        lastPosition += (w * h * d);
+        count = w*h*d;
+
+        for(uint8_t level = 1; level < properties.maxNumMipmaps; ++level)
+        {
+            if (w > 1) w = w/2;
+            if (h > 1) h = h/2;
+            if (d > 1) d = d/2;
+
+            count += w*h*d;
+        }
     }
 
-    return lastPosition;
+    return count;
 }

@@ -165,7 +165,10 @@ namespace vsg
 
             if (input.matchPropertyName("data"))
             {
-                size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, properties.maxNumMipmaps);
+                properties.stride = sizeof(value_type);
+                _size = width_size;
+                _storage = nullptr;
+                size_t new_total_size = computeValueCountIncludingMipmaps();
 
                 if (_data) // if data exists already may be able to reuse it
                 {
@@ -181,9 +184,6 @@ namespace vsg
                     _data = _allocate(new_total_size);
                 }
 
-                properties.stride = sizeof(value_type);
-                _size = width_size;
-                _storage = nullptr;
 
                 if (_data) input.read(new_total_size, _data);
 
@@ -209,7 +209,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        size_t size() const { return (properties.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, properties.maxNumMipmaps); }
+        size_t size() const { return (properties.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }

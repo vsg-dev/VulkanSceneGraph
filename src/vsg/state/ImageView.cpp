@@ -245,17 +245,15 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     if (imageView->image && imageView->image->data) mipmapData = imageView->image->data->getObject<uivec4Array>("mipmapData");
     if (mipmapData)
     {
-        mipLevels = mipmapData->size();
-        useDataMipmaps = true;
+        auto& mipmap0 = mipmapData->at(0);
+        destWidth = mipmap0.x;
+        destHeight = mipmap0.y;
+        destDepth = mipmap0.z;
+
+        useDataMipmaps = mipmapData->size() > 1;
     }
 
     bool generateMipmaps = (mipLevels > 1) && !useDataMipmaps;
-
-#if 0
-    vsg::info("transferImageData() mipmapData = ", mipmapData, ", mipLevels = ", mipLevels);
-    vsg::info("   useDataMipmaps = ", useDataMipmaps);
-    vsg::info("   generateMipmaps = ", generateMipmaps);
-#endif
 
     auto vk_textureImage = textureImage->vk(device->deviceID);
 
@@ -297,18 +295,17 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     if (useDataMipmaps)
     {
-        regions.resize(mipLevels * arrayLayers);
-
         if (mipmapData)
         {
-            auto mipmapItr = mipmapData->begin();
+            regions.resize(mipLevels * arrayLayers);
 
+            auto mipmapItr = mipmapData->begin();
             for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
             {
+                const auto& mipmap = (*mipmapItr++);
+
                 for (uint32_t face = 0; face < arrayLayers; ++face)
                 {
-                    const auto& mipmap = (*mipmapItr++);
-
                     auto& region = regions[mipLevel * arrayLayers + face];
                     region.bufferOffset = stagingBufferOffset + mipmap.w;
                     region.bufferRowLength = 0;
@@ -319,13 +316,13 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
                     region.imageSubresource.layerCount = 1;
                     region.imageOffset = {0, 0, 0};
                     region.imageExtent = {mipmap.x, mipmap.y, mipmap.z};
-
-                    vsg::info("    mipmap = ", mipmap);
                 }
             }
         }
         else
         {
+            regions.resize(mipLevels * arrayLayers);
+
             size_t offset = 0u;
             uint32_t mipWidth = destWidth;
             uint32_t mipHeight = destHeight;
@@ -413,6 +410,10 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
                                  0, nullptr,
                                  1, &barrier);
 
+            int32_t nextWidth = (mipWidth > 1) ? (mipWidth)/2 : 1;
+            int32_t nextHeight = (mipHeight > 1) ? (mipHeight)/2 : 1;
+            int32_t nextDepth = (mipDepth > 1) ? (mipDepth)/2 : 1;
+
             VkImageBlit blit;
             blit.srcOffsets[0] = {0, 0, 0};
             blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
@@ -421,7 +422,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
             blit.srcSubresource.baseArrayLayer = 0;
             blit.srcSubresource.layerCount = arrayLayers;
             blit.dstOffsets[0] = {0, 0, 0};
-            blit.dstOffsets[1] = {mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, mipDepth > 1 ? mipDepth / 2 : 1};
+            blit.dstOffsets[1] = {nextWidth, nextHeight, nextDepth};
             blit.dstSubresource.aspectMask = aspectMask;
             blit.dstSubresource.mipLevel = i;
             blit.dstSubresource.baseArrayLayer = 0;
@@ -444,9 +445,9 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
                                  0, nullptr,
                                  1, &barrier);
 
-            if (mipWidth > 1) mipWidth /= 2;
-            if (mipHeight > 1) mipHeight /= 2;
-            if (mipDepth > 1) mipDepth /= 2;
+            mipWidth = nextWidth;
+            mipHeight = nextHeight;
+            mipDepth = nextDepth;
         }
 
         barrier.subresourceRange.baseMipLevel = mipLevels - 1;

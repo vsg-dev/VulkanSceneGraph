@@ -191,7 +191,7 @@ namespace vsg
 
         using MipmapOffsets = std::vector<size_t>;
         MipmapOffsets computeMipmapOffsets() const;
-        static size_t computeValueCountIncludingMipmaps(size_t w, size_t h, size_t d, uint32_t maxNumMipmaps);
+        size_t computeValueCountIncludingMipmaps() const;
 
         /// increment the ModifiedCount to signify the data has been modified
         void dirty() { ++_modifiedCount; }

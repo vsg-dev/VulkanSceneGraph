@@ -267,7 +267,8 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     auto height = data->height();
     auto depth = data->depth();
     auto mipmapOffsets = data->computeMipmapOffsets();
-    uint32_t mipLevels = vsg::computeNumMipMapLevels(data, imageInfo.sampler);
+
+    uint32_t mipLevels = imageInfo.imageView->image->mipLevels;
 
     auto source_offset = offset;
 

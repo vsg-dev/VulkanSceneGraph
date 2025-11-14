@@ -347,6 +347,33 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
                 --mipLevels;
             }
         }
+
+        const auto& mipmapOffsets = data->computeMipmapOffsets();
+        bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+
+        if (generateMipmaps)
+        {
+            // check that the data isn't compressed.
+            const auto& properties = data->properties;
+            if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
+            {
+                if (sampler->maxLod != 0.0f && sampler->maxLod != VK_LOD_CLAMP_NONE)
+                {
+                    warn("ImageInfo::computeNumMipMapLevels() cannot enable generated mipmaps for vsg::Image, but Sampler::maxLod is not zero or VK_LOD_CLAMP_NONE, sampler->maxLod = ", sampler->maxLod);
+                }
+
+                mipLevels = 1;
+            }
+        }
+        else
+        {
+            if (mipmapOffsets.size() < mipLevels)
+            {
+                mipLevels = mipmapOffsets.size();
+            }
+        }
+        // vsg::info("computeNumMipMapLevels(", sampler->maxLod, ", data->mipmapOffsets.size() = ", mipmapOffsets.size(), ", mipLevels = ", mipLevels);
+
     }
 
     //mipLevels = 1;  // disable mipmapping
@@ -381,30 +408,11 @@ void ImageInfo::computeNumMipMapLevels()
 {
     if (imageView && imageView->image && imageView->image->data)
     {
-        auto image = imageView->image;
-        auto data = image->data;
-        auto mipLevels = vsg::computeNumMipMapLevels(data, sampler);
-
-        const auto& mipmapOffsets = image->data->computeMipmapOffsets();
-        bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
-
-        if (generateMipmaps)
-        {
-            // check that the data isn't compressed.
-            const auto& properties = data->properties;
-            if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
-            {
-                if (sampler->maxLod != 0.0f && sampler->maxLod != VK_LOD_CLAMP_NONE)
-                {
-                    warn("ImageInfo::computeNumMipMapLevels() cannot enable generated mipmaps for vsg::Image, but Sampler::maxLod is not zero or VK_LOD_CLAMP_NONE, sampler->maxLod = ", sampler->maxLod);
-                }
-
-                mipLevels = 1;
-            }
-        }
-
-        image->mipLevels = mipLevels;
-
+        auto& image = imageView->image;
+        auto& data = image->data;
+        image->mipLevels = vsg::computeNumMipMapLevels(data, sampler);
+        const auto& mipmapOffsets = data->computeMipmapOffsets();
+        bool generateMipmaps = (image->mipLevels > 1) && (mipmapOffsets.size() <= 1);
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 }
