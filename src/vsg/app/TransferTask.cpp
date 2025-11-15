@@ -266,7 +266,6 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     auto width = data->width();
     auto height = data->height();
     auto depth = data->depth();
-    auto mipmapOffsets = data->computeMipmapOffsets();
 
     uint32_t mipLevels = imageInfo.imageView->image->mipLevels;
 
@@ -334,7 +333,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     }
 
     // transfer data.
-    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
+    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
 TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
@@ -564,7 +563,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 //
 // vsg::transferImageData(..)
 //
-void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, const Data::MipmapOffsets& mipmapOffsets, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
+void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
 {
     ref_ptr<Image> textureImage(imageView->image);
     auto aspectMask = imageView->subresourceRange.aspectMask;
@@ -604,7 +603,8 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     const auto valueSize = properties.stride; // data->valueSize();
 
-    bool useDataMipmaps = (mipLevels > 1) && (mipmapOffsets.size() > 1);
+    mipLevels = std::min(mipLevels, static_cast<uint32_t>(imageView->image->data->properties.maxNumMipmaps));
+    bool useDataMipmaps = false;
 
     ref_ptr<uivec4Array> mipmapData;
     if (imageView->image && imageView->image->data) mipmapData = imageView->image->data->getObject<uivec4Array>("mipmapData");
@@ -616,6 +616,11 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         destDepth = mipmap0.z;
 
         useDataMipmaps = mipmapData->size() > 1;
+        mipLevels = std::min(mipLevels, static_cast<uint32_t>(mipmapData->size()));
+    }
+    else if (imageView->image->data->properties.maxNumMipmaps > 1)
+    {
+        useDataMipmaps = true;
     }
 
     bool generateMipmaps = (mipLevels > 1) && !useDataMipmaps;

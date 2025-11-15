@@ -348,8 +348,7 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
             }
         }
 
-        const auto& mipmapOffsets = data->computeMipmapOffsets();
-        bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        bool generateMipmaps = (mipLevels > 1) && (data->properties.maxNumMipmaps <= 1);
 
         if (generateMipmaps)
         {
@@ -367,9 +366,9 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
         }
         else
         {
-            if (mipmapOffsets.size() < mipLevels)
+            if (data->properties.maxNumMipmaps < mipLevels)
             {
-                mipLevels = mipmapOffsets.size();
+                mipLevels = data->properties.maxNumMipmaps;
             }
         }
         // vsg::info("computeNumMipMapLevels(", sampler->maxLod, ", data->mipmapOffsets.size() = ", mipmapOffsets.size(), ", mipLevels = ", mipLevels);
@@ -411,8 +410,7 @@ void ImageInfo::computeNumMipMapLevels()
         auto& image = imageView->image;
         auto& data = image->data;
         image->mipLevels = vsg::computeNumMipMapLevels(data, sampler);
-        const auto& mipmapOffsets = data->computeMipmapOffsets();
-        bool generateMipmaps = (image->mipLevels > 1) && (mipmapOffsets.size() <= 1);
+        bool generateMipmaps = (image->mipLevels > 1) && (data->properties.maxNumMipmaps <= 1);
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 }

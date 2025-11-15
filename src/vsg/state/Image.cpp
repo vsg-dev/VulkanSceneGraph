@@ -38,7 +38,6 @@ Image::Image(ref_ptr<Data> in_data) :
     if (data)
     {
         auto properties = data->properties;
-        auto mipmapOffsets = data->computeMipmapOffsets();
         auto dimensions = data->dimensions();
 
         uint32_t width = data->width() * properties.blockWidth;
@@ -92,7 +91,7 @@ Image::Image(ref_ptr<Data> in_data) :
         }
 
         format = properties.format;
-        mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
+        mipLevels = data->properties.maxNumMipmaps;
         extent = VkExtent3D{width, height, depth};
 
         // vsg::info("Image::Image(", data, ") mpipLevels = ", mipLevels);

@@ -189,8 +189,6 @@ namespace vsg
 
         uint32_t stride() const { return properties.stride ? properties.stride : static_cast<uint32_t>(valueSize()); }
 
-        using MipmapOffsets = std::vector<size_t>;
-        MipmapOffsets computeMipmapOffsets() const;
         size_t computeValueCountIncludingMipmaps() const;
 
         /// increment the ModifiedCount to signify the data has been modified

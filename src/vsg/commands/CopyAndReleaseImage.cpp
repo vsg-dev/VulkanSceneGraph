@@ -37,7 +37,6 @@ CopyAndReleaseImage::CopyData::CopyData(ref_ptr<BufferInfo> src, ref_ptr<ImageIn
         width = source->data->width();
         height = source->data->height();
         depth = source->data->depth();
-        mipmapOffsets = source->data->computeMipmapOffsets();
     }
 }
 
@@ -165,7 +164,7 @@ void CopyAndReleaseImage::_copyDirectly(ref_ptr<Data> data, ref_ptr<ImageInfo> d
 
 void CopyAndReleaseImage::CopyData::record(CommandBuffer& commandBuffer) const
 {
-    transferImageData(destination->imageView, destination->imageLayout, layout, width, height, depth, mipLevels, mipmapOffsets, source->buffer, source->offset, commandBuffer.vk(), commandBuffer.getDevice());
+    transferImageData(destination->imageView, destination->imageLayout, layout, width, height, depth, mipLevels, source->buffer, source->offset, commandBuffer.vk(), commandBuffer.getDevice());
 }
 
 void CopyAndReleaseImage::record(CommandBuffer& commandBuffer) const

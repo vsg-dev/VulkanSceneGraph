@@ -113,44 +113,6 @@ void Data::write(Output& output) const
     }
 }
 
-Data::MipmapOffsets Data::computeMipmapOffsets() const
-{
-    if (properties.maxNumMipmaps <= 1) return {};
-
-    MipmapOffsets offsets;
-
-    auto mipmapData = getObject<uivec4Array>("mipmapData");
-    if (mipmapData)
-    {
-        for(auto& mipmap : *mipmapData)
-        {
-            offsets.push_back(mipmap.w);
-        }
-        return offsets;
-    }
-
-    uint32_t numMipmaps = properties.maxNumMipmaps;
-
-    std::size_t w = width();
-    std::size_t h = height();
-    std::size_t d = depth();
-
-    std::size_t lastPosition = 0;
-    offsets.push_back(lastPosition);
-    while (numMipmaps > 1)
-    {
-        lastPosition += (w * h * d);
-        offsets.push_back(lastPosition);
-
-        --numMipmaps;
-        if (w > 1) w = (w+1)/2;
-        if (h > 1) h = (h+1)/2;
-        if (d > 1) d = (d+1)/2;
-    }
-
-    return offsets;
-}
-
 std::size_t Data::computeValueCountIncludingMipmaps() const
 {
     std::size_t count = 0;
