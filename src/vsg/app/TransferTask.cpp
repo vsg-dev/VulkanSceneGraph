@@ -565,7 +565,13 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 //
 void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
 {
-    ref_ptr<Image> textureImage(imageView->image);
+    auto image = imageView->image;
+    if (!image) return;
+
+    auto data = image->data;
+    if (!data) return;
+
+    auto vk_image = image->vk(device->deviceID);
     auto aspectMask = imageView->subresourceRange.aspectMask;
 
     uint32_t faceWidth = width;
@@ -603,11 +609,9 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     const auto valueSize = properties.stride; // data->valueSize();
 
-    mipLevels = std::min(mipLevels, static_cast<uint32_t>(imageView->image->data->properties.maxNumMipmaps));
-    bool useDataMipmaps = false;
+    uint32_t data_mipLevels = static_cast<uint32_t>(data->properties.maxNumMipmaps);
 
-    ref_ptr<uivec4Array> mipmapData;
-    if (imageView->image && imageView->image->data) mipmapData = imageView->image->data->getObject<uivec4Array>("mipmapData");
+    auto mipmapData = data->getObject<uivec4Array>("mipmapData");
     if (mipmapData)
     {
         auto& mipmap0 = mipmapData->at(0);
@@ -615,17 +619,18 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         destHeight = mipmap0.y;
         destDepth = mipmap0.z;
 
-        useDataMipmaps = mipmapData->size() > 1;
-        mipLevels = std::min(mipLevels, static_cast<uint32_t>(mipmapData->size()));
-    }
-    else if (imageView->image->data->properties.maxNumMipmaps > 1)
-    {
-        useDataMipmaps = true;
+        if (mipmapData->size() > 1)
+        {
+            data_mipLevels = static_cast<uint32_t>(mipmapData->size());
+        }
     }
 
+    bool useDataMipmaps = mipLevels > 1 && data_mipLevels > 1;
     bool generateMipmaps = (mipLevels > 1) && !useDataMipmaps;
 
-    auto vk_textureImage = textureImage->vk(device->deviceID);
+    if (useDataMipmaps) mipLevels = std::min(mipLevels, data_mipLevels);
+
+    // vsg::info("vsg::transferImageData() data = ", data, ", data->properties.maxNumMipmaps = ", int(data->properties.maxNumMipmaps), ", data_mipLevels = ", data_mipLevels, " mipLevels = ", mipLevels, ", mipmapData = ", mipmapData, ", generateMipmaps = ", generateMipmaps);
 
     if (generateMipmaps)
     {
@@ -648,7 +653,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     preCopyBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     preCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     preCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    preCopyBarrier.image = vk_textureImage;
+    preCopyBarrier.image = vk_image;
     preCopyBarrier.subresourceRange.aspectMask = aspectMask;
     preCopyBarrier.subresourceRange.baseArrayLayer = 0;
     preCopyBarrier.subresourceRange.layerCount = arrayLayers;
@@ -747,14 +752,14 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         }
     }
 
-    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->vk(device->deviceID), vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->vk(device->deviceID), vk_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            static_cast<uint32_t>(regions.size()), regions.data());
 
     if (generateMipmaps)
     {
         VkImageMemoryBarrier barrier = {};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier.image = vk_textureImage;
+        barrier.image = vk_image;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.subresourceRange.aspectMask = aspectMask;
@@ -784,6 +789,8 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
             int32_t nextHeight = (mipHeight > 1) ? (mipHeight)/2 : 1;
             int32_t nextDepth = (mipDepth > 1) ? (mipDepth)/2 : 1;
 
+            vsg::info("blitting level = ", i, ", { ", mipWidth, ", ", mipHeight, ", ", mipDepth, "} -> {", nextWidth, ", ", nextHeight, ", ", nextDepth, "}");
+
             VkImageBlit blit;
             blit.srcOffsets[0] = {0, 0, 0};
             blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
@@ -799,8 +806,8 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
             blit.dstSubresource.layerCount = arrayLayers;
 
             vkCmdBlitImage(commandBuffer,
-                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                           vk_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           vk_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           vk_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            1, &blit,
                            VK_FILTER_LINEAR);
 
@@ -842,7 +849,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         postCopyBarrier.newLayout = targetImageLayout;
         postCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         postCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        postCopyBarrier.image = vk_textureImage;
+        postCopyBarrier.image = vk_image;
         postCopyBarrier.subresourceRange.aspectMask = aspectMask;
         postCopyBarrier.subresourceRange.baseArrayLayer = 0;
         postCopyBarrier.subresourceRange.layerCount = arrayLayers;
