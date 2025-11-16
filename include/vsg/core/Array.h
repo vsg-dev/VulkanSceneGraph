@@ -209,7 +209,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        size_t size() const { return (properties.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(); }
+        size_t size() const { return (properties.mipLevels <= 1) ? _size : computeValueCountIncludingMipmaps(); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }

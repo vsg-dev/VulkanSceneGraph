@@ -91,7 +91,7 @@ Image::Image(ref_ptr<Data> in_data) :
         }
 
         format = properties.format;
-        mipLevels = std::max(1u, static_cast<uint32_t>(data->properties.maxNumMipmaps));
+        mipLevels = std::max(1u, static_cast<uint32_t>(data->properties.mipLevels));
         extent = VkExtent3D{width, height, depth};
 
         // vsg::info("Image::Image(", data, ") mpipLevels = ", mipLevels);

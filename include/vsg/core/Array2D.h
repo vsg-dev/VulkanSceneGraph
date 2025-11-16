@@ -191,7 +191,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<size_t>(_width) * static_cast<size_t>(_height)) : computeValueCountIncludingMipmaps(); }
+        size_t size() const { return (properties.mipLevels <= 1) ? (static_cast<size_t>(_width) * static_cast<size_t>(_height)) : computeValueCountIncludingMipmaps(); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }

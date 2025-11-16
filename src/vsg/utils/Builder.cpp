@@ -65,10 +65,10 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 
-        sampler->maxLod = static_cast<float>(stateInfo.image->properties.maxNumMipmaps);
+        sampler->maxLod = static_cast<float>(stateInfo.image->properties.mipLevels);
 
         vsg::info("Builder stateInfo.image = ", stateInfo.image, ", width = ", stateInfo.image->width(), ", height = ", stateInfo.image->height(),
-                  ", maxNumMipmaps = ", int(stateInfo.image->properties.maxNumMipmaps));
+                  ", mipLevels = ", int(stateInfo.image->properties.mipLevels));
 
         if (sharedObjects) sharedObjects->share(sampler);
 

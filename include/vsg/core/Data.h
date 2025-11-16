@@ -121,7 +121,7 @@ namespace vsg
 
             VkFormat format = VK_FORMAT_UNDEFINED;
             uint32_t stride = 0;
-            uint8_t maxNumMipmaps = 0;
+            uint8_t mipLevels = 0;
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
             uint8_t blockDepth = 1;

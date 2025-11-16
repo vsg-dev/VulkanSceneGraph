@@ -609,7 +609,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     const auto valueSize = properties.stride; // data->valueSize();
 
-    uint32_t data_mipLevels = static_cast<uint32_t>(data->properties.maxNumMipmaps);
+    uint32_t data_mipLevels = static_cast<uint32_t>(data->properties.mipLevels);
 
     auto mipmapData = data->getObject<uivec4Array>("mipmapData");
     if (mipmapData)
@@ -630,7 +630,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     if (useDataMipmaps) mipLevels = std::min(mipLevels, data_mipLevels);
 
-    // vsg::info("vsg::transferImageData() data = ", data, ", data->properties.maxNumMipmaps = ", int(data->properties.maxNumMipmaps), ", data_mipLevels = ", data_mipLevels, " mipLevels = ", mipLevels, ", mipmapData = ", mipmapData, ", generateMipmaps = ", generateMipmaps);
+    // vsg::info("vsg::transferImageData() data = ", data, ", data->properties.mipLevels = ", int(data->properties.mipLevels), ", data_mipLevels = ", data_mipLevels, " mipLevels = ", mipLevels, ", mipmapData = ", mipmapData, ", generateMipmaps = ", generateMipmaps);
 
     if (generateMipmaps)
     {
@@ -788,8 +788,6 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
             int32_t nextWidth = (mipWidth > 1) ? (mipWidth)/2 : 1;
             int32_t nextHeight = (mipHeight > 1) ? (mipHeight)/2 : 1;
             int32_t nextDepth = (mipDepth > 1) ? (mipDepth)/2 : 1;
-
-            vsg::info("blitting level = ", i, ", { ", mipWidth, ", ", mipHeight, ", ", mipDepth, "} -> {", nextWidth, ", ", nextHeight, ", ", nextDepth, "}");
 
             VkImageBlit blit;
             blit.srcOffsets[0] = {0, 0, 0};

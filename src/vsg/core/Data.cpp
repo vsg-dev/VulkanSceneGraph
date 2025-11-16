@@ -29,7 +29,7 @@ Data::Properties& Data::Properties::operator=(const Properties& rhs)
 
     format = rhs.format;
     if (rhs.stride != 0) stride = rhs.stride;
-    maxNumMipmaps = rhs.maxNumMipmaps;
+    mipLevels = rhs.mipLevels;
     blockWidth = rhs.blockWidth;
     blockHeight = rhs.blockHeight;
     blockDepth = rhs.blockDepth;
@@ -79,15 +79,15 @@ void Data::read(Input& input)
 
     if (input.version_greater_equal(0, 6, 1))
     {
-        input.read("properties", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        input.read("properties", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else if (input.version_greater_equal(0, 5, 7))
     {
-        input.read("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        input.read("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else
     {
-        input.read("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
+        input.read("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
         properties.dataVariance = STATIC_DATA;
     }
 
@@ -101,15 +101,15 @@ void Data::write(Output& output) const
     uint32_t format = properties.format;
     if (output.version_greater_equal(0, 6, 1))
     {
-        output.write("properties", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        output.write("properties", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else if (output.version_greater_equal(0, 5, 7))
     {
-        output.write("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        output.write("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else
     {
-        output.write("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
+        output.write("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
     }
 }
 
@@ -137,7 +137,7 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
 
         count = w*h*d;
 
-        for(uint8_t level = 1; level < properties.maxNumMipmaps; ++level)
+        for(uint8_t level = 1; level < properties.mipLevels; ++level)
         {
             if (w > 1) w = w/2;
             if (h > 1) h = h/2;
