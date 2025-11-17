@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Auxiliary.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/type_name.h>
 
@@ -142,6 +143,12 @@ namespace vsg
         Value& operator=(const Value& rhs)
         {
             _value = rhs._value;
+
+            if (getAuxiliary())
+            {
+                getOrCreateAuxiliary()->userObjects = getAuxiliary()->userObjects;
+            }
+
             return *this;
         }
         Value& operator=(const value_type& rhs)

@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/Array.h>
+#include <vsg/core/MipmapDetails.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
@@ -117,10 +118,10 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
 {
     std::size_t count = 0;
 
-    auto mipmapData = getObject<uivec4Array>("mipmapData");
-    if (mipmapData)
+    auto mipmapDetails = getObject<uivec4Array>("mipmapDetails");
+    if (mipmapDetails)
     {
-        for(auto& mipmap : *mipmapData)
+        for(auto& mipmap : *mipmapDetails)
         {
             std::size_t w = (mipmap.x+properties.blockWidth-1)/properties.blockWidth;
             std::size_t h = (mipmap.y+properties.blockHeight-1)/properties.blockHeight;
@@ -148,4 +149,50 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
     }
 
     return count;
+}
+
+void Data::_copy(const Data& rhs)
+{
+    properties = rhs.properties;
+    if (rhs.getAuxiliary())
+    {
+        getOrCreateAuxiliary()->userObjects = rhs.getAuxiliary()->userObjects;
+    }
+    else if (getAuxiliary())
+    {
+        getAuxiliary()->userObjects.clear();
+    }
+}
+
+void Data::setMipmapDetails(MipmapDetails* mipmapDetails)
+{
+    if (mipmapDetails) setObject("mipmapDetails", ref_ptr<MipmapDetails>(mipmapDetails));
+    else if (getAuxiliary()) removeObject("mipmapDetails");
+}
+
+const MipmapDetails* Data::getMipmapDetails() const
+{
+    return getObject<MipmapDetails>("mipmapDetails");
+}
+
+void Data::removeMipmapDetails()
+{
+    if (getAuxiliary()) removeObject("mipmapDetails");
+}
+
+std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
+{
+    uint32_t w = width() * properties.blockWidth;
+    uint32_t h = height() * properties.blockHeight;
+    uint32_t d = depth() * properties.blockDepth;
+
+    if (auto mipmapDetails = getMipmapDetails())
+    {
+        auto mipmap = mipmapDetails->at(0);
+        w = mipmap.x;
+        h = mipmap.y;
+        d = mipmap.z;
+    }
+
+    return {w, h, d};
 }

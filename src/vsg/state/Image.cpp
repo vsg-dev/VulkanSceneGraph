@@ -40,9 +40,7 @@ Image::Image(ref_ptr<Data> in_data) :
         auto properties = data->properties;
         auto dimensions = data->dimensions();
 
-        uint32_t width = data->width() * properties.blockWidth;
-        uint32_t height = data->height() * properties.blockHeight;
-        uint32_t depth = data->depth() * properties.blockDepth;
+        auto [width, height, depth] = data->pixelExtents();
 
         switch (properties.imageViewType)
         {

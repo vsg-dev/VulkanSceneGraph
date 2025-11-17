@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Auxiliary.h>
 #include <vsg/core/Data.h>
 
 #include <vsg/maths/mat4.h>
@@ -31,7 +32,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
     template<typename T>
     class Array : public Data
     {
@@ -63,10 +63,14 @@ namespace vsg
             _data(_allocate(numElements)),
             _size(numElements) { dirty(); }
 
-        Array(uint32_t numElements, value_type* data, Properties in_properties = {}) :
+        Array(uint32_t numElements, value_type* data, Properties in_properties = {}, MipmapDetails* mipmapDetails = nullptr) :
             Data(in_properties, sizeof(value_type)),
             _data(data),
-            _size(numElements) { dirty(); }
+            _size(numElements)
+        {
+            setMipmapDetails(mipmapDetails);
+            dirty();
+        }
 
         Array(uint32_t numElements, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
@@ -77,12 +81,12 @@ namespace vsg
             dirty();
         }
 
-        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}) :
+        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}, MipmapDetails* mipmapDetails = nullptr) :
             Data(),
             _data(nullptr),
             _size(0)
         {
-            assign(data, offset, stride, numElements, in_properties);
+            assign(data, offset, stride, numElements, in_properties, mipmapDetails);
         }
 
         explicit Array(std::initializer_list<value_type> l) :
@@ -229,7 +233,8 @@ namespace vsg
 
             clear();
 
-            properties = rhs.properties;
+            _copy(rhs);
+
             _size = rhs._size;
 
             if (_size != 0)
@@ -239,12 +244,13 @@ namespace vsg
                 for (const auto& v : rhs) *(dest_v++) = v;
             }
 
+
             dirty();
 
             return *this;
         }
 
-        void assign(uint32_t numElements, value_type* data, Properties in_properties = {})
+        void assign(uint32_t numElements, value_type* data, Properties in_properties = {}, MipmapDetails* mipmapDetails = nullptr)
         {
             _delete();
 
@@ -254,10 +260,12 @@ namespace vsg
             _data = data;
             _storage = nullptr;
 
+            setMipmapDetails(mipmapDetails);
+
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {})
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}, MipmapDetails* mipmapDetails = nullptr)
         {
             _delete();
 
@@ -274,6 +282,8 @@ namespace vsg
                 _data = nullptr;
                 _size = 0;
             }
+
+            setMipmapDetails(mipmapDetails);
 
             dirty();
         }
@@ -365,6 +375,8 @@ namespace vsg
                 else if (properties.allocatorType != 0)
                     vsg::deallocate(_data);
             }
+
+            removeMipmapDetails();
         }
 
     private:

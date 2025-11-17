@@ -24,6 +24,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declaer MipmapDetails
+    class MipmapDetails;
+
     /// ModifiedCount provides a count value to keep track of modifications to data.
     struct ModifiedCount
     {
@@ -103,6 +106,8 @@ namespace vsg
         value_type& operator*() { return *reinterpret_cast<value_type*>(ptr); }
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
     };
+
+    class MipmapDetails;
 
     /// Data base class for abstracting data such as values, vertices, images etc.
     /// Main subclasses are vsg::Value, vsg::Array, vsg::Array2D and vsg::Array3D.
@@ -185,6 +190,9 @@ namespace vsg
         virtual uint32_t height() const = 0;
         virtual uint32_t depth() const = 0;
 
+        /// return the {width, height, depth} pixel extents of an image accounting for blockWidth and any mipmapData assigned to image.
+        std::tuple<uint32_t, uint32_t, uint32_t> pixelExtents() const;
+
         bool contiguous() const { return valueSize() == properties.stride; }
 
         uint32_t stride() const { return properties.stride ? properties.stride : static_cast<uint32_t>(valueSize()); }
@@ -209,8 +217,16 @@ namespace vsg
         /// return true if Data's ModifiedCount is different from the specified ModifiedCount
         bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
 
+        void setMipmapDetails(MipmapDetails* mipmapData);
+
+        const MipmapDetails* getMipmapDetails() const;
+
+        void removeMipmapDetails();
+
     protected:
         virtual ~Data() {}
+
+        void _copy(const Data& rhs);
 
         ModifiedCount _modifiedCount;
 
