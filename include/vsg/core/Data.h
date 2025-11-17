@@ -24,8 +24,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    // forward declaer MipmapDetails
-    class MipmapDetails;
+    // forward declaer MipmapLayout
+    class MipmapLayout;
 
     /// ModifiedCount provides a count value to keep track of modifications to data.
     struct ModifiedCount
@@ -107,7 +107,7 @@ namespace vsg
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
     };
 
-    class MipmapDetails;
+    class MipmapLayout;
 
     /// Data base class for abstracting data such as values, vertices, images etc.
     /// Main subclasses are vsg::Value, vsg::Array, vsg::Array2D and vsg::Array3D.
@@ -217,11 +217,11 @@ namespace vsg
         /// return true if Data's ModifiedCount is different from the specified ModifiedCount
         bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
 
-        void setMipmapDetails(MipmapDetails* mipmapData);
+        void setMipmapLayout(MipmapLayout* mipmapData);
 
-        const MipmapDetails* getMipmapDetails() const;
+        const MipmapLayout* getMipmapLayout() const;
 
-        void removeMipmapDetails();
+        void removeMipmapLayout();
 
     protected:
         virtual ~Data() {}

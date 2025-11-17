@@ -10,7 +10,7 @@ endif()
 # set up the source files explicitly.
 set(SOURCES
 
-    core/MipmapDetails.cpp
+    core/MipmapLayout.cpp
     core/Allocator.cpp
     core/IntrusiveAllocator.cpp
     core/Auxiliary.cpp

@@ -10,18 +10,18 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/MipmapDetails.h>
+#include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
 using namespace vsg;
 
-void MipmapDetails::read(Input& input)
+void MipmapLayout::read(Input& input)
 {
     Object::read(input);
 }
 
-void MipmapDetails::write(Output& output) const
+void MipmapLayout::write(Output& output) const
 {
     Object::write(output);
 }

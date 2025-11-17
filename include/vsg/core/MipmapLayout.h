@@ -20,13 +20,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-    class VSG_DECLSPEC MipmapDetails : public Inherit<Object, MipmapDetails>
+    class VSG_DECLSPEC MipmapLayout : public Inherit<Object, MipmapLayout>
     {
     public:
 
-        MipmapDetails() {}
+        MipmapLayout() {}
 
-        MipmapDetails(std::size_t size) : mipmaps(size) {}
+        MipmapLayout(std::size_t size) : mipmaps(size) {}
 
         using Mipmaps = std::vector<vsg::uivec4>;
 
@@ -47,6 +47,6 @@ namespace vsg
         void read(Input& input) override;
         void write(Output& output) const override;
     };
-    VSG_type_name(vsg::MipmapDetails);
+    VSG_type_name(vsg::MipmapLayout);
 
 } // namespace vsg

@@ -29,6 +29,7 @@ ObjectFactory::ObjectFactory()
     add<vsg::Object>();
     add<vsg::Objects>();
     add<vsg::External>();
+    add<vsg::MipmapLayout>();
 
     // values
     add<vsg::stringValue>();

@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/TransferTask.h>
 #include <vsg/app/View.h>
-#include <vsg/core/MipmapDetails.h>
+#include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/utils/Instrumentation.h>
@@ -612,7 +612,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
     uint32_t data_mipLevels = static_cast<uint32_t>(data->properties.mipLevels);
 
-    auto mipmapData = data->getMipmapDetails();
+    auto mipmapData = data->getMipmapLayout();
     if (mipmapData)
     {
         auto& mipmap0 = mipmapData->at(0);

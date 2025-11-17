@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Allocator.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/Array.h>
-#include <vsg/core/MipmapDetails.h>
+#include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
@@ -118,10 +118,10 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
 {
     std::size_t count = 0;
 
-    auto mipmapDetails = getObject<uivec4Array>("mipmapDetails");
-    if (mipmapDetails)
+    auto mipmapLayout = getObject<uivec4Array>("mipmapLayout");
+    if (mipmapLayout)
     {
-        for(auto& mipmap : *mipmapDetails)
+        for(auto& mipmap : *mipmapLayout)
         {
             std::size_t w = (mipmap.x+properties.blockWidth-1)/properties.blockWidth;
             std::size_t h = (mipmap.y+properties.blockHeight-1)/properties.blockHeight;
@@ -164,20 +164,20 @@ void Data::_copy(const Data& rhs)
     }
 }
 
-void Data::setMipmapDetails(MipmapDetails* mipmapDetails)
+void Data::setMipmapLayout(MipmapLayout* mipmapLayout)
 {
-    if (mipmapDetails) setObject("mipmapDetails", ref_ptr<MipmapDetails>(mipmapDetails));
-    else if (getAuxiliary()) removeObject("mipmapDetails");
+    if (mipmapLayout) setObject("mipmapLayout", ref_ptr<MipmapLayout>(mipmapLayout));
+    else if (getAuxiliary()) removeObject("mipmapLayout");
 }
 
-const MipmapDetails* Data::getMipmapDetails() const
+const MipmapLayout* Data::getMipmapLayout() const
 {
-    return getObject<MipmapDetails>("mipmapDetails");
+    return getObject<MipmapLayout>("mipmapLayout");
 }
 
-void Data::removeMipmapDetails()
+void Data::removeMipmapLayout()
 {
-    if (getAuxiliary()) removeObject("mipmapDetails");
+    if (getAuxiliary()) removeObject("mipmapLayout");
 }
 
 std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
@@ -186,9 +186,9 @@ std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
     uint32_t h = height() * properties.blockHeight;
     uint32_t d = depth() * properties.blockDepth;
 
-    if (auto mipmapDetails = getMipmapDetails())
+    if (auto mipmapLayout = getMipmapLayout())
     {
-        auto mipmap = mipmapDetails->at(0);
+        auto mipmap = mipmapLayout->at(0);
         w = mipmap.x;
         h = mipmap.y;
         d = mipmap.z;
