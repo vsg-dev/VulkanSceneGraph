@@ -24,9 +24,9 @@ namespace vsg
     {
     public:
 
-        MipmapLayout() {}
+        MipmapLayout();
 
-        MipmapLayout(std::size_t size) : mipmaps(size) {}
+        explicit MipmapLayout(std::size_t size);
 
         using Mipmaps = std::vector<vsg::uivec4>;
 
@@ -36,7 +36,7 @@ namespace vsg
         vsg::uivec4& at(size_t i) { return mipmaps[i]; }
         const vsg::uivec4& at(size_t i) const { return mipmaps[i]; }
 
-        void set(size_t i, vsg::uivec4 value) { mipmaps[i] = value; }
+        void set(size_t i, const vsg::uivec4& value) { mipmaps[i] = value; }
 
         Mipmaps::iterator begin() { return mipmaps.begin(); }
         Mipmaps::iterator end() { return mipmaps.end(); }
@@ -46,6 +46,9 @@ namespace vsg
 
         void read(Input& input) override;
         void write(Output& output) const override;
+
+    protected:
+        virtual ~MipmapLayout();
     };
     VSG_type_name(vsg::MipmapLayout);
 

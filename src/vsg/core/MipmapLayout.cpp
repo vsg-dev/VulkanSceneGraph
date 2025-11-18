@@ -16,12 +16,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+MipmapLayout::MipmapLayout()
+{
+}
+
+MipmapLayout::MipmapLayout(std::size_t size) :
+    mipmaps(size)
+{
+}
+
+MipmapLayout::~MipmapLayout()
+{
+}
+
 void MipmapLayout::read(Input& input)
 {
     Object::read(input);
+
+    input.read("mipmaps", mipmaps);
 }
 
 void MipmapLayout::write(Output& output) const
 {
     Object::write(output);
+
+    output.write("mipmaps", mipmaps);
 }

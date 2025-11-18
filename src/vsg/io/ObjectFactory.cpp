@@ -354,5 +354,6 @@ vsg::ref_ptr<vsg::Object> ObjectFactory::create(const std::string& className)
     }
 
     warn("ObjectFactory::create(", className, ") failed to find means to create object.");
+
     return vsg::ref_ptr<vsg::Object>();
 }

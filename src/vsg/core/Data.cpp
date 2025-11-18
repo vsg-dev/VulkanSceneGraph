@@ -114,42 +114,6 @@ void Data::write(Output& output) const
     }
 }
 
-std::size_t Data::computeValueCountIncludingMipmaps() const
-{
-    std::size_t count = 0;
-
-    auto mipmapLayout = getObject<uivec4Array>("mipmapLayout");
-    if (mipmapLayout)
-    {
-        for(auto& mipmap : *mipmapLayout)
-        {
-            std::size_t w = (mipmap.x+properties.blockWidth-1)/properties.blockWidth;
-            std::size_t h = (mipmap.y+properties.blockHeight-1)/properties.blockHeight;
-            std::size_t d = (mipmap.z+properties.blockDepth-1)/properties.blockDepth;
-
-            count += w*h*d;
-        }
-    }
-    else
-    {
-        std::size_t w = width();
-        std::size_t h = height();
-        std::size_t d = depth();
-
-        count = w*h*d;
-
-        for(uint8_t level = 1; level < properties.mipLevels; ++level)
-        {
-            if (w > 1) w = w/2;
-            if (h > 1) h = h/2;
-            if (d > 1) d = d/2;
-
-            count += w*h*d;
-        }
-    }
-
-    return count;
-}
 
 void Data::_copy(const Data& rhs)
 {
@@ -167,7 +131,7 @@ void Data::_copy(const Data& rhs)
 void Data::setMipmapLayout(MipmapLayout* mipmapLayout)
 {
     if (mipmapLayout) setObject("mipmapLayout", ref_ptr<MipmapLayout>(mipmapLayout));
-    else if (getAuxiliary()) removeObject("mipmapLayout");
+    else removeMipmapLayout();
 }
 
 const MipmapLayout* Data::getMipmapLayout() const
@@ -178,6 +142,46 @@ const MipmapLayout* Data::getMipmapLayout() const
 void Data::removeMipmapLayout()
 {
     if (getAuxiliary()) removeObject("mipmapLayout");
+}
+
+std::size_t Data::computeValueCountIncludingMipmaps() const
+{
+    std::size_t count = 0;
+
+    if (auto mipmapLayout = getMipmapLayout())
+    {
+        for(auto& mipmap : *mipmapLayout)
+        {
+            // round to block size
+            std::size_t w = (mipmap.x+properties.blockWidth-1)/properties.blockWidth;
+            std::size_t h = (mipmap.y+properties.blockHeight-1)/properties.blockHeight;
+            std::size_t d = (mipmap.z+properties.blockDepth-1)/properties.blockDepth;
+
+            count += w*h*d;
+        }
+    }
+    else
+    {
+        std::size_t x = width() * properties.blockWidth;
+        std::size_t y = height() * properties.blockHeight;
+        std::size_t z = depth() * properties.blockDepth;
+
+        for(uint8_t level = 0; level < properties.mipLevels; ++level)
+        {
+            // round to block size
+            std::size_t w = (x+properties.blockWidth-1)/properties.blockWidth;
+            std::size_t h = (y+properties.blockHeight-1)/properties.blockHeight;
+            std::size_t d = (z+properties.blockDepth-1)/properties.blockDepth;
+
+            count = w*h*d;
+
+            if (x > 1) x = x/2;
+            if (y > 1) y = y/2;
+            if (z > 1) z = z/2;
+        }
+    }
+
+    return count;
 }
 
 std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
