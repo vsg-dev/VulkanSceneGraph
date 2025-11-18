@@ -144,10 +144,7 @@ namespace vsg
         {
             _value = rhs._value;
 
-            if (getAuxiliary())
-            {
-                getOrCreateAuxiliary()->userObjects = getAuxiliary()->userObjects;
-            }
+            _copy(rhs);
 
             return *this;
         }

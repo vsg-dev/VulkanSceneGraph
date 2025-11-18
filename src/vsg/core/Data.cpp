@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/Logger.h>
 
 using namespace vsg;
 
@@ -166,14 +167,15 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
         std::size_t y = height() * properties.blockHeight;
         std::size_t z = depth() * properties.blockDepth;
 
-        for(uint8_t level = 0; level < properties.mipLevels; ++level)
+        auto mipLevels = std::max(properties.mipLevels, uint8_t(1));
+        for(uint8_t level = 0; level < mipLevels; ++level)
         {
             // round to block size
             std::size_t w = (x+properties.blockWidth-1)/properties.blockWidth;
             std::size_t h = (y+properties.blockHeight-1)/properties.blockHeight;
             std::size_t d = (z+properties.blockDepth-1)/properties.blockDepth;
 
-            count = w*h*d;
+            count += w*h*d;
 
             if (x > 1) x = x/2;
             if (y > 1) y = y/2;

@@ -33,12 +33,12 @@ void MipmapLayout::read(Input& input)
 {
     Object::read(input);
 
-    input.read("mipmaps", mipmaps);
+    input.readValues("mipmaps", mipmaps);
 }
 
 void MipmapLayout::write(Output& output) const
 {
     Object::write(output);
 
-    output.write("mipmaps", mipmaps);
+    output.writeValues("mipmaps", mipmaps);
 }
