@@ -37,6 +37,11 @@ void ConstVisitor::apply(const Data& value)
     apply(static_cast<const Object&>(value));
 }
 
+void ConstVisitor::apply(const MipmapLayout& value)
+{
+    apply(static_cast<const Object&>(value));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Values
