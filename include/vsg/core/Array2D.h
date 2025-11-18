@@ -167,7 +167,6 @@ namespace vsg
                     _data = _allocate(new_size);
                 }
 
-
                 if (_data) input.read(new_size, _data);
 
                 dirty();

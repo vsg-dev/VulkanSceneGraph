@@ -209,7 +209,7 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.size = 16;
     }
     else if ((VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK) ||
-             (VK_FORMAT_EAC_R11_UNORM_BLOCK  <= format && format <= VK_FORMAT_EAC_R11_SNORM_BLOCK))
+             (VK_FORMAT_EAC_R11_UNORM_BLOCK <= format && format <= VK_FORMAT_EAC_R11_SNORM_BLOCK))
     {
         traits.packed = true;
         traits.blockWidth = 4;
@@ -238,83 +238,83 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numComponents = 1;
         traits.size = 16;
 
-        switch(format)
+        switch (format)
         {
-            case(VK_FORMAT_ASTC_4x4_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_4x4_SRGB_BLOCK):
-                traits.blockWidth = 4;
-                traits.blockHeight = 4;
-                break;
-            case(VK_FORMAT_ASTC_5x4_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_5x4_SRGB_BLOCK):
-                traits.blockWidth = 5;
-                traits.blockHeight = 4;
-                break;
-            case(VK_FORMAT_ASTC_5x5_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_5x5_SRGB_BLOCK):
-                traits.blockWidth = 5;
-                traits.blockHeight = 5;
-                break;
-            case(VK_FORMAT_ASTC_6x5_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_6x5_SRGB_BLOCK):
-                traits.blockWidth = 6;
-                traits.blockHeight = 5;
-                break;
-            case(VK_FORMAT_ASTC_6x6_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_6x6_SRGB_BLOCK):
-                traits.blockWidth = 6;
-                traits.blockHeight = 6;
-                break;
-            case(VK_FORMAT_ASTC_8x5_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_8x5_SRGB_BLOCK):
-                traits.blockWidth = 8;
-                traits.blockHeight = 5;
-                break;
-            case(VK_FORMAT_ASTC_8x6_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_8x6_SRGB_BLOCK):
-                traits.blockWidth = 8;
-                traits.blockHeight = 6;
-                break;
-            case(VK_FORMAT_ASTC_8x8_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_8x8_SRGB_BLOCK):
-                traits.blockWidth = 8;
-                traits.blockHeight = 8;
-                break;
-            case(VK_FORMAT_ASTC_10x5_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_10x5_SRGB_BLOCK):
-                traits.blockWidth = 10;
-                traits.blockHeight = 5;
-                break;
-            case(VK_FORMAT_ASTC_10x6_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_10x6_SRGB_BLOCK):
-                traits.blockWidth = 10;
-                traits.blockHeight = 6;
-                break;
-            case(VK_FORMAT_ASTC_10x8_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_10x8_SRGB_BLOCK):
-                traits.blockWidth = 10;
-                traits.blockHeight = 8;
-                break;
-            case(VK_FORMAT_ASTC_10x10_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_10x10_SRGB_BLOCK):
-                traits.blockWidth = 10;
-                traits.blockHeight = 10;
-                break;
-            case(VK_FORMAT_ASTC_12x10_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_12x10_SRGB_BLOCK):
-                traits.blockWidth = 12;
-                traits.blockHeight = 10;
-                break;
-            case(VK_FORMAT_ASTC_12x12_UNORM_BLOCK):
-            case(VK_FORMAT_ASTC_12x12_SRGB_BLOCK):
-                traits.blockWidth = 12;
-                traits.blockHeight = 12;
-                break;
-            default:
-                info("getFormatTraits(", format, ") not handled.");
-                traits.blockWidth = 4;
-                traits.blockHeight = 4;
-                break;
+        case (VK_FORMAT_ASTC_4x4_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_4x4_SRGB_BLOCK):
+            traits.blockWidth = 4;
+            traits.blockHeight = 4;
+            break;
+        case (VK_FORMAT_ASTC_5x4_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_5x4_SRGB_BLOCK):
+            traits.blockWidth = 5;
+            traits.blockHeight = 4;
+            break;
+        case (VK_FORMAT_ASTC_5x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_5x5_SRGB_BLOCK):
+            traits.blockWidth = 5;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_6x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_6x5_SRGB_BLOCK):
+            traits.blockWidth = 6;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_6x6_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_6x6_SRGB_BLOCK):
+            traits.blockWidth = 6;
+            traits.blockHeight = 6;
+            break;
+        case (VK_FORMAT_ASTC_8x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_8x5_SRGB_BLOCK):
+            traits.blockWidth = 8;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_8x6_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_8x6_SRGB_BLOCK):
+            traits.blockWidth = 8;
+            traits.blockHeight = 6;
+            break;
+        case (VK_FORMAT_ASTC_8x8_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_8x8_SRGB_BLOCK):
+            traits.blockWidth = 8;
+            traits.blockHeight = 8;
+            break;
+        case (VK_FORMAT_ASTC_10x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x5_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_10x6_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x6_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 6;
+            break;
+        case (VK_FORMAT_ASTC_10x8_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x8_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 8;
+            break;
+        case (VK_FORMAT_ASTC_10x10_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x10_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 10;
+            break;
+        case (VK_FORMAT_ASTC_12x10_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_12x10_SRGB_BLOCK):
+            traits.blockWidth = 12;
+            traits.blockHeight = 10;
+            break;
+        case (VK_FORMAT_ASTC_12x12_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_12x12_SRGB_BLOCK):
+            traits.blockWidth = 12;
+            traits.blockHeight = 12;
+            break;
+        default:
+            info("getFormatTraits(", format, ") not handled.");
+            traits.blockWidth = 4;
+            traits.blockHeight = 4;
+            break;
         }
     }
     else
@@ -350,7 +350,6 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
         }
 
         bool generateMipmaps = (mipLevels > 1) && (data->properties.mipLevels <= 1);
-
         if (generateMipmaps)
         {
             // check that the data isn't compressed.
@@ -369,11 +368,11 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
         {
             if (data->properties.mipLevels < mipLevels)
             {
-                mipLevels = data->properties.mipLevels;
+                mipLevels = std::max(1u, static_cast<uint32_t>(data->properties.mipLevels));
             }
         }
-        // vsg::info("computeNumMipMapLevels(", sampler->maxLod, ", data->mipmapOffsets.size() = ", mipmapOffsets.size(), ", mipLevels = ", mipLevels);
 
+        // vsg::info("vsg::computeNumMipMapLevels(data = ", data, ", sampler->maxLod = ", sampler->maxLod, ", data->properties.mipLevels = ", int(data->properties.mipLevels), ", mipLevels = ", mipLevels);
     }
 
     //mipLevels = 1;  // disable mipmapping

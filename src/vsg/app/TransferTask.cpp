@@ -786,9 +786,9 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
                                  0, nullptr,
                                  1, &barrier);
 
-            int32_t nextWidth = (mipWidth > 1) ? (mipWidth)/2 : 1;
-            int32_t nextHeight = (mipHeight > 1) ? (mipHeight)/2 : 1;
-            int32_t nextDepth = (mipDepth > 1) ? (mipDepth)/2 : 1;
+            int32_t nextWidth = (mipWidth > 1) ? (mipWidth) / 2 : 1;
+            int32_t nextHeight = (mipHeight > 1) ? (mipHeight) / 2 : 1;
+            int32_t nextDepth = (mipDepth > 1) ? (mipDepth) / 2 : 1;
 
             VkImageBlit blit;
             blit.srcOffsets[0] = {0, 0, 0};

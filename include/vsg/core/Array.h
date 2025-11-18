@@ -187,7 +187,6 @@ namespace vsg
                     _data = _allocate(new_total_size);
                 }
 
-
                 if (_data) input.read(new_total_size, _data);
 
                 dirty();
@@ -242,7 +241,6 @@ namespace vsg
                 auto dest_v = _data;
                 for (const auto& v : rhs) *(dest_v++) = v;
             }
-
 
             dirty();
 

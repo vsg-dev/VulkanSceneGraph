@@ -26,7 +26,7 @@ ShaderCompileSettings::ShaderCompileSettings()
 {
 }
 
-ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop):
+ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     vulkanVersion(rhs.vulkanVersion),
     clientInputVersion(rhs.clientInputVersion),
@@ -111,7 +111,7 @@ ShaderModule::ShaderModule()
 {
 }
 
-ShaderModule::ShaderModule(const ShaderModule& rhs, const CopyOp& copyop):
+ShaderModule::ShaderModule(const ShaderModule& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     source(rhs.source),
     hints(copyop(rhs.hints)),

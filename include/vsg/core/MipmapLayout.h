@@ -23,7 +23,6 @@ namespace vsg
     class VSG_DECLSPEC MipmapLayout : public Inherit<Object, MipmapLayout>
     {
     public:
-
         MipmapLayout();
 
         explicit MipmapLayout(std::size_t size);
