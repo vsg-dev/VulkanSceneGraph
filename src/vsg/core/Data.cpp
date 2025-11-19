@@ -128,22 +128,21 @@ void Data::_copy(const Data& rhs)
     }
 }
 
+void Data::_delete()
+{
+    if (getAuxiliary()) getAuxiliary()->clear();
+}
+
 void Data::setMipmapLayout(MipmapLayout* mipmapLayout)
 {
     if (mipmapLayout)
         setObject("mipmapLayout", ref_ptr<MipmapLayout>(mipmapLayout));
-    else
-        removeMipmapLayout();
+    else if (getAuxiliary()) removeObject("mipmapLayout");
 }
 
 const MipmapLayout* Data::getMipmapLayout() const
 {
     return getObject<MipmapLayout>("mipmapLayout");
-}
-
-void Data::removeMipmapLayout()
-{
-    if (getAuxiliary()) removeObject("mipmapLayout");
 }
 
 std::size_t Data::computeValueCountIncludingMipmaps() const

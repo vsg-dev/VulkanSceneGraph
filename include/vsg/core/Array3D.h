@@ -385,7 +385,7 @@ namespace vsg
                     vsg::deallocate(_data);
             }
 
-            removeMipmapLayout();
+            Data::_delete();
         }
 
     private:

@@ -217,16 +217,17 @@ namespace vsg
         /// return true if Data's ModifiedCount is different from the specified ModifiedCount
         bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
 
+        /// set the MipmapLayout, only required when the data contains mipmaps that use block compressed formats and the pixels size doesn't fit exactly to the block size.
         void setMipmapLayout(MipmapLayout* mipmapData);
 
+        /// get the MipmapLayout if assigned.
         const MipmapLayout* getMipmapLayout() const;
-
-        void removeMipmapLayout();
 
     protected:
         virtual ~Data() {}
 
         void _copy(const Data& rhs);
+        void _delete();
 
         ModifiedCount _modifiedCount;
 
