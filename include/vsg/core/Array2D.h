@@ -369,7 +369,7 @@ namespace vsg
                     vsg::deallocate(_data);
             }
 
-            Data::_delete();
+            _clear();
         }
 
     private:

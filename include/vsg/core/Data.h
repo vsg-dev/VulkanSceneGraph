@@ -227,7 +227,7 @@ namespace vsg
         virtual ~Data() {}
 
         void _copy(const Data& rhs);
-        void _delete();
+        void _clear();
 
         ModifiedCount _modifiedCount;
 

@@ -128,7 +128,7 @@ void Data::_copy(const Data& rhs)
     }
 }
 
-void Data::_delete()
+void Data::_clear()
 {
     if (getAuxiliary()) getAuxiliary()->clear();
 }
