@@ -296,7 +296,7 @@ namespace vsg
 
         InheritanceMask inheritanceMask = InheritanceMask::INHERIT_ALL;
 
-        void inherit(State& state);
+        void inherit(const State& state);
 
         inline void dirtyStateStacks()
         {

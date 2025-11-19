@@ -408,7 +408,7 @@ void ImageInfo::computeNumMipMapLevels()
     if (imageView && imageView->image && imageView->image->data)
     {
         auto& image = imageView->image;
-        auto& data = image->data;
+        const auto& data = image->data;
         image->mipLevels = vsg::computeNumMipMapLevels(data, sampler);
         bool generateMipmaps = (image->mipLevels > 1) && (data->properties.mipLevels <= 1);
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;

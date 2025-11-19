@@ -615,7 +615,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     auto mipmapData = data->getMipmapLayout();
     if (mipmapData)
     {
-        auto& mipmap0 = mipmapData->at(0);
+        const auto& mipmap0 = mipmapData->at(0);
         destWidth = mipmap0.x;
         destHeight = mipmap0.y;
         destDepth = mipmap0.z;

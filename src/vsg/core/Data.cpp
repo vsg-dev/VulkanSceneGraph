@@ -152,7 +152,7 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
 
     if (auto mipmapLayout = getMipmapLayout())
     {
-        for (auto& mipmap : *mipmapLayout)
+        for (const auto& mipmap : *mipmapLayout)
         {
             // round to block size
             std::size_t w = (mipmap.x + properties.blockWidth - 1) / properties.blockWidth;
