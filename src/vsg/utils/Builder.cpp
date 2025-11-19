@@ -67,9 +67,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
 
         sampler->maxLod = static_cast<float>(stateInfo.image->properties.mipLevels);
 
-        vsg::info("Builder stateInfo.image = ", stateInfo.image, ", width = ", stateInfo.image->width(), ", height = ", stateInfo.image->height(),
-                  ", mipLevels = ", int(stateInfo.image->properties.mipLevels));
-
         if (sharedObjects) sharedObjects->share(sampler);
 
         graphicsPipelineConfig->assignTexture("diffuseMap", stateInfo.image, sampler);

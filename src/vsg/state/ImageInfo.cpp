@@ -407,7 +407,7 @@ void ImageInfo::computeNumMipMapLevels()
 {
     if (imageView && imageView->image && imageView->image->data)
     {
-        auto& image = imageView->image;
+        const auto& image = imageView->image;
         const auto& data = image->data;
         image->mipLevels = vsg::computeNumMipMapLevels(data, sampler);
         bool generateMipmaps = (image->mipLevels > 1) && (data->properties.mipLevels <= 1);
