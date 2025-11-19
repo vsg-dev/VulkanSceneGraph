@@ -204,10 +204,6 @@ bool JSONParser::read_uri(std::string& value, ref_ptr<Object>& object)
 
             auto comma = buffer.find(',', semicolon + 1);
 
-            std::string encoding = buffer.substr(semicolon + 1, comma - semicolon - 1);
-
-            // value = buffer.substr(comma+1, end_of_value - comma -1);
-
             value = memeType;
             object = vsg::stringValue::create(buffer.substr(comma + 1, end_of_value - comma - 1));
 

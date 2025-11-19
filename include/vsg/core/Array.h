@@ -31,7 +31,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
-
     template<typename T>
     class Array : public Data
     {
@@ -63,10 +62,14 @@ namespace vsg
             _data(_allocate(numElements)),
             _size(numElements) { dirty(); }
 
-        Array(uint32_t numElements, value_type* data, Properties in_properties = {}) :
+        Array(uint32_t numElements, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(in_properties, sizeof(value_type)),
             _data(data),
-            _size(numElements) { dirty(); }
+            _size(numElements)
+        {
+            setMipmapLayout(mipmapLayout);
+            dirty();
+        }
 
         Array(uint32_t numElements, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
@@ -77,12 +80,12 @@ namespace vsg
             dirty();
         }
 
-        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}) :
+        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(),
             _data(nullptr),
             _size(0)
         {
-            assign(data, offset, stride, numElements, in_properties);
+            assign(data, offset, stride, numElements, in_properties, mipmapLayout);
         }
 
         explicit Array(std::initializer_list<value_type> l) :
@@ -165,7 +168,10 @@ namespace vsg
 
             if (input.matchPropertyName("data"))
             {
-                size_t new_total_size = computeValueCountIncludingMipmaps(width_size, 1, 1, properties.maxNumMipmaps);
+                properties.stride = sizeof(value_type);
+                _size = width_size;
+                _storage = nullptr;
+                size_t new_total_size = computeValueCountIncludingMipmaps();
 
                 if (_data) // if data exists already may be able to reuse it
                 {
@@ -180,10 +186,6 @@ namespace vsg
                 {
                     _data = _allocate(new_total_size);
                 }
-
-                properties.stride = sizeof(value_type);
-                _size = width_size;
-                _storage = nullptr;
 
                 if (_data) input.read(new_total_size, _data);
 
@@ -209,7 +211,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        size_t size() const { return (properties.maxNumMipmaps <= 1) ? _size : computeValueCountIncludingMipmaps(_size, 1, 1, properties.maxNumMipmaps); }
+        size_t size() const { return (properties.mipLevels <= 1) ? _size : computeValueCountIncludingMipmaps(); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }
@@ -229,7 +231,8 @@ namespace vsg
 
             clear();
 
-            properties = rhs.properties;
+            _copy(rhs);
+
             _size = rhs._size;
 
             if (_size != 0)
@@ -244,7 +247,7 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t numElements, value_type* data, Properties in_properties = {})
+        void assign(uint32_t numElements, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -254,10 +257,12 @@ namespace vsg
             _data = data;
             _storage = nullptr;
 
+            setMipmapLayout(mipmapLayout);
+
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {})
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -274,6 +279,8 @@ namespace vsg
                 _data = nullptr;
                 _size = 0;
             }
+
+            setMipmapLayout(mipmapLayout);
 
             dirty();
         }
@@ -365,6 +372,8 @@ namespace vsg
                 else if (properties.allocatorType != 0)
                     vsg::deallocate(_data);
             }
+
+            _clear();
         }
 
     private:

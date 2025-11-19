@@ -55,11 +55,10 @@ WindowTraits::WindowTraits(CommandLine& arguments)
     arguments.read("--display", display);
     arguments.read("--samples", samples);
 
-    auto setDevicePref = [&](const VkPhysicalDeviceType typeIn)
-    {
-      auto it = std::find(deviceTypePreferences.begin(), deviceTypePreferences.end(), typeIn);
-      if (it != deviceTypePreferences.end()) deviceTypePreferences.erase(it);
-      deviceTypePreferences.insert(deviceTypePreferences.begin(), typeIn);
+    auto setDevicePref = [&](const VkPhysicalDeviceType typeIn) {
+        auto it = std::find(deviceTypePreferences.begin(), deviceTypePreferences.end(), typeIn);
+        if (it != deviceTypePreferences.end()) deviceTypePreferences.erase(it);
+        deviceTypePreferences.insert(deviceTypePreferences.begin(), typeIn);
     };
     if (arguments.read("--prefer-integrated")) setDevicePref(VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU);
     if (arguments.read("--prefer-discrete")) setDevicePref(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);

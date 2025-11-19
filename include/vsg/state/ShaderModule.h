@@ -27,7 +27,6 @@ namespace vsg
     class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
     {
     public:
-
         ShaderCompileSettings();
         ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop = {});
 

@@ -38,12 +38,9 @@ Image::Image(ref_ptr<Data> in_data) :
     if (data)
     {
         auto properties = data->properties;
-        auto mipmapOffsets = data->computeMipmapOffsets();
         auto dimensions = data->dimensions();
 
-        uint32_t width = data->width() * properties.blockWidth;
-        uint32_t height = data->height() * properties.blockHeight;
-        uint32_t depth = data->depth() * properties.blockDepth;
+        auto [width, height, depth] = data->pixelExtents();
 
         switch (properties.imageViewType)
         {
@@ -92,8 +89,10 @@ Image::Image(ref_ptr<Data> in_data) :
         }
 
         format = properties.format;
-        mipLevels = static_cast<uint32_t>(mipmapOffsets.size());
+        mipLevels = std::max(1u, static_cast<uint32_t>(data->properties.mipLevels));
         extent = VkExtent3D{width, height, depth};
+
+        // vsg::info("Image::Image(", data, ") mpipLevels = ", mipLevels);
 
         // remap RGB to RGBA
         if (format >= VK_FORMAT_R8G8B8_UNORM && format <= VK_FORMAT_B8G8R8_SRGB)
@@ -197,6 +196,8 @@ void Image::compile(Device* device)
     info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
     info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
+
+    // vsg::info("Image::compile(), data = ",data, ", mipLevels = ", mipLevels, ", arrayLayers = ", arrayLayers, ", extent = {", extent.width, ", ", extent.height, ", ", extent.depth, "}");
 
     vd.device = device;
 

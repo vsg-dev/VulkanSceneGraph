@@ -24,6 +24,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    // forward declaer MipmapLayout
+    class MipmapLayout;
+
     /// ModifiedCount provides a count value to keep track of modifications to data.
     struct ModifiedCount
     {
@@ -104,6 +107,8 @@ namespace vsg
         value_type* operator->() { return reinterpret_cast<value_type*>(ptr); }
     };
 
+    class MipmapLayout;
+
     /// Data base class for abstracting data such as values, vertices, images etc.
     /// Main subclasses are vsg::Value, vsg::Array, vsg::Array2D and vsg::Array3D.
     class VSG_DECLSPEC Data : public Object
@@ -121,7 +126,7 @@ namespace vsg
 
             VkFormat format = VK_FORMAT_UNDEFINED;
             uint32_t stride = 0;
-            uint8_t maxNumMipmaps = 0;
+            uint8_t mipLevels = 0;
             uint8_t blockWidth = 1;
             uint8_t blockHeight = 1;
             uint8_t blockDepth = 1;
@@ -185,13 +190,14 @@ namespace vsg
         virtual uint32_t height() const = 0;
         virtual uint32_t depth() const = 0;
 
+        /// return the {width, height, depth} pixel extents of an image accounting for blockWidth and any mipmapData assigned to image.
+        std::tuple<uint32_t, uint32_t, uint32_t> pixelExtents() const;
+
         bool contiguous() const { return valueSize() == properties.stride; }
 
         uint32_t stride() const { return properties.stride ? properties.stride : static_cast<uint32_t>(valueSize()); }
 
-        using MipmapOffsets = std::vector<size_t>;
-        MipmapOffsets computeMipmapOffsets() const;
-        static size_t computeValueCountIncludingMipmaps(size_t w, size_t h, size_t d, uint32_t maxNumMipmaps);
+        size_t computeValueCountIncludingMipmaps() const;
 
         /// increment the ModifiedCount to signify the data has been modified
         void dirty() { ++_modifiedCount; }
@@ -211,8 +217,17 @@ namespace vsg
         /// return true if Data's ModifiedCount is different from the specified ModifiedCount
         bool differentModifiedCount(const ModifiedCount& mc) const { return _modifiedCount != mc; }
 
+        /// set the MipmapLayout, only required when the data contains mipmaps that use block compressed formats and the pixels size doesn't fit exactly to the block size.
+        void setMipmapLayout(MipmapLayout* mipmapData);
+
+        /// get the MipmapLayout if assigned.
+        const MipmapLayout* getMipmapLayout() const;
+
     protected:
         virtual ~Data() {}
+
+        void _copy(const Data& rhs);
+        void _clear();
 
         ModifiedCount _modifiedCount;
 

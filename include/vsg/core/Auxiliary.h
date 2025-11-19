@@ -39,6 +39,11 @@ namespace vsg
 
         virtual int compare(const Auxiliary& rhs) const;
 
+        using ObjectMap = std::map<std::string, vsg::ref_ptr<Object>>;
+
+        /// container for all user objects
+        ObjectMap userObjects;
+
         void setObject(const std::string& key, ref_ptr<Object> object)
         {
             userObjects[key] = object;
@@ -76,10 +81,10 @@ namespace vsg
                 return {};
         }
 
-        using ObjectMap = std::map<std::string, vsg::ref_ptr<Object>>;
-
-        /// container for all user objects
-        ObjectMap userObjects;
+        void clear()
+        {
+            userObjects.clear();
+        }
 
     protected:
         explicit Auxiliary(Object* object);

@@ -65,6 +65,8 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 
+        sampler->maxLod = static_cast<float>(stateInfo.image->properties.mipLevels);
+
         if (sharedObjects) sharedObjects->share(sampler);
 
         graphicsPipelineConfig->assignTexture("diffuseMap", stateInfo.image, sampler);
