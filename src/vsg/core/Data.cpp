@@ -11,11 +11,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
-#include <vsg/core/Array.h>
+#include <vsg/core/Auxiliary.h>
 #include <vsg/core/Data.h>
 #include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Logger.h>
 #include <vsg/io/Output.h>
 
 using namespace vsg;
@@ -137,7 +136,8 @@ void Data::setMipmapLayout(MipmapLayout* mipmapLayout)
 {
     if (mipmapLayout)
         setObject("mipmapLayout", ref_ptr<MipmapLayout>(mipmapLayout));
-    else if (getAuxiliary()) removeObject("mipmapLayout");
+    else if (getAuxiliary())
+        removeObject("mipmapLayout");
 }
 
 const MipmapLayout* Data::getMipmapLayout() const
