@@ -44,7 +44,6 @@ namespace vsg
         /// container for all user objects
         ObjectMap userObjects;
 
-
         void setObject(const std::string& key, ref_ptr<Object> object)
         {
             userObjects[key] = object;
@@ -86,7 +85,6 @@ namespace vsg
         {
             userObjects.clear();
         }
-
 
     protected:
         explicit Auxiliary(Object* object);
