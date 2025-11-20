@@ -145,7 +145,7 @@ void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 
     if (vid.indices) vid.indices->accept(*this);
 
-    applyDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount);
+    applyDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount, vid.vertexOffset);
 }
 
 void ComputeBounds::apply(const vsg::InstanceNode& in)
@@ -177,7 +177,7 @@ void ComputeBounds::apply(const vsg::InstanceDrawIndexed& idi)
     arrayState.apply(idi);
 
     idi.indices->accept(*this);
-    applyDrawIndexed(idi.firstIndex, idi.indexCount, instanceNode->firstInstance, instanceNode->instanceCount);
+    applyDrawIndexed(idi.firstIndex, idi.indexCount, instanceNode->firstInstance, instanceNode->instanceCount, idi.vertexOffset);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
@@ -219,7 +219,7 @@ void ComputeBounds::apply(const Draw& draw)
 
 void ComputeBounds::apply(const DrawIndexed& drawIndexed)
 {
-    applyDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount, drawIndexed.firstInstance, drawIndexed.instanceCount);
+    applyDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount, drawIndexed.firstInstance, drawIndexed.instanceCount, drawIndexed.vertexOffset);
 };
 
 void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
@@ -242,7 +242,7 @@ void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32
     }
 }
 
-void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount)
+void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount, uint32_t vertexOffset)
 {
     auto& arrayState = *arrayStateStack.back();
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
@@ -258,7 +258,7 @@ void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, u
             {
                 for (uint32_t i = firstIndex; i < endIndex; ++i)
                 {
-                    bounds.add(matrix * dvec3(vertices->at(ushort_indices->at(i))));
+                    bounds.add(matrix * dvec3(vertices->at(ushort_indices->at(i) + vertexOffset)));
                 }
             }
         }
@@ -271,7 +271,7 @@ void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, u
             {
                 for (uint32_t i = firstIndex; i < endIndex; ++i)
                 {
-                    bounds.add(matrix * dvec3(vertices->at(uint_indices->at(i))));
+                    bounds.add(matrix * dvec3(vertices->at(uint_indices->at(i) + vertexOffset)));
                 }
             }
         }
