@@ -575,6 +575,12 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
     auto vk_image = image->vk(device->deviceID);
     auto aspectMask = imageView->subresourceRange.aspectMask;
 
+    // Stage which the associated image will be used, such as set by DescriptorSetLayoutBinding::stageFlags
+    // Further info:
+    //     https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineStageFlags.html
+    //     https://registry.khronos.org/VulkanSC/specs/1.0-extensions/man/html/VkDescriptorSetLayoutBinding.html
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
     uint32_t faceWidth = width;
     uint32_t faceHeight = height;
     uint32_t faceDepth = depth;
@@ -816,7 +822,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
             barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
             vkCmdPipelineBarrier(commandBuffer,
-                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0,
                                  0, nullptr,
                                  0, nullptr,
                                  1, &barrier);
@@ -833,7 +839,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
         vkCmdPipelineBarrier(commandBuffer,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0,
                              0, nullptr,
                              0, nullptr,
                              1, &barrier);
@@ -856,7 +862,7 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         postCopyBarrier.subresourceRange.baseMipLevel = 0;
 
         vkCmdPipelineBarrier(commandBuffer,
-                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0,
                              0, nullptr,
                              0, nullptr,
                              1, &postCopyBarrier);
