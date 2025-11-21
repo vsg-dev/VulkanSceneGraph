@@ -38,7 +38,6 @@ ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, c
     optimize(rhs.optimize),
     defines(rhs.defines)
 {
-    vsg::info("ShaderCompileSettings::ShaderCompileSettings(", &rhs, ", copyop)");
 }
 
 int ShaderCompileSettings::compare(const Object& rhs_object) const
