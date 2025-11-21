@@ -15,19 +15,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Object.h>
 #include <vsg/vk/Fence.h>
 #include <vsg/vk/Queue.h>
+#include <vsg/vk/State.h>
 
 #include <mutex>
 #include <vector>
 
 namespace vsg
 {
-    /// convenience template function for submitting Vulkan commands to a queue
+    /// deprecated: use CommandGraph/Viewer instead
     template<typename F>
     VkResult submitCommandsToQueue(CommandPool* commandPool, Fence* fence, uint64_t timeout, Queue* queue, F function)
     {
         VkResult result = VK_SUCCESS;
 
         auto commandBuffer = commandPool->allocate();
+        auto state = State::create(Slots{4,4});
+        state->connect(commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -64,7 +67,7 @@ namespace vsg
         return result;
     }
 
-    /// convenience template function for submitting Vulkan commands to a queue and waiting for completion.
+    /// deprecated: use CommandGraph/Viewer instead
     template<typename F>
     VkResult submitCommandsToQueue(CommandPool* commandPool, Queue* queue, F function)
     {
