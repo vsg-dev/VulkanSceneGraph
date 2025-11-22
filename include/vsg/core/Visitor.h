@@ -55,6 +55,7 @@ namespace vsg
     class InstanceNode;
     class InstanceDraw;
     class InstanceDrawIndexed;
+    class IntersectionProxy;
 
     // forward declare text classes
     class Text;
@@ -362,6 +363,7 @@ namespace vsg
         virtual void apply(InstanceNode&);
         virtual void apply(InstanceDraw&);
         virtual void apply(InstanceDrawIndexed&);
+        virtual void apply(IntersectionProxy&);
 
         // text
         virtual void apply(Text&);
