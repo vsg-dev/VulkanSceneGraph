@@ -29,7 +29,7 @@ namespace vsg
         VkResult result = VK_SUCCESS;
 
         auto commandBuffer = commandPool->allocate();
-        auto state = State::create(Slots{4,4});
+        auto state = State::create(Slots{4, 4});
         state->connect(commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo = {};
