@@ -22,12 +22,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 
-#ifdef VSG_USE_DYNAMIC_CAST
-    #define VSG_CAST_DYNAMIC
-#else
-    #undef VSG_CAST_DYNAMIC
-#endif
-
 namespace vsg
 {
 
@@ -91,7 +85,7 @@ namespace vsg
         virtual const std::type_info& type_info() const noexcept { return typeid(Object); }
         virtual bool is_compatible(const std::type_info& type) const noexcept { return typeid(Object) == type; }
 
-        #ifdef VSG_CAST_DYNAMIC  
+        #if VSG_USE_DYNAMIC_CAST == 1
             template<class T>
             T* cast() { return dynamic_cast<T*>(this); }
 

@@ -426,14 +426,10 @@ target_link_libraries(vsg ${LIBRARIES})
 
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
-else()
-    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        if (VSG_USE_DYNAMIC_CAST)
-            target_compile_definitions(vsg PRIVATE VSG_USE_DYNAMIC_CAST)
-        else ()
-            target_compile_definitions(vsg PRIVATE VSG_EXPORTS)
-        endif ()
-    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT VSG_USE_DYNAMIC_CAST)
+    # Static build, Clang, and we are not using dynamic_cast:
+    # export Array/Value/etc. to stabilize typeid.
+    target_compile_definitions(vsg PRIVATE VSG_EXPORTS)
 endif()
 
 # install headers

@@ -101,7 +101,7 @@ namespace vsg
             _data(nullptr),
             _size(0)
         {
-            assign(data, offset, stride, static_cast<uint32_t>(l.size()));
+            assign(data, offset, stride, l.size());
 
             iterator itr = begin();
             for (const value_type& v : l) { (*itr++) = v; }
