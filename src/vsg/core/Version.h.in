@@ -45,8 +45,8 @@ extern "C"
     /// Native Windowing support provided with vsg::Window::create(windowTraits) enabled when 1, disabled when 0
     #cmakedefine01 VSG_SUPPORTS_Windowing
 
-    /// Define VSG_USE_DYNAMIC_CAST to avoid typeid(T) comparisons in vsg::Object::cast<T>()
-    #define VSG_USE_DYNAMIC_CAST @VSG_USE_DYNAMIC_CAST@
+    /// Define VSG_USE_dynamic_cast to avoid typeid(T) comparisons in vsg::Object::cast<T>()
+    #cmakedefine01 VSG_USE_dynamic_cast
 
     struct VsgVersion
     {

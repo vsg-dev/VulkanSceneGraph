@@ -85,7 +85,7 @@ namespace vsg
         virtual const std::type_info& type_info() const noexcept { return typeid(Object); }
         virtual bool is_compatible(const std::type_info& type) const noexcept { return typeid(Object) == type; }
 
-        #if VSG_USE_DYNAMIC_CAST == 1
+        #if VSG_USE_dynamic_cast
             template<class T>
             T* cast() { return dynamic_cast<T*>(this); }
 
