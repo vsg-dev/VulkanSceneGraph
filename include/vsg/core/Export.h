@@ -25,5 +25,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #        define VSG_DECLSPEC
 #    endif
 #else
-#    define VSG_DECLSPEC
+#    if defined(VSG_SHARED_LIBRARY) || defined(VSG_EXPORTS)
+#        define VSG_DECLSPEC __attribute__((visibility("default")))
+#    else
+#        define VSG_DECLSPEC
+#    endif
 #endif
