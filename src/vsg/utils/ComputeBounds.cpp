@@ -145,7 +145,7 @@ void ComputeBounds::apply(const vsg::VertexIndexDraw& vid)
 
     if (vid.indices) vid.indices->accept(*this);
 
-    applyDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.instanceCount, vid.vertexOffset);
+    applyDrawIndexed(vid.firstIndex, vid.indexCount, vid.firstInstance, vid.vertexOffset, vid.instanceCount);
 }
 
 void ComputeBounds::apply(const vsg::InstanceNode& in)
@@ -177,7 +177,7 @@ void ComputeBounds::apply(const vsg::InstanceDrawIndexed& idi)
     arrayState.apply(idi);
 
     idi.indices->accept(*this);
-    applyDrawIndexed(idi.firstIndex, idi.indexCount, instanceNode->firstInstance, instanceNode->instanceCount, idi.vertexOffset);
+    applyDrawIndexed(idi.firstIndex, idi.indexCount, instanceNode->firstInstance, idi.vertexOffset, instanceNode->instanceCount);
 }
 
 void ComputeBounds::apply(const vsg::BindVertexBuffers& bvb)
@@ -219,7 +219,7 @@ void ComputeBounds::apply(const Draw& draw)
 
 void ComputeBounds::apply(const DrawIndexed& drawIndexed)
 {
-    applyDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount, drawIndexed.firstInstance, drawIndexed.instanceCount, drawIndexed.vertexOffset);
+    applyDrawIndexed(drawIndexed.firstIndex, drawIndexed.indexCount, drawIndexed.firstInstance, drawIndexed.vertexOffset, drawIndexed.instanceCount);
 };
 
 void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount)
@@ -242,7 +242,7 @@ void ComputeBounds::applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32
     }
 }
 
-void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount, uint32_t vertexOffset)
+void ComputeBounds::applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t vertexOffset, uint32_t instanceCount)
 {
     auto& arrayState = *arrayStateStack.back();
     uint32_t lastIndex = instanceCount > 1 ? (firstInstance + instanceCount) : firstInstance + 1;
