@@ -18,7 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <typeindex>
 #include <vector>
 
-#include <vsg/core/Export.h>
 #include <vsg/core/Version.h>
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
