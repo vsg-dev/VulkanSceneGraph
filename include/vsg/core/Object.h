@@ -85,19 +85,19 @@ namespace vsg
         virtual const std::type_info& type_info() const noexcept { return typeid(Object); }
         virtual bool is_compatible(const std::type_info& type) const noexcept { return typeid(Object) == type; }
 
-        #if VSG_USE_dynamic_cast
-            template<class T>
-            T* cast() { return dynamic_cast<T*>(this); }
+#if VSG_USE_dynamic_cast
+        template<class T>
+        T* cast() { return dynamic_cast<T*>(this); }
 
-            template<class T>
-            const T* cast() const { return dynamic_cast<const T*>(this); }
-        #else
-            template<class T>
-            T* cast() { return is_compatible(typeid(T)) ? static_cast<T*>(this) : nullptr; }
+        template<class T>
+        const T* cast() const { return dynamic_cast<const T*>(this); }
+#else
+        template<class T>
+        T* cast() { return is_compatible(typeid(T)) ? static_cast<T*>(this) : nullptr; }
 
-            template<class T>
-            const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
-        #endif
+        template<class T>
+        const T* cast() const { return is_compatible(typeid(T)) ? static_cast<const T*>(this) : nullptr; }
+#endif
 
         /// clone this object using CopyOp's duplicates map to decide whether to clone or to return the original object.
         /// The default clone(CopyOp&) implementation simply returns ref_ptr<> to this object rather attempt to clone.
