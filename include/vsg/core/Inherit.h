@@ -23,12 +23,13 @@ namespace vsg
 
     /// Inherit<> uses the Curiously Recurring Template Pattern
     /// to provide the classes versions of create, accept(..), RTTI and sizeofObject()
+    /// There's a layer of indirection to allow subclass-specific specialisation without copying and pasting everything
     template<class ParentClass, class Subclass>
-    class Inherit : public ParentClass
+    class InheritBase : public ParentClass
     {
     public:
         template<typename... Args>
-        Inherit(Args&&... args) :
+        InheritBase(Args&&... args) :
             ParentClass(std::forward<Args>(args)...) {}
 
         template<typename... Args>
@@ -70,6 +71,12 @@ namespace vsg
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
         void accept(RecordTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
+    };
+
+    template<class ParentClass, class Subclass, class Enable = void>
+    class Inherit : public InheritBase<ParentClass, Subclass>
+    {
+        using InheritBase<ParentClass, Subclass>::InheritBase;
     };
 
 } // namespace vsg
