@@ -36,15 +36,15 @@ namespace vsg
         virtual VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
         /// VkDescriptorSetLayoutCreateFlags flags
-        VkDescriptorSetLayoutCreateFlags createFlags;
-
-        void addBinding(uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, VkDescriptorBindingFlags flags = 0);
+        VkDescriptorSetLayoutCreateFlags createFlags = 0;
 
         /// VkDescriptorSetLayoutCreateInfo settings
         DescriptorSetLayoutBindings bindings;
 
         /// VkDescriptorSetLayoutBindingFlagsCreateInfo settings
         DescriptorSetLayoutBindingFlags bindingFlags;
+
+        void addBinding(uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, VkDescriptorBindingFlags flags = 0);
 
         /// map the descriptor bindings to the descriptor pool sizes that will be required to represent them.
         void getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes);
