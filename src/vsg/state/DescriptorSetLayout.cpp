@@ -28,7 +28,9 @@ DescriptorSetLayout::DescriptorSetLayout()
 
 DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayout& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
-    bindings(rhs.bindings)
+    createFlags(rhs.createFlags),
+    bindings(rhs.bindings),
+    bindingFlags(rhs.bindingFlags)
 {
 }
 
@@ -39,6 +41,23 @@ DescriptorSetLayout::DescriptorSetLayout(const DescriptorSetLayoutBindings& desc
 
 DescriptorSetLayout::~DescriptorSetLayout()
 {
+}
+
+void DescriptorSetLayout::addBinding(uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, VkDescriptorBindingFlags flags)
+{
+    VkDescriptorSetLayoutBinding layoutBinding = {};
+    layoutBinding.binding = binding;
+    layoutBinding.descriptorType = descriptorType;
+    layoutBinding.descriptorCount = descriptorCount;
+    layoutBinding.stageFlags = stageFlags;
+    layoutBinding.pImmutableSamplers = nullptr;
+    bindings.push_back(layoutBinding);
+
+    if (flags != 0)
+    {
+        if (binding >= bindingFlags.size()) bindingFlags.resize(binding + 1, 0);
+        bindingFlags[binding] = flags;
+    }
 }
 
 void DescriptorSetLayout::getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes)
@@ -67,15 +86,19 @@ int DescriptorSetLayout::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_value_container(bindings, rhs.bindings);
+    return (createFlags == rhs.createFlags) && compare_value_container(bindings, rhs.bindings) && compare_value_container(bindingFlags, rhs.bindingFlags);
 }
 
 void DescriptorSetLayout::read(Input& input)
 {
     Object::read(input);
 
-    bindings.resize(input.readValue<uint32_t>("bindings"));
+    if (input.version_greater_equal(1,1,12))
+    {
+        createFlags = input.readValue<uint32_t>("createFlags");
+    }
 
+    bindings.resize(input.readValue<uint32_t>("bindings"));
     for (auto& dslb : bindings)
     {
         input.read("binding", dslb.binding);
@@ -83,14 +106,23 @@ void DescriptorSetLayout::read(Input& input)
         input.read("descriptorCount", dslb.descriptorCount);
         input.readValue<uint32_t>("stageFlags", dslb.stageFlags);
     }
+
+    if (input.version_greater_equal(1,1,12))
+    {
+        input.readValues("bindingFlags", bindingFlags);
+    }
 }
 
 void DescriptorSetLayout::write(Output& output) const
 {
     Object::write(output);
 
-    output.writeValue<uint32_t>("bindings", bindings.size());
+    if (output.version_greater_equal(1,1,12))
+    {
+        output.writeValue<uint32_t>("createFlags", createFlags);
+    }
 
+    output.writeValue<uint32_t>("bindings", bindings.size());
     for (auto& dslb : bindings)
     {
         output.write("binding", dslb.binding);
@@ -98,25 +130,43 @@ void DescriptorSetLayout::write(Output& output) const
         output.write("descriptorCount", dslb.descriptorCount);
         output.writeValue<uint32_t>("stageFlags", dslb.stageFlags);
     }
+
+    if (output.version_greater_equal(1,1,12))
+    {
+        output.writeValues("bindingFlags", bindingFlags);
+    }
 }
 
 void DescriptorSetLayout::compile(Context& context)
 {
-    if (!_implementation[context.deviceID]) _implementation[context.deviceID] = DescriptorSetLayout::Implementation::create(context.device, bindings);
+    if (!_implementation[context.deviceID]) _implementation[context.deviceID] = DescriptorSetLayout::Implementation::create(context.device, createFlags, bindings, bindingFlags);
 }
 
 //////////////////////////////////////
 //
 // DescriptorSetLayout::Implementation
 //
-DescriptorSetLayout::Implementation::Implementation(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings) :
+DescriptorSetLayout::Implementation::Implementation(Device* device, VkDescriptorSetLayoutCreateFlags createFlags, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, const DescriptorSetLayoutBindingFlags& descriptorSetLayoutBindingFlags) :
     _device(device)
 {
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
     layoutInfo.pBindings = descriptorSetLayoutBindings.data();
-    layoutInfo.pNext = nullptr;
+    layoutInfo.flags = createFlags;
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo = {};
+    if (descriptorSetLayoutBindingFlags.empty())
+    {
+        layoutInfo.pNext = nullptr;
+    }
+    else
+    {
+        bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+        bindingFlagsCreateInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindingFlags.size());
+        bindingFlagsCreateInfo.pBindingFlags = descriptorSetLayoutBindingFlags.data();
+        layoutInfo.pNext = &bindingFlagsCreateInfo;
+    }
 
     if (VkResult result = vkCreateDescriptorSetLayout(*device, &layoutInfo, _device->getAllocationCallbacks(), &_descriptorSetLayout); result != VK_SUCCESS)
     {

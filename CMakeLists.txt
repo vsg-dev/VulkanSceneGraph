@@ -98,6 +98,8 @@ if (VSG_SUPPORTS_Windowing)
     endif()
 endif()
 
+option(VSG_USE_dynamic_cast "Use dynamic_cast in vsg::Object::cast<T>(), 0 for off, 1 for enabled." OFF)
+
 # this line needs to be after the call to setup_build_vars()
 configure_file("${VSG_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")
 

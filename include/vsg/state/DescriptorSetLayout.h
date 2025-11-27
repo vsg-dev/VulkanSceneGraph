@@ -21,6 +21,7 @@ namespace vsg
     class Context;
 
     using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
+    using DescriptorSetLayoutBindingFlags = std::vector<VkDescriptorBindingFlags>;
     using DescriptorPoolSizes = std::vector<VkDescriptorPoolSize>;
 
     /// DescriptorSetLayout encapsulates VkDescriptorSetLayout and VkDescriptorSetLayoutCreateInfo settings used to set it up.
@@ -34,8 +35,16 @@ namespace vsg
         /// Vulkan VkDescriptorSetLayout handle
         virtual VkDescriptorSetLayout vk(uint32_t deviceID) const { return _implementation[deviceID]->_descriptorSetLayout; }
 
+        /// VkDescriptorSetLayoutCreateFlags flags
+        VkDescriptorSetLayoutCreateFlags createFlags = 0;
+
         /// VkDescriptorSetLayoutCreateInfo settings
         DescriptorSetLayoutBindings bindings;
+
+        /// VkDescriptorSetLayoutBindingFlagsCreateInfo settings
+        DescriptorSetLayoutBindingFlags bindingFlags;
+
+        void addBinding(uint32_t binding, VkDescriptorType descriptorType, uint32_t descriptorCount, VkShaderStageFlags stageFlags, VkDescriptorBindingFlags flags = 0);
 
         /// map the descriptor bindings to the descriptor pool sizes that will be required to represent them.
         void getDescriptorPoolSizes(DescriptorPoolSizes& descriptorPoolSizes);
@@ -59,7 +68,7 @@ namespace vsg
 
         struct Implementation : public Inherit<Object, Implementation>
         {
-            Implementation(Device* device, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings);
+            Implementation(Device* device, VkDescriptorSetLayoutCreateFlags createFlags, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, const DescriptorSetLayoutBindingFlags& descriptorSetLayoutBindingFlags);
 
             virtual ~Implementation();
 
