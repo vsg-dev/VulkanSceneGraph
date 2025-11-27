@@ -142,6 +142,9 @@ namespace vsg
         Value& operator=(const Value& rhs)
         {
             _value = rhs._value;
+
+            _copy(rhs);
+
             return *this;
         }
         Value& operator=(const value_type& rhs)

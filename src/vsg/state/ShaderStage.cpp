@@ -21,7 +21,7 @@ ShaderStage::ShaderStage()
 {
 }
 
-ShaderStage::ShaderStage(const ShaderStage& rhs, const CopyOp& copyop):
+ShaderStage::ShaderStage(const ShaderStage& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     mask(rhs.mask),
     flags(rhs.flags),

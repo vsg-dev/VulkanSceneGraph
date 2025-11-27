@@ -70,12 +70,16 @@ namespace vsg
             dirty();
         }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {}) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(in_properties, sizeof(value_type)),
             _data(data),
             _width(width),
             _height(height),
-            _depth(depth) { dirty(); }
+            _depth(depth)
+        {
+            setMipmapLayout(mipmapLayout);
+            dirty();
+        }
 
         Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Properties in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
@@ -92,14 +96,14 @@ namespace vsg
             }
         }
 
-        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
+        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(),
             _data(nullptr),
             _width(0),
             _height(0),
             _depth(0)
         {
-            assign(data, offset, stride, width, height, depth, in_properties);
+            assign(data, offset, stride, width, height, depth, in_properties, mipmapLayout);
         }
 
         template<typename... Args>
@@ -150,7 +154,13 @@ namespace vsg
 
             if (input.matchPropertyName("data"))
             {
-                size_t new_size = computeValueCountIncludingMipmaps(w, h, d, properties.maxNumMipmaps);
+                properties.stride = sizeof(value_type);
+                _width = w;
+                _height = h;
+                _depth = d;
+                _storage = nullptr;
+
+                size_t new_size = computeValueCountIncludingMipmaps();
 
                 if (_data) // if data exists already may be able to reuse it
                 {
@@ -164,12 +174,6 @@ namespace vsg
                 {
                     _data = _allocate(new_size);
                 }
-
-                properties.stride = sizeof(value_type);
-                _width = w;
-                _height = h;
-                _depth = d;
-                _storage = nullptr;
 
                 if (_data) input.read(new_size, _data);
 
@@ -198,7 +202,7 @@ namespace vsg
             output.writeEndOfLine();
         }
 
-        size_t size() const { return (properties.maxNumMipmaps <= 1) ? (static_cast<size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(_width, _height, _depth, properties.maxNumMipmaps); }
+        size_t size() const { return (properties.mipLevels <= 1) ? (static_cast<size_t>(_width) * _height * _depth) : computeValueCountIncludingMipmaps(); }
 
         bool available() const { return _data != nullptr; }
         bool empty() const { return _data == nullptr; }
@@ -220,7 +224,8 @@ namespace vsg
 
             clear();
 
-            properties = rhs.properties;
+            _copy(rhs);
+
             _width = rhs._width;
             _height = rhs._height;
             _depth = rhs._depth;
@@ -237,7 +242,7 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {})
+        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -249,10 +254,12 @@ namespace vsg
             _data = data;
             _storage = nullptr;
 
+            setMipmapLayout(mipmapLayout);
+
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {})
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -273,6 +280,8 @@ namespace vsg
                 _height = 0;
                 _depth = 0;
             }
+
+            setMipmapLayout(mipmapLayout);
 
             dirty();
         }
@@ -375,6 +384,8 @@ namespace vsg
                 else if (properties.allocatorType != 0)
                     vsg::deallocate(_data);
             }
+
+            _clear();
         }
 
     private:

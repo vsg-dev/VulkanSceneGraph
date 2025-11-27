@@ -83,7 +83,7 @@ void Intersector::apply(const StateGroup& stategroup)
         statecommand->accept(*arrayState);
     }
 
-    arrayStateStack.emplace_back(arrayState);
+    arrayStateStack.emplace_back(std::move(arrayState));
 
     stategroup.traverse(*this);
 
@@ -235,9 +235,15 @@ void Intersector::apply(const uintArray& array)
 void Intersector::apply(const TextTechnique& technique)
 {
     if (auto cpuTechnique = technique.cast<CpuLayoutTechnique>())
-        cpuTechnique->scenegraph->accept(*this);
+    {
+        if (cpuTechnique->scenegraph)
+            cpuTechnique->scenegraph->accept(*this);
+    }
     if (auto gpuTechnique = technique.cast<GpuLayoutTechnique>())
-        gpuTechnique->scenegraph->accept(*this);
+    {
+        if (gpuTechnique->scenegraph)
+            gpuTechnique->scenegraph->accept(*this);
+    }
 }
 
 void Intersector::apply(const Draw& draw)

@@ -170,7 +170,6 @@ namespace vsg
         // clear the bins to record a new frame.
         void clearBins();
 
-
         // list of pairs of modelview matrix & region of interest
         std::vector<std::pair<dmat4, const RegionOfInterest*>> regionsOfInterest;
 

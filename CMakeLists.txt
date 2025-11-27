@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
 project(vsg
-    VERSION 1.1.11
+    VERSION 1.1.12
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
-set(VSG_SOVERSION 14)
+set(VSG_SOVERSION 15)
 SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
@@ -41,7 +41,7 @@ find_package(Threads REQUIRED)
 set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level to build into the VSG library, 0 for off, 1 coarse grained, 2 medium, 3 fine grained." )
 
 # Enable/disable shader compilation support that pulls in glslang
-set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
+option(VSG_SUPPORTS_ShaderCompiler "Optional shader compiler support" ON)
 if (VSG_SUPPORTS_ShaderCompiler)
 
     # Try looking for glslang 15 first.
@@ -75,7 +75,7 @@ if (VSG_SUPPORTS_ShaderCompiler)
     endif()
 endif()
 
-set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )
+option(VSG_SUPPORTS_Windowing "Optional native windowing support providing a default implementation of vsg::Window::create()" ON)
 if (VSG_SUPPORTS_Windowing)
     if (ANDROID)
         set(FIND_DEPENDENCY_WINDOWING "")

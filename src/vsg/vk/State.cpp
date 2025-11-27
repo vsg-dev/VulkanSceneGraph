@@ -74,7 +74,7 @@ void State::popView(const View& view)
     if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) popView(view.camera->viewportState);
 }
 
-void State::inherit(State& state)
+void State::inherit(const State& state)
 {
     reserve(state.maxSlots);
 

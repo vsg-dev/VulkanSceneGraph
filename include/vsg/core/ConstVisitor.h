@@ -23,6 +23,7 @@ namespace vsg
     // forward declare core Objects
     class Objects;
     class External;
+    class MipmapLayout;
 
     // forward declare node classes
     class Node;
@@ -194,6 +195,7 @@ namespace vsg
         virtual void apply(const Objects&);
         virtual void apply(const External&);
         virtual void apply(const Data&);
+        virtual void apply(const MipmapLayout&);
 
         // Values
         virtual void apply(const stringValue&);

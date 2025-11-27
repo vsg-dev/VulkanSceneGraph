@@ -94,7 +94,7 @@ dvec3 EllipsoidModel::convertECEFToLatLongAltitude(const dvec3& ecef) const
                 latitude = PI_2;
                 height = -_radiusPolar;
             }
-            return dvec3(latitude, longitude, height);
+            return dvec3(degrees(latitude), degrees(longitude), height);
         }
     }
 

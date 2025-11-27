@@ -37,6 +37,11 @@ void Visitor::apply(Data& value)
     apply(static_cast<Object&>(value));
 }
 
+void Visitor::apply(MipmapLayout& value)
+{
+    apply(static_cast<Object&>(value));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Values

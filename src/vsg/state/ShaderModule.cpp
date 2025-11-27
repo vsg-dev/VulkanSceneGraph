@@ -26,7 +26,7 @@ ShaderCompileSettings::ShaderCompileSettings()
 {
 }
 
-ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop):
+ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     vulkanVersion(rhs.vulkanVersion),
     clientInputVersion(rhs.clientInputVersion),
@@ -38,7 +38,6 @@ ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, c
     optimize(rhs.optimize),
     defines(rhs.defines)
 {
-    vsg::info("ShaderCompileSettings::ShaderCompileSettings(", &rhs, ", copyop)");
 }
 
 int ShaderCompileSettings::compare(const Object& rhs_object) const
@@ -111,7 +110,7 @@ ShaderModule::ShaderModule()
 {
 }
 
-ShaderModule::ShaderModule(const ShaderModule& rhs, const CopyOp& copyop):
+ShaderModule::ShaderModule(const ShaderModule& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop),
     source(rhs.source),
     hints(copyop(rhs.hints)),

@@ -4,17 +4,9 @@
 #include <vsg/nodes/CullNode.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/state/ColorBlendState.h>
-#include <vsg/state/DepthStencilState.h>
 #include <vsg/state/DescriptorBuffer.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/DescriptorSet.h>
-#include <vsg/state/GraphicsPipeline.h>
-#include <vsg/state/InputAssemblyState.h>
-#include <vsg/state/MultisampleState.h>
-#include <vsg/state/RasterizationState.h>
-#include <vsg/state/VertexInputState.h>
-#include <vsg/state/ViewportState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/Builder.h>
 #include <vsg/utils/GraphicsPipelineConfigurator.h>
@@ -72,6 +64,8 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
         auto sampler = Sampler::create();
         sampler->addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
         sampler->addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+        sampler->maxLod = static_cast<float>(stateInfo.image->properties.mipLevels);
 
         if (sharedObjects) sharedObjects->share(sampler);
 

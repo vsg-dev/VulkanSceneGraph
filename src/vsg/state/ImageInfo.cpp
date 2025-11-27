@@ -101,21 +101,52 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
     }
     else if (format == VK_FORMAT_D16_UNORM_S8_UINT)
     {
+        traits.packed = true;
         traits.numBitsPerComponent = 24;
         traits.numComponents = 1;
         traits.size = 3;
     }
     else if (format == VK_FORMAT_D24_UNORM_S8_UINT)
     {
+        traits.packed = true;
         traits.numBitsPerComponent = 32;
         traits.numComponents = 1;
         traits.size = 4;
     }
     else if (format == VK_FORMAT_D32_SFLOAT_S8_UINT)
     {
+        traits.packed = true;
         traits.numBitsPerComponent = 40;
         traits.numComponents = 1;
         traits.size = 5;
+    }
+    else if (VK_FORMAT_A8B8G8R8_UNORM_PACK32 <= format && format <= VK_FORMAT_A8B8G8R8_SRGB_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 8;
+        traits.numComponents = 4;
+        traits.size = 4;
+    }
+    else if (VK_FORMAT_A2R10G10B10_UNORM_PACK32 <= format && format <= VK_FORMAT_A2B10G10R10_SINT_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 32; // Perhaps should be 10, except alpha is 2, will treat as one packed components
+        traits.numComponents = 1;
+        traits.size = 4;
+    }
+    else if (VK_FORMAT_B10G11R11_UFLOAT_PACK32 <= format && format <= VK_FORMAT_E5B9G9R9_UFLOAT_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 32; // Perhaps should be 10, except R is 11, will treat as one packed components
+        traits.numComponents = 1;
+        traits.size = 4;
+    }
+    else if (format == VK_FORMAT_X8_D24_UNORM_PACK32)
+    {
+        traits.packed = true;
+        traits.numBitsPerComponent = 32;
+        traits.numComponents = 1;
+        traits.size = 4;
     }
     else if (VK_FORMAT_BC1_RGB_UNORM_BLOCK <= format && format <= VK_FORMAT_BC1_RGBA_SRGB_BLOCK)
     {
@@ -177,9 +208,118 @@ FormatTraits vsg::getFormatTraits(VkFormat format, bool default_one)
         traits.numComponents = 1;
         traits.size = 16;
     }
+    else if ((VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK) ||
+             (VK_FORMAT_EAC_R11_UNORM_BLOCK <= format && format <= VK_FORMAT_EAC_R11_SNORM_BLOCK))
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 64;
+        traits.numComponents = 1;
+        traits.size = 8;
+    }
+    else if ((VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK <= format && format <= VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK) ||
+             (VK_FORMAT_EAC_R11G11_UNORM_BLOCK <= format && format <= VK_FORMAT_EAC_R11G11_SNORM_BLOCK))
+    {
+        traits.packed = true;
+        traits.blockWidth = 4;
+        traits.blockHeight = 4;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
+    }
+    else if (VK_FORMAT_ASTC_4x4_UNORM_BLOCK <= format && format <= VK_FORMAT_ASTC_12x12_SRGB_BLOCK)
+    {
+        traits.packed = true;
+        traits.blockDepth = 1;
+        traits.numBitsPerComponent = 128;
+        traits.numComponents = 1;
+        traits.size = 16;
+
+        switch (format)
+        {
+        case (VK_FORMAT_ASTC_4x4_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_4x4_SRGB_BLOCK):
+            traits.blockWidth = 4;
+            traits.blockHeight = 4;
+            break;
+        case (VK_FORMAT_ASTC_5x4_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_5x4_SRGB_BLOCK):
+            traits.blockWidth = 5;
+            traits.blockHeight = 4;
+            break;
+        case (VK_FORMAT_ASTC_5x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_5x5_SRGB_BLOCK):
+            traits.blockWidth = 5;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_6x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_6x5_SRGB_BLOCK):
+            traits.blockWidth = 6;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_6x6_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_6x6_SRGB_BLOCK):
+            traits.blockWidth = 6;
+            traits.blockHeight = 6;
+            break;
+        case (VK_FORMAT_ASTC_8x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_8x5_SRGB_BLOCK):
+            traits.blockWidth = 8;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_8x6_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_8x6_SRGB_BLOCK):
+            traits.blockWidth = 8;
+            traits.blockHeight = 6;
+            break;
+        case (VK_FORMAT_ASTC_8x8_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_8x8_SRGB_BLOCK):
+            traits.blockWidth = 8;
+            traits.blockHeight = 8;
+            break;
+        case (VK_FORMAT_ASTC_10x5_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x5_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 5;
+            break;
+        case (VK_FORMAT_ASTC_10x6_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x6_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 6;
+            break;
+        case (VK_FORMAT_ASTC_10x8_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x8_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 8;
+            break;
+        case (VK_FORMAT_ASTC_10x10_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_10x10_SRGB_BLOCK):
+            traits.blockWidth = 10;
+            traits.blockHeight = 10;
+            break;
+        case (VK_FORMAT_ASTC_12x10_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_12x10_SRGB_BLOCK):
+            traits.blockWidth = 12;
+            traits.blockHeight = 10;
+            break;
+        case (VK_FORMAT_ASTC_12x12_UNORM_BLOCK):
+        case (VK_FORMAT_ASTC_12x12_SRGB_BLOCK):
+            traits.blockWidth = 12;
+            traits.blockHeight = 12;
+            break;
+        default:
+            info("getFormatTraits(", format, ") not handled.");
+            traits.blockWidth = 4;
+            traits.blockHeight = 4;
+            break;
+        }
+    }
     else
     {
-        info("getFormatTraits(", format, ") unhandled.");
+        info("getFormatTraits(", format, ") not handled.");
     }
 
     return traits;
@@ -191,7 +331,8 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     if (sampler)
     {
         // clamp the mipLevels so that it's no larger than what the data dimensions support
-        uint32_t maxDimension = std::max({data->width(), data->height(), data->depth()});
+        auto [width, height, depth] = data->pixelExtents();
+        uint32_t maxDimension = std::max({width, height, depth});
         if (sampler->maxLod == VK_LOD_CLAMP_NONE)
         {
             while ((1u << mipLevels) <= maxDimension)
@@ -207,6 +348,31 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
                 --mipLevels;
             }
         }
+
+        bool generateMipmaps = (mipLevels > 1) && (data->properties.mipLevels <= 1);
+        if (generateMipmaps)
+        {
+            // check that the data isn't compressed.
+            const auto& properties = data->properties;
+            if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
+            {
+                if (sampler->maxLod != 0.0f && sampler->maxLod != VK_LOD_CLAMP_NONE)
+                {
+                    warn("ImageInfo::computeNumMipMapLevels() cannot enable generated mipmaps for vsg::Image, but Sampler::maxLod is not zero or VK_LOD_CLAMP_NONE, sampler->maxLod = ", sampler->maxLod);
+                }
+
+                mipLevels = 1;
+            }
+        }
+        else
+        {
+            if (data->properties.mipLevels < mipLevels)
+            {
+                mipLevels = std::max(1u, static_cast<uint32_t>(data->properties.mipLevels));
+            }
+        }
+
+        // vsg::info("vsg::computeNumMipMapLevels(data = ", data, ", sampler->maxLod = ", sampler->maxLod, ", data->properties.mipLevels = ", int(data->properties.mipLevels), ", mipLevels = ", mipLevels);
     }
 
     //mipLevels = 1;  // disable mipmapping
@@ -241,30 +407,10 @@ void ImageInfo::computeNumMipMapLevels()
 {
     if (imageView && imageView->image && imageView->image->data)
     {
-        auto image = imageView->image;
-        auto data = image->data;
-        auto mipLevels = vsg::computeNumMipMapLevels(data, sampler);
-
-        const auto& mipmapOffsets = image->data->computeMipmapOffsets();
-        bool generateMipmaps = (mipLevels > 1) && (mipmapOffsets.size() <= 1);
-
-        if (generateMipmaps)
-        {
-            // check that the data isn't compressed.
-            const auto& properties = data->properties;
-            if (properties.blockWidth > 1 || properties.blockHeight > 1 || properties.blockDepth > 1)
-            {
-                if (sampler->maxLod != 0.0f && sampler->maxLod != VK_LOD_CLAMP_NONE)
-                {
-                    warn("ImageInfo::computeNumMipMapLevels() cannot enable generated mipmaps for vsg::Image, but Sampler::maxLod is not zero or VK_LOD_CLAMP_NONE, sampler->maxLod = ", sampler->maxLod);
-                }
-
-                mipLevels = 1;
-            }
-        }
-
-        image->mipLevels = mipLevels;
-
+        const auto& image = imageView->image;
+        const auto& data = image->data;
+        image->mipLevels = vsg::computeNumMipMapLevels(data, sampler);
+        bool generateMipmaps = (image->mipLevels > 1) && (data->properties.mipLevels <= 1);
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 }
