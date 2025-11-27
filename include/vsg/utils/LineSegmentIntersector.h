@@ -34,6 +34,8 @@ namespace vsg
         LineSegmentIntersector(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
         LineSegmentIntersector(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
 
+        using Intersector::apply;
+
         void reset(ref_ptr<ArrayState> initialArrayData = {}) override;
         virtual void reset(const dvec3& s, const dvec3& e, ref_ptr<ArrayState> initialArrayData = {});
         virtual void reset(const Camera& camera, int32_t x, int32_t y, ref_ptr<ArrayState> initialArrayData = {});
