@@ -102,6 +102,10 @@ namespace vsg
     public:
         using InheritBase<ParentClass, Subclass>::InheritBase;
 
+        explicit Inherit(const ArrayState& rhs, const CopyOp& copyop = {}) :
+            InheritBase<ParentClass, Subclass>(rhs, copyop)
+        {}
+
         ref_ptr<ArrayState> cloneArrayState() override
         {
             return Subclass::create(static_cast<Subclass&>(*this));
@@ -176,7 +180,7 @@ namespace vsg
     public:
         DisplacementMapArrayState();
         DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
-        explicit DisplacementMapArrayState(const ArrayState& rhs);
+        explicit DisplacementMapArrayState(const ArrayState& rhs, const CopyOp& copyop = {});
 
         // binding of displacement map
         uint32_t normal_attribute_location = 1;

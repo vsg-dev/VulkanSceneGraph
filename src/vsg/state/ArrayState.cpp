@@ -342,8 +342,8 @@ DisplacementMapArrayState::DisplacementMapArrayState(const DisplacementMapArrayS
 {
 }
 
-DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs) :
-    Inherit(rhs)
+DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs, const CopyOp& copyop ) :
+    Inherit(rhs, copyop)
 {
 }
 

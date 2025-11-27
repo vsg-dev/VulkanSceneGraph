@@ -28,9 +28,7 @@ namespace vsg
     class InheritBase : public ParentClass
     {
     public:
-        template<typename... Args>
-        InheritBase(Args&&... args) :
-            ParentClass(std::forward<Args>(args)...) {}
+        using ParentClass::ParentClass;
 
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)
