@@ -266,9 +266,9 @@ void vsg::IntersectionProxy::intersect(LineSegmentIntersector& lineSegmentInters
     value_type length = ::length(d);
     value_type inverseLength = length != 0.0 ? 1.0 / length : 0.0;
 
-    vec_type dInvX = d.x != 0.0 ? d / d.x : vec_type{0.0, 0.0, 0.0};
-    vec_type dInvY = d.y != 0.0 ? d / d.y : vec_type{0.0, 0.0, 0.0};
-    vec_type dInvZ = d.z != 0.0 ? d / d.z : vec_type{0.0, 0.0, 0.0};
+    // vec_type dInvX = d.x != 0.0 ? d / d.x : vec_type{0.0, 0.0, 0.0};
+    // vec_type dInvY = d.y != 0.0 ? d / d.y : vec_type{0.0, 0.0, 0.0};
+    // vec_type dInvZ = d.z != 0.0 ? d / d.z : vec_type{0.0, 0.0, 0.0};
 
     auto intersectLeaf = [&](uint32_t index) {
         for (size_t i = 0; i < trisPerLeaf; ++i)
