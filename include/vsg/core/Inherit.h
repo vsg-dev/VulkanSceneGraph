@@ -20,16 +20,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 namespace vsg
 {
+    template<class ParentClass, class Subclass, class Enable = void>
+    struct InheritHelper
+    {
+        using Type = ParentClass;
+    };
+
+    template<class ParentClass, class Subclass>
+    struct InheritHelper<ParentClass, Subclass, typename ParentClass::template InheritExtras<ParentClass, Subclass>>
+    {
+        using Type = typename ParentClass::template InheritExtras<ParentClass, Subclass>;
+    };
 
     /// Inherit<> uses the Curiously Recurring Template Pattern
     /// to provide the classes versions of create, accept(..), RTTI and sizeofObject()
     template<class ParentClass, class Subclass>
-    class Inherit : public ParentClass
+    class Inherit : public InheritHelper<ParentClass, Subclass>::Type
     {
     public:
+        using BaseClass = typename InheritHelper<ParentClass, Subclass>::Type;
+
         template<typename... Args>
         Inherit(Args&&... args) :
-            ParentClass(std::forward<Args>(args)...) {}
+            BaseClass(std::forward<Args>(args)...) {}
 
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)
@@ -47,11 +60,11 @@ namespace vsg
         std::size_t sizeofObject() const noexcept override { return sizeof(Subclass); }
         const char* className() const noexcept override { return type_name<Subclass>(); }
         const std::type_info& type_info() const noexcept override { return typeid(Subclass); }
-        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Subclass) == type || ParentClass::is_compatible(type); }
+        bool is_compatible(const std::type_info& type) const noexcept override { return typeid(Subclass) == type || BaseClass::is_compatible(type); }
 
         int compare(const Object& rhs) const override
         {
-            int result = ParentClass::compare(rhs);
+            int result = BaseClass::compare(rhs);
             if (result != 0) return result;
 
             size_t startOfSubclass = sizeof(ParentClass);

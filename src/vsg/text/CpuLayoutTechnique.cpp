@@ -47,10 +47,7 @@ public:
     {
     }
 
-    ref_ptr<ArrayState> cloneArrayState() override
-    {
-        return CpuLayoutTechniqueArrayState::create(*this);
-    }
+    using Inherit::cloneArrayState;
 
     ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override
     {
