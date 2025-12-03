@@ -86,7 +86,11 @@ int DescriptorSetLayout::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return (createFlags == rhs.createFlags) && compare_value_container(bindings, rhs.bindings) && compare_value_container(bindingFlags, rhs.bindingFlags);
+
+    if ((result = compare_value(createFlags, rhs.createFlags))) return result;
+    if ((result = compare_value_container(bindings, rhs.bindings))) return result;
+
+    return compare_value_container(bindingFlags, rhs.bindingFlags);
 }
 
 void DescriptorSetLayout::read(Input& input)
