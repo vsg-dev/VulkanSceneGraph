@@ -219,17 +219,6 @@ NullArrayState::NullArrayState(const ArrayState& as) :
     vertices = {};
 }
 
-ref_ptr<ArrayState> NullArrayState::cloneArrayState()
-{
-    return NullArrayState::create(*this);
-}
-
-// clone the specified ArrayState
-ref_ptr<ArrayState> NullArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
-{
-    return NullArrayState::create(*arrayState);
-}
-
 void NullArrayState::apply(const vsg::vec3Array&)
 {
     vertices = {};
@@ -258,16 +247,6 @@ TranslationArrayState::TranslationArrayState(const TranslationArrayState& rhs) :
 TranslationArrayState::TranslationArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
-}
-
-ref_ptr<ArrayState> TranslationArrayState::cloneArrayState()
-{
-    return TranslationArrayState::create(*this);
-}
-
-ref_ptr<ArrayState> TranslationArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
-{
-    return TranslationArrayState::create(*arrayState);
 }
 
 void TranslationArrayState::apply(const VertexInputState& vas)
@@ -313,16 +292,6 @@ TranslationRotationScaleArrayState::TranslationRotationScaleArrayState(const Tra
 TranslationRotationScaleArrayState::TranslationRotationScaleArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
-}
-
-ref_ptr<ArrayState> TranslationRotationScaleArrayState::cloneArrayState()
-{
-    return TranslationRotationScaleArrayState::create(*this);
-}
-
-ref_ptr<ArrayState> TranslationRotationScaleArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
-{
-    return TranslationRotationScaleArrayState::create(*arrayState);
 }
 
 void TranslationRotationScaleArrayState::apply(const VertexInputState& vas)
@@ -373,19 +342,9 @@ DisplacementMapArrayState::DisplacementMapArrayState(const DisplacementMapArrayS
 {
 }
 
-DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs) :
-    Inherit(rhs)
+DisplacementMapArrayState::DisplacementMapArrayState(const ArrayState& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop)
 {
-}
-
-ref_ptr<ArrayState> DisplacementMapArrayState::cloneArrayState()
-{
-    return DisplacementMapArrayState::create(*this);
-}
-
-ref_ptr<ArrayState> DisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
-{
-    return DisplacementMapArrayState::create(*arrayState);
 }
 
 void DisplacementMapArrayState::apply(const DescriptorImage& di)
@@ -485,16 +444,6 @@ TranslationAndDisplacementMapArrayState::TranslationAndDisplacementMapArrayState
 {
 }
 
-ref_ptr<ArrayState> TranslationAndDisplacementMapArrayState::cloneArrayState()
-{
-    return TranslationAndDisplacementMapArrayState::create(*this);
-}
-
-ref_ptr<ArrayState> TranslationAndDisplacementMapArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
-{
-    return TranslationAndDisplacementMapArrayState::create(*arrayState);
-}
-
 void TranslationAndDisplacementMapArrayState::apply(const VertexInputState& vas)
 {
     getAttributeDetails(vas, vertex_attribute_location, vertexAttribute);
@@ -560,16 +509,6 @@ BillboardArrayState::BillboardArrayState(const BillboardArrayState& rhs) :
 BillboardArrayState::BillboardArrayState(const ArrayState& rhs) :
     Inherit(rhs)
 {
-}
-
-ref_ptr<ArrayState> BillboardArrayState::cloneArrayState()
-{
-    return BillboardArrayState::create(*this);
-}
-
-ref_ptr<ArrayState> BillboardArrayState::cloneArrayState(ref_ptr<ArrayState> arrayState)
-{
-    return BillboardArrayState::create(*arrayState);
 }
 
 void BillboardArrayState::apply(const VertexInputState& vas)
