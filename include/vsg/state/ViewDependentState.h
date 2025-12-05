@@ -148,6 +148,8 @@ namespace vsg
         ref_ptr<DescriptorSetLayout> descriptorSetLayout;
         ref_ptr<DescriptorSet> descriptorSet;
 
+        double LODScale = 1.0;
+
         // shadow map hints
         double maxShadowDistance = 1e8;
         double shadowMapBias = 0.005;

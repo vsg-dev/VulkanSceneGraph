@@ -163,6 +163,8 @@ void RecordTraversal::apply(const LOD& lod)
         return;
     }
 
+    if (viewDependentState) lodDistance *= viewDependentState->LODScale;
+
     for (auto& child : lod.children)
     {
         auto cutoff = lodDistance * child.minimumScreenHeightRatio;
@@ -193,6 +195,8 @@ void RecordTraversal::apply(const PagedLOD& plod)
 
         return;
     }
+
+    if (viewDependentState) lodDistance *= viewDependentState->LODScale;
 
     // check the high res child to see if it's visible
     {
@@ -565,6 +569,8 @@ void RecordTraversal::apply(const View& view)
     state->_commandBuffer->viewID = view.viewID;
     state->_commandBuffer->viewDependentState = view.viewDependentState.get();
 
+
+
     // cache the previous bins
     int32_t cached_minimumBinNumber = minimumBinNumber;
 
@@ -598,6 +604,7 @@ void RecordTraversal::apply(const View& view)
     if (viewDependentState)
     {
         viewDependentState->clear();
+        viewDependentState->LODScale = view.LODScale;
     }
 
     state->pushView(view);
