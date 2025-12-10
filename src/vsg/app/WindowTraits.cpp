@@ -85,7 +85,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
     depthFormat(traits.depthFormat),
     depthImageUsage(traits.depthImageUsage),
     queueFlags(traits.queueFlags),
-    queuePiorities(traits.queuePiorities),
+    queuePriorities(traits.queuePriorities),
     imageAvailableSemaphoreWaitFlag(traits.imageAvailableSemaphoreWaitFlag),
     debugLayer(traits.debugLayer),
     synchronizationLayer(traits.synchronizationLayer),
