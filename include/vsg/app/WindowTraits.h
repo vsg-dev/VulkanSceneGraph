@@ -70,7 +70,7 @@ namespace vsg
         VkImageUsageFlags depthImageUsage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
         VkQueueFlags queueFlags = VK_QUEUE_GRAPHICS_BIT;
-        std::vector<float> queuePiorities{1.0, 0.0};
+        std::vector<float> queuePriorities{1.0, 0.0};
         VkPipelineStageFlagBits imageAvailableSemaphoreWaitFlag = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         // hints to which extension to enable during Instance/Device setup
