@@ -96,39 +96,39 @@ Context::Context(Device* in_device, const ResourceRequirements& in_resourceRequi
     //semaphore = vsg::Semaphore::create(device);
     scratchMemory = ScratchMemory::create(4096);
 
-    vsg::debug("Context::Context() ", this);
+    vsg::info("Context::Context() ", this);
 
     deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
     if (!deviceMemoryBufferPools)
     {
         device->deviceMemoryBufferPools = deviceMemoryBufferPools = MemoryBufferPools::create("Device_MemoryBufferPool", device, in_resourceRequirements);
-        vsg::debug("Context::Context() creating new deviceMemoryBufferPools = ", deviceMemoryBufferPools);
+        vsg::info("Context::Context() creating new deviceMemoryBufferPools = ", deviceMemoryBufferPools);
     }
     else
     {
-        vsg::debug("Context::Context() reusing deviceMemoryBufferPools = ", deviceMemoryBufferPools);
+        vsg::info("Context::Context() reusing deviceMemoryBufferPools = ", deviceMemoryBufferPools);
     }
 
     stagingMemoryBufferPools = device->stagingMemoryBufferPools.ref_ptr();
     if (!stagingMemoryBufferPools)
     {
         device->stagingMemoryBufferPools = stagingMemoryBufferPools = MemoryBufferPools::create("Staging_MemoryBufferPool", device, in_resourceRequirements);
-        vsg::debug("Context::Context() creating new stagingMemoryBufferPools = ", stagingMemoryBufferPools);
+        vsg::info("Context::Context() creating new stagingMemoryBufferPools = ", stagingMemoryBufferPools);
     }
     else
     {
-        vsg::debug("Context::Context() reusing stagingMemoryBufferPools = ", stagingMemoryBufferPools);
+        vsg::info("Context::Context() reusing stagingMemoryBufferPools = ", stagingMemoryBufferPools);
     }
 
     descriptorPools = device->descriptorPools.ref_ptr();
     if (!descriptorPools)
     {
         device->descriptorPools = descriptorPools = DescriptorPools::create(device);
-        vsg::debug("Context::Context() creating new descriptorPools = ", descriptorPools);
+        vsg::info("Context::Context() creating new descriptorPools = ", descriptorPools);
     }
     else
     {
-        vsg::debug("Context::Context() reusing descriptorPools = ", descriptorPools);
+        vsg::info("Context::Context() reusing descriptorPools = ", descriptorPools);
     }
 
     if ((resourceRequirements.viewportStateHint & DYNAMIC_VIEWPORTSTATE))

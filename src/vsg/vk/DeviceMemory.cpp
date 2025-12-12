@@ -18,26 +18,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define DO_CHECK 0
-
-static std::mutex s_DeviceMemoryListMutex;
-static std::list<vsg::observer_ptr<DeviceMemory>> s_DeviceMemoryList;
-
-DeviceMemoryList vsg::getActiveDeviceMemoryList(VkMemoryPropertyFlagBits propertyFlags)
-{
-    std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
-    DeviceMemoryList dml;
-    for (auto& dm : s_DeviceMemoryList)
-    {
-        auto dm_ref_ptr = dm.ref_ptr();
-        if ((dm_ref_ptr->getMemoryPropertyFlags() & propertyFlags) != 0)
-        {
-            dml.push_back(dm_ref_ptr);
-        }
-    }
-    return dml;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // DeviceMemory
@@ -64,21 +44,6 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     }
     uint32_t memoryTypeIndex = i;
 
-#if DO_CHECK
-    if (properties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-    {
-        static VkDeviceSize s_TotalDeviceMemoryAllocated = 0;
-        s_TotalDeviceMemoryAllocated += memRequirements.size;
-        debug("Device Local DeviceMemory::DeviceMemory() ", std::dec, memRequirements.size, ", ", memRequirements.alignment, ", ", memRequirements.memoryTypeBits, ",  s_TotalMemoryAllocated = ", s_TotalDeviceMemoryAllocated);
-    }
-    else
-    {
-        static VkDeviceSize s_TotalHostMemoryAllocated = 0;
-        s_TotalHostMemoryAllocated += memRequirements.size;
-        debug("Staging DeviceMemory::DeviceMemory()  ", std::dec, memRequirements.size, ", ", memRequirements.alignment, ", ", memRequirements.memoryTypeBits, ",  s_TotalMemoryAllocated = ", s_TotalHostMemoryAllocated);
-    }
-#endif
-
     VkMemoryAllocateInfo allocateInfo = {};
     allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocateInfo.allocationSize = memRequirements.size;
@@ -90,36 +55,16 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
         throw Exception{"Error: Failed to allocate DeviceMemory.", result};
     }
 
-    {
-        std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
-        s_DeviceMemoryList.emplace_back(this);
-        vsg::debug("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
-    }
+    vsg::info("DeviceMemory::DeviceMemory() ", this, " _deviceMemory = ", _deviceMemory, ", size = ", memRequirements.size);
 }
 
 DeviceMemory::~DeviceMemory()
 {
     if (_deviceMemory)
     {
-#if DO_CHECK
-        debug("DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, ", _deviceMemory, ", _allocator);");
-#endif
+        info("DeviceMemory::~DeviceMemory() ", this, " vkFreeMemory(*_device, ", _deviceMemory, ", _allocator);");
 
         vkFreeMemory(*_device, _deviceMemory, _device->getAllocationCallbacks());
-    }
-
-    {
-        std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
-        auto itr = std::find(s_DeviceMemoryList.begin(), s_DeviceMemoryList.end(), this);
-        if (itr != s_DeviceMemoryList.end())
-        {
-            s_DeviceMemoryList.erase(itr);
-            vsg::debug("DeviceMemory::~DeviceMemory() removed from s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
-        }
-        else
-        {
-            vsg::warn("DeviceMemory::~DeviceMemory() could not find in  s_DeviceMemoryList");
-        }
     }
 }
 

@@ -168,7 +168,7 @@ void ImageView::compile(Context& context)
     }
 }
 
-ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image> image, VkImageAspectFlags aspectFlags)
+ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image> image, VkImageAspectFlags aspectFlags, const char* message)
 {
     vsg::Device* device = context.device;
 
@@ -184,17 +184,20 @@ ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image> im
     auto imageView = ImageView::create(image, aspectFlags);
     imageView->compile(device);
 
+    vsg::info("vsg::createImageView(Context&, ", image, ", ", aspectFlags, ") ", message ? message : "");
+
     return imageView;
 }
 
-ref_ptr<ImageView> vsg::createImageView(Device* device, ref_ptr<Image> image, VkImageAspectFlags aspectFlags)
+ref_ptr<ImageView> vsg::createImageView(Device* device, ref_ptr<Image> image, VkImageAspectFlags aspectFlags, const char* message)
 {
     image->compile(device);
 
-    image->allocateAndBindMemory(device);
+    image->allocateAndBindMemory(device, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, nullptr, message);
 
     auto imageView = ImageView::create(image, aspectFlags);
     imageView->compile(device);
 
+    vsg::info("vsg::createImageView(Device&, ", image, ", ", aspectFlags, ") ", message ? message : "");
     return imageView;
 }

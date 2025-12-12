@@ -307,7 +307,7 @@ void Window::buildSwapchain()
         _multisampleImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         _multisampleImage->compile(_device);
-        _multisampleImage->allocateAndBindMemory(_device);
+        _multisampleImage->allocateAndBindMemory(_device, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, nullptr, "Window::buildSwapchain() _multisampleImage");
 
         _multisampleImageView = ImageView::create(_multisampleImage, VK_IMAGE_ASPECT_COLOR_BIT);
         _multisampleImageView->compile(_device);
@@ -332,7 +332,7 @@ void Window::buildSwapchain()
     _depthImage->usage = _traits->depthImageUsage;
 
     _depthImage->compile(_device);
-    _depthImage->allocateAndBindMemory(_device);
+    _depthImage->allocateAndBindMemory(_device, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, nullptr, "Window::buildSwapchain() _depthImage");
 
     _depthImageView = ImageView::create(_depthImage);
     _depthImageView->compile(_device);
@@ -358,7 +358,7 @@ void Window::buildSwapchain()
         _depthImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
         _depthImage->compile(_device);
-        _depthImage->allocateAndBindMemory(_device);
+        _depthImage->allocateAndBindMemory(_device, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, nullptr, "Window::buildSwapchain() _depthImage resolve");
 
         _depthImageView = ImageView::create(_depthImage);
         _depthImageView->compile(_device);

@@ -36,15 +36,27 @@ namespace vsg
 
         VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;
+        VkDeviceSize computeMemoryTotalSize() const;
+
         VkDeviceSize computeBufferTotalAvailable() const;
         VkDeviceSize computeBufferTotalReserved() const;
+        VkDeviceSize computeBufferTotalSize() const;
 
         ref_ptr<BufferInfo> reserveBuffer(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
 
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
         DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
 
+        VkPhysicalDeviceMemoryBudgetPropertiesEXT startMemoryBudget;
+        VkPhysicalDeviceMemoryProperties2 startMemoryProperties2;
+
+        VkPhysicalDeviceMemoryBudgetPropertiesEXT currentMemoryBudget;
+        VkPhysicalDeviceMemoryProperties2 currentMemoryProperties2;
+
     protected:
+
+        virtual ~MemoryBufferPools();
+
         mutable std::mutex _mutex;
 
         // transfer data settings

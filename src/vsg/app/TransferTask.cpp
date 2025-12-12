@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/utils/Instrumentation.h>
 #include <vsg/vk/State.h>
+#include <vsg/vk/MemoryBufferPools.h>
 
 using namespace vsg;
 
@@ -35,7 +36,7 @@ TransferTask::TransferTask(Device* in_device, uint32_t numBuffers) :
         _lateDataToCopy.frames.emplace_back(TransferBlock::create());
     }
 
-    // level = Logger::LOGGER_INFO;
+    //level = Logger::LOGGER_INFO;
 }
 
 bool TransferTask::containsDataToTransfer(TransferMask transferMask) const
@@ -170,11 +171,12 @@ void TransferTask::_transferBufferInfos(DataToCopy& dataToCopy, VkCommandBuffer 
 
         if (regionCount > 0)
         {
+            auto& staging_buffer = staging->buffer;
             auto& buffer = buffer_itr->first;
 
-            vkCmdCopyBuffer(vk_commandBuffer, staging->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
+            vkCmdCopyBuffer(vk_commandBuffer, staging_buffer->vk(deviceID), buffer->vk(deviceID), regionCount, pRegions);
 
-            log(level, "   vkCmdCopyBuffer(", ", ", staging->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
+            log(level, "   vkCmdCopyBuffer(", ", ", staging_buffer->vk(deviceID), ", ", buffer->vk(deviceID), ", ", regionCount, ", ", pRegions);
 
             // advance to next buffer
             pRegions += regionCount;
@@ -334,7 +336,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     }
 
     // transfer data.
-    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, imageStagingBuffer, source_offset, vk_commandBuffer, device);
+    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, imageStagingBuffer->buffer, source_offset, vk_commandBuffer, device);
 }
 
 TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
@@ -465,7 +467,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     VkResult result = VK_SUCCESS;
 
     // allocate staging buffer if required
-    if (!staging || staging->size < totalSize)
+    if (!staging || staging->range < totalSize)
     {
         if (totalSize < minimumStagingBufferSize)
         {
@@ -473,14 +475,20 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
             log(level, "    Clamping totalSize to ", minimumStagingBufferSize);
         }
 
-        VkDeviceSize previousSize = staging ? staging->size : 0;
+        VkDeviceSize previousSize = staging ? staging->range : 0;
 
         VkMemoryPropertyFlags stagingMemoryPropertiesFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-        staging = vsg::createBufferAndMemory(device, totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
 
-        auto stagingMemory = staging->getDeviceMemory(deviceID);
+        auto stagingMemoryBufferPools = device->stagingMemoryBufferPools.ref_ptr();
+        staging = stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_SHARING_MODE_EXCLUSIVE, stagingMemoryPropertiesFlags);
+
+        auto stagingMemory = staging->buffer->getDeviceMemory(deviceID);
         buffer_data = nullptr;
-        result = stagingMemory->map(staging->getMemoryOffset(deviceID), staging->size, 0, &buffer_data);
+
+        result = stagingMemory->map(staging->buffer->getMemoryOffset(deviceID), staging->range, 0, &buffer_data);
+
+        vsg::info(" TransferTask::_transferData()  allocated { ", staging->buffer, ", ", staging->range, ", ", staging->offset, " }, from staging buffer");
+
 
         log(level, "    TransferTask::transferData() frameIndex = ", dataToCopy.frameIndex, ", previousSize = ", previousSize, ", allocated staging buffer = ", staging, ", totalSize = ", totalSize, ", result = ", result);
 

@@ -153,14 +153,34 @@ size_t Buffer::totalReservedSize() const
     return _memorySlots.totalReservedSize();
 }
 
-ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo)
+ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, VkBufferUsageFlags usage, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo, const char* message)
 {
     auto buffer = vsg::Buffer::create(size, usage, sharingMode);
     buffer->compile(device);
 
     auto memRequirements = buffer->getMemoryRequirements(device->deviceID);
+
+#if 1
+    if ((memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0)
+    {
+        auto deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
+        if (deviceMemoryBufferPools)
+        {
+            auto [memory, offset] = deviceMemoryBufferPools->reserveMemory(memRequirements, memoryProperties);
+
+            vsg::info("vsg::createBufferAndMemory(size = ", size, ") A memRequirements.size = ", memRequirements.size, " ", message ? message : "");
+
+            buffer->bind(memory, offset);
+            return buffer;
+        }
+    }
+#endif
+
     auto memory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
 
     buffer->bind(memory, 0);
+
+    vsg::info("vsg::createBufferAndMemory(size = ", size, ") B memRequirements.size = ", memRequirements.size, " ", message ? message : "");
+
     return buffer;
 }

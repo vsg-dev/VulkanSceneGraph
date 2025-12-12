@@ -154,15 +154,31 @@ VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
     return result;
 }
 
-VkResult Image::allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo)
+VkResult Image::allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo, const char* message)
 {
     auto memRequirements = getMemoryRequirements(device->deviceID);
+
+#if 1
+    if ((memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0)
+    {
+        auto deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
+        if (deviceMemoryBufferPools)
+        {
+            auto [memory, offset] = deviceMemoryBufferPools->reserveMemory(memRequirements, memoryProperties);
+
+            vsg::info("Image::allocateAndBindMemory() A ", message ? message : "");
+            return bind(memory, offset);
+        }
+    }
+#endif
+
     auto memory = DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
     auto [allocated, offset] = memory->reserve(memRequirements.size);
     if (!allocated)
     {
         throw Exception{"Error: Failed to allocate DeviceMemory."};
     }
+    vsg::info("Image::allocateAndBindMemory() B ", message ? message : "");
     return bind(memory, offset);
 }
 

@@ -78,7 +78,7 @@ namespace vsg
         {
             ref_ptr<CommandBuffer> transferCommandBuffer;
             ref_ptr<Fence> fence;
-            ref_ptr<Buffer> staging;
+            ref_ptr<BufferInfo> staging;
             void* buffer_data = nullptr;
             std::vector<VkBufferCopy> copyRegions;
             bool waitOnFence = false;
