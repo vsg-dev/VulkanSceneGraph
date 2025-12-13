@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <cstdio>
 
-#if defined(WIN32) || defined(_WIN32) && !defined(__CYGWIN__)
+#if (defined(WIN32) || defined(_WIN32)) && !defined(__CYGWIN__)
 #    include <cstdlib>
 #    include <direct.h>
 #    include <io.h>
