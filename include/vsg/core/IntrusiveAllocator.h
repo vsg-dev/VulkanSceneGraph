@@ -106,6 +106,7 @@ namespace vsg
 
                 Element() = default;
                 Element(const Element&) = default;
+                Element& operator=(const Element&) = default;
             };
 
             struct FreeList
