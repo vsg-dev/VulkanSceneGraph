@@ -19,7 +19,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 
 #include <array>
-#include <map>
 #include <stack>
 
 namespace vsg
@@ -33,7 +32,8 @@ namespace vsg
     class StateStack
     {
     public:
-        StateStack() {}
+        StateStack() = default;
+        StateStack(const StateStack& rhs) = default;
 
         using Stack = std::array<const T*, STATESTACK_SIZE>;
         Stack stack;
