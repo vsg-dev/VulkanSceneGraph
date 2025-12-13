@@ -170,22 +170,19 @@ To assist with setting up software to work with the VSG when you install the lib
 
 	find_package(vsg)
 
-To select C++17 compilation you'll need:
-
-	target_compile_features(mytargetname PRIVATE cxx_std_17)
-
 To link your lib/application to required dependencies you'll need:
 
 	target_link_libraries(mytargetname vsg::vsg)
 
 This will tell CMake to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec().)
 
+This will also tell CMake that your minimum C++ standard is 17.
+
 For example, a bare minimum CMakeLists.txt file to compile a single file application would be:
 
 	cmake_minimum_required(VERSION 3.7)
 	find_package(vsg REQUIRED)
 	add_executable(myapp "myapp.cpp")
-	target_compile_features(myapp PRIVATE cxx_std_17)
 	target_link_libraries(myapp vsg::vsg)
 
 ### Using VSG provided cmake macros within your own projects
@@ -218,7 +215,6 @@ For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targe
 	vsg_add_target_uninstall()
 
 	add_executable(myapp "myapp.cpp")
-	target_compile_features(myapp PRIVATE cxx_std_17)
 	target_link_libraries(myapp vsg::vsg)
 
 ### Using VSG provided cmake macro to generate cmake support files
