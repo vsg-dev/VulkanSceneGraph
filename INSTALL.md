@@ -172,7 +172,7 @@ To assist with setting up software to work with the VSG when you install the lib
 
 To select C++17 compilation you'll need:
 
-	set_property(TARGET mytargetname PROPERTY CXX_STANDARD 17)
+	target_compile_features(mytargetname PRIVATE cxx_std_17)
 
 To link your lib/application to required dependencies you'll need:
 
@@ -185,7 +185,7 @@ For example, a bare minimum CMakeLists.txt file to compile a single file applica
 	cmake_minimum_required(VERSION 3.7)
 	find_package(vsg REQUIRED)
 	add_executable(myapp "myapp.cpp")
-	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
+	target_compile_features(myapp PRIVATE cxx_std_17)
 	target_link_libraries(myapp vsg::vsg)
 
 ### Using VSG provided cmake macros within your own projects
@@ -218,7 +218,7 @@ For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targe
 	vsg_add_target_uninstall()
 
 	add_executable(myapp "myapp.cpp")
-	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
+	target_compile_features(myapp PRIVATE cxx_std_17)
 	target_link_libraries(myapp vsg::vsg)
 
 ### Using VSG provided cmake macro to generate cmake support files
