@@ -62,7 +62,7 @@ namespace
 
 #endif
 
-#if VSG_SUPPORTS_ShaderOptimizer
+#if VSG_SUPPORTS_ShaderCompiler && VSG_SUPPORTS_ShaderOptimizer
     constexpr static spv_target_env selectTargetEnv(const ShaderCompileSettings& settings)
     {
         switch (settings.vulkanVersion)
