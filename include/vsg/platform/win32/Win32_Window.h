@@ -41,7 +41,6 @@ namespace vsgWin32
             uint16_t modifierMask = 0;
 
             // see https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
-            WORD vkCode = LOWORD(wParam); // virtual-key code
             WORD keyFlags = HIWORD(lParam);
             WORD scanCode = LOBYTE(keyFlags);                             // scan code
             BOOL isExtendedKey = (keyFlags & KF_EXTENDED) == KF_EXTENDED; // extended-key flag, 1 if scancode has 0xE0 prefix
