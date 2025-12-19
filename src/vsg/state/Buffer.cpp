@@ -159,8 +159,21 @@ ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, Vk
     buffer->compile(device);
 
     auto memRequirements = buffer->getMemoryRequirements(device->deviceID);
-    auto memory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
 
+    if ((memoryProperties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0)
+    {
+        auto deviceMemoryBufferPools = device->deviceMemoryBufferPools.ref_ptr();
+        if (deviceMemoryBufferPools)
+        {
+            auto [memory, offset] = deviceMemoryBufferPools->reserveMemory(memRequirements, memoryProperties);
+
+            buffer->bind(memory, offset);
+            return buffer;
+        }
+    }
+
+    auto memory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
     buffer->bind(memory, 0);
+
     return buffer;
 }
