@@ -36,7 +36,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     template<typename T>
-    class VSG_DECLSPEC Value : public Data
+    class Value : public Data
     {
     public:
         using value_type = T;

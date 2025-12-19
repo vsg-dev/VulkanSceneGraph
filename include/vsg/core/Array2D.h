@@ -30,7 +30,7 @@ namespace vsg
 {
 
     template<typename T>
-    class VSG_DECLSPEC Array2D : public Data
+    class Array2D : public Data
     {
     public:
         using value_type = T;
