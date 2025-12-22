@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma warning(disable : 4251)
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #    if defined(vsg_EXPORTS)
 #        define VSG_DECLSPEC __declspec(dllexport)
 #    elif defined(VSG_SHARED_LIBRARY)

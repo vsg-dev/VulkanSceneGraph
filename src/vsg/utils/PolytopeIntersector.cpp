@@ -78,7 +78,7 @@ namespace vsg
             {
                 size_t numNegativeDistances = 0;
                 size_t numPositiveDistances = 0;
-                size_t numZeroDistances = 0;
+                [[maybe_unused]] size_t numZeroDistances = 0;
                 processedDistances.resize(0);
                 for (const auto& v : processedVertices)
                 {
