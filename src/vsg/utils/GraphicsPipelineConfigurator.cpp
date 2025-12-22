@@ -675,6 +675,20 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 {
                     if (sharedObjects)
                     {
+                        for (auto& descriptor : ds->descriptors)
+                        {
+                            if (auto descriptor_image = descriptor.cast<vsg::DescriptorImage>())
+                            {
+                                for (auto& image_info : descriptor_image->imageInfoList)
+                                {
+                                    if (image_info->imageView && image_info->imageView->image)
+                                    {
+                                        sharedObjects->share(image_info->imageView->image);
+                                    }
+                                }
+                            }
+                            sharedObjects->share(descriptor);
+                        }
                         sharedObjects->share(ds->setLayout);
                         sharedObjects->share(ds);
                         sharedObjects->share(bindDescriptorSet);
