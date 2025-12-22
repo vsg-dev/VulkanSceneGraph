@@ -277,18 +277,18 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     if (contextSelection)
     {
-        std::list<ref_ptr<Context>> contexts;
+        std::list<ref_ptr<Context>> activeContexts;
 
         for (auto& context : compileTraversal->contexts)
         {
-            if (contextSelection(*context)) contexts.push_back(context);
+            if (contextSelection(*context)) activeContexts.push_back(context);
         }
 
-        compileTraversal->contexts.swap(contexts);
+        compileTraversal->contexts.swap(activeContexts);
 
         run_compile_traversal();
 
-        compileTraversal->contexts.swap(contexts);
+        compileTraversal->contexts.swap(activeContexts);
     }
     else
     {
