@@ -246,7 +246,7 @@ namespace vsg
     };
 
     /// vsg::State is used by vsg::RecordTraversal to manage state stacks, projection and modelview matrices and frustum stacks.
-    class State : public Inherit<Object, State>
+    class VSG_DECLSPEC State : public Inherit<Object, State>
     {
     public:
         explicit State(const Slots& in_maxSlots);
