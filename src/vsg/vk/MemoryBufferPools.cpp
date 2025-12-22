@@ -24,6 +24,53 @@ MemoryBufferPools::MemoryBufferPools(const std::string& in_name, ref_ptr<Device>
     minimumBufferSize(in_resourceRequirements.minimumBufferSize),
     minimumDeviceMemorySize(in_resourceRequirements.minimumDeviceMemorySize)
 {
+    startMemoryBudget.sType =  VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+    startMemoryBudget.pNext = nullptr;
+    startMemoryProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    startMemoryProperties2.pNext = &startMemoryBudget;
+
+    currentMemoryBudget.sType =  VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+    currentMemoryBudget.pNext = nullptr;
+    currentMemoryProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    currentMemoryProperties2.pNext = &currentMemoryBudget;
+
+    vsg::info("MemoryBufferPools::MemoryBufferPools() ", name);
+    vsg::info("{");
+
+    if (name=="Device_MemoryBufferPool")
+    {
+        vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &startMemoryProperties2);
+
+        VkPhysicalDeviceMemoryProperties& memoryProperties = startMemoryProperties2.memoryProperties;
+        for(uint32_t i=0; i<memoryProperties.memoryHeapCount; ++i)
+        {
+            double percentage = 100.0*(static_cast<double>(startMemoryBudget.heapUsage[i])/static_cast<double>(startMemoryBudget.heapBudget[i]));
+            vsg::info("   usage = ", startMemoryBudget.heapUsage[i], "  budget = ", startMemoryBudget.heapBudget[i], ", ", percentage, "%" );
+        }
+        vsg::info("}");
+    }
+}
+
+MemoryBufferPools::~MemoryBufferPools()
+{
+    vsg::info("MemoryBufferPools::~MemoryBufferPools() ", name);
+    vsg::info("{");
+    vsg::info("  computeMemoryTotalSize = ",  computeMemoryTotalSize(), " in ", memoryPools.size(), ", vsg::DeviceMemory objects");
+    vsg::info("  computeBufferTotalSize = ",  computeBufferTotalSize(), " in ", bufferPools.size(), ", vsg::Buffer objects");
+
+    if (name=="Device_MemoryBufferPool")
+    {
+        vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &currentMemoryProperties2);
+
+        VkPhysicalDeviceMemoryProperties& memoryProperties = currentMemoryProperties2.memoryProperties;
+        for(uint32_t i=0; i<memoryProperties.memoryHeapCount; ++i)
+        {
+            VkDeviceSize delta = currentMemoryBudget.heapUsage[i]-startMemoryBudget.heapUsage[i];
+            double percentage = 100.0*(static_cast<double>(currentMemoryBudget.heapUsage[i])/static_cast<double>(currentMemoryBudget.heapBudget[i]));
+            vsg::info("   usage = ", currentMemoryBudget.heapUsage[i], "  budget = ", currentMemoryBudget.heapBudget[i], ", ", percentage, "%", " delta = ",  delta);
+        }
+    }
+    vsg::info("}");
 }
 
 VkDeviceSize MemoryBufferPools::computeMemoryTotalAvailable() const
@@ -50,6 +97,18 @@ VkDeviceSize MemoryBufferPools::computeMemoryTotalReserved() const
     return totalReservedSize;
 }
 
+VkDeviceSize MemoryBufferPools::computeMemoryTotalSize() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    VkDeviceSize totalSize = 0;
+    for (auto& deviceMemory : memoryPools)
+    {
+        totalSize += deviceMemory->totalMemorySize();
+    }
+    return totalSize;
+}
+
 VkDeviceSize MemoryBufferPools::computeBufferTotalAvailable() const
 {
     std::scoped_lock<std::mutex> lock(_mutex);
@@ -72,6 +131,18 @@ VkDeviceSize MemoryBufferPools::computeBufferTotalReserved() const
         totalReservedSize += buffer->totalReservedSize();
     }
     return totalReservedSize;
+}
+
+VkDeviceSize MemoryBufferPools::computeBufferTotalSize() const
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    VkDeviceSize totalSize = 0;
+    for (auto& buffer : bufferPools)
+    {
+        totalSize += buffer->size;
+    }
+    return totalSize;
 }
 
 ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
@@ -104,16 +175,21 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
         bufferInfo->offset = reservedBufferSlot.second;
         bufferInfo->range = totalSize;
 
-        //debug(name, " : Created new Buffer ", bufferInfo->buffer.get(), " totalSize ", totalSize, " deviceSize = ", deviceSize);
+        info(name, " : Created new Buffer ", bufferInfo->buffer.get(), " totalSize ", totalSize, " deviceSize = ", deviceSize);
 
-        if (!bufferInfo->buffer->full())
+        //if (!bufferInfo->buffer->full())
+        if (true)
         {
-            //debug(name, "  inserting new Buffer into Context.bufferPools");
+            info(name, "  inserting new Buffer into MemoryBufferPools.bufferPools");
             bufferPools.push_back(bufferInfo->buffer);
+        }
+        else
+        {
+            info(name, "  new Buffer is full so do not insert into Context.bufferPools");
         }
     }
 
-    //debug(name, " : bufferInfo->offset = ", bufferInfo->offset);
+    info(name, " : bufferInfo->offset = ", bufferInfo->offset);
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(*device, bufferInfo->buffer->vk(device->deviceID), &memRequirements);
@@ -122,11 +198,11 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     if (!reservedMemorySlot.first)
     {
-        //debug(name, " : Completely Failed to space for MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ") ");
+        info(name, " : Completely Failed to space for MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ") ");
         return {};
     }
 
-    //debug(name, " : Allocated new buffer, MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ") ");
+    info(name, " : Allocated new buffer, MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ") ");
     bufferInfo->buffer->bind(reservedMemorySlot.first, reservedMemorySlot.second);
 
     return bufferInfo;
@@ -162,16 +238,16 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         // clamp to an aligned size
         deviceMemorySize = ((deviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
 
-        //debug("Creating new local DeviceMemory");
+        info("Creating new local DeviceMemory");
         if (memRequirements.size < deviceMemorySize) memRequirements.size = deviceMemorySize;
 
         deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryProperties, pNextAllocInfo);
         if (deviceMemory)
         {
             reservedSlot = deviceMemory->reserve(totalSize);
-            if (!deviceMemory->full())
+            // if (!deviceMemory->full())
             {
-                //debug("  inserting DeviceMemory into memoryPool ", deviceMemory.get());
+                info("  inserting DeviceMemory into memoryPool ", deviceMemory.get());
                 memoryPools.push_back(deviceMemory);
             }
         }
@@ -180,7 +256,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     {
         if (deviceMemory->full())
         {
-            //debug("DeviceMemory is full ", deviceMemory.get());
+            info("DeviceMemory is full ", deviceMemory.get());
         }
     }
 

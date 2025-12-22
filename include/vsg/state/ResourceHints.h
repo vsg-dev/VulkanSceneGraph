@@ -14,6 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/maths/vec2.h>
 #include <vsg/vk/DescriptorPool.h>
+#include <vsg/state/BufferInfo.h>
+#include <vsg/state/ImageInfo.h>
 
 namespace vsg
 {
@@ -28,6 +30,26 @@ namespace vsg
     {
         STATIC_VIEWPORTSTATE = 1 << 0,
         DYNAMIC_VIEWPORTSTATE = 1 << 1
+    };
+
+    struct DynamicData
+    {
+        BufferInfoList bufferInfos;
+        ImageInfoList imageInfos;
+
+        explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty(); }
+
+        void clear()
+        {
+            bufferInfos.clear();
+            imageInfos.clear();
+        }
+
+        void add(const DynamicData& dd)
+        {
+            bufferInfos.insert(bufferInfos.end(), dd.bufferInfos.begin(), dd.bufferInfos.end());
+            imageInfos.insert(imageInfos.end(), dd.imageInfos.begin(), dd.imageInfos.end());
+        }
     };
 
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
@@ -55,6 +77,16 @@ namespace vsg
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
         uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
+
+        VkDeviceSize bufferMemoryRequirements = 0;
+        VkDeviceSize imageMemoryRequirements = 0;
+
+        DynamicData dynamicData;
+
+        bool containsPagedLOD = false;
+
+        /// hint whether CollectResourceRequirements visitor should traverse the subgraph below a node that has a "ResourceHints" assignd as meta data.
+        bool noTraverseBelowResourceHints = false;
 
     public:
         void read(Input& input) override;

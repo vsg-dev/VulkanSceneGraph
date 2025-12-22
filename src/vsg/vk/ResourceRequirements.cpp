@@ -85,6 +85,11 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
 
     dataTransferHint = resourceHints.dataTransferHint;
     viewportStateHint = resourceHints.viewportStateHint;
+
+    bufferMemoryRequirements += resourceHints.bufferMemoryRequirements;
+    imageMemoryRequirements += resourceHints.imageMemoryRequirements;
+    dynamicData.add(resourceHints.dynamicData);
+    containsPagedLOD = containsPagedLOD | resourceHints.containsPagedLOD;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -104,6 +109,13 @@ ref_ptr<ResourceHints> CollectResourceRequirements::createResourceHints(uint32_t
         poolSize.descriptorCount = poolSize.descriptorCount * tileMultiplier;
     }
 
+    resourceHints->bufferMemoryRequirements = requirements.bufferMemoryRequirements;
+    resourceHints->imageMemoryRequirements = requirements.imageMemoryRequirements;
+    resourceHints->dynamicData = requirements.dynamicData;
+    resourceHints->containsPagedLOD = requirements.containsPagedLOD;
+
+    resourceHints->noTraverseBelowResourceHints = true;
+
     return resourceHints;
 }
 
@@ -118,7 +130,7 @@ bool CollectResourceRequirements::checkForResourceHints(const Object& object)
     if (resourceHints)
     {
         apply(*resourceHints);
-        return true;
+        return resourceHints->noTraverseBelowResourceHints;
     }
     else
     {
@@ -133,23 +145,24 @@ void CollectResourceRequirements::apply(const ResourceHints& resourceHints)
 
 void CollectResourceRequirements::apply(const Node& node)
 {
-    bool hasResourceHints = checkForResourceHints(node);
-    if (hasResourceHints) ++_numResourceHintsAbove;
+    if (checkForResourceHints(node))
+    {
+        return;
+    }
 
     node.traverse(*this);
-
-    if (hasResourceHints) --_numResourceHintsAbove;
 }
 
 void CollectResourceRequirements::apply(const PagedLOD& plod)
 {
-    bool hasResourceHints = checkForResourceHints(plod);
-    if (hasResourceHints) ++_numResourceHintsAbove;
-
     requirements.containsPagedLOD = true;
-    plod.traverse(*this);
 
-    if (hasResourceHints) --_numResourceHintsAbove;
+    if (checkForResourceHints(plod))
+    {
+        return;
+    }
+
+    plod.traverse(*this);
 }
 
 void CollectResourceRequirements::apply(const StateCommand& stateCommand)
@@ -302,21 +315,41 @@ void CollectResourceRequirements::apply(const BindIndexBuffer& bib)
 
 void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo)
 {
-    if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
+    if (bufferInfo && requirements.bufferInfos.count(bufferInfo)==0)
     {
-        requirements.dynamicData.bufferInfos.push_back(bufferInfo);
+        requirements.bufferInfos.insert(bufferInfo);
+
+        if (bufferInfo->data)
+        {
+            if (bufferInfo->data->dynamic())
+            {
+                requirements.dynamicData.bufferInfos.push_back(bufferInfo);
+            }
+
+            requirements.bufferMemoryRequirements += bufferInfo->data->dataSize();
+        }
     }
 }
 
 void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
 {
-    if (imageInfo && imageInfo->imageView && imageInfo->imageView->image)
+    if (imageInfo && requirements.imageInfos.count(imageInfo)==0)
     {
-        // check for dynamic data
-        auto& data = imageInfo->imageView->image->data;
-        if (data && data->dynamic())
+        if (imageInfo->imageView && imageInfo->imageView->image)
         {
-            requirements.dynamicData.imageInfos.push_back(imageInfo);
+            requirements.imageInfos.insert(imageInfo);
+
+            // check for dynamic data
+            auto& data = imageInfo->imageView->image->data;
+            if (data)
+            {
+                if (data->dynamic())
+                {
+                    requirements.dynamicData.imageInfos.push_back(imageInfo);
+                }
+
+                requirements.imageMemoryRequirements += data->dataSize();
+            }
         }
     }
 }

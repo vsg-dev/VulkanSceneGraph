@@ -51,7 +51,7 @@ namespace vsg
 
         ref_ptr<Device> device;
 
-        void assign(const ResourceRequirements::DynamicData& dynamicData);
+        void assign(const DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
         void assign(const ImageInfoList& imageInfoList);
 

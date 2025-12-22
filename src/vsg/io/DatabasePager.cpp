@@ -515,18 +515,40 @@ void DatabasePager::start(uint32_t numReadThreads)
                         plod->pending = subgraph;
                     }
 
-                    // compile plod
-                    if (auto result = databasePager.compileManager->compile(subgraph))
+                    CollectResourceRequirements collectRequirements;
+                    subgraph->accept(collectRequirements);
+                    const auto& requirements = collectRequirements.requirements;
+                    VkDeviceSize requiredMemory = requirements.bufferMemoryRequirements + requirements.imageMemoryRequirements;
+                    VkDeviceSize availableMemory = databasePager.compileManager->availableMemory();
+                    if (requiredMemory < availableMemory)
                     {
-                        plod->requestStatus.exchange(PagedLOD::MergeRequest);
-
-                        // move to the merge queue;
-                        databasePager._toMergeQueue->add(plod, result);
+                        vsg::info("Space Available :-) readThread ", plod->filename, ", requiredMemory = ", requiredMemory, ", availableMemory = ", availableMemory);
                     }
                     else
                     {
-                        debug("Failed to compile ", plod, " ", plod->filename);
+                        vsg::info("ARRRR No Space Available :-| readThread ", plod->filename, ", requiredMemory = ", requiredMemory, ", availableMemory = ", availableMemory);
+                    }
+
+                    try
+                    {
+                        // compile plod
+                        if (auto result = databasePager.compileManager->compile(subgraph))
+                        {
+                            plod->requestStatus.exchange(PagedLOD::MergeRequest);
+
+                            // move to the merge queue;
+                            databasePager._toMergeQueue->add(plod, result);
+                        }
+                        else
+                        {
+                            debug("Failed to compile ", plod, " ", plod->filename);
+                            databasePager.requestDiscarded(plod);
+                        }
+                    }
+                    catch(...)
+                    {
                         databasePager.requestDiscarded(plod);
+                        vsg::info("FAILED to Compile and throw exception ", plod);
                     }
                 }
                 else
