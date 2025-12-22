@@ -17,7 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <cstdio>
 
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #    include <cstdlib>
 #    include <direct.h>
 #    include <io.h>
@@ -223,7 +223,7 @@ Path vsg::executableFilePath()
 {
     Path path;
 
-#if defined(WIN32)
+#if defined(_WIN32)
     TCHAR buf[PATH_MAX + 1];
     DWORD result = GetModuleFileName(NULL, buf, static_cast<DWORD>(std::size(buf) - 1));
     if (result && result < std::size(buf))
