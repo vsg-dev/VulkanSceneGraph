@@ -29,7 +29,7 @@ namespace vsg
     struct QueueSetting
     {
         int queueFamilyIndex = -1;
-        std::vector<float> queuePiorities;
+        std::vector<float> queuePriorities;
     };
 
     using QueueSettings = std::vector<QueueSetting>;

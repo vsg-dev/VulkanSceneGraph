@@ -87,10 +87,10 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = static_cast<uint32_t>(queueSetting.queueFamilyIndex);
 
-        if (!queueSetting.queuePiorities.empty())
+        if (!queueSetting.queuePriorities.empty())
         {
-            queueCreateInfo.queueCount = static_cast<uint32_t>(queueSetting.queuePiorities.size());
-            queueCreateInfo.pQueuePriorities = queueSetting.queuePiorities.data();
+            queueCreateInfo.queueCount = static_cast<uint32_t>(queueSetting.queuePriorities.size());
+            queueCreateInfo.pQueuePriorities = queueSetting.queuePriorities.data();
 
             uint32_t supportedQueueCount = queueFamilyProperties[queueSetting.queueFamilyIndex].queueCount;
             if (queueCreateInfo.queueCount > supportedQueueCount)
