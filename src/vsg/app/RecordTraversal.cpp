@@ -569,8 +569,6 @@ void RecordTraversal::apply(const View& view)
     state->_commandBuffer->viewID = view.viewID;
     state->_commandBuffer->viewDependentState = view.viewDependentState.get();
 
-
-
     // cache the previous bins
     int32_t cached_minimumBinNumber = minimumBinNumber;
 

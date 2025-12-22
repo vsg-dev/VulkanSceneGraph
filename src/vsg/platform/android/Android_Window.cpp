@@ -297,7 +297,7 @@ static JNIEnv* getJNIEnvFromJavaVM(JavaVM* vm)
     assert(vm);
     JNIEnv* env = nullptr;
     jint ret = vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    if(ret == JNI_EDETACHED)
+    if (ret == JNI_EDETACHED)
     {
         JavaVMAttachArgs args = {JNI_VERSION_1_6, "NativeActivityThread", nullptr};
         ret = vm->AttachCurrentThread(&env, &args);
@@ -322,7 +322,7 @@ void KeyboardMap::initializeKeyCharacterMap(void* vm)
     if (!env)
         return;
 
-    jclass KeyCharacterMap = env->FindClass("android/view/KeyCharacterMap");  // Since API level 1
+    jclass KeyCharacterMap = env->FindClass("android/view/KeyCharacterMap"); // Since API level 1
     assert(KeyCharacterMap);
 
     classKeyCharacterMap = (jclass)env->NewGlobalRef(KeyCharacterMap);
@@ -338,7 +338,7 @@ void KeyboardMap::releaseKeyCharacterMap()
     if (classKeyCharacterMap)
     {
         JNIEnv* env = getJNIEnvFromJavaVM(javaVM);
-        if(env)
+        if (env)
         {
             env->DeleteGlobalRef(classKeyCharacterMap);
             classKeyCharacterMap = nullptr;
@@ -350,14 +350,14 @@ void KeyboardMap::releaseKeyCharacterMap()
 
 int32_t KeyboardMap::getUnicodeChar(int32_t keyCode, int32_t metaState)
 {
-    if(!javaVM || !classKeyCharacterMap || !methodLoad || !methodGet)
+    if (!javaVM || !classKeyCharacterMap || !methodLoad || !methodGet)
     {
         vsg::warn("JNI not initialized");
         return 0;
     }
 
     JNIEnv* env = getJNIEnvFromJavaVM(javaVM);
-    if(!env)
+    if (!env)
         return 0;
 
     jobject kcmInstance = env->CallStaticObjectMethod(classKeyCharacterMap, methodLoad, 0);
@@ -446,7 +446,7 @@ void Android_Window::resize()
 bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
 {
     int32_t eventType = AInputEvent_getType(anEvent);
-    if(eventType == AINPUT_EVENT_TYPE_MOTION)
+    if (eventType == AINPUT_EVENT_TYPE_MOTION)
     {
         int32_t action = AMotionEvent_getAction(anEvent);
         int32_t actionMasked = action & AMOTION_EVENT_ACTION_MASK;
@@ -456,48 +456,45 @@ bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
         int64_t timeMs = timeNs / 1000'000;
         vsg::clock::time_point time = _first_android_time_point + std::chrono::milliseconds(timeMs - _uptimeMs);
 
-        switch(actionMasked)
+        switch (actionMasked)
         {
-            case AMOTION_EVENT_ACTION_DOWN:
-            case AMOTION_EVENT_ACTION_POINTER_DOWN:
+        case AMOTION_EVENT_ACTION_DOWN:
+        case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+            float x = AMotionEvent_getX(anEvent, actionIndex);
+            float y = AMotionEvent_getY(anEvent, actionIndex);
+            uint32_t id = AMotionEvent_getPointerId(anEvent, actionIndex);
+            bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, time, x, y, id));
+            break;
+        }
+        case AMOTION_EVENT_ACTION_MOVE:
+            for (size_t p = 0; p < pointerCount; ++p)
             {
-                float x = AMotionEvent_getX(anEvent, actionIndex);
-                float y = AMotionEvent_getY(anEvent, actionIndex);
-                uint32_t id = AMotionEvent_getPointerId(anEvent, actionIndex);
-                bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, time, x, y, id));
-                break;
+                float x = AMotionEvent_getX(anEvent, p);
+                float y = AMotionEvent_getY(anEvent, p);
+                uint32_t id = AMotionEvent_getPointerId(anEvent, p);
+                bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, time, x, y, id));
             }
-            case AMOTION_EVENT_ACTION_MOVE:
-                for(size_t p = 0; p < pointerCount; ++p)
-                {
-                    float x = AMotionEvent_getX(anEvent, p);
-                    float y = AMotionEvent_getY(anEvent, p);
-                    uint32_t id = AMotionEvent_getPointerId(anEvent, p);
-                    bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, time, x, y, id));
-                }
-                break;
-            case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_POINTER_UP:
+            break;
+        case AMOTION_EVENT_ACTION_UP:
+        case AMOTION_EVENT_ACTION_POINTER_UP: {
+            float x = AMotionEvent_getX(anEvent, actionIndex);
+            float y = AMotionEvent_getY(anEvent, actionIndex);
+            uint32_t id = AMotionEvent_getPointerId(anEvent, actionIndex);
+            bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, time, x, y, id));
+            break;
+        }
+        case AMOTION_EVENT_ACTION_CANCEL:
+            for (size_t p = 0; p < pointerCount; ++p)
             {
-                float x = AMotionEvent_getX(anEvent, actionIndex);
-                float y = AMotionEvent_getY(anEvent, actionIndex);
-                uint32_t id = AMotionEvent_getPointerId(anEvent, actionIndex);
+                float x = AMotionEvent_getX(anEvent, p);
+                float y = AMotionEvent_getY(anEvent, p);
+                uint32_t id = AMotionEvent_getPointerId(anEvent, p);
                 bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, time, x, y, id));
-                break;
             }
-            case AMOTION_EVENT_ACTION_CANCEL:
-                for(size_t p = 0; p < pointerCount; ++p)
-                {
-                    float x = AMotionEvent_getX(anEvent, p);
-                    float y = AMotionEvent_getY(anEvent, p);
-                    uint32_t id = AMotionEvent_getPointerId(anEvent, p);
-                    bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, time, x, y, id));
-                }
-                break;
-            default:
-                //vsg::info("unhandled touch action: %d", actionMasked);
-                break;
-
+            break;
+        default:
+            //vsg::info("unhandled touch action: %d", actionMasked);
+            break;
         }
         return true;
     }
