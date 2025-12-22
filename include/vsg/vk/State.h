@@ -289,9 +289,9 @@ namespace vsg
         {
             INHERIT_STATE = (1 << 0),
             INHERIT_VIEWPORT_STATE_HINT = (1 << 1),
-            INHERIT_VIEWPOINT = (1 << 2),
+            INHERIT_VIEW_SETTINGS = (1 << 2),
             INHERIT_MATRICES = (1 << 4),
-            INHERIT_ALL = INHERIT_STATE | INHERIT_VIEWPORT_STATE_HINT | INHERIT_VIEWPOINT | INHERIT_MATRICES
+            INHERIT_ALL = INHERIT_STATE | INHERIT_VIEWPORT_STATE_HINT | INHERIT_VIEW_SETTINGS | INHERIT_MATRICES
         };
 
         InheritanceMask inheritanceMask = InheritanceMask::INHERIT_ALL;

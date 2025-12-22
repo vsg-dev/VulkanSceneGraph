@@ -82,7 +82,7 @@ void State::inherit(const State& state)
 
     dirty = true;
 
-    if ((inheritanceMask & InheritanceMask::INHERIT_VIEWPOINT) != 0)
+    if ((inheritanceMask & InheritanceMask::INHERIT_VIEW_SETTINGS) != 0)
     {
         inheritViewForLODScaling = state.inheritViewForLODScaling;
         inheritedProjectionMatrix = state.inheritedProjectionMatrix;
