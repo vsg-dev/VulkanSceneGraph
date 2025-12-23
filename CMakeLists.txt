@@ -44,7 +44,7 @@ set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level 
 option(VSG_SUPPORTS_ShaderCompiler "Optional shader compiler support" ON)
 if (VSG_SUPPORTS_ShaderCompiler)
 
-    find_package(glslang CONFIG)
+    find_package(glslang CONFIG QUIET)
 
     if (glslang_FOUND)
         set(FIND_DEPENDENCY_glslang "find_package(glslang CONFIG REQUIRED)")
