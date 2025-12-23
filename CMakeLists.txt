@@ -44,18 +44,10 @@ set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level 
 option(VSG_SUPPORTS_ShaderCompiler "Optional shader compiler support" ON)
 if (VSG_SUPPORTS_ShaderCompiler)
 
-    # Try looking for glslang 15 first.
-    set(GLSLANG_MIN_VERSION "15" CACHE STRING "glslang 14 is the earliest version that we think installs itself properly on all platforms. Other platforms may be able to use an earlier version")
-    find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG QUIET)
-
-    if (NOT glslang_FOUND)
-        # fallback to trying glslang 14.
-        set(GLSLANG_MIN_VERSION "14")
-        find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG)
-    endif()
+    find_package(glslang CONFIG QUIET)
 
     if (glslang_FOUND)
-        set(FIND_DEPENDENCY_glslang "find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)")
+        set(FIND_DEPENDENCY_glslang "find_package(glslang CONFIG REQUIRED)")
     else()
         message(WARNING "glslang not found. ShaderCompile support disabled.")
         set(VSG_SUPPORTS_ShaderCompiler 0)
