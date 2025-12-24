@@ -391,9 +391,9 @@ void Window::buildSwapchain()
         ref_ptr<Framebuffer> fb = Framebuffer::create(_renderPass, attachments, _extent2D.width, _extent2D.height, 1);
 
         ref_ptr<Semaphore> ias = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
+        ref_ptr<Semaphore> rfs = vsg::Semaphore::create(_device);
 
-        //_frames.push_back({multisampling ? _multisampleImageView : imageViews[i], fb, ias});
-        _frames.push_back({imageViews[i], fb, ias});
+        _frames.push_back({imageViews[i], fb, ias, rfs});
         _indices.push_back(initial_indexValue);
     }
 
