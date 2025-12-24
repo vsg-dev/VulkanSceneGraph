@@ -370,8 +370,6 @@ void Window::buildSwapchain()
     // set up framebuffer and associated resources
     auto& imageViews = _swapchain->getImageViews();
 
-    _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
-
     size_t initial_indexValue = imageViews.size();
     for (size_t i = 0; i < imageViews.size(); ++i)
     {
@@ -395,6 +393,12 @@ void Window::buildSwapchain()
 
         _frames.push_back({imageViews[i], fb, ias, rfs});
         _indices.push_back(initial_indexValue);
+    }
+
+    _availableSemaphoreIndex = 0;
+    for (size_t i = 0; i < imageViews.size(); ++i)
+    {
+        _availableSemaphores.push_back(vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag));
     }
 
     {
@@ -434,18 +438,19 @@ VkResult Window::acquireNextImage(uint64_t timeout)
 {
     if (!_swapchain) _initSwapchain();
 
-    if (!_availableSemaphore) _availableSemaphore = vsg::Semaphore::create(_device, _traits->imageAvailableSemaphoreWaitFlag);
+    auto& availableSemaphore = _availableSemaphores[_availableSemaphoreIndex];
+    _availableSemaphoreIndex = (_availableSemaphoreIndex + 1) % _availableSemaphores.size();
 
     // check the dimensions of the swapchain and window extents are consistent, if not return a VK_ERROR_OUT_OF_DATE_KHR
     if (_swapchain->getExtent() != _extent2D) return VK_ERROR_OUT_OF_DATE_KHR;
 
     uint32_t nextImageIndex;
-    VkResult result = _swapchain->acquireNextImage(timeout, _availableSemaphore, {}, nextImageIndex);
+    VkResult result = _swapchain->acquireNextImage(timeout, availableSemaphore, {}, nextImageIndex);
 
     if (result == VK_SUCCESS)
     {
         // the acquired image's semaphore must be available now so make it the new _availableSemaphore and set its entry to the one to use for the next frame by swapping ref_ptr<>'s
-        _availableSemaphore.swap(_frames[nextImageIndex].imageAvailableSemaphore);
+        availableSemaphore.swap(_frames[nextImageIndex].imageAvailableSemaphore);
 
         // shift up previous frame indices
         for (size_t i = _indices.size() - 1; i > 0; --i)

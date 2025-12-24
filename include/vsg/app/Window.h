@@ -126,6 +126,7 @@ namespace vsg
         };
 
         using Frames = std::vector<Frame>;
+        using Semaphores = std::vector<ref_ptr<Semaphore>>;
 
         Frame& frame(size_t i) { return _frames[i]; }
         Frames& frames() { return _frames; }
@@ -174,10 +175,11 @@ namespace vsg
         ref_ptr<Image> _multisampleDepthImage;
         ref_ptr<ImageView> _multisampleDepthImageView;
 
-        ref_ptr<Semaphore> _availableSemaphore;
-
         Frames _frames;
         std::vector<size_t> _indices;
+
+        Semaphores _availableSemaphores;
+        size_t _availableSemaphoreIndex = 0;
     };
     VSG_type_name(vsg::Window);
 
