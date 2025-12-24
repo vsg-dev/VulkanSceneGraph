@@ -524,13 +524,10 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
 
             Windows activeWindows(findWindows.windows.begin(), findWindows.windows.end());
 
-            auto renderFinishedSemaphore = vsg::Semaphore::create(device);
-
             // set up Submission with CommandBuffer and signals
             auto recordAndSubmitTask = vsg::RecordAndSubmitTask::create(device, numBuffers);
             recordAndSubmitTask->commandGraphs = commandGraphs;
             recordAndSubmitTask->databasePager = databasePager;
-            recordAndSubmitTask->signalSemaphores.emplace_back(renderFinishedSemaphore);
             recordAndSubmitTask->windows = activeWindows;
             recordAndSubmitTask->queue = mainQueue;
             recordAndSubmitTasks.emplace_back(recordAndSubmitTask);
@@ -541,7 +538,6 @@ void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGr
             if (instrumentation) recordAndSubmitTask->assignInstrumentation(instrumentation);
 
             auto presentation = vsg::Presentation::create();
-            presentation->waitSemaphores.emplace_back(renderFinishedSemaphore);
             presentation->windows = activeWindows;
             presentation->queue = device->getQueue(deviceQueueFamily.presentFamily);
             presentations.emplace_back(presentation);
