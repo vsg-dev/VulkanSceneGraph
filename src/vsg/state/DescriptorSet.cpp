@@ -78,7 +78,7 @@ void DescriptorSet::compile(Context& context)
 
         if (setLayout->bindings.size() != descriptors.size())
         {
-            throw Exception{make_string("Error: invalid DescriptorSet as setLayout bindings size (", setLayout->bindings.size() , ") and descriptors size ", descriptors.size(), ") not equal."), VK_INCOMPLETE};
+            throw Exception{make_string("Error: invalid DescriptorSet as setLayout bindings size (", setLayout->bindings.size(), ") and descriptors size ", descriptors.size(), ") not equal."), VK_INCOMPLETE};
         }
 
         // make sure all the contributing objects are compiled
