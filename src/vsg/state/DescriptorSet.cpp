@@ -73,7 +73,7 @@ void DescriptorSet::compile(Context& context)
     {
         if (!setLayout)
         {
-            throw Exception{"Error: invalid DescriptorSet as no setLayout assigned. ", VK_INCOMPLETE};
+            throw Exception{"Error: invalid DescriptorSet as no setLayout assigned.", VK_INCOMPLETE};
         }
 
         if (setLayout->bindings.size() != descriptors.size())
