@@ -302,35 +302,36 @@ void Trackball::apply(TouchDownEvent& touchDown)
     if (!eventRelevant(touchDown)) return;
 
     _previousTouches[touchDown.id] = &touchDown;
-    switch (touchDown.id)
+
+    // First touch - simulate button press for rotation
+    if (_previousTouches.size() == 1)
     {
-    case 0: {
-        if (_previousTouches.size() == 1)
-        {
-            vsg::ref_ptr<vsg::Window> w = touchDown.window;
-            vsg::ref_ptr<vsg::ButtonPressEvent> evt = vsg::ButtonPressEvent::create(
-                w,
-                touchDown.time,
-                touchDown.x,
-                touchDown.y,
-                touchMappedToButtonMask,
-                touchDown.id);
-            apply(*evt.get());
-        }
-        break;
+        vsg::ref_ptr<vsg::Window> w = touchDown.window;
+        vsg::ref_ptr<vsg::ButtonPressEvent> evt = vsg::ButtonPressEvent::create(
+            w,
+            touchDown.time,
+            touchDown.x,
+            touchDown.y,
+            touchMappedToButtonMask,
+            touchDown.id);
+        apply(*evt.get());
     }
-    case 1: {
-        _prevZoomTouchDistance = 0.0;
-        if (touchDown.id == 0 && _previousTouches.count(1))
-        {
-            const auto& prevTouch1 = _previousTouches[1];
-            auto a = std::abs(static_cast<double>(prevTouch1->x) - touchDown.x);
-            auto b = std::abs(static_cast<double>(prevTouch1->y) - touchDown.y);
-            if (a > 0 || b > 0)
-                _prevZoomTouchDistance = sqrt(a * a + b * b);
-        }
-        break;
-    }
+    // Second touch - initialize zoom distance
+    else if (_previousTouches.size() == 2)
+    {
+        // Calculate initial distance between the two touches
+        auto it = _previousTouches.begin();
+        const TouchEvent* touch1 = it->second;
+        ++it;
+        const TouchEvent* touch2 = it->second;
+
+        auto a = std::abs(static_cast<double>(touch1->x) - static_cast<double>(touch2->x));
+        auto b = std::abs(static_cast<double>(touch1->y) - static_cast<double>(touch2->y));
+        _prevZoomTouchDistance = sqrt(a * a + b * b);
+
+        // Reset zoom state to establish a stable baseline
+        // This prevents immediate zoom when second finger touches
+        _zoomPreviousRatio = 0.0;
     }
 }
 
@@ -338,7 +339,8 @@ void Trackball::apply(TouchUpEvent& touchUp)
 {
     if (!eventRelevant(touchUp)) return;
 
-    if (touchUp.id == 0 && _previousTouches.size() == 1)
+    // If this is the last touch, simulate button release
+    if (_previousTouches.size() == 1)
     {
         vsg::ref_ptr<vsg::Window> w = touchUp.window;
         vsg::ref_ptr<vsg::ButtonReleaseEvent> evt = vsg::ButtonReleaseEvent::create(
@@ -372,24 +374,73 @@ void Trackball::apply(TouchMoveEvent& touchMove)
         break;
     }
     case 2: {
-        if (touchMove.id == 0 && _previousTouches.count(0))
+        // Two touches - Zoom by pinch
+        // Find the other touch (not the current moving one)
+        const TouchEvent* otherTouch = nullptr;
+
+        // Iterate through the map to find the touch that isn't the current one
+        for (const auto& [id, touch] : _previousTouches)
         {
-            // Zoom
-            const auto& prevTouch1 = _previousTouches[1];
-            auto a = std::abs(static_cast<double>(prevTouch1->x) - touchMove.x);
-            auto b = std::abs(static_cast<double>(prevTouch1->y) - touchMove.y);
-            if (a > 0 || b > 0)
+            if (id != touchMove.id)
             {
-                auto touchZoomDistance = sqrt(a * a + b * b);
-                if (_prevZoomTouchDistance && touchZoomDistance > 0)
+                otherTouch = touch;
+                break;
+            }
+        }
+
+        if (otherTouch)
+        {
+            // Calculate current distance between two touches
+            auto a = std::abs(static_cast<double>(otherTouch->x) - touchMove.x);
+            auto b = std::abs(static_cast<double>(otherTouch->y) - touchMove.y);
+            auto currentDistance = sqrt(a * a + b * b);
+
+            // Only process zoom if we have a valid previous distance
+            if (_prevZoomTouchDistance > 0 && currentDistance > 0)
+            {
+                // Calculate the distance change
+                auto distanceChange = std::abs(currentDistance - _prevZoomTouchDistance);
+
+                // Minimum threshold to prevent jitter (e.g., 5 pixels)
+                // Adjust this value based on screen DPI and desired sensitivity
+                constexpr double MIN_ZOOM_THRESHOLD = 5.0;
+
+                if (distanceChange >= MIN_ZOOM_THRESHOLD)
                 {
-                    auto zoomLevel = touchZoomDistance / _prevZoomTouchDistance;
-                    if (zoomLevel < 1)
-                        zoomLevel = -(1 / zoomLevel);
-                    zoomLevel *= 0.1;
-                    zoom(zoomLevel);
+                    // Calculate zoom ratio
+                    auto zoomRatio = currentDistance / _prevZoomTouchDistance;
+
+                    // Dead zone: ignore tiny changes near 1.0 (e.g., 0.98-1.02)
+                    constexpr double DEAD_ZONE_MIN = 0.98;
+                    constexpr double DEAD_ZONE_MAX = 1.02;
+
+                    if (zoomRatio < DEAD_ZONE_MIN || zoomRatio > DEAD_ZONE_MAX)
+                    {
+                        // Clamp extreme zoom values to prevent sudden jumps
+                        // Limit to 0.5x - 2.0x per frame
+                        constexpr double MIN_ZOOM_RATIO = 0.5;
+                        constexpr double MAX_ZOOM_RATIO = 2.0;
+                        zoomRatio = std::clamp(zoomRatio, MIN_ZOOM_RATIO, MAX_ZOOM_RATIO);
+
+                        // Convert ratio to zoom level
+                        auto zoomLevel = zoomRatio;
+                        if (zoomLevel < 1.0)
+                            zoomLevel = -(1.0 / zoomLevel);
+
+                        // Apply zoom with damping factor (0.1 = 10% of calculated zoom)
+                        // This makes zoom feel smoother and more controllable
+                        zoomLevel *= 0.1;
+                        zoom(zoomLevel);
+                        vsg::debug("zoom event - distanceChange: ", distanceChange, ", zoomRatio: ", zoomRatio, ", zoomLevel: ", zoomLevel);
+                        // Update previous distance for next frame
+                        _prevZoomTouchDistance = currentDistance;
+                    }
                 }
-                _prevZoomTouchDistance = touchZoomDistance;
+            }
+            else
+            {
+                // First valid measurement, just store the distance
+                _prevZoomTouchDistance = currentDistance;
             }
         }
         break;
