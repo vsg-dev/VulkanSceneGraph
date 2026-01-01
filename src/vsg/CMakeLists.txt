@@ -412,15 +412,20 @@ set_property(TARGET vsg PROPERTY VERSION ${VSG_VERSION_MAJOR}.${VSG_VERSION_MINO
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-if (VSG_CXX_TARGET EQUAL 23)
-    target_compile_features(vsg PUBLIC cxx_std_23)
-elseif (VSG_CXX_TARGET EQUAL 20)
-    target_compile_features(vsg PUBLIC cxx_std_20)
-elseif (VSG_CXX_TARGET EQUAL 17)
+# set up the C++ Standard used
+if (NOT CMAKE_CXX_STANDARD)
+    # no CMAKE_CXX_STANDARD explicitly defined so default to 17
     target_compile_features(vsg PUBLIC cxx_std_17)
+elseif (${CMAKE_CXX_STANDARD} EQUAL 17)
+    target_compile_features(vsg PUBLIC cxx_std_17)
+elseif (${CMAKE_CXX_STANDARD} EQUAL 20)
+    target_compile_features(vsg PUBLIC cxx_std_20) # CMake minimum version 3.12
+elseif (${CMAKE_CXX_STANDARD} EQUAL 23)
+    target_compile_features(vsg PUBLIC cxx_std_23) # CMake minimum version 3.20
+elseif (${CMAKE_CXX_STANDARD} EQUAL 26)
+    target_compile_features(vsg PUBLIC cxx_std_26) # CMake minimum version 3.30
 else()
-    message("Warning: invalid VSG_CXX_TARGET setting of " ${VSG_CXX_TARGET} " valid settings are 17, 20 or 23")
-    target_compile_features(vsg PUBLIC cxx_std_17)
+    message(FATAL_ERROR "Invalid CMAKE_CXX_STANDARD value of " ${CMAKE_CXX_STANDARD} ", supported values are 17, 20 or 23.")
 endif()
 
 

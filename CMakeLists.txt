@@ -90,9 +90,6 @@ if (VSG_SUPPORTS_Windowing)
     endif()
 endif()
 
-set(VSG_CXX_TARGET 17 CACHE STRING "Set target C++ standard version, valid values are 17, 20 & 23")
-
-
 option(VSG_USE_dynamic_cast "Use dynamic_cast in vsg::Object::cast<T>(), default is OFF and uses VSG native casting which provides 2-3x faster than using dynamic_cast<>." OFF)
 
 # this line needs to be after the call to setup_build_vars()
