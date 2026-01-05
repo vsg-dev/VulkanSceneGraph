@@ -24,7 +24,7 @@ typedef struct NativeWindow OHNativeWindow;
 // Forward declaration for OHOS ArkUI event type
 struct ArkUI_NodeEvent;
 
-namespace vsgOHOS
+namespace vsgHarmony
 {
     typedef struct {
         bool capsLock;
@@ -40,15 +40,15 @@ namespace vsgOHOS
     public:
         KeyboardMap();
 
-        using OHOSKeyCodeToKeySymbolMap = std::map<uint32_t, vsg::KeySymbol>;
+        using KeyCodeToKeySymbolMap = std::map<uint32_t, vsg::KeySymbol>;
 
         bool getKeySymbol(uint32_t keycode, KeyMetaState* KeyMetaState, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier);
     
     protected:
-        OHOSKeyCodeToKeySymbolMap _keycodeMap;
+        KeyCodeToKeySymbolMap _keycodeMap;
     };
 
-    /// OHOS_Window implements OpenHarmony specific window creation, event handling and vulkan Surface setup.
+    /// Harmony_Window implements OpenHarmony specific window creation, event handling and vulkan Surface setup.
     ///
     /// In order to initialise the window, an OHNativeWindow* handle must be provided through WindowTraits,
     /// provided via the value "nativeWindow".
@@ -64,13 +64,13 @@ namespace vsgOHOS
     /// the way OpenHarmony loads shared libraries this is likely to encounter duplicate typeinfo for
     /// OHNativeWindow, and as a result can throw a std::bad_any_cast on later SDK versions and some
     /// system architectures.
-    class OHOS_Window : public vsg::Inherit<vsg::Window, OHOS_Window>
+    class Harmony_Window : public vsg::Inherit<vsg::Window, Harmony_Window>
     {
     public:
-        OHOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
-        OHOS_Window() = delete;
-        OHOS_Window(const OHOS_Window&) = delete;
-        OHOS_Window operator=(const OHOS_Window&) = delete;
+        Harmony_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
+        Harmony_Window() = delete;
+        Harmony_Window(const Harmony_Window&) = delete;
+        Harmony_Window operator=(const Harmony_Window&) = delete;
 
         const char* instanceExtensionSurfaceName() const override { return "VK_OHOS_surface"; }
 
@@ -83,7 +83,7 @@ namespace vsgOHOS
         bool handleOHOSInputEvent(ArkUI_NodeEvent* event);
 
     protected:
-        virtual ~OHOS_Window();
+        virtual ~Harmony_Window();
 
         void _initSurface() override;
 
@@ -96,6 +96,6 @@ namespace vsgOHOS
         KeyMetaState _keyMetaState;
     };
 
-} // namespace vsgOHOS
+} // namespace vsgHarmony
 
-EVSG_type_name(vsgOHOS::OHOS_Window);
+EVSG_type_name(vsgHarmony::Harmony_Window);

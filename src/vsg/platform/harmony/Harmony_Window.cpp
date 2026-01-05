@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/platform/ohos/OHOS_Window.h>
+#include <vsg/platform/ohos/Harmony_Window.h>
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
@@ -26,19 +26,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <native_window/external_window.h>
 
 using namespace vsg;
-using namespace vsgOHOS;
+using namespace vsgHarmony;
 
 namespace vsg
 {
-    // Provide the Window::create(...) implementation that automatically maps to an OHOS_Window
+    // Provide the Window::create(...) implementation that automatically maps to an Harmony_Window
     ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
     {
-        return vsgOHOS::OHOS_Window::create(traits);
+        return vsgHarmony::Harmony_Window::create(traits);
     }
 
 } // namespace vsg
 
-namespace vsgOHOS
+namespace vsgHarmony
 {
     class OHOSsurface : public vsg::Surface
     {
@@ -70,7 +70,7 @@ namespace vsgOHOS
     // OHOS event handling will be implemented when NDK provides the APIs
     // Current placeholder implementation
 
-} // namespace vsgOHOS
+} // namespace vsgHarmony
 
 KeyboardMap::KeyboardMap()
 {
@@ -231,7 +231,7 @@ bool KeyboardMap::getKeySymbol(uint32_t keycode, KeyMetaState* KeyMetaState, vsg
     return true;
 }
 
-OHOS_Window::OHOS_Window(vsg::ref_ptr<WindowTraits> traits) :
+Harmony_Window::Harmony_Window(vsg::ref_ptr<WindowTraits> traits) :
     Inherit(traits)
 {
     _keyboard = new KeyboardMap;
@@ -247,7 +247,7 @@ OHOS_Window::OHOS_Window(vsg::ref_ptr<WindowTraits> traits) :
 
         if (nativeWindow == nullptr)
         {
-            throw Exception{"Error: vsg::OHOS_Window::OHOS_Window(...) failed to create Window, traits->nativeHandle is not a valid OHNativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
+            throw Exception{"Error: vsg::Harmony_Window::Harmony_Window(...) failed to create Window, traits->nativeHandle is not a valid OHNativeWindow.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
         }
 
         _window = nativeWindow;
@@ -269,24 +269,24 @@ OHOS_Window::OHOS_Window(vsg::ref_ptr<WindowTraits> traits) :
     _first_ohos_time_point = vsg::clock::now();
 }
 
-OHOS_Window::~OHOS_Window()
+Harmony_Window::~Harmony_Window()
 {
     clear();
 }
 
-void OHOS_Window::_initSurface()
+void Harmony_Window::_initSurface()
 {
     if (!_instance) _initInstance();
 
-    _surface = new vsgOHOS::OHOSsurface(_instance, _window);
+    _surface = new vsgHarmony::OHOSsurface(_instance, _window);
 }
 
-bool OHOS_Window::pollEvents(vsg::UIEvents& events)
+bool Harmony_Window::pollEvents(vsg::UIEvents& events)
 {
     return Window::pollEvents(events);
 }
 
-void OHOS_Window::resize()
+void Harmony_Window::resize()
 {
     // Get window dimensions using NativeWindowHandleOpt
     int32_t code = 0;
@@ -331,7 +331,7 @@ void updateMetaState(KeyMetaState* state, const ArkUI_UIInputEvent* event, int32
             state->altPressed = false;
     }
 }
-bool OHOS_Window::handleOHOSInputEvent(ArkUI_NodeEvent* event)
+bool Harmony_Window::handleOHOSInputEvent(ArkUI_NodeEvent* event)
 {
     if (!event) return false;
 
