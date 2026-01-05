@@ -1,6 +1,6 @@
 **Prequesites:**
 * xkbcommon and wayland development libraries must be installed
- * sudo apt install libxkbcommon-dev libwayland-dev
+ * sudo apt install libxkbcommon-dev libwayland-dev wayland-protocols
 
 **Build steps**
 * Checkout wayland-testing branch
