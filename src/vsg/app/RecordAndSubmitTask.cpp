@@ -215,27 +215,33 @@ VkResult RecordAndSubmitTask::finish(ref_ptr<RecordedCommandBuffers> recordedCom
     if (earlyDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_BEFORE_RECORD_TRAVERSAL, earlyTransferConsumerCompletedSemaphore);
     if (lateDataTransferredSemaphore) transferTask->assignTransferConsumedCompletedSemaphore(TransferTask::TRANSFER_AFTER_RECORD_TRAVERSAL, lateTransferConsumerCompletedSemaphore);
 
+    current_fence->dependentSemaphores().clear();
+
     for (auto& window : windows)
     {
         auto imageIndex = window->imageIndex();
         if (imageIndex >= window->numFrames()) continue;
 
-        auto& semaphore = window->frame(imageIndex).imageAvailableSemaphore;
+        auto& frame = window->frame(imageIndex);
 
-        vk_waitSemaphores.emplace_back(*semaphore);
-        vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
+        vk_waitSemaphores.emplace_back(frame.imageAvailableSemaphore->vk());
+        vk_waitStages.emplace_back(frame.imageAvailableSemaphore->pipelineStageFlags());
+
+        vk_signalSemaphores.emplace_back(frame.renderFinishedSemaphore->vk());
+        current_fence->dependentSemaphores().push_back(frame.renderFinishedSemaphore);
     }
 
     for (auto& semaphore : waitSemaphores)
     {
-        vk_waitSemaphores.emplace_back(*(semaphore));
+        vk_waitSemaphores.emplace_back(semaphore->vk());
         vk_waitStages.emplace_back(semaphore->pipelineStageFlags());
     }
 
     current_fence->dependentSemaphores() = signalSemaphores;
     for (auto& semaphore : signalSemaphores)
     {
-        vk_signalSemaphores.emplace_back(*(semaphore));
+        vk_signalSemaphores.emplace_back(semaphore->vk());
+        current_fence->dependentSemaphores().push_back(semaphore);
     }
 
     if (earlyDataTransferredSemaphore)
