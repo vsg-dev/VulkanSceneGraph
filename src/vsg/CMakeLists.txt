@@ -334,7 +334,7 @@ if (VSG_SUPPORTS_Windowing)
         set(LIBRARIES ${LIBRARIES} PRIVATE ${COCOA_LIBRARY} PRIVATE ${QUARTZCORE_LIBRARY})
     elseif (UNIX)
         if(BUILD_WAYLAND)
-            set(SOURCES ${SOURCES} platform/wayland/Wayland_Window.cpp platform/wayland/wayland-xdg-shell-protocol.c platform/wayland/xdg-decoration-client.c)
+            set(SOURCES ${SOURCES} platform/wayland/Wayland_Window.cpp ${WAYLAND_GENERATED}/wayland-xdg-shell-protocol.c ${WAYLAND_GENERATED}/xdg-decoration-client.c)
             set(LIBRARIES ${LIBRARIES} PRIVATE PkgConfig::wayland-client PkgConfig::wayland-cursor PkgConfig::xkbcommon)
         else()
             set(SOURCES ${SOURCES} platform/xcb/Xcb_Window.cpp)
@@ -445,6 +445,7 @@ target_include_directories(vsg
     PUBLIC
         $<BUILD_INTERFACE:${VSG_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${VSG_BINARY_DIR}/include>
+        $<BUILD_INTERFACE:${VSG_BINARY_DIR}/wayland_generated>
 )
 
 target_link_libraries(vsg ${LIBRARIES})

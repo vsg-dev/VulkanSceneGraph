@@ -10,8 +10,8 @@
 
 #include <vector>
 #include <vsg/core/Objects.h>
-#include <vsg/platform/wayland/wayland-xdg-shell-client-protocol.h>
-#include <vsg/platform/wayland/xdg-decoration-client.h>
+#include "wayland-xdg-shell-client-protocol.h"
+#include "xdg-decoration-client.h"
 #include <vsg/ui/PointerEvent.h>
 #include <vulkan/vulkan_wayland.h>
 
