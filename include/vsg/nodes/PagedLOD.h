@@ -108,45 +108,4 @@ namespace vsg
     };
     VSG_type_name(vsg::PagedLOD);
 
-    struct PagedLODContainer : public Inherit<Object, PagedLODContainer>
-    {
-        explicit PagedLODContainer(uint32_t maxNumPagedLOD = 10000);
-
-        struct List
-        {
-            uint32_t head = 0;
-            uint32_t tail = 0;
-            uint32_t count = 0;
-            std::string name;
-        };
-
-        struct Element
-        {
-            uint32_t previous = 0;
-            uint32_t next = 0;
-            ref_ptr<PagedLOD> plod;
-            List* list = nullptr;
-        };
-
-        using Elements = std::vector<Element>;
-
-        Elements elements;
-        List availableList;
-        List inactiveList;
-        List activeList;
-
-        void resize(uint32_t new_size);
-        void resize();
-        void inactive(const PagedLOD* plod);
-        void active(const PagedLOD* plod);
-        void remove(PagedLOD* plod);
-
-        void _move(const PagedLOD* plod, List* targetList);
-
-        bool check();
-        bool check(const List& list);
-
-        void print(std::ostream& out);
-    };
-
 } // namespace vsg
