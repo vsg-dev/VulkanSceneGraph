@@ -708,12 +708,12 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
         std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
 #endif
 
-        info("DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = ", nodes.size(), ", ", numActiveRequests.load());
+        debug("DatabasePager::updateSceneGraph() nodes to merge : nodes.size() = ", nodes.size(), ", ", numActiveRequests.load());
         for (auto& plod : nodes)
         {
             if (compare_exchange(plod->requestStatus, PagedLOD::MergeRequest, PagedLOD::Merging))
             {
-                info("   Merged ", plod->filename, " after ", plod->requestCount.load(), " priority ", plod->priority.load(), " ", frameCount - plod->frameHighResLastUsed.load(), " plod = ", plod);
+                debug("   Merged ", plod->filename, " after ", plod->requestCount.load(), " priority ", plod->priority.load(), " ", frameCount - plod->frameHighResLastUsed.load(), " plod = ", plod);
                 {
 #if LOCAL_MUTEX
                     std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
