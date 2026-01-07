@@ -20,7 +20,7 @@
 
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositories or VulkanSDK.
-* [CMake](https://www.cmake.org) 3.7 or later.
+* [CMake](https://www.cmake.org) 3.10 or later.
 
 ---
 
@@ -180,7 +180,7 @@ This will also tell CMake that your minimum C++ standard is 17.
 
 For example, a bare minimum CMakeLists.txt file to compile a single file application would be:
 
-	cmake_minimum_required(VERSION 3.7)
+	cmake_minimum_required(VERSION 3.10)
 	find_package(vsg REQUIRED)
 	add_executable(myapp "myapp.cpp")
 	target_link_libraries(myapp vsg::vsg)
@@ -191,7 +191,7 @@ The build system provides macros that create specific cmake targets to use in yo
 
 For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targets would be:
 
-	cmake_minimum_required(VERSION 3.7)
+	cmake_minimum_required(VERSION 3.10)
 	find_package(vsg REQUIRED)
 
 	vsg_setup_dir_vars()

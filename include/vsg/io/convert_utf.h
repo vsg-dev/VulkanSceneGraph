@@ -28,10 +28,19 @@ namespace vsg
     inline void convert_utf(const std::string& src, std::string& dst) { dst = src; }
     inline void convert_utf(const std::wstring& src, std::wstring& dst) { dst = src; }
 
-    #if defined(__cpp_char8_t)
+#if defined(__cpp_char8_t)
     inline void convert_utf(const std::u8string& src, std::u8string& dst) { dst = src; }
-    inline void convert_utf(const std::wstring& src, std::u8string& dst) { std::string temp_dst; convert_utf(src, temp_dst); dst.assign(temp_dst.begin(), temp_dst.end()); }
-    inline void convert_utf(const std::u8string& src, std::wstring& dst) { std::string temp_src(src.begin(), src.end()); convert_utf(temp_src, dst); }
+    inline void convert_utf(const std::wstring& src, std::u8string& dst)
+    {
+        std::string temp_dst;
+        convert_utf(src, temp_dst);
+        dst.assign(temp_dst.begin(), temp_dst.end());
+    }
+    inline void convert_utf(const std::u8string& src, std::wstring& dst)
+    {
+        std::string temp_src(src.begin(), src.end());
+        convert_utf(temp_src, dst);
+    }
 
     inline void convert_utf(const char8_t c, std::u8string& dst)
     {
@@ -56,7 +65,7 @@ namespace vsg
         convert_utf(src, dst);
         return dst;
     }
-    #endif
+#endif
 
     inline void convert_utf(const char c, std::string& dst)
     {
