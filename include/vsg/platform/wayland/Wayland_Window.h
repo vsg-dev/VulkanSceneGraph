@@ -54,10 +54,10 @@ namespace vsgWayland
          */
         static void keymapEvent(void* data, wl_keyboard* wl_keyboard, uint32_t format, int32_t fd, uint32_t size);
         static void kbd_enter_event(void* data, struct wl_keyboard* wl_keyboard, uint32_t serial, struct wl_surface* surface, struct wl_array* keys);
-        static void kbd_leave_event(void* data, struct wl_keyboard* wl_keyboard, uint32_t serial, struct wl_surface* surface){};
+        static void kbd_leave_event(void* /*data*/, struct wl_keyboard* /*wl_keyboard*/, uint32_t /*serial*/, struct wl_surface* /*surface*/){};
         static void kbd_key_event(void* data, struct wl_keyboard* wl_keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
         static void kbd_modifier_event(void* data, struct wl_keyboard* wl_keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
-        static void kbd_repeat_event(void* data, wl_keyboard* wl_keyboard, int rate, int delay){};
+        static void kbd_repeat_event(void* /*data*/, wl_keyboard* /*wl_keyboard*/, int /*rate*/, int /*delay*/){};
         constexpr static struct wl_keyboard_listener wl_keyboard_listener = {
             .keymap = keymapEvent,
             .enter = kbd_enter_event,
@@ -67,14 +67,16 @@ namespace vsgWayland
             .repeat_info = kbd_repeat_event};
 
         static void pointer_enter(void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface, wl_fixed_t surface_x, wl_fixed_t surface_y);
-        static void pointer_leave(void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface){};
+        static void pointer_leave(void* /*data*/, struct wl_pointer* /*pointer*/, uint32_t /*serial*/, struct wl_surface* /*surface*/){};
         static void pointer_motion(void* data, struct wl_pointer* pointer, uint32_t time, wl_fixed_t x, wl_fixed_t y);
         static void pointer_button(void* data, struct wl_pointer* pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state);
         static void pointer_axis(void* data, struct wl_pointer* pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
-        static void pointer_frame(void* data, wl_pointer* wl_pointer){};
-        static void pointer_axis_source(void* data, wl_pointer* wl_pointer, uint axis_source){};
-        static void pointer_axis_stop(void* data, wl_pointer* wl_pointer, uint time, uint axis){};
-        static void pointer_axis_discrete(void* data, wl_pointer* wl_pointer, uint axis, int discrete){};
+        static void pointer_frame(void* /*data*/, wl_pointer* /*wl_pointer*/){};
+        static void pointer_axis_source(void* /*data*/, wl_pointer* /*wl_pointer*/, uint /*axis_source*/){};
+        static void pointer_axis_stop(void* /*data*/, wl_pointer* /*wl_pointer*/, uint /*time*/, uint /*axis*/){};
+        static void pointer_axis_discrete(void* /*data*/, wl_pointer* /*wl_pointer*/, uint /*axis*/, int /*discrete*/){};
+        static void pointer_axis_value120(void* /*data*/, struct wl_pointer* /*wl_pointer*/, uint32_t /*axis*/, int32_t /*value120*/){};
+        static void pointer_axis_relative_direction(void* /*data*/, struct wl_pointer* /*wl_pointer*/, uint32_t /*axis*/, uint32_t /*direction*/){};
         constexpr static struct wl_pointer_listener pointer_listener = {
             .enter = pointer_enter,
             .leave = pointer_leave,
@@ -84,16 +86,18 @@ namespace vsgWayland
             .frame = pointer_frame,
             .axis_source = pointer_axis_source,
             .axis_stop = pointer_axis_stop,
-            .axis_discrete = pointer_axis_discrete};
+            .axis_discrete = pointer_axis_discrete,
+            .axis_value120 = pointer_axis_value120,
+            .axis_relative_direction = pointer_axis_relative_direction};
 
         static void seat_capabilities(void* data, struct wl_seat* seat, uint32_t capabilities);
-        static void seat_name(void* data, wl_seat* wl_seat, const char* name){};
+        static void seat_name(void* /*data*/, wl_seat* /*wl_seat*/, const char* /*name*/){};
         constexpr static struct wl_seat_listener seat_listener = {
             .capabilities = seat_capabilities,
             .name = seat_name};
 
         static void registry_add_object(void* data, struct wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
-        static void registry_remove_object(void* data, struct wl_registry* registry, uint32_t id){};
+        static void registry_remove_object(void* /*data*/, struct wl_registry* /*registry*/, uint32_t /*id*/){};
         constexpr static struct wl_registry_listener registry_listener = {
             .global = registry_add_object,
             .global_remove = registry_remove_object};
@@ -162,11 +166,13 @@ namespace vsgWayland
 
         static void xdg_toplevel_handle_configure(void* data, struct xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states);
         static void xdg_toplevel_handle_close(void* data, struct xdg_toplevel* xdg_toplevel);
-        static void xdg_toplevel_handle_configure_bounds(void* data, struct xdg_toplevel* xdg_toplevel, int32_t width, int32_t height){};
+        static void xdg_toplevel_handle_configure_bounds(void* /*data*/, struct xdg_toplevel* /*xdg_toplevel*/, int32_t /*width*/, int32_t /*height*/){};
+        static void xdg_toplevel_handle_wm_capabilities(void* /*data*/, struct xdg_toplevel* /*xdg_toplevel*/, struct wl_array* /*capabilities*/){};
         constexpr static struct xdg_toplevel_listener xdg_toplevel_listener = {
             .configure = xdg_toplevel_handle_configure,
             .close = xdg_toplevel_handle_close,
-            .configure_bounds = xdg_toplevel_handle_configure_bounds};
+            .configure_bounds = xdg_toplevel_handle_configure_bounds,
+            .wm_capabilities = xdg_toplevel_handle_wm_capabilities};
 
         static void shell_surface_ping(void* data, struct wl_shell_surface* shell_surface, uint32_t serial);
         static void shell_surface_configure(void* data, struct wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);

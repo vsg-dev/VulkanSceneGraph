@@ -26,7 +26,7 @@ namespace vsg
 using namespace vsg;
 using namespace vsgWayland;
 
-void WaylandRegistryState::keymapEvent(void* data, wl_keyboard *wl_keyboard, uint32_t format, int32_t fd, uint32_t size)
+void WaylandRegistryState::keymapEvent(void* data, wl_keyboard* /*wl_keyboard*/, uint32_t format, int32_t fd, uint32_t size)
 {
     WaylandRegistryState *state = static_cast<WaylandRegistryState*>(data);
     if(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1)
@@ -50,8 +50,8 @@ void WaylandRegistryState::keymapEvent(void* data, wl_keyboard *wl_keyboard, uin
 }
 
 void WaylandRegistryState::kbd_enter_event(void *data,
-                            struct wl_keyboard *wl_keyboard,
-                            uint32_t serial,
+                            struct wl_keyboard* /*wl_keyboard*/,
+                            uint32_t /*serial*/,
                             struct wl_surface *surface,
                             struct wl_array *keys)
 {
@@ -70,9 +70,9 @@ void WaylandRegistryState::kbd_enter_event(void *data,
 }
 
 void WaylandRegistryState::kbd_key_event(void *data,
-                          struct wl_keyboard *wl_keyboard,
-                          uint32_t serial,
-                          uint32_t time,
+                          struct wl_keyboard* /*wl_keyboard*/,
+                          uint32_t /*serial*/,
+                          uint32_t /*time*/,
                           uint32_t key,
                           uint32_t state)
 {
@@ -100,8 +100,8 @@ void WaylandRegistryState::kbd_key_event(void *data,
 }
 
 void WaylandRegistryState::kbd_modifier_event(void *data,
-                               struct wl_keyboard *wl_keyboard,
-                               uint32_t serial,
+                               struct wl_keyboard* /*wl_keyboard*/,
+                               uint32_t /*serial*/,
                                uint32_t mods_depressed,
                                uint32_t mods_latched,
                                uint32_t mods_locked,
@@ -112,13 +112,13 @@ void WaylandRegistryState::kbd_modifier_event(void *data,
 }
 
 
-void Wayland_Window::xdg_surface_handle_configure(void *data,
+void Wayland_Window::xdg_surface_handle_configure(void* /*data*/,
         struct xdg_surface *xdg_surface, uint32_t serial) {
     xdg_surface_ack_configure(xdg_surface, serial);
 }
 
 
-void Wayland_Window::xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *xdg_toplevel, int32_t width, int32_t height, struct wl_array *states) {
+void Wayland_Window::xdg_toplevel_handle_configure(void *data, struct xdg_toplevel* /*xdg_toplevel*/, int32_t width, int32_t height, struct wl_array* /*states*/) {
     if (width==0 || height==0)
         return;
     Wayland_Window *window = static_cast<Wayland_Window*>(data);
@@ -133,19 +133,19 @@ void Wayland_Window::xdg_toplevel_handle_configure(void *data, struct xdg_toplev
     }
 }
 
-void Wayland_Window::xdg_toplevel_handle_close(void *data, struct xdg_toplevel *xdg_toplevel) {
+void Wayland_Window::xdg_toplevel_handle_close(void *data, struct xdg_toplevel* /*xdg_toplevel*/) {
     Wayland_Window *window = static_cast<Wayland_Window*>(data);
     vsg::clock::time_point event_time = vsg::clock::now();
     window->_state->currentWindow = nullptr;
     window->bufferedEvents.emplace_back(vsg::CloseWindowEvent::create(window, event_time));
 }
 
-void Wayland_Window::xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32_t serial) {
+void Wayland_Window::xdg_wm_base_ping(void* /*data*/, struct xdg_wm_base *xdg_wm_base, uint32_t serial) {
     xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
 
-void WaylandRegistryState::pointer_enter(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x, wl_fixed_t surface_y) {
+void WaylandRegistryState::pointer_enter(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t /*surface_x*/, wl_fixed_t /*surface_y*/) {
     WaylandRegistryState *state = static_cast<WaylandRegistryState*>(data);
     Wayland_Window *window = static_cast<Wayland_Window*>(wl_surface_get_user_data(surface));
     window->_currentSurface = surface;
@@ -161,7 +161,7 @@ void WaylandRegistryState::pointer_enter(void *data, struct wl_pointer *pointer,
     state->currentWindow->bufferedEvents.emplace_back(vsg::FocusInEvent::create(window, event_time));
 }
 
-void WaylandRegistryState::pointer_motion(void *data, struct wl_pointer *pointer, uint32_t time, wl_fixed_t x, wl_fixed_t y) {
+void WaylandRegistryState::pointer_motion(void *data, struct wl_pointer* /*pointer*/, uint32_t /*time*/, wl_fixed_t x, wl_fixed_t y) {
     vsg::clock::time_point event_time = vsg::clock::now();
     WaylandRegistryState *state = static_cast<WaylandRegistryState*>(data);
     state->currentWindow->cursor_x = wl_fixed_to_int(x);
@@ -173,7 +173,7 @@ void WaylandRegistryState::pointer_motion(void *data, struct wl_pointer *pointer
                                                                              vsg::ButtonMask(state->maskButtons)));
 }
 
-void WaylandRegistryState::pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state) {
+void WaylandRegistryState::pointer_button(void *data, struct wl_pointer* /*pointer*/, uint32_t /*serial*/, uint32_t /*time*/, uint32_t button, uint32_t state) {
 
     WaylandRegistryState *waylandState = static_cast<WaylandRegistryState*>(data);
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -215,7 +215,7 @@ void WaylandRegistryState::pointer_button(void *data, struct wl_pointer *pointer
 
 }
 
-void WaylandRegistryState::pointer_axis(void *data, struct wl_pointer *pointer, uint32_t time, uint32_t axis, wl_fixed_t value) {
+void WaylandRegistryState::pointer_axis(void *data, struct wl_pointer* /*pointer*/, uint32_t /*time*/, uint32_t /*axis*/, wl_fixed_t value) {
     WaylandRegistryState *state = static_cast<WaylandRegistryState*>(data);
     vsg::clock::time_point event_time = vsg::clock::now();
     if(value > 0)
@@ -264,11 +264,11 @@ void WaylandRegistryState::registry_add_object(void *data, struct wl_registry *r
     }
 }
 
-void Wayland_Window::shell_surface_ping (void *data, struct wl_shell_surface *shell_surface, uint32_t serial) {
+void Wayland_Window::shell_surface_ping (void* /*data*/, struct wl_shell_surface *shell_surface, uint32_t serial) {
     wl_shell_surface_pong (shell_surface, serial);
 }
 
-void Wayland_Window::shell_surface_configure(void *data, struct wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height) {
+void Wayland_Window::shell_surface_configure(void *data, struct wl_shell_surface* /*shell_surface*/, uint32_t /*edges*/, int32_t width, int32_t height) {
     Wayland_Window *window = static_cast<Wayland_Window*>(data);
     vsg::clock::time_point event_time = vsg::clock::now();
     if(width != window->_width || height != window->_height)
@@ -281,7 +281,7 @@ void Wayland_Window::shell_surface_configure(void *data, struct wl_shell_surface
     }
 }
 
-void Wayland_Window::shell_surface_popup_done (void *data, struct wl_shell_surface *shell_surface) {
+void Wayland_Window::shell_surface_popup_done (void* /*data*/, struct wl_shell_surface* /*shell_surface*/) {
 }
 
 Wayland_surface::Wayland_surface(Instance* instance, wl_display* wlDisplay, wl_surface* wlSurface):
