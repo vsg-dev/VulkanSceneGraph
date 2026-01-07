@@ -43,7 +43,7 @@ namespace vsgHarmony
         using KeyCodeToKeySymbolMap = std::map<uint32_t, vsg::KeySymbol>;
 
         bool getKeySymbol(uint32_t keycode, KeyMetaState* KeyMetaState, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier);
-    
+
     protected:
         KeyCodeToKeySymbolMap _keycodeMap;
     };
