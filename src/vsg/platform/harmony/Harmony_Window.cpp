@@ -10,7 +10,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/platform/ohos/Harmony_Window.h>
+#include <vsg/platform/harmony/Harmony_Window.h>
 
 #include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
