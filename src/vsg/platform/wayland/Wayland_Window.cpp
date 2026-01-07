@@ -398,6 +398,7 @@ void Wayland_Window::_initSurface()
         throw Exception{"failed to create Wayland window"};
     }
 
+    wl_surface_commit(_wlSurface);
     wl_display_roundtrip(_state->_wlDisplay);
     if(!_surface)
         _surface = new Wayland_surface(_instance,_state->_wlDisplay,_wlSurface);
