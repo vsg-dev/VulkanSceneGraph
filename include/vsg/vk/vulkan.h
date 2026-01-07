@@ -118,6 +118,41 @@ typedef struct VkRenderPassCreateInfo2KHR
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//  Definitions not provided prior to 1.1.97
+//
+#if VK_HEADER_VERSION < 97
+
+#define VK_EXT_memory_budget 1
+#define VK_EXT_MEMORY_BUDGET_SPEC_VERSION 1
+#define VK_EXT_MEMORY_BUDGET_EXTENSION_NAME "VK_EXT_memory_budget"
+
+typedef struct VkPhysicalDeviceMemoryBudgetPropertiesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkDeviceSize       heapBudget[VK_MAX_MEMORY_HEAPS];
+    VkDeviceSize       heapUsage[VK_MAX_MEMORY_HEAPS];
+} VkPhysicalDeviceMemoryBudgetPropertiesEXT;
+
+#define VK_EXT_memory_priority 1
+#define VK_EXT_MEMORY_PRIORITY_SPEC_VERSION 1
+#define VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME "VK_EXT_memory_priority"
+
+typedef struct VkPhysicalDeviceMemoryPriorityFeaturesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           memoryPriority;
+} VkPhysicalDeviceMemoryPriorityFeaturesEXT;
+
+typedef struct VkMemoryPriorityAllocateInfoEXT {
+    VkStructureType    sType;
+    const void*        pNext;
+    float              priority;
+} VkMemoryPriorityAllocateInfoEXT;
+
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //  Definitions not provided prior to 1.3.215
 //
 
@@ -342,6 +377,19 @@ typedef enum VkResolveModeFlagBits
 } VkResolveModeFlagBits;
 typedef VkFlags VkResolveModeFlags;
 
+typedef enum VkDescriptorBindingFlagBits {
+    VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT = 0x00000001,
+    VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT = 0x00000002,
+    VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT = 0x00000004,
+    VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT = 0x00000008,
+    VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT = VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT,
+    VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT_EXT = VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT,
+    VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT,
+    VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT,
+    VK_DESCRIPTOR_BINDING_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
+} VkDescriptorBindingFlagBits;
+typedef VkFlags VkDescriptorBindingFlags;
+
 typedef struct VkAttachmentDescription2
 {
     VkStructureType sType;
@@ -411,6 +459,13 @@ typedef struct VkRenderPassCreateInfo2
     uint32_t correlatedViewMaskCount;
     const uint32_t* pCorrelatedViewMasks;
 } VkRenderPassCreateInfo2;
+
+typedef struct VkDescriptorSetLayoutBindingFlagsCreateInfo {
+    VkStructureType                    sType;
+    const void*                        pNext;
+    uint32_t                           bindingCount;
+    const VkDescriptorBindingFlags*    pBindingFlags;
+} VkDescriptorSetLayoutBindingFlagsCreateInfo;
 
 typedef struct VkSubpassDescriptionDepthStencilResolve
 {
@@ -549,6 +604,8 @@ typedef VkFlags VkAccelerationStructureCreateFlagsKHR;
 #    define VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR VkStructureType(1000150005)
 #    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR VkStructureType(1000150013)
 #    define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR VkStructureType(1000347000)
+
+#    define VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO VkStructureType(1000161000)
 
 #    define VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR VkBufferUsageFlagBits(0x00100000)
 #    define VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR VkBufferUsageFlagBits(0x00000400)

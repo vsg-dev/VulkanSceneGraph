@@ -78,7 +78,8 @@ View::View(const View& view) :
     Inherit(view),
     viewID(sharedViewID(view.viewID)),
     features(view.features),
-    mask(view.mask)
+    mask(view.mask),
+    LODScale(view.LODScale)
 {
     if (view.camera && view.camera->viewportState)
     {

@@ -86,14 +86,18 @@ int DescriptorSetLayout::compare(const Object& rhs_object) const
     if (result != 0) return result;
 
     const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return (createFlags == rhs.createFlags) && compare_value_container(bindings, rhs.bindings) && compare_value_container(bindingFlags, rhs.bindingFlags);
+
+    if ((result = compare_value(createFlags, rhs.createFlags))) return result;
+    if ((result = compare_value_container(bindings, rhs.bindings))) return result;
+
+    return compare_value_container(bindingFlags, rhs.bindingFlags);
 }
 
 void DescriptorSetLayout::read(Input& input)
 {
     Object::read(input);
 
-    if (input.version_greater_equal(1,1,12))
+    if (input.version_greater_equal(1, 1, 12))
     {
         createFlags = input.readValue<uint32_t>("createFlags");
     }
@@ -107,7 +111,7 @@ void DescriptorSetLayout::read(Input& input)
         input.readValue<uint32_t>("stageFlags", dslb.stageFlags);
     }
 
-    if (input.version_greater_equal(1,1,12))
+    if (input.version_greater_equal(1, 1, 12))
     {
         input.readValues("bindingFlags", bindingFlags);
     }
@@ -117,7 +121,7 @@ void DescriptorSetLayout::write(Output& output) const
 {
     Object::write(output);
 
-    if (output.version_greater_equal(1,1,12))
+    if (output.version_greater_equal(1, 1, 12))
     {
         output.writeValue<uint32_t>("createFlags", createFlags);
     }
@@ -131,7 +135,7 @@ void DescriptorSetLayout::write(Output& output) const
         output.writeValue<uint32_t>("stageFlags", dslb.stageFlags);
     }
 
-    if (output.version_greater_equal(1,1,12))
+    if (output.version_greater_equal(1, 1, 12))
     {
         output.writeValues("bindingFlags", bindingFlags);
     }

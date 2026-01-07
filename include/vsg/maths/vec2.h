@@ -118,6 +118,16 @@ namespace vsg
             return *this;
         }
 
+        friend constexpr t_vec2<T> operator*(const t_vec2<T>& lhs, T rhs)
+        {
+            return t_vec2<T>(lhs[0] * rhs, lhs[1] * rhs);
+        }
+
+        friend constexpr t_vec2<T> operator*(T lhs, const t_vec2<T>& rhs)
+        {
+            return t_vec2<T>(lhs * rhs[0], lhs * rhs[1]);
+        }
+
         inline t_vec2& operator/=(value_type rhs)
         {
             if constexpr (std::is_floating_point_v<value_type>)
@@ -192,12 +202,6 @@ namespace vsg
     constexpr t_vec2<T> operator+(const t_vec2<T>& lhs, const t_vec2<T>& rhs)
     {
         return t_vec2<T>(lhs[0] + rhs[0], lhs[1] + rhs[1]);
-    }
-
-    template<typename T>
-    constexpr t_vec2<T> operator*(const t_vec2<T>& lhs, T rhs)
-    {
-        return t_vec2<T>(lhs[0] * rhs, lhs[1] * rhs);
     }
 
     template<typename T>

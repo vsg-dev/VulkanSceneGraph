@@ -34,6 +34,9 @@ VkResult Presentation::present()
         {
             vk_swapchains.emplace_back(*(window->getOrCreateSwapchain()));
             indices.emplace_back(static_cast<uint32_t>(imageIndex));
+
+            auto& renderFinishedSemaphore = window->frame(imageIndex).renderFinishedSemaphore;
+            vk_semaphores.push_back(renderFinishedSemaphore->vk());
         }
     }
 

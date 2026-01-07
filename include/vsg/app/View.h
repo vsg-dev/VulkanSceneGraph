@@ -77,6 +77,9 @@ namespace vsg
         /// and when it is visited the visitor.traversalMask is &'ed with the mask to give the traversalMask to use in the subgraph.
         Mask mask = MASK_ALL;
 
+        /// LODScale scales
+        double LODScale = 1.0;
+
         /// bins
         std::vector<ref_ptr<Bin>> bins;
 

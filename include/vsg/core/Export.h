@@ -16,7 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    pragma warning(disable : 4251)
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #    if defined(vsg_EXPORTS)
 #        define VSG_DECLSPEC __declspec(dllexport)
 #    elif defined(VSG_SHARED_LIBRARY)
@@ -24,10 +24,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    else
 #        define VSG_DECLSPEC
 #    endif
+#    define VSG_TEMPLATE_DECLSPEC
 #else
 #    if defined(VSG_SHARED_LIBRARY) || defined(VSG_EXPORTS)
 #        define VSG_DECLSPEC __attribute__((visibility("default")))
+#        define VSG_TEMPLATE_DECLSPEC __attribute__((visibility("default")))
 #    else
 #        define VSG_DECLSPEC
+#        define VSG_TEMPLATE_DECLSPEC
 #    endif
 #endif

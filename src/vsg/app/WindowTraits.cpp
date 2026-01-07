@@ -85,7 +85,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
     depthFormat(traits.depthFormat),
     depthImageUsage(traits.depthImageUsage),
     queueFlags(traits.queueFlags),
-    queuePiorities(traits.queuePiorities),
+    queuePriorities(traits.queuePriorities),
     imageAvailableSemaphoreWaitFlag(traits.imageAvailableSemaphoreWaitFlag),
     debugLayer(traits.debugLayer),
     synchronizationLayer(traits.synchronizationLayer),
@@ -159,5 +159,5 @@ void WindowTraits::validate()
     if (debugLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
     if (synchronizationLayer) requestedLayers.push_back("VK_LAYER_KHRONOS_synchronization2");
 
-    requestedLayers = vsg::validateInstancelayerNames(requestedLayers);
+    requestedLayers = vsg::validateInstanceLayerNames(requestedLayers);
 }

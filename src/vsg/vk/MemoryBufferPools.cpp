@@ -94,23 +94,23 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
                 }
             }
         }
-    }
 
-    VkDeviceSize deviceSize = std::max(totalSize, minimumBufferSize);
+        VkDeviceSize deviceSize = std::max(totalSize, minimumBufferSize);
 
-    bufferInfo->buffer = Buffer::create(deviceSize, bufferUsageFlags, sharingMode);
-    bufferInfo->buffer->compile(device);
+        bufferInfo->buffer = Buffer::create(deviceSize, bufferUsageFlags, sharingMode);
+        bufferInfo->buffer->compile(device);
 
-    MemorySlots::OptionalOffset reservedBufferSlot = bufferInfo->buffer->reserve(totalSize, alignment);
-    bufferInfo->offset = reservedBufferSlot.second;
-    bufferInfo->range = totalSize;
+        MemorySlots::OptionalOffset reservedBufferSlot = bufferInfo->buffer->reserve(totalSize, alignment);
+        bufferInfo->offset = reservedBufferSlot.second;
+        bufferInfo->range = totalSize;
 
-    //debug(name, " : Created new Buffer ", bufferInfo->buffer.get(), " totalSize ", totalSize, " deviceSize = ", deviceSize);
+        //debug(name, " : Created new Buffer ", bufferInfo->buffer.get(), " totalSize ", totalSize, " deviceSize = ", deviceSize);
 
-    if (!bufferInfo->buffer->full())
-    {
-        //debug(name, "  inserting new Buffer into Context.bufferPools");
-        bufferPools.push_back(bufferInfo->buffer);
+        if (!bufferInfo->buffer->full())
+        {
+            //debug(name, "  inserting new Buffer into Context.bufferPools");
+            bufferPools.push_back(bufferInfo->buffer);
+        }
     }
 
     //debug(name, " : bufferInfo->offset = ", bufferInfo->offset);
