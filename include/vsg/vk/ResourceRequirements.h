@@ -60,26 +60,6 @@ namespace vsg
         using Views = std::map<const View*, ViewDetails>;
         using ViewDetailStack = std::stack<ViewDetails>;
 
-        struct DynamicData
-        {
-            BufferInfoList bufferInfos;
-            ImageInfoList imageInfos;
-
-            explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty(); }
-
-            void clear()
-            {
-                bufferInfos.clear();
-                imageInfos.clear();
-            }
-
-            void add(const DynamicData& dd)
-            {
-                bufferInfos.insert(bufferInfos.end(), dd.bufferInfos.begin(), dd.bufferInfos.end());
-                imageInfos.insert(imageInfos.end(), dd.imageInfos.begin(), dd.imageInfos.end());
-            }
-        };
-
         DynamicData dynamicData;
 
         Descriptors descriptors;
@@ -91,6 +71,12 @@ namespace vsg
         Slots maxSlots;
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
+
+        std::set<ref_ptr<BufferInfo>> bufferInfos;
+        std::set<ref_ptr<ImageInfo>> imageInfos;
+
+        VkDeviceSize bufferMemoryRequirements = 0;
+        VkDeviceSize imageMemoryRequirements = 0;
 
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
@@ -146,8 +132,6 @@ namespace vsg
         virtual void apply(ref_ptr<ImageInfo> imageInfo);
 
     protected:
-        uint32_t _numResourceHintsAbove = 0;
-
         bool registerDescriptor(const Descriptor& descriptor);
     };
     VSG_type_name(vsg::CollectResourceRequirements);

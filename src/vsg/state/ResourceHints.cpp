@@ -74,6 +74,19 @@ void ResourceHints::read(Input& input)
     {
         input.read("viewportStateHint", viewportStateHint);
     }
+
+    if (input.version_greater_equal(1, 1, 14))
+    {
+        input.read("bufferMemoryRequirements", bufferMemoryRequirements);
+        input.read("imageMemoryRequirements", imageMemoryRequirements);
+
+        input.readObjects("dynamicData.bufferInfos", dynamicData.bufferInfos);
+        input.readObjects("dynamicData.imageInfos", dynamicData.imageInfos);
+
+        input.read("containsPagedLOD", containsPagedLOD);
+
+        input.read("noTraverseBelowResourceHints", noTraverseBelowResourceHints);
+    }
 }
 
 void ResourceHints::write(Output& output) const
@@ -126,5 +139,18 @@ void ResourceHints::write(Output& output) const
     if (output.version_greater_equal(1, 1, 11))
     {
         output.write("viewportStateHint", viewportStateHint);
+    }
+
+    if (output.version_greater_equal(1, 1, 14))
+    {
+        output.write("bufferMemoryRequirements", bufferMemoryRequirements);
+        output.write("imageMemoryRequirements", imageMemoryRequirements);
+
+        output.writeObjects("dynamicData.bufferInfos", dynamicData.bufferInfos);
+        output.writeObjects("dynamicData.imageInfos", dynamicData.imageInfos);
+
+        output.write("containsPagedLOD", containsPagedLOD);
+
+        output.write("noTraverseBelowResourceHints", noTraverseBelowResourceHints);
     }
 }
