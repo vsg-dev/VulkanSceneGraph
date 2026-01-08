@@ -82,6 +82,8 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 #else
     numCompileTraversals = 1;
 #endif
+
+    contexts = ct->contexts;
 }
 
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
@@ -106,6 +108,8 @@ void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& res
     {
         ct->add(device, resourceRequirements);
 
+        contexts = ct->contexts;
+
         compileTraversals->add(ct);
     }
 }
@@ -116,6 +120,8 @@ void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const 
     for (auto& ct : cts)
     {
         ct->add(window, viewport, resourceRequirements);
+
+        contexts = ct->contexts;
 
         compileTraversals->add(ct);
     }
@@ -128,6 +134,8 @@ void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequi
     {
         ct->add(window, view, resourceRequirements);
 
+        contexts = ct->contexts;
+
         compileTraversals->add(ct);
     }
 }
@@ -139,6 +147,8 @@ void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const Res
     {
         ct->add(framebuffer, view, resourceRequirements);
 
+        contexts = ct->contexts;
+
         compileTraversals->add(ct);
     }
 }
@@ -149,6 +159,8 @@ void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resou
     for (auto& ct : cts)
     {
         ct->add(viewer, resourceRequirements);
+
+        contexts = ct->contexts;
 
         compileTraversals->add(ct);
     }
@@ -163,6 +175,30 @@ void CompileManager::assignInstrumentation(ref_ptr<Instrumentation> in_instrumen
 
         compileTraversals->add(ct);
     }
+}
+
+VkDeviceSize CompileManager::availableMemory(ContextSelectionFunction contextSelection) const
+{
+    VkDeviceSize minAvailable = std::numeric_limits<VkDeviceSize>::max();
+
+    if (contextSelection)
+    {
+        for (auto& context : contexts)
+        {
+            if (contextSelection(*context)) minAvailable = std::min(minAvailable, context->device->availableMemory());
+        }
+    }
+    else
+    {
+        for (auto& context : contexts)
+        {
+            minAvailable = std::min(minAvailable, context->device->availableMemory());
+        }
+    }
+
+    vsg::info("CompileManager::availableMemory() = ", minAvailable);
+
+    return minAvailable;
 }
 
 CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection)
@@ -241,18 +277,18 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     if (contextSelection)
     {
-        std::list<ref_ptr<Context>> contexts;
+        std::list<ref_ptr<Context>> activeContexts;
 
         for (auto& context : compileTraversal->contexts)
         {
-            if (contextSelection(*context)) contexts.push_back(context);
+            if (contextSelection(*context)) activeContexts.push_back(context);
         }
 
-        compileTraversal->contexts.swap(contexts);
+        compileTraversal->contexts.swap(activeContexts);
 
         run_compile_traversal();
 
-        compileTraversal->contexts.swap(contexts);
+        compileTraversal->contexts.swap(activeContexts);
     }
     else
     {

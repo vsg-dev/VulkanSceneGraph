@@ -205,3 +205,25 @@ bool Device::supportsDeviceExtension(const char* extensionName) const
     auto compare = [&](const char* rhs) { return strcmp(extensionName, rhs) == 0; };
     return (std::find_if(enabledExtensions.begin(), enabledExtensions.end(), compare) != enabledExtensions.end());
 }
+
+VkDeviceSize Device::availableMemory() const
+{
+    VkDeviceSize available = 0;
+#if 0
+    VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
+    memoryBudget.sType =  VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+    memoryBudget.pNext = nullptr;
+
+    VkPhysicalDeviceMemoryProperties2 memoryProperties;
+    memoryProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    memoryProperties.pNext = &memoryBudget;
+
+    vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &memoryProperties);
+#endif
+    if (auto pool = deviceMemoryBufferPools.ref_ptr())
+    {
+        available += pool->computeMemoryTotalAvailable();
+    }
+
+    return available;
+}
