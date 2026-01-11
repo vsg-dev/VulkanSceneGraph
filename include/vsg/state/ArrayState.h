@@ -27,6 +27,28 @@ namespace vsg
     class VSG_DECLSPEC ArrayState : public Inherit<ConstVisitor, ArrayState>
     {
     public:
+        template<class ParentClass, class Subclass>
+        class InheritExtras : public ParentClass
+        {
+        public:
+            using ParentClass::ParentClass;
+
+            explicit InheritExtras(const ArrayState& rhs, const CopyOp& copyop = {}) :
+                ParentClass(rhs, copyop)
+            {
+            }
+
+            ref_ptr<ArrayState> cloneArrayState() override
+            {
+                return Subclass::create(static_cast<Subclass&>(*this));
+            }
+
+            ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override
+            {
+                return Subclass::create(static_cast<Subclass&>(*arrayState));
+            }
+        };
+
         ArrayState() = default;
         ArrayState(const ArrayState& rhs, const CopyOp& copyop = {});
 
@@ -106,9 +128,6 @@ namespace vsg
         NullArrayState();
         explicit NullArrayState(const ArrayState& as);
 
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
-
         using ArrayState::apply;
 
         void apply(const vec3Array&) override;
@@ -123,9 +142,6 @@ namespace vsg
         TranslationArrayState();
         TranslationArrayState(const TranslationArrayState& rhs);
         explicit TranslationArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
@@ -144,9 +160,6 @@ namespace vsg
         TranslationRotationScaleArrayState();
         TranslationRotationScaleArrayState(const TranslationRotationScaleArrayState& rhs);
         explicit TranslationRotationScaleArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 7;
         uint32_t rotation_attribute_location = 8;
@@ -168,10 +181,7 @@ namespace vsg
     public:
         DisplacementMapArrayState();
         DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
-        explicit DisplacementMapArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
+        explicit DisplacementMapArrayState(const ArrayState& rhs, const CopyOp& copyop = {});
 
         // binding of displacement map
         uint32_t normal_attribute_location = 1;
@@ -207,9 +217,6 @@ namespace vsg
         uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
 
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
-
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
@@ -222,9 +229,6 @@ namespace vsg
         BillboardArrayState();
         BillboardArrayState(const BillboardArrayState& rhs);
         explicit BillboardArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
