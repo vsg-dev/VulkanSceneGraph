@@ -515,17 +515,23 @@ void DatabasePager::start(uint32_t numReadThreads)
                         plod->pending = subgraph;
                     }
 
-                    // compile plod
-                    if (auto result = databasePager.compileManager->compile(subgraph))
+                    try
                     {
-                        plod->requestStatus.exchange(PagedLOD::MergeRequest);
+                        // compile plod
+                        if (auto result = databasePager.compileManager->compile(subgraph))
+                        {
+                            plod->requestStatus.exchange(PagedLOD::MergeRequest);
 
-                        // move to the merge queue;
-                        databasePager._toMergeQueue->add(plod, result);
+                            // move to the merge queue;
+                            databasePager._toMergeQueue->add(plod, result);
+                        }
+                        else
+                        {
+                            databasePager.requestDiscarded(plod);
+                        }
                     }
-                    else
+                    catch(...)
                     {
-                        debug("Failed to compile ", plod, " ", plod->filename);
                         databasePager.requestDiscarded(plod);
                     }
                 }
