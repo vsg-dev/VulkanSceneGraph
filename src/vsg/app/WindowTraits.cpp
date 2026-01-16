@@ -136,6 +136,8 @@ void WindowTraits::defaults()
 
     // vsg::DeviceFeatures uses the instance extension
     instanceExtensionNames.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    deviceExtensionNames.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+
 
     // provide anisotropic filtering as standard.
     if (!deviceFeatures) deviceFeatures = vsg::DeviceFeatures::create();

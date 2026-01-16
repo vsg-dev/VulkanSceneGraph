@@ -37,12 +37,16 @@ using namespace vsg;
 //
 ResourceRequirements::ResourceRequirements()
 {
+    vsg::info("ResourceRequirements::ResourceRequirements() ", this);
+
     viewDetailsStack.push(ResourceRequirements::ViewDetails{});
 }
 
 ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints) :
     vsg::ResourceRequirements()
 {
+    vsg::info("ResourceRequirements::ResourceRequirements(", hints, ") ", this);
+
     if (hints) apply(*hints);
 }
 
@@ -86,8 +90,8 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
     dataTransferHint = resourceHints.dataTransferHint;
     viewportStateHint = resourceHints.viewportStateHint;
 
-    bufferMemoryRequirements += resourceHints.bufferMemoryRequirements;
-    imageMemoryRequirements += resourceHints.imageMemoryRequirements;
+    //bufferMemoryRequirements += resourceHints.bufferMemoryRequirements;
+    //imageMemoryRequirements += resourceHints.imageMemoryRequirements;
     dynamicData.add(resourceHints.dynamicData);
     containsPagedLOD = containsPagedLOD | resourceHints.containsPagedLOD;
 }
@@ -130,7 +134,7 @@ bool CollectResourceRequirements::checkForResourceHints(const Object& object)
     if (resourceHints)
     {
         apply(*resourceHints);
-        return resourceHints->noTraverseBelowResourceHints;
+        return false;//resourceHints->noTraverseBelowResourceHints;
     }
     else
     {
@@ -349,6 +353,8 @@ void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
                 }
 
                 requirements.imageMemoryRequirements += data->dataSize();
+
+                vsg::info("CollectResourceRequirements::apply(", imageInfo, ") ", this, " requirements.imageMemoryRequirements = ", requirements.imageMemoryRequirements, ", data->dataSize() = ", data->dataSize());
             }
         }
     }

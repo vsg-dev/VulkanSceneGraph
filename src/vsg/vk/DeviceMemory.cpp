@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define DO_CHECK 0
+#define DO_CHECK 1
 
 static std::mutex s_DeviceMemoryListMutex;
 static std::list<vsg::observer_ptr<DeviceMemory>> s_DeviceMemoryList;
@@ -69,13 +69,13 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     {
         static VkDeviceSize s_TotalDeviceMemoryAllocated = 0;
         s_TotalDeviceMemoryAllocated += memRequirements.size;
-        debug("Device Local DeviceMemory::DeviceMemory() ", std::dec, memRequirements.size, ", ", memRequirements.alignment, ", ", memRequirements.memoryTypeBits, ",  s_TotalMemoryAllocated = ", s_TotalDeviceMemoryAllocated);
+        info("Device Local DeviceMemory::DeviceMemory() typeFilter = ", typeFilter, ", memoryTypeIndex = ", memoryTypeIndex,", properties = ", properties, ", ", std::dec, memRequirements.size, ", ", memRequirements.alignment, ", ", memRequirements.memoryTypeBits, ",  s_TotalMemoryAllocated = ", s_TotalDeviceMemoryAllocated);
     }
     else
     {
         static VkDeviceSize s_TotalHostMemoryAllocated = 0;
         s_TotalHostMemoryAllocated += memRequirements.size;
-        debug("Staging DeviceMemory::DeviceMemory()  ", std::dec, memRequirements.size, ", ", memRequirements.alignment, ", ", memRequirements.memoryTypeBits, ",  s_TotalMemoryAllocated = ", s_TotalHostMemoryAllocated);
+        info("Staging DeviceMemory::DeviceMemory() properties = ", properties, ", ", std::dec, memRequirements.size, ", ", memRequirements.alignment, ", ", memRequirements.memoryTypeBits, ",  s_TotalMemoryAllocated = ", s_TotalHostMemoryAllocated);
     }
 #endif
 
@@ -93,7 +93,9 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     {
         std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
         s_DeviceMemoryList.emplace_back(this);
-        vsg::debug("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+#if DO_CHECK
+        vsg::info("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+#endif
     }
 }
 
@@ -102,7 +104,7 @@ DeviceMemory::~DeviceMemory()
     if (_deviceMemory)
     {
 #if DO_CHECK
-        debug("DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, ", _deviceMemory, ", _allocator);");
+        info("DeviceMemory::~DeviceMemory() vkFreeMemory(*_device, ", _deviceMemory, ", _allocator);");
 #endif
 
         vkFreeMemory(*_device, _deviceMemory, _device->getAllocationCallbacks());
@@ -114,11 +116,13 @@ DeviceMemory::~DeviceMemory()
         if (itr != s_DeviceMemoryList.end())
         {
             s_DeviceMemoryList.erase(itr);
-            vsg::debug("DeviceMemory::~DeviceMemory() removed from s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+#if DO_CHECK
+            info("DeviceMemory::~DeviceMemory() removed from s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+#endif
         }
         else
         {
-            vsg::warn("DeviceMemory::~DeviceMemory() could not find in  s_DeviceMemoryList");
+            warn("DeviceMemory::~DeviceMemory() could not find in  s_DeviceMemoryList");
         }
     }
 }

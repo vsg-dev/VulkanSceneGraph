@@ -145,6 +145,8 @@ VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 {
     VulkanData& vd = _vulkanData[deviceMemory->getDevice()->deviceID];
 
+    info("Image::bind() this = ", this, ", deviceMemory = ", deviceMemory, ", memoryOffset = ", memoryOffset);
+
     VkResult result = vkBindImageMemory(*vd.device, vd.image, *deviceMemory, memoryOffset);
     if (result == VK_SUCCESS)
     {
@@ -164,6 +166,10 @@ VkResult Image::allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memo
         if (deviceMemoryBufferPools)
         {
             auto [memory, offset] = deviceMemoryBufferPools->reserveMemory(memRequirements, memoryProperties);
+
+            if (data) vsg::info("Image::allocateAndBindMemory() ", data, ", data->dataSize() = ", data->dataSize(), ", memRequirements.size = ", memRequirements.size, ", alignment = ", memRequirements.alignment);
+            else vsg::info("Image::allocateAndBindMemory() no data assigned, memRequirements.size = ", memRequirements.size, ", alignment = ", memRequirements.alignment);
+
 
             return bind(memory, offset);
         }
@@ -233,6 +239,9 @@ void Image::compile(Context& context)
     vkGetImageMemoryRequirements(*vd.device, vd.image, &memRequirements);
 
     auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (data) vsg::info("Image::compile() ", data, ", data->dataSize() = ", data->dataSize(), ", memRequirements.size = ", memRequirements.size, ", alignment = ", memRequirements.alignment);
+    else vsg::info("Image::compile() no data assigned, memRequirements.size = ", memRequirements.size, ", alignment = ", memRequirements.alignment);
 
     if (!deviceMemory)
     {

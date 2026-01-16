@@ -44,6 +44,11 @@ namespace vsg
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
         DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
 
+        VkResult reserve(ResourceRequirements& requirements);
+
+        VkDeviceSize computeSize(BufferInfo& bufferInfo) const;
+        VkDeviceSize computeSize(ImageInfo& imageInfo) const;
+
     protected:
         mutable std::mutex _mutex;
 

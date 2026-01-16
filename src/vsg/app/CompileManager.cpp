@@ -243,7 +243,9 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
                         }
                     }
                 }
-                context->reserve(requirements);
+
+                auto reserveResult = context->reserve(requirements);
+                if (reserveResult != VK_SUCCESS) throw vsg::Exception{"Context::reserve() failed", reserveResult};
             }
 
             object->accept(*compileTraversal);
@@ -272,7 +274,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
         debug("Finished waiting for compile ", object);
     };
 
-    // assume success, overite this on failures.
+    // assume success, overwrite this on failures.
     result.result = VK_SUCCESS;
 
     if (contextSelection)

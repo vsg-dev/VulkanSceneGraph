@@ -172,7 +172,6 @@ ref_ptr<BufferInfo> vsg::copyDataToStagingBuffer(Context& context, const Data* d
 //
 bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
 {
-    debug("vsg::createBufferAndTransferData(.., )");
 
     if (bufferInfoList.empty()) return false;
 
@@ -184,6 +183,8 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
     else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
         alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
+
+    info("vsg::createBufferAndTransferData(.., ) alignment = ", alignment);
 
     //transferTask = nullptr;
 
@@ -229,7 +230,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
             bufferInfo->range = bufferInfo->data->dataSize();
             VkDeviceSize endOfEntry = offset + bufferInfo->range;
             offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
-            //info("  BufferInfo.data = ", bufferInfo->data, ", dynamic = ", bufferInfo->data->getLayout().dynamic);
+            //info("  BufferInfo.data = ", bufferInfo->data, ", dynamic = ", bufferInfo->data->dynamic());
         }
     }
 
@@ -245,7 +246,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         }
         else
         {
-            debug("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range, ", ", totalSize, " with compatible size");
+            info("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range, ", ", totalSize, " with compatible size");
 
             // make sure the VkBuffer is created
             deviceBufferInfo->buffer->compile(context);
@@ -267,7 +268,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
-    debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
+    info("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
 
     // assign the buffer to the bufferData entries and shift the offsets to offset within the buffer
     for (const auto& bufferInfo : bufferInfoList)
@@ -278,7 +279,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     if (transferTask)
     {
-        vsg::debug("vsg::createBufferAndTransferData(..)");
+        vsg::info("vsg::createBufferAndTransferData(..) bufferInfoList.size() = ", bufferInfoList.size());
 
         for (auto& bufferInfo : bufferInfoList)
         {
@@ -294,7 +295,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    debug("stagingBufferInfo->buffer ", stagingBufferInfo->buffer.get(), ", ", stagingBufferInfo->offset, ", ", stagingBufferInfo->range, ")");
+    info("stagingBufferInfo->buffer ", stagingBufferInfo->buffer.get(), ", ", stagingBufferInfo->offset, ", ", stagingBufferInfo->range, ")");
 
     ref_ptr<Buffer> stagingBuffer(stagingBufferInfo->buffer);
     ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory(context.deviceID));
@@ -308,7 +309,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     stagingMemory->map(stagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferInfo->offset, stagingBufferInfo->range, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
-    debug("    buffer_data ", buffer_data, ", stagingBufferInfo->offset=", stagingBufferInfo->offset, ", ", totalSize);
+    info("    buffer_data ", buffer_data, ", stagingBufferInfo->offset=", stagingBufferInfo->offset, ", ", totalSize);
 
     for (const auto& bufferInfo : bufferInfoList)
     {
