@@ -97,6 +97,8 @@ namespace vsg
             VkDeviceSize dataTotalSize = 0;
             VkDeviceSize imageTotalSize = 0;
 
+            ref_ptr<Fence> transferCompleteFence;
+            bool waitOnTransferFence = false;
             ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
