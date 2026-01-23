@@ -72,7 +72,15 @@ namespace vsg
         uint32_t externalNumDescriptorSets = 0;
         bool containsPagedLOD = false;
 
-        std::set<ref_ptr<BufferInfo>> bufferInfos;
+        struct BufferProperties
+        {
+            VkBufferUsageFlags usageFlags = 0;
+            VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+            bool operator < (const BufferProperties& rhs) const { return (usageFlags < rhs.usageFlags) || ((usageFlags == rhs.usageFlags) && (sharingMode < rhs.sharingMode)); }
+        };
+
+        std::map<BufferProperties, std::set<ref_ptr<BufferInfo>>> bufferInfos;
         std::set<ref_ptr<ImageInfo>> imageInfos;
 
         VkDeviceSize bufferMemoryRequirements = 0;
@@ -127,8 +135,13 @@ namespace vsg
         void apply(const VertexIndexDraw& vid) override;
         void apply(const BindVertexBuffers& bvb) override;
         void apply(const BindIndexBuffer& bib) override;
+        void apply(const InstanceNode& in) override;
+        void apply(const InstanceDraw& id) override;
+        void apply(const InstanceDrawIndexed& idi) override;
 
-        virtual void apply(ref_ptr<BufferInfo> bufferInfo);
+        using BufferProperties = ResourceRequirements::BufferProperties;
+
+        virtual void apply(ref_ptr<BufferInfo> bufferInfo, BufferProperties bufferProperties);
         virtual void apply(ref_ptr<ImageInfo> imageInfo);
 
     protected:

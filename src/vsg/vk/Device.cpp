@@ -206,23 +206,50 @@ bool Device::supportsDeviceExtension(const char* extensionName) const
     return (std::find_if(enabledExtensions.begin(), enabledExtensions.end(), compare) != enabledExtensions.end());
 }
 
-VkDeviceSize Device::availableMemory() const
+VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
 {
     VkDeviceSize available = 0;
-#if 0
+
     VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
     memoryBudget.sType =  VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
     memoryBudget.pNext = nullptr;
 
-    VkPhysicalDeviceMemoryProperties2 memoryProperties;
-    memoryProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-    memoryProperties.pNext = &memoryBudget;
+    VkPhysicalDeviceMemoryProperties2 dmp;
+    dmp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    dmp.pNext = &memoryBudget;
 
-    vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &memoryProperties);
-#endif
-    if (auto pool = deviceMemoryBufferPools.ref_ptr())
+    vkGetPhysicalDeviceMemoryProperties2(*(getPhysicalDevice()), &dmp);
+
+    auto& memoryProperties = dmp.memoryProperties;
+
+    VkMemoryPropertyFlags requiredPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    std::set<uint32_t> compatibleHeaps;
+    for(uint32_t i=0; i<memoryProperties.memoryTypeCount; ++i)
     {
-        available += pool->computeMemoryTotalAvailable();
+        if ((memoryProperties.memoryTypes[i].propertyFlags & requiredPropertyFlags) == requiredPropertyFlags) // supported
+        {
+            compatibleHeaps.insert(memoryProperties.memoryTypes[i].heapIndex);
+        }
+    }
+
+    VkDeviceSize minimumMargin = 0;//1024*1024*1024;
+
+    for(auto& heapIndex : compatibleHeaps)
+    {
+        VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
+        if (heapAvailable > minimumMargin)
+        {
+            available += (heapAvailable - minimumMargin);
+        }
+    }
+
+    if (includeMemoryPools)
+    {
+        if (auto pool = deviceMemoryBufferPools.ref_ptr())
+        {
+            available += pool->computeMemoryTotalAvailable();
+        }
     }
 
     return available;

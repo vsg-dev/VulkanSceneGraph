@@ -22,6 +22,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
+#include <vsg/nodes/InstanceNode.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
@@ -45,6 +48,7 @@ ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints) :
 {
     if (hints) apply(*hints);
 }
+
 
 uint32_t ResourceRequirements::computeNumDescriptorSets() const
 {
@@ -130,7 +134,7 @@ bool CollectResourceRequirements::checkForResourceHints(const Object& object)
     if (resourceHints)
     {
         apply(*resourceHints);
-        return resourceHints->noTraverseBelowResourceHints;
+        return false;//resourceHints->noTraverseBelowResourceHints;
     }
     else
     {
@@ -205,8 +209,27 @@ void CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer
 {
     if (registerDescriptor(descriptorBuffer))
     {
+        BufferProperties properties;
+
+        switch (descriptorBuffer.descriptorType)
+        {
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            properties.usageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            properties.usageFlags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        default:
+            break;
+        }
+
+        properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        properties.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
         //info("CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer) ", &descriptorBuffer);
-        for (const auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
+        for (const auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo, properties);
     }
 }
 
@@ -288,45 +311,98 @@ void CollectResourceRequirements::apply(const Bin& bin)
 
 void CollectResourceRequirements::apply(const Geometry& geometry)
 {
-    for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo);
-    apply(geometry.indices);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (geometry.indices) properties.usageFlags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+    for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo, properties);
+
+    if (geometry.indices) apply(geometry.indices, properties);
 }
 
 void CollectResourceRequirements::apply(const VertexDraw& vd)
 {
-    for (const auto& bufferInfo : vd.arrays) apply(bufferInfo);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : vd.arrays) apply(bufferInfo, properties);
 }
 
 void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
 {
-    for (const auto& bufferInfo : vid.arrays) apply(bufferInfo);
-    apply(vid.indices);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : vid.arrays) apply(bufferInfo, properties);
+    apply(vid.indices, properties);
+}
+
+void CollectResourceRequirements::apply(const InstanceNode& in)
+{
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    if (in.translations) apply(in.translations, properties);
+    if (in.rotations) apply(in.rotations, properties);
+    if (in.scales) apply(in.scales, properties);
+    if (in.colors) apply(in.colors, properties);
+
+    in.traverse(*this);
+}
+
+void CollectResourceRequirements::apply(const InstanceDraw& id)
+{
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : id.arrays) apply(bufferInfo, properties);
+}
+
+void CollectResourceRequirements::apply(const InstanceDrawIndexed& idi)
+{
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : idi.arrays) apply(bufferInfo, properties);
+    apply(idi.indices, properties);
 }
 
 void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
 {
-    for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo, properties);
 }
 
 void CollectResourceRequirements::apply(const BindIndexBuffer& bib)
 {
-    apply(bib.indices);
+    BufferProperties properties{VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    apply(bib.indices, properties);
 }
 
-void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo)
+void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo, BufferProperties bufferProperties)
 {
-    if (bufferInfo && requirements.bufferInfos.count(bufferInfo)==0)
+    if (bufferInfo)
     {
-        requirements.bufferInfos.insert(bufferInfo);
+        if (bufferInfo->data && bufferInfo->data->dynamic()) bufferProperties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-        if (bufferInfo->data)
+        auto& bufferInfos = requirements.bufferInfos[bufferProperties];
+        if (bufferInfos.count(bufferInfo)==0)
         {
-            if (bufferInfo->data->dynamic())
-            {
-                requirements.dynamicData.bufferInfos.push_back(bufferInfo);
-            }
+            bufferInfos.insert(bufferInfo);
 
-            requirements.bufferMemoryRequirements += bufferInfo->data->dataSize();
+            if (bufferInfo->data)
+            {
+                if (bufferInfo->data->dynamic())
+                {
+                    requirements.dynamicData.bufferInfos.push_back(bufferInfo);
+                }
+
+                requirements.bufferMemoryRequirements += bufferInfo->data->dataSize();
+            }
         }
     }
 }
@@ -350,6 +426,10 @@ void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
 
                 requirements.imageMemoryRequirements += data->dataSize();
             }
+        }
+        else
+        {
+            vsg::debug("CollectResourceRequirements::apply() problem ImageInfo ", imageInfo, " { ", imageInfo->imageView, "}");
         }
     }
 }

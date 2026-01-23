@@ -65,9 +65,6 @@ namespace vsg
 
         using ContextSelectionFunction = std::function<bool(vsg::Context&)>;
 
-        /// return the smallest available memory on the associated devices
-        VkDeviceSize availableMemory(ContextSelectionFunction contextSelection = {}) const;
-
         /// compile object
         CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
 
@@ -75,8 +72,6 @@ namespace vsg
         CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
     protected:
-
-        std::list<ref_ptr<Context>> contexts;
 
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
         size_t numCompileTraversals = 0;

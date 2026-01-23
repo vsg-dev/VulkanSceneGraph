@@ -14,7 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/compare.h>
 #include <vsg/state/ImageView.h>
 #include <vsg/vk/Context.h>
-
+#include <assert.h>
 using namespace vsg;
 
 VkImageAspectFlags vsg::computeAspectFlagsForFormat(VkFormat format)

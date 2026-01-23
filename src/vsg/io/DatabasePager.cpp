@@ -527,11 +527,13 @@ void DatabasePager::start(uint32_t numReadThreads)
                         }
                         else
                         {
+                            debug("DatabaserPager::start() unable to compile subgraph, discarding request ", subgraph);
                             databasePager.requestDiscarded(plod);
                         }
                     }
                     catch(...)
                     {
+                        debug("DatabaserPager::start() compile threw exception, discarding request ", subgraph);
                         databasePager.requestDiscarded(plod);
                     }
                 }
