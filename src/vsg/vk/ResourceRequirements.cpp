@@ -90,8 +90,6 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
     dataTransferHint = resourceHints.dataTransferHint;
     viewportStateHint = resourceHints.viewportStateHint;
 
-    bufferMemoryRequirements += resourceHints.bufferMemoryRequirements;
-    imageMemoryRequirements += resourceHints.imageMemoryRequirements;
     dynamicData.add(resourceHints.dynamicData);
     containsPagedLOD = containsPagedLOD | resourceHints.containsPagedLOD;
 }
@@ -113,8 +111,6 @@ ref_ptr<ResourceHints> CollectResourceRequirements::createResourceHints(uint32_t
         poolSize.descriptorCount = poolSize.descriptorCount * tileMultiplier;
     }
 
-    resourceHints->bufferMemoryRequirements = requirements.bufferMemoryRequirements;
-    resourceHints->imageMemoryRequirements = requirements.imageMemoryRequirements;
     resourceHints->dynamicData = requirements.dynamicData;
     resourceHints->containsPagedLOD = requirements.containsPagedLOD;
 
@@ -400,8 +396,6 @@ void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo, BufferPr
                 {
                     requirements.dynamicData.bufferInfos.push_back(bufferInfo);
                 }
-
-                requirements.bufferMemoryRequirements += bufferInfo->data->dataSize();
             }
         }
     }
@@ -423,8 +417,6 @@ void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
                 {
                     requirements.dynamicData.imageInfos.push_back(imageInfo);
                 }
-
-                requirements.imageMemoryRequirements += data->dataSize();
             }
         }
         else

@@ -83,9 +83,6 @@ namespace vsg
         std::map<BufferProperties, std::set<ref_ptr<BufferInfo>>> bufferInfos;
         std::set<ref_ptr<ImageInfo>> imageInfos;
 
-        VkDeviceSize bufferMemoryRequirements = 0;
-        VkDeviceSize imageMemoryRequirements = 0;
-
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
 

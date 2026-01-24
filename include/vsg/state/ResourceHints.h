@@ -78,9 +78,6 @@ namespace vsg
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
         uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
 
-        VkDeviceSize bufferMemoryRequirements = 0;
-        VkDeviceSize imageMemoryRequirements = 0;
-
         DynamicData dynamicData;
 
         bool containsPagedLOD = false;

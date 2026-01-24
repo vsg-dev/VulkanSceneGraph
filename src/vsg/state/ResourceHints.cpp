@@ -77,9 +77,6 @@ void ResourceHints::read(Input& input)
 
     if (input.version_greater_equal(1, 1, 14))
     {
-        input.read("bufferMemoryRequirements", bufferMemoryRequirements);
-        input.read("imageMemoryRequirements", imageMemoryRequirements);
-
         input.readObjects("dynamicData.bufferInfos", dynamicData.bufferInfos);
         input.readObjects("dynamicData.imageInfos", dynamicData.imageInfos);
 
@@ -143,9 +140,6 @@ void ResourceHints::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 14))
     {
-        output.write("bufferMemoryRequirements", bufferMemoryRequirements);
-        output.write("imageMemoryRequirements", imageMemoryRequirements);
-
         output.writeObjects("dynamicData.bufferInfos", dynamicData.bufferInfos);
         output.writeObjects("dynamicData.imageInfos", dynamicData.imageInfos);
 
