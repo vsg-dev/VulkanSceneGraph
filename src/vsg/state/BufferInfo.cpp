@@ -343,7 +343,6 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     return true;
 }
 
-
 VkDeviceSize BufferInfo::computeDataSize() const
 {
     return data ? data->dataSize() : 0;

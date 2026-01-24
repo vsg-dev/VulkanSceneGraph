@@ -199,7 +199,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         {
             if (availableSpace < minimumDeviceMemorySize)
             {
-                info("MemoryBufferPools::reserveMemory(", totalSize,") reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
+                info("MemoryBufferPools::reserveMemory(", totalSize, ") reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
                 minimumDeviceMemorySize = availableSpace;
             }
 
@@ -226,7 +226,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     if (!reservedSlot.first)
     {
-        debug("MemoryBufferPools::reserveMemory(", totalSize,") failed, insufficient memory available.");
+        debug("MemoryBufferPools::reserveMemory(", totalSize, ") failed, insufficient memory available.");
         return {};
     }
 
