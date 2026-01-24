@@ -91,4 +91,3 @@ void PagedLOD::write(Output& output) const
     output.write("child.minimumScreenHeightRatio", children[1].minimumScreenHeightRatio);
     output.write("child.node", children[1].node);
 }
-

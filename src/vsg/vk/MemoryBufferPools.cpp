@@ -105,7 +105,6 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
         bufferInfo->range = totalSize;
 
         //debug(name, " : Created new Buffer ", bufferInfo->buffer.get(), " totalSize ", totalSize, " deviceSize = ", deviceSize);
-
     }
 
     //debug(name, " : bufferInfo->offset = ", bufferInfo->offset);
@@ -166,7 +165,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
 #if 1
         VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
-        memoryBudget.sType =  VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+        memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
         memoryBudget.pNext = nullptr;
 
         VkPhysicalDeviceMemoryProperties2 dmp;
@@ -178,7 +177,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         auto& memoryProperties = dmp.memoryProperties;
 
         uint32_t heapIndex = 0;
-        for(uint32_t i=0; i<memoryProperties.memoryTypeCount; ++i)
+        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
         {
             if ((memoryProperties.memoryTypes[i].propertyFlags & memoryPropertiesFlags) == memoryPropertiesFlags) // supported
             {
@@ -189,9 +188,11 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
             }
         }
 
-        VkDeviceSize minimumSpare = 0;//16*1024*1024;
-        if (availableSpace < minimumSpare) availableSpace = 0;
-        else availableSpace -= minimumSpare;
+        VkDeviceSize minimumSpare = 0; //16*1024*1024;
+        if (availableSpace < minimumSpare)
+            availableSpace = 0;
+        else
+            availableSpace -= minimumSpare;
 #endif
 
         if (totalSize <= availableSpace)
@@ -253,15 +254,17 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 
     // allocate bufferInfos
     VkDeviceSize failedBufferMemory = 0;
-    for(auto& [properties, bufferInfos] : requirements.bufferInfos)
+    for (auto& [properties, bufferInfos] : requirements.bufferInfos)
     {
-        for(auto& bufferInfo : bufferInfos)
+        for (auto& bufferInfo : bufferInfos)
         {
             if (!bufferInfo->buffer)
             {
                 VkDeviceSize alignment = 4;
-                if ((properties.usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) != 0) alignment = limits.minUniformBufferOffsetAlignment;
-                else if ((properties.usageFlags & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) != 0) alignment = limits.minStorageBufferOffsetAlignment;
+                if ((properties.usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) != 0)
+                    alignment = limits.minUniformBufferOffsetAlignment;
+                else if ((properties.usageFlags & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) != 0)
+                    alignment = limits.minStorageBufferOffsetAlignment;
 
                 auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, properties.usageFlags, properties.sharingMode, memoryPropertiesFlags);
                 if (newBufferInfo)
@@ -286,7 +289,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 
     // allocate images
     VkDeviceSize failedImageMemory = 0;
-    for(auto& imageInfo : requirements.imageInfos)
+    for (auto& imageInfo : requirements.imageInfos)
     {
         if (imageInfo->imageView && imageInfo->imageView->image && imageInfo->imageView->image->getDeviceMemory(deviceID) == 0)
         {
@@ -301,7 +304,6 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
             }
         }
     }
-
 
     VkDeviceSize memoryRequired = failedBufferMemory + failedImageMemory;
 
@@ -321,7 +323,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 
 VkDeviceSize MemoryBufferPools::computeSize(BufferInfo& bufferInfo) const
 {
-    return (bufferInfo.data) ? bufferInfo.data->dataSize(): 0;
+    return (bufferInfo.data) ? bufferInfo.data->dataSize() : 0;
 }
 
 VkDeviceSize MemoryBufferPools::computeSize(ImageInfo& imageInfo) const

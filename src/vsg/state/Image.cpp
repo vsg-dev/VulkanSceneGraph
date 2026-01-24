@@ -232,7 +232,7 @@ VkResult Image::compile(Context& context)
     {
         return compile(*context.deviceMemoryBufferPools);
     }
-    catch(...)
+    catch (...)
     {
         vsg::info("Image::compile(Context& context)");
         return VK_ERROR_OUT_OF_DEVICE_MEMORY;

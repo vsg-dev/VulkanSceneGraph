@@ -17,14 +17,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/Layer.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
 #include <vsg/nodes/VertexDraw.h>
 #include <vsg/nodes/VertexIndexDraw.h>
-#include <vsg/nodes/InstanceNode.h>
-#include <vsg/nodes/InstanceDraw.h>
-#include <vsg/nodes/InstanceDrawIndexed.h>
 #include <vsg/state/DescriptorImage.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
@@ -48,7 +48,6 @@ ResourceRequirements::ResourceRequirements(ref_ptr<ResourceHints> hints) :
 {
     if (hints) apply(*hints);
 }
-
 
 uint32_t ResourceRequirements::computeNumDescriptorSets() const
 {
@@ -130,7 +129,7 @@ bool CollectResourceRequirements::checkForResourceHints(const Object& object)
     if (resourceHints)
     {
         apply(*resourceHints);
-        return false;//resourceHints->noTraverseBelowResourceHints;
+        return false; //resourceHints->noTraverseBelowResourceHints;
     }
     else
     {
@@ -308,7 +307,7 @@ void CollectResourceRequirements::apply(const Bin& bin)
 void CollectResourceRequirements::apply(const Geometry& geometry)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     if (geometry.indices) properties.usageFlags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
     for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo, properties);
@@ -319,7 +318,7 @@ void CollectResourceRequirements::apply(const Geometry& geometry)
 void CollectResourceRequirements::apply(const VertexDraw& vd)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (const auto& bufferInfo : vd.arrays) apply(bufferInfo, properties);
 }
@@ -327,7 +326,7 @@ void CollectResourceRequirements::apply(const VertexDraw& vd)
 void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (const auto& bufferInfo : vid.arrays) apply(bufferInfo, properties);
     apply(vid.indices, properties);
@@ -336,7 +335,7 @@ void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
 void CollectResourceRequirements::apply(const InstanceNode& in)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     if (in.translations) apply(in.translations, properties);
     if (in.rotations) apply(in.rotations, properties);
@@ -349,7 +348,7 @@ void CollectResourceRequirements::apply(const InstanceNode& in)
 void CollectResourceRequirements::apply(const InstanceDraw& id)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (const auto& bufferInfo : id.arrays) apply(bufferInfo, properties);
 }
@@ -357,7 +356,7 @@ void CollectResourceRequirements::apply(const InstanceDraw& id)
 void CollectResourceRequirements::apply(const InstanceDrawIndexed& idi)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (const auto& bufferInfo : idi.arrays) apply(bufferInfo, properties);
     apply(idi.indices, properties);
@@ -366,7 +365,7 @@ void CollectResourceRequirements::apply(const InstanceDrawIndexed& idi)
 void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
 {
     BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo, properties);
 }
@@ -374,7 +373,7 @@ void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
 void CollectResourceRequirements::apply(const BindIndexBuffer& bib)
 {
     BufferProperties properties{VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
-    if (requirements.dataTransferHint==COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     apply(bib.indices, properties);
 }
@@ -386,7 +385,7 @@ void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo, BufferPr
         if (bufferInfo->data && bufferInfo->data->dynamic()) bufferProperties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
         auto& bufferInfos = requirements.bufferInfos[bufferProperties];
-        if (bufferInfos.count(bufferInfo)==0)
+        if (bufferInfos.count(bufferInfo) == 0)
         {
             bufferInfos.insert(bufferInfo);
 
@@ -403,7 +402,7 @@ void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo, BufferPr
 
 void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
 {
-    if (imageInfo && requirements.imageInfos.count(imageInfo)==0)
+    if (imageInfo && requirements.imageInfos.count(imageInfo) == 0)
     {
         if (imageInfo->imageView && imageInfo->imageView->image)
         {

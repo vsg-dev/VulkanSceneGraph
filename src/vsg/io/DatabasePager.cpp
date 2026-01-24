@@ -531,7 +531,7 @@ void DatabasePager::start(uint32_t numReadThreads)
                             databasePager.requestDiscarded(plod);
                         }
                     }
-                    catch(...)
+                    catch (...)
                     {
                         debug("DatabaserPager::start() compile threw exception, discarding request ", subgraph);
                         databasePager.requestDiscarded(plod);

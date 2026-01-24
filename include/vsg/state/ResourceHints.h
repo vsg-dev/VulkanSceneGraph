@@ -13,9 +13,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/maths/vec2.h>
-#include <vsg/vk/DescriptorPool.h>
 #include <vsg/state/BufferInfo.h>
 #include <vsg/state/ImageInfo.h>
+#include <vsg/vk/DescriptorPool.h>
 
 namespace vsg
 {

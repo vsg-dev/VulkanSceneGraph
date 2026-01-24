@@ -72,7 +72,6 @@ namespace vsg
         CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
     protected:
-
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
         size_t numCompileTraversals = 0;
         ref_ptr<CompileTraversals> compileTraversals;

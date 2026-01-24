@@ -211,7 +211,7 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
     VkDeviceSize available = 0;
 
     VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
-    memoryBudget.sType =  VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+    memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
     memoryBudget.pNext = nullptr;
 
     VkPhysicalDeviceMemoryProperties2 dmp;
@@ -225,7 +225,7 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
     VkMemoryPropertyFlags requiredPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     std::set<uint32_t> compatibleHeaps;
-    for(uint32_t i=0; i<memoryProperties.memoryTypeCount; ++i)
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
     {
         if ((memoryProperties.memoryTypes[i].propertyFlags & requiredPropertyFlags) == requiredPropertyFlags) // supported
         {
@@ -233,9 +233,9 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
         }
     }
 
-    VkDeviceSize minimumMargin = 0;//1024*1024*1024;
+    VkDeviceSize minimumMargin = 0; //1024*1024*1024;
 
-    for(auto& heapIndex : compatibleHeaps)
+    for (auto& heapIndex : compatibleHeaps)
     {
         VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
         if (heapAvailable > minimumMargin)

@@ -77,7 +77,7 @@ namespace vsg
             VkBufferUsageFlags usageFlags = 0;
             VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-            bool operator < (const BufferProperties& rhs) const { return (usageFlags < rhs.usageFlags) || ((usageFlags == rhs.usageFlags) && (sharingMode < rhs.sharingMode)); }
+            bool operator<(const BufferProperties& rhs) const { return (usageFlags < rhs.usageFlags) || ((usageFlags == rhs.usageFlags) && (sharingMode < rhs.sharingMode)); }
         };
 
         std::map<BufferProperties, std::set<ref_ptr<BufferInfo>>> bufferInfos;

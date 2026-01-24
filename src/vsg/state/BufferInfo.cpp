@@ -256,7 +256,8 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
                 vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
 
                 auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-                if (!deviceMemoryOffset.first) deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+                if (!deviceMemoryOffset.first)
+                    deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
                 else
                 {
                     info("vsg::createBufferAndTransferData() Failure to assign memory to existing BufferInfo");
