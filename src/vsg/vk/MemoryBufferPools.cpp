@@ -116,7 +116,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
 
     if (!reservedMemorySlot.first)
     {
-        info(name, " : Completely Failed to space for MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ")");
+        debug(name, " : Failed to space for MemoryBufferPools::reserveBuffer(", totalSize, ", ", alignment, ", ", bufferUsageFlags, ")");
         //throw Exception{"Error: Failed to allocate Buffer from MemoryBufferPool.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
         return {};
     }
@@ -199,7 +199,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         {
             if (availableSpace < minimumDeviceMemorySize)
             {
-                info("Reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
+                info("MemoryBufferPools::reserveMemory(", totalSize,") reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
                 minimumDeviceMemorySize = availableSpace;
             }
 
@@ -221,21 +221,12 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
                     memoryPools.push_back(deviceMemory);
                 }
             }
-            else
-            {
-                info("MemoryBufferPools::reserveMemory() A Unsufficent availableSpace = ", availableSpace, ",  for totalSize = ", totalSize);
-            }
-        }
-        else
-        {
-            info("MemoryBufferPools::reserveMemory()  B Unsufficent availableSpace = ", availableSpace, ",  for totalSize = ", totalSize);
         }
     }
 
     if (!reservedSlot.first)
     {
-        info("MemoryBufferPools::reserveMemory() about to throw exception");
-        //throw Exception{"Error: Failed to allocate DeviceMemory from MemoryBufferPool.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
+        debug("MemoryBufferPools::reserveMemory(", totalSize,") failed, insufficient memory available.");
         return {};
     }
 

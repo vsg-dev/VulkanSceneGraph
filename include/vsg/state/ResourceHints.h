@@ -82,9 +82,6 @@ namespace vsg
 
         bool containsPagedLOD = false;
 
-        /// hint whether CollectResourceRequirements visitor should traverse the subgraph below a node that has a "ResourceHints" assignd as meta data.
-        bool noTraverseBelowResourceHints = false;
-
     public:
         void read(Input& input) override;
         void write(Output& output) const override;

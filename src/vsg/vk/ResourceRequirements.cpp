@@ -113,8 +113,6 @@ ref_ptr<ResourceHints> CollectResourceRequirements::createResourceHints(uint32_t
     resourceHints->dynamicData = requirements.dynamicData;
     resourceHints->containsPagedLOD = requirements.containsPagedLOD;
 
-    resourceHints->noTraverseBelowResourceHints = true;
-
     return resourceHints;
 }
 
@@ -129,7 +127,7 @@ bool CollectResourceRequirements::checkForResourceHints(const Object& object)
     if (resourceHints)
     {
         apply(*resourceHints);
-        return false; //resourceHints->noTraverseBelowResourceHints;
+        return true;
     }
     else
     {
@@ -144,10 +142,7 @@ void CollectResourceRequirements::apply(const ResourceHints& resourceHints)
 
 void CollectResourceRequirements::apply(const Node& node)
 {
-    if (checkForResourceHints(node))
-    {
-        return;
-    }
+    checkForResourceHints(node);
 
     node.traverse(*this);
 }
@@ -156,10 +151,7 @@ void CollectResourceRequirements::apply(const PagedLOD& plod)
 {
     requirements.containsPagedLOD = true;
 
-    if (checkForResourceHints(plod))
-    {
-        return;
-    }
+    checkForResourceHints(plod);
 
     plod.traverse(*this);
 }

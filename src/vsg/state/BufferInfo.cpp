@@ -260,7 +260,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
                     deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
                 else
                 {
-                    info("vsg::createBufferAndTransferData() Failure to assign memory to existing BufferInfo");
+                    debug("vsg::createBufferAndTransferData() Failure to assign memory to existing BufferInfo");
                     return false;
                 }
             }
@@ -275,7 +275,7 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
 
     if (!deviceBufferInfo)
     {
-        info("vsg::createBufferAndTransferData() Failure to assign Buffer");
+        debug("vsg::createBufferAndTransferData() Failure to assign Buffer");
         return false;
     }
 

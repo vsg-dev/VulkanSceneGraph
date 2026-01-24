@@ -81,8 +81,6 @@ void ResourceHints::read(Input& input)
         input.readObjects("dynamicData.imageInfos", dynamicData.imageInfos);
 
         input.read("containsPagedLOD", containsPagedLOD);
-
-        input.read("noTraverseBelowResourceHints", noTraverseBelowResourceHints);
     }
 }
 
@@ -144,7 +142,5 @@ void ResourceHints::write(Output& output) const
         output.writeObjects("dynamicData.imageInfos", dynamicData.imageInfos);
 
         output.write("containsPagedLOD", containsPagedLOD);
-
-        output.write("noTraverseBelowResourceHints", noTraverseBelowResourceHints);
     }
 }
