@@ -46,9 +46,6 @@ namespace vsg
 
         VkResult reserve(ResourceRequirements& requirements);
 
-        VkDeviceSize computeSize(BufferInfo& bufferInfo) const;
-        VkDeviceSize computeSize(ImageInfo& imageInfo) const;
-
     protected:
         mutable std::mutex _mutex;
 

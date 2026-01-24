@@ -270,9 +270,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
                 }
                 else
                 {
-                    failedBufferMemory += bufferInfo->data->dataSize();
-
-                    //info("    FAILED to allocate bufferInfo->data = ", bufferInfo->data, ", offset = ", bufferInfo->offset, ", range = ", bufferInfo->range, ", buffer = ", bufferInfo->buffer, " ----- size = ", computeSize(*bufferInfo));
+                    failedBufferMemory += bufferInfo->computeDataSize();
                 }
             }
         }
@@ -290,8 +288,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
             }
             else
             {
-                failedImageMemory += computeSize(*imageInfo);
-                //info("    FAILED to allocate imageInfo = ", imageInfo, " ----- size = ", computeSize(*imageInfo));
+                failedImageMemory += imageInfo->computeDataSize();
             }
         }
     }
@@ -310,24 +307,4 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
         //info("MemoryBufferPools::reserve() out of memory: memoryAvailable = ", memoryAvailable, " memoryRequired = ", memoryRequired);
         return VK_ERROR_OUT_OF_DEVICE_MEMORY;
     }
-}
-
-VkDeviceSize MemoryBufferPools::computeSize(BufferInfo& bufferInfo) const
-{
-    return (bufferInfo.data) ? bufferInfo.data->dataSize() : 0;
-}
-
-VkDeviceSize MemoryBufferPools::computeSize(ImageInfo& imageInfo) const
-{
-    if (imageInfo.imageView && imageInfo.imageView->image)
-    {
-        auto& image = imageInfo.imageView->image;
-
-        // VkExtent3D extent = {0, 0, 0};
-        // uint32_t mipLevels = 0;
-        // uint32_t arrayLayers = 0;
-
-        if (image->data) return image->data->computeValueCountIncludingMipmaps();
-    }
-    return 0;
 }
