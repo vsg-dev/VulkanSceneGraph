@@ -34,6 +34,11 @@ namespace vsg
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
 
+        /// Ratio of available device memory that can be allocated.
+        /// Ratios less than 1.0 require VK_EXT_memory_budget extension to be supported.
+        /// Ratio of 1.0 (or greater) will switch off checks for available memory and keep allocating till Vulkan memory allocations fail.
+        double allocatedMemoryLimit = 1.0;
+
         VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;
         VkDeviceSize computeBufferTotalAvailable() const;

@@ -163,37 +163,42 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     {
         VkDeviceSize availableSpace = std::max(minimumDeviceMemorySize, totalSize);
 
-#if 1
-        VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
-        memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
-        memoryBudget.pNext = nullptr;
-
-        VkPhysicalDeviceMemoryProperties2 dmp;
-        dmp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-        dmp.pNext = &memoryBudget;
-
-        vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &dmp);
-
-        auto& memoryProperties = dmp.memoryProperties;
-
-        uint32_t heapIndex = 0;
-        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
+        if (allocatedMemoryLimit < 1.0)
         {
-            if ((memoryProperties.memoryTypes[i].propertyFlags & memoryPropertiesFlags) == memoryPropertiesFlags) // supported
-            {
-                heapIndex = memoryProperties.memoryTypes[i].heapIndex;
-                VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
-                availableSpace = heapAvailable;
-                break;
-            }
-        }
+            VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
+            memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
+            memoryBudget.pNext = nullptr;
 
-        VkDeviceSize minimumSpare = 0; //16*1024*1024;
-        if (availableSpace < minimumSpare)
-            availableSpace = 0;
-        else
-            availableSpace -= minimumSpare;
-#endif
+            VkPhysicalDeviceMemoryProperties2 dmp;
+            dmp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+            dmp.pNext = &memoryBudget;
+
+            vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &dmp);
+
+            auto& memoryProperties = dmp.memoryProperties;
+
+            uint32_t heapIndex = 0;
+            for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
+            {
+                if ((memoryProperties.memoryTypes[i].propertyFlags & memoryPropertiesFlags) == memoryPropertiesFlags) // supported
+                {
+                    heapIndex = memoryProperties.memoryTypes[i].heapIndex;
+
+                    VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryBudget.heapBudget[heapIndex]) * allocatedMemoryLimit);
+                    VkDeviceSize heapUsage = memoryBudget.heapUsage[heapIndex];
+                    VkDeviceSize heapAvailable = (heapUsage < heapBudget) ? heapBudget - heapUsage : 0;
+                    availableSpace = heapAvailable;
+
+                    break;
+                }
+            }
+
+            VkDeviceSize minimumSpare = 0; //16*1024*1024;
+            if (availableSpace < minimumSpare)
+                availableSpace = 0;
+            else
+                availableSpace -= minimumSpare;
+        }
 
         if (totalSize <= availableSpace)
         {
