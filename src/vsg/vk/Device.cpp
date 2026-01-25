@@ -233,14 +233,12 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
         }
     }
 
-    VkDeviceSize minimumMargin = 0; //1024*1024*1024;
-
     for (auto& heapIndex : compatibleHeaps)
     {
         VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
         if (heapAvailable > minimumMargin)
         {
-            available += (heapAvailable - minimumMargin);
+            available += heapAvailable;
         }
     }
 

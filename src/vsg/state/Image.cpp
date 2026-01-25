@@ -228,15 +228,7 @@ VkResult Image::compile(Device* device)
 
 VkResult Image::compile(Context& context)
 {
-    try
-    {
-        return compile(*context.deviceMemoryBufferPools);
-    }
-    catch (...)
-    {
-        vsg::info("Image::compile(Context& context)");
-        return VK_ERROR_OUT_OF_DEVICE_MEMORY;
-    }
+    return compile(*context.deviceMemoryBufferPools);
 }
 
 VkResult Image::compile(MemoryBufferPools& memoryBufferPools)
@@ -255,13 +247,10 @@ VkResult Image::compile(MemoryBufferPools& memoryBufferPools)
     if (deviceMemory)
     {
         vd.requiresDataCopy = data.valid();
-        bind(deviceMemory, offset);
+        return bind(deviceMemory, offset);
     }
     else
     {
-        // throw Exception{"Error: Image failed to reserve slot from deviceMemoryBufferPools.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
-        result = VK_ERROR_OUT_OF_DEVICE_MEMORY;
+        return VK_ERROR_OUT_OF_DEVICE_MEMORY;
     }
-
-    return result;
 }
