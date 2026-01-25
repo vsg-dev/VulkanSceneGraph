@@ -236,10 +236,7 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
     for (auto& heapIndex : compatibleHeaps)
     {
         VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
-        if (heapAvailable > minimumMargin)
-        {
-            available += heapAvailable;
-        }
+        available += heapAvailable;
     }
 
     if (includeMemoryPools)
