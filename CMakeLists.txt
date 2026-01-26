@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(vsg
-    VERSION 1.1.13
+    VERSION 1.1.14
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
-set(VSG_SOVERSION 15)
+set(VSG_SOVERSION 16)
 SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
@@ -82,6 +82,8 @@ if (VSG_SUPPORTS_Windowing)
         set(FIND_DEPENDENCY_WINDOWING "find_library(COCOA_LIBRARY Cocoa)\nfind_library(QUARTZCORE_LIBRARY QuartzCore)\n")
         find_library(COCOA_LIBRARY Cocoa)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
+    elseif (DEFINED OHOS_ARCH)  # OpenHarmony
+        set(FIND_DEPENDENCY_WINDOWING "")
     else()
         set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
         # just use Xcb for native windowing

@@ -414,3 +414,13 @@ void ImageInfo::computeNumMipMapLevels()
         if (generateMipmaps) image->usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
 }
+
+VkDeviceSize ImageInfo::computeDataSize() const
+{
+    if (imageView && imageView->image)
+    {
+        const auto& image = imageView->image;
+        if (image->data) return image->data->computeValueCountIncludingMipmaps();
+    }
+    return 0;
+}

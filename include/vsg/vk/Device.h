@@ -84,6 +84,9 @@ namespace vsg
         /// return true if Device was created with specified extension
         bool supportsDeviceExtension(const char* extensionName) const;
 
+        /// return the amount of memory available in deviceMemoryBufferPools and allocatable on device
+        VkDeviceSize availableMemory(bool includeMemoryPools = true) const;
+
         // provide observer_ptr to memory buffer and descriptor pools so that these can be accessed when required
         observer_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         observer_ptr<MemoryBufferPools> stagingMemoryBufferPools;
