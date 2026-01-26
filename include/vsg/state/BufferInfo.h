@@ -38,6 +38,9 @@ namespace vsg
 
         void release();
 
+        /// compute size of associated data
+        VkDeviceSize computeDataSize() const;
+
         /// Copy data to the VkBuffer(s) for all Devices associated with vsg::Buffer
         /// Requires associated buffer memory to be host visible, for non host visible buffers you must use a staging buffer
         void copyDataToBuffer();

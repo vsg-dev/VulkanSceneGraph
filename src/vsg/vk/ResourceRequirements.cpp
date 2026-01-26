@@ -17,6 +17,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/nodes/DepthSorted.h>
 #include <vsg/nodes/Geometry.h>
 #include <vsg/nodes/Group.h>
+#include <vsg/nodes/InstanceDraw.h>
+#include <vsg/nodes/InstanceDrawIndexed.h>
+#include <vsg/nodes/InstanceNode.h>
 #include <vsg/nodes/Layer.h>
 #include <vsg/nodes/PagedLOD.h>
 #include <vsg/nodes/StateGroup.h>
@@ -85,6 +88,9 @@ void ResourceRequirements::apply(const ResourceHints& resourceHints)
 
     dataTransferHint = resourceHints.dataTransferHint;
     viewportStateHint = resourceHints.viewportStateHint;
+
+    dynamicData.add(resourceHints.dynamicData);
+    containsPagedLOD = containsPagedLOD | resourceHints.containsPagedLOD;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -103,6 +109,9 @@ ref_ptr<ResourceHints> CollectResourceRequirements::createResourceHints(uint32_t
     {
         poolSize.descriptorCount = poolSize.descriptorCount * tileMultiplier;
     }
+
+    resourceHints->dynamicData = requirements.dynamicData;
+    resourceHints->containsPagedLOD = requirements.containsPagedLOD;
 
     return resourceHints;
 }
@@ -133,23 +142,18 @@ void CollectResourceRequirements::apply(const ResourceHints& resourceHints)
 
 void CollectResourceRequirements::apply(const Node& node)
 {
-    bool hasResourceHints = checkForResourceHints(node);
-    if (hasResourceHints) ++_numResourceHintsAbove;
+    checkForResourceHints(node);
 
     node.traverse(*this);
-
-    if (hasResourceHints) --_numResourceHintsAbove;
 }
 
 void CollectResourceRequirements::apply(const PagedLOD& plod)
 {
-    bool hasResourceHints = checkForResourceHints(plod);
-    if (hasResourceHints) ++_numResourceHintsAbove;
-
     requirements.containsPagedLOD = true;
-    plod.traverse(*this);
 
-    if (hasResourceHints) --_numResourceHintsAbove;
+    checkForResourceHints(plod);
+
+    plod.traverse(*this);
 }
 
 void CollectResourceRequirements::apply(const StateCommand& stateCommand)
@@ -192,8 +196,27 @@ void CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer
 {
     if (registerDescriptor(descriptorBuffer))
     {
+        BufferProperties properties;
+
+        switch (descriptorBuffer.descriptorType)
+        {
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            properties.usageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            properties.usageFlags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        default:
+            break;
+        }
+
+        properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        properties.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
         //info("CollectResourceRequirements::apply(const DescriptorBuffer& descriptorBuffer) ", &descriptorBuffer);
-        for (const auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo);
+        for (const auto& bufferInfo : descriptorBuffer.bufferInfoList) apply(bufferInfo, properties);
     }
 }
 
@@ -275,48 +298,121 @@ void CollectResourceRequirements::apply(const Bin& bin)
 
 void CollectResourceRequirements::apply(const Geometry& geometry)
 {
-    for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo);
-    apply(geometry.indices);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    if (geometry.indices) properties.usageFlags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+    for (const auto& bufferInfo : geometry.arrays) apply(bufferInfo, properties);
+
+    if (geometry.indices) apply(geometry.indices, properties);
 }
 
 void CollectResourceRequirements::apply(const VertexDraw& vd)
 {
-    for (const auto& bufferInfo : vd.arrays) apply(bufferInfo);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : vd.arrays) apply(bufferInfo, properties);
 }
 
 void CollectResourceRequirements::apply(const VertexIndexDraw& vid)
 {
-    for (const auto& bufferInfo : vid.arrays) apply(bufferInfo);
-    apply(vid.indices);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : vid.arrays) apply(bufferInfo, properties);
+    apply(vid.indices, properties);
+}
+
+void CollectResourceRequirements::apply(const InstanceNode& in)
+{
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    if (in.translations) apply(in.translations, properties);
+    if (in.rotations) apply(in.rotations, properties);
+    if (in.scales) apply(in.scales, properties);
+    if (in.colors) apply(in.colors, properties);
+
+    in.traverse(*this);
+}
+
+void CollectResourceRequirements::apply(const InstanceDraw& id)
+{
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : id.arrays) apply(bufferInfo, properties);
+}
+
+void CollectResourceRequirements::apply(const InstanceDrawIndexed& idi)
+{
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : idi.arrays) apply(bufferInfo, properties);
+    apply(idi.indices, properties);
 }
 
 void CollectResourceRequirements::apply(const BindVertexBuffers& bvb)
 {
-    for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo);
+    BufferProperties properties{VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    for (const auto& bufferInfo : bvb.arrays) apply(bufferInfo, properties);
 }
 
 void CollectResourceRequirements::apply(const BindIndexBuffer& bib)
 {
-    apply(bib.indices);
+    BufferProperties properties{VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE};
+    if (requirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK) properties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    apply(bib.indices, properties);
 }
 
-void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo)
+void CollectResourceRequirements::apply(ref_ptr<BufferInfo> bufferInfo, BufferProperties bufferProperties)
 {
-    if (bufferInfo && bufferInfo->data && bufferInfo->data->dynamic())
+    if (bufferInfo)
     {
-        requirements.dynamicData.bufferInfos.push_back(bufferInfo);
+        if (bufferInfo->data && bufferInfo->data->dynamic()) bufferProperties.usageFlags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+        auto& bufferInfos = requirements.bufferInfos[bufferProperties];
+        if (bufferInfos.count(bufferInfo) == 0)
+        {
+            bufferInfos.insert(bufferInfo);
+
+            if (bufferInfo->data)
+            {
+                if (bufferInfo->data->dynamic())
+                {
+                    requirements.dynamicData.bufferInfos.push_back(bufferInfo);
+                }
+            }
+        }
     }
 }
 
 void CollectResourceRequirements::apply(ref_ptr<ImageInfo> imageInfo)
 {
-    if (imageInfo && imageInfo->imageView && imageInfo->imageView->image)
+    if (imageInfo && requirements.imageInfos.count(imageInfo) == 0)
     {
-        // check for dynamic data
-        auto& data = imageInfo->imageView->image->data;
-        if (data && data->dynamic())
+        if (imageInfo->imageView && imageInfo->imageView->image)
         {
-            requirements.dynamicData.imageInfos.push_back(imageInfo);
+            requirements.imageInfos.insert(imageInfo);
+
+            // check for dynamic data
+            auto& data = imageInfo->imageView->image->data;
+            if (data)
+            {
+                if (data->dynamic())
+                {
+                    requirements.dynamicData.imageInfos.push_back(imageInfo);
+                }
+            }
+        }
+        else
+        {
+            vsg::debug("CollectResourceRequirements::apply() problem ImageInfo ", imageInfo, " { ", imageInfo->imageView, "}");
         }
     }
 }

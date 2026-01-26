@@ -143,6 +143,8 @@ int Image::compare(const Object& rhs_object) const
 
 VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 {
+    if (!deviceMemory) return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+
     VulkanData& vd = _vulkanData[deviceMemory->getDevice()->deviceID];
 
     VkResult result = vkBindImageMemory(*vd.device, vd.image, *deviceMemory, memoryOffset);
@@ -188,10 +190,10 @@ VkMemoryRequirements Image::getMemoryRequirements(uint32_t deviceID) const
     return memRequirements;
 }
 
-void Image::compile(Device* device)
+VkResult Image::compile(Device* device)
 {
     auto& vd = _vulkanData[device->deviceID];
-    if (vd.image != VK_NULL_HANDLE) return;
+    if (vd.image != VK_NULL_HANDLE) return VK_SUCCESS;
 
     VkImageCreateInfo info = {};
     info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -216,30 +218,41 @@ void Image::compile(Device* device)
 
     vd.requiresDataCopy = data.valid();
 
-    if (VkResult result = vkCreateImage(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image); result != VK_SUCCESS)
+    VkResult result = vkCreateImage(*vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image);
+
+    if (result != VK_SUCCESS)
     {
         throw Exception{"Error: Failed to create VkImage.", result};
     }
+
+    return result;
 }
 
-void Image::compile(Context& context)
+VkResult Image::compile(Context& context)
 {
-    auto& vd = _vulkanData[context.deviceID];
-    if (vd.image != VK_NULL_HANDLE) return;
+    return compile(*context.deviceMemoryBufferPools);
+}
 
-    compile(context.device);
+VkResult Image::compile(MemoryBufferPools& memoryBufferPools)
+{
+    auto device = memoryBufferPools.device;
+    auto& vd = _vulkanData[device->deviceID];
+    if (vd.image != VK_NULL_HANDLE) return VK_SUCCESS;
+
+    VkResult result = compile(device);
+    if (result != VK_SUCCESS) return result;
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(*vd.device, vd.image, &memRequirements);
+    vkGetImageMemoryRequirements(*device, vd.image, &memRequirements);
 
-    auto [deviceMemory, offset] = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    if (!deviceMemory)
+    auto [deviceMemory, offset] = memoryBufferPools.reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (deviceMemory)
     {
-        throw Exception{"Error: Image failed to reserve slot from deviceMemoryBufferPools.", VK_ERROR_OUT_OF_DEVICE_MEMORY};
+        vd.requiresDataCopy = data.valid();
+        return bind(deviceMemory, offset);
     }
-
-    vd.requiresDataCopy = data.valid();
-
-    bind(deviceMemory, offset);
+    else
+    {
+        return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+    }
 }

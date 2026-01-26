@@ -256,7 +256,13 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
                 vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
 
                 auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-                deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+                if (!deviceMemoryOffset.first)
+                    deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+                else
+                {
+                    debug("vsg::createBufferAndTransferData() Failure to assign memory to existing BufferInfo");
+                    return false;
+                }
             }
         }
     }
@@ -265,6 +271,12 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     {
         VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
         deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    }
+
+    if (!deviceBufferInfo)
+    {
+        debug("vsg::createBufferAndTransferData() Failure to assign Buffer");
+        return false;
     }
 
     debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
@@ -329,6 +341,11 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
     context.copy(stagingBufferInfo, deviceBufferInfo);
 
     return true;
+}
+
+VkDeviceSize BufferInfo::computeDataSize() const
+{
+    return data ? data->dataSize() : 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

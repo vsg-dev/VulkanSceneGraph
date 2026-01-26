@@ -13,6 +13,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/maths/vec2.h>
+#include <vsg/state/BufferInfo.h>
+#include <vsg/state/ImageInfo.h>
 #include <vsg/vk/DescriptorPool.h>
 
 namespace vsg
@@ -28,6 +30,26 @@ namespace vsg
     {
         STATIC_VIEWPORTSTATE = 1 << 0,
         DYNAMIC_VIEWPORTSTATE = 1 << 1
+    };
+
+    struct DynamicData
+    {
+        BufferInfoList bufferInfos;
+        ImageInfoList imageInfos;
+
+        explicit operator bool() const noexcept { return !bufferInfos.empty() || !imageInfos.empty(); }
+
+        void clear()
+        {
+            bufferInfos.clear();
+            imageInfos.clear();
+        }
+
+        void add(const DynamicData& dd)
+        {
+            bufferInfos.insert(bufferInfos.end(), dd.bufferInfos.begin(), dd.bufferInfos.end());
+            imageInfos.insert(imageInfos.end(), dd.imageInfos.begin(), dd.imageInfos.end());
+        }
     };
 
     /// ResourceHints provides settings that help preallocation of Vulkan resources and memory.
@@ -55,6 +77,15 @@ namespace vsg
 
         DataTransferHint dataTransferHint = COMPILE_TRAVERSAL_USE_TRANSFER_TASK;
         uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
+
+        DynamicData dynamicData;
+
+        bool containsPagedLOD = false;
+
+        /// Ratio of available device memory that can be allocated.
+        /// Ratios less than 1.0 require VK_EXT_memory_budget extension to be supported.
+        /// Ratio of 1.0 (or greater) will switch off checks for available memory and keep allocating till Vulkan memory allocations fail.
+        double allocatedMemoryLimit = 1.0;
 
     public:
         void read(Input& input) override;
