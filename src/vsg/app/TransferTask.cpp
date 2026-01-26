@@ -51,7 +51,7 @@ void TransferTask::assignTransferConsumedCompletedSemaphore(TransferMask transfe
     if ((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) _lateDataToCopy.transferConsumerCompletedSemaphore = semaphore;
 }
 
-void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
+void TransferTask::assign(const DynamicData& dynamicData)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 

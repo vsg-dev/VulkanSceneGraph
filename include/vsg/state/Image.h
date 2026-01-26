@@ -67,8 +67,9 @@ namespace vsg
         /// return true if the Image's data has been modified and should be copied to the buffer, updating the device specific ModifiedCount to the Data's ModifiedCount.
         bool syncModifiedCount(uint32_t deviceID) { return data && data->getModifiedCount(_vulkanData[deviceID].copiedModifiedCount); }
 
-        virtual void compile(Device* device);
-        virtual void compile(Context& context);
+        virtual VkResult compile(Device* device);
+        virtual VkResult compile(Context& context);
+        virtual VkResult compile(MemoryBufferPools& memoryBufferPools);
 
     protected:
         virtual ~Image();
