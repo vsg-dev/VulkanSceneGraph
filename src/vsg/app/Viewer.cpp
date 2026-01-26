@@ -275,15 +275,16 @@ void Viewer::handleEvents()
     }
 }
 
-void Viewer::compile(ref_ptr<ResourceHints> hints)
+CompileResult Viewer::compile(ref_ptr<ResourceHints> hints)
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer compile", COLOR_COMPILE);
 
     if (recordAndSubmitTasks.empty())
     {
-        return;
+        return {};
     }
 
+    CompileResult result;
     bool containsPagedLOD = false;
     ref_ptr<DatabasePager> databasePager;
 
@@ -386,9 +387,17 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
 
     for (auto& task : recordAndSubmitTasks)
     {
+        if (hints)
+        {
+            if (auto deviceMemoryBufferPools = task->device->deviceMemoryBufferPools.ref_ptr())
+            {
+                deviceMemoryBufferPools->allocatedMemoryLimit = hints->allocatedMemoryLimit;
+            }
+        }
+
         auto& deviceResource = deviceResourceMap[task->device];
         auto& resourceRequirements = deviceResource.collectResources.requirements;
-        compileManager->compileTask(task, resourceRequirements);
+        result.add(compileManager->compileTask(task, resourceRequirements));
         task->transferTask->assign(resourceRequirements.dynamicData);
     }
 
@@ -403,6 +412,8 @@ void Viewer::compile(ref_ptr<ResourceHints> hints)
                 task->databasePager->start();
         }
     }
+
+    return result;
 }
 
 void Viewer::assignRecordAndSubmitTaskAndPresentation(CommandGraphs in_commandGraphs)

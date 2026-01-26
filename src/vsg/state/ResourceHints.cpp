@@ -74,6 +74,15 @@ void ResourceHints::read(Input& input)
     {
         input.read("viewportStateHint", viewportStateHint);
     }
+
+    if (input.version_greater_equal(1, 1, 14))
+    {
+        input.readObjects("dynamicData.bufferInfos", dynamicData.bufferInfos);
+        input.readObjects("dynamicData.imageInfos", dynamicData.imageInfos);
+
+        input.read("containsPagedLOD", containsPagedLOD);
+        input.read("allocatedMemoryLimit", allocatedMemoryLimit);
+    }
 }
 
 void ResourceHints::write(Output& output) const
@@ -126,5 +135,14 @@ void ResourceHints::write(Output& output) const
     if (output.version_greater_equal(1, 1, 11))
     {
         output.write("viewportStateHint", viewportStateHint);
+    }
+
+    if (output.version_greater_equal(1, 1, 14))
+    {
+        output.writeObjects("dynamicData.bufferInfos", dynamicData.bufferInfos);
+        output.writeObjects("dynamicData.imageInfos", dynamicData.imageInfos);
+
+        output.write("containsPagedLOD", containsPagedLOD);
+        output.write("allocatedMemoryLimit", allocatedMemoryLimit);
     }
 }

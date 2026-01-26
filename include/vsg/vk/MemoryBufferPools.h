@@ -34,6 +34,14 @@ namespace vsg
         VkDeviceSize minimumBufferSize = 16 * 1024 * 1024;
         VkDeviceSize minimumDeviceMemorySize = 16 * 1024 * 1024;
 
+        /// Ratio of available device memory that can be allocated.
+        /// Ratios less than 1.0 require VK_EXT_memory_budget extension to be supported.
+        /// Ratio of 1.0 (or greater) will switch off checks for available memory and keep allocating till Vulkan memory allocations fail.
+        double allocatedMemoryLimit = 1.0;
+
+        /// throw vsg::Exception when reserveMemory() fails to allocated memory on device.
+        bool throwOutOfDeviceMemoryException = true;
+
         VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;
         VkDeviceSize computeBufferTotalAvailable() const;
@@ -43,6 +51,8 @@ namespace vsg
 
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
         DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
+
+        VkResult reserve(ResourceRequirements& requirements);
 
     protected:
         mutable std::mutex _mutex;
