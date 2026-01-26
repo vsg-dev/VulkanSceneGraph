@@ -177,12 +177,11 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
             auto& memoryProperties = dmp.memoryProperties;
 
-            uint32_t heapIndex = 0;
             for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
             {
                 if ((memoryProperties.memoryTypes[i].propertyFlags & memoryPropertiesFlags) == memoryPropertiesFlags) // supported
                 {
-                    heapIndex = memoryProperties.memoryTypes[i].heapIndex;
+                    uint32_t heapIndex = memoryProperties.memoryTypes[i].heapIndex;
 
                     VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryBudget.heapBudget[heapIndex]) * allocatedMemoryLimit);
                     VkDeviceSize heapUsage = memoryBudget.heapUsage[heapIndex];
@@ -244,7 +243,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
     //vsg::info("MemoryBufferPools::reserve(ResourceRequirements& requirements) { ");
 
     auto deviceID = device->deviceID;
-    auto& limits = device->getPhysicalDevice()->getProperties().limits;
+    const auto& limits = device->getPhysicalDevice()->getProperties().limits;
 
     VkMemoryPropertyFlags memoryPropertiesFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT; // VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 

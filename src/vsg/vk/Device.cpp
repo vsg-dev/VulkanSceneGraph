@@ -233,7 +233,7 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
         }
     }
 
-    for (auto& heapIndex : compatibleHeaps)
+    for (const auto& heapIndex : compatibleHeaps)
     {
         VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
         available += heapAvailable;

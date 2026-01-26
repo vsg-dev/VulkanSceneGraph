@@ -419,7 +419,7 @@ VkDeviceSize ImageInfo::computeDataSize() const
 {
     if (imageView && imageView->image)
     {
-        auto& image = imageView->image;
+        const auto& image = imageView->image;
         if (image->data) return image->data->computeValueCountIncludingMipmaps();
     }
     return 0;
