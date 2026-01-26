@@ -82,6 +82,11 @@ namespace vsg
 
         bool containsPagedLOD = false;
 
+        /// Ratio of available device memory that can be allocated.
+        /// Ratios less than 1.0 require VK_EXT_memory_budget extension to be supported.
+        /// Ratio of 1.0 (or greater) will switch off checks for available memory and keep allocating till Vulkan memory allocations fail.
+        double allocatedMemoryLimit = 1.0;
+
     public:
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -15,6 +15,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <chrono>
+#include <assert.h>
 
 using namespace vsg;
 
@@ -203,7 +204,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         {
             if (availableSpace < minimumDeviceMemorySize)
             {
-                info("MemoryBufferPools::reserveMemory(", totalSize, ") reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
+                debug("MemoryBufferPools::reserveMemory(", totalSize, ") reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
                 minimumDeviceMemorySize = availableSpace;
             }
 
@@ -225,6 +226,10 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
                     memoryPools.push_back(deviceMemory);
                 }
             }
+        }
+        else if (throwOutOfDeviceMemoryException)
+        {
+            throw vsg::Exception{"MemoryBufferPools::reserve() out of memory", VK_ERROR_OUT_OF_DEVICE_MEMORY};
         }
     }
 

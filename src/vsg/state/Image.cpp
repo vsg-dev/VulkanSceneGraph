@@ -143,6 +143,8 @@ int Image::compare(const Object& rhs_object) const
 
 VkResult Image::bind(DeviceMemory* deviceMemory, VkDeviceSize memoryOffset)
 {
+    if (!deviceMemory) return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+
     VulkanData& vd = _vulkanData[deviceMemory->getDevice()->deviceID];
 
     VkResult result = vkBindImageMemory(*vd.device, vd.image, *deviceMemory, memoryOffset);

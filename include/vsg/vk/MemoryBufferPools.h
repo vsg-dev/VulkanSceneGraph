@@ -39,6 +39,9 @@ namespace vsg
         /// Ratio of 1.0 (or greater) will switch off checks for available memory and keep allocating till Vulkan memory allocations fail.
         double allocatedMemoryLimit = 1.0;
 
+        /// throw vsg::Exception when reserveMemory() fails to allocated memory on device.
+        bool throwOutOfDeviceMemoryException = true;
+
         VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;
         VkDeviceSize computeBufferTotalAvailable() const;

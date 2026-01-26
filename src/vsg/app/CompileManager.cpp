@@ -256,25 +256,43 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
 CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
 {
-    auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+    CompileResult result;
 
-    for (const auto& context : compileTraversal->contexts)
+    // assume success, overwrite this on failures.
+    result.result = VK_SUCCESS;
+
+    try
     {
-        if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
+        auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+
+        for (const auto& context : compileTraversal->contexts)
         {
-            context->transferTask = task->transferTask;
+            if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
+            {
+                context->transferTask = task->transferTask;
+            }
+        }
+
+        for (auto& cg : task->commandGraphs)
+        {
+            cg->accept(*compileTraversal);
+        }
+
+        if (compileTraversal->record())
+        {
+            compileTraversal->waitForCompletion();
         }
     }
-
-    for (auto& cg : task->commandGraphs)
+    catch (const vsg::Exception& ve)
     {
-        cg->accept(*compileTraversal);
+        result.message = ve.message;
+        result.result = ve.result;
+    }
+    catch (...)
+    {
+        result.message = "Exception occurred during compilation.";
+        result.result = VK_ERROR_UNKNOWN;
     }
 
-    if (compileTraversal->record())
-    {
-        compileTraversal->waitForCompletion();
-    }
-
-    return {};
+    return result;
 }

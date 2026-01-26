@@ -81,6 +81,7 @@ void ResourceHints::read(Input& input)
         input.readObjects("dynamicData.imageInfos", dynamicData.imageInfos);
 
         input.read("containsPagedLOD", containsPagedLOD);
+        input.read("allocatedMemoryLimit", allocatedMemoryLimit);
     }
 }
 
@@ -142,5 +143,6 @@ void ResourceHints::write(Output& output) const
         output.writeObjects("dynamicData.imageInfos", dynamicData.imageInfos);
 
         output.write("containsPagedLOD", containsPagedLOD);
+        output.write("allocatedMemoryLimit", allocatedMemoryLimit);
     }
 }
