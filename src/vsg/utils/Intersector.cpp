@@ -218,9 +218,15 @@ void Intersector::apply(const uintArray& array)
 void Intersector::apply(const TextTechnique& technique)
 {
     if (auto cpuTechnique = technique.cast<CpuLayoutTechnique>())
-        cpuTechnique->scenegraph->accept(*this);
+    {
+        if (cpuTechnique->scenegraph)
+            cpuTechnique->scenegraph->accept(*this);
+    }
     if (auto gpuTechnique = technique.cast<GpuLayoutTechnique>())
-        gpuTechnique->scenegraph->accept(*this);
+    {
+        if (gpuTechnique->scenegraph)
+            gpuTechnique->scenegraph->accept(*this);
+    }
 }
 
 void Intersector::apply(const Draw& draw)

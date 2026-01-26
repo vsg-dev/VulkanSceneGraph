@@ -51,7 +51,7 @@ namespace vsg
 
         ref_ptr<Device> device;
 
-        void assign(const ResourceRequirements::DynamicData& dynamicData);
+        void assign(const DynamicData& dynamicData);
         void assign(const BufferInfoList& bufferInfoList);
         void assign(const ImageInfoList& imageInfoList);
 
@@ -117,5 +117,8 @@ namespace vsg
         void _transferImageInfo(VkCommandBuffer vk_commandBuffer, TransferBlock& frame, VkDeviceSize& offset, ImageInfo& imageInfo);
     };
     VSG_type_name(vsg::TransferTask);
+
+    /// convenience function that uploads staging buffer data to device including mipmaps.
+    extern VSG_DECLSPEC void transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer vk_commandBuffer, vsg::Device* device);
 
 } // namespace vsg

@@ -137,7 +137,7 @@ namespace vsg
     struct ValuesSchema : public Inherit<JSONParser::Schema, ValuesSchema<T>>
     {
         std::vector<T> values;
-        void read_number(vsg::JSONParser& parser, std::istream& input) override
+        void read_number(vsg::JSONParser&, std::istream& input) override
         {
             T value;
             input >> value;

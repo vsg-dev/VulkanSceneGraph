@@ -68,3 +68,8 @@ void CommandPool::free(CommandBuffer* commandBuffer)
         commandBuffer->_commandBuffer = 0;
     }
 }
+
+void CommandPool::reset(VkCommandPoolResetFlags reset_flags) const
+{
+    vkResetCommandPool(*_device, _commandPool, reset_flags);
+}

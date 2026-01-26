@@ -21,10 +21,10 @@ namespace vsg
     /// Equivalent to VkDrawIndirectCommand that adds read/write support
     struct DrawIndirectCommand
     {
-        uint32_t vertexCount;
-        uint32_t instanceCount;
-        uint32_t firstVertex;
-        uint32_t firstInstance;
+        uint32_t vertexCount = 0;
+        uint32_t instanceCount = 0;
+        uint32_t firstVertex = 0;
+        uint32_t firstInstance = 0;
 
         void read(vsg::Input& input)
         {

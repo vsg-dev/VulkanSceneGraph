@@ -10,6 +10,7 @@ endif()
 # set up the source files explicitly.
 set(SOURCES
 
+    core/MipmapLayout.cpp
     core/Allocator.cpp
     core/IntrusiveAllocator.cpp
     core/Auxiliary.cpp
@@ -316,6 +317,9 @@ if (VSG_SUPPORTS_Windowing)
         else()
             set(LIBRARIES ${LIBRARIES} PRIVATE ${AndroidLib})
         endif()
+    elseif (OHOS_ARCH)  # OpenHarmony
+        set(HEADERS ${HEADERS} ${VSG_SOURCE_DIR}/include/vsg/platform/harmony/Harmony_Window.h)
+        set(SOURCES ${SOURCES} platform/harmony/Harmony_Window.cpp)
     elseif (WIN32)
         set(SOURCES ${SOURCES} platform/win32/Win32_Window.cpp)
     elseif (IOS)
@@ -410,7 +414,24 @@ ASSIGN_SOURCE_GROUPS("Header Files" "${VSG_SOURCE_DIR}/include/vsg" ${HEADERS})
 set_property(TARGET vsg PROPERTY VERSION ${VSG_VERSION_MAJOR}.${VSG_VERSION_MINOR}.${VSG_VERSION_PATCH})
 set_property(TARGET vsg PROPERTY SOVERSION ${VSG_SOVERSION})
 set_property(TARGET vsg PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_property(TARGET vsg PROPERTY CXX_STANDARD 17)
+
+# set up the C++ Standard used
+if (NOT CMAKE_CXX_STANDARD)
+    # no CMAKE_CXX_STANDARD explicitly defined so default to 17
+    target_compile_features(vsg PUBLIC cxx_std_17)
+elseif (${CMAKE_CXX_STANDARD} EQUAL 17)
+    target_compile_features(vsg PUBLIC cxx_std_17)
+elseif (${CMAKE_CXX_STANDARD} EQUAL 20)
+    target_compile_features(vsg PUBLIC cxx_std_20) # CMake minimum version 3.12
+elseif (${CMAKE_CXX_STANDARD} EQUAL 23)
+    target_compile_features(vsg PUBLIC cxx_std_23) # CMake minimum version 3.20
+elseif (${CMAKE_CXX_STANDARD} EQUAL 26)
+    target_compile_features(vsg PUBLIC cxx_std_26) # CMake minimum version 3.30
+else()
+    message(FATAL_ERROR "Invalid CMAKE_CXX_STANDARD value of " ${CMAKE_CXX_STANDARD} ", supported values are 17, 20 or 23.")
+endif()
+
+
 if(WIN32)
     set_property(TARGET vsg PROPERTY RUNTIME_OUTPUT_NAME vsg-${VSG_SOVERSION})
 endif()
@@ -426,6 +447,10 @@ target_link_libraries(vsg ${LIBRARIES})
 
 if (BUILD_SHARED_LIBS)
     target_compile_definitions(vsg INTERFACE VSG_SHARED_LIBRARY)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT VSG_USE_DYNAMIC_CAST)
+    # Static build, Clang, and we are not using dynamic_cast:
+    # export Array/Value/etc. to stabilize typeid.
+    target_compile_definitions(vsg PRIVATE VSG_EXPORTS)
 endif()
 
 # install headers

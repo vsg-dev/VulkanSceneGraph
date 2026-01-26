@@ -11,7 +11,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 </editor-fold> */
 
 #include <vsg/core/Allocator.h>
+#include <vsg/core/Auxiliary.h>
 #include <vsg/core/Data.h>
+#include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
 
@@ -28,7 +30,7 @@ Data::Properties& Data::Properties::operator=(const Properties& rhs)
 
     format = rhs.format;
     if (rhs.stride != 0) stride = rhs.stride;
-    maxNumMipmaps = rhs.maxNumMipmaps;
+    mipLevels = rhs.mipLevels;
     blockWidth = rhs.blockWidth;
     blockHeight = rhs.blockHeight;
     blockDepth = rhs.blockDepth;
@@ -78,15 +80,15 @@ void Data::read(Input& input)
 
     if (input.version_greater_equal(0, 6, 1))
     {
-        input.read("properties", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        input.read("properties", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else if (input.version_greater_equal(0, 5, 7))
     {
-        input.read("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        input.read("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else
     {
-        input.read("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
+        input.read("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
         properties.dataVariance = STATIC_DATA;
     }
 
@@ -100,61 +102,103 @@ void Data::write(Output& output) const
     uint32_t format = properties.format;
     if (output.version_greater_equal(0, 6, 1))
     {
-        output.write("properties", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        output.write("properties", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else if (output.version_greater_equal(0, 5, 7))
     {
-        output.write("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
+        output.write("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType, properties.dataVariance);
     }
     else
     {
-        output.write("Layout", format, properties.stride, properties.maxNumMipmaps, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
+        output.write("Layout", format, properties.stride, properties.mipLevels, properties.blockWidth, properties.blockHeight, properties.blockDepth, properties.origin, properties.imageViewType);
     }
 }
 
-Data::MipmapOffsets Data::computeMipmapOffsets() const
+void Data::_copy(const Data& rhs)
 {
-    if (properties.maxNumMipmaps <= 1) return {};
-
-    uint32_t numMipmaps = properties.maxNumMipmaps;
-
-    MipmapOffsets offsets;
-
-    std::size_t w = width();
-    std::size_t h = height();
-    std::size_t d = depth();
-
-    std::size_t lastPosition = 0;
-    offsets.push_back(lastPosition);
-    while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
+    properties = rhs.properties;
+    if (rhs.getAuxiliary())
     {
-        lastPosition += (w * h * d);
-        offsets.push_back(lastPosition);
-
-        --numMipmaps;
-        if (w > 1) w /= 2;
-        if (h > 1) h /= 2;
-        if (d > 1) d /= 2;
+        getOrCreateAuxiliary()->userObjects = rhs.getAuxiliary()->userObjects;
     }
-
-    return offsets;
+    else if (getAuxiliary())
+    {
+        getAuxiliary()->userObjects.clear();
+    }
 }
 
-std::size_t Data::computeValueCountIncludingMipmaps(std::size_t w, std::size_t h, std::size_t d, uint32_t numMipmaps)
+void Data::_clear()
 {
-    if (numMipmaps <= 1) return w * h * d;
+    if (getAuxiliary()) getAuxiliary()->clear();
+}
 
-    std::size_t lastPosition = (w * h * d);
-    while (numMipmaps > 1 && (w > 1 || h > 1 || d > 1))
+void Data::setMipmapLayout(MipmapLayout* mipmapLayout)
+{
+    if (mipmapLayout)
+        setObject("mipmapLayout", ref_ptr<MipmapLayout>(mipmapLayout));
+    else if (getAuxiliary())
+        removeObject("mipmapLayout");
+}
+
+const MipmapLayout* Data::getMipmapLayout() const
+{
+    return getObject<MipmapLayout>("mipmapLayout");
+}
+
+std::size_t Data::computeValueCountIncludingMipmaps() const
+{
+    std::size_t count = 0;
+
+    if (auto mipmapLayout = getMipmapLayout())
     {
-        --numMipmaps;
+        for (const auto& mipmap : *mipmapLayout)
+        {
+            // round to block size
+            std::size_t w = (mipmap.x + properties.blockWidth - 1) / properties.blockWidth;
+            std::size_t h = (mipmap.y + properties.blockHeight - 1) / properties.blockHeight;
+            std::size_t d = (mipmap.z + properties.blockDepth - 1) / properties.blockDepth;
 
-        if (w > 1) w /= 2;
-        if (h > 1) h /= 2;
-        if (d > 1) d /= 2;
+            count += w * h * d;
+        }
+    }
+    else
+    {
+        std::size_t x = width() * properties.blockWidth;
+        std::size_t y = height() * properties.blockHeight;
+        std::size_t z = depth() * properties.blockDepth;
 
-        lastPosition += (w * h * d);
+        auto mipLevels = std::max(properties.mipLevels, uint8_t(1));
+        for (uint8_t level = 0; level < mipLevels; ++level)
+        {
+            // round to block size
+            std::size_t w = (x + properties.blockWidth - 1) / properties.blockWidth;
+            std::size_t h = (y + properties.blockHeight - 1) / properties.blockHeight;
+            std::size_t d = (z + properties.blockDepth - 1) / properties.blockDepth;
+
+            count += w * h * d;
+
+            if (x > 1) x = x / 2;
+            if (y > 1) y = y / 2;
+            if (z > 1) z = z / 2;
+        }
     }
 
-    return lastPosition;
+    return count;
+}
+
+std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
+{
+    uint32_t w = width() * properties.blockWidth;
+    uint32_t h = height() * properties.blockHeight;
+    uint32_t d = depth() * properties.blockDepth;
+
+    if (auto mipmapLayout = getMipmapLayout())
+    {
+        auto mipmap = mipmapLayout->at(0);
+        w = mipmap.x;
+        h = mipmap.y;
+        d = mipmap.z;
+    }
+
+    return {w, h, d};
 }

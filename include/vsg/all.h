@@ -27,6 +27,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/IntrusiveAllocator.h>
 #include <vsg/core/Mask.h>
 #include <vsg/core/MemorySlots.h>
+#include <vsg/core/MipmapLayout.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Objects.h>
 #include <vsg/core/ScratchMemory.h>
@@ -129,6 +130,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Draw.h>
 #include <vsg/commands/DrawIndexed.h>
 #include <vsg/commands/DrawIndexedIndirect.h>
+#include <vsg/commands/DrawIndexedIndirectCommand.h>
 #include <vsg/commands/DrawIndirect.h>
 #include <vsg/commands/DrawIndirectCommand.h>
 #include <vsg/commands/EndQuery.h>

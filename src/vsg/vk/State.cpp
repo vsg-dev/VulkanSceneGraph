@@ -35,7 +35,6 @@ void State::reserve(const Slots& in_maxSlots)
 
 void State::reset()
 {
-    //info("State::reset()");
     for (auto& stateStack : stateStacks)
     {
         stateStack.reset();
@@ -48,7 +47,7 @@ void State::connect(ref_ptr<CommandBuffer> commandBuffer)
 {
     _commandBuffer = commandBuffer;
     commandBuffer->state = this;
-    reset();
+    dirtyStateStacks();
 }
 
 void State::pushView(ref_ptr<StateCommand> command)
@@ -73,4 +72,41 @@ void State::popView(const View& view)
 {
     //info("State::popView(View&, ", &view, ")");
     if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE) && view.camera && view.camera->viewportState) popView(view.camera->viewportState);
+}
+
+void State::inherit(const State& state)
+{
+    reserve(state.maxSlots);
+
+    reset();
+
+    dirty = true;
+
+    if ((inheritanceMask & InheritanceMask::INHERIT_VIEW_SETTINGS) != 0)
+    {
+        inheritViewForLODScaling = state.inheritViewForLODScaling;
+        inheritedProjectionMatrix = state.inheritedProjectionMatrix;
+        inheritedViewMatrix = state.inheritedViewMatrix;
+        inheritedViewTransform = state.inheritedViewTransform;
+    }
+
+    if ((inheritanceMask & InheritanceMask::INHERIT_STATE) != 0)
+    {
+        stateStacks = state.stateStacks;
+    }
+
+    if ((inheritanceMask & InheritanceMask::INHERIT_VIEWPORT_STATE_HINT) != 0)
+    {
+        viewportStateHint = state.viewportStateHint;
+    }
+
+    if ((inheritanceMask & InheritanceMask::INHERIT_MATRICES) != 0)
+    {
+        projectionMatrixStack = state.projectionMatrixStack;
+        modelviewMatrixStack = state.modelviewMatrixStack;
+
+        _frustumUnit = state._frustumUnit;
+        _frustumProjected = state._frustumProjected;
+        _frustumStack = state._frustumStack;
+    }
 }

@@ -12,17 +12,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/platform/android/Android_Window.h>
 
-#include <android/log.h>
-#include <android/looper.h>
-#include <android/native_activity.h>
-
 #include <vsg/core/Exception.h>
 #include <vsg/core/observer_ptr.h>
 #include <vsg/io/Logger.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/TouchEvent.h>
 
-#include <time.h>
+#include <cassert>
+#include <ctime>
 
 using namespace vsg;
 using namespace vsgAndroid;
@@ -59,11 +56,11 @@ namespace vsgAndroid
         }
     };
 
-    static int64_t now_ms(void)
+    static int64_t getUptimeMs()
     {
         struct timespec res;
         clock_gettime(CLOCK_MONOTONIC, &res);
-        return 1000 * res.tv_sec + res.tv_nsec / 1e6;
+        return 1000 * res.tv_sec + res.tv_nsec / 1000'000;
     }
 
 } // namespace vsgAndroid
@@ -87,59 +84,33 @@ KeyboardMap::KeyboardMap()
             {AKEYCODE_8, KEY_8},
             {AKEYCODE_9, KEY_9},
 
-            {'a', KEY_a},
-            {'b', KEY_b},
-            {'c', KEY_c},
-            {'d', KEY_d},
-            {'e', KEY_e},
-            {'f', KEY_f},
-            {'g', KEY_g},
-            {'h', KEY_h},
-            {'i', KEY_i},
-            {'j', KEY_j},
-            {'k', KEY_k},
-            {'l', KEY_l},
-            {'m', KEY_m},
-            {'n', KEY_n},
-            {'o', KEY_o},
-            {'p', KEY_p},
-            {'q', KEY_q},
-            {'r', KEY_r},
-            {'s', KEY_s},
-            {'t', KEY_t},
-            {'u', KEY_u},
-            {'z', KEY_v},
-            {'w', KEY_w},
-            {'x', KEY_x},
-            {'y', KEY_y},
-            {'z', KEY_z},
-
-            {'A', KEY_A},
-            {'B', KEY_B},
-            {'C', KEY_C},
-            {'D', KEY_D},
-            {'E', KEY_E},
-            {'F', KEY_F},
-            {'G', KEY_G},
-            {'H', KEY_H},
-            {'I', KEY_I},
-            {'J', KEY_J},
-            {'K', KEY_K},
-            {'L', KEY_L},
-            {'M', KEY_M},
-            {'N', KEY_N},
-            {'O', KEY_O},
-            {'P', KEY_P},
-            {'Q', KEY_Q},
-            {'R', KEY_R},
-            {'S', KEY_S},
-            {'T', KEY_T},
-            {'U', KEY_U},
-            {'V', KEY_V},
-            {'W', KEY_W},
-            {'X', KEY_X},
-            {'Y', KEY_Y},
-            {'Z', KEY_Z},
+            // Note that virtual key 'A' etc. correspond to the unmodified character 'a', hence the map below assigns capital letters to their corresponding lowercase ones.
+            {AKEYCODE_A, KEY_a},
+            {AKEYCODE_B, KEY_b},
+            {AKEYCODE_C, KEY_c},
+            {AKEYCODE_D, KEY_d},
+            {AKEYCODE_E, KEY_e},
+            {AKEYCODE_F, KEY_f},
+            {AKEYCODE_G, KEY_g},
+            {AKEYCODE_H, KEY_h},
+            {AKEYCODE_I, KEY_i},
+            {AKEYCODE_J, KEY_j},
+            {AKEYCODE_K, KEY_k},
+            {AKEYCODE_L, KEY_l},
+            {AKEYCODE_M, KEY_m},
+            {AKEYCODE_N, KEY_n},
+            {AKEYCODE_O, KEY_o},
+            {AKEYCODE_P, KEY_p},
+            {AKEYCODE_Q, KEY_q},
+            {AKEYCODE_R, KEY_r},
+            {AKEYCODE_S, KEY_s},
+            {AKEYCODE_T, KEY_t},
+            {AKEYCODE_U, KEY_u},
+            {AKEYCODE_Z, KEY_v},
+            {AKEYCODE_W, KEY_w},
+            {AKEYCODE_X, KEY_x},
+            {AKEYCODE_Y, KEY_y},
+            {AKEYCODE_Z, KEY_z},
 
             {'!', KEY_Exclaim},
             {'"', KEY_Quotedbl},
@@ -149,7 +120,7 @@ KeyboardMap::KeyboardMap()
             {AKEYCODE_APOSTROPHE, KEY_Quote},
             {'(', KEY_Leftparen},
             {')', KEY_Rightparen},
-            {'*', KEY_Asterisk},
+            {AKEYCODE_STAR, KEY_Asterisk},
             {'+', KEY_Plus},
             {AKEYCODE_COMMA, KEY_Comma},
             {AKEYCODE_MINUS, KEY_Minus},
@@ -316,6 +287,97 @@ KeyboardMap::KeyboardMap()
         };
 }
 
+static JavaVM* javaVM = nullptr;
+static jclass classKeyCharacterMap = nullptr;
+static jmethodID methodLoad = nullptr;
+static jmethodID methodGet = nullptr;
+
+static JNIEnv* getJNIEnvFromJavaVM(JavaVM* vm)
+{
+    assert(vm);
+    JNIEnv* env = nullptr;
+    jint ret = vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    if (ret == JNI_EDETACHED)
+    {
+        JavaVMAttachArgs args = {JNI_VERSION_1_6, "NativeActivityThread", nullptr};
+        ret = vm->AttachCurrentThread(&env, &args);
+        if (ret != JNI_OK)
+        {
+            vsg::error("Failed to attach thread：ret=", ret);
+            return nullptr;
+        }
+    }
+    else if (ret != JNI_OK)
+    {
+        vsg::error("Failed to get JNIEnv： ret=", ret);
+        return nullptr;
+    }
+    return env;
+}
+
+void KeyboardMap::initializeKeyCharacterMap(void* vm)
+{
+    javaVM = static_cast<JavaVM*>(vm);
+    JNIEnv* env = getJNIEnvFromJavaVM(javaVM);
+    if (!env)
+        return;
+
+    jclass KeyCharacterMap = env->FindClass("android/view/KeyCharacterMap"); // Since API level 1
+    assert(KeyCharacterMap);
+
+    classKeyCharacterMap = (jclass)env->NewGlobalRef(KeyCharacterMap);
+    env->DeleteLocalRef(KeyCharacterMap);
+
+    methodLoad = env->GetStaticMethodID(classKeyCharacterMap, "load", "(I)Landroid/view/KeyCharacterMap;");
+    methodGet = env->GetMethodID(classKeyCharacterMap, "get", "(II)I");
+    assert(methodLoad && methodGet);
+}
+
+void KeyboardMap::releaseKeyCharacterMap()
+{
+    if (classKeyCharacterMap)
+    {
+        JNIEnv* env = getJNIEnvFromJavaVM(javaVM);
+        if (env)
+        {
+            env->DeleteGlobalRef(classKeyCharacterMap);
+            classKeyCharacterMap = nullptr;
+        }
+
+        javaVM->DetachCurrentThread();
+    }
+}
+
+int32_t KeyboardMap::getUnicodeChar(int32_t keyCode, int32_t metaState)
+{
+    if (!javaVM || !classKeyCharacterMap || !methodLoad || !methodGet)
+    {
+        vsg::warn("JNI not initialized");
+        return 0;
+    }
+
+    JNIEnv* env = getJNIEnvFromJavaVM(javaVM);
+    if (!env)
+        return 0;
+
+    jobject kcmInstance = env->CallStaticObjectMethod(classKeyCharacterMap, methodLoad, 0);
+    if (env->ExceptionCheck() || !kcmInstance)
+    {
+        env->ExceptionClear();
+        return 0;
+    }
+
+    int32_t unicode = env->CallIntMethod(kcmInstance, methodGet, keyCode, metaState);
+    if (env->ExceptionCheck())
+    {
+        env->ExceptionClear();
+        unicode = 0;
+    }
+
+    env->DeleteLocalRef(kcmInstance);
+    return unicode;
+}
+
 Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
     Inherit(traits)
 {
@@ -350,7 +412,7 @@ Android_Window::Android_Window(vsg::ref_ptr<WindowTraits> traits) :
     _extent2D.width = finalWidth;
     _extent2D.height = finalHeight;
 
-    _first_android_timestamp = now_ms();
+    _uptimeMs = getUptimeMs();
     _first_android_time_point = vsg::clock::now();
 }
 
@@ -383,103 +445,84 @@ void Android_Window::resize()
 
 bool Android_Window::handleAndroidInputEvent(AInputEvent* anEvent)
 {
-    auto eventType = AInputEvent_getType(anEvent);
-
+    int32_t eventType = AInputEvent_getType(anEvent);
     if (eventType == AINPUT_EVENT_TYPE_MOTION)
     {
-        auto action = AMotionEvent_getAction(anEvent);
-
-        // first process the historical events (multiple touch events may have occurred since the last frame)
-        size_t historySize = AMotionEvent_getHistorySize(anEvent);
+        int32_t action = AMotionEvent_getAction(anEvent);
+        int32_t actionMasked = action & AMOTION_EVENT_ACTION_MASK;
+        int32_t actionIndex = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
         size_t pointerCount = AMotionEvent_getPointerCount(anEvent);
-        for (size_t h = 0; h < historySize; h++)
+        int64_t timeNs = AMotionEvent_getEventTime(anEvent);
+        int64_t timeMs = timeNs / 1000'000;
+        vsg::clock::time_point time = _first_android_time_point + std::chrono::milliseconds(timeMs - _uptimeMs);
+
+        switch (actionMasked)
         {
-            int64_t htime = AMotionEvent_getHistoricalEventTime(anEvent, h) / 1e-6;
-            vsg::clock::time_point historical_event_time = _first_android_time_point + std::chrono::milliseconds(htime - _first_android_timestamp);
-
-            for (size_t p = 0; p < pointerCount; p++)
-            {
-                uint32_t id = AMotionEvent_getPointerId(anEvent, p);
-                float x = AMotionEvent_getHistoricalX(anEvent, p, h);
-                float y = AMotionEvent_getHistoricalX(anEvent, p, h);
-
-                switch (action)
-                {
-                case AMOTION_EVENT_ACTION_DOWN:
-                    bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, historical_event_time, x, y, id));
-                    break;
-                case AMOTION_EVENT_ACTION_MOVE:
-                    bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, historical_event_time, x, y, id));
-                    break;
-                case AMOTION_EVENT_ACTION_UP:
-                case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
-                    bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, historical_event_time, x, y, id));
-                    break;
-                default: break;
-                }
-            }
+        case AMOTION_EVENT_ACTION_DOWN:
+        case AMOTION_EVENT_ACTION_POINTER_DOWN: {
+            float x = AMotionEvent_getX(anEvent, actionIndex);
+            float y = AMotionEvent_getY(anEvent, actionIndex);
+            uint32_t id = AMotionEvent_getPointerId(anEvent, actionIndex);
+            bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, time, x, y, id));
+            break;
         }
-
-        // now process the latest event
-        int64_t ctime = AMotionEvent_getEventTime(anEvent) / 1e-6;
-        vsg::clock::time_point event_time = _first_android_time_point + std::chrono::milliseconds(ctime - _first_android_timestamp);
-
-        for (size_t p = 0; p < pointerCount; p++)
-        {
-            uint32_t id = AMotionEvent_getPointerId(anEvent, p);
-            float x = AMotionEvent_getX(anEvent, p);
-            float y = AMotionEvent_getY(anEvent, p);
-
-            switch (action)
+        case AMOTION_EVENT_ACTION_MOVE:
+            for (size_t p = 0; p < pointerCount; ++p)
             {
-            case AMOTION_EVENT_ACTION_DOWN:
-                vsg::debug("touch down event = id: ", id, " - xy: ", x, ", ", y);
-                bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, event_time, x, y, id));
-                break;
-            case AMOTION_EVENT_ACTION_MOVE:
-                vsg::debug("touch move event = id: ", id, " - xy: ", x, ", ", y);
-                bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, event_time, x, y, id));
-                break;
-            case AMOTION_EVENT_ACTION_UP:
-            case AMOTION_EVENT_ACTION_CANCEL: // for now just treat cancel as up
-                vsg::debug("touch up event = id: ", id, " - xy: ", x, ", ", y);
-                bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, event_time, x, y, id));
-                break;
-            default: break;
+                float x = AMotionEvent_getX(anEvent, p);
+                float y = AMotionEvent_getY(anEvent, p);
+                uint32_t id = AMotionEvent_getPointerId(anEvent, p);
+                bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, time, x, y, id));
             }
+            break;
+        case AMOTION_EVENT_ACTION_UP:
+        case AMOTION_EVENT_ACTION_POINTER_UP: {
+            float x = AMotionEvent_getX(anEvent, actionIndex);
+            float y = AMotionEvent_getY(anEvent, actionIndex);
+            uint32_t id = AMotionEvent_getPointerId(anEvent, actionIndex);
+            bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, time, x, y, id));
+            break;
+        }
+        case AMOTION_EVENT_ACTION_CANCEL:
+            for (size_t p = 0; p < pointerCount; ++p)
+            {
+                float x = AMotionEvent_getX(anEvent, p);
+                float y = AMotionEvent_getY(anEvent, p);
+                uint32_t id = AMotionEvent_getPointerId(anEvent, p);
+                bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, time, x, y, id));
+            }
+            break;
+        default:
+            //vsg::info("unhandled touch action: %d", actionMasked);
+            break;
         }
         return true;
     }
     else if (eventType == AINPUT_EVENT_TYPE_KEY)
     {
-        auto action = AKeyEvent_getAction(anEvent);
+        int32_t action = AKeyEvent_getAction(anEvent);
+        int32_t keyCode = AKeyEvent_getKeyCode(anEvent);
+        int32_t metaState = AKeyEvent_getMetaState(anEvent);
 
-        int64_t time = AKeyEvent_getEventTime(anEvent) / 1e-6;
-        vsg::clock::time_point event_time = _first_android_time_point + std::chrono::milliseconds(time - _first_android_timestamp);
-
-        int32_t keycode = AKeyEvent_getKeyCode(anEvent);
-        int32_t metastate = AKeyEvent_getMetaState(anEvent);
-        // int32_t flags = AKeyEvent_getFlags(anEvent);
-        // int32_t scancode = AKeyEvent_getScanCode(anEvent);
-        // int32_t repeatcount = AKeyEvent_getRepeatCount(anEvent);
+        int64_t timeNs = AKeyEvent_getEventTime(anEvent);
+        int64_t timeMs = timeNs / 1000'000;
+        vsg::clock::time_point time = _first_android_time_point + std::chrono::milliseconds(timeMs - _uptimeMs);
 
         vsg::KeySymbol keySymbol, modifiedKeySymbol;
         vsg::KeyModifier keyModifier;
-        if (!_keyboard->getKeySymbol(keycode, metastate, keySymbol, modifiedKeySymbol, keyModifier))
+        if (!_keyboard->getKeySymbol(keyCode, metaState, keySymbol, modifiedKeySymbol, keyModifier))
             return false;
 
         switch (action)
         {
         case AKEY_EVENT_ACTION_DOWN:
-            vsg::debug("key down event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
-            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, time, keySymbol, modifiedKeySymbol, keyModifier));
             break;
         case AKEY_EVENT_ACTION_UP:
-            vsg::debug("key up event = unmodified: ", int32_t(keySymbol), " modified: ", int32_t(modifiedKeySymbol));
-            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, modifiedKeySymbol, keyModifier));
+            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, time, keySymbol, modifiedKeySymbol, keyModifier));
             break;
             //case AKEY_EVENT_ACTION_MULTIPLE:
-            //   bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, event_time, keySymbol, modifiedKeySymbol, keyModifier);
+            //   bufferedEvents.emplace_back(new vsg::KeyPressEvent(this, time, keySymbol, modifiedKeySymbol, keyModifier);
             //   break;
         default: break;
         }

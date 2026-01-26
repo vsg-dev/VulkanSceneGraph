@@ -115,6 +115,16 @@ namespace vsg
             return *this;
         }
 
+        friend constexpr t_vec3<T> operator*(const t_vec3<T>& lhs, T rhs)
+        {
+            return t_vec3<T>(lhs[0] * rhs, lhs[1] * rhs, lhs[2] * rhs);
+        }
+
+        friend constexpr t_vec3<T> operator*(T lhs, const t_vec3<T>& rhs)
+        {
+            return t_vec3<T>(lhs * rhs[0], lhs * rhs[1], lhs * rhs[2]);
+        }
+
         inline t_vec3& operator*=(const t_vec3& rhs)
         {
             value[0] *= rhs.value[0];
@@ -202,12 +212,6 @@ namespace vsg
     constexpr t_vec3<T> operator+(const t_vec3<T>& lhs, const t_vec3<T>& rhs)
     {
         return t_vec3<T>(lhs[0] + rhs[0], lhs[1] + rhs[1], lhs[2] + rhs[2]);
-    }
-
-    template<typename T>
-    constexpr t_vec3<T> operator*(const t_vec3<T>& lhs, T rhs)
-    {
-        return t_vec3<T>(lhs[0] * rhs, lhs[1] * rhs, lhs[2] * rhs);
     }
 
     template<typename T>

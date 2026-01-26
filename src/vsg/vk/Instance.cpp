@@ -59,7 +59,7 @@ InstanceLayerProperties vsg::enumerateInstanceLayerProperties()
     return availableLayers;
 }
 
-Names vsg::validateInstancelayerNames(const Names& names)
+Names vsg::validateInstanceLayerNames(const Names& names)
 {
     if (names.empty()) return names;
 

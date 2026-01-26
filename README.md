@@ -45,7 +45,7 @@ Community projects:
 
 The above dependency versions are known to work so they've been set as the current minimum, it may be possible to build against older versions.  If you find success with older versions let us know and we can update the version info.
 
-While you can install Vulkan and glslang development libraries and headers from 3rd party repositoriesm these may be older, so for the latest versions you can also use the VulkanSDK provided by LunarG.  Your can download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into a local directory and set VULKAN_SDK environment variable to the include/lib directory within it.
+While you can install Vulkan and glslang development libraries and headers from 3rd party repositories, these may be older, so for the latest versions you can also use the VulkanSDK provided by LunarG.  You can download VulkanSDK from [LunarG](https://vulkan.lunarg.com/sdk/home), unpack into a local directory and set VULKAN_SDK environment variable to the include/lib directory within it.
 
 ### Command line build instructions:
 

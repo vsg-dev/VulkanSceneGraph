@@ -249,12 +249,12 @@ void* IntrusiveAllocator::MemoryBlock::allocate(std::size_t size)
     return nullptr;
 }
 
-void IntrusiveAllocator::MemoryBlock::SlotTester::slot(size_t position, const std::string& name)
+void IntrusiveAllocator::MemoryBlock::SlotTester::slot(size_t position, const std::string& in_name)
 {
     if (mem[position].status == 0)
-        elements.push_back(Entry{name, position, mem[position], 0, 0});
+        elements.push_back(Entry{in_name, position, mem[position], 0, 0});
     else
-        elements.push_back(Entry{name, position, mem[position], mem[position + 1].index, mem[position + 2].index});
+        elements.push_back(Entry{in_name, position, mem[position], mem[position + 1].index, mem[position + 2].index});
 }
 
 void IntrusiveAllocator::MemoryBlock::SlotTester::report(std::ostream& out)

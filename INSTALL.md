@@ -20,7 +20,7 @@
 
 * C++17 compliant compiler i.e. g++ 7.3 or later, Clang 6.0 or later, Visual Studio S2017 or later.
 * [Vulkan](https://vulkan.lunarg.com/) 1.1 or later.  You can use Vulkan (libs and headers) installed from repositories or VulkanSDK.
-* [CMake](https://www.cmake.org) 3.7 or later.
+* [CMake](https://www.cmake.org) 3.10 or later.
 
 ---
 
@@ -170,22 +170,19 @@ To assist with setting up software to work with the VSG when you install the lib
 
 	find_package(vsg)
 
-To select C++17 compilation you'll need:
-
-	set_property(TARGET mytargetname PROPERTY CXX_STANDARD 17)
-
 To link your lib/application to required dependencies you'll need:
 
 	target_link_libraries(mytargetname vsg::vsg)
 
 This will tell CMake to set up all the appropriate include paths, libs and any definitions (such as the VSG_SHARED_LIBRARY #define that is required under Windows with shared library builds to select the correct declspec().)
 
+This will also tell CMake that your minimum C++ standard is 17.
+
 For example, a bare minimum CMakeLists.txt file to compile a single file application would be:
 
-	cmake_minimum_required(VERSION 3.7)
+	cmake_minimum_required(VERSION 3.10)
 	find_package(vsg REQUIRED)
 	add_executable(myapp "myapp.cpp")
-	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
 ### Using VSG provided cmake macros within your own projects
@@ -194,7 +191,7 @@ The build system provides macros that create specific cmake targets to use in yo
 
 For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targets would be:
 
-	cmake_minimum_required(VERSION 3.7)
+	cmake_minimum_required(VERSION 3.10)
 	find_package(vsg REQUIRED)
 
 	vsg_setup_dir_vars()
@@ -218,7 +215,6 @@ For example, a bare minimum CMakeLists.txt file adding the mentioned cmake targe
 	vsg_add_target_uninstall()
 
 	add_executable(myapp "myapp.cpp")
-	set_property(TARGET myapp PROPERTY CXX_STANDARD 17)
 	target_link_libraries(myapp vsg::vsg)
 
 ### Using VSG provided cmake macro to generate cmake support files

@@ -36,7 +36,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
     template<typename T>
-    class Value : public Data
+    class VSG_TEMPLATE_DECLSPEC Value : public Data
     {
     public:
         using value_type = T;
@@ -142,6 +142,9 @@ namespace vsg
         Value& operator=(const Value& rhs)
         {
             _value = rhs._value;
+
+            _copy(rhs);
+
             return *this;
         }
         Value& operator=(const value_type& rhs)

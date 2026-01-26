@@ -12,6 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/TransferTask.h>
 #include <vsg/app/View.h>
+#include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Logger.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/utils/Instrumentation.h>
@@ -50,7 +51,7 @@ void TransferTask::assignTransferConsumedCompletedSemaphore(TransferMask transfe
     if ((transferMask & TRANSFER_AFTER_RECORD_TRAVERSAL) != 0) _lateDataToCopy.transferConsumerCompletedSemaphore = semaphore;
 }
 
-void TransferTask::assign(const ResourceRequirements::DynamicData& dynamicData)
+void TransferTask::assign(const DynamicData& dynamicData)
 {
     CPU_INSTRUMENTATION_L2(instrumentation);
 
@@ -266,8 +267,8 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     auto width = data->width();
     auto height = data->height();
     auto depth = data->depth();
-    auto mipmapOffsets = data->computeMipmapOffsets();
-    uint32_t mipLevels = vsg::computeNumMipMapLevels(data, imageInfo.sampler);
+
+    uint32_t mipLevels = imageInfo.imageView->image->mipLevels;
 
     auto source_offset = offset;
 
@@ -333,7 +334,7 @@ void TransferTask::_transferImageInfo(VkCommandBuffer vk_commandBuffer, Transfer
     }
 
     // transfer data.
-    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, mipmapOffsets, imageStagingBuffer, source_offset, vk_commandBuffer, device);
+    transferImageData(imageInfo.imageView, imageInfo.imageLayout, properties, width, height, depth, mipLevels, imageStagingBuffer, source_offset, vk_commandBuffer, device);
 }
 
 TransferTask::TransferResult TransferTask::transferData(TransferMask transferMask)
@@ -444,7 +445,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
     if (!commandBuffer)
     {
-        auto cp = CommandPool::create(device, transferQueue->queueFamilyIndex());
+        auto cp = CommandPool::create(device, transferQueue->queueFamilyIndex(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
         commandBuffer = cp->allocate(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     }
     else
@@ -556,5 +557,314 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     {
         log(level, "Nothing to submit");
         return TransferResult{VK_SUCCESS, {}};
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// vsg::transferImageData(..)
+//
+void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetImageLayout, Data::Properties properties, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, ref_ptr<Buffer> stagingBuffer, VkDeviceSize stagingBufferOffset, VkCommandBuffer commandBuffer, vsg::Device* device)
+{
+    auto image = imageView->image;
+    if (!image) return;
+
+    auto data = image->data;
+    if (!data) return;
+
+    auto vk_image = image->vk(device->deviceID);
+    auto aspectMask = imageView->subresourceRange.aspectMask;
+
+    // Stage which the associated image will be used, such as set by DescriptorSetLayoutBinding::stageFlags
+    // Further info:
+    //     https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineStageFlags.html
+    //     https://registry.khronos.org/VulkanSC/specs/1.0-extensions/man/html/VkDescriptorSetLayoutBinding.html
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+    uint32_t faceWidth = width;
+    uint32_t faceHeight = height;
+    uint32_t faceDepth = depth;
+    uint32_t arrayLayers = 1;
+
+    //switch(properties.imageViewType)
+    switch (imageView->viewType)
+    {
+    case (VK_IMAGE_VIEW_TYPE_CUBE):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_1D_ARRAY):
+        arrayLayers = faceHeight * faceDepth;
+        faceHeight = 1;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    case (VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
+        arrayLayers = faceDepth;
+        faceDepth = 1;
+        break;
+    default:
+        break;
+    }
+
+    uint32_t destWidth = faceWidth * properties.blockWidth;
+    uint32_t destHeight = faceHeight * properties.blockHeight;
+    uint32_t destDepth = faceDepth * properties.blockDepth;
+
+    const auto valueSize = properties.stride; // data->valueSize();
+
+    uint32_t data_mipLevels = static_cast<uint32_t>(data->properties.mipLevels);
+
+    auto mipmapData = data->getMipmapLayout();
+    if (mipmapData)
+    {
+        const auto& mipmap0 = mipmapData->at(0);
+        destWidth = mipmap0.x;
+        destHeight = mipmap0.y;
+        destDepth = mipmap0.z;
+
+        if (mipmapData->size() > 1)
+        {
+            data_mipLevels = static_cast<uint32_t>(mipmapData->size());
+        }
+    }
+
+    bool useDataMipmaps = mipLevels > 1 && data_mipLevels > 1;
+    bool generateMipmaps = (mipLevels > 1) && !useDataMipmaps;
+
+    if (useDataMipmaps) mipLevels = std::min(mipLevels, data_mipLevels);
+
+    // vsg::info("vsg::transferImageData() data = ", data, ", data->properties.mipLevels = ", int(data->properties.mipLevels), ", data_mipLevels = ", data_mipLevels, " mipLevels = ", mipLevels, ", mipmapData = ", mipmapData, ", generateMipmaps = ", generateMipmaps);
+
+    if (generateMipmaps)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(*(device->getPhysicalDevice()), properties.format, &props);
+        const bool isBlitPossible = (props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) > 0;
+
+        if (!isBlitPossible)
+        {
+            generateMipmaps = false;
+        }
+    }
+
+    // transfer the data.
+    VkImageMemoryBarrier preCopyBarrier = {};
+    preCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    preCopyBarrier.srcAccessMask = 0;
+    preCopyBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    preCopyBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    preCopyBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    preCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preCopyBarrier.image = vk_image;
+    preCopyBarrier.subresourceRange.aspectMask = aspectMask;
+    preCopyBarrier.subresourceRange.baseArrayLayer = 0;
+    preCopyBarrier.subresourceRange.layerCount = arrayLayers;
+    preCopyBarrier.subresourceRange.levelCount = mipLevels;
+    preCopyBarrier.subresourceRange.baseMipLevel = 0;
+
+    vkCmdPipelineBarrier(commandBuffer,
+                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                         0, nullptr,
+                         0, nullptr,
+                         1, &preCopyBarrier);
+
+    std::vector<VkBufferImageCopy> regions;
+
+    if (useDataMipmaps)
+    {
+        if (mipmapData)
+        {
+            regions.resize(mipLevels * arrayLayers);
+
+            auto mipmapItr = mipmapData->begin();
+            for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
+            {
+                const auto& mipmap = (*mipmapItr++);
+
+                for (uint32_t face = 0; face < arrayLayers; ++face)
+                {
+                    auto& region = regions[mipLevel * arrayLayers + face];
+                    region.bufferOffset = stagingBufferOffset + mipmap.w;
+                    region.bufferRowLength = 0;
+                    region.bufferImageHeight = 0;
+                    region.imageSubresource.aspectMask = aspectMask;
+                    region.imageSubresource.mipLevel = mipLevel;
+                    region.imageSubresource.baseArrayLayer = face;
+                    region.imageSubresource.layerCount = 1;
+                    region.imageOffset = {0, 0, 0};
+                    region.imageExtent = {mipmap.x, mipmap.y, mipmap.z};
+                }
+            }
+        }
+        else
+        {
+            regions.resize(mipLevels * arrayLayers);
+
+            size_t offset = 0u;
+            uint32_t mipWidth = destWidth;
+            uint32_t mipHeight = destHeight;
+            uint32_t mipDepth = destDepth;
+
+            for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
+            {
+                const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
+
+                for (uint32_t face = 0; face < arrayLayers; ++face)
+                {
+                    auto& region = regions[mipLevel * arrayLayers + face];
+                    region.bufferOffset = stagingBufferOffset + offset;
+                    region.bufferRowLength = 0;
+                    region.bufferImageHeight = 0;
+                    region.imageSubresource.aspectMask = aspectMask;
+                    region.imageSubresource.mipLevel = mipLevel;
+                    region.imageSubresource.baseArrayLayer = face;
+                    region.imageSubresource.layerCount = 1;
+                    region.imageOffset = {0, 0, 0};
+                    region.imageExtent = {mipWidth, mipHeight, mipDepth};
+
+                    offset += faceSize;
+                }
+
+                if (mipWidth > 1) mipWidth /= 2;
+                if (mipHeight > 1) mipHeight /= 2;
+                if (mipDepth > 1) mipDepth /= 2;
+                if (faceWidth > 1) faceWidth /= 2;
+                if (faceHeight > 1) faceHeight /= 2;
+                if (faceDepth > 1) faceDepth /= 2;
+            }
+        }
+    }
+    else
+    {
+        regions.resize(arrayLayers);
+
+        const size_t faceSize = static_cast<size_t>(faceWidth * faceHeight * faceDepth * valueSize);
+        for (auto face = 0u; face < arrayLayers; face++)
+        {
+            auto& region = regions[face];
+            region.bufferOffset = stagingBufferOffset + face * faceSize;
+            region.bufferRowLength = 0;
+            region.bufferImageHeight = 0;
+            region.imageSubresource.aspectMask = aspectMask;
+            region.imageSubresource.mipLevel = 0;
+            region.imageSubresource.baseArrayLayer = face;
+            region.imageSubresource.layerCount = 1;
+            region.imageOffset = {0, 0, 0};
+            region.imageExtent = {destWidth, destHeight, destDepth};
+        }
+    }
+
+    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer->vk(device->deviceID), vk_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<uint32_t>(regions.size()), regions.data());
+
+    if (generateMipmaps)
+    {
+        VkImageMemoryBarrier barrier = {};
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.image = vk_image;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask = aspectMask;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = arrayLayers;
+        barrier.subresourceRange.levelCount = 1;
+
+        int32_t mipWidth = destWidth;
+        int32_t mipHeight = destHeight;
+        int32_t mipDepth = destDepth;
+
+        for (uint32_t i = 1; i < mipLevels; ++i)
+        {
+            barrier.subresourceRange.baseMipLevel = i - 1;
+            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+            vkCmdPipelineBarrier(commandBuffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
+
+            int32_t nextWidth = (mipWidth > 1) ? (mipWidth) / 2 : 1;
+            int32_t nextHeight = (mipHeight > 1) ? (mipHeight) / 2 : 1;
+            int32_t nextDepth = (mipDepth > 1) ? (mipDepth) / 2 : 1;
+
+            VkImageBlit blit;
+            blit.srcOffsets[0] = {0, 0, 0};
+            blit.srcOffsets[1] = {mipWidth, mipHeight, mipDepth};
+            blit.srcSubresource.aspectMask = aspectMask;
+            blit.srcSubresource.mipLevel = i - 1;
+            blit.srcSubresource.baseArrayLayer = 0;
+            blit.srcSubresource.layerCount = arrayLayers;
+            blit.dstOffsets[0] = {0, 0, 0};
+            blit.dstOffsets[1] = {nextWidth, nextHeight, nextDepth};
+            blit.dstSubresource.aspectMask = aspectMask;
+            blit.dstSubresource.mipLevel = i;
+            blit.dstSubresource.baseArrayLayer = 0;
+            blit.dstSubresource.layerCount = arrayLayers;
+
+            vkCmdBlitImage(commandBuffer,
+                           vk_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                           vk_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           1, &blit,
+                           VK_FILTER_LINEAR);
+
+            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.newLayout = targetImageLayout;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            vkCmdPipelineBarrier(commandBuffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0,
+                                 0, nullptr,
+                                 0, nullptr,
+                                 1, &barrier);
+
+            mipWidth = nextWidth;
+            mipHeight = nextHeight;
+            mipDepth = nextDepth;
+        }
+
+        barrier.subresourceRange.baseMipLevel = mipLevels - 1;
+        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout = targetImageLayout;
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        vkCmdPipelineBarrier(commandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0,
+                             0, nullptr,
+                             0, nullptr,
+                             1, &barrier);
+    }
+    else
+    {
+        VkImageMemoryBarrier postCopyBarrier = {};
+        postCopyBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        postCopyBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        postCopyBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        postCopyBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        postCopyBarrier.newLayout = targetImageLayout;
+        postCopyBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postCopyBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        postCopyBarrier.image = vk_image;
+        postCopyBarrier.subresourceRange.aspectMask = aspectMask;
+        postCopyBarrier.subresourceRange.baseArrayLayer = 0;
+        postCopyBarrier.subresourceRange.layerCount = arrayLayers;
+        postCopyBarrier.subresourceRange.levelCount = mipLevels;
+        postCopyBarrier.subresourceRange.baseMipLevel = 0;
+
+        vkCmdPipelineBarrier(commandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, dstStageMask, 0,
+                             0, nullptr,
+                             0, nullptr,
+                             1, &postCopyBarrier);
     }
 }

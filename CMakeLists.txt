@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.10)
 
 project(vsg
-    VERSION 1.1.12
+    VERSION 1.1.14
     DESCRIPTION "VulkanSceneGraph library"
     LANGUAGES CXX
 )
-set(VSG_SOVERSION 14)
+set(VSG_SOVERSION 16)
 SET(VSG_RELEASE_CANDIDATE 0)
 set(Vulkan_MIN_VERSION 1.1.70.0)
 
@@ -41,21 +41,13 @@ find_package(Threads REQUIRED)
 set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level to build into the VSG library, 0 for off, 1 coarse grained, 2 medium, 3 fine grained." )
 
 # Enable/disable shader compilation support that pulls in glslang
-set(VSG_SUPPORTS_ShaderCompiler  1 CACHE STRING "Optional shader compiler support, 0 for off, 1 for enabled." )
+option(VSG_SUPPORTS_ShaderCompiler "Optional shader compiler support" ON)
 if (VSG_SUPPORTS_ShaderCompiler)
 
-    # Try looking for glslang 15 first.
-    set(GLSLANG_MIN_VERSION "15" CACHE STRING "glslang 14 is the earliest version that we think installs itself properly on all platforms. Other platforms may be able to use an earlier version")
-    find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG QUIET)
-
-    if (NOT glslang_FOUND)
-        # fallback to trying glslang 14.
-        set(GLSLANG_MIN_VERSION "14")
-        find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG)
-    endif()
+    find_package(glslang CONFIG QUIET)
 
     if (glslang_FOUND)
-        set(FIND_DEPENDENCY_glslang "find_package(glslang ${GLSLANG_MIN_VERSION} CONFIG REQUIRED)")
+        set(FIND_DEPENDENCY_glslang "find_package(glslang CONFIG REQUIRED)")
     else()
         message(WARNING "glslang not found. ShaderCompile support disabled.")
         set(VSG_SUPPORTS_ShaderCompiler 0)
@@ -75,7 +67,7 @@ if (VSG_SUPPORTS_ShaderCompiler)
     endif()
 endif()
 
-set(VSG_SUPPORTS_Windowing  1 CACHE STRING "Optional native windowing support providing a default implementation of vsg::Window::create(), 0 for off, 1 for enabled." )
+option(VSG_SUPPORTS_Windowing "Optional native windowing support providing a default implementation of vsg::Window::create()" ON)
 if (VSG_SUPPORTS_Windowing)
     if (ANDROID)
         set(FIND_DEPENDENCY_WINDOWING "")
@@ -90,6 +82,8 @@ if (VSG_SUPPORTS_Windowing)
         set(FIND_DEPENDENCY_WINDOWING "find_library(COCOA_LIBRARY Cocoa)\nfind_library(QUARTZCORE_LIBRARY QuartzCore)\n")
         find_library(COCOA_LIBRARY Cocoa)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
+    elseif (DEFINED OHOS_ARCH)  # OpenHarmony
+        set(FIND_DEPENDENCY_WINDOWING "")
     else()
         set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
         # just use Xcb for native windowing
@@ -97,6 +91,8 @@ if (VSG_SUPPORTS_Windowing)
         pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
     endif()
 endif()
+
+option(VSG_USE_dynamic_cast "Use dynamic_cast in vsg::Object::cast<T>(), default is OFF and uses VSG native casting which provides 2-3x faster than using dynamic_cast<>." OFF)
 
 # this line needs to be after the call to setup_build_vars()
 configure_file("${VSG_SOURCE_DIR}/src/vsg/core/Version.h.in" "${VSG_VERSION_HEADER}")

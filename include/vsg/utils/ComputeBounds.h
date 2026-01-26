@@ -71,7 +71,7 @@ namespace vsg
         void apply(const uintArray& array) override;
 
         virtual void applyDraw(uint32_t firstVertex, uint32_t vertexCount, uint32_t firstInstance, uint32_t instanceCount);
-        virtual void applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t instanceCount);
+        virtual void applyDrawIndexed(uint32_t firstIndex, uint32_t indexCount, uint32_t firstInstance, uint32_t vertexOffset, uint32_t instanceCount);
 
         void add(const dbox& bb);
         void add(const dsphere& bs);

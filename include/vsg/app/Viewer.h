@@ -104,7 +104,7 @@ namespace vsg
         /// pass the Events into any registered EventHandlers
         virtual void handleEvents();
 
-        virtual void compile(ref_ptr<ResourceHints> hints = {});
+        virtual CompileResult compile(ref_ptr<ResourceHints> hints = {});
 
         virtual bool acquireNextFrame();
 

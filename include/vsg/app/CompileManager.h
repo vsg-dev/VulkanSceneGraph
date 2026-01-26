@@ -30,7 +30,7 @@ namespace vsg
         Slots maxSlots;
         bool containsPagedLOD = false;
         ResourceRequirements::Views views;
-        ResourceRequirements::DynamicData dynamicData;
+        DynamicData dynamicData;
 
         explicit operator bool() const noexcept { return result == VK_SUCCESS; }
 

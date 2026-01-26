@@ -16,12 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/io/read.h>
 #include <vsg/state/ColorBlendState.h>
 #include <vsg/state/DescriptorImage.h>
-#include <vsg/state/InputAssemblyState.h>
-#include <vsg/state/MultisampleState.h>
 #include <vsg/state/PipelineLayout.h>
-#include <vsg/state/RasterizationState.h>
-#include <vsg/state/TessellationState.h>
-#include <vsg/state/VertexInputState.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/state/material.h>
 #include <vsg/utils/ShaderSet.h>

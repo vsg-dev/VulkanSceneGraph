@@ -21,6 +21,17 @@ ShaderStage::ShaderStage()
 {
 }
 
+ShaderStage::ShaderStage(const ShaderStage& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    mask(rhs.mask),
+    flags(rhs.flags),
+    stage(rhs.stage),
+    module(copyop(rhs.module)),
+    entryPointName(rhs.entryPointName),
+    specializationConstants(rhs.specializationConstants)
+{
+}
+
 ShaderStage::ShaderStage(VkShaderStageFlagBits in_stage, const std::string& in_entryPointName, ref_ptr<ShaderModule> shaderModule) :
     stage(in_stage),
     module(shaderModule),
