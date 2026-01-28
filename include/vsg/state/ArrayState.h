@@ -96,6 +96,27 @@ namespace vsg
     };
     VSG_type_name(vsg::ArrayState);
 
+    template<class ParentClass, class Subclass>
+    class Inherit<ParentClass, Subclass, typename std::enable_if_t<std::is_base_of_v<ArrayState, ParentClass>>> : public InheritBase<ParentClass, Subclass>
+    {
+    public:
+        using InheritBase<ParentClass, Subclass>::InheritBase;
+
+        explicit Inherit(const ArrayState& rhs, const CopyOp& copyop = {}) :
+            InheritBase<ParentClass, Subclass>(rhs, copyop)
+        {}
+
+        ref_ptr<ArrayState> cloneArrayState() override
+        {
+            return Subclass::create(static_cast<Subclass&>(*this));
+        }
+
+        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override
+        {
+            return Subclass::create(static_cast<Subclass&>(*arrayState));
+        }
+    };
+
     /// NullArrayState provides a mechanism for geometry in a subgraph to be ignored by traversals that use ArrayState such as ComputeBounds/Intersector/LineSegmentIntersector
     /// this is useful for subgraphs that have custom shaders that move the final rendered geometry to a different place that would be naively interpreted by a straight forward vec3Array vertex array in local coordinates.
     /// To disable the handling of geometry in a subgraph simply assign a NullArrayState to the StateGroup::prototypeArrayState, i.e.
@@ -105,9 +126,6 @@ namespace vsg
     public:
         NullArrayState();
         explicit NullArrayState(const ArrayState& as);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         using ArrayState::apply;
 
@@ -123,9 +141,6 @@ namespace vsg
         TranslationArrayState();
         TranslationArrayState(const TranslationArrayState& rhs);
         explicit TranslationArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
@@ -144,9 +159,6 @@ namespace vsg
         TranslationRotationScaleArrayState();
         TranslationRotationScaleArrayState(const TranslationRotationScaleArrayState& rhs);
         explicit TranslationRotationScaleArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 7;
         uint32_t rotation_attribute_location = 8;
@@ -168,10 +180,7 @@ namespace vsg
     public:
         DisplacementMapArrayState();
         DisplacementMapArrayState(const DisplacementMapArrayState& rhs);
-        explicit DisplacementMapArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
+        explicit DisplacementMapArrayState(const ArrayState& rhs, const CopyOp& copyop = {});
 
         // binding of displacement map
         uint32_t normal_attribute_location = 1;
@@ -207,9 +216,6 @@ namespace vsg
         uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
 
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
-
         void apply(const VertexInputState& vas) override;
         ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex) override;
     };
@@ -222,9 +228,6 @@ namespace vsg
         BillboardArrayState();
         BillboardArrayState(const BillboardArrayState& rhs);
         explicit BillboardArrayState(const ArrayState& rhs);
-
-        ref_ptr<ArrayState> cloneArrayState() override;
-        ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override;
 
         uint32_t translation_attribute_location = 7;
         AttributeDetails translationAttribute;
