@@ -153,14 +153,23 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    // enable synchronization validation feature if requested
-    VkValidationFeatureEnableEXT validationFeature = VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT;
+    std::vector<VkValidationFeatureEnableEXT> enabledValidationFeatures;
+    std::vector<VkValidationFeatureDisableEXT> disabledValidationFeatures;
+
+    // syncronization validation requires VkValidationFeaturesEXT
+    if (containsInstanceLayerName(layers, "VK_LAYER_KHRONOS_synchronization2")) enabledValidationFeatures.push_back(VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT);
+
+    // set up the VkValidationFeaturesEXT if required
     VkValidationFeaturesEXT validationFeatures{};
-    if (containsInstanceLayerName(layers, "VK_LAYER_KHRONOS_synchronization2"))
+    if (!enabledValidationFeatures.empty() || !disabledValidationFeatures.empty())
     {
         validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-        validationFeatures.enabledValidationFeatureCount = 1;
-        validationFeatures.pEnabledValidationFeatures = &validationFeature;
+        validationFeatures.enabledValidationFeatureCount = static_cast<uint32_t>(enabledValidationFeatures.size());
+        validationFeatures.pEnabledValidationFeatures = enabledValidationFeatures.data();
+
+        validationFeatures.disabledValidationFeatureCount = static_cast<uint32_t>(disabledValidationFeatures.size());
+        validationFeatures.pDisabledValidationFeatures = disabledValidationFeatures.data();
+
         createInfo.pNext = &validationFeatures;
     }
     else
