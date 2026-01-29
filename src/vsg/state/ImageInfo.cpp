@@ -331,7 +331,7 @@ uint32_t vsg::computeNumMipMapLevels(const Data* data, const Sampler* sampler)
     if (sampler)
     {
         // clamp the mipLevels so that it's no larger than what the data dimensions support
-        auto [width, height, depth] = data->pixelExtents();
+        auto [width, height, depth, numLayers] = data->pixelExtents();
         uint32_t maxDimension = std::max({width, height, depth});
         if (sampler->maxLod == VK_LOD_CLAMP_NONE)
         {
