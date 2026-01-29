@@ -91,6 +91,16 @@ Names vsg::validateInstanceLayerNames(const Names& names)
     return validatedNames;
 }
 
+bool vsg::containsInstanceLayerName(const Names& names, const char* layerName)
+{
+    if (!layerName) return false;
+
+    auto cmpFunc = [&](const char* name) {
+        return strcmp(name, layerName) == 0;
+    };
+    return std::find_if(names.begin(), names.end(), cmpFunc) != names.end();
+}
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
@@ -143,7 +153,20 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    createInfo.pNext = nullptr;
+    // enable synchronization validation feature if requested
+    VkValidationFeatureEnableEXT validationFeature = VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT;
+    VkValidationFeaturesEXT validationFeatures{};
+    if (containsInstanceLayerName(layers, "VK_LAYER_KHRONOS_synchronization2"))
+    {
+        validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+        validationFeatures.enabledValidationFeatureCount = 1;
+        validationFeatures.pEnabledValidationFeatures = &validationFeature;
+        createInfo.pNext = &validationFeatures;
+    }
+    else
+    {
+        createInfo.pNext = nullptr;
+    }
 
     VkInstance instance;
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
