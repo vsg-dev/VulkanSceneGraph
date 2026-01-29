@@ -91,6 +91,16 @@ Names vsg::validateInstanceLayerNames(const Names& names)
     return validatedNames;
 }
 
+bool vsg::containsInstanceLayerName(const Names& names, const char* layerName)
+{
+    if (!layerName) return false;
+
+    auto cmpFunc = [&](const char* name) {
+        return strcmp(name, layerName) == 0;
+    };
+    return std::find_if(names.begin(), names.end(), cmpFunc) != names.end();
+}
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
@@ -143,7 +153,29 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
     createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
 
-    createInfo.pNext = nullptr;
+    std::vector<VkValidationFeatureEnableEXT> enabledValidationFeatures;
+    std::vector<VkValidationFeatureDisableEXT> disabledValidationFeatures;
+
+    // syncronization validation requires VkValidationFeaturesEXT
+    if (containsInstanceLayerName(layers, "VK_LAYER_KHRONOS_synchronization2")) enabledValidationFeatures.push_back(VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT);
+
+    // set up the VkValidationFeaturesEXT if required
+    VkValidationFeaturesEXT validationFeatures{};
+    if (!enabledValidationFeatures.empty() || !disabledValidationFeatures.empty())
+    {
+        validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+        validationFeatures.enabledValidationFeatureCount = static_cast<uint32_t>(enabledValidationFeatures.size());
+        validationFeatures.pEnabledValidationFeatures = enabledValidationFeatures.data();
+
+        validationFeatures.disabledValidationFeatureCount = static_cast<uint32_t>(disabledValidationFeatures.size());
+        validationFeatures.pDisabledValidationFeatures = disabledValidationFeatures.data();
+
+        createInfo.pNext = &validationFeatures;
+    }
+    else
+    {
+        createInfo.pNext = nullptr;
+    }
 
     VkInstance instance;
     VkResult result = vkCreateInstance(&createInfo, allocator, &instance);
