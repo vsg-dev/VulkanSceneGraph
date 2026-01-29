@@ -190,8 +190,11 @@ namespace vsg
         virtual uint32_t height() const = 0;
         virtual uint32_t depth() const = 0;
 
-        /// return the {width, height, depth} pixel extents of an image accounting for blockWidth and any mipmapData assigned to image.
-        std::tuple<uint32_t, uint32_t, uint32_t> pixelExtents() const;
+        /// return the number of faces - uses properties.imageViewType and depth() value.
+        std::pair<uint32_t, uint32_t> faceDepthAndCount() const;
+
+        /// return the {width, height, depth, layers} pixel extents of an image accounting for blockWidth and any mipmapData assigned to image.
+        std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> pixelExtents() const;
 
         bool contiguous() const { return valueSize() == properties.stride; }
 

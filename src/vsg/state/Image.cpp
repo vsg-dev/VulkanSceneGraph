@@ -40,57 +40,43 @@ Image::Image(ref_ptr<Data> in_data) :
         auto properties = data->properties;
         auto dimensions = data->dimensions();
 
-        auto [width, height, depth] = data->pixelExtents();
+        std::tie(extent.width, extent.height, extent.depth, arrayLayers) = data->pixelExtents();
 
         switch (properties.imageViewType)
         {
         case (VK_IMAGE_VIEW_TYPE_1D):
             imageType = VK_IMAGE_TYPE_1D;
-            arrayLayers = 1;
             break;
         case (VK_IMAGE_VIEW_TYPE_2D):
             imageType = VK_IMAGE_TYPE_2D;
-            arrayLayers = 1;
             break;
         case (VK_IMAGE_VIEW_TYPE_3D):
             imageType = VK_IMAGE_TYPE_3D;
-            arrayLayers = 1;
             break;
         case (VK_IMAGE_VIEW_TYPE_CUBE):
             imageType = VK_IMAGE_TYPE_2D;
             flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            arrayLayers = depth;
-            depth = 1;
             break;
         case (VK_IMAGE_VIEW_TYPE_1D_ARRAY):
             imageType = VK_IMAGE_TYPE_1D;
-            arrayLayers = height * depth;
-            height = 1;
-            depth = 1;
             /* flags = VK_IMAGE_CREATE_1D_ARRAY_COMPATIBLE_BIT; // comment out as Vulkan headers don't yet provide this. */
             break;
         case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
             // imageType = VK_IMAGE_TYPE_3D;
             // flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
             imageType = VK_IMAGE_TYPE_2D;
-            arrayLayers = depth;
-            depth = 1;
             break;
         case (VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
             imageType = VK_IMAGE_TYPE_2D;
             flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            arrayLayers = depth;
-            depth = 1;
             break;
         default:
             imageType = dimensions >= 3 ? VK_IMAGE_TYPE_3D : (dimensions == 2 ? VK_IMAGE_TYPE_2D : VK_IMAGE_TYPE_1D);
-            arrayLayers = 1;
             break;
         }
 
         format = properties.format;
         mipLevels = std::max(1u, static_cast<uint32_t>(data->properties.mipLevels));
-        extent = VkExtent3D{width, height, depth};
 
         // vsg::info("Image::Image(", data, ") mpipLevels = ", mipLevels);
 
@@ -211,8 +197,6 @@ VkResult Image::compile(Device* device)
     info.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilyIndices.size());
     info.pQueueFamilyIndices = queueFamilyIndices.data();
     info.initialLayout = initialLayout;
-
-    // vsg::info("Image::compile(), data = ",data, ", mipLevels = ", mipLevels, ", arrayLayers = ", arrayLayers, ", extent = {", extent.width, ", ", extent.height, ", ", extent.depth, "}");
 
     vd.device = device;
 

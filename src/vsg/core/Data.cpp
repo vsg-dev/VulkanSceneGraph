@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
 #include <vsg/io/Output.h>
+#include <vsg/io/Logger.h>
 
 using namespace vsg;
 
@@ -145,9 +146,27 @@ const MipmapLayout* Data::getMipmapLayout() const
     return getObject<MipmapLayout>("mipmapLayout");
 }
 
+std::pair<uint32_t, uint32_t> Data::faceDepthAndCount() const
+{
+    // Use properties.imageViewType to set the face count and face depth https://docs.vulkan.org/refpages/latest/refpages/source/VkImageViewType.html
+    switch(properties.imageViewType)
+    {
+        case(VK_IMAGE_VIEW_TYPE_CUBE):
+        case(VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
+            return {depth()/6, 6};
+        case(VK_IMAGE_VIEW_TYPE_1D_ARRAY):
+        case(VK_IMAGE_VIEW_TYPE_2D_ARRAY):
+            return {1, depth()};
+        default:
+            return {depth(), 1};
+    }
+}
+
 std::size_t Data::computeValueCountIncludingMipmaps() const
 {
     std::size_t count = 0;
+
+    auto [faceDepth, faceCount] = faceDepthAndCount();
 
     if (auto mipmapLayout = getMipmapLayout())
     {
@@ -160,12 +179,13 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
 
             count += w * h * d;
         }
+        count *= faceCount;
     }
     else
     {
         std::size_t x = width() * properties.blockWidth;
         std::size_t y = height() * properties.blockHeight;
-        std::size_t z = depth() * properties.blockDepth;
+        std::size_t z = faceDepth * properties.blockDepth;
 
         auto mipLevels = std::max(properties.mipLevels, uint8_t(1));
         for (uint8_t level = 0; level < mipLevels; ++level)
@@ -181,16 +201,20 @@ std::size_t Data::computeValueCountIncludingMipmaps() const
             if (y > 1) y = y / 2;
             if (z > 1) z = z / 2;
         }
+
+        count *= faceCount;
     }
 
     return count;
 }
 
-std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
+std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
 {
+    auto [faceDepth, faceCount] = faceDepthAndCount();
+
     uint32_t w = width() * properties.blockWidth;
     uint32_t h = height() * properties.blockHeight;
-    uint32_t d = depth() * properties.blockDepth;
+    uint32_t d = faceDepth * properties.blockDepth;
 
     if (auto mipmapLayout = getMipmapLayout())
     {
@@ -200,5 +224,5 @@ std::tuple<uint32_t, uint32_t, uint32_t> Data::pixelExtents() const
         d = mipmap.z;
     }
 
-    return {w, h, d};
+    return {w, h, d, faceCount};
 }
