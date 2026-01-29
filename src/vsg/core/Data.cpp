@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Data.h>
 #include <vsg/core/MipmapLayout.h>
 #include <vsg/io/Input.h>
-#include <vsg/io/Output.h>
 #include <vsg/io/Logger.h>
+#include <vsg/io/Output.h>
 
 using namespace vsg;
 
@@ -149,16 +149,16 @@ const MipmapLayout* Data::getMipmapLayout() const
 std::pair<uint32_t, uint32_t> Data::faceDepthAndCount() const
 {
     // Use properties.imageViewType to set the face count and face depth https://docs.vulkan.org/refpages/latest/refpages/source/VkImageViewType.html
-    switch(properties.imageViewType)
+    switch (properties.imageViewType)
     {
-        case(VK_IMAGE_VIEW_TYPE_CUBE):
-        case(VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
-            return {depth()/6, 6};
-        case(VK_IMAGE_VIEW_TYPE_1D_ARRAY):
-        case(VK_IMAGE_VIEW_TYPE_2D_ARRAY):
-            return {1, depth()};
-        default:
-            return {depth(), 1};
+    case (VK_IMAGE_VIEW_TYPE_CUBE):
+    case (VK_IMAGE_VIEW_TYPE_CUBE_ARRAY):
+        return {depth() / 6, 6};
+    case (VK_IMAGE_VIEW_TYPE_1D_ARRAY):
+    case (VK_IMAGE_VIEW_TYPE_2D_ARRAY):
+        return {1, depth()};
+    default:
+        return {depth(), 1};
     }
 }
 
