@@ -84,3 +84,6 @@ DerivedData/
 include/glslang
 src/vsg/CHANGES.md
 
+#Qt Creator
+.qtcreator/
+
