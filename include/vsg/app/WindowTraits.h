@@ -98,6 +98,8 @@ namespace vsg
         std::any nativeWindow;
         std::any systemConnection;
 
+        vec4 clearColor{0.2f, 0.2f, 0.4f, 1.0f};
+
     protected:
         virtual ~WindowTraits() {}
     };

@@ -97,7 +97,8 @@ WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
     deviceExtensionNames(traits.deviceExtensionNames),
     deviceTypePreferences(traits.deviceTypePreferences),
     deviceFeatures(traits.deviceFeatures),
-    samples(traits.samples) /*,
+    samples(traits.samples),
+    clearColor(traits.clearColor) /*,
     nativeWindow(traits.nativeWindow),
     systemConnection(traits.systemConnection)*/
 {
