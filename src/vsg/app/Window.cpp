@@ -36,7 +36,7 @@ ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits>)
 Window::Window(ref_ptr<WindowTraits> traits) :
     _traits(traits),
     _extent2D{std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()},
-    _clearColor{0.2f, 0.2f, 0.4f, 1.0f},
+    _clearColor{traits->clearColor},
     _framebufferSamples(VK_SAMPLE_COUNT_1_BIT)
 {
     if (_traits && (_traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8A8_SRGB || _traits->swapchainPreferences.surfaceFormat.format == VK_FORMAT_B8G8R8_SRGB))
