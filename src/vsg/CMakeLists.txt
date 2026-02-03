@@ -215,6 +215,7 @@ set(SOURCES
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
+    ui/FrameStamp.cpp
     ui/KeyEvent.cpp
     ui/TouchEvent.cpp
     ui/PointerEvent.cpp
