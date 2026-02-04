@@ -25,6 +25,7 @@ namespace vsg
     class WindowTraits;
     class MemoryBufferPools;
     class DescriptorPools;
+    class TransferTask;
 
     struct QueueSetting
     {
@@ -87,10 +88,11 @@ namespace vsg
         /// return the amount of memory available in deviceMemoryBufferPools and allocatable on device
         VkDeviceSize availableMemory(bool includeMemoryPools = true) const;
 
-        // provide observer_ptr to memory buffer and descriptor pools so that these can be accessed when required
+        // provide observer_ptr to memory buffer, descriptor pools and transferTask so that these can be accessed when required
         observer_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         observer_ptr<MemoryBufferPools> stagingMemoryBufferPools;
         observer_ptr<DescriptorPools> descriptorPools;
+        observer_ptr<TransferTask> transferTask;
 
     protected:
         virtual ~Device();
