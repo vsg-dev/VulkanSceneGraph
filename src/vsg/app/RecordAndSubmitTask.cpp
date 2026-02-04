@@ -39,6 +39,8 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
 
     earlyTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
     lateTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
+
+    if (!device->transferTask) device->transferTask = transferTask;
 }
 
 void RecordAndSubmitTask::advance()

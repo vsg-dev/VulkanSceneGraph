@@ -113,12 +113,19 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
     {
         if ((dm->getMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0)
         {
-            warn("BufferInfo::copyDataToBuffer() cannot copy data. DeviceMemory does not support direct memory mapping.");
+            if (auto transferTask = dm->getDevice()->transferTask.ref_ptr())
+            {
+                transferTask->assign(BufferInfoList{ref_ptr<BufferInfo>(this)});
+            }
+            else
+            {
+                warn("BufferInfo::copyDataToBuffer() cannot copy data. DeviceMemory does not support direct memory mapping.");
 
-            // you can use dynamic data updates provided by vsg::TransferTask or alternatively, you can implement the following steps:
-            // 1. allocate staging buffer
-            // 2. copy to staging buffer
-            // 3. transfer from staging buffer to device local buffer - use CopyAndReleaseBuffer
+                // you can use dynamic data updates provided by vsg::TransferTask or alternatively, you can implement the following steps:
+                // 1. allocate staging buffer
+                // 2. copy to staging buffer
+                // 3. transfer from staging buffer to device local buffer - use CopyAndReleaseBuffer
+            }
             return;
         }
 
