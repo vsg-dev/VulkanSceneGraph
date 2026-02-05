@@ -106,7 +106,7 @@ void BufferInfo::copyDataToBuffer()
 
 void BufferInfo::copyDataToBuffer(uint32_t deviceID)
 {
-    if (!buffer) return;
+    if (!buffer || !data) return;
 
     DeviceMemory* dm = buffer->getDeviceMemory(deviceID);
     if (dm)
@@ -115,6 +115,12 @@ void BufferInfo::copyDataToBuffer(uint32_t deviceID)
         {
             if (auto transferTask = dm->getDevice()->transferTask.ref_ptr())
             {
+                // if data->dirty() hasn't been called since the last copy, assume it should have been done in call dirty on the data to ensure TransferTask copies the data.
+                if (!data->differentModifiedCount(copiedModifiedCounts[deviceID]))
+                {
+                    data->dirty();
+                }
+
                 transferTask->assign(BufferInfoList{ref_ptr<BufferInfo>(this)});
             }
             else
