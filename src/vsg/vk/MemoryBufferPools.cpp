@@ -265,6 +265,8 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
                 else if ((properties.usageFlags & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) != 0)
                     alignment = limits.minStorageBufferOffsetAlignment;
 
+                debug("MemoryBufferPools::reserve(ResourceRequirements& requirements) properties.usageFlags = ", properties.usageFlags, ", alignment = ", alignment);
+
                 auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, properties.usageFlags, properties.sharingMode, memoryPropertiesFlags);
                 if (newBufferInfo)
                 {
