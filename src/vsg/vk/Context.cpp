@@ -197,7 +197,9 @@ VkResult Context::reserve(ResourceRequirements& requirements)
 {
     CPU_INSTRUMENTATION_L2_NC(instrumentation, "Context reserve", COLOR_COMPILE)
 
-    VkResult result = deviceMemoryBufferPools->reserve(requirements);
+    VkResult result = VK_SUCCESS;
+
+    if (deviceMemoryBufferPools->compileTraversalUseReserve) result = deviceMemoryBufferPools->reserve(requirements);
 
     resourceRequirements.maxSlots.merge(requirements.maxSlots);
 
