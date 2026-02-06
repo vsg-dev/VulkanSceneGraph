@@ -415,7 +415,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    totalSize = ", totalSize);
 
     auto& frame = *(dataToCopy.frames[dataToCopy.frameIndex]);
-    auto& fence = frame.fence;
+    auto& fence = dataToCopy.transferCompleteFence;
     auto& staging = frame.staging;
     auto& commandBuffer = frame.transferCommandBuffer;
     auto& newSignalSemaphore = dataToCopy.transferCompleteSemaphore;
@@ -432,13 +432,13 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
     log(level, "    newSignalSemaphore = ", newSignalSemaphore, ", ", newSignalSemaphore ? newSignalSemaphore->vk() : VK_NULL_HANDLE);
     log(level, "    copyRegions.size() = ", copyRegions.size());
 
-    if (frame.waitOnFence && fence)
+    if (dataToCopy.waitOnTransferFence && fence)
     {
         uint64_t timeout = std::numeric_limits<uint64_t>::max();
         if (VkResult result = fence->wait(timeout); result != VK_SUCCESS) return TransferResult{result, {}};
         fence->resetFenceAndDependencies();
     }
-    frame.waitOnFence = false;
+    dataToCopy.waitOnTransferFence = false;
 
     // advance frameIndex
     dataToCopy.frameIndex = (dataToCopy.frameIndex + 1) % dataToCopy.frames.size();
@@ -545,7 +545,7 @@ TransferTask::TransferResult TransferTask::_transferData(DataToCopy& dataToCopy)
 
         result = transferQueue->submit(submitInfo, fence);
 
-        frame.waitOnFence = true;
+        dataToCopy.waitOnTransferFence = true;
 
         dataToCopy.transferConsumerCompletedSemaphore.reset();
 
