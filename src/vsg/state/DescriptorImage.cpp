@@ -157,6 +157,9 @@ void DescriptorImage::assignTo(Context& context, VkWriteDescriptorSet& wds) cons
             info.imageView = 0;
 
         info.imageLayout = imageInfo->imageLayout;
+
+        if (imageInfo->imageView) vsg::info("    DescriptorImage::assignTo() imageInfo = ", imageInfo, ",  info.imageView = ", imageInfo->imageView, ", vk = ", imageInfo->imageView->vk(context.deviceID));
+        else vsg::info("    DescriptorImage::assignTo() imageInfo = ", imageInfo, ",  info.imageView = ", imageInfo->imageView, " fail.");
     }
 }
 
