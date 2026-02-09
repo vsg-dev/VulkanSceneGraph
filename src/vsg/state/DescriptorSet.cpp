@@ -37,12 +37,6 @@ DescriptorSet::DescriptorSet(ref_ptr<DescriptorSetLayout> in_descriptorSetLayout
 
 DescriptorSet::~DescriptorSet()
 {
-    for (auto& imp : _implementation)
-    {
-        if (imp) info("DescriptorSet::~DescriptorSet() ", this, ", imp->_descriptorSet = ", imp->_descriptorSet);
-        else info("DescriptorSet::~DescriptorSet() ", this, ", imp = ", imp);
-    }
-
     release();
 }
 
@@ -92,16 +86,8 @@ void DescriptorSet::compile(Context& context)
 
         for (auto& descriptor : descriptors) descriptor->compile(context);
 
-        auto& impl = _implementation[context.deviceID] = context.allocateDescriptorSet(setLayout);
-        if (impl)
-        {
-            vsg::info("DescriptorSet::compile() ", this, " _descriptorSet = ", impl->_descriptorSet);
-            impl->assign(context, descriptors);
-        }
-        else
-        {
-            vsg::warn("DescriptorSet::compile() ", this, " failed to assign vkDescritorSet.");
-        }
+        _implementation[context.deviceID] = context.allocateDescriptorSet(setLayout);
+        _implementation[context.deviceID]->assign(context, descriptors);
     }
 }
 
