@@ -43,7 +43,7 @@ namespace vsg
         bool throwOutOfDeviceMemoryException = true;
 
         /// hint whether the compile traversal should call MemoryBufferPools::reserve(requirements);
-        bool compileTraversalUseReserve = false;
+        bool compileTraversalUseReserve = true;
 
         VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;

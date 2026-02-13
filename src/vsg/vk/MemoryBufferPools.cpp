@@ -270,11 +270,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
                 auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, properties.usageFlags, properties.sharingMode, memoryPropertiesFlags);
                 if (newBufferInfo)
                 {
-                    bufferInfo->buffer = newBufferInfo->buffer;
-                    bufferInfo->offset = newBufferInfo->offset;
-                    bufferInfo->range = newBufferInfo->range;
-
-                    newBufferInfo->release();
+                    bufferInfo->take(*newBufferInfo);
 
                     //info("    ALLOCATED usage = ", properties.usageFlags, ", alignment = ", alignment, ", bufferInfo->data = ", bufferInfo->data, ", offset = ", bufferInfo->offset, ", range = ", bufferInfo->range, ", buffer = ", bufferInfo->buffer, " ----- size = ", computeSize(*bufferInfo));
                 }

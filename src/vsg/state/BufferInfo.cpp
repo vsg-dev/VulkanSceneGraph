@@ -78,11 +78,40 @@ int BufferInfo::compare(const Object& rhs_object) const
     return compare_value(range, rhs.range);
 }
 
+void BufferInfo::take(BufferInfo& src)
+{
+    if (&src == this) return;
+
+    if (buffer && !parent)
+    {
+        bool identical = (buffer==src.buffer && offset==src.offset && range==src.range);
+
+        if (!identical)
+        {
+            // release entry into buffer.
+            buffer->release(offset, range);
+        }
+    }
+
+    // copy settings across
+    parent = src.parent;
+    buffer = src.buffer;
+    offset = src.offset;
+    range = src.range;
+
+    // reset the src BufferInfo
+    src.parent.reset();
+    src.buffer.reset();
+    src.offset = 0;
+    src.range = 0;
+}
+
+
 void BufferInfo::release()
 {
     if (parent)
     {
-        parent = {};
+        parent.reset();
     }
     else if (buffer)
     {

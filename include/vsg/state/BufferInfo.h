@@ -36,6 +36,8 @@ namespace vsg
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
         int compare(const Object& rhs_object) const override;
 
+        void take(BufferInfo& src);
+
         void release();
 
         /// compute size of associated data
