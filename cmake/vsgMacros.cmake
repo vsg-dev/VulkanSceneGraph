@@ -141,6 +141,11 @@ macro(vsg_add_cmake_support_files)
         DESTINATION
             ${CMAKE_INSTALL_LIBDIR}/cmake/${ARGS_PREFIX}
     )
+    # Buildtree-Export
+    export( EXPORT ${ARGS_PREFIX}Targets
+        FILE ${ARGS_PREFIX}Targets.cmake
+        NAMESPACE ${ARGS_PREFIX}::
+    )
 endmacro()
 
 #
