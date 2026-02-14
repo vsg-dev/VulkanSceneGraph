@@ -75,6 +75,12 @@ ref_ptr<Object> json::_read(std::istream& fin, ref_ptr<const Options>) const
         warn("Parsing error, could not find opening { or [.");
     }
 
+    if ( !parser.warnings.empty() )
+    {
+        warn( "JSONParser recorded following warnings:" );
+        for ( auto w : parser.warnings )
+            warn( "\t", w );
+    }
     return result;
 }
 
