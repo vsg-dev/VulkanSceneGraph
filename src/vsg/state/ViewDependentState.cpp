@@ -76,11 +76,7 @@ ViewDescriptorSetLayout::ViewDescriptorSetLayout()
 
 int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
 {
-    int result = DescriptorSetLayout::compare(rhs_object);
-    if (result != 0) return result;
-
-    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_pointer(_viewDescriptorSetLayout, rhs._viewDescriptorSetLayout);
+    return DescriptorSetLayout::compare(rhs_object);
 }
 
 void ViewDescriptorSetLayout::read(Input& input)
