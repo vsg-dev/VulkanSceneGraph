@@ -76,7 +76,7 @@ ViewDescriptorSetLayout::ViewDescriptorSetLayout()
 
 int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
 {
-    return DescriptorSetLayout::compare(rhs_object);
+    return Object::compare(rhs_object);
 }
 
 void ViewDescriptorSetLayout::read(Input& input)
