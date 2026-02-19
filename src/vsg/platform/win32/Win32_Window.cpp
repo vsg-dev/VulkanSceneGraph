@@ -613,6 +613,8 @@ bool Win32_Window::handleWin32Messages(UINT msg, WPARAM wParam, LPARAM lParam)
         _windowMapped = false;
         return true;
     case WM_PAINT:
+        if (resizeCallback)
+            resizeCallback();
         ValidateRect(_window, NULL);
         return true;
     case WM_MOUSEMOVE: {

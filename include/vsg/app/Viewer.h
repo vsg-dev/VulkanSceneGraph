@@ -101,6 +101,9 @@ namespace vsg
         /// If still active, poll for pending events and place them in the Events list and advance to the next frame, generate updated FrameStamp to signify the advancement to a new frame and return true.
         virtual bool advanceToNextFrame(double simulationTime = UseTimeSinceStartPoint);
 
+        virtual bool advanceToNextFramePhaseOne();
+        virtual bool advanceToNextFramePhaseTwo(double simulationTime = UseTimeSinceStartPoint);
+
         /// pass the Events into any registered EventHandlers
         virtual void handleEvents();
 
