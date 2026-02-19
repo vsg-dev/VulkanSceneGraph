@@ -51,10 +51,7 @@ public:
     {
     }
 
-    ref_ptr<ArrayState> cloneArrayState() override
-    {
-        return GpuLayoutTechniqueArrayState::create(*this);
-    }
+    using Inherit::cloneArrayState;
 
     ref_ptr<ArrayState> cloneArrayState(ref_ptr<ArrayState> arrayState) override
     {
