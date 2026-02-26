@@ -87,7 +87,9 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
         {
             ++i;
 
-            out << indent << "{ " << typeNames[first.type] << ", cpu_duration = " << cpu_duration << "ms, ";
+            out << indent << "{ " << typeNames[first.type];
+            if (first.type==ProfileLog::FRAME) out << ", frameCount = "<<first.frameCount;
+            out << ", cpu_duration = " << cpu_duration << "ms, ";
             if (gpu_duration != 0.0) out << ", gpu_duration = " << gpu_duration << "ms, ";
 
             auto itr = threadNames.find(first.thread_id);
@@ -107,7 +109,9 @@ uint64_t ProfileLog::report(std::ostream& out, uint64_t reference)
                 out << indent << "} ";
             }
 
-            out << typeNames[first.type] << ", cpu_duration = " << cpu_duration << "ms, ";
+            out << typeNames[first.type];
+            if (first.type==ProfileLog::FRAME) out << ", frameCount = "<<first.frameCount;
+            out << ", cpu_duration = " << cpu_duration << "ms, ";
             if (gpu_duration != 0.0) out << ", gpu_duration = " << gpu_duration << "ms, ";
 
             auto itr = threadNames.find(first.thread_id);
@@ -173,6 +177,10 @@ VkResult Profiler::getGpuResults(FrameStatsCollection& frameStats) const
                 }
                 gpuStats->queryIndex = 0;
             }
+            else if (result == VK_NOT_READY)
+            {
+                debug("Profiler::getGpuResults() ", gpuStats, ", query failed with result = ", result);
+            }
             else
             {
                 info("Profiler::getGpuResults() ", gpuStats, ", query failed with result = ", result);
@@ -190,9 +198,12 @@ void Profiler::setThreadName(const std::string& name) const
 
 void Profiler::enterFrame(const SourceLocation* sl, uint64_t& reference, FrameStamp& frameStamp) const
 {
+    frameCount = frameStamp.frameCount;
+
     auto& entry = log->enter(reference, ProfileLog::FRAME);
     entry.sourceLocation = sl;
     entry.object = &frameStamp;
+    entry.frameCount = frameCount;
 
     getGpuResults(perFrameGPUStats[frameIndex]);
 }
@@ -203,6 +214,8 @@ void Profiler::leaveFrame(const SourceLocation* sl, uint64_t& reference, FrameSt
     auto& entry = log->leave(reference, ProfileLog::FRAME);
     entry.sourceLocation = sl;
     entry.object = &frameStamp;
+    entry.frameCount = frameCount;
+
     uint64_t endReference = reference;
 
     if (endReference >= static_cast<uint64_t>(log->entries.size()))
@@ -236,6 +249,7 @@ void Profiler::enter(const SourceLocation* sl, uint64_t& reference, const Object
         auto& entry = log->enter(reference, ProfileLog::CPU);
         entry.sourceLocation = sl;
         entry.object = object;
+        entry.frameCount = frameCount;
     }
 }
 
@@ -246,6 +260,7 @@ void Profiler::leave(const SourceLocation* sl, uint64_t& reference, const Object
         auto& entry = log->leave(reference, ProfileLog::CPU);
         entry.sourceLocation = sl;
         entry.object = object;
+        entry.frameCount = frameCount;
     }
 }
 
@@ -285,6 +300,7 @@ void Profiler::enterCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         auto& entry = log->enter(reference, ProfileLog::COMMAND_BUFFER);
         entry.sourceLocation = sl;
         entry.object = &commandBuffer;
+        entry.frameCount = frameCount;
 
         if (gpuStats)
         {
@@ -303,6 +319,7 @@ void Profiler::leaveCommandBuffer(const SourceLocation* sl, uint64_t& reference,
         auto& entry = log->leave(reference, ProfileLog::COMMAND_BUFFER);
         entry.sourceLocation = sl;
         entry.object = &commandBuffer;
+        entry.frameCount = frameCount;
 
         if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }
@@ -315,6 +332,7 @@ void Profiler::enter(const SourceLocation* sl, uint64_t& reference, CommandBuffe
         auto& entry = log->enter(reference, ProfileLog::GPU);
         entry.sourceLocation = sl;
         entry.object = object;
+        entry.frameCount = frameCount;
 
         if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }
@@ -327,6 +345,7 @@ void Profiler::leave(const SourceLocation* sl, uint64_t& reference, CommandBuffe
         auto& entry = log->leave(reference, ProfileLog::GPU);
         entry.sourceLocation = sl;
         entry.object = object;
+        entry.frameCount = frameCount;
 
         if (commandBuffer.gpuStats) commandBuffer.gpuStats->writeGpuTimestamp(commandBuffer, reference, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     }

@@ -187,6 +187,7 @@ set(SOURCES
     app/UpdateOperations.cpp
     app/RecordTraversal.cpp
     app/CompileTraversal.cpp
+    app/LoadBalancing.cpp
 
     raytracing/AccelerationGeometry.cpp
     raytracing/AccelerationStructure.cpp

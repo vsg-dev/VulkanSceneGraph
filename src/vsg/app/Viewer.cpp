@@ -31,6 +31,7 @@ Viewer::Viewer() :
     updateOperations(UpdateOperations::create()),
     animationManager(AnimationManager::create()),
     status(vsg::ActivityStatus::create()),
+    loadBalancing(vsg::LoadBalancing::create()),
     _firstFrame(true),
     _start_point(clock::now()),
     _frameStamp(FrameStamp::create(_start_point, 0, 0.0))
@@ -792,6 +793,8 @@ void Viewer::stopThreading()
 void Viewer::update()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer update", COLOR_UPDATE);
+
+    if (loadBalancing) loadBalancing->update(*this);
 
     // merge any updates from the DatabasePager
     for (const auto& task : recordAndSubmitTasks)

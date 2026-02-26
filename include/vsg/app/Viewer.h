@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/app/RecordAndSubmitTask.h>
 #include <vsg/app/UpdateOperations.h>
 #include <vsg/app/Window.h>
+#include <vsg/app/LoadBalancing.h>
 #include <vsg/threading/Barrier.h>
 #include <vsg/threading/FrameBlock.h>
 #include <vsg/utils/Instrumentation.h>
@@ -128,6 +129,8 @@ namespace vsg
 
         ref_ptr<ActivityStatus> status;
         std::list<std::thread> threads;
+
+        ref_ptr<LoadBalancing> loadBalancing;
 
         void setupThreading();
         void stopThreading();

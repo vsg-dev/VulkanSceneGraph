@@ -42,6 +42,7 @@ namespace vsg
             const SourceLocation* sourceLocation = nullptr;
             const Object* object = nullptr;
             uint64_t reference = 0;
+            uint64_t frameCount = 0;
             std::thread::id thread_id = {};
         };
 
@@ -134,6 +135,7 @@ namespace vsg
         };
 
         mutable size_t frameIndex = 0;
+        mutable std::atomic_uint64_t frameCount = 0;
         mutable std::vector<FrameStatsCollection> perFrameGPUStats;
 
         VkResult getGpuResults(FrameStatsCollection& frameStats) const;
