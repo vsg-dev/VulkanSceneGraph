@@ -86,7 +86,7 @@ void DeleteQueue::clear()
     // use a swap of the container to keep the time the mutex is acquired as short as possible
     {
         std::scoped_lock lock(_mutex);
-        objectsToDelete.swap(objectsToDelete);
+        objectsToDelete.swap(_objectsToDelete);
     }
 
     size_t numObjectsToDelete = objectsToDelete.size();
