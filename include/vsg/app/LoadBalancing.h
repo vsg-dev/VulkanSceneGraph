@@ -14,12 +14,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Inherit.h>
 #include <vsg/ui/FrameStamp.h>
+#include <vsg/io/DatabasePager.h>
+#include <vsg/app/View.h>
 
 namespace vsg
 {
 
     // forward declare
     class Viewer;
+
 
     /// LoadBalancing is a base class for specifying the Camera view matrix and its inverse.
     class VSG_DECLSPEC LoadBalancing : public Inherit<Object, LoadBalancing>
@@ -36,6 +39,12 @@ namespace vsg
         double targetCPUTime = 0.008; // seconds
         double targetGPUTime = 0.008; // seconds
         double targetGPUMemoryUtilization = 0.9; // ratio
+
+        void control(ref_ptr<View> view) { views.emplace_back(view); }
+        void control(ref_ptr<DatabasePager> pager) { pagers.emplace_back(pager); }
+
+        std::vector<observer_ptr<View>> views;
+        std::vector<observer_ptr<DatabasePager>> pagers;
 
     protected:
         ~LoadBalancing();

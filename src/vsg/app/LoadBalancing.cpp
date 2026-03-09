@@ -47,6 +47,33 @@ void LoadBalancing::update(Viewer& viewer)
     double cpuTargetRatio = 0.0;
     double gpuTargetRatio = 0.0;
 
+#if 0
+    for(auto& task : viewer.recordAndSubmitTasks)
+    {
+        if (task->databasePager)
+        {
+
+            auto& pagedLODContainer = task->databasePager->pagedLODContainer;
+            if (task->databasePager->frameCountFailedToCompile != std::numeric_limits<uint64_t>::max())
+            {
+                uint64_t delta = task->databasePager->frameCount - task->databasePager->frameCountFailedToCompile;
+
+                vsg::info("LoadBalancing::update(Viewer& viewer) ", task->databasePager, " ", task->databasePager->numActiveRequests, ", frames since last compile failure delta = ", delta);
+                vsg::info("    availableList.count = ", pagedLODContainer->availableList.count,
+                          ", activeList.count = ", pagedLODContainer->activeList.count,
+                          ", inactiveList.count = ", pagedLODContainer->inactiveList.count);
+            }
+            else
+            {
+                vsg::info("LoadBalancing::update(Viewer& viewer) ", task->databasePager, " ", task->databasePager->numActiveRequests, " All loads compiled ");
+                vsg::info("    availableList.count = ", pagedLODContainer->availableList.count,
+                          ", activeList.count = ", pagedLODContainer->activeList.count,
+                          ", inactiveList.count = ", pagedLODContainer->inactiveList.count);
+            }
+        }
+    }
+#endif
+
     if (auto profiler = viewer.instrumentation.cast<Profiler>())
     {
         auto& log = profiler->log;
