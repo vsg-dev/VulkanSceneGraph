@@ -46,7 +46,8 @@ MemorySlots::~MemorySlots()
         else
         {
             info("MemorySlots::~MemorySlots() ", this, ", not all slots restored correctly.");
-            info_stream([&](auto& fout) { report(fout); });
+            LogOutput log;
+            report(log);
         }
     }
     if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
@@ -98,7 +99,9 @@ bool MemorySlots::check() const
     if (computedSize != _totalMemorySize)
     {
         warn("MemorySlots::check() ", this, " failed, computedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
-        warn_stream([&](auto& fout) { report(fout); });
+
+        LogOutput log;
+        report(log);
 
         return false;
     }
@@ -106,18 +109,20 @@ bool MemorySlots::check() const
     return true;
 }
 
-void MemorySlots::report(std::ostream& out) const
+void MemorySlots::report(LogOutput& out) const
 {
-    out << "MemorySlots::report() " << this << std::endl;
+    out.enter("MemorySlots::report(...)");
+    out("MemorySlots::report() ",this);
     for (auto& [offset, size] : _offsetSizes)
     {
-        out << "    available " << offset << ", " << size << std::endl;
+        out("    available ", offset, ", ", size);
     }
 
     for (auto& [offset, size] : _reservedMemory)
     {
-        out << "    reserved " << std::dec << offset << ", " << size << std::endl;
+        out("    reserved ", std::dec, offset, ", ", size);
     }
+    out.leave();
 }
 
 void MemorySlots::insertAvailableSlot(size_t offset, size_t size)
