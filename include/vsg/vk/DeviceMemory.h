@@ -55,6 +55,8 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        void report(LogOutput& out) const;
+
     protected:
         virtual ~DeviceMemory();
 

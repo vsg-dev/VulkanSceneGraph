@@ -31,6 +31,9 @@ namespace vsg
         MEMORY_TRACKING_DEFAULT = MEMORY_TRACKING_NO_CHECKS
     };
 
+    // forward declare
+    class LogOutput;
+
     /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage suballocation within a block of CPU or GPU memory.*/
     class VSG_DECLSPEC MemorySlots
     {
@@ -52,7 +55,8 @@ namespace vsg
         size_t totalMemorySize() const { return _totalMemorySize; }
 
         // debug facilities
-        void report(std::ostream& out) const;
+        void report(LogOutput& log) const;
+
         bool check() const;
 
         mutable int memoryTracking = MEMORY_TRACKING_DEFAULT;
