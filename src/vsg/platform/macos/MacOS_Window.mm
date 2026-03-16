@@ -707,9 +707,11 @@ bool KeyboardMap::getKeySymbol(NSEvent* anEvent, vsg::KeySymbol& keySymbol, vsg:
     return true;
 }
 
-MacOS_Window::MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits) :
+MacOS_Window::MacOS_Window(vsg::RefCountBase* refCount, vsg::ref_ptr<vsg::WindowTraits> traits) :
     Inherit(traits)
 {
+    assignRefCount(refCount);
+
     _keyboard = new KeyboardMap;
 
     NSRect contentRect = NSMakeRect(0, 0, traits->width, traits->height);

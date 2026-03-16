@@ -19,9 +19,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 using namespace vsg;
 
 Auxiliary::Auxiliary(Object* object) :
-    _referenceCount(0),
+    _referenceCount(nullptr),
     _connectedObject(object)
 {
+    new detail::RefCountPointer(this);
     //vsg::debug("Auxiliary::Auxiliary(Object = ", object, ") ", this);
 }
 
@@ -30,26 +31,26 @@ Auxiliary::~Auxiliary()
     //vsg::debug("Auxiliary::~Auxiliary() ", this);
 }
 
-void Auxiliary::ref() const
-{
-    ++_referenceCount;
-    //debug("Auxiliary::ref() ", this, " ", _referenceCount.load());
-}
-
-void Auxiliary::unref() const
-{
-    //debug("Auxiliary::unref() ", this, " ", _referenceCount.load());
-    if (_referenceCount.fetch_sub(1) <= 1)
-    {
-        delete this;
-    }
-}
-
-void Auxiliary::unref_nodelete() const
-{
-    //debug("Auxiliary::unref_nodelete() ", this, " ", _referenceCount.load());
-    --_referenceCount;
-}
+//void Auxiliary::ref() const
+//{
+//    ++_referenceCount;
+//    //debug("Auxiliary::ref() ", this, " ", _referenceCount.load());
+//}
+//
+//void Auxiliary::unref() const
+//{
+//    //debug("Auxiliary::unref() ", this, " ", _referenceCount.load());
+//    if (_referenceCount.fetch_sub(1) <= 1)
+//    {
+//        delete this;
+//    }
+//}
+//
+//void Auxiliary::unref_nodelete() const
+//{
+//    //debug("Auxiliary::unref_nodelete() ", this, " ", _referenceCount.load());
+//    --_referenceCount;
+//}
 
 bool Auxiliary::signalConnectedObjectToBeDeleted()
 {

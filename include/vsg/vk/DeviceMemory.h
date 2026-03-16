@@ -28,7 +28,9 @@ namespace vsg
     class VSG_DECLSPEC DeviceMemory : public Inherit<Object, DeviceMemory>
     {
     public:
-        DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo = nullptr);
+        using NeedsRefCountInConstructor = std::true_type;
+
+        DeviceMemory(RefCountBase* refCount, Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo = nullptr);
 
         operator VkDeviceMemory() const { return _deviceMemory; }
         VkDeviceMemory vk() const { return _deviceMemory; }

@@ -122,9 +122,11 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(
     return VK_FALSE;
 }
 
-Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
+Instance::Instance(RefCountBase* refCount, Names instanceExtensions, Names layers, uint32_t vulkanApiVersion, AllocationCallbacks* allocator) :
     apiVersion(vulkanApiVersion)
 {
+    assignRefCount(refCount);
+
     // application info
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;

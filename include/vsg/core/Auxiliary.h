@@ -32,10 +32,10 @@ namespace vsg
 
         virtual std::size_t getSizeOf() const { return sizeof(Auxiliary); }
 
-        void ref() const;
-        void unref() const;
-        void unref_nodelete() const;
-        inline unsigned int referenceCount() const { return _referenceCount.load(); }
+        //void ref() const;
+        //void unref() const;
+        //void unref_nodelete() const;
+        inline unsigned int referenceCount() const { return _referenceCount->useCount(); }
 
         virtual int compare(const Auxiliary& rhs) const;
 
@@ -97,10 +97,18 @@ namespace vsg
 
         void resetConnectedObject();
 
+        void callDeleteOperator() { delete this; }
+
         friend class Object;
         friend class Allocator;
 
-        mutable std::atomic_uint _referenceCount;
+        template<class T>
+        friend class ref_ptr;
+
+        friend class RefCountBase;
+        friend class detail::RefCountPointer<Auxiliary>;
+
+        RefCountBase* _referenceCount;
 
         mutable std::mutex _mutex;
         Object* _connectedObject;

@@ -64,12 +64,14 @@ namespace vsg
         Object(const Object& object, const CopyOp& copyop = {});
         Object& operator=(const Object&);
 
-        static ref_ptr<Object> create() { return ref_ptr<Object>(new Object); }
+        static ref_ptr<Object> create() {
+            return make_referenced<Object>();
+        }
 
         static ref_ptr<Object> create_if(bool flag)
         {
             if (flag)
-                return ref_ptr<Object>(new Object);
+                return make_referenced<Object>();
             else
                 return {};
         }
@@ -118,14 +120,14 @@ namespace vsg
         virtual void read(Input& input);
         virtual void write(Output& output) const;
 
-        // ref counting methods
-        inline void ref() const noexcept { _referenceCount.fetch_add(1, std::memory_order_relaxed); }
-        inline void unref() const noexcept
-        {
-            if (_referenceCount.fetch_sub(1, std::memory_order_seq_cst) <= 1) _attemptDelete();
-        }
-        inline void unref_nodelete() const noexcept { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
-        inline unsigned int referenceCount() const noexcept { return _referenceCount.load(); }
+        // ref counting methods - maybe kill these?
+        //inline void ref() const noexcept { _referenceCount->increment(); }
+        //inline void unref() const noexcept
+        //{
+        //    _referenceCount->decrement();
+        //}
+        //inline void unref_nodelete() const noexcept { _referenceCount.fetch_sub(1, std::memory_order_seq_cst); }
+        inline unsigned int referenceCount() const noexcept { return _referenceCount->useCount(); }
 
         /// meta data access methods
         /// wraps the value with a vsg::Value<T> object and then assigns via setObject(key, vsg::Value<T>)
@@ -182,12 +184,23 @@ namespace vsg
         virtual ~Object();
 
         virtual void _attemptDelete() const;
+        void callDestructor() { this->~Object(); }
+        void callDeleteOperator() const { delete this; }
+        void assignRefCount(RefCountBase* refCount);
+
         void setAuxiliary(Auxiliary* auxiliary);
 
     private:
         friend class Auxiliary;
 
-        mutable std::atomic_uint _referenceCount;
+        template<class T>
+        friend class ref_ptr;
+        template<class T>
+        friend class observer_ptr;
+
+        friend class RefCountBase;
+
+        mutable RefCountBase* _referenceCount;
 
         Auxiliary* _auxiliary;
     };

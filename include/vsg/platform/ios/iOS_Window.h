@@ -46,6 +46,7 @@ namespace vsgiOS
     class iOS_Window : public vsg::Inherit<vsg::Window, iOS_Window>
     {
     public:
+        using NeedsRefCountInConstructor = std::true_type;
 
         iOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
         iOS_Window() = delete;

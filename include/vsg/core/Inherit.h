@@ -34,13 +34,13 @@ namespace vsg
         template<typename... Args>
         static ref_ptr<Subclass> create(Args&&... args)
         {
-            return ref_ptr<Subclass>(new Subclass(std::forward<Args>(args)...));
+            return make_referenced<Subclass>(std::forward<Args>(args)...);
         }
 
         template<typename... Args>
         static ref_ptr<Subclass> create_if(bool flag, Args&&... args)
         {
-            if (flag) return ref_ptr<Subclass>(new Subclass(std::forward<Args>(args)...));
+            if (flag) return make_referenced<Subclass>(std::forward<Args>(args)...);
             return {};
         }
 

@@ -256,9 +256,11 @@ namespace vsgiOS
     };
 }
 
-vsgiOS::iOS_Window::iOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits)
+vsgiOS::iOS_Window::iOS_Window(vsg::RefCountBase* refCount, vsg::ref_ptr<vsg::WindowTraits> traits)
     : Inherit(traits)
 {
+    assignRefCount(refCount);
+
     auto devicePixelScale = _traits->hdpi ?  UIScreen.mainScreen.nativeScale : 1.0f;
     _window = std::any_cast<vsg_iOS_Window*>(traits->nativeWindow);
     _view = (vsg_iOS_View*)( _window.rootViewController.view );

@@ -49,8 +49,9 @@ namespace vsgMacOS
     class MacOS_Window : public vsg::Inherit<vsg::Window, MacOS_Window>
     {
     public:
+        using NeedsRefCountInConstructor = std::true_type;
 
-        MacOS_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
+        MacOS_Window(vsg::RefCountBase* refCount, ::ref_ptr<vsg::WindowTraits> traits);
         MacOS_Window() = delete;
         MacOS_Window(const MacOS_Window&) = delete;
         MacOS_Window operator = (const MacOS_Window&) = delete;

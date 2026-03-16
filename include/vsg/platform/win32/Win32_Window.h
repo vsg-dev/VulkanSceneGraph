@@ -183,7 +183,9 @@ namespace vsgWin32
     class VSG_DECLSPEC Win32_Window : public vsg::Inherit<vsg::Window, Win32_Window>
     {
     public:
-        Win32_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
+        using NeedsRefCountInConstructor = std::true_type;
+
+        Win32_Window(vsg::RefCountBase* refCount, vsg::ref_ptr<vsg::WindowTraits> traits);
         Win32_Window() = delete;
         Win32_Window(const Win32_Window&) = delete;
         Win32_Window operator=(const Win32_Window&) = delete;

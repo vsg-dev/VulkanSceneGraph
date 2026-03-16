@@ -42,12 +42,14 @@ DeviceMemoryList vsg::getActiveDeviceMemoryList(VkMemoryPropertyFlagBits propert
 //
 // DeviceMemory
 //
-DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo) :
+DeviceMemory::DeviceMemory(RefCountBase* refCount, Device* device, const VkMemoryRequirements& memRequirements, VkMemoryPropertyFlags properties, void* pNextAllocInfo) :
     _memoryRequirements(memRequirements),
     _properties(properties),
     _device(device),
     _memorySlots(memRequirements.size)
 {
+    assignRefCount(refCount);
+
     uint32_t typeFilter = memRequirements.memoryTypeBits;
 
     // find the memory type to use

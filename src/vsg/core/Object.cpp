@@ -31,14 +31,24 @@ Object::Object() :
 Object::Object(const Object& rhs, const CopyOp& copyop) :
     Object()
 {
+    /* I'm not sure this block can ever do anything productive - if it's called from CopyOp, and itr->second is null,
+       then CopyOp will assign this itself, and if it's not null, then it'll use the existing value instead of constructing
+       something fresh.
+       I think that's the only sane callsite.
+       However, this was added a couple of weeks after the CopyOp stuff that I think makes it seem redundant, so maybe I'm
+       missing something.
+
+       While it's detonative, I'll just comment it out.
+
     // assign this copy constructed object to copyop.duplicate so that it can be lated referenced.
     if (copyop.duplicate)
     {
         if (auto itr = copyop.duplicate->find(&rhs); itr != copyop.duplicate->end())
         {
+            // this will blow up as the refcount hasn't been set yet
             itr->second = this;
         }
-    }
+    } */
 
     if (rhs._auxiliary && rhs._auxiliary->getConnectedObject() == &rhs)
     {
@@ -77,7 +87,8 @@ Object::~Object()
 
     if (_auxiliary)
     {
-        _auxiliary->unref();
+        _auxiliary->resetConnectedObject();
+        _auxiliary->_referenceCount->decrement();
     }
 }
 
@@ -206,19 +217,25 @@ void Object::removeObject(const std::string& key)
     }
 }
 
+void Object::assignRefCount(RefCountBase* refCount)
+{
+    //assert(_referenceCount == nullptr || _referenceCount == refCount);
+    _referenceCount = refCount;
+}
+
 void Object::setAuxiliary(Auxiliary* auxiliary)
 {
     if (_auxiliary)
     {
         _auxiliary->resetConnectedObject();
-        _auxiliary->unref();
+        _auxiliary->_referenceCount->decrement();
     }
 
     _auxiliary = auxiliary;
 
     if (auxiliary)
     {
-        auxiliary->ref();
+        auxiliary->_referenceCount->increment();
     }
 }
 
@@ -228,7 +245,6 @@ Auxiliary* Object::getOrCreateAuxiliary()
     if (!_auxiliary)
     {
         _auxiliary = new Auxiliary(this);
-        _auxiliary->ref();
     }
     return _auxiliary;
 }

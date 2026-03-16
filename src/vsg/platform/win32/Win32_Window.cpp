@@ -328,10 +328,12 @@ KeyboardMap::KeyboardMap()
     // clang-format on
 }
 
-Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
+Win32_Window::Win32_Window(RefCountBase* refCount, vsg::ref_ptr<WindowTraits> traits) :
     Inherit(traits),
     _window(nullptr)
 {
+    assignRefCount(refCount);
+
     _keyboard = new KeyboardMap;
 
 #ifdef UNICODE
