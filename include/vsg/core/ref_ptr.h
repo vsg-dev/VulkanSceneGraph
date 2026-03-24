@@ -130,6 +130,16 @@ namespace vsg
                 assignTo(*_ptr);
             }
 
+            template<class... Args>
+            explicit RefCountPointer(Args&&... args) :
+                RefCountBase(),
+                _ptr(new T(this, std::forward<Args>(args)...))
+            {
+                assignTo(*_ptr);
+            }
+
+            T* _ptr;
+
         private:
             void destroyResource() noexcept override
             {
@@ -140,8 +150,6 @@ namespace vsg
             {
                 delete this;
             }
-
-            T* _ptr;
         };
 
         template<class T, class = void>
@@ -435,9 +443,28 @@ namespace vsg
         element_type* _ptr = nullptr;
     };
 
-    // like std::make_shared
+    // like std::make_shared, but allocates the ref count separately
     template<class T, class... Args>
     [[nodiscard]] ref_ptr<T> make_referenced(Args&&... args)
+    {
+        if constexpr (detail::NeedsRefCountEarly<T>::value)
+        {
+            auto* controlBlock = new detail::RefCountPointer<T>(std::forward<Args>(args)...);
+            detail::TemporaryOwner<T> temp{controlBlock->_ptr};
+            return ref_ptr<T>(temp);
+        }
+        else
+        {
+            auto* instance = new T(std::forward<Args>(args)...);
+            new detail::RefCountPointer<T>(instance);
+            detail::TemporaryOwner<T> temp{instance};
+            return ref_ptr<T>(temp);
+        }
+    }
+
+    // like std::make_shared
+    template<class T, class... Args>
+    [[nodiscard]] ref_ptr<T> make_referenced_adjacent_ref_count(Args&&... args)
     {
         auto* controlBlock = new detail::RefCountWithObject<T>(std::forward<Args>(args)...);
         detail::TemporaryOwner<T> temp{std::addressof(controlBlock->storage)};
@@ -446,7 +473,7 @@ namespace vsg
 
     // like std::allocate_shared
     template<class T, class Alloc, class... Args>
-    [[nodiscard]] ref_ptr<T> allocate_referenced(const Alloc& allocator, Args&&... args)
+    [[nodiscard]] ref_ptr<T> allocate_referenced_adjacent_ref_count(const Alloc& allocator, Args&&... args)
     {
         using ControlBlock = detail::RefCountWithObjectAndAllocator<std::remove_cv_t<T>, Alloc>;
         auto reboundAlloc = typename ControlBlock::Rebound(allocator);
