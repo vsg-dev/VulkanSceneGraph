@@ -22,7 +22,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-// thread safe container for managing the deviceID for each vsg;:Device
+// thread safe container for managing the deviceID for each vsg::Device
 static std::mutex s_DeviceCountMutex;
 static std::vector<bool> s_ActiveDevices;
 

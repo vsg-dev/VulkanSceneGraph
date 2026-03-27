@@ -314,3 +314,13 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
         return VK_ERROR_OUT_OF_DEVICE_MEMORY;
     }
 }
+
+void MemoryBufferPools::report(LogOutput& out) const
+{
+    out.enter("MemoryBufferPools::report(..)");
+    for(const auto& memoryPool : memoryPools)
+    {
+        memoryPool->report(out);
+    }
+    out.leave();
+}

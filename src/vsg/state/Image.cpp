@@ -161,7 +161,7 @@ VkResult Image::allocateAndBindMemory(Device* device, VkMemoryPropertyFlags memo
     auto [allocated, offset] = memory->reserve(memRequirements.size);
     if (!allocated)
     {
-        throw Exception{"Error: Failed to allocate DeviceMemory."};
+        throw Exception{"Error: vsg::Image::allocateAndBindMemory() Failed to allocate DeviceMemory."};
     }
 
     return bind(memory, offset);

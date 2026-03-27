@@ -190,3 +190,12 @@ size_t DeviceMemory::totalMemorySize() const
 {
     return _memorySlots.totalMemorySize();
 }
+
+void DeviceMemory::report(LogOutput& out) const
+{
+    out.enter("DeviceMemory::report(..)");
+    out("_memoryRequirements = { size = ", _memoryRequirements.size, ", alignment = ", _memoryRequirements.alignment, ", _memoryRequirements = ", _memoryRequirements.memoryTypeBits, "}");
+    out("_properties = ", _properties);
+    _memorySlots.report(out);
+    out.leave();
+}
