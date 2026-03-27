@@ -32,7 +32,7 @@ namespace vsg
     };
 
     // forward declare
-    class LogOutput;
+    struct LogOutput;
 
     /** class used internally by vsg::Allocator, vsg::DeviceMemory and vsg::Buffer to manage suballocation within a block of CPU or GPU memory.*/
     class VSG_DECLSPEC MemorySlots
