@@ -86,7 +86,12 @@ namespace vsg
         /// mechinism for releasing and reusing used resources
         ref_ptr<ResourceScavenger> resourceScavenger;
 
+        std::atomic_uint successfulCompileCount{0};
+        std::atomic_uint failedCompileCount{0};
+
     protected:
+        ~CompileManager();
+
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
         size_t numCompileTraversals = 0;
         ref_ptr<CompileTraversals> compileTraversals;

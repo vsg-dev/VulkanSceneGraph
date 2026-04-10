@@ -132,6 +132,11 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 #endif
 }
 
+CompileManager::~CompileManager()
+{
+    vsg::info("CompileManager::~CompileManager() successfulCompileCount= ", successfulCompileCount, ", failedCompileCount = ", failedCompileCount);
+}
+
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
 {
     CompileTraversals::container_type cts;
@@ -315,19 +320,16 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     compileTraversals->add(compileTraversal);
 
-    static int s_succeeded = 0;
-    static int s_failed = 0;
+    int s_succeeded = 0;
+    int s_failed = 0;
 
     if (result.result == VK_SUCCESS)
     {
-        ++s_succeeded;
-        vsg::info("Success : succedded = ", s_succeeded, ", failed = ", s_failed, ", result = { ", result.result, " : ", result.message, " }, reserve_result = ", reserve_result);
+        ++successfulCompileCount;
     }
     else
     {
-        s_failed++;
-
-        vsg::info("Failed : succedded = ", s_succeeded, ", failed = ", s_failed, ", result = { ", result.result, " : ", result.message, " }, reserve_result = ", reserve_result);
+        ++failedCompileCount;
     }
 
     return result;
