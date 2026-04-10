@@ -80,57 +80,32 @@ ResourceScavanger::ResourceScavanger(ref_ptr<DatabasePager> in_databasePager) :
 {
 }
 
-bool ResourceScavanger::scavange(ResourceRequirements& resourceRequirements)
+bool ResourceScavanger::scavange(ResourceRequirements& /*resourceRequirements*/)
 {
-    ++numFailures;
-
     bool scavanged = false;
 
     if (auto ref_databasePager = databasePager.get())
     {
         if (!ref_databasePager->_status->active()) return false;
 
-
         uint32_t targetPagedLOD = ref_databasePager->pagedLODContainer->activeList.count;
         if (ref_databasePager->pagedLODContainer->inactiveList.count > ref_databasePager->numActiveRequests) targetPagedLOD += ref_databasePager->pagedLODContainer->inactiveList.count - ref_databasePager->numActiveRequests;
 
-        // vsg::info("       ResourceScavanger::scavange(..) activeList.count = ", ref_databasePager->pagedLODContainer->activeList.count, ", inactiveList.count = ", ref_databasePager->pagedLODContainer->inactiveList.count, ", numActiveRequests = ", ref_databasePager->numActiveRequests);
         if (targetPagedLOD < ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs)
         {
-            vsg::info("   ResourceScavanger::scavange(..) resetting, ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs, to ", targetPagedLOD, " numFailures = ", numFailures);
+            info("   ResourceScavanger::scavange(..) resetting, ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs, to ", targetPagedLOD);
 
             ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
         }
-        else
-        {
-            // vsg::info("    ResourceScavanger::scavange(ResourceRequirements& resourceRequirements) resourceRequirements.bufferInfos.size() = ", resourceRequirements.bufferInfos.size(), ", resourceRequirements.imageInfos.size() = ",  resourceRequirements.imageInfos.size(), " nothing to do. numFailures = ", numFailures);
-        }
 
-#if 0
-
-        return false;
-#else
         auto before_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
 
-        // vsg::info("   Before sleep: inactiveList.count = ", ref_databasePager->pagedLODContainer->inactiveList.count);
+        if (sleepDuration > 0) std::this_thread::sleep_for(std::chrono::milliseconds(sleepDuration));
 
-#if 1
-        std::this_thread::sleep_for(std::chrono::milliseconds(16*5));
-        uint32_t numDeleted = 0;
-#else
-        //std::this_thread::sleep_for(std::chrono::milliseconds(16*5));
-        //std::this_thread::sleep_for(std::chrono::milliseconds(16*24));
-        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        auto numDeleted = ref_databasePager->_deleteQueue->wait_then_clear();
-#endif
         auto after_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
 
         scavanged = (after_deletedCount > before_deletedCount);
-
-        // vsg::info("   After sleep: inactiveList.count = ", ref_databasePager->pagedLODContainer->inactiveList.count, ", delta =", after_deletedCount - before_deletedCount, ", scavanged = ", scavanged, ", numDeleted = ", numDeleted);
-        // vsg::info("   Finished ResourceScavanger::scavange(ResourceRequirements& resourceRequirements) resourceRequirements.bufferInfos.size() = ", resourceRequirements.bufferInfos.size(), ", resourceRequirements.imageInfos.size() = ",  resourceRequirements.imageInfos.size(), " resetting.");
     }
-#endif
 
     return scavanged;
 }
