@@ -21,6 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileResult
+//
 void CompileResult::reset()
 {
     result = VK_INCOMPLETE;
@@ -66,6 +70,75 @@ bool CompileResult::requiresViewerUpdate() const
     return false;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileManager
+//
+
+ResourceScavanger::ResourceScavanger(ref_ptr<DatabasePager> in_databasePager) :
+    databasePager(in_databasePager)
+{
+}
+
+bool ResourceScavanger::scavange(ResourceRequirements& resourceRequirements)
+{
+    ++numFailures;
+
+    bool scavanged = false;
+
+    if (auto ref_databasePager = databasePager.get())
+    {
+        if (!ref_databasePager->_status->active()) return false;
+
+
+        uint32_t targetPagedLOD = ref_databasePager->pagedLODContainer->activeList.count;
+        if (ref_databasePager->pagedLODContainer->inactiveList.count > ref_databasePager->numActiveRequests) targetPagedLOD += ref_databasePager->pagedLODContainer->inactiveList.count - ref_databasePager->numActiveRequests;
+
+        // vsg::info("       ResourceScavanger::scavange(..) activeList.count = ", ref_databasePager->pagedLODContainer->activeList.count, ", inactiveList.count = ", ref_databasePager->pagedLODContainer->inactiveList.count, ", numActiveRequests = ", ref_databasePager->numActiveRequests);
+        if (targetPagedLOD < ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs)
+        {
+            vsg::info("   ResourceScavanger::scavange(..) resetting, ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs, to ", targetPagedLOD, " numFailures = ", numFailures);
+
+            ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
+        }
+        else
+        {
+            // vsg::info("    ResourceScavanger::scavange(ResourceRequirements& resourceRequirements) resourceRequirements.bufferInfos.size() = ", resourceRequirements.bufferInfos.size(), ", resourceRequirements.imageInfos.size() = ",  resourceRequirements.imageInfos.size(), " nothing to do. numFailures = ", numFailures);
+        }
+
+#if 0
+
+        return false;
+#else
+        auto before_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
+
+        // vsg::info("   Before sleep: inactiveList.count = ", ref_databasePager->pagedLODContainer->inactiveList.count);
+
+#if 1
+        std::this_thread::sleep_for(std::chrono::milliseconds(16*5));
+        uint32_t numDeleted = 0;
+#else
+        //std::this_thread::sleep_for(std::chrono::milliseconds(16*5));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(16*24));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        auto numDeleted = ref_databasePager->_deleteQueue->wait_then_clear();
+#endif
+        auto after_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
+
+        scavanged = (after_deletedCount > before_deletedCount);
+
+        // vsg::info("   After sleep: inactiveList.count = ", ref_databasePager->pagedLODContainer->inactiveList.count, ", delta =", after_deletedCount - before_deletedCount, ", scavanged = ", scavanged, ", numDeleted = ", numDeleted);
+        // vsg::info("   Finished ResourceScavanger::scavange(ResourceRequirements& resourceRequirements) resourceRequirements.bufferInfos.size() = ", resourceRequirements.bufferInfos.size(), ", resourceRequirements.imageInfos.size() = ",  resourceRequirements.imageInfos.size(), " resetting.");
+    }
+#endif
+
+    return scavanged;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileManager
+//
 CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 {
     compileTraversals = CompileTraversals::create(viewer.status);
@@ -167,6 +240,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     auto& requirements = collectRequirements.requirements;
     auto& viewDetailsStack = requirements.viewDetailsStack;
 
+    VkResult reserve_result = VK_INCOMPLETE;
     CompileResult result;
     result.maxSlots = requirements.maxSlots;
     result.containsPagedLOD = requirements.containsPagedLOD;
@@ -199,9 +273,24 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
                         }
                     }
                 }
+            }
 
-                auto reserveResult = context->reserve(requirements);
-                if (reserveResult != VK_SUCCESS) throw vsg::Exception{"Context::reserve() failed", reserveResult};
+            for (auto& context : compileTraversal->contexts)
+            {
+                reserve_result = context->reserve(requirements);
+
+                // vsg::info("  done reserve context->reserve() ",  reserve_result);
+                if (reserve_result != VK_SUCCESS && resourceScavenger && resourceScavenger->scavange(requirements))
+                {
+                    reserve_result = context->reserve(requirements);
+                }
+
+                if (reserve_result != VK_SUCCESS)
+                {
+                    result.message = vsg::make_string("Context::reserve() failed", reserve_result);
+                    result.result = reserve_result;
+                    return;
+                }
             }
 
             object->accept(*compileTraversal);
@@ -250,6 +339,21 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     }
 
     compileTraversals->add(compileTraversal);
+
+    static int s_succeeded = 0;
+    static int s_failed = 0;
+
+    if (result.result == VK_SUCCESS)
+    {
+        ++s_succeeded;
+        vsg::info("Success : succedded = ", s_succeeded, ", failed = ", s_failed, ", result = { ", result.result, " : ", result.message, " }, reserve_result = ", reserve_result);
+    }
+    else
+    {
+        s_failed++;
+
+        vsg::info("Failed : succedded = ", s_succeeded, ", failed = ", s_failed, ", result = { ", result.result, " : ", result.message, " }, reserve_result = ", reserve_result);
+    }
 
     return result;
 }

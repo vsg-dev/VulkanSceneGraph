@@ -394,7 +394,7 @@ void DatabaseQueue::add(ref_ptr<PagedLOD> plod, const CompileResult& cr)
     _compileResult.add(cr);
 }
 
-ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
+ref_ptr<PagedLOD> DatabaseQueue::take_when_available(uint64_t frameCount)
 {
     // debug("DatabaseQueue::take_when_available() A size = ", _queue.size());
 
@@ -419,18 +419,56 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available()
 
     // find the PagedLOD with the highest priority;
     auto itr = _queue.begin();
+
+    size_t skipped = 0;
+
+    // find first PagedLOD in queue that can be loaded/compiled
+    for(; itr != _queue.end(); ++itr)
+    {
+        if ((*itr)->frameNextLoadAttempt.load() <= frameCount) break;
+        ++skipped;
+    }
+
+    if (itr == _queue.end())
+    {
+        // info("DatabaseQueue::take_when_available(", frameCount, ") no suitable PagedLOD despite ", _queue.size(), " in queue.");
+        return {};
+    }
+
     auto highest_itr = itr++;
 
+    // find lowest priority PagedLOD in queue.
     for (; itr != _queue.end(); ++itr)
     {
-        if ((*itr)->priority > (*highest_itr)->priority) highest_itr = itr;
+        if ((*itr)->frameNextLoadAttempt.load() <= frameCount && (*itr)->priority > (*highest_itr)->priority) highest_itr = itr;
     }
 
     ref_ptr<PagedLOD> plod = *highest_itr;
     _queue.erase(highest_itr);
 
-    // debug("Returning ", plod.get(), std::dec, ", size = ", _queue.size());
+    // info("DatabaseQueue::take_when_available(", frameCount, ") plod = ", plod.get(), std::dec, ", size = ", _queue.size(), " after skipping ", skipped);
     return plod;
+}
+
+uint32_t DatabaseQueue::prune(uint64_t frameCount)
+{
+    std::unique_lock lock(_mutex);
+
+    uint32_t numRemoved = 0;
+    for (auto itr = _queue.begin(); itr != _queue.end();)
+    {
+        if (((*itr)->frameHighResLastUsed.load()+1) < frameCount)
+        {
+            // info("pruning ", *itr, ", lastUsed = ", (*itr)->frameHighResLastUsed.load(), " vs ", frameCount, " after ", (*itr)->loadAttempts.load(), " loadAttempts");
+            ++numRemoved;
+            itr = _queue.erase(itr);
+        }
+        else
+        {
+            ++itr;
+        }
+    }
+    return numRemoved;
 }
 
 DatabaseQueue::Nodes DatabaseQueue::take_all(CompileResult& cr)
@@ -492,21 +530,36 @@ void DatabasePager::start(uint32_t numReadThreads)
 
         while (status->active())
         {
-            auto plod = requestQueue->take_when_available();
+            auto plod = requestQueue->take_when_available(databasePager.frameCount.load());
             if (plod)
             {
                 CPU_INSTRUMENTATION_L1_NC(databasePager.instrumentation, "DatabasePager read", COLOR_PAGER);
 
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
+
+
                 if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
                 {
-                    // debug("Expire read request");
+                    info("Expire read request : databasePager.frameCount = ", databasePager.frameCount, ", plod->frameHighResLastUsed.load() = ", plod->frameHighResLastUsed.load());
                     databasePager.requestDiscarded(plod);
                     continue;
                 }
 
-                auto read_object = vsg::read(plod->filename, plod->options);
-                auto subgraph = read_object.cast<Node>();
+                ++plod->loadAttempts;
+
+                ref_ptr<Node> subgraph = plod->pending;
+                ref_ptr<Object> read_object;
+
+                if (!subgraph)
+                {
+                    // vsg::info("read ", subgraph, " from ", plod->filename, " frameDelta = ", frameDelta, ", databasePager.frameCount = ", databasePager.frameCount, ", plod->frameHighResLastUsed.load() = ", plod->frameHighResLastUsed.load(), ", numActiveRequests = ", databasePager.numActiveRequests.load());
+                    read_object = vsg::read(plod->filename, plod->options);
+                    subgraph = read_object.cast<Node>();
+                }
+                else
+                {
+                    // vsg::info("already read ", subgraph, " from ", plod->filename, " frameDelta = ", frameDelta, ", databasePager.frameCount = ", databasePager.frameCount, ", plod->frameHighResLastUsed.load() = ", plod->frameHighResLastUsed.load(), ", numActiveRequests = ", databasePager.numActiveRequests.load());
+                }
 
                 if (subgraph && compare_exchange(plod->requestStatus, PagedLOD::Reading, PagedLOD::Compiling))
                 {
@@ -521,6 +574,8 @@ void DatabasePager::start(uint32_t numReadThreads)
                         if (auto result = databasePager.compileManager->compile(subgraph))
                         {
                             plod->requestStatus.exchange(PagedLOD::MergeRequest);
+
+                            // info("DatabaserPager::start() compiled ", subgraph, ", success after ", plod->loadAttempts.load(), " loadAttempts");
 
                             // move to the merge queue;
                             databasePager._toMergeQueue->add(plod, result);
@@ -546,6 +601,11 @@ void DatabasePager::start(uint32_t numReadThreads)
 
                     databasePager.requestDiscarded(plod);
                 }
+            }
+            else
+            {
+                // sleep for a frame.
+                std::this_thread::sleep_for(std::chrono::milliseconds(16*2));
             }
         }
         debug("Finished DatabaseThread read thread");
@@ -574,6 +634,7 @@ void DatabasePager::start(uint32_t numReadThreads)
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
+#if 0
     ++numActiveRequests;
 
     bool hasPending = false;
@@ -598,6 +659,16 @@ void DatabasePager::request(ref_ptr<PagedLOD> plod)
     {
         // debug("Attempted DatabasePager::request(", plod.get(), ") but plod.pending is not null.");
     }
+#else
+
+    if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
+    {
+        // debug("DatabasePager::request(", plod.get(), ") adding to requestQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
+        _requestQueue->add(plod);
+        ++numActiveRequests;
+    }
+
+#endif
 }
 
 void DatabasePager::requestDiscarded(PagedLOD* plod)
@@ -606,7 +677,11 @@ void DatabasePager::requestDiscarded(PagedLOD* plod)
     //plod->pending = nullptr;
     plod->requestCount.exchange(0);
     plod->requestStatus.exchange(PagedLOD::NoRequest);
-    plod->pending = {};
+
+    // plod->pending = {};
+
+    plod->frameNextLoadAttempt = frameCount.load() + delayBeforeNextLoadAttempt;
+
     --numActiveRequests;
 }
 
@@ -616,6 +691,8 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
 
     frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
     _deleteQueue->advance(frameStamp);
+
+    numActiveRequests -= _requestQueue->prune(frameCount.load());
 
     auto nodes = _toMergeQueue->take_all(cr);
 

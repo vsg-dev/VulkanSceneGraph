@@ -89,6 +89,9 @@ namespace vsg
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};
 
+        mutable std::atomic_uint64_t frameNextLoadAttempt{0};
+        mutable std::atomic_uint64_t loadAttempts{0};
+
         enum RequestStatus : unsigned int
         {
             NoRequest = 0,
