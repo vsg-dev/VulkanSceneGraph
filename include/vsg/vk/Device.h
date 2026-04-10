@@ -88,6 +88,9 @@ namespace vsg
         /// return the amount of memory available in deviceMemoryBufferPools and allocatable on device
         VkDeviceSize availableMemory(bool includeMemoryPools = true) const;
 
+        /// return the amount of remaining memory, compatible with specified flags, available that can be allocated.
+        VkDeviceSize availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags, double allocatedMemoryLimit = 1.0) const;
+
         // provide observer_ptr to memory buffer, descriptor pools and transferTask so that these can be accessed when required
         observer_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         observer_ptr<MemoryBufferPools> stagingMemoryBufferPools;
