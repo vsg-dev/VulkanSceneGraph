@@ -47,7 +47,7 @@ namespace vsg
 
         virtual bool scavenge(ResourceRequirements& resourceRequirements);
 
-        uint64_t sleepDuration = 16*5; /// milliseconds sleep to make after adjusting load targets to allow other threads to free up space, default to 5 frames at 60fps
+        uint64_t sleepDuration = 16 * 5; /// milliseconds sleep to make after adjusting load targets to allow other threads to free up space, default to 5 frames at 60fps
         observer_ptr<DatabasePager> databasePager;
     };
 

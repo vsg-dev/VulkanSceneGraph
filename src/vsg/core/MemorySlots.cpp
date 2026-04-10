@@ -112,7 +112,7 @@ bool MemorySlots::check() const
 void MemorySlots::report(LogOutput& out) const
 {
     out.enter("MemorySlots::report(...)");
-    out("MemorySlots::report() ",this);
+    out("MemorySlots::report() ", this);
     for (auto& [offset, size] : _offsetSizes)
     {
         out("    available ", offset, ", ", size);

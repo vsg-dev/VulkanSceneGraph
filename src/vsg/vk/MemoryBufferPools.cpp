@@ -107,7 +107,6 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
         VkDeviceSize deviceSize = std::max(totalSize, minimumBufferSize);
 #endif
 
-
         bufferInfo->buffer = Buffer::create(deviceSize, bufferUsageFlags, sharingMode);
         bufferInfo->buffer->compile(device);
 
@@ -156,19 +155,19 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     MemorySlots::OptionalOffset reservedSlot(false, 0);
 
 #if 1
-        for (auto& memoryPool : memoryPools)
+    for (auto& memoryPool : memoryPools)
+    {
+        if (((memoryPool->getMemoryRequirements().memoryTypeBits & memRequirements.memoryTypeBits) == memRequirements.memoryTypeBits) &&
+            memoryPool->maximumAvailableSpace() >= totalSize)
         {
-            if (((memoryPool->getMemoryRequirements().memoryTypeBits & memRequirements.memoryTypeBits) == memRequirements.memoryTypeBits) &&
-                memoryPool->maximumAvailableSpace() >= totalSize)
+            reservedSlot = memoryPool->reserve(totalSize, memRequirements.alignment);
+            if (reservedSlot.first)
             {
-                reservedSlot = memoryPool->reserve(totalSize, memRequirements.alignment);
-                if (reservedSlot.first)
-                {
-                    deviceMemory = memoryPool;
-                    break;
-                }
+                deviceMemory = memoryPool;
+                break;
             }
         }
+    }
 #else
     for (auto& memoryPool : memoryPools)
     {
@@ -208,7 +207,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
             {
                 deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryPropertiesFlags, pNextAllocInfo);
             }
-            catch(...)
+            catch (...)
             {
                 // info("Could not allocate vsg::DeviceMemory(..) memRequirements.size = ", memRequirements.size);
             }
@@ -233,7 +232,6 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
         }
 #endif
     }
-
 
     if (!reservedSlot.first)
     {
@@ -430,7 +428,7 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 void MemoryBufferPools::report(LogOutput& out) const
 {
     out.enter("MemoryBufferPools::report(..)");
-    for(const auto& memoryPool : memoryPools)
+    for (const auto& memoryPool : memoryPools)
     {
         memoryPool->report(out);
     }

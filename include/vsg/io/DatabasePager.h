@@ -151,7 +151,6 @@ namespace vsg
         /// number of frames before a PagedLOD with a failed load/compile is attempted to be loaded/compiled again.
         uint64_t delayBeforeNextLoadAttempt = 60;
 
-
         std::mutex pendingPagedLODMutex;
 
         ref_ptr<PagedLODContainer> pagedLODContainer;
@@ -172,7 +171,6 @@ namespace vsg
         virtual ~DatabasePager();
 
         void requestDiscarded(PagedLOD* plod);
-
 
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;

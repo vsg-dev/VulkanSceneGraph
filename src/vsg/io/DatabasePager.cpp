@@ -423,7 +423,7 @@ ref_ptr<PagedLOD> DatabaseQueue::take_when_available(uint64_t frameCount)
     size_t skipped = 0;
 
     // find first PagedLOD in queue that can be loaded/compiled
-    for(; itr != _queue.end(); ++itr)
+    for (; itr != _queue.end(); ++itr)
     {
         if ((*itr)->frameNextLoadAttempt.load() <= frameCount) break;
         ++skipped;
@@ -457,7 +457,7 @@ uint32_t DatabaseQueue::prune(uint64_t frameCount)
     uint32_t numRemoved = 0;
     for (auto itr = _queue.begin(); itr != _queue.end();)
     {
-        if (((*itr)->frameHighResLastUsed.load()+1) < frameCount)
+        if (((*itr)->frameHighResLastUsed.load() + 1) < frameCount)
         {
             // info("pruning ", *itr, ", lastUsed = ", (*itr)->frameHighResLastUsed.load(), " vs ", frameCount, " after ", (*itr)->loadAttempts.load(), " loadAttempts");
             ++numRemoved;
@@ -537,7 +537,6 @@ void DatabasePager::start(uint32_t numReadThreads)
 
                 uint64_t frameDelta = databasePager.frameCount - plod->frameHighResLastUsed.load();
 
-
                 if (frameDelta > 1 || !compare_exchange(plod->requestStatus, PagedLOD::ReadRequest, PagedLOD::Reading))
                 {
                     info("Expire read request : databasePager.frameCount = ", databasePager.frameCount, ", plod->frameHighResLastUsed.load() = ", plod->frameHighResLastUsed.load());
@@ -605,7 +604,7 @@ void DatabasePager::start(uint32_t numReadThreads)
             else
             {
                 // sleep for a frame.
-                std::this_thread::sleep_for(std::chrono::milliseconds(16*2));
+                std::this_thread::sleep_for(std::chrono::milliseconds(16 * 2));
             }
         }
         debug("Finished DatabaseThread read thread");
