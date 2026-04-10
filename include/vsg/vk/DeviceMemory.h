@@ -44,6 +44,7 @@ namespace vsg
         const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }
 
         MemorySlots::OptionalOffset reserve(VkDeviceSize size);
+        MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
         void release(VkDeviceSize offset, VkDeviceSize size);
 
         bool full() const;

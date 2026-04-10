@@ -87,7 +87,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
 
     if (VkResult result = vkAllocateMemory(*device, &allocateInfo, _device->getAllocationCallbacks(), &_deviceMemory); result != VK_SUCCESS)
     {
-        throw Exception{"Error: Failed to allocate DeviceMemory.", result};
+        throw Exception{"Error: Failed to allocate vsg::DeviceMemory.", result};
     }
 
     {
@@ -156,6 +156,12 @@ MemorySlots::OptionalOffset DeviceMemory::reserve(VkDeviceSize size)
     return _memorySlots.reserve(size, _memoryRequirements.alignment);
 }
 
+MemorySlots::OptionalOffset DeviceMemory::reserve(VkDeviceSize size, VkDeviceSize alignment)
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+    return _memorySlots.reserve(size, alignment);
+}
+
 void DeviceMemory::release(VkDeviceSize offset, VkDeviceSize size)
 {
     std::scoped_lock<std::mutex> lock(_mutex);
@@ -194,7 +200,7 @@ size_t DeviceMemory::totalMemorySize() const
 void DeviceMemory::report(LogOutput& out) const
 {
     out.enter("DeviceMemory::report(..)");
-    out("_memoryRequirements = { size = ", _memoryRequirements.size, ", alignment = ", _memoryRequirements.alignment, ", _memoryRequirements = ", _memoryRequirements.memoryTypeBits, "}");
+    out("_memoryRequirements = { size = ", _memoryRequirements.size, ", alignment = ", _memoryRequirements.alignment, ", memoryTypeBits = ", _memoryRequirements.memoryTypeBits, "}");
     out("_properties = ", _properties);
     _memorySlots.report(out);
     out.leave();
