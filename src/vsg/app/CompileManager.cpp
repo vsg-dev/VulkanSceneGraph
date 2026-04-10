@@ -75,14 +75,14 @@ bool CompileResult::requiresViewerUpdate() const
 // CompileManager
 //
 
-ResourceScavanger::ResourceScavanger(ref_ptr<DatabasePager> in_databasePager) :
+ResourceScavenger::ResourceScavenger(ref_ptr<DatabasePager> in_databasePager) :
     databasePager(in_databasePager)
 {
 }
 
-bool ResourceScavanger::scavange(ResourceRequirements& /*resourceRequirements*/)
+bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
 {
-    bool scavanged = false;
+    bool scavenged = false;
 
     if (auto ref_databasePager = databasePager.get())
     {
@@ -93,7 +93,7 @@ bool ResourceScavanger::scavange(ResourceRequirements& /*resourceRequirements*/)
 
         if (targetPagedLOD < ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs)
         {
-            info("   ResourceScavanger::scavange(..) resetting, ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs, to ", targetPagedLOD);
+            info("   ResourceScavenger::scavenge(..) resetting, ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs, to ", targetPagedLOD);
 
             ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
         }
@@ -104,10 +104,10 @@ bool ResourceScavanger::scavange(ResourceRequirements& /*resourceRequirements*/)
 
         auto after_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
 
-        scavanged = (after_deletedCount > before_deletedCount);
+        scavenged = (after_deletedCount > before_deletedCount);
     }
 
-    return scavanged;
+    return scavenged;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,7 +255,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
                 reserve_result = context->reserve(requirements);
 
                 // vsg::info("  done reserve context->reserve() ",  reserve_result);
-                if (reserve_result != VK_SUCCESS && resourceScavenger && resourceScavenger->scavange(requirements))
+                if (reserve_result != VK_SUCCESS && resourceScavenger && resourceScavenger->scavenge(requirements))
                 {
                     reserve_result = context->reserve(requirements);
                 }

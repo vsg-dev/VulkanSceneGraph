@@ -39,13 +39,13 @@ namespace vsg
         bool requiresViewerUpdate() const;
     };
 
-    /// ResourceScavanger provides a mechanism for releasing and reusing unused resources when allocation of required GPU memory fails.
-    class VSG_DECLSPEC ResourceScavanger : public Inherit<Object, ResourceScavanger>
+    /// ResourceScavenger provides a mechanism for releasing and reusing unused resources when allocation of required GPU memory fails.
+    class VSG_DECLSPEC ResourceScavenger : public Inherit<Object, ResourceScavenger>
     {
     public:
-        ResourceScavanger(ref_ptr<DatabasePager> in_databasePager);
+        ResourceScavenger(ref_ptr<DatabasePager> in_databasePager);
 
-        virtual bool scavange(ResourceRequirements& resourceRequirements);
+        virtual bool scavenge(ResourceRequirements& resourceRequirements);
 
         uint64_t sleepDuration = 16*5; /// milliseconds sleep to make after adjusting load targets to allow other threads to free up space, default to 5 frames at 60fps
         observer_ptr<DatabasePager> databasePager;
@@ -84,7 +84,7 @@ namespace vsg
         CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
         /// mechinism for releasing and reusing used resources
-        ref_ptr<ResourceScavanger> resourceScavenger;
+        ref_ptr<ResourceScavenger> resourceScavenger;
 
     protected:
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
