@@ -320,9 +320,6 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     compileTraversals->add(compileTraversal);
 
-    int s_succeeded = 0;
-    int s_failed = 0;
-
     if (result.result == VK_SUCCESS)
     {
         ++successfulCompileCount;
