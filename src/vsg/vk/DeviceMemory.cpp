@@ -93,7 +93,7 @@ DeviceMemory::DeviceMemory(Device* device, const VkMemoryRequirements& memRequir
     {
         std::scoped_lock<std::mutex> lock(s_DeviceMemoryListMutex);
         s_DeviceMemoryList.emplace_back(this);
-        vsg::debug("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
+        debug("DeviceMemory::DeviceMemory() added to s_DeviceMemoryList, s_DeviceMemoryList.size() = ", s_DeviceMemoryList.size());
     }
 }
 

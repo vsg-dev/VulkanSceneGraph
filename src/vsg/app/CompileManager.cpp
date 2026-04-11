@@ -84,6 +84,7 @@ bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
 {
     bool scavenged = false;
 
+    // get raw C pointer to avoid a database pager thread invoking scavenger and keeping the database pager alive and pausing destruction
     if (auto ref_databasePager = databasePager.get())
     {
         if (!ref_databasePager->_status->active()) return false;
@@ -93,7 +94,7 @@ bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
 
         if (targetPagedLOD < ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs)
         {
-            info("   ResourceScavenger::scavenge(..) resetting, ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs, to ", targetPagedLOD);
+            debug("ResourceScavenger::scavenge(..) resetting databasePager->targetMaxNumPagedLODWithHighResSubgraphs to ", targetPagedLOD);
 
             ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
         }
