@@ -43,7 +43,7 @@ namespace vsg
     class VSG_DECLSPEC ResourceScavenger : public Inherit<Object, ResourceScavenger>
     {
     public:
-        ResourceScavenger(ref_ptr<DatabasePager> in_databasePager);
+        explicit ResourceScavenger(ref_ptr<DatabasePager> in_databasePager);
 
         virtual bool scavenge(ResourceRequirements& resourceRequirements);
 

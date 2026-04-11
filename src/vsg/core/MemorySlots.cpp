@@ -100,8 +100,8 @@ bool MemorySlots::check() const
     {
         warn("MemorySlots::check() ", this, " failed, computedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
 
-        LogOutput log;
-        report(log);
+        LogOutput output;
+        report(output);
 
         return false;
     }
