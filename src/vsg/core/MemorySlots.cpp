@@ -46,8 +46,8 @@ MemorySlots::~MemorySlots()
         else
         {
             info("MemorySlots::~MemorySlots() ", this, ", not all slots restored correctly.");
-            LogOutput log;
-            report(log);
+            LogOutput output;
+            report(output);
         }
     }
     if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
