@@ -50,7 +50,7 @@ void CompileResult::add(const CompileResult& cr)
         binDetails.bins.insert(src_binDetails.bins.begin(), src_binDetails.bins.end());
     }
 
-    dynamicData.add(dynamicData);
+    dynamicData.add(cr.dynamicData);
 }
 
 bool CompileResult::requiresViewerUpdate() const
