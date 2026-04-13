@@ -633,41 +633,12 @@ void DatabasePager::start(uint32_t numReadThreads)
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
 {
-#if 0
-    ++numActiveRequests;
-
-    bool hasPending = false;
-    {
-        std::scoped_lock<std::mutex> lock(pendingPagedLODMutex);
-        hasPending = plod->pending.valid();
-    }
-
-    if (!hasPending)
-    {
-        if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
-        {
-            // debug("DatabasePager::request(", plod.get(), ") adding to requestQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
-            _requestQueue->add(plod);
-        }
-        else
-        {
-            // debug("Attempted DatabasePager::request(", plod.get(), ") but plod.requestState() = ", plod->requestStatus.load(), " is not NoRequest");
-        }
-    }
-    else
-    {
-        // debug("Attempted DatabasePager::request(", plod.get(), ") but plod.pending is not null.");
-    }
-#else
-
     if (compare_exchange(plod->requestStatus, PagedLOD::NoRequest, PagedLOD::ReadRequest))
     {
-        // debug("DatabasePager::request(", plod.get(), ") adding to requestQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
+        debug("DatabasePager::request(", plod.get(), ") adding to requestQueue ", plod->filename, ", ", plod->priority, " plod=", plod.get());
         _requestQueue->add(plod);
         ++numActiveRequests;
     }
-
-#endif
 }
 
 void DatabasePager::requestDiscarded(PagedLOD* plod)
