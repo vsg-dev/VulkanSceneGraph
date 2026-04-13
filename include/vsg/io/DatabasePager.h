@@ -164,8 +164,8 @@ namespace vsg
         /// read and delete threads created by start()
         std::list<std::thread> threads;
 
-        ref_ptr<DeleteQueue> _deleteQueue;
-        ref_ptr<ActivityStatus> _status;
+        ref_ptr<ActivityStatus> status;
+        ref_ptr<DeleteQueue> deleteQueue;
 
     protected:
         virtual ~DatabasePager();

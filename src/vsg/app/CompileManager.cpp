@@ -87,7 +87,7 @@ bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
     // get raw C pointer to avoid a database pager thread invoking scavenger and keeping the database pager alive and pausing destruction
     if (auto ref_databasePager = databasePager.get())
     {
-        if (!ref_databasePager->_status->active()) return false;
+        if (!ref_databasePager->status->active()) return false;
 
         uint32_t targetPagedLOD = ref_databasePager->pagedLODContainer->activeList.count;
         if (ref_databasePager->pagedLODContainer->inactiveList.count > ref_databasePager->numActiveRequests) targetPagedLOD += ref_databasePager->pagedLODContainer->inactiveList.count - ref_databasePager->numActiveRequests;
@@ -99,11 +99,11 @@ bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
             ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
         }
 
-        auto before_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
+        auto before_deletedCount = ref_databasePager->deleteQueue->deletedCount.load();
 
         if (sleepDuration > 0) std::this_thread::sleep_for(std::chrono::milliseconds(sleepDuration));
 
-        auto after_deletedCount = ref_databasePager->_deleteQueue->deletedCount.load();
+        auto after_deletedCount = ref_databasePager->deleteQueue->deletedCount.load();
 
         scavenged = (after_deletedCount > before_deletedCount);
     }

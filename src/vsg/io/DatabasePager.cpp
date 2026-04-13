@@ -487,13 +487,13 @@ DatabaseQueue::Nodes DatabaseQueue::take_all(CompileResult& cr)
 //
 DatabasePager::DatabasePager()
 {
-    if (!_status) _status = ActivityStatus::create();
+    if (!status) status = ActivityStatus::create();
 
     culledPagedLODs = CulledPagedLODs::create();
 
-    _requestQueue = DatabaseQueue::create(_status);
-    _toMergeQueue = DatabaseQueue::create(_status);
-    _deleteQueue = DeleteQueue::create(_status);
+    _requestQueue = DatabaseQueue::create(status);
+    _toMergeQueue = DatabaseQueue::create(status);
+    deleteQueue = DeleteQueue::create(status);
 
     pagedLODContainer = PagedLODContainer::create(4000);
 }
@@ -502,7 +502,7 @@ DatabasePager::~DatabasePager()
 {
     debug("DatabasePager::~DatabasePager()");
 
-    _status->set(false);
+    status->set(false);
 
     for (auto& thread : threads)
     {
@@ -522,15 +522,15 @@ void DatabasePager::start(uint32_t numReadThreads)
     //
     // set up read thread(s)
     //
-    auto readThread = [](ref_ptr<DatabaseQueue> requestQueue, ref_ptr<ActivityStatus> status, DatabasePager& databasePager, const std::string& threadName) {
+    auto readThread = [](DatabasePager& databasePager, const std::string& threadName) {
         debug("Started DatabaseThread read thread");
 
         auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);
         if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
-        while (status->active())
+        while (databasePager.status->active())
         {
-            auto plod = requestQueue->take_when_available(databasePager.frameCount.load());
+            auto plod = databasePager._requestQueue->take_when_available(databasePager.frameCount.load());
             if (plod)
             {
                 CPU_INSTRUMENTATION_L1_NC(databasePager.instrumentation, "DatabasePager read", COLOR_PAGER);
@@ -610,25 +610,25 @@ void DatabasePager::start(uint32_t numReadThreads)
         debug("Finished DatabaseThread read thread");
     };
 
-    auto deleteThread = [](ref_ptr<DeleteQueue> deleteQueue, ref_ptr<ActivityStatus> status, const DatabasePager& databasePager, const std::string& threadName) {
+    auto deleteThread = [](DatabasePager& databasePager, const std::string& threadName) {
         debug("Started DatabaseThread deletethread");
 
         auto local_instrumentation = shareOrDuplicateForThreadSafety(databasePager.instrumentation);
         if (local_instrumentation) local_instrumentation->setThreadName(threadName);
 
-        while (status->active())
+        while (databasePager.status->active())
         {
-            deleteQueue->wait_then_clear();
+            databasePager.deleteQueue->wait_then_clear();
         }
         debug("Finished DatabaseThread delete thread");
     };
 
     for (uint32_t i = 0; i < numReadThreads; ++i)
     {
-        threads.emplace_back(readThread, std::ref(_requestQueue), std::ref(_status), std::ref(*this), make_string("DatabasePager read thread ", i));
+        threads.emplace_back(readThread, std::ref(*this), make_string("DatabasePager read thread ", i));
     }
 
-    threads.emplace_back(deleteThread, std::ref(_deleteQueue), std::ref(_status), std::ref(*this), "DatabasePager delete thread ");
+    threads.emplace_back(deleteThread, std::ref(*this), "DatabasePager delete thread ");
 }
 
 void DatabasePager::request(ref_ptr<PagedLOD> plod)
@@ -689,7 +689,7 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
     CPU_INSTRUMENTATION_L1(instrumentation);
 
     frameCount.exchange(frameStamp ? frameStamp->frameCount : 0);
-    _deleteQueue->advance(frameStamp);
+    deleteQueue->advance(frameStamp);
 
     numActiveRequests -= _requestQueue->prune(frameCount.load());
 
@@ -815,5 +815,5 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
         debug("DatabasePager::updateSceneGraph() nothing to merge");
     }
 
-    if (!deleteList.empty() || !sharedObjectsToPrune.empty()) _deleteQueue->add_prune(deleteList, sharedObjectsToPrune);
+    if (!deleteList.empty() || !sharedObjectsToPrune.empty()) deleteQueue->add_prune(deleteList, sharedObjectsToPrune);
 }
