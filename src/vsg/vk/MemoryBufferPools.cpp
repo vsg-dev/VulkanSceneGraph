@@ -232,7 +232,6 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
     decltype(requirements.bufferInfos) failed_bufferInfos;
     decltype(requirements.imageInfos) failed_imageInfos;
 
-
     // allocate bufferInfos
     bool allocationSuccess = true;
     for (auto& [properties, bufferInfos] : requirements.bufferInfos)
