@@ -83,7 +83,7 @@ namespace vsg
         /// compile all the command graphs in a task
         CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
-        /// mechinism for releasing and reusing used resources
+        /// mechanism for releasing and reusing used resources
         ref_ptr<ResourceScavenger> resourceScavenger;
 
         std::atomic_uint successfulCompileCount{0};
