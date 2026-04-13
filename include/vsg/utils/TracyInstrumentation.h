@@ -17,10 +17,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/utils/Instrumentation.h>
 
-using namespace tracy;
-
 namespace vsg
 {
+
+    using namespace tracy;
 
     class TracySettings : public Inherit<Object, TracySettings>
     {
