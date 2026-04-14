@@ -84,7 +84,7 @@ void BufferInfo::take(BufferInfo& src)
 
     if (buffer && !parent)
     {
-        bool identical = (buffer==src.buffer && offset==src.offset && range==src.range);
+        bool identical = (buffer == src.buffer && offset == src.offset && range == src.range);
 
         if (!identical)
         {
@@ -105,7 +105,6 @@ void BufferInfo::take(BufferInfo& src)
     src.offset = 0;
     src.range = 0;
 }
-
 
 void BufferInfo::release()
 {
@@ -224,7 +223,6 @@ bool vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bu
         alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
     else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
         alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
-
 
     debug("vsg::createBufferAndTransferData(Context& context, const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode) usage = ", usage, ", alignment = ", alignment);
 

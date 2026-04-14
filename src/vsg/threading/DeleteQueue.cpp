@@ -78,6 +78,8 @@ size_t DeleteQueue::wait_then_clear()
         sharedObjectsToPrune.clear();
     }
 
+    deletedCount += numObjectsToDelete;
+
     return numObjectsToDelete;
 }
 
@@ -112,6 +114,8 @@ size_t DeleteQueue::clear()
         }
         sharedObjectsToPrune.clear();
     }
+
+    deletedCount += numObjectsToDelete;
 
     return numObjectsToDelete;
 }
