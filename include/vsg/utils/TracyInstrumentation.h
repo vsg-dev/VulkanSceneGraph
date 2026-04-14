@@ -17,8 +17,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/utils/Instrumentation.h>
 
-using namespace tracy;
-
 namespace vsg
 {
 
@@ -35,7 +33,7 @@ namespace vsg
     class TracyContexts : public Inherit<Object, TracyContexts>
     {
     public:
-        VkCtx* getOrCreateContext(CommandBuffer& commandBuffer) const
+        tracy::VkCtx* getOrCreateContext(CommandBuffer& commandBuffer) const
         {
             std::scoped_lock<std::mutex> lock(mutex);
 
@@ -79,7 +77,7 @@ namespace vsg
         }
 
         mutable std::mutex mutex;
-        mutable std::map<ref_ptr<Device>, std::pair<VkCtx*, bool>> ctxMap;
+        mutable std::map<ref_ptr<Device>, std::pair<tracy::VkCtx*, bool>> ctxMap;
 
     protected:
         ~TracyContexts()
@@ -111,7 +109,7 @@ namespace vsg
 
         ref_ptr<TracySettings> settings;
         ref_ptr<TracyContexts> contexts;
-        mutable VkCtx* ctx = nullptr;
+        mutable tracy::VkCtx* ctx = nullptr;
         bool requiresCollection = false;
 
         ref_ptr<Instrumentation> shareOrDuplicateForThreadSafety() override
@@ -151,9 +149,9 @@ namespace vsg
             reference = 1;
 #    endif
 
-            TracyQueuePrepare(QueueType::ZoneBegin);
-            MemWrite(&item->zoneBegin.time, tracy::Profiler::GetTime());
-            MemWrite(&item->zoneBegin.srcloc, (uint64_t)slcloc);
+            TracyQueuePrepare(tracy::QueueType::ZoneBegin);
+            tracy::MemWrite(&item->zoneBegin.time, tracy::Profiler::GetTime());
+            tracy::MemWrite(&item->zoneBegin.srcloc, (uint64_t)slcloc);
             TracyQueueCommit(zoneBeginThread);
         }
 
@@ -165,8 +163,8 @@ namespace vsg
             if (reference == 0) return;
 #    endif
 
-            TracyQueuePrepare(QueueType::ZoneEnd);
-            MemWrite(&item->zoneEnd.time, tracy::Profiler::GetTime());
+            TracyQueuePrepare(tracy::QueueType::ZoneEnd);
+            tracy::MemWrite(&item->zoneEnd.time, tracy::Profiler::GetTime());
             TracyQueueCommit(zoneEndThread);
         }
 
@@ -210,12 +208,12 @@ namespace vsg
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
 
             auto item = tracy::Profiler::QueueSerial();
-            MemWrite(&item->hdr.type, QueueType::GpuZoneBeginSerial);
-            MemWrite(&item->gpuZoneBegin.cpuTime, tracy::Profiler::GetTime());
-            MemWrite(&item->gpuZoneBegin.srcloc, (uint64_t)slcloc);
-            MemWrite(&item->gpuZoneBegin.thread, GetThreadHandle());
-            MemWrite(&item->gpuZoneBegin.queryId, uint16_t(queryId));
-            MemWrite(&item->gpuZoneBegin.context, ctx->GetId());
+            tracy::MemWrite(&item->hdr.type, tracy::QueueType::GpuZoneBeginSerial);
+            tracy::MemWrite(&item->gpuZoneBegin.cpuTime, tracy::Profiler::GetTime());
+            tracy::MemWrite(&item->gpuZoneBegin.srcloc, (uint64_t)slcloc);
+            tracy::MemWrite(&item->gpuZoneBegin.thread, tracy::GetThreadHandle());
+            tracy::MemWrite(&item->gpuZoneBegin.queryId, uint16_t(queryId));
+            tracy::MemWrite(&item->gpuZoneBegin.context, ctx->GetId());
             tracy::Profiler::QueueSerialFinish();
         }
 
@@ -231,11 +229,11 @@ namespace vsg
             CONTEXT_VK_FUNCTION_WRAPPER(vkCmdWriteTimestamp(cmdbuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, ctx->GetQueryPool(), queryId));
 
             auto item = tracy::Profiler::QueueSerial();
-            MemWrite(&item->hdr.type, QueueType::GpuZoneEndSerial);
-            MemWrite(&item->gpuZoneEnd.cpuTime, tracy::Profiler::GetTime());
-            MemWrite(&item->gpuZoneEnd.thread, GetThreadHandle());
-            MemWrite(&item->gpuZoneEnd.queryId, uint16_t(queryId));
-            MemWrite(&item->gpuZoneEnd.context, ctx->GetId());
+            tracy::MemWrite(&item->hdr.type, tracy::QueueType::GpuZoneEndSerial);
+            tracy::MemWrite(&item->gpuZoneEnd.cpuTime, tracy::Profiler::GetTime());
+            tracy::MemWrite(&item->gpuZoneEnd.thread, tracy::GetThreadHandle());
+            tracy::MemWrite(&item->gpuZoneEnd.queryId, uint16_t(queryId));
+            tracy::MemWrite(&item->gpuZoneEnd.context, ctx->GetId());
             tracy::Profiler::QueueSerialFinish();
         }
     };
