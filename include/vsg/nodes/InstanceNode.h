@@ -21,10 +21,10 @@ namespace vsg
 {
 
     /// InstanceNode provides a mechanism for specifying the translations, rotations and scales (transform arrays) of subgraph
-    /// that contains InstanceDraw leaf node(s) that utlize the InstanceNode's per instance transform arrays combined with the
+    /// that contains InstanceDraw leaf node(s) that utilize the InstanceNode's per instance transform arrays combined with the
     /// InstanceDraw nodes per vertex arrays.
     ///
-    /// InstanceNode only work correctly when the child subgraphs that obey these contraints:
+    /// InstanceNode only work correctly when the child subgraphs that obey these constraints:
     /// 1. Do not contain any Transform nodes
     /// 2. Do not contain any Culling nodes
     /// 3. Do not contain any InstanceNode nodes

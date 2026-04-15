@@ -22,7 +22,6 @@ FrameStamp::FrameStamp(const FrameStamp& rhs, const CopyOp& copyop) :
 {
 }
 
-
 void FrameStamp::read(Input& input)
 {
     Object::read(input);

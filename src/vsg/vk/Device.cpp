@@ -206,10 +206,8 @@ bool Device::supportsDeviceExtension(const char* extensionName) const
     return (std::find_if(enabledExtensions.begin(), enabledExtensions.end(), compare) != enabledExtensions.end());
 }
 
-VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
+VkDeviceSize Device::availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags, double allocatedMemoryLimit) const
 {
-    VkDeviceSize available = 0;
-
     VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
     memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
     memoryBudget.pNext = nullptr;
@@ -222,30 +220,20 @@ VkDeviceSize Device::availableMemory(bool includeMemoryPools) const
 
     auto& memoryProperties = dmp.memoryProperties;
 
-    VkMemoryPropertyFlags requiredPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-    std::set<uint32_t> compatibleHeaps;
+    VkDeviceSize availableSpace = 0;
     for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
     {
-        if ((memoryProperties.memoryTypes[i].propertyFlags & requiredPropertyFlags) == requiredPropertyFlags) // supported
+        if ((memoryProperties.memoryTypes[i].propertyFlags & memoryPropertiesFlags) == memoryPropertiesFlags) // supported
         {
-            compatibleHeaps.insert(memoryProperties.memoryTypes[i].heapIndex);
+            uint32_t heapIndex = memoryProperties.memoryTypes[i].heapIndex;
+
+            VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryBudget.heapBudget[heapIndex]) * allocatedMemoryLimit);
+            VkDeviceSize heapUsage = memoryBudget.heapUsage[heapIndex];
+            VkDeviceSize heapAvailable = (heapUsage < heapBudget) ? heapBudget - heapUsage : 0;
+            availableSpace += heapAvailable;
+
+            break;
         }
     }
-
-    for (const auto& heapIndex : compatibleHeaps)
-    {
-        VkDeviceSize heapAvailable = memoryBudget.heapBudget[heapIndex] - memoryBudget.heapUsage[heapIndex];
-        available += heapAvailable;
-    }
-
-    if (includeMemoryPools)
-    {
-        if (auto pool = deviceMemoryBufferPools.ref_ptr())
-        {
-            available += pool->computeMemoryTotalAvailable();
-        }
-    }
-
-    return available;
+    return availableSpace;
 }

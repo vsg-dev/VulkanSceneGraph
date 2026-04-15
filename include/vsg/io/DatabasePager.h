@@ -104,7 +104,10 @@ namespace vsg
 
         void add(ref_ptr<PagedLOD> plod, const CompileResult& cr);
 
-        ref_ptr<PagedLOD> take_when_available();
+        /// prune entries older than specified frameCount
+        uint32_t prune(uint64_t frameCount);
+
+        ref_ptr<PagedLOD> take_when_available(uint64_t frameCount);
 
         Nodes take_all(CompileResult& result);
 
@@ -138,12 +141,15 @@ namespace vsg
         ref_ptr<CompileManager> compileManager;
 
         std::atomic_uint numActiveRequests{0};
-        std::atomic_uint64_t frameCount;
+        std::atomic_uint64_t frameCount{0};
 
         ref_ptr<CulledPagedLODs> culledPagedLODs;
 
         /// for systems with smaller GPU memory limits you may need to reduce the targetMaxNumPagedLODWithHighResSubgraphs to keep memory usage within available limits.
         uint32_t targetMaxNumPagedLODWithHighResSubgraphs = 1500;
+
+        /// number of frames before a PagedLOD with a failed load/compile is attempted to be loaded/compiled again.
+        uint64_t delayBeforeNextLoadAttempt = 60;
 
         std::mutex pendingPagedLODMutex;
 
@@ -158,16 +164,16 @@ namespace vsg
         /// read and delete threads created by start()
         std::list<std::thread> threads;
 
+        ref_ptr<ActivityStatus> status;
+        ref_ptr<DeleteQueue> deleteQueue;
+
     protected:
         virtual ~DatabasePager();
 
         void requestDiscarded(PagedLOD* plod);
 
-        ref_ptr<ActivityStatus> _status;
-
         ref_ptr<DatabaseQueue> _requestQueue;
         ref_ptr<DatabaseQueue> _toMergeQueue;
-        ref_ptr<DeleteQueue> _deleteQueue;
     };
     VSG_type_name(vsg::DatabasePager);
 

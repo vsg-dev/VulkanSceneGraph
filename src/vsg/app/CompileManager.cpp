@@ -21,6 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileResult
+//
 void CompileResult::reset()
 {
     result = VK_INCOMPLETE;
@@ -66,6 +70,51 @@ bool CompileResult::requiresViewerUpdate() const
     return false;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileManager
+//
+
+ResourceScavenger::ResourceScavenger(ref_ptr<DatabasePager> in_databasePager) :
+    databasePager(in_databasePager)
+{
+}
+
+bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
+{
+    bool scavenged = false;
+
+    // get raw C pointer to avoid a database pager thread invoking scavenger and keeping the database pager alive and pausing destruction
+    if (auto ref_databasePager = databasePager.get())
+    {
+        if (!ref_databasePager->status->active()) return false;
+
+        uint32_t targetPagedLOD = ref_databasePager->pagedLODContainer->activeList.count;
+        if (ref_databasePager->pagedLODContainer->inactiveList.count > ref_databasePager->numActiveRequests) targetPagedLOD += ref_databasePager->pagedLODContainer->inactiveList.count - ref_databasePager->numActiveRequests;
+
+        if (targetPagedLOD < ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs)
+        {
+            debug("ResourceScavenger::scavenge(..) resetting databasePager->targetMaxNumPagedLODWithHighResSubgraphs to ", targetPagedLOD);
+
+            ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
+        }
+
+        auto before_deletedCount = ref_databasePager->deleteQueue->deletedCount.load();
+
+        if (sleepDuration > 0) std::this_thread::sleep_for(std::chrono::milliseconds(sleepDuration));
+
+        auto after_deletedCount = ref_databasePager->deleteQueue->deletedCount.load();
+
+        scavenged = (after_deletedCount > before_deletedCount);
+    }
+
+    return scavenged;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileManager
+//
 CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 {
     compileTraversals = CompileTraversals::create(viewer.status);
@@ -82,6 +131,11 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 #else
     numCompileTraversals = 1;
 #endif
+}
+
+CompileManager::~CompileManager()
+{
+    vsg::info("CompileManager::~CompileManager() successfulCompileCount= ", successfulCompileCount, ", failedCompileCount = ", failedCompileCount);
 }
 
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
@@ -167,6 +221,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     auto& requirements = collectRequirements.requirements;
     auto& viewDetailsStack = requirements.viewDetailsStack;
 
+    VkResult reserve_result = VK_INCOMPLETE;
     CompileResult result;
     result.maxSlots = requirements.maxSlots;
     result.containsPagedLOD = requirements.containsPagedLOD;
@@ -199,9 +254,24 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
                         }
                     }
                 }
+            }
 
-                auto reserveResult = context->reserve(requirements);
-                if (reserveResult != VK_SUCCESS) throw vsg::Exception{"Context::reserve() failed", reserveResult};
+            for (auto& context : compileTraversal->contexts)
+            {
+                reserve_result = context->reserve(requirements);
+
+                // vsg::info("  done reserve context->reserve() ",  reserve_result);
+                if (reserve_result != VK_SUCCESS && resourceScavenger && resourceScavenger->scavenge(requirements))
+                {
+                    reserve_result = context->reserve(requirements);
+                }
+
+                if (reserve_result != VK_SUCCESS)
+                {
+                    result.message = vsg::make_string("Context::reserve() failed", reserve_result);
+                    result.result = reserve_result;
+                    return;
+                }
             }
 
             object->accept(*compileTraversal);
@@ -250,6 +320,15 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     }
 
     compileTraversals->add(compileTraversal);
+
+    if (result.result == VK_SUCCESS)
+    {
+        ++successfulCompileCount;
+    }
+    else
+    {
+        ++failedCompileCount;
+    }
 
     return result;
 }

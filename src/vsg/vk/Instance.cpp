@@ -156,7 +156,7 @@ Instance::Instance(Names instanceExtensions, Names layers, uint32_t vulkanApiVer
     std::vector<VkValidationFeatureEnableEXT> enabledValidationFeatures;
     std::vector<VkValidationFeatureDisableEXT> disabledValidationFeatures;
 
-    // syncronization validation requires VkValidationFeaturesEXT
+    // synchronization validation requires VkValidationFeaturesEXT
     if (containsInstanceLayerName(layers, "VK_LAYER_KHRONOS_synchronization2")) enabledValidationFeatures.push_back(VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT);
 
     // set up the VkValidationFeaturesEXT if required

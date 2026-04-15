@@ -46,8 +46,8 @@ MemorySlots::~MemorySlots()
         else
         {
             info("MemorySlots::~MemorySlots() ", this, ", not all slots restored correctly.");
-            LogOutput log;
-            report(log);
+            LogOutput output;
+            report(output);
         }
     }
     if (memoryTracking & MEMORY_TRACKING_CHECK_ACTIONS)
@@ -100,8 +100,8 @@ bool MemorySlots::check() const
     {
         warn("MemorySlots::check() ", this, " failed, computedSize (", computedSize, ") != _totalMemorySize (", _totalMemorySize, ")");
 
-        LogOutput log;
-        report(log);
+        LogOutput output;
+        report(output);
 
         return false;
     }
@@ -112,7 +112,7 @@ bool MemorySlots::check() const
 void MemorySlots::report(LogOutput& out) const
 {
     out.enter("MemorySlots::report(...)");
-    out("MemorySlots::report() ",this);
+    out("MemorySlots::report() ", this);
     for (auto& [offset, size] : _offsetSizes)
     {
         out("    available ", offset, ", ", size);

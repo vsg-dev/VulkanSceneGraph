@@ -37,6 +37,7 @@ namespace vsg
 
         std::atomic_uint64_t frameCount = 0;
         uint64_t retainForFrameCount = 3;
+        std::atomic_uint64_t deletedCount = 0;
 
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }
