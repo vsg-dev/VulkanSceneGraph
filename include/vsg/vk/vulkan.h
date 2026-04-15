@@ -308,12 +308,6 @@ typedef struct VkPhysicalDeviceBufferDeviceAddressFeaturesEXT
 } VkPhysicalDeviceBufferDeviceAddressFeaturesEXT;
 #endif
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//  Definitions not provided prior to 1.1.106
-//
-#if VK_HEADER_VERSION < 105
-
 #define VK_EXT_host_query_reset 1
 #define VK_EXT_HOST_QUERY_RESET_SPEC_VERSION 1
 #define VK_EXT_HOST_QUERY_RESET_EXTENSION_NAME "VK_EXT_host_query_reset"
@@ -324,9 +318,6 @@ typedef struct VkPhysicalDeviceHostQueryResetFeaturesEXT {
 } VkPhysicalDeviceHostQueryResetFeaturesEXT;
 
 typedef void (VKAPI_PTR *PFN_vkResetQueryPoolEXT)(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount);
-
-
-
 
 #endif
 
