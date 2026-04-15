@@ -30,6 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <istream>
 #include <ostream>
 #include <sstream>
+#include <set>
 
 namespace vsg
 {
@@ -332,5 +333,29 @@ namespace vsg
         }
         return output;
     }
+
+    template<typename T>
+    std::ostream& operator<<(std::ostream& output, const std::set<T>& values)
+    {
+        if (values.empty())
+            output << "{}";
+        else
+        {
+            output << "{ ";
+
+            bool first = true;
+            for(auto& value : values)
+            {
+                if (!first) output << ", ";
+                else first = false;
+
+                output << value;
+            }
+
+            output << " }";
+        }
+        return output;
+    }
+
 
 } // namespace vsg
