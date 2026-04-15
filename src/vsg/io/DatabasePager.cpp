@@ -461,6 +461,8 @@ uint32_t DatabaseQueue::prune(uint64_t frameCount)
         {
             // info("pruning ", *itr, ", lastUsed = ", (*itr)->frameHighResLastUsed.load(), " vs ", frameCount, " after ", (*itr)->loadAttempts.load(), " loadAttempts");
             ++numRemoved;
+            (*itr)->requestCount.exchange(0);
+            (*itr)->requestStatus.exchange(PagedLOD::NoRequest);
             itr = _queue.erase(itr);
         }
         else
