@@ -149,6 +149,12 @@ typedef struct VkMemoryPriorityAllocateInfoEXT {
     float              priority;
 } VkMemoryPriorityAllocateInfoEXT;
 
+
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT VkStructureType(1000202000)
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT VkStructureType(1000202001)
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT VkStructureType(1000237000)
+#define VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT VkStructureType(1000247000)
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
