@@ -306,7 +306,6 @@ typedef struct VkPhysicalDeviceBufferDeviceAddressFeaturesEXT
     VkBool32 bufferDeviceAddressCaptureReplay;
     VkBool32 bufferDeviceAddressMultiDevice;
 } VkPhysicalDeviceBufferDeviceAddressFeaturesEXT;
-#endif
 
 #define VK_EXT_host_query_reset 1
 #define VK_EXT_HOST_QUERY_RESET_SPEC_VERSION 1
