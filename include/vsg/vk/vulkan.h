@@ -894,7 +894,7 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateRenderPass2KHR_Compatibility)(VkDevice d
 typedef VkDeviceAddress(VKAPI_PTR* PFN_vkGetBufferDeviceAddressKHR_Compatibility)(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
 
 //
-//  Definitions not provided prior to 1.3.211
+//  Definitions not provided prior to 1.3.204
 //
 #if VK_HEADER_VERSION < 204
 #define VK_API_VERSION_1_3 VK_MAKE_VERSION(1, 3, 0)
