@@ -323,6 +323,13 @@ typedef struct VkValidationFeaturesEXT {
     const VkValidationFeatureDisableEXT*    pDisabledValidationFeatures;
 } VkValidationFeaturesEXT;
 
+#else
+
+#if (VK_EXT_VALIDATION_FEATURES_SPEC_VERSION < 4)
+#define VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT static_cast<VkValidationFeatureEnableEXT>(4)
+#endif
+
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
