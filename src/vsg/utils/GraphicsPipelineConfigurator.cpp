@@ -535,8 +535,98 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
 
-    if ((result = compare_pointer(shaderHints, rhs.shaderHints))) return result;
-    if ((result = compare_pointer_container(inheritedState, rhs.inheritedState))) return result;
+    //
+    // defines settings for ShaderHints may not yet be in final state, so comparing them between compatible GraphicsPipelineConfigurator
+    // objects can lead is not returning a match when just comparing shaderHint->defines.
+    // To resolve this do the shint hint compare wihtout the defines, and then do the comparison of defines
+    // by handling both the respective descriptorConfigurator->defines and shaderHints->defines when comparing to the rhs.
+    //
+    // The compare_shaderHints, IteratorPair and Iterator structs all exist in service of this mutliset comparison.
+    //
+
+    auto compare_shaderHints = [](const ref_ptr<ShaderCompileSettings>& lsh, const ref_ptr<ShaderCompileSettings>& rsh) -> int
+    {
+        if (lsh == rsh) return 0;
+        return lsh ? (rsh ? lsh->compare_except_defines(*rsh) : 1) : (rsh ? -1 : 0);
+    };
+
+    if ((result = compare_shaderHints(shaderHints, rhs.shaderHints))) return result;
+
+    struct IteratorPair
+    {
+        using iterator = std::set<std::string>::const_iterator;
+        iterator itr;
+        iterator end;
+
+        explicit IteratorPair(const std::set<std::string>& values) : itr(values.begin()), end(values.end()) {}
+
+        bool valid() const { return itr != end; }
+    };
+
+    struct Iterator
+    {
+        IteratorPair lhs;
+        IteratorPair rhs;
+
+        explicit Iterator(IteratorPair in_lhs, IteratorPair in_rhs) : lhs(in_lhs), rhs(in_rhs) {}
+
+        bool valid() const { return lhs.valid() || rhs.valid(); }
+
+        /// only call when valid() return true
+        const std::string& value() const
+        {
+            if (lhs.valid())
+            {
+                if (rhs.valid())
+                {
+                    if (*lhs.itr < *rhs.itr) return *lhs.itr;
+                    else if (*rhs.itr < *lhs.itr ) return *rhs.itr;
+                    else { return *rhs.itr; }
+                }
+                else return *lhs.itr;
+            }
+            else return *rhs.itr;
+        }
+
+        bool advance()
+        {
+            if (lhs.valid())
+            {
+                if (rhs.valid())
+                {
+                    if (*lhs.itr < *rhs.itr) lhs.itr++;
+                    else if (*rhs.itr < *lhs.itr) rhs.itr++;
+                    else { ++lhs.itr; ++rhs.itr; }
+                }
+                else lhs.itr++;
+            }
+            else if (rhs.valid()) rhs.itr++;
+
+            return valid();
+        }
+    };
+
+    auto local_compare = [](Iterator ilhs, Iterator irhs) -> int
+    {
+        while(ilhs.valid() && irhs.valid())
+        {
+            const auto& lhs_value = ilhs.value();
+            const auto& rhs_value = irhs.value();
+            if (lhs_value < rhs_value) return -1;
+            else if (lhs_value > rhs_value) return 1;
+
+            ilhs.advance();
+            irhs.advance();
+        }
+
+        if (ilhs.valid()) return 1;
+        return irhs.valid() ? -1 : 0;
+    };
+
+    result = local_compare(Iterator(IteratorPair(descriptorConfigurator->defines), IteratorPair(shaderHints->defines)),
+                           Iterator(IteratorPair(rhs.descriptorConfigurator->defines), IteratorPair(rhs.shaderHints->defines)));
+
+    if (result) return result;
 
     return compare_pointer(descriptorConfigurator, rhs.descriptorConfigurator);
 }
@@ -612,8 +702,6 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
 void GraphicsPipelineConfigurator::init()
 {
-    // if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
-
     _assignInheritedSets();
 
     if (descriptorConfigurator)

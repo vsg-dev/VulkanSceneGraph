@@ -59,6 +59,8 @@ namespace vsg
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderCompileSettings::create(*this, copyop); }
+
+        virtual int compare_except_defines(const Object& rhs_object) const;
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
