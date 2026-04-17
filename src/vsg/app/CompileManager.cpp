@@ -227,11 +227,16 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
     result.dynamicData = requirements.dynamicData;
+    result.message = "Nothing assigned yet.";
 
     auto compileTraversal = compileTraversals->take_when_available();
 
     // if no CompileTraversals are available abort compile
-    if (!compileTraversal) return result;
+    if (!compileTraversal)
+    {
+        info("Unable to aquire compileTraversal.");
+        return result;
+    }
 
     auto run_compile_traversal = [&]() -> void {
         try

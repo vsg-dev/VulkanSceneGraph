@@ -544,8 +544,7 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     // The compare_shaderHints, IteratorPair and Iterator structs all exist in service of this mutliset comparison.
     //
 
-    auto compare_shaderHints = [](const ref_ptr<ShaderCompileSettings>& lsh, const ref_ptr<ShaderCompileSettings>& rsh) -> int
-    {
+    auto compare_shaderHints = [](const ref_ptr<ShaderCompileSettings>& lsh, const ref_ptr<ShaderCompileSettings>& rsh) -> int {
         if (lsh == rsh) return 0;
         return lsh ? (rsh ? lsh->compare_except_defines(*rsh) : 1) : (rsh ? -1 : 0);
     };
@@ -558,7 +557,8 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
         iterator itr;
         iterator end;
 
-        explicit IteratorPair(const std::set<std::string>& values) : itr(values.begin()), end(values.end()) {}
+        explicit IteratorPair(const std::set<std::string>& values) :
+            itr(values.begin()), end(values.end()) {}
 
         bool valid() const { return itr != end; }
     };
@@ -568,7 +568,8 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
         IteratorPair lhs;
         IteratorPair rhs;
 
-        explicit Iterator(IteratorPair in_lhs, IteratorPair in_rhs) : lhs(in_lhs), rhs(in_rhs) {}
+        explicit Iterator(IteratorPair in_lhs, IteratorPair in_rhs) :
+            lhs(in_lhs), rhs(in_rhs) {}
 
         bool valid() const { return lhs.valid() || rhs.valid(); }
 
@@ -579,13 +580,17 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
             {
                 if (rhs.valid())
                 {
-                    if (*lhs.itr < *rhs.itr) return *lhs.itr;
-                    else if (*rhs.itr < *lhs.itr ) return *rhs.itr;
+                    if (*lhs.itr < *rhs.itr)
+                        return *lhs.itr;
+                    else if (*rhs.itr < *lhs.itr)
+                        return *rhs.itr;
                     else { return *rhs.itr; }
                 }
-                else return *lhs.itr;
+                else
+                    return *lhs.itr;
             }
-            else return *rhs.itr;
+            else
+                return *rhs.itr;
         }
 
         bool advance()
@@ -594,26 +599,35 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
             {
                 if (rhs.valid())
                 {
-                    if (*lhs.itr < *rhs.itr) lhs.itr++;
-                    else if (*rhs.itr < *lhs.itr) rhs.itr++;
-                    else { ++lhs.itr; ++rhs.itr; }
+                    if (*lhs.itr < *rhs.itr)
+                        lhs.itr++;
+                    else if (*rhs.itr < *lhs.itr)
+                        rhs.itr++;
+                    else
+                    {
+                        ++lhs.itr;
+                        ++rhs.itr;
+                    }
                 }
-                else lhs.itr++;
+                else
+                    lhs.itr++;
             }
-            else if (rhs.valid()) rhs.itr++;
+            else if (rhs.valid())
+                rhs.itr++;
 
             return valid();
         }
     };
 
-    auto local_compare = [](Iterator ilhs, Iterator irhs) -> int
-    {
-        while(ilhs.valid() && irhs.valid())
+    auto local_compare = [](Iterator ilhs, Iterator irhs) -> int {
+        while (ilhs.valid() && irhs.valid())
         {
             const auto& lhs_value = ilhs.value();
             const auto& rhs_value = irhs.value();
-            if (lhs_value < rhs_value) return -1;
-            else if (lhs_value > rhs_value) return 1;
+            if (lhs_value < rhs_value)
+                return -1;
+            else if (lhs_value > rhs_value)
+                return 1;
 
             ilhs.advance();
             irhs.advance();

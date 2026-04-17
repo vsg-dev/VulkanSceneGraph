@@ -29,8 +29,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <istream>
 #include <ostream>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 namespace vsg
 {
@@ -344,10 +344,12 @@ namespace vsg
             output << "{ ";
 
             bool first = true;
-            for(auto& value : values)
+            for (auto& value : values)
             {
-                if (!first) output << ", ";
-                else first = false;
+                if (!first)
+                    output << ", ";
+                else
+                    first = false;
 
                 output << value;
             }
@@ -356,6 +358,5 @@ namespace vsg
         }
         return output;
     }
-
 
 } // namespace vsg
