@@ -344,14 +344,14 @@ namespace vsg
             output << "{ ";
 
             bool first = true;
-            for (auto& value : values)
+            for (const auto& v : values)
             {
                 if (!first)
                     output << ", ";
                 else
                     first = false;
 
-                output << value;
+                output << v;
             }
 
             output << " }";

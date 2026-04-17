@@ -600,9 +600,9 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
                 if (rhs.valid())
                 {
                     if (*lhs.itr < *rhs.itr)
-                        lhs.itr++;
+                        ++lhs.itr;
                     else if (*rhs.itr < *lhs.itr)
-                        rhs.itr++;
+                        ++rhs.itr;
                     else
                     {
                         ++lhs.itr;
@@ -610,10 +610,10 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
                     }
                 }
                 else
-                    lhs.itr++;
+                    ++lhs.itr;
             }
             else if (rhs.valid())
-                rhs.itr++;
+                ++rhs.itr;
 
             return valid();
         }
