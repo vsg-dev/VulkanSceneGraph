@@ -283,4 +283,15 @@ namespace vsg
         return new_object.template cast<T>();
     }
 
+    /// clone a named meta data object stored within an object's Auxliary object if available, others default construct object
+    template<class T, class C>
+    ref_ptr<T> clone(const std::string& key, C container)
+    {
+        if (container)
+        {
+            if (auto prototype = container->template getRefObject<T>(key)) return vsg::clone(prototype);
+        }
+        return T::create();
+    }
+
 } // namespace vsg
