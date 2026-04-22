@@ -557,8 +557,31 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
         iterator itr;
         iterator end;
 
-        explicit IteratorPair(const std::set<std::string>& values) :
-            itr(values.begin()), end(values.end()) {}
+        explicit IteratorPair(const ref_ptr<ShaderCompileSettings>& hints)
+        {
+            if (hints)
+            {
+                itr = hints->defines.begin();
+                end = hints->defines.end();
+            }
+            else
+            {
+                itr = end = {};
+            }
+        }
+
+        explicit IteratorPair(const ref_ptr<DescriptorConfigurator>& config)
+        {
+            if (config)
+            {
+                itr = config->defines.begin();
+                end = config->defines.end();
+            }
+            else
+            {
+                itr = end = {};
+            }
+        }
 
         bool valid() const { return itr != end; }
     };
@@ -637,8 +660,8 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
         return irhs.valid() ? -1 : 0;
     };
 
-    result = local_compare(Iterator(IteratorPair(descriptorConfigurator->defines), IteratorPair(shaderHints->defines)),
-                           Iterator(IteratorPair(rhs.descriptorConfigurator->defines), IteratorPair(rhs.shaderHints->defines)));
+    result = local_compare(Iterator(IteratorPair(descriptorConfigurator), IteratorPair(shaderHints)),
+                           Iterator(IteratorPair(rhs.descriptorConfigurator), IteratorPair(rhs.shaderHints)));
 
     if (result) return result;
 
