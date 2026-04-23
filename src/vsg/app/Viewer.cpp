@@ -383,6 +383,7 @@ CompileResult Viewer::compile(ref_ptr<ResourceHints> hints)
     if (databasePager && !databasePager->compileManager)
     {
         databasePager->compileManager = compileManager;
+        compileManager->resourceScavenger = ResourceScavenger::create(databasePager);
     }
 
     for (auto& task : recordAndSubmitTasks)

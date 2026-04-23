@@ -95,7 +95,14 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
             }
         }
 
-        VkDeviceSize deviceSize = std::max(totalSize, minimumBufferSize);
+        VkDeviceSize availableMemory = device->availableMemory(memoryPropertiesFlags, allocatedMemoryLimit);
+        if (totalSize > availableMemory)
+        {
+            // info("MemoryBufferPools::reserveBuffer(", totalSize, ") insufficient memory ", availableMemory);
+            return {};
+        }
+
+        VkDeviceSize deviceSize = std::max(totalSize, std::min(availableMemory, minimumBufferSize));
 
         bufferInfo->buffer = Buffer::create(deviceSize, bufferUsageFlags, sharingMode);
         bufferInfo->buffer->compile(device);
@@ -146,11 +153,10 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     for (auto& memoryPool : memoryPools)
     {
-        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
-            memoryPool->getMemoryRequirements().alignment == memRequirements.alignment &&
+        if (((memoryPool->getMemoryRequirements().memoryTypeBits & memRequirements.memoryTypeBits) == memRequirements.memoryTypeBits) &&
             memoryPool->maximumAvailableSpace() >= totalSize)
         {
-            reservedSlot = memoryPool->reserve(totalSize);
+            reservedSlot = memoryPool->reserve(totalSize, memRequirements.alignment);
             if (reservedSlot.first)
             {
                 deviceMemory = memoryPool;
@@ -161,61 +167,28 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     if (!deviceMemory)
     {
-        VkDeviceSize availableSpace = std::max(minimumDeviceMemorySize, totalSize);
 
-        if (allocatedMemoryLimit < 1.0)
+        VkDeviceSize availableMemory = device->availableMemory(memoryPropertiesFlags, allocatedMemoryLimit);
+        if (totalSize > availableMemory)
         {
-            VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
-            memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
-            memoryBudget.pNext = nullptr;
-
-            VkPhysicalDeviceMemoryProperties2 dmp;
-            dmp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-            dmp.pNext = &memoryBudget;
-
-            vkGetPhysicalDeviceMemoryProperties2(*(device->getPhysicalDevice()), &dmp);
-
-            auto& memoryProperties = dmp.memoryProperties;
-
-            for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
-            {
-                if ((memoryProperties.memoryTypes[i].propertyFlags & memoryPropertiesFlags) == memoryPropertiesFlags) // supported
-                {
-                    uint32_t heapIndex = memoryProperties.memoryTypes[i].heapIndex;
-
-                    VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryBudget.heapBudget[heapIndex]) * allocatedMemoryLimit);
-                    VkDeviceSize heapUsage = memoryBudget.heapUsage[heapIndex];
-                    VkDeviceSize heapAvailable = (heapUsage < heapBudget) ? heapBudget - heapUsage : 0;
-                    availableSpace = heapAvailable;
-
-                    break;
-                }
-            }
-
-            VkDeviceSize minimumSpare = 0; //16*1024*1024;
-            if (availableSpace < minimumSpare)
-                availableSpace = 0;
-            else
-                availableSpace -= minimumSpare;
+            debug("MemoryBufferPools::reserveBuffer(", totalSize, ") insufficient memory ", availableMemory);
+            return {};
         }
 
-        if (totalSize <= availableSpace)
+        VkDeviceSize deviceSize = std::max(totalSize, std::min(availableMemory, minimumDeviceMemorySize));
+
+        if (deviceSize <= availableMemory)
         {
-            if (availableSpace < minimumDeviceMemorySize)
+
+            try
             {
-                debug("MemoryBufferPools::reserveMemory(", totalSize, ") reducing minimumDeviceMemorySize = ", minimumDeviceMemorySize, " to ", availableSpace);
-                minimumDeviceMemorySize = availableSpace;
+                deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryPropertiesFlags, pNextAllocInfo);
+            }
+            catch (...)
+            {
+                // info("Could not allocate vsg::DeviceMemory(..) memRequirements.size = ", memRequirements.size);
             }
 
-            VkDeviceSize deviceMemorySize = std::max(totalSize, minimumDeviceMemorySize);
-
-            // clamp to an aligned size
-            deviceMemorySize = ((deviceMemorySize + memRequirements.alignment - 1) / memRequirements.alignment) * memRequirements.alignment;
-
-            //debug("Creating new local DeviceMemory");
-            if (memRequirements.size < deviceMemorySize) memRequirements.size = deviceMemorySize;
-
-            deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryPropertiesFlags, pNextAllocInfo);
             if (deviceMemory)
             {
                 reservedSlot = deviceMemory->reserve(totalSize);
@@ -226,10 +199,15 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
                 }
             }
         }
+
+        // vsg::info(" MemoryBufferPools::reserveMemory(totalSize = ", totalSize, " availableSpace = ", availableSpace, ") deviceMemory = ", deviceMemory);
+
+#if 0
         else if (throwOutOfDeviceMemoryException)
         {
             throw vsg::Exception{"MemoryBufferPools::reserve() out of memory", VK_ERROR_OUT_OF_DEVICE_MEMORY};
         }
+#endif
     }
 
     if (!reservedSlot.first)
@@ -251,66 +229,92 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 
     VkMemoryPropertyFlags memoryPropertiesFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT; // VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
+    decltype(requirements.bufferInfos) failed_bufferInfos;
+    decltype(requirements.imageInfos) failed_imageInfos;
+
     // allocate bufferInfos
-    VkDeviceSize failedBufferMemory = 0;
+    bool allocationSuccess = true;
     for (auto& [properties, bufferInfos] : requirements.bufferInfos)
     {
+        VkDeviceSize alignment = 4;
+        if ((properties.usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) != 0)
+            alignment = limits.minUniformBufferOffsetAlignment;
+        else if ((properties.usageFlags & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) != 0)
+            alignment = limits.minStorageBufferOffsetAlignment;
+
         for (auto& bufferInfo : bufferInfos)
         {
             if (!bufferInfo->buffer)
             {
-                VkDeviceSize alignment = 4;
-                if ((properties.usageFlags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) != 0)
-                    alignment = limits.minUniformBufferOffsetAlignment;
-                else if ((properties.usageFlags & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT) != 0)
-                    alignment = limits.minStorageBufferOffsetAlignment;
-
-                debug("MemoryBufferPools::reserve(ResourceRequirements& requirements) properties.usageFlags = ", properties.usageFlags, ", alignment = ", alignment);
-
-                auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, properties.usageFlags, properties.sharingMode, memoryPropertiesFlags);
-                if (newBufferInfo)
+                if (allocationSuccess)
                 {
-                    bufferInfo->take(*newBufferInfo);
+                    debug("MemoryBufferPools::reserve(ResourceRequirements& requirements) properties.usageFlags = ", properties.usageFlags, ", alignment = ", alignment);
 
-                    //info("    ALLOCATED usage = ", properties.usageFlags, ", alignment = ", alignment, ", bufferInfo->data = ", bufferInfo->data, ", offset = ", bufferInfo->offset, ", range = ", bufferInfo->range, ", buffer = ", bufferInfo->buffer, " ----- size = ", computeSize(*bufferInfo));
+                    auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, properties.usageFlags, properties.sharingMode, memoryPropertiesFlags);
+                    if (newBufferInfo)
+                    {
+                        bufferInfo->take(*newBufferInfo);
+                    }
+                    else
+                    {
+                        debug("MemoryBufferPools::reserve() failed on ", bufferInfo, ", data = ", bufferInfo->data);
+                        allocationSuccess = false;
+                    }
                 }
-                else
+
+                if (!allocationSuccess)
                 {
-                    failedBufferMemory += bufferInfo->computeDataSize();
+                    failed_bufferInfos[properties].insert(bufferInfo);
                 }
             }
         }
     }
 
     // allocate images
-    VkDeviceSize failedImageMemory = 0;
     for (auto& imageInfo : requirements.imageInfos)
     {
         if (imageInfo->imageView && imageInfo->imageView->image && imageInfo->imageView->image->getDeviceMemory(deviceID) == 0)
         {
-            if (imageInfo->imageView->image->compile(*this) == VK_SUCCESS && imageInfo->imageView->image->getDeviceMemory(deviceID) != 0)
+            if (allocationSuccess)
             {
-                //info("    ALLOCATED imageInfo = ", imageInfo, ", imageView = ", imageInfo->imageView, " ----- size = ", computeSize(*imageInfo), " device memory = ", imageInfo->imageView->image->getDeviceMemory(deviceID), " offset = ", imageInfo->imageView->image->getMemoryOffset(deviceID));
+                auto image_result = imageInfo->imageView->image->compile(*this);
+                if (image_result != VK_SUCCESS || imageInfo->imageView->image->getDeviceMemory(deviceID) == 0)
+                {
+                    debug("MemoryBufferPools::reserve() failed on ", imageInfo, ", data = ", imageInfo->imageView->image->data);
+                    allocationSuccess = false;
+                }
             }
-            else
+
+            if (!allocationSuccess)
             {
-                failedImageMemory += imageInfo->computeDataSize();
+                failed_imageInfos.insert(imageInfo);
             }
         }
     }
 
-    VkDeviceSize memoryRequired = failedBufferMemory + failedImageMemory;
-
     // all required resources allocated
-    if (memoryRequired == 0)
+    if (allocationSuccess)
     {
-        //info("MemoryBufferPools::reserve() memoryRequired = ", memoryRequired);
         return VK_SUCCESS;
     }
     else
     {
-        //VkDeviceSize memoryAvailable = device->availableMemory(false);
-        //info("MemoryBufferPools::reserve() out of memory: memoryAvailable = ", memoryAvailable, " memoryRequired = ", memoryRequired);
+        requirements.bufferInfos.swap(failed_bufferInfos);
+        requirements.imageInfos.swap(failed_imageInfos);
+
+        // LogOutput output;
+        // report(output);
+
         return VK_ERROR_OUT_OF_DEVICE_MEMORY;
     }
+}
+
+void MemoryBufferPools::report(LogOutput& out) const
+{
+    out.enter("MemoryBufferPools::report(..)");
+    for (const auto& memoryPool : memoryPools)
+    {
+        memoryPool->report(out);
+    }
+    out.leave();
 }

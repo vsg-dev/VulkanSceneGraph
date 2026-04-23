@@ -39,6 +39,18 @@ namespace vsg
         bool requiresViewerUpdate() const;
     };
 
+    /// ResourceScavenger provides a mechanism for releasing and reusing unused resources when allocation of required GPU memory fails.
+    class VSG_DECLSPEC ResourceScavenger : public Inherit<Object, ResourceScavenger>
+    {
+    public:
+        explicit ResourceScavenger(ref_ptr<DatabasePager> in_databasePager);
+
+        virtual bool scavenge(ResourceRequirements& resourceRequirements);
+
+        uint64_t sleepDuration = 16 * 5; /// milliseconds sleep to make after adjusting load targets to allow other threads to free up space, default to 5 frames at 60fps
+        observer_ptr<DatabasePager> databasePager;
+    };
+
     /// CompileManager is a helper class that compiles subgraphs for the windows/framebuffers associated with the CompileManager.
     class VSG_DECLSPEC CompileManager : public Inherit<Object, CompileManager>
     {
@@ -71,7 +83,15 @@ namespace vsg
         /// compile all the command graphs in a task
         CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
+        /// mechanism for releasing and reusing used resources
+        ref_ptr<ResourceScavenger> resourceScavenger;
+
+        std::atomic_uint successfulCompileCount{0};
+        std::atomic_uint failedCompileCount{0};
+
     protected:
+        ~CompileManager();
+
         using CompileTraversals = ThreadSafeQueue<ref_ptr<CompileTraversal>>;
         size_t numCompileTraversals = 0;
         ref_ptr<CompileTraversals> compileTraversals;

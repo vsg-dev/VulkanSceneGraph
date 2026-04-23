@@ -37,6 +37,7 @@ namespace vsg
 
         std::atomic_uint64_t frameCount = 0;
         uint64_t retainForFrameCount = 3;
+        std::atomic_uint64_t deletedCount = 0;
 
         ActivityStatus* getStatus() { return _status; }
         const ActivityStatus* getStatus() const { return _status; }
@@ -112,9 +113,13 @@ namespace vsg
             _cv.notify_one();
         }
 
-        void wait_then_clear();
+        /// wait till there are items to delete then delete objects scheduled for deletion more than retainForFrameCount,
+        /// return number of objects assigned directly to DeleteQeue that have been deleted (doesn't count children deleted.)
+        size_t wait_then_clear();
 
-        void clear();
+        /// immediately delete objects scheduled for deletion for more than retainForFrameCount,
+        /// return number of objects assigned directly to DeleteQeue that have been deleted (doesn't count children deleted.)
+        size_t clear();
 
     protected:
         virtual ~DeleteQueue();

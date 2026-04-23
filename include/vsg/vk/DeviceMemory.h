@@ -46,6 +46,7 @@ namespace vsg
         const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }
 
         MemorySlots::OptionalOffset reserve(VkDeviceSize size);
+        MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
         void release(VkDeviceSize offset, VkDeviceSize size);
 
         bool full() const;
@@ -56,6 +57,8 @@ namespace vsg
 
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
+
+        void report(LogOutput& out) const;
 
     protected:
         virtual ~DeviceMemory();

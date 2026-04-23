@@ -58,7 +58,7 @@ namespace vsgMacOS
 
         const char* instanceExtensionSurfaceName() const override { return "VK_MVK_macos_surface"; }
 
-        bool valid() const override { return _window; }
+        bool valid() const override { return _window || _view; }
 
         bool pollEvents(vsg::UIEvents& events) override;
 

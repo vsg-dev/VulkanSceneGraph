@@ -149,6 +149,12 @@ typedef struct VkMemoryPriorityAllocateInfoEXT {
     float              priority;
 } VkMemoryPriorityAllocateInfoEXT;
 
+
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT VkStructureType(1000202000)
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_EXT VkStructureType(1000202001)
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT VkStructureType(1000237000)
+#define VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT VkStructureType(1000247000)
+
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,6 +295,49 @@ typedef struct VkPhysicalDeviceFloatControlsPropertiesKHR
 
 #endif
 
+#ifndef VK_EXT_validation_features
+
+#define VK_EXT_validation_features 1
+#define VK_EXT_VALIDATION_FEATURES_SPEC_VERSION 4
+#define VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME "VK_EXT_validation_features"
+
+typedef enum VkValidationFeatureEnableEXT {
+    VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT = 0,
+    VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT = 1,
+    VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT = 2,
+    VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT = 3,
+    VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT = 4,
+    VK_VALIDATION_FEATURE_ENABLE_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkValidationFeatureEnableEXT;
+
+typedef enum VkValidationFeatureDisableEXT {
+    VK_VALIDATION_FEATURE_DISABLE_ALL_EXT = 0,
+    VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT = 1,
+    VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT = 2,
+    VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT = 3,
+    VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT = 4,
+    VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT = 5,
+    VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT = 6,
+    VK_VALIDATION_FEATURE_DISABLE_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkValidationFeatureDisableEXT;
+typedef struct VkValidationFeaturesEXT {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    uint32_t                                enabledValidationFeatureCount;
+    const VkValidationFeatureEnableEXT*     pEnabledValidationFeatures;
+    uint32_t                                disabledValidationFeatureCount;
+    const VkValidationFeatureDisableEXT*    pDisabledValidationFeatures;
+} VkValidationFeaturesEXT;
+
+#else
+
+#if (VK_EXT_VALIDATION_FEATURES_SPEC_VERSION < 4)
+#define VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT static_cast<VkValidationFeatureEnableEXT>(4)
+#endif
+
+
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  Definitions not provided prior to 1.1.106
@@ -306,13 +355,6 @@ typedef struct VkPhysicalDeviceBufferDeviceAddressFeaturesEXT
     VkBool32 bufferDeviceAddressCaptureReplay;
     VkBool32 bufferDeviceAddressMultiDevice;
 } VkPhysicalDeviceBufferDeviceAddressFeaturesEXT;
-#endif
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//  Definitions not provided prior to 1.1.106
-//
-#if VK_HEADER_VERSION < 105
 
 #define VK_EXT_host_query_reset 1
 #define VK_EXT_HOST_QUERY_RESET_SPEC_VERSION 1
@@ -324,9 +366,6 @@ typedef struct VkPhysicalDeviceHostQueryResetFeaturesEXT {
 } VkPhysicalDeviceHostQueryResetFeaturesEXT;
 
 typedef void (VKAPI_PTR *PFN_vkResetQueryPoolEXT)(VkDevice device, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount);
-
-
-
 
 #endif
 
@@ -382,10 +421,6 @@ typedef enum VkDescriptorBindingFlagBits {
     VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT = 0x00000002,
     VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT = 0x00000004,
     VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT = 0x00000008,
-    VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT = VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT,
-    VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT_EXT = VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT,
-    VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT,
-    VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT = VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT,
     VK_DESCRIPTOR_BINDING_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkDescriptorBindingFlagBits;
 typedef VkFlags VkDescriptorBindingFlags;
@@ -570,47 +605,6 @@ typedef enum VkRayTracingShaderGroupTypeKHR
 #define VK_KHR_shader_non_semantic_info 1
 #define VK_KHR_SHADER_NON_SEMANTIC_INFO_SPEC_VERSION 1
 #define VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME "VK_KHR_shader_non_semantic_info"
-
-#endif
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//  Definitions not provided prior to 1.2.150
-//
-#if VK_HEADER_VERSION < 150
-
-#define VK_EXT_validation_features 1
-#define VK_EXT_VALIDATION_FEATURES_SPEC_VERSION 4
-#define VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME "VK_EXT_validation_features"
-
-typedef enum VkValidationFeatureEnableEXT {
-    VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT = 0,
-    VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT = 1,
-    VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT = 2,
-    VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT = 3,
-    VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT = 4,
-    VK_VALIDATION_FEATURE_ENABLE_MAX_ENUM_EXT = 0x7FFFFFFF
-} VkValidationFeatureEnableEXT;
-
-typedef enum VkValidationFeatureDisableEXT {
-    VK_VALIDATION_FEATURE_DISABLE_ALL_EXT = 0,
-    VK_VALIDATION_FEATURE_DISABLE_SHADERS_EXT = 1,
-    VK_VALIDATION_FEATURE_DISABLE_THREAD_SAFETY_EXT = 2,
-    VK_VALIDATION_FEATURE_DISABLE_API_PARAMETERS_EXT = 3,
-    VK_VALIDATION_FEATURE_DISABLE_OBJECT_LIFETIMES_EXT = 4,
-    VK_VALIDATION_FEATURE_DISABLE_CORE_CHECKS_EXT = 5,
-    VK_VALIDATION_FEATURE_DISABLE_UNIQUE_HANDLES_EXT = 6,
-    VK_VALIDATION_FEATURE_DISABLE_MAX_ENUM_EXT = 0x7FFFFFFF
-} VkValidationFeatureDisableEXT;
-typedef struct VkValidationFeaturesEXT {
-    VkStructureType                         sType;
-    const void*                             pNext;
-    uint32_t                                enabledValidationFeatureCount;
-    const VkValidationFeatureEnableEXT*     pEnabledValidationFeatures;
-    uint32_t                                disabledValidationFeatureCount;
-    const VkValidationFeatureDisableEXT*    pDisabledValidationFeatures;
-} VkValidationFeaturesEXT;
 
 #endif
 
@@ -903,7 +897,7 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateRenderPass2KHR_Compatibility)(VkDevice d
 typedef VkDeviceAddress(VKAPI_PTR* PFN_vkGetBufferDeviceAddressKHR_Compatibility)(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
 
 //
-//  Definitions not provided prior to 1.3.211
+//  Definitions not provided prior to 1.3.204
 //
 #if VK_HEADER_VERSION < 204
 #define VK_API_VERSION_1_3 VK_MAKE_VERSION(1, 3, 0)

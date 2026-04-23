@@ -57,6 +57,8 @@ namespace vsg
 
         VkResult reserve(ResourceRequirements& requirements);
 
+        void report(LogOutput& out) const;
+
     protected:
         mutable std::mutex _mutex;
 

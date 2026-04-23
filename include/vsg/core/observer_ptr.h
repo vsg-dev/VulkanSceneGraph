@@ -223,6 +223,9 @@ namespace vsg
             }
         }
 
+        /// We strongly recommend access via ref_ptr<> rather than get(). Only use get() to get access to the raw C pointer when it's know that the object pointed to will remain in memory through use of that raw C pointer.
+        T* get() const noexcept { return _ptr; }
+
     protected:
         template<class R>
         friend class observer_ptr;
