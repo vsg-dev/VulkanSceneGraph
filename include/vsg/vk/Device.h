@@ -85,6 +85,9 @@ namespace vsg
         /// return true if Device was created with specified extension
         bool supportsDeviceExtension(const char* extensionName) const;
 
+        /// commonly checked extensions cached at construction
+        const bool memory_budget = false; // VK_EXT_memory_budget usable on this Device
+
         /// return the amount of remaining memory, compatible with specified flags, available that can be allocated.
         VkDeviceSize availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags, double allocatedMemoryLimit = 1.0) const;
 

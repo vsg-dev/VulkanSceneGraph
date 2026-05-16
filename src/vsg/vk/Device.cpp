@@ -163,6 +163,11 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     }
 
     _extensions = DeviceExtensions::create(this);
+
+    // Cache extension/version probes used on hot paths. VK_EXT_memory_budget piggy-backs on
+    // vkGetPhysicalDeviceMemoryProperties2 which requires Vulkan 1.1 (or the KHR variant).
+    const_cast<bool&>(memory_budget) = supportsApiVersion(VK_API_VERSION_1_1) &&
+                                       supportsDeviceExtension(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
 }
 
 Device::~Device()
@@ -208,17 +213,24 @@ bool Device::supportsDeviceExtension(const char* extensionName) const
 
 VkDeviceSize Device::availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags, double allocatedMemoryLimit) const
 {
-    VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget;
-    memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
-    memoryBudget.pNext = nullptr;
+    VkPhysicalDeviceMemoryProperties memoryProperties;
+    VkPhysicalDeviceMemoryBudgetPropertiesEXT memoryBudget = {};
 
-    VkPhysicalDeviceMemoryProperties2 dmp;
-    dmp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
-    dmp.pNext = &memoryBudget;
+    if (memory_budget)
+    {
+        memoryBudget.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT;
 
-    vkGetPhysicalDeviceMemoryProperties2(*(getPhysicalDevice()), &dmp);
+        VkPhysicalDeviceMemoryProperties2 dmp = {};
+        dmp.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+        dmp.pNext = &memoryBudget;
 
-    auto& memoryProperties = dmp.memoryProperties;
+        vkGetPhysicalDeviceMemoryProperties2(*(getPhysicalDevice()), &dmp);
+        memoryProperties = dmp.memoryProperties;
+    }
+    else
+    {
+        vkGetPhysicalDeviceMemoryProperties(*(getPhysicalDevice()), &memoryProperties);
+    }
 
     VkDeviceSize availableSpace = 0;
     for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
@@ -227,8 +239,10 @@ VkDeviceSize Device::availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags
         {
             uint32_t heapIndex = memoryProperties.memoryTypes[i].heapIndex;
 
-            VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryBudget.heapBudget[heapIndex]) * allocatedMemoryLimit);
-            VkDeviceSize heapUsage = memoryBudget.heapUsage[heapIndex];
+            VkDeviceSize heapBudget = memory_budget ? memoryBudget.heapBudget[heapIndex] : memoryProperties.memoryHeaps[heapIndex].size;
+            VkDeviceSize heapUsage = memory_budget ? memoryBudget.heapUsage[heapIndex] : 0;
+
+            heapBudget = static_cast<VkDeviceSize>(static_cast<double>(heapBudget) * allocatedMemoryLimit);
             VkDeviceSize heapAvailable = (heapUsage < heapBudget) ? heapBudget - heapUsage : 0;
             availableSpace += heapAvailable;
 
