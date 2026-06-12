@@ -758,19 +758,19 @@ void GraphicsPipelineConfigurator::init()
 {
     if (!vertexInputRates.empty())
     {
-        vsg::info("vertexInputRates max entry: ", vertexInputRates.rbegin()->first);
-        for(auto [binding, rate] : vertexInputRates)
-        {
-            vsg::info("   { ", binding, ", ", rate, " }");
-        }
-
         if (const auto& descriptorBinding = shaderSet->getDescriptorBinding("vertexInputRates"))
         {
-            vsg::info("   we have descriptor to assign vertexInputRates to { ", descriptorBinding.set, ", ", descriptorBinding.binding, " }");
+            auto vir = vsg::uintArray::create(vertexInputRates.rbegin()->first+1, 0);
+            for(auto [binding, rate] : vertexInputRates)
+            {
+                vir->set(binding, rate);
+            }
+
+            assignDescriptor(descriptorBinding.name, vir, 0);
         }
         else
         {
-            vsg::warn("Missing DescriptorBinding for  vertexInputRates.");
+            vsg::warn("GraphicsPipelineConfigurator::init() - missing DescriptorBinding for vertexInputRates.");
 
         }
     }
