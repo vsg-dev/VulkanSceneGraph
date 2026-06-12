@@ -132,6 +132,7 @@ namespace vsg
         ref_ptr<ShaderCompileSettings> shaderHints;
         ref_ptr<DescriptorConfigurator> descriptorConfigurator;
         StateCommands inheritedState;
+        std::map<uint32_t, VkVertexInputRate> vertexInputRates;
 
         int compare(const Object& rhs) const override;
 

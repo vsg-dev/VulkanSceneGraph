@@ -427,6 +427,9 @@ void GraphicsPipelineConfigurator::reset()
     shaderHints->defines.clear();
     if (descriptorConfigurator) descriptorConfigurator->reset();
 
+    vertexInputRates.clear();
+
+
     _assignShaderSetSettings();
 }
 
@@ -456,8 +459,7 @@ struct SetPipelineStates : public Visitor
 
 bool GraphicsPipelineConfigurator::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format)
 {
-    auto& attributeBinding = shaderSet->getAttributeBinding(name);
-    if (attributeBinding)
+    if (auto& attributeBinding = shaderSet->getAttributeBinding(name))
     {
         if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
 
@@ -465,6 +467,13 @@ bool GraphicsPipelineConfigurator::enableArray(const std::string& name, VkVertex
         accept(setVertexAttributeState);
         return true;
     }
+
+    if (const auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
+    {
+        enableDescriptor(name);
+        vertexInputRates[descriptorBinding.binding] = vertexInputRate;
+    }
+
     return false;
 }
 
@@ -482,8 +491,7 @@ bool GraphicsPipelineConfigurator::enableDescriptor(const std::string& name)
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
-    const auto& attributeBinding = shaderSet->getAttributeBinding(name);
-    if (attributeBinding)
+    if (const auto& attributeBinding = shaderSet->getAttributeBinding(name))
     {
         if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
 
@@ -495,6 +503,14 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
         arrays.push_back(array);
         return true;
     }
+
+
+    if (const auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
+    {
+        assignDescriptor(name, array, 0);
+        vertexInputRates[descriptorBinding.binding] = vertexInputRate;
+    }
+
     return false;
 }
 
@@ -740,6 +756,25 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
 void GraphicsPipelineConfigurator::init()
 {
+    if (!vertexInputRates.empty())
+    {
+        vsg::info("vertexInputRates max entry: ", vertexInputRates.rbegin()->first);
+        for(auto [binding, rate] : vertexInputRates)
+        {
+            vsg::info("   { ", binding, ", ", rate, " }");
+        }
+
+        if (const auto& descriptorBinding = shaderSet->getDescriptorBinding("vertexInputRates"))
+        {
+            vsg::info("   we have descriptor to assign vertexInputRates to { ", descriptorBinding.set, ", ", descriptorBinding.binding, " }");
+        }
+        else
+        {
+            vsg::warn("Missing DescriptorBinding for  vertexInputRates.");
+
+        }
+    }
+
     _assignInheritedSets();
 
     if (descriptorConfigurator)
@@ -748,6 +783,7 @@ void GraphicsPipelineConfigurator::init()
 
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
     }
+
 
     layout = shaderSet->createPipelineLayout(shaderHints->defines);
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
