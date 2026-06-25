@@ -129,7 +129,7 @@ namespace vsg
         std::vector<ref_ptr<CustomDescriptorSetBinding>> customDescriptorSetBindings;
 
         /// Hints mask for scene graph builders for what ShaderSet prefers/requires.
-        enum GeometryHints : uint32_t
+        enum GeometryHints
         {
             NO_PREFERENCE = 0,
             GEOMETRY = 1 << 0,
@@ -139,7 +139,7 @@ namespace vsg
             MESHLETS = 1 << 4
         };
 
-        uint32_t geometryHints = GeometryHints::NO_PREFERENCE;
+        int geometryHints = GeometryHints::NO_PREFERENCE;
 
         ref_ptr<ShaderCompileSettings> defaultShaderHints;
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings

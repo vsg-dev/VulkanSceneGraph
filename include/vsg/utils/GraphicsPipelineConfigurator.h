@@ -37,6 +37,9 @@ namespace vsg
     {
     public:
         explicit DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit DescriptorConfigurator(const DescriptorConfigurator& rhs, const CopyOp& copyop = {});
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return DescriptorConfigurator::create(*this, copyop); }
 
         ref_ptr<ShaderSet> shaderSet;
         bool blending = false;
@@ -76,6 +79,9 @@ namespace vsg
     {
     public:
         explicit ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet = {});
+        explicit ArrayConfigurator(const ArrayConfigurator& rhs, const CopyOp& copyop = {});
+
+        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ArrayConfigurator::create(*this, copyop); }
 
         ref_ptr<ShaderSet> shaderSet;
 

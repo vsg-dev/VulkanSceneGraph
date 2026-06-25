@@ -381,7 +381,7 @@ void ShaderSet::read(Input& input)
 
     if (input.version_greater_equal(1, 1, 16))
     {
-        input.readValue<uint32_t>("geometryHints", geometryHints);
+        input.readValue<int>("geometryHints", geometryHints);
     }
 }
 
@@ -459,7 +459,7 @@ void ShaderSet::write(Output& output) const
 
     if (output.version_greater_equal(1, 1, 16))
     {
-        output.writeValue<uint32_t>("geometryHints", geometryHints);
+        output.writeValue<int>("geometryHints", geometryHints);
     }
 }
 

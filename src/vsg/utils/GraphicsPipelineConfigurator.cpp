@@ -94,6 +94,17 @@ DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) 
 {
 }
 
+DescriptorConfigurator::DescriptorConfigurator(const DescriptorConfigurator& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    shaderSet(rhs.shaderSet),
+    blending(rhs.blending),
+    two_sided(rhs.two_sided),
+    assigned(rhs.assigned),
+    defines(rhs.defines),
+    descriptorSets(rhs.descriptorSets)
+{
+}
+
 int DescriptorConfigurator::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
@@ -336,6 +347,18 @@ bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedS
 //
 ArrayConfigurator::ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
+{
+}
+
+ArrayConfigurator::ArrayConfigurator(const ArrayConfigurator& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    shaderSet(rhs.shaderSet),
+    baseAttributeBinding(rhs.baseAttributeBinding),
+    assigned(rhs.assigned),
+    defines(rhs.defines),
+    vertexBindingDescriptions(rhs.vertexBindingDescriptions),
+    vertexAttributeDescriptions(rhs.vertexAttributeDescriptions),
+    arrays(rhs.arrays)
 {
 }
 
