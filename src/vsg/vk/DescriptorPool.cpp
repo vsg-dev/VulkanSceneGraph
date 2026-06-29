@@ -20,6 +20,28 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+namespace
+{
+    // Add (sign +1) or remove (sign -1) a layout's binding counts from a running
+    // per-type total, so available() can read the recycled totals directly rather
+    // than re-walking the recycling list on every call.
+    void accumulateBindings(vsg::DescriptorPoolSizes& sizes,
+                            const vsg::DescriptorSetLayout* layout, int sign)
+    {
+        if (!layout) return;
+        for (auto& binding : layout->bindings)
+        {
+            auto itr = std::find_if(sizes.begin(), sizes.end(),
+                [&binding](const VkDescriptorPoolSize& v) { return v.type == binding.descriptorType; });
+            if (itr != sizes.end())
+                itr->descriptorCount = static_cast<uint32_t>(
+                    static_cast<int64_t>(itr->descriptorCount) + sign * static_cast<int64_t>(binding.descriptorCount));
+            else if (sign > 0)
+                sizes.push_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
+        }
+    }
+}
+
 DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const DescriptorPoolSizes& in_descriptorPoolSizes) :
     maxSets(in_maxSets),
     descriptorPoolSizes(in_descriptorPoolSizes),
@@ -72,6 +94,7 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
         {
             // swap ownership so that DescriptorSet::Implementation now "has a" reference to this DescriptorPool
             dsi->_descriptorPool = this;
+            accumulateBindings(_recycledDescriptorPoolSizes, dsi->_descriptorSetLayout, -1);
             _recyclingList.erase(itr);
             --_availableDescriptorSet;
             return dsi;
@@ -122,6 +145,7 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
         std::scoped_lock<std::mutex> lock(mutex);
         _recyclingList.push_back(dsi);
         ++_availableDescriptorSet;
+        accumulateBindings(_recycledDescriptorPoolSizes, dsi->_descriptorSetLayout, +1);
     }
     dsi->_descriptorPool = {};
 }
@@ -147,19 +171,19 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
         }
     }
 
-    for (const auto& dsi : _recyclingList)
+    // Merge the cached recycled totals rather than walking _recyclingList, which
+    // is O(recycled sets) and dominates compile time once a high-churn scene has
+    // freed many sets. The cache is kept in sync by freeDescriptorSet() and
+    // allocateDescriptorSet().
+    for (const auto& dps : _recycledDescriptorPoolSizes)
     {
-        if (dsi->_descriptorSetLayout)
+        if (dps.descriptorCount > 0)
         {
-            for (auto& binding : dsi->_descriptorSetLayout->bindings)
-            {
-                // increment any entries that are already in the descriptorPoolSizes vector
-                auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&binding](const VkDescriptorPoolSize& value) { return value.type == binding.descriptorType; });
-                if (itr != availableDescriptorPoolSizes.end())
-                    itr->descriptorCount += binding.descriptorCount;
-                else
-                    availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
-            }
+            auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
+            if (itr != availableDescriptorPoolSizes.end())
+                itr->descriptorCount += dps.descriptorCount;
+            else
+                availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{dps.type, dps.descriptorCount});
         }
     }
 

@@ -78,10 +78,14 @@ namespace vsg
 
         using ContextSelectionFunction = std::function<bool(vsg::Context&)>;
 
-        /// compile object
+        /// compile object.
+        /// Does not throw on compile failure: any vsg::Exception is caught internally and
+        /// reported via the returned CompileResult. Check the result (CompileResult::result
+        /// == VK_SUCCESS, or operator bool()) before using the compiled subgraph.
         CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
 
-        /// compile all the command graphs in a task
+        /// compile all the command graphs in a task.
+        /// Does not throw on compile failure; check the returned CompileResult as for compile().
         CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
 
         /// mechanism for releasing and reusing used resources
