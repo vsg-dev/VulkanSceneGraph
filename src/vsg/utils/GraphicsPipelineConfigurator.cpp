@@ -274,6 +274,14 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
         ds->setLayout = DescriptorSetLayout::create();
     }
 
+    for(const auto& layout_binding : ds->setLayout->bindings)
+    {
+        if (layout_binding.binding == binding)
+        {
+            return false;
+        }
+    }
+
     ds->descriptors.push_back(descriptor);
 
     auto& descriptorBindings = ds->setLayout->bindings;
