@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <atomic>
 #include <map>
+#include <optional>
 #include <string>
 #include <typeindex>
 #include <vector>
@@ -29,6 +30,7 @@ namespace vsg
     class Auxiliary;
     class Visitor;
     class ConstVisitor;
+    class ReplacementVisitor;
     class RecordTraversal;
     class Input;
     class Output;
@@ -111,6 +113,9 @@ namespace vsg
 
         virtual void accept(ConstVisitor& visitor) const;
         virtual void traverse(ConstVisitor&) const {}
+
+        virtual std::optional<ref_ptr<Object>> accept(ReplacementVisitor& visitor);
+        virtual void traverse(ReplacementVisitor&) {};
 
         virtual void accept(RecordTraversal& visitor) const;
         virtual void traverse(RecordTraversal&) const {}

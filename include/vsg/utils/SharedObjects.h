@@ -94,6 +94,7 @@ namespace vsg
 
         void traverse(Visitor& visitor) override;
         void traverse(ConstVisitor& visitor) const override;
+        void traverse(ReplacementVisitor& visitor) override;
 
         int compare(const Object& rhs_object) const override;
     };

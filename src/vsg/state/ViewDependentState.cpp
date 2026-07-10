@@ -54,6 +54,21 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            if (auto ref_node = node.ref_ptr())
+            {
+                std::optional<ref_ptr<Node>> newPtr = visitor.acceptChecked(*ref_node);
+                if (newPtr.has_value())
+                {
+                    node = newPtr.value();
+                }
+                // newPtr will go out of scope here, so if visitor doesn't keep the replacement alive by other means,
+                // e.g. a map from replaced objects to their replacements so the same replacement is returned when an
+                // object is visited via multiple paths in the scenegraph, then node will become stale and no longer
+                // be lockable.
+            }
+        }
     };
     VSG_type_name(TraverseChildrenOfNode);
 
