@@ -852,45 +852,123 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
 
     if (descriptorConfigurator)
     {
-        for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
+        struct DisableInheritedState : public Visitor
         {
-            if (auto ds = descriptorConfigurator->descriptorSets[set])
+            DescriptorSets descritorSets;
+
+            DisableInheritedState(DescriptorConfigurator& dc) :
+                descritorSets(dc.descriptorSets.size())
             {
-                auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
-
-                bool dsUnique = true;
-                for (const auto& sc : inheritedState)
+                for (size_t set = 0; set < dc.descriptorSets.size(); ++set)
                 {
-                    if (compare_pointer(sc, bindDescriptorSet) == 0) dsUnique = false;
+                    descritorSets[set] = dc.descriptorSets[set];
                 }
+            }
 
-                if (dsUnique)
+            void apply(BindViewDescriptorSets& bvds) override
+            {
+                if (bvds.firstSet < static_cast<uint32_t>(descritorSets.size()))
                 {
-                    if (sharedObjects)
+                    descritorSets[bvds.firstSet].reset();
+                }
+            }
+
+            void apply(BindDescriptorSet& bds) override
+            {
+                if (bds.firstSet < static_cast<uint32_t>(descritorSets.size()))
+                {
+                    descritorSets[bds.firstSet].reset();
+                }
+            }
+
+            void apply(BindDescriptorSets& bds) override
+            {
+                if (bds.firstSet < static_cast<uint32_t>(descritorSets.size()))
+                {
+                    uint32_t end_set = bds.firstSet + static_cast<uint32_t>(bds.descriptorSets.size());
+                    for(uint32_t set = bds.firstSet; set < end_set; ++set)
                     {
-                        for (auto& descriptor : ds->descriptors)
+                        descritorSets[set].reset();
+                    }
+                }
+            }
+        } active(*descriptorConfigurator);
+
+        for (const auto& sc : inheritedState)
+        {
+            sc->accept(active);
+        }
+
+        if (sharedObjects)
+        {
+            for(auto& ds : active.descritorSets)
+            {
+                if (ds)
+                {
+                    for (auto& descriptor : ds->descriptors)
+                    {
+                        if (auto descriptor_image = descriptor.cast<vsg::DescriptorImage>())
                         {
-                            if (auto descriptor_image = descriptor.cast<vsg::DescriptorImage>())
+                            for (auto& image_info : descriptor_image->imageInfoList)
                             {
-                                for (auto& image_info : descriptor_image->imageInfoList)
+                                if (image_info->imageView && image_info->imageView->image)
                                 {
-                                    if (image_info->imageView && image_info->imageView->image)
-                                    {
-                                        sharedObjects->share(image_info->imageView->image);
-                                    }
+                                    sharedObjects->share(image_info->imageView->image);
                                 }
                             }
-                            sharedObjects->share(descriptor);
                         }
-                        sharedObjects->share(ds->setLayout);
-                        sharedObjects->share(ds);
+                        sharedObjects->share(descriptor);
+                    }
+                    sharedObjects->share(ds->setLayout);
+                    sharedObjects->share(ds);
+                }
+            }
+        }
+
+        for(uint32_t set = 0; set < active.descritorSets.size();)
+        {
+            if (active.descritorSets[set])
+            {
+                uint32_t last = set+1;
+                for(; (last < active.descritorSets.size()) && active.descritorSets[last]; ++last) {}
+
+                if ((last-set) == 1)
+                {
+                    auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), active.descritorSets[set]);
+
+                    if (sharedObjects)
+                    {
                         sharedObjects->share(bindDescriptorSet);
                     }
 
                     stateCommands.push_back(bindDescriptorSet);
                     stateAssigned = true;
                 }
-            }
+                else
+                {
+                    DescriptorSets descriptorSets;
+                    for(auto si = set; si<last; ++si)
+                    {
+                        descriptorSets.push_back(active.descritorSets[si]);
+                    }
+
+                    auto bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), descriptorSets);
+
+                    if (sharedObjects)
+                    {
+                        sharedObjects->share(bindDescriptorSets);
+                    }
+
+                    stateCommands.push_back(bindDescriptorSets);
+                    stateAssigned = true;
+                }
+
+                set = last;
+             }
+             else
+             {
+                 ++set;
+             }
         }
     }
 
