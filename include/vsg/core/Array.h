@@ -392,6 +392,8 @@ namespace vsg
     VSG_array(ushortArray, uint16_t);
     VSG_array(intArray, int32_t);
     VSG_array(uintArray, uint32_t);
+    VSG_array(int64Array, int64_t);
+    VSG_array(uint64Array, uint64_t);
     VSG_array(floatArray, float);
     VSG_array(doubleArray, double);
 
