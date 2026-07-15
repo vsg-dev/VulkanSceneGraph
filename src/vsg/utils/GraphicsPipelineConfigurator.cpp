@@ -535,7 +535,6 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
         return true;
     }
 
-
     if (const auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
     {
         assignDescriptor(name, array, 0);
