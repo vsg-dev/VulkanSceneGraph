@@ -815,7 +815,6 @@ void GraphicsPipelineConfigurator::init()
         shaderHints->defines.insert(descriptorConfigurator->defines.begin(), descriptorConfigurator->defines.end());
     }
 
-
     layout = shaderSet->createPipelineLayout(shaderHints->defines);
     graphicsPipeline = GraphicsPipeline::create(layout, shaderSet->getShaderStages(shaderHints), pipelineStates, subpass);
     bindGraphicsPipeline = vsg::BindGraphicsPipeline::create(graphicsPipeline);
