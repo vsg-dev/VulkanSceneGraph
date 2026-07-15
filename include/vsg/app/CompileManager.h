@@ -82,7 +82,7 @@ namespace vsg
         CompileResult compile(ref_ptr<Object> object, ContextSelectionFunction contextSelection = {});
 
         /// compile all the command graphs in a task
-        CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements = {});
+        CompileResult compileTask(ref_ptr<RecordAndSubmitTask> task, ResourceRequirements& resourceRequirements);
 
         /// mechanism for releasing and reusing used resources
         ref_ptr<ResourceScavenger> resourceScavenger;

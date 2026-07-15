@@ -294,7 +294,8 @@ int ShaderSet::compare(const Object& rhs_object) const
     if ((result = compare_container(pushConstantRanges, rhs.pushConstantRanges))) return result;
     if ((result = compare_container(definesArrayStates, rhs.definesArrayStates))) return result;
     if ((result = compare_container(optionalDefines, rhs.optionalDefines))) return result;
-    return compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates);
+    if ((result = compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates))) return result;
+    return compare_value(geometryHints, rhs.geometryHints);
 }
 
 void ShaderSet::read(Input& input)
@@ -377,6 +378,11 @@ void ShaderSet::read(Input& input)
             }
         }
     }
+
+    if (input.version_greater_equal(1, 1, 16))
+    {
+        input.readValue<int>("geometryHints", geometryHints);
+    }
 }
 
 void ShaderSet::write(Output& output) const
@@ -449,6 +455,11 @@ void ShaderSet::write(Output& output) const
         {
             output.writeObject("customDescriptorSetBinding", custom);
         }
+    }
+
+    if (output.version_greater_equal(1, 1, 16))
+    {
+        output.writeValue<int>("geometryHints", geometryHints);
     }
 }
 

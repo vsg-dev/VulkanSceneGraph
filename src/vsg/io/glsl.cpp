@@ -34,7 +34,8 @@ namespace
         {".rmiss", VK_SHADER_STAGE_MISS_BIT_KHR},
         {".rcall", VK_SHADER_STAGE_CALLABLE_BIT_KHR},
         {".glsl", VK_SHADER_STAGE_ALL},
-        {".hlsl", VK_SHADER_STAGE_ALL}};
+        {".hlsl", VK_SHADER_STAGE_ALL},
+        {".h", VK_SHADER_STAGE_ALL}};
 } // namespace
 
 glsl::glsl()
