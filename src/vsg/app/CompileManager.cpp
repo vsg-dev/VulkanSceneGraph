@@ -350,7 +350,7 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     return result;
 }
 
-CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
+CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, ResourceRequirements& resourceRequirements)
 {
     CompileResult result;
 
@@ -360,12 +360,21 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, con
     try
     {
         auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+        auto deviceMemoryBufferPools = task->device->deviceMemoryBufferPools.ref_ptr();
 
         for (const auto& context : compileTraversal->contexts)
         {
             if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
             {
                 context->transferTask = task->transferTask;
+            }
+        }
+
+        if (deviceMemoryBufferPools && deviceMemoryBufferPools->compileTraversalUseReserve)
+        {
+            for (auto& context : compileTraversal->contexts)
+            {
+                context->reserve(resourceRequirements);
             }
         }
 
