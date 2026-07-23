@@ -55,6 +55,7 @@ namespace vsg
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
         DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
 
+        VkResult reserve(const BufferInfoList& bufferInfoList, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
         VkResult reserve(ResourceRequirements& requirements);
 
         void report(LogOutput& out) const;
