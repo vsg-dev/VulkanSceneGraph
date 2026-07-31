@@ -112,6 +112,7 @@ void CommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers
         commandBuffer->reset();
     }
 
+    commandBuffer->frameStamp = frameStamp;
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
     recordTraversal->getState()->connect(commandBuffer);
