@@ -294,7 +294,7 @@ bool Context::record()
         }
     }
 
-    if (bufferInfosToCopy.empty() && imageInfosToCopy.empty() && commands.empty() && buildAccelerationStructureCommands.empty()) return false;
+    if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
 
     if (!fence)
     {
@@ -497,14 +497,14 @@ bool Context::createBufferAndTransferData(const BufferInfoList& bufferInfoList, 
             debug("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range, ", ", totalSize, " with compatible size");
 
             // make sure the VkBuffer is created
-            deviceBufferInfo->buffer->compile(context);
+            deviceBufferInfo->buffer->compile(*this);
 
             if (!deviceBufferInfo->buffer->getDeviceMemory(deviceID))
             {
                 VkMemoryRequirements memRequirements;
                 vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
 
-                auto deviceMemoryOffset = context.deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                auto deviceMemoryOffset = deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
                 if (deviceMemoryOffset.first)
                     deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
                 else
@@ -519,7 +519,7 @@ bool Context::createBufferAndTransferData(const BufferInfoList& bufferInfoList, 
     if (!deviceBufferInfo)
     {
         VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
-        deviceBufferInfo = context.deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        deviceBufferInfo = deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
     }
 
     if (!deviceBufferInfo)
@@ -553,12 +553,12 @@ bool Context::createBufferAndTransferData(const BufferInfoList& bufferInfoList, 
         return true;
     }
 
-    auto stagingBufferInfo = context.stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     debug("stagingBufferInfo->buffer ", stagingBufferInfo->buffer.get(), ", ", stagingBufferInfo->offset, ", ", stagingBufferInfo->range, ")");
 
     ref_ptr<Buffer> stagingBuffer(stagingBufferInfo->buffer);
-    ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory(context.deviceID));
+    ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory(deviceID));
 
     if (!stagingMemory)
     {
@@ -566,7 +566,7 @@ bool Context::createBufferAndTransferData(const BufferInfoList& bufferInfoList, 
     }
 
     void* buffer_data;
-    stagingMemory->map(stagingBuffer->getMemoryOffset(context.deviceID) + stagingBufferInfo->offset, stagingBufferInfo->range, 0, &buffer_data);
+    stagingMemory->map(stagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, stagingBufferInfo->range, 0, &buffer_data);
     char* ptr = reinterpret_cast<char*>(buffer_data);
 
     debug("    buffer_data ", buffer_data, ", stagingBufferInfo->offset=", stagingBufferInfo->offset, ", ", totalSize);
@@ -587,7 +587,7 @@ bool Context::createBufferAndTransferData(const BufferInfoList& bufferInfoList, 
 
     stagingMemory->unmap();
 
-    context.copy(stagingBufferInfo, deviceBufferInfo);
+    copy(stagingBufferInfo, deviceBufferInfo);
 
     return true;
 #endif
