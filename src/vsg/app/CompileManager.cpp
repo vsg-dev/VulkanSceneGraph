@@ -255,6 +255,11 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
         {
             for (auto& context : compileTraversal->contexts)
             {
+                context->reset();
+            }
+
+            for (auto& context : compileTraversal->contexts)
+            {
                 ref_ptr<View> view = context->view;
 
                 if (view)
@@ -345,6 +350,11 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     else
     {
         ++failedCompileCount;
+
+        for (auto& context : compileTraversal->contexts)
+        {
+            context->reset();
+        }
     }
 
     return result;
@@ -361,6 +371,11 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, Res
     {
         auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
         auto deviceMemoryBufferPools = task->device->deviceMemoryBufferPools.ref_ptr();
+
+        for (auto& context : compileTraversal->contexts)
+        {
+            context->reset();
+        }
 
         for (const auto& context : compileTraversal->contexts)
         {
