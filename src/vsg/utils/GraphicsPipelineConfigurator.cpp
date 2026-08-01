@@ -834,13 +834,13 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
         // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
         if (sharedObjects)
         {
-            for (auto& dsl : layout->setLayouts)
-            {
-                sharedObjects->share(dsl);
-            }
+            std::scoped_lock<std::recursive_mutex> lock(sharedObjects->mutex);
+
+            sharedObjects->share(layout->setLayouts);
             sharedObjects->share(layout);
+            graphicsPipeline->layout = layout;
+
             sharedObjects->share(graphicsPipeline);
-            layout = graphicsPipeline->layout;
             sharedObjects->share(bindGraphicsPipeline);
         }
 
