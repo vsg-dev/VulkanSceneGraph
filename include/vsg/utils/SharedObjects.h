@@ -72,10 +72,11 @@ namespace vsg
         /// write out stats of objects held, types of objects and their reference counts
         void report(vsg::LogOutput& output);
 
+        mutable std::recursive_mutex mutex;
+
     protected:
         ~SharedObjects() override;
 
-        mutable std::recursive_mutex _mutex;
         std::map<std::type_index, ref_ptr<Object>> _defaults;
         std::map<std::type_index, std::set<ref_ptr<Object>, DereferenceLess>> _sharedObjects;
     };
@@ -127,7 +128,7 @@ namespace vsg
     template<class T>
     ref_ptr<T> SharedObjects::shared_default()
     {
-        std::scoped_lock<std::recursive_mutex> lock(_mutex);
+        std::scoped_lock<std::recursive_mutex> lock(mutex);
 
         auto id = std::type_index(typeid(T));
         auto& def = _defaults[id];
@@ -155,7 +156,7 @@ namespace vsg
     template<class T>
     void SharedObjects::share(ref_ptr<T>& object)
     {
-        std::scoped_lock<std::recursive_mutex> lock(_mutex);
+        std::scoped_lock<std::recursive_mutex> lock(mutex);
 
         if (suitableForSharing && !suitableForSharing->suitable(object.get())) return;
 
@@ -175,7 +176,7 @@ namespace vsg
     void SharedObjects::share(ref_ptr<T>& object, Func init)
     {
         {
-            std::scoped_lock<std::recursive_mutex> lock(_mutex);
+            std::scoped_lock<std::recursive_mutex> lock(mutex);
 
             auto id = std::type_index(typeid(T));
             auto& shared_objects = _sharedObjects[id];
@@ -189,7 +190,7 @@ namespace vsg
         init(object);
 
         {
-            std::scoped_lock<std::recursive_mutex> lock(_mutex);
+            std::scoped_lock<std::recursive_mutex> lock(mutex);
             auto id = std::type_index(typeid(T));
             auto& shared_objects = _sharedObjects[id];
             if (suitableForSharing && suitableForSharing->suitable(object.get()))

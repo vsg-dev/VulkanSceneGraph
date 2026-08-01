@@ -40,6 +40,8 @@ void ImageView::VulkanData::release()
         vkDestroyImageView(*device, imageView, device->getAllocationCallbacks());
         imageView = VK_NULL_HANDLE;
         device = {};
+        image = {};
+
     }
 }
 
@@ -137,6 +139,8 @@ void ImageView::compile(Device* device)
     {
         throw Exception{"Error: Failed to create VkImageView.", result};
     }
+
+    vd.image = image;
 }
 
 void ImageView::compile(Context& context)
@@ -166,6 +170,8 @@ void ImageView::compile(Context& context)
     {
         throw Exception{"Error: Failed to create VkImageView.", result};
     }
+
+    vd.image = image;
 }
 
 ref_ptr<ImageView> vsg::createImageView(vsg::Context& context, ref_ptr<Image> image, VkImageAspectFlags aspectFlags)
