@@ -499,12 +499,197 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
     traits->nativeWindow = _window;
 
+    _initDrop();
+
     _windowMapped = true;
+}
+
+// The OLE side of the file drop support. Every callback records what happened and returns
+// immediately; the events are emitted from pollEvents() so that no application code runs from
+// inside a window message, and the answer given to the source is the one the application gave to
+// the previous frame's DropHoverEvent.
+struct Win32_Window::DropTarget : public IDropTarget
+{
+    Win32_Window* _owner = nullptr;
+    LONG _refCount = 1;
+
+    static vsg::Paths pathsFrom(IDataObject* data)
+    {
+        vsg::Paths paths;
+        if (!data) return paths;
+
+        FORMATETC format = {CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+        STGMEDIUM medium;
+        if (FAILED(data->GetData(&format, &medium))) return paths;
+
+        auto drop = static_cast<HDROP>(GlobalLock(medium.hGlobal));
+        if (drop)
+        {
+            auto count = DragQueryFileW(drop, 0xFFFFFFFF, nullptr, 0);
+            for (UINT i = 0; i < count; ++i)
+            {
+                wchar_t buffer[MAX_PATH * 4];
+                if (DragQueryFileW(drop, i, buffer, static_cast<UINT>(sizeof(buffer) / sizeof(buffer[0]))) == 0) continue;
+
+                paths.push_back(vsg::Path(buffer));
+            }
+
+            GlobalUnlock(medium.hGlobal);
+        }
+
+        ReleaseStgMedium(&medium);
+
+        return paths;
+    }
+
+    void setPosition(POINTL point)
+    {
+        POINT client = {point.x, point.y};
+        ScreenToClient(_owner->_window, &client);
+
+        _owner->_dropX = client.x;
+        _owner->_dropY = client.y;
+    }
+
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** object) override
+    {
+        if (riid == IID_IUnknown || riid == IID_IDropTarget)
+        {
+            *object = static_cast<IDropTarget*>(this);
+            AddRef();
+            return S_OK;
+        }
+
+        *object = nullptr;
+
+        return E_NOINTERFACE;
+    }
+
+    ULONG STDMETHODCALLTYPE AddRef() override { return InterlockedIncrement(&_refCount); }
+
+    ULONG STDMETHODCALLTYPE Release() override
+    {
+        auto count = InterlockedDecrement(&_refCount);
+        if (count == 0) delete this;
+
+        return count;
+    }
+
+    HRESULT STDMETHODCALLTYPE DragEnter(IDataObject* data, DWORD, POINTL point, DWORD* effect) override
+    {
+        auto paths = pathsFrom(data);
+        if (paths.empty())
+        {
+            *effect = DROPEFFECT_NONE;
+            return S_OK;
+        }
+
+        _owner->_dropPaths = paths;
+        _owner->_dropHovering = true;
+        _owner->_dropAccepted = false;
+        setPosition(point);
+
+        // Nothing has been asked yet, so refuse until the application has seen a hover event.
+        *effect = DROPEFFECT_NONE;
+
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE DragOver(DWORD, POINTL point, DWORD* effect) override
+    {
+        if (!_owner->_dropHovering)
+        {
+            *effect = DROPEFFECT_NONE;
+            return S_OK;
+        }
+
+        setPosition(point);
+
+        *effect = _owner->_dropAccepted ? DROPEFFECT_COPY : DROPEFFECT_NONE;
+
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE DragLeave() override
+    {
+        if (_owner->_dropHovering)
+        {
+            _owner->bufferedEvents.emplace_back(vsg::DropLeaveEvent::create(_owner, vsg::clock::now(), _owner->_dropX, _owner->_dropY));
+        }
+
+        _owner->_dropHovering = false;
+        _owner->_dropAccepted = false;
+        _owner->_dropPaths.clear();
+
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE Drop(IDataObject* data, DWORD, POINTL point, DWORD* effect) override
+    {
+        setPosition(point);
+
+        auto paths = pathsFrom(data);
+        if (paths.empty()) paths = _owner->_dropPaths;
+
+        vsg::clock::time_point event_time = vsg::clock::now();
+        if (_owner->_dropAccepted && !paths.empty())
+        {
+            _owner->bufferedEvents.emplace_back(vsg::DropFilesEvent::create(_owner, event_time, _owner->_dropX, _owner->_dropY, paths));
+        }
+        _owner->bufferedEvents.emplace_back(vsg::DropLeaveEvent::create(_owner, event_time, _owner->_dropX, _owner->_dropY));
+
+        *effect = _owner->_dropAccepted && !paths.empty() ? DROPEFFECT_COPY : DROPEFFECT_NONE;
+
+        _owner->_dropHovering = false;
+        _owner->_dropAccepted = false;
+        _owner->_dropPaths.clear();
+
+        return S_OK;
+    }
+};
+
+void Win32_Window::_initDrop()
+{
+    // OleInitialize returns S_FALSE if the thread is already in an apartment, which is fine: the
+    // OLE specific setup that RegisterDragDrop needs is still done.
+    if (FAILED(OleInitialize(nullptr)))
+    {
+        vsg::warn("Win32_Window::_initDrop() OleInitialize failed, file drops are not available.");
+        return;
+    }
+
+    auto dropTarget = new DropTarget();
+    dropTarget->_owner = this;
+
+    if (FAILED(RegisterDragDrop(_window, dropTarget)))
+    {
+        dropTarget->Release();
+
+        vsg::warn("Win32_Window::_initDrop() RegisterDragDrop failed, file drops are not available.");
+
+        return;
+    }
+
+    _dropTarget = dropTarget;
+}
+
+void Win32_Window::_shutdownDrop()
+{
+    if (!_dropTarget) return;
+
+    RevokeDragDrop(_window);
+
+    // Deliberately no OleUninitialize: the application may share this thread's apartment with other
+    // OLE users, such as the native file dialogs.
+    _dropTarget->Release();
+    _dropTarget = nullptr;
 }
 
 Win32_Window::~Win32_Window()
 {
     clear();
+
+    _shutdownDrop();
 
     if (_window != nullptr)
     {
@@ -544,6 +729,14 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
 {
     vsg::clock::time_point event_time = vsg::clock::now();
 
+    // Read back the answer the application gave to last frame's hover event, so the source can be
+    // told whether a drop would be accepted at the position it last reported.
+    if (_dropHoverEvent)
+    {
+        _dropAccepted = _dropHoverEvent->accept;
+        _dropHoverEvent = {};
+    }
+
     MSG msg;
 
     while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
@@ -558,6 +751,15 @@ bool Win32_Window::pollEvents(vsg::UIEvents& events)
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
         }
+    }
+
+    if (_dropHovering)
+    {
+        // Ask the application afresh every frame rather than only when the source reports a new
+        // position, so that a handler which changes its mind under a stationary cursor still gets
+        // to update the answer given by the next DragOver.
+        _dropHoverEvent = vsg::DropHoverEvent::create(this, event_time, _dropX, _dropY, _dropPaths);
+        bufferedEvents.emplace_back(_dropHoverEvent);
     }
 
     return Window::pollEvents(events);

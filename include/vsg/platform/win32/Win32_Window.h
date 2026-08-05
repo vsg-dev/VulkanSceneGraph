@@ -18,6 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    define NOMINMAX
 #endif
 
+#include <vsg/ui/DropEvent.h>
 #include <vsg/app/Window.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
@@ -208,10 +209,28 @@ namespace vsgWin32
 
         void _initSurface() override;
 
+        /// Register the window with OLE so that it is offered file drops.
+        void _initDrop();
+        void _shutdownDrop();
+
         HWND _window;
         bool _windowMapped = false;
 
         vsg::ref_ptr<KeyboardMap> _keyboard;
+
+        // Drag and drop. The OLE callbacks only record what happened; the events are emitted from
+        // pollEvents() so that nothing reaches the application from inside a window message.
+        struct DropTarget;
+        DropTarget* _dropTarget = nullptr;
+        bool _dropHovering = false;
+        bool _dropAccepted = false;
+        vsg::Paths _dropPaths;
+        int32_t _dropX = 0;
+        int32_t _dropY = 0;
+
+        // The hover event emitted last frame, kept so that the accept flag the application set on it
+        // can be read back once the frame that handled it has finished.
+        vsg::ref_ptr<vsg::DropHoverEvent> _dropHoverEvent;
     };
 
     /// Use GetLastError() and FormatMessageA(..) to get the error number and error message and store them in a vsg::Exception.
