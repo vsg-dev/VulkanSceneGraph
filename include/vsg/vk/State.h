@@ -223,10 +223,20 @@ namespace vsg
             value_type f = -proj[1][1];
             value_type sc = f * std::sqrt(square(mv[0][0]) + square(mv[1][0]) + square(mv[2][0]) + square(mv[0][1]) + square(mv[1][1]) + square(mv[2][1])) * 0.5;
             value_type inv_scale = value_type(1.0) / sc;
-            lodScale.set(mv[0][2] * inv_scale,
-                         mv[1][2] * inv_scale,
-                         mv[2][2] * inv_scale,
-                         mv[3][2] * inv_scale);
+
+            if (proj[2][3] == value_type(0.0))
+            {
+                // For an orthographic projection the projected size of a bounding sphere is independent of
+                // its distance from the eye (proj[2][3] == 0: there is no perspective divide). 
+                lodScale.set(value_type(0.0), value_type(0.0), value_type(0.0), inv_scale);
+            }
+            else
+            {
+                lodScale.set(mv[0][2] * inv_scale,
+                             mv[1][2] * inv_scale,
+                             mv[2][2] * inv_scale,
+                             mv[3][2] * inv_scale);
+            }
         }
 
         template<typename T>
