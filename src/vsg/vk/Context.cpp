@@ -374,7 +374,7 @@ void Context::waitForCompletion()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context waitForCompletion", COLOR_COMPILE)
 
-    vsg::info("Context::waitForCompletion() ", this);
+    vsg::debug("Context::waitForCompletion() ", this);
 
     if (!requiresWaitForCompletion || !commandBuffer || !fence)
     {
