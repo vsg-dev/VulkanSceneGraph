@@ -153,6 +153,7 @@ Context::Context(const Context& context) :
     commandPool(context.commandPool),
     deviceMemoryBufferPools(context.deviceMemoryBufferPools),
     stagingMemoryBufferPools(context.stagingMemoryBufferPools),
+    transferTask(context.transferTask),
     scratchBufferSize(context.scratchBufferSize)
 {
     scratchMemory = ScratchMemory::create(4096);
@@ -316,7 +317,7 @@ bool Context::record()
     {
         COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "Context record", COLOR_COMPILE)
 
-        vsg::warn("Context::record() Need to implement copying of data.");
+        if ((bufferInfosToCopy.size()+imageInfosToCopy.size())>0) vsg::warn("Context::record() ", this, " Need to implement copying of data.");
 
 
         // issue commands of interest
