@@ -165,44 +165,74 @@ CompileManager::CompileTraversals::container_type CompileManager::takeCompileTra
     return cts;
 }
 
-void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(device, resourceRequirements);
+        ct->add(device, transferTask, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
-void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+{
+    add(device, device->transferTask, resourceRequirements);
+}
+
+void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, viewport, resourceRequirements);
+        ct->add(window, transferTask, viewport, resourceRequirements);
+        compileTraversals->add(ct);
+    }
+}
+
+
+void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+{
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, viewport, resourceRequirements);
+}
+
+void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
+    auto cts = takeCompileTraversals(numCompileTraversals);
+    for (auto& ct : cts)
+    {
+        ct->add(window, transferTask, view, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, view, resourceRequirements);
+}
+
+void CompileManager::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, view, resourceRequirements);
+        ct->add(framebuffer, transferTask, view, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    auto cts = takeCompileTraversals(numCompileTraversals);
-    for (auto& ct : cts)
-    {
-        ct->add(framebuffer, view, resourceRequirements);
-        compileTraversals->add(ct);
-    }
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = framebuffer.getDevice()) transferTask = device->transferTask;
+
+    add(framebuffer, transferTask, view, resourceRequirements);
 }
 
 void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)

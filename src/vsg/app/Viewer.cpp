@@ -36,6 +36,8 @@ Viewer::Viewer() :
     _frameStamp(FrameStamp::create(_start_point, 0, 0.0))
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Viewer constructor", COLOR_VIEWER);
+
+    compileManager = CompileManager::create(*this, vsg::ResourceHints::create());
 }
 
 Viewer::~Viewer()
