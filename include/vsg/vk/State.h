@@ -227,7 +227,7 @@ namespace vsg
             if (proj[2][3] == value_type(0.0))
             {
                 // For an orthographic projection the projected size of a bounding sphere is independent of
-                // its distance from the eye (proj[2][3] == 0: there is no perspective divide). 
+                // its distance from the eye (proj[2][3] == 0: there is no perspective divide).
                 lodScale.set(value_type(0.0), value_type(0.0), value_type(0.0), inv_scale);
             }
             else

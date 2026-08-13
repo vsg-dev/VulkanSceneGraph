@@ -692,9 +692,9 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
 
                 // faceSize = bytes per layer at this mip.
                 const size_t faceSize = static_cast<size_t>(valueSize) *
-                    ceilDiv(mipmap.x, properties.blockWidth) *
-                    ceilDiv(mipmap.y, properties.blockHeight) *
-                    ceilDiv(mipmap.z, properties.blockDepth);
+                                        ceilDiv(mipmap.x, properties.blockWidth) *
+                                        ceilDiv(mipmap.y, properties.blockHeight) *
+                                        ceilDiv(mipmap.z, properties.blockDepth);
 
                 for (uint32_t face = 0; face < arrayLayers; ++face)
                 {

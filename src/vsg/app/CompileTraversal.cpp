@@ -198,7 +198,7 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
         ref_ptr<TransferTask> transferTask;
 
         AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) :
-            ct(in_ct), resourceRequirements(in_rr) {};
+            ct(in_ct), resourceRequirements(in_rr) {}
 
         const char* className() const noexcept override { return "vsg::CompileTraversal::AddViews"; }
 

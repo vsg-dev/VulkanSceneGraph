@@ -152,10 +152,8 @@ namespace vsg
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
 
-
         bool createBufferAndTransferData(const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
         bool copy(const ImageInfoList& imageInfoList);
-
     };
     VSG_type_name(vsg::Context);
 

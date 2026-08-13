@@ -190,7 +190,6 @@ void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref
     }
 }
 
-
 void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
     ref_ptr<TransferTask> transferTask;

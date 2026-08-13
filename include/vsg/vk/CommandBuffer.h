@@ -14,8 +14,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/state/PipelineLayout.h>
-#include <vsg/vk/CommandPool.h>
 #include <vsg/ui/FrameStamp.h>
+#include <vsg/vk/CommandPool.h>
 
 namespace vsg
 {

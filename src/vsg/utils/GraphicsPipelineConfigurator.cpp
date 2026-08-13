@@ -274,7 +274,7 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
         ds->setLayout = DescriptorSetLayout::create();
     }
 
-    for(const auto& layout_binding : ds->setLayout->bindings)
+    for (const auto& layout_binding : ds->setLayout->bindings)
     {
         if (layout_binding.binding == binding)
         {
@@ -459,7 +459,6 @@ void GraphicsPipelineConfigurator::reset()
     if (descriptorConfigurator) descriptorConfigurator->reset();
 
     vertexInputRates.clear();
-
 
     _assignShaderSetSettings();
 }
@@ -790,8 +789,8 @@ void GraphicsPipelineConfigurator::init()
     {
         if (const auto& descriptorBinding = shaderSet->getDescriptorBinding("vertexInputRates"))
         {
-            auto vir = vsg::uintArray::create(vertexInputRates.rbegin()->first+1, 0);
-            for(auto [binding, rate] : vertexInputRates)
+            auto vir = vsg::uintArray::create(vertexInputRates.rbegin()->first + 1, 0);
+            for (auto [binding, rate] : vertexInputRates)
             {
                 vir->set(binding, rate);
             }
@@ -801,7 +800,6 @@ void GraphicsPipelineConfigurator::init()
         else
         {
             vsg::warn("GraphicsPipelineConfigurator::init() - missing DescriptorBinding for vertexInputRates.");
-
         }
     }
 
@@ -884,7 +882,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 if (bds.firstSet < static_cast<uint32_t>(descritorSets.size()))
                 {
                     uint32_t end_set = bds.firstSet + static_cast<uint32_t>(bds.descriptorSets.size());
-                    for(uint32_t set = bds.firstSet; set < end_set; ++set)
+                    for (uint32_t set = bds.firstSet; set < end_set; ++set)
                     {
                         descritorSets[set].reset();
                     }
@@ -899,7 +897,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
 
         if (sharedObjects)
         {
-            for(auto& ds : active.descritorSets)
+            for (auto& ds : active.descritorSets)
             {
                 if (ds)
                 {
@@ -923,14 +921,14 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
             }
         }
 
-        for(uint32_t set = 0; set < active.descritorSets.size();)
+        for (uint32_t set = 0; set < active.descritorSets.size();)
         {
             if (active.descritorSets[set])
             {
-                uint32_t last = set+1;
-                for(; (last < active.descritorSets.size()) && active.descritorSets[last]; ++last) {}
+                uint32_t last = set + 1;
+                for (; (last < active.descritorSets.size()) && active.descritorSets[last]; ++last) {}
 
-                if ((last-set) == 1)
+                if ((last - set) == 1)
                 {
                     auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), active.descritorSets[set]);
 
@@ -945,7 +943,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 else
                 {
                     DescriptorSets descriptorSets;
-                    for(auto si = set; si<last; ++si)
+                    for (auto si = set; si < last; ++si)
                     {
                         descriptorSets.push_back(active.descritorSets[si]);
                     }
@@ -962,11 +960,11 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
                 }
 
                 set = last;
-             }
-             else
-             {
-                 ++set;
-             }
+            }
+            else
+            {
+                ++set;
+            }
         }
     }
 

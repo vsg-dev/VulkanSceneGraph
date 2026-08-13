@@ -220,7 +220,6 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     return MemoryBufferPools::DeviceMemoryOffset(deviceMemory, reservedSlot.second);
 }
 
-
 VkResult MemoryBufferPools::reserve(const BufferInfoList& bufferInfos, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
 {
     bool allocationSuccess = true;

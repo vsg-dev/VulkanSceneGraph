@@ -41,7 +41,6 @@ void ImageView::VulkanData::release()
         imageView = VK_NULL_HANDLE;
         device = {};
         image = {};
-
     }
 }
 
