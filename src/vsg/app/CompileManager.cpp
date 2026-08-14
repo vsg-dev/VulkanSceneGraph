@@ -165,44 +165,73 @@ CompileManager::CompileTraversals::container_type CompileManager::takeCompileTra
     return cts;
 }
 
-void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(device, resourceRequirements);
+        ct->add(device, transferTask, resourceRequirements);
+        compileTraversals->add(ct);
+    }
+}
+
+void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+{
+    add(device, device->transferTask, resourceRequirements);
+}
+
+void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+{
+    auto cts = takeCompileTraversals(numCompileTraversals);
+    for (auto& ct : cts)
+    {
+        ct->add(window, transferTask, viewport, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, viewport, resourceRequirements);
+}
+
+void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, viewport, resourceRequirements);
+        ct->add(window, transferTask, view, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, view, resourceRequirements);
+}
+
+void CompileManager::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, view, resourceRequirements);
+        ct->add(framebuffer, transferTask, view, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    auto cts = takeCompileTraversals(numCompileTraversals);
-    for (auto& ct : cts)
-    {
-        ct->add(framebuffer, view, resourceRequirements);
-        compileTraversals->add(ct);
-    }
+    ref_ptr<TransferTask> transferTask;
+    if (const auto device = framebuffer.getDevice()) transferTask = device->transferTask;
+
+    add(framebuffer, transferTask, view, resourceRequirements);
 }
 
 void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
@@ -253,6 +282,11 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     auto run_compile_traversal = [&]() -> void {
         try
         {
+            for (auto& context : compileTraversal->contexts)
+            {
+                context->reset();
+            }
+
             for (auto& context : compileTraversal->contexts)
             {
                 ref_ptr<View> view = context->view;
@@ -345,12 +379,17 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     else
     {
         ++failedCompileCount;
+
+        for (auto& context : compileTraversal->contexts)
+        {
+            context->reset();
+        }
     }
 
     return result;
 }
 
-CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
+CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, ResourceRequirements& resourceRequirements)
 {
     CompileResult result;
 
@@ -360,12 +399,26 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, con
     try
     {
         auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+        auto deviceMemoryBufferPools = task->device->deviceMemoryBufferPools.ref_ptr();
+
+        for (auto& context : compileTraversal->contexts)
+        {
+            context->reset();
+        }
 
         for (const auto& context : compileTraversal->contexts)
         {
             if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
             {
                 context->transferTask = task->transferTask;
+            }
+        }
+
+        if (deviceMemoryBufferPools && deviceMemoryBufferPools->compileTraversalUseReserve)
+        {
+            for (auto& context : compileTraversal->contexts)
+            {
+                context->reserve(resourceRequirements);
             }
         }
 

@@ -50,8 +50,8 @@ namespace vsg
         {
             VkImageView imageView = VK_NULL_HANDLE;
             ref_ptr<Device> device;
+            ref_ptr<Image> image;
 
-            ~VulkanData() { release(); }
             void release();
         };
 

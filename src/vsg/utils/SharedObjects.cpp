@@ -21,7 +21,7 @@ bool SharedObjects::suitable(const Path& filename) const
 
 bool SharedObjects::contains(const Path& filename, ref_ptr<const Options> options) const
 {
-    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+    std::scoped_lock<std::recursive_mutex> lock(mutex);
 
     auto loadedObject_id = std::type_index(typeid(LoadedObject));
     auto itr = _sharedObjects.find(loadedObject_id);
@@ -34,7 +34,7 @@ bool SharedObjects::contains(const Path& filename, ref_ptr<const Options> option
 
 void SharedObjects::add(ref_ptr<Object> object, const Path& filename, ref_ptr<const Options> options)
 {
-    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+    std::scoped_lock<std::recursive_mutex> lock(mutex);
 
     auto loadedObject_id = std::type_index(typeid(LoadedObject));
     auto& loadedObjects = _sharedObjects[loadedObject_id];
@@ -45,7 +45,7 @@ void SharedObjects::add(ref_ptr<Object> object, const Path& filename, ref_ptr<co
 
 bool SharedObjects::remove(const Path& filename, ref_ptr<const Options> options)
 {
-    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+    std::scoped_lock<std::recursive_mutex> lock(mutex);
 
     auto loadedObject_id = std::type_index(typeid(LoadedObject));
     auto itr = _sharedObjects.find(loadedObject_id);
@@ -67,14 +67,14 @@ bool SharedObjects::remove(const Path& filename, ref_ptr<const Options> options)
 
 void SharedObjects::clear()
 {
-    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+    std::scoped_lock<std::recursive_mutex> lock(mutex);
     _defaults.clear();
     _sharedObjects.clear();
 }
 
 void SharedObjects::prune()
 {
-    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+    std::scoped_lock<std::recursive_mutex> lock(mutex);
 
     auto loadedObject_id = std::type_index(typeid(LoadedObject));
 
@@ -156,7 +156,7 @@ void SharedObjects::prune()
 
 void SharedObjects::report(vsg::LogOutput& output)
 {
-    std::scoped_lock<std::recursive_mutex> lock(_mutex);
+    std::scoped_lock<std::recursive_mutex> lock(mutex);
     output("SharedObjects::report(..) ", this, " {");
     output.in();
     output("SharedObjects::_defaults ", _defaults.size(), " {");

@@ -220,6 +220,33 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     return MemoryBufferPools::DeviceMemoryOffset(deviceMemory, reservedSlot.second);
 }
 
+VkResult MemoryBufferPools::reserve(const BufferInfoList& bufferInfos, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
+{
+    bool allocationSuccess = true;
+
+    for (auto& bufferInfo : bufferInfos)
+    {
+        if (!bufferInfo->buffer)
+        {
+            if (allocationSuccess)
+            {
+                auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, bufferUsageFlags, sharingMode, memoryProperties);
+                if (newBufferInfo)
+                {
+                    bufferInfo->take(*newBufferInfo);
+                }
+                else
+                {
+                    debug("MemoryBufferPools::reserve() failed on ", bufferInfo, ", data = ", bufferInfo->data);
+                    allocationSuccess = false;
+                }
+            }
+        }
+    }
+
+    return allocationSuccess ? VK_SUCCESS : VK_ERROR_OUT_OF_DEVICE_MEMORY;
+}
+
 VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 {
     //vsg::info("MemoryBufferPools::reserve(ResourceRequirements& requirements) { ");

@@ -153,6 +153,7 @@ Context::Context(const Context& context) :
     commandPool(context.commandPool),
     deviceMemoryBufferPools(context.deviceMemoryBufferPools),
     stagingMemoryBufferPools(context.stagingMemoryBufferPools),
+    transferTask(context.transferTask),
     scratchBufferSize(context.scratchBufferSize)
 {
     scratchMemory = ScratchMemory::create(4096);
@@ -164,6 +165,21 @@ Context::~Context()
     {
         waitForCompletion();
     }
+}
+
+void Context::reset()
+{
+    if ((commands.size() > 0) || bufferInfosToCopy.size() > 0 || copyImageCmd || copyBufferCmd)
+    {
+        vsg::info("Context::reset() commands.size() = ", commands.size(), ", bufferInfosToCopy.size() = ", bufferInfosToCopy.size(), ", copyImageCmd = ", copyBufferCmd, ", copyBufferCmd= ", copyBufferCmd);
+    }
+
+    commands.clear();
+
+    bufferInfosToCopy.clear();
+
+    copyImageCmd.reset();
+    copyBufferCmd.reset();
 }
 
 ref_ptr<CommandBuffer> Context::getOrCreateCommandBuffer()
@@ -262,6 +278,22 @@ bool Context::record()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context record", COLOR_COMPILE)
 
+    // vsg::info("Context::record() ", this, ", commands.size() = ", commands.size(), ", bufferInfosToCopy.size() = ", bufferInfosToCopy.size(), ", imageInfosToCopy.size() = ", imageInfosToCopy.size());
+
+    if (transferTask)
+    {
+        if (!bufferInfosToCopy.empty())
+        {
+            transferTask->assign(bufferInfosToCopy);
+            bufferInfosToCopy.clear();
+        }
+        if (!imageInfosToCopy.empty())
+        {
+            transferTask->assign(imageInfosToCopy);
+            imageInfosToCopy.clear();
+        }
+    }
+
     if (commands.empty() && buildAccelerationStructureCommands.empty()) return false;
 
     if (!fence)
@@ -283,6 +315,8 @@ bool Context::record()
 
     {
         COMMAND_BUFFER_INSTRUMENTATION(instrumentation, *commandBuffer, "Context record", COLOR_COMPILE)
+
+        if ((bufferInfosToCopy.size() + imageInfosToCopy.size()) > 0) vsg::warn("Context::record() ", this, " Need to implement copying of data.");
 
         // issue commands of interest
         {
@@ -338,6 +372,8 @@ void Context::waitForCompletion()
 {
     CPU_INSTRUMENTATION_L1_NC(instrumentation, "Context waitForCompletion", COLOR_COMPILE)
 
+    vsg::debug("Context::waitForCompletion() ", this);
+
     if (!requiresWaitForCompletion || !commandBuffer || !fence)
     {
         return;
@@ -365,4 +401,199 @@ void Context::waitForCompletion()
     commands.clear();
     copyImageCmd = nullptr;
     copyBufferCmd = nullptr;
+}
+
+bool Context::createBufferAndTransferData(const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode)
+{
+    if (bufferInfoList.empty()) return false;
+
+    VkDeviceSize alignment = 4;
+    if (usage == VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+        alignment = device->getPhysicalDevice()->getProperties().limits.minUniformBufferOffsetAlignment;
+    else if (usage == VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+        alignment = device->getPhysicalDevice()->getProperties().limits.minStorageBufferOffsetAlignment;
+
+#if 1
+    if (VkResult result = deviceMemoryBufferPools->reserve(bufferInfoList, alignment, usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT); result == VK_SUCCESS)
+    {
+        bufferInfosToCopy.reserve(bufferInfosToCopy.size() + bufferInfoList.size());
+        bufferInfosToCopy.insert(bufferInfosToCopy.end(), bufferInfoList.begin(), bufferInfoList.end());
+
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+#else
+
+    // info("vsg::createBufferAndTransferData(const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode) usage = ", usage, ", alignment = ", alignment);
+
+    //transferTask = nullptr;
+
+    ref_ptr<BufferInfo> deviceBufferInfo;
+    size_t numBuffersRequired = 0;
+    bool containsMultipleParents = false;
+    for (auto& bufferInfo : bufferInfoList)
+    {
+        if (bufferInfo->data)
+        {
+            if (bufferInfo->data->getModifiedCount(bufferInfo->copiedModifiedCounts[deviceID]))
+            {
+                ++numBuffersRequired;
+            }
+        }
+
+        if (bufferInfo->parent)
+        {
+            if (deviceBufferInfo && bufferInfo->parent != deviceBufferInfo) containsMultipleParents = true;
+            deviceBufferInfo = bufferInfo->parent;
+        }
+    }
+
+    if (numBuffersRequired == 0)
+    {
+        debug("\nvsg::createBufferAndTransferData(...) already all compiled. deviceID = ", deviceID);
+        return false;
+    }
+
+    if (containsMultipleParents)
+    {
+        warn("vsg::createBufferAndTransferData(...) does not support multiple parent BufferInfo.");
+        return false;
+    }
+
+    VkDeviceSize totalSize = 0;
+    VkDeviceSize offset = 0;
+    for (const auto& bufferInfo : bufferInfoList)
+    {
+        if (bufferInfo->data)
+        {
+            bufferInfo->offset = offset;
+            bufferInfo->range = bufferInfo->data->dataSize();
+            VkDeviceSize endOfEntry = offset + bufferInfo->range;
+            offset = (alignment == 1 || (endOfEntry % alignment) == 0) ? endOfEntry : ((endOfEntry / alignment) + 1) * alignment;
+            //info("  BufferInfo.data = ", bufferInfo->data, ", dynamic = ", bufferInfo->data->getLayout().dynamic);
+        }
+    }
+
+    totalSize = offset;
+    if (totalSize == 0) return false;
+
+    if (deviceBufferInfo && deviceBufferInfo->buffer)
+    {
+        if (totalSize != deviceBufferInfo->range)
+        {
+            warn("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range, ", ", totalSize, " NOT compatible");
+            return false;
+        }
+        else
+        {
+            debug("Existing deviceBufferInfo, ", deviceBufferInfo, ", deviceBufferInfo->range  = ", deviceBufferInfo->range, ", ", totalSize, " with compatible size");
+
+            // make sure the VkBuffer is created
+            deviceBufferInfo->buffer->compile(*this);
+
+            if (!deviceBufferInfo->buffer->getDeviceMemory(deviceID))
+            {
+                VkMemoryRequirements memRequirements;
+                vkGetBufferMemoryRequirements(*device, deviceBufferInfo->buffer->vk(device->deviceID), &memRequirements);
+
+                auto deviceMemoryOffset = deviceMemoryBufferPools->reserveMemory(memRequirements, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                if (deviceMemoryOffset.first)
+                    deviceBufferInfo->buffer->bind(deviceMemoryOffset.first, deviceMemoryOffset.second);
+                else
+                {
+                    debug("vsg::createBufferAndTransferData() Failure to assign memory to existing BufferInfo");
+                    return false;
+                }
+            }
+        }
+    }
+
+    if (!deviceBufferInfo)
+    {
+        VkBufferUsageFlags bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
+        deviceBufferInfo = deviceMemoryBufferPools->reserveBuffer(totalSize, alignment, bufferUsageFlags, sharingMode, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    }
+
+    if (!deviceBufferInfo)
+    {
+        debug("vsg::createBufferAndTransferData() Failure to assign Buffer");
+        return false;
+    }
+
+    debug("deviceBufferInfo->buffer ", deviceBufferInfo->buffer, ", ", deviceBufferInfo->offset, ", ", deviceBufferInfo->range, ")");
+
+    // assign the buffer to the bufferData entries and shift the offsets to offset within the buffer
+    for (const auto& bufferInfo : bufferInfoList)
+    {
+        bufferInfo->buffer = deviceBufferInfo->buffer;
+        bufferInfo->offset += deviceBufferInfo->offset;
+    }
+
+    if (transferTask)
+    {
+        vsg::debug("vsg::createBufferAndTransferData(..)");
+
+        for (auto& bufferInfo : bufferInfoList)
+        {
+            vsg::debug("    ", bufferInfo, ", ", bufferInfo->data, ", ", bufferInfo->buffer, ", ", bufferInfo->offset);
+            bufferInfo->data->dirty();
+            bufferInfo->parent = deviceBufferInfo;
+        }
+
+        transferTask->assign(bufferInfoList);
+
+        return true;
+    }
+
+    auto stagingBufferInfo = stagingMemoryBufferPools->reserveBuffer(totalSize, alignment, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, sharingMode, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    debug("stagingBufferInfo->buffer ", stagingBufferInfo->buffer.get(), ", ", stagingBufferInfo->offset, ", ", stagingBufferInfo->range, ")");
+
+    ref_ptr<Buffer> stagingBuffer(stagingBufferInfo->buffer);
+    ref_ptr<DeviceMemory> stagingMemory(stagingBuffer->getDeviceMemory(deviceID));
+
+    if (!stagingMemory)
+    {
+        return false;
+    }
+
+    void* buffer_data;
+    stagingMemory->map(stagingBuffer->getMemoryOffset(deviceID) + stagingBufferInfo->offset, stagingBufferInfo->range, 0, &buffer_data);
+    char* ptr = reinterpret_cast<char*>(buffer_data);
+
+    debug("    buffer_data ", buffer_data, ", stagingBufferInfo->offset=", stagingBufferInfo->offset, ", ", totalSize);
+
+    for (const auto& bufferInfo : bufferInfoList)
+    {
+        const Data* data = bufferInfo->data;
+        if (data)
+        {
+            std::memcpy(ptr + bufferInfo->offset - deviceBufferInfo->offset, data->dataPointer(), data->dataSize());
+            if (data->properties.dataVariance == STATIC_DATA_UNREF_AFTER_TRANSFER)
+            {
+                bufferInfo->data.reset();
+            }
+        }
+        bufferInfo->parent = deviceBufferInfo;
+    }
+
+    stagingMemory->unmap();
+
+    copy(stagingBufferInfo, deviceBufferInfo);
+
+    return true;
+#endif
+}
+
+bool Context::copy(const ImageInfoList& imageInfoList)
+{
+    if (imageInfoList.empty()) return false;
+
+    imageInfosToCopy.reserve(imageInfosToCopy.size() + imageInfoList.size());
+    imageInfosToCopy.insert(imageInfosToCopy.end(), imageInfoList.begin(), imageInfoList.end());
+
+    return true;
 }
