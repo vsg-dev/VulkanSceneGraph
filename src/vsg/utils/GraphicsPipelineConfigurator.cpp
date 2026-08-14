@@ -852,7 +852,7 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
         {
             DescriptorSets descritorSets;
 
-            DisableInheritedState(DescriptorConfigurator& dc) :
+            explicit DisableInheritedState(DescriptorConfigurator& dc) :
                 descritorSets(dc.descriptorSets.size())
             {
                 for (size_t set = 0; set < dc.descriptorSets.size(); ++set)
