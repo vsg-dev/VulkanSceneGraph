@@ -349,6 +349,42 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
     }
 }
 
+VkDeviceSize MemoryBufferPools::releaseUnusedPools()
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    // release empty Buffers first so their DeviceMemory slots are returned before the memory pools are checked
+    for (auto itr = bufferPools.begin(); itr != bufferPools.end();)
+    {
+        auto& buffer = *itr;
+        if (buffer->totalReservedSize() == 0 && buffer->referenceCount() == 1)
+        {
+            itr = bufferPools.erase(itr);
+        }
+        else
+        {
+            ++itr;
+        }
+    }
+
+    VkDeviceSize totalReleased = 0;
+    for (auto itr = memoryPools.begin(); itr != memoryPools.end();)
+    {
+        auto& memoryPool = *itr;
+        if (memoryPool->totalReservedSize() == 0 && memoryPool->referenceCount() == 1)
+        {
+            totalReleased += memoryPool->totalMemorySize();
+            itr = memoryPools.erase(itr);
+        }
+        else
+        {
+            ++itr;
+        }
+    }
+
+    return totalReleased;
+}
+
 void MemoryBufferPools::report(LogOutput& out) const
 {
     out.enter("MemoryBufferPools::report(..)");
