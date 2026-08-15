@@ -58,6 +58,11 @@ namespace vsg
         VkResult reserve(const BufferInfoList& bufferInfoList, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
         VkResult reserve(ResourceRequirements& requirements);
 
+        /// Release wholly unused Buffer and DeviceMemory pool entries, returning their memory to the driver.
+        /// Pools normally retain freed capacity for reuse, so call this on application memory pressure rather than routinely.
+        /// Returns the number of bytes of device memory released.
+        VkDeviceSize releaseUnusedPools();
+
         void report(LogOutput& out) const;
 
     protected:
