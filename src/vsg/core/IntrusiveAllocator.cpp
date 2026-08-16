@@ -270,7 +270,7 @@ void IntrusiveAllocator::MemoryBlock::SlotTester::report(std::ostream& out)
     }
 }
 
-bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/)
+bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t in_size)
 {
     if (within(ptr))
     {
@@ -524,9 +524,9 @@ bool IntrusiveAllocator::MemoryBlock::deallocate(void* ptr, std::size_t /*size*/
         return true;
     }
 
-#if DEBUG_ALLOCATOR
-    std::cout << "IntrusiveAllocator::MemoryBlock::deallocate((" << ptr << ", " << size << ") OUTWITH block : " << this << std::endl;
-#endif
+// #if DEBUG_ALLOCATOR
+    std::cout << "IntrusiveAllocator::MemoryBlock::deallocate((" << ptr << ", " << in_size << ") OUTWITH block : " << this << std::endl;
+// #endif
 
     return false;
 }
@@ -872,6 +872,16 @@ IntrusiveAllocator::IntrusiveAllocator(std::unique_ptr<Allocator> in_nestedAlloc
 
 IntrusiveAllocator::~IntrusiveAllocator()
 {
+    std::cout<<"IntrusiveAllocator::~IntrusiveAllocator()"<<std::endl;
+    std::cout<<"   num_zero_allocations "<<num_zero_allocations<<std::endl;
+    std::cout<<"   num_nullptr_deallocations "<<num_nullptr_deallocations<<std::endl;
+    std::cout<<"   num_small_allocations "<<num_small_allocations<<std::endl;
+    std::cout<<"   num_large_allocations "<<num_large_allocations<<std::endl;
+    std::cout<<"   num_small_deallocations "<<num_small_deallocations<<std::endl;
+    std::cout<<"   num_large_deallocations "<<num_large_deallocations<<std::endl;
+    std::cout<<"   num_poor_large_deallocation_checks "<<num_poor_large_deallocation_checks<<std::endl;
+    std::cout<<"   num_no_deallocations "<<num_no_deallocations<<std::endl;
+    std::cout<<"   num_erroneous_large_deallocations "<<num_erroneous_large_deallocations<<std::endl;
 }
 
 void IntrusiveAllocator::setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize)
@@ -907,6 +917,12 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
+    if (size==0)
+    {
+        ++num_zero_allocations;
+        return nullptr;
+    }
+
     // create a MemoryBlocks entry if one doesn't already exist
     if (allocatorAffinity > allocatorMemoryBlocks.size())
     {
@@ -923,18 +939,30 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
         if (size <= blocks->maximumAllocationSize)
         {
             ptr = blocks->allocate(size);
-            if (ptr) return ptr;
+            if (ptr)
+            {
+                ++num_small_allocations;
+                return ptr;
+            }
             //std::cout<<"IntrusiveAllocator::allocate() Failed to allocator memory from memoryBlocks "<<blocks.get()<<std::endl;
         }
 
         ptr = operator new(size, std::align_val_t{blocks->alignment});
-        if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(blocks->alignment, size);
+        if (ptr)
+        {
+            largeAllocations[ptr] = std::pair<size_t, size_t>(blocks->alignment, size);
+            ++num_large_allocations;
+        }
         //std::cout<<"IntrusiveAllocator::allocate() MemoryBlocks aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<blocks->alignment<<" blocks->maximumAllocationSize = "<<blocks->maximumAllocationSize<<std::endl;
         return ptr;
     }
 
     ptr = operator new(size, std::align_val_t{defaultAlignment});
-    if (ptr) largeAllocations[ptr] = std::pair<size_t, size_t>(defaultAlignment, size);
+    if (ptr)
+    {
+        largeAllocations[ptr] = std::pair<size_t, size_t>(defaultAlignment, size);
+        ++num_large_allocations;
+    }
     //std::cout<<"IntrusiveAllocator::allocate() default aligned large allocation = "<<ptr<<" with size = "<<size<<", alignment = "<<defaultAlignment<<std::endl;
     return ptr;
 }
@@ -943,27 +971,44 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
 {
     std::scoped_lock<std::mutex> lock(mutex);
 
+    if (ptr==nullptr)
+    {
+        ++num_nullptr_deallocations;
+        return true;
+    }
+
+    auto la_itr = largeAllocations.find(ptr);
+    bool largeAllocation = (la_itr != largeAllocations.end());
+
     if (memoryBlocks.empty()) return false;
 
     auto itr = memoryBlocks.upper_bound(ptr);
     if (itr != memoryBlocks.end())
     {
+
         if (itr != memoryBlocks.begin())
         {
+
             --itr;
             auto& block = itr->second;
             if (block->deallocate(ptr, size))
             {
+                if (largeAllocation) { ++num_erroneous_large_deallocations; warn("A largeAllocation flagged as being in MemoryBlock"); return false; }
+                else ++num_small_deallocations;
                 return true;
             }
+            if (largeAllocation)  { ++num_poor_large_deallocation_checks; info("B largeAllocation not flagged as being in MemoryBlock"); }
         }
         else
         {
             auto& block = itr->second;
             if (block->deallocate(ptr, size))
             {
+                if (largeAllocation) { ++num_erroneous_large_deallocations; warn("C largeAllocation flagged as being in MemoryBlock"); return false; }
+                else ++num_small_deallocations;
                 return true;
             }
+            if (largeAllocation)  { ++num_poor_large_deallocation_checks; info("D largeAllocation not flagged as being in MemoryBlock."); }
         }
     }
     else
@@ -971,17 +1016,22 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
         auto& block = memoryBlocks.rbegin()->second;
         if (block->deallocate(ptr, size))
         {
+            if (largeAllocation) { ++num_erroneous_large_deallocations; warn("E largeAllocation flagged as being in MemoryBlock"); return false; }
+            else ++num_small_deallocations;
             return true;
         }
+        if (largeAllocation) { ++num_poor_large_deallocation_checks; info("F largeAllocation not flagged as being in MemoryBlock."); }
     }
 
-    auto la_itr = largeAllocations.find(ptr);
+    //auto la_itr = largeAllocations.find(ptr);
     if (la_itr != largeAllocations.end())
     {
         // large allocation;
         // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
         operator delete(ptr, std::align_val_t{la_itr->second.first});
         largeAllocations.erase(la_itr);
+
+        ++num_large_deallocations;
         return true;
     }
 
@@ -989,6 +1039,8 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
     {
         return true;
     }
+
+    ++num_no_deallocations;
 
     return false;
 }

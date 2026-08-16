@@ -64,6 +64,16 @@ namespace vsg
         size_t totalMemorySize() const override;
         void setBlockSize(AllocatorAffinity allocatorAffinity, size_t blockSize) override;
 
+        size_t num_zero_allocations = 0;
+        size_t num_nullptr_deallocations = 0;
+        size_t num_small_allocations = 0;
+        size_t num_large_allocations = 0;
+        size_t num_small_deallocations = 0;
+        size_t num_large_deallocations = 0;
+        size_t num_poor_large_deallocation_checks = 0;
+        size_t num_no_deallocations = 0;
+        size_t num_erroneous_large_deallocations = 0;
+
     protected:
         struct VSG_DECLSPEC MemoryBlock
         {
