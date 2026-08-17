@@ -205,7 +205,12 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
             if (deviceMemory)
             {
                 reservedSlot = deviceMemory->reserve(totalSize, alignment);
-                // if (!deviceMemory->full())
+
+                // Only blocks inflated beyond the request have spare capacity worth sharing. An
+                // exact fit block is wholly consumed by its one resource, so pooling it would just
+                // keep the memory alive after the resource is destroyed; leaving it out means the
+                // resource's own reference returns it to the driver.
+                if (poolRequirements.size > totalSize)
                 {
                     //debug("  inserting DeviceMemory into memoryPool ", deviceMemory.get());
                     memoryPools.push_back(deviceMemory);
