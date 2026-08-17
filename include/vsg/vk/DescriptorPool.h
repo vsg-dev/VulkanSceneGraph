@@ -53,6 +53,9 @@ namespace vsg
         /// to ensure thread safe operation. Normal VulkanSceneGraph usage will not require users to lock this mutex so treat as an internal implementation detail.
         mutable std::mutex mutex;
 
+        mutable double cost = 0.0;
+        mutable size_t operations = 0;
+
     protected:
         ~DescriptorPool() override;
 

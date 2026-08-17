@@ -20,6 +20,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+#define NEW_OPTIMIZATION 1
+
+#if NEW_OPTIMIZATION
+
 namespace
 {
     // Add (sign +1) or remove (sign -1) a layout's binding counts from a running
@@ -42,6 +46,13 @@ namespace
     }
 }
 
+#else
+
+    void accumulateBindings(vsg::DescriptorPoolSizes& sizes, const vsg::DescriptorSetLayout* layout, int sign) {}
+
+#endif
+
+
 DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const DescriptorPoolSizes& in_descriptorPoolSizes) :
     maxSets(in_maxSets),
     descriptorPoolSizes(in_descriptorPoolSizes),
@@ -49,6 +60,8 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const Descri
     _availableDescriptorSet(maxSets),
     _availableDescriptorPoolSizes(descriptorPoolSizes)
 {
+    vsg::info("DescriptorPool::DescriptorPool() ", this);
+
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
@@ -76,6 +89,11 @@ DescriptorPool::~DescriptorPool()
     {
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
+
+    vsg::info("DescriptorPool::~DescriptorPool() ", this);
+    vsg::info("    cost = ", cost*1000.0, "ms");
+    vsg::info("    operations = ", operations);
+    vsg::info("    operations/second = ", static_cast<double>(operations)/cost);
 }
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
@@ -139,6 +157,8 @@ ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(Des
 
 void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> dsi)
 {
+    auto startTime = clock::now();
+
     {
         // swap ownership so that DescriptorSet::Implementation' reference is reset to null and while this DescriptorPool takes a reference to it.
         // acquire lock within local scope so that subsequent dsi->_descriptorPool = {} call doesn't unref and (possibly) delete this DescriptorPool while lock still held.
@@ -148,10 +168,15 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
         accumulateBindings(_recycledDescriptorPoolSizes, dsi->_descriptorSetLayout, +1);
     }
     dsi->_descriptorPool = {};
+
+    cost += std::chrono::duration<double, std::chrono::seconds::period>(clock::now() - startTime).count();
+    ++operations;
 }
 
 bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& availableDescriptorPoolSizes) const
 {
+    auto startTime = clock::now();
+
     std::scoped_lock<std::mutex> lock(mutex);
 
     if (_availableDescriptorSet == 0) return false;
@@ -171,6 +196,9 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
         }
     }
 
+
+#if NEW_OPTIMIZATION
+
     // Merge the cached recycled totals rather than walking _recyclingList, which
     // is O(recycled sets) and dominates compile time once a high-churn scene has
     // freed many sets. The cache is kept in sync by freeDescriptorSet() and
@@ -186,6 +214,26 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
                 availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{dps.type, dps.descriptorCount});
         }
     }
+#else
+    for (const auto& dsi : _recyclingList)
+    {
+        if (dsi->_descriptorSetLayout)
+        {
+            for (auto& binding : dsi->_descriptorSetLayout->bindings)
+            {
+                // increment any entries that are already in the descriptorPoolSizes vector
+                auto itr = std::find_if(availableDescriptorPoolSizes.begin(), availableDescriptorPoolSizes.end(), [&binding](const VkDescriptorPoolSize& value) { return value.type == binding.descriptorType; });
+                if (itr != availableDescriptorPoolSizes.end())
+                    itr->descriptorCount += binding.descriptorCount;
+                else
+                    availableDescriptorPoolSizes.push_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
+            }
+        }
+    }
+#endif
+
+    cost += std::chrono::duration<double, std::chrono::seconds::period>(clock::now() - startTime).count();
+    ++operations;
 
     return true;
 }
