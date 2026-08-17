@@ -48,7 +48,7 @@ namespace
 
 #else
 
-    void accumulateBindings(vsg::DescriptorPoolSizes& sizes, const vsg::DescriptorSetLayout* layout, int sign) {}
+    void accumulateBindings(vsg::DescriptorPoolSizes&, const vsg::DescriptorSetLayout*, int) {}
 
 #endif
 
@@ -88,14 +88,21 @@ DescriptorPool::~DescriptorPool()
         vkDestroyDescriptorPool(*_device, _descriptorPool, _device->getAllocationCallbacks());
     }
 
-    vsg::info("DescriptorPool::~DescriptorPool() ", this);
-    vsg::info("    cost = ", cost*1000.0, "ms");
-    vsg::info("    operations = ", operations);
-    vsg::info("    operations/second = ", static_cast<double>(operations)/cost);
-    vsg::info("    _availableDescriptorSet = ", _availableDescriptorSet);
-    vsg::info("    _availableDescriptorPoolSizes.size() = ", _availableDescriptorPoolSizes.size());
-    vsg::info("    _recyclingList.size() = ", _recyclingList.size());
-    vsg::info("    _recycledDescriptorPoolSizes.size() = ", _recycledDescriptorPoolSizes.size());
+    LogOutput output;
+    output.enter("DescriptorPool::~DescriptorPool() ", this);
+    report(output);
+    output.leave();
+}
+
+void DescriptorPool::report(LogOutput& output) const
+{
+    output("cost = ", cost*1000.0, "ms");
+    output("operations = ", operations);
+    output("operations/second = ", static_cast<double>(operations)/cost);
+    output("_availableDescriptorSet = ", _availableDescriptorSet);
+    output("_availableDescriptorPoolSizes.size() = ", _availableDescriptorPoolSizes.size());
+    output("_recyclingList.size() = ", _recyclingList.size());
+    output("_recycledDescriptorPoolSizes.size() = ", _recycledDescriptorPoolSizes.size());
 }
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
@@ -173,6 +180,14 @@ void DescriptorPool::freeDescriptorSet(ref_ptr<DescriptorSet::Implementation> ds
 
     cost += std::chrono::duration<double, std::chrono::seconds::period>(clock::now() - startTime).count();
     ++operations;
+
+    if ((operations%100)==0)
+    {
+        LogOutput output;
+        output.enter("DescriptorPool::freeDescriptorSet(", dsi, ") ", this);
+        report(output);
+        output.leave();
+    }
 }
 
 bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& availableDescriptorPoolSizes) const
@@ -236,6 +251,14 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
 
     cost += std::chrono::duration<double, std::chrono::seconds::period>(clock::now() - startTime).count();
     ++operations;
+
+    if ((operations%100)==0)
+    {
+        LogOutput output;
+        output.enter("DescriptorPool::available(...) ", this);
+        report(output);
+        output.leave();
+    }
 
     return true;
 }

@@ -56,6 +56,8 @@ namespace vsg
         mutable double cost = 0.0;
         mutable size_t operations = 0;
 
+        void report(LogOutput& output) const;
+
     protected:
         ~DescriptorPool() override;
 
