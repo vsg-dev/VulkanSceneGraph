@@ -20,7 +20,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-#define NEW_OPTIMIZATION 1
+#define NEW_OPTIMIZATION 0
 
 #if NEW_OPTIMIZATION
 
@@ -60,8 +60,6 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const Descri
     _availableDescriptorSet(maxSets),
     _availableDescriptorPoolSizes(descriptorPoolSizes)
 {
-    vsg::info("DescriptorPool::DescriptorPool() ", this);
-
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(descriptorPoolSizes.size());
@@ -75,12 +73,12 @@ DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const Descri
         throw Exception{"Error: Failed to create DescriptorPool.", result};
     }
 
-    vsg::debug("DescriptorPool::DescriptorPool() ", this, ", maxSets = ", maxSets, " {");
+    vsg::info("DescriptorPool::DescriptorPool() ", this, " NEW_OPTIMIZATION = ", NEW_OPTIMIZATION, ", maxSets = ", maxSets, " {");
     for (auto& dps : descriptorPoolSizes)
     {
-        vsg::debug("   { ", dps.type, ", ", dps.descriptorCount, " }");
+        vsg::info("   { ", dps.type, ", ", dps.descriptorCount, " }");
     }
-    vsg::debug("}");
+    vsg::info("}");
 }
 
 DescriptorPool::~DescriptorPool()
@@ -94,6 +92,10 @@ DescriptorPool::~DescriptorPool()
     vsg::info("    cost = ", cost*1000.0, "ms");
     vsg::info("    operations = ", operations);
     vsg::info("    operations/second = ", static_cast<double>(operations)/cost);
+    vsg::info("    _availableDescriptorSet = ", _availableDescriptorSet);
+    vsg::info("    _availableDescriptorPoolSizes.size() = ", _availableDescriptorPoolSizes.size());
+    vsg::info("    _recyclingList.size() = ", _recyclingList.size());
+    vsg::info("    _recycledDescriptorPoolSizes.size() = ", _recycledDescriptorPoolSizes.size());
 }
 
 ref_ptr<DescriptorSet::Implementation> DescriptorPool::allocateDescriptorSet(DescriptorSetLayout* descriptorSetLayout)
