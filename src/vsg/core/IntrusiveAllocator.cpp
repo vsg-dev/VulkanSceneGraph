@@ -905,6 +905,8 @@ void IntrusiveAllocator::report(std::ostream& out) const
 
 void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocatorAffinity)
 {
+    if (size == 0) return nullptr;
+
     std::scoped_lock<std::mutex> lock(mutex);
 
     // create a MemoryBlocks entry if one doesn't already exist
@@ -941,9 +943,19 @@ void* IntrusiveAllocator::allocate(std::size_t size, AllocatorAffinity allocator
 
 bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
 {
+    if (ptr == nullptr) return false;
+
     std::scoped_lock<std::mutex> lock(mutex);
 
-    if (memoryBlocks.empty()) return false;
+    auto la_itr = largeAllocations.find(ptr);
+    if (la_itr != largeAllocations.end())
+    {
+        // large allocation;
+        // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
+        operator delete(ptr, std::align_val_t{la_itr->second.first});
+        largeAllocations.erase(la_itr);
+        return true;
+    }
 
     auto itr = memoryBlocks.upper_bound(ptr);
     if (itr != memoryBlocks.end())
@@ -973,16 +985,6 @@ bool IntrusiveAllocator::deallocate(void* ptr, std::size_t size)
         {
             return true;
         }
-    }
-
-    auto la_itr = largeAllocations.find(ptr);
-    if (la_itr != largeAllocations.end())
-    {
-        // large allocation;
-        // std::cout<<"IntrusiveAllocator::deallocate("<<ptr<<") deleting large allocation."<<std::endl;
-        operator delete(ptr, std::align_val_t{la_itr->second.first});
-        largeAllocations.erase(la_itr);
-        return true;
     }
 
     if (nestedAllocator && nestedAllocator->deallocate(ptr, size))
