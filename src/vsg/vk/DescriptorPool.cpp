@@ -31,7 +31,7 @@ namespace
         for (auto& binding : layout->bindings)
         {
             auto itr = std::find_if(sizes.begin(), sizes.end(),
-                [&binding](const VkDescriptorPoolSize& v) { return v.type == binding.descriptorType; });
+                                    [&binding](const VkDescriptorPoolSize& v) { return v.type == binding.descriptorType; });
             if (itr != sizes.end())
                 itr->descriptorCount = static_cast<uint32_t>(
                     static_cast<int64_t>(itr->descriptorCount) + sign * static_cast<int64_t>(binding.descriptorCount));
@@ -39,7 +39,7 @@ namespace
                 sizes.push_back(VkDescriptorPoolSize{binding.descriptorType, binding.descriptorCount});
         }
     }
-}
+} // namespace
 
 DescriptorPool::DescriptorPool(Device* device, uint32_t in_maxSets, const DescriptorPoolSizes& in_descriptorPoolSizes) :
     maxSets(in_maxSets),
@@ -157,8 +157,7 @@ bool DescriptorPool::available(uint32_t& numSets, DescriptorPoolSizes& available
 
     numSets += _availableDescriptorSet;
 
-    auto addDescriptorPoolSizes = [](const DescriptorPoolSizes& src, DescriptorPoolSizes& dest) -> void
-    {
+    auto addDescriptorPoolSizes = [](const DescriptorPoolSizes& src, DescriptorPoolSizes& dest) -> void {
         for (auto& dps : src)
         {
             if (dps.descriptorCount > 0)
