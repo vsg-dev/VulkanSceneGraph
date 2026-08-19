@@ -113,7 +113,6 @@ namespace vsgWin32
         }
 
     protected:
-
         vsg::KeySymbol mapCharToKeySymbol(wchar_t ch)
         {
             // Special characters (with and without Shift)

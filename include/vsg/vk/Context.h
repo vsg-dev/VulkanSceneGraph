@@ -72,6 +72,9 @@ namespace vsg
 
         ~Context() override;
 
+        // clear any recorded commands for next frame to avoid accumulating work to next compile traversal.
+        void reset();
+
         const uint32_t deviceID = 0;
         ref_ptr<Device> device;
         ResourceRequirements resourceRequirements;
@@ -126,6 +129,9 @@ namespace vsg
 
         std::vector<ref_ptr<Command>> commands;
 
+        BufferInfoList bufferInfosToCopy;
+        ImageInfoList imageInfosToCopy;
+
         ref_ptr<CopyAndReleaseImage> copyImageCmd;
         void copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest);
         void copy(ref_ptr<Data> data, ref_ptr<ImageInfo> dest, uint32_t numMipMapLevels);
@@ -140,12 +146,14 @@ namespace vsg
 
         ref_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         ref_ptr<MemoryBufferPools> stagingMemoryBufferPools;
+        ref_ptr<TransferTask> transferTask;
 
         // RTX ray tracing
         VkDeviceSize scratchBufferSize;
         std::vector<ref_ptr<BuildAccelerationStructureCommand>> buildAccelerationStructureCommands;
 
-        ref_ptr<TransferTask> transferTask;
+        bool createBufferAndTransferData(const BufferInfoList& bufferInfoList, VkBufferUsageFlags usage, VkSharingMode sharingMode);
+        bool copy(const ImageInfoList& imageInfoList);
     };
     VSG_type_name(vsg::Context);
 

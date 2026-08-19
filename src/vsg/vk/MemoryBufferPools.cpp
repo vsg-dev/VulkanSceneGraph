@@ -82,7 +82,7 @@ ref_ptr<BufferInfo> MemoryBufferPools::reserveBuffer(VkDeviceSize totalSize, VkD
         std::scoped_lock<std::mutex> lock(_mutex);
         for (auto& bufferFromPool : bufferPools)
         {
-            if (bufferFromPool->usage == bufferUsageFlags && bufferFromPool->size >= totalSize)
+            if (bufferFromPool->usage == bufferUsageFlags && bufferFromPool->size >= totalSize && bufferFromPool->maximumAvailableSpace() >= totalSize)
             {
                 MemorySlots::OptionalOffset reservedBufferSlot = bufferFromPool->reserve(totalSize, alignment);
                 if (reservedBufferSlot.first)
@@ -151,12 +151,20 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
     ref_ptr<DeviceMemory> deviceMemory;
     MemorySlots::OptionalOffset reservedSlot(false, 0);
 
+    // Pools can hold linear buffers and optimal tiling images side by side, so every slot is aligned
+    // to bufferImageGranularity to satisfy the Vulkan granularity rule for adjacent resources.
+    const VkDeviceSize granularity = device->getPhysicalDevice()->getProperties().limits.bufferImageGranularity;
+    const VkDeviceSize alignment = std::max(memRequirements.alignment, granularity);
+
     for (auto& memoryPool : memoryPools)
     {
-        if (((memoryPool->getMemoryRequirements().memoryTypeBits & memRequirements.memoryTypeBits) == memRequirements.memoryTypeBits) &&
+        // memoryTypeBits and property flags equality guarantees the pool's chosen memory type index
+        // is also valid for the new resource.
+        if (memoryPool->getMemoryRequirements().memoryTypeBits == memRequirements.memoryTypeBits &&
+            memoryPool->getMemoryPropertyFlags() == memoryPropertiesFlags &&
             memoryPool->maximumAvailableSpace() >= totalSize)
         {
-            reservedSlot = memoryPool->reserve(totalSize, memRequirements.alignment);
+            reservedSlot = memoryPool->reserve(totalSize, alignment);
             if (reservedSlot.first)
             {
                 deviceMemory = memoryPool;
@@ -179,10 +187,15 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
         if (deviceSize <= availableMemory)
         {
+            // Allocate a pool sized block so subsequent resources suballocate from it rather than
+            // each getting a dedicated vkAllocateMemory. Explicit dedicated allocations
+            // (pNextAllocInfo) must keep their exact size.
+            VkMemoryRequirements poolRequirements = memRequirements;
+            if (!pNextAllocInfo) poolRequirements.size = deviceSize;
 
             try
             {
-                deviceMemory = vsg::DeviceMemory::create(device, memRequirements, memoryPropertiesFlags, pNextAllocInfo);
+                deviceMemory = vsg::DeviceMemory::create(device, poolRequirements, memoryPropertiesFlags, pNextAllocInfo);
             }
             catch (...)
             {
@@ -191,7 +204,7 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
             if (deviceMemory)
             {
-                reservedSlot = deviceMemory->reserve(totalSize);
+                reservedSlot = deviceMemory->reserve(totalSize, alignment);
                 // if (!deviceMemory->full())
                 {
                     //debug("  inserting DeviceMemory into memoryPool ", deviceMemory.get());
@@ -218,6 +231,33 @@ MemoryBufferPools::DeviceMemoryOffset MemoryBufferPools::reserveMemory(VkMemoryR
 
     //debug("MemoryBufferPools::reserveMemory() allocated DeviceMemoryOffset(", deviceMemory, ", ", reservedSlot.second, ")");
     return MemoryBufferPools::DeviceMemoryOffset(deviceMemory, reservedSlot.second);
+}
+
+VkResult MemoryBufferPools::reserve(const BufferInfoList& bufferInfos, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties)
+{
+    bool allocationSuccess = true;
+
+    for (auto& bufferInfo : bufferInfos)
+    {
+        if (!bufferInfo->buffer)
+        {
+            if (allocationSuccess)
+            {
+                auto newBufferInfo = reserveBuffer(bufferInfo->data->dataSize(), alignment, bufferUsageFlags, sharingMode, memoryProperties);
+                if (newBufferInfo)
+                {
+                    bufferInfo->take(*newBufferInfo);
+                }
+                else
+                {
+                    debug("MemoryBufferPools::reserve() failed on ", bufferInfo, ", data = ", bufferInfo->data);
+                    allocationSuccess = false;
+                }
+            }
+        }
+    }
+
+    return allocationSuccess ? VK_SUCCESS : VK_ERROR_OUT_OF_DEVICE_MEMORY;
 }
 
 VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
@@ -307,6 +347,42 @@ VkResult MemoryBufferPools::reserve(ResourceRequirements& requirements)
 
         return VK_ERROR_OUT_OF_DEVICE_MEMORY;
     }
+}
+
+VkDeviceSize MemoryBufferPools::releaseUnusedPools()
+{
+    std::scoped_lock<std::mutex> lock(_mutex);
+
+    // release empty Buffers first so their DeviceMemory slots are returned before the memory pools are checked
+    for (auto itr = bufferPools.begin(); itr != bufferPools.end();)
+    {
+        auto& buffer = *itr;
+        if (buffer->totalReservedSize() == 0 && buffer->referenceCount() == 1)
+        {
+            itr = bufferPools.erase(itr);
+        }
+        else
+        {
+            ++itr;
+        }
+    }
+
+    VkDeviceSize totalReleased = 0;
+    for (auto itr = memoryPools.begin(); itr != memoryPools.end();)
+    {
+        auto& memoryPool = *itr;
+        if (memoryPool->totalReservedSize() == 0 && memoryPool->referenceCount() == 1)
+        {
+            totalReleased += memoryPool->totalMemorySize();
+            itr = memoryPools.erase(itr);
+        }
+        else
+        {
+            ++itr;
+        }
+    }
+
+    return totalReleased;
 }
 
 void MemoryBufferPools::report(LogOutput& out) const

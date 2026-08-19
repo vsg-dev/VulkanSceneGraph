@@ -120,6 +120,12 @@ VkResult RecordAndSubmitTask::start()
     earlyDataTransferredSemaphore.reset();
     lateDataTransferredSemaphore.reset();
 
+    if (_currentFrameIndex >= _indices.size())
+    {
+        debug("RecordAndSubmitTask::start() called before advance() so call it now to make sure all the indices align.");
+        advance();
+    }
+
     auto current_fence = fence();
     if (current_fence->hasDependencies())
     {

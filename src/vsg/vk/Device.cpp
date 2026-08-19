@@ -257,7 +257,7 @@ VkDeviceSize Device::availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags
             {
                 uint32_t heapIndex = memoryProperties.memoryTypes[i].heapIndex;
 
-                VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryProperties.memoryHeaps[heapIndex].size) * allocatedMemoryLimit);;
+                VkDeviceSize heapBudget = static_cast<VkDeviceSize>(static_cast<double>(memoryProperties.memoryHeaps[heapIndex].size) * allocatedMemoryLimit);
 
                 // unable to estimate usage, so assume whole budget is available and let calling code gracefully handle any memory allocation failures.
                 availableSpace += heapBudget;

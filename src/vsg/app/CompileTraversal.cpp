@@ -74,7 +74,7 @@ void CompileTraversal::add(ref_ptr<Device> device, ref_ptr<TransferTask> transfe
 
 void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
 {
-    add(device, nullptr, resourceRequirements);
+    add(device, device->transferTask, resourceRequirements);
 }
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
@@ -101,7 +101,10 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
 
 void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
-    add(window, nullptr, viewport, resourceRequirements);
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, viewport, resourceRequirements);
 }
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -136,7 +139,10 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
 
 void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    add(window, nullptr, view, resourceRequirements);
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, view, resourceRequirements);
 }
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -175,7 +181,10 @@ void CompileTraversal::add(ref_ptr<Context> context, Framebuffer& framebuffer, r
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    add(framebuffer, nullptr, view, resourceRequirements);
+    ref_ptr<TransferTask> transferTask;
+    if (const auto device = framebuffer.getDevice()) transferTask = device->transferTask;
+
+    add(framebuffer, transferTask, view, resourceRequirements);
 }
 
 void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
@@ -189,7 +198,7 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
         ref_ptr<TransferTask> transferTask;
 
         AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) :
-            ct(in_ct), resourceRequirements(in_rr) {};
+            ct(in_ct), resourceRequirements(in_rr) {}
 
         const char* className() const noexcept override { return "vsg::CompileTraversal::AddViews"; }
 

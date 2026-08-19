@@ -63,6 +63,11 @@ namespace vsg
         DescriptorPoolSizes _availableDescriptorPoolSizes;
 
         std::list<ref_ptr<DescriptorSet::Implementation>> _recyclingList;
+
+        // Running per-type total of the descriptors held in _recyclingList,
+        // updated incrementally by freeDescriptorSet() and allocateDescriptorSet().
+        // available() reads this directly instead of walking the whole list.
+        DescriptorPoolSizes _recycledDescriptorPoolSizes;
     };
     VSG_type_name(vsg::DescriptorPool);
 
