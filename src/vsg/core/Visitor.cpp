@@ -1043,6 +1043,22 @@ void Visitor::apply(ScrollWheelEvent& event)
 {
     apply(static_cast<WindowEvent&>(event));
 }
+void Visitor::apply(DropEvent& event)
+{
+    apply(static_cast<WindowEvent&>(event));
+}
+void Visitor::apply(DropHoverEvent& event)
+{
+    apply(static_cast<DropEvent&>(event));
+}
+void Visitor::apply(DropLeaveEvent& event)
+{
+    apply(static_cast<DropEvent&>(event));
+}
+void Visitor::apply(DropFilesEvent& event)
+{
+    apply(static_cast<DropEvent&>(event));
+}
 void Visitor::apply(TerminateEvent& event)
 {
     apply(static_cast<UIEvent&>(event));

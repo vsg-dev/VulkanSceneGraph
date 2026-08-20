@@ -206,6 +206,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/PrintEvents.h>
 #include <vsg/ui/RecordEvents.h>
+#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/ui/ShiftEventTime.h>
 #include <vsg/ui/TouchEvent.h>
