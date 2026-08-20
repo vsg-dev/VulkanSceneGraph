@@ -229,7 +229,7 @@ void CompileManager::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transfe
 void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
     ref_ptr<TransferTask> transferTask;
-    if (const auto device = framebuffer.getDevice()) transferTask = device->transferTask;
+    if (auto device = framebuffer.getDevice()) transferTask = device->transferTask;
 
     add(framebuffer, transferTask, view, resourceRequirements);
 }

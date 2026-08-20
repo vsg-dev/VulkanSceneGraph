@@ -244,6 +244,8 @@ constVariableReference:*/src/vsg/utils/ShaderSet.cpp
 
 // suppress inappropriate warning
 constVariablePointer:*/src/vsg/app/SecondaryCommandGraph.cpp
+constVariablePointer:*/src/vsg/app/CompileManager.cpp
+constVariablePointer:*/src/vsg/app/CompileTraversal.cpp
 
 // suppress inappropriate warning
 passedByValue:*/src/vsg/vk/Device.cpp
