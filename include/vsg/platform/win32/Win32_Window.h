@@ -18,8 +18,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #    define NOMINMAX
 #endif
 
-#include <vsg/ui/DropEvent.h>
 #include <vsg/app/Window.h>
+#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 

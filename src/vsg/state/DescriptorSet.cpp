@@ -77,7 +77,7 @@ void DescriptorSet::compile(Context& context)
         }
 
         size_t numDescriptors = 0;
-        for(auto& binding : setLayout->bindings)
+        for (auto& binding : setLayout->bindings)
         {
             numDescriptors += binding.descriptorCount;
         }
