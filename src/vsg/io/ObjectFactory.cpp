@@ -304,6 +304,10 @@ ObjectFactory::ObjectFactory()
     add<vsg::KeyEvent>();
     add<vsg::KeyPressEvent>();
     add<vsg::KeyReleaseEvent>();
+    add<vsg::DropEvent>();
+    add<vsg::DropHoverEvent>();
+    add<vsg::DropLeaveEvent>();
+    add<vsg::DropFilesEvent>();
 
     // viewer
     add<vsg::Camera>();
