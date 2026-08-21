@@ -58,8 +58,8 @@ macro(vsg_setup_dir_vars)
     if(WIN32)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_BINDIR})
         # set up local bin directory to place all binaries
-        make_directory(${OUTPUT_BINDIR})
-        make_directory(${OUTPUT_LIBDIR})
+        file(MAKE_DIRECTORY ${OUTPUT_BINDIR})
+        file(MAKE_DIRECTORY ${OUTPUT_LIBDIR})
         set(VSG_INSTALL_TARGETS_DEFAULT_FLAGS
             EXPORT ${PROJECT_NAME}Targets
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -70,7 +70,7 @@ macro(vsg_setup_dir_vars)
     else()
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_LIBDIR})
         # set up local bin directory to place all binaries
-        make_directory(${OUTPUT_LIBDIR})
+        file(MAKE_DIRECTORY ${OUTPUT_LIBDIR})
         set(VSG_INSTALL_TARGETS_DEFAULT_FLAGS
             EXPORT ${PROJECT_NAME}Targets
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
