@@ -79,6 +79,14 @@ void Viewer::addWindow(ref_ptr<Window> window)
     if (itr != _windows.end()) return;
 
     _windows.push_back(window);
+
+    window->resizeCallback = [this]() {
+        advanceToNextFramePhaseTwo();
+        handleEvents();
+        update();
+        recordAndSubmit();
+        present();
+    };
 }
 
 void Viewer::removeWindow(ref_ptr<Window> window)
@@ -87,6 +95,8 @@ void Viewer::removeWindow(ref_ptr<Window> window)
     if (itr == _windows.end()) return;
 
     _windows.erase(itr);
+
+    window->resizeCallback = nullptr;
 
     // create a new list of CommandGraphs not associated with removed window
     CommandGraphs commandGraphs;
@@ -154,6 +164,14 @@ bool Viewer::pollEvents(bool discardPreviousEvents)
 
 bool Viewer::advanceToNextFrame(double simulationTime)
 {
+    if (!advanceToNextFramePhaseOne())
+        return false;
+
+    return advanceToNextFramePhaseTwo(simulationTime);
+}
+
+bool vsg::Viewer::advanceToNextFramePhaseOne()
+{
     static constexpr SourceLocation s_frame_source_location{"Viewer advanceToNextFrame", VsgFunctionName, __FILE__, __LINE__, COLOR_VIEWER, 1};
 
     // signal to instrumentation the end of the previous frame
@@ -166,6 +184,13 @@ bool Viewer::advanceToNextFrame(double simulationTime)
 
     // poll all the windows for events.
     pollEvents(true);
+
+    return true;
+}
+
+bool vsg::Viewer::advanceToNextFramePhaseTwo(double simulationTime)
+{
+    static constexpr SourceLocation s_frame_source_location{"Viewer advanceToNextFrame", VsgFunctionName, __FILE__, __LINE__, COLOR_VIEWER, 1};
 
     if (!acquireNextFrame()) return false;
 
