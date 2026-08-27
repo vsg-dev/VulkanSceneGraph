@@ -78,6 +78,10 @@ namespace vsg
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            if (layout) visitor.tryReplacePointer(layout);
+        }
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -117,6 +121,11 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& rt) const override;
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            visitor.tryReplacePointer(descriptorSet);
+            if (preRenderCommandGraph) visitor.tryReplacePointer(preRenderCommandGraph);
+        }
 
         // containers filled in by RecordTraversal
         std::vector<std::pair<dmat4, const AmbientLight*>> ambientLights;
