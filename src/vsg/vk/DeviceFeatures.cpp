@@ -16,6 +16,10 @@ using namespace vsg;
 
 DeviceFeatures::DeviceFeatures()
 {
+    // make sure to have a default VkPhysicalDeviceFeatures2 created
+    get();
+    // Specs state:
+    // "For all features, including the Core 1.0 Features, use VkPhysicalDeviceFeatures2 to pass into VkDeviceCreateInfo.pNext"
 }
 
 DeviceFeatures::~DeviceFeatures()
@@ -40,16 +44,22 @@ void DeviceFeatures::clear()
 
 void* DeviceFeatures::data() const
 {
-    if (_features.empty()) return nullptr;
-
     // chain the Feature pNext pointers together
-    FeatureHeader* previous = nullptr;
-    for (auto itr = _features.rbegin(); itr != _features.rend(); ++itr)
-    {
-        itr->second.first->pNext = previous;
-        previous = itr->second.first;
-    }
+    // IF NOTHING WAS SETUP - this will return nullptr as well.
+    FeatureHeader *previous = nullptr, *first = nullptr;
+    for (auto it : _features)
+        if (it.second.first->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2)
+            first = it.second.first;
+        else
+        {
+            it.second.first->pNext = previous;
+            previous = it.second.first;
+        }
+    if (first)
+        first->pNext = previous;
+    else // Fallback path: try to simply hand over, what we have, if any …
+        first = previous;
 
     // return head of the chain
-    return const_cast<void*>(reinterpret_cast<const void*>(_features.begin()->second.first));
+    return const_cast<void*>(reinterpret_cast<const void*>(first));
 }
