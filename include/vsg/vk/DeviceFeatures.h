@@ -2,7 +2,7 @@
 
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2021 Robert Osfield
+Copyright(c) 2021 Robert Osfield, 2026 Stefan Kaps
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,7 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <map>
+#include <algorithm>
+#include <list>
 #include <vsg/io/Logger.h>
 #include <vsg/vk/PhysicalDevice.h>
 
@@ -37,15 +38,20 @@ namespace vsg
         template<typename FeatureStruct, VkStructureType type>
         FeatureStruct& get()
         {
-            if (auto itr = _features.find(type); itr != _features.end()) return *reinterpret_cast<FeatureStruct*>(itr->second.first);
+            auto it = std::find_if(_features.begin(), _features.end(), [](const auto& f) { return f.sType == type; });
+            if (it != _features.end()) return *reinterpret_cast<FeatureStruct*>(it->first);
 
-            FeatureStruct* feature = new FeatureStruct{};
+            if constexpr (type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2)
+                it = _features.begin();
+            else
+            { // as soon as we WILL create another type, we also need the base
+                if (_features.front().first->sType != VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2)
+                    get();
+                it = _features.end();
+            }
 
-            feature->sType = type;
-            feature->pNext = nullptr;
-
-            _features[type].first = reinterpret_cast<FeatureHeader*>(feature);
-            _features[type].second = [](FeatureHeader* ptr) { delete reinterpret_cast<FeatureStruct*>(ptr); };
+            FeatureStruct* feature = new FeatureStruct{type, nullptr};
+            _features.emplace(it, {feature, [](FeatureHeader* ptr) { delete reinterpret_cast<FeatureStruct*>(ptr); }});
 
             return *feature;
         }
@@ -61,7 +67,7 @@ namespace vsg
         /// data() is used as the VkCreateDeviceInfo.pNext setting
         /// automatically chains the pNext pointers of the used feature structures
         /// return nullptr when no features structures have been used.
-        void* data() const;
+        void* data();
 
     protected:
         ~DeviceFeatures() override;
@@ -74,7 +80,7 @@ namespace vsg
 
         using DeleteHandler = void (*)(FeatureHeader* ptr);
 
-        std::map<VkStructureType, std::pair<FeatureHeader*, DeleteHandler>> _features;
+        std::list<std::pair<FeatureHeader*, DeleteHandler>> _features;
     };
     VSG_type_name(vsg::DeviceFeatures);
 

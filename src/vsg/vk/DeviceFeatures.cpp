@@ -14,13 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DeviceFeatures::DeviceFeatures()
-{
-    // make sure to have a default VkPhysicalDeviceFeatures2 created
-    get();
-    // Specs state:
-    // "For all features, including the Core 1.0 Features, use VkPhysicalDeviceFeatures2 to pass into VkDeviceCreateInfo.pNext"
-}
+DeviceFeatures::DeviceFeatures() {}
 
 DeviceFeatures::~DeviceFeatures()
 {
@@ -36,7 +30,7 @@ void DeviceFeatures::clear()
 {
     for (auto& feature : _features)
     {
-        feature.second.second(feature.second.first);
+        feature.second(feature.first);
     }
 
     _features.clear();
@@ -44,21 +38,14 @@ void DeviceFeatures::clear()
 
 void* DeviceFeatures::data() const
 {
-    // chain the Feature pNext pointers together
-    // IF NOTHING WAS SETUP - this will return nullptr as well.
-    FeatureHeader *previous = nullptr, *first = nullptr;
-    for (auto it : _features)
-        if (it.second.first->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2)
-            first = it.second.first;
-        else
-        {
-            it.second.first->pNext = previous;
-            previous = it.second.first;
-        }
-    if (first)
-        first->pNext = previous;
-    else // Fallback path: try to simply hand over, what we have, if any …
-        first = previous;
+    if (_features.empty()) return nullptr;
+
+    // chain the Feature pNext pointers together - make sure: first must ne VkPhysicalDeviceFeatures2
+    if (_features.front().first->sType != VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2) get();
+    FeatureHeader* first{ nullptr }, *prev{ nullptr };
+    for ( auto it : _features )
+        if ( first ) prev->pNext = it.first, prev = it.first;
+        else first = prev = it.first;
 
     // return head of the chain
     return const_cast<void*>(reinterpret_cast<const void*>(first));
