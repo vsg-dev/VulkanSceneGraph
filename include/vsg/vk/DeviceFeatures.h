@@ -38,7 +38,8 @@ namespace vsg
         template<typename FeatureStruct, VkStructureType type>
         FeatureStruct& get()
         {
-            auto it = std::find_if(_features.begin(), _features.end(), [](const auto& f) { return f.sType == type; });
+            auto it = std::find_if(_features.begin(), _features.end(),
+                                   [](const auto& p) { return p.first->sType == type; });
             if (it != _features.end()) return *reinterpret_cast<FeatureStruct*>(it->first);
 
             if constexpr (type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2)
@@ -46,12 +47,12 @@ namespace vsg
             else
             { // as soon as we WILL create another type, we also need the base
                 if (_features.front().first->sType != VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2)
-                    get();
+                    get<VkPhysicalDeviceFeatures2, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2>();
                 it = _features.end();
             }
 
             FeatureStruct* feature = new FeatureStruct{type, nullptr};
-            _features.emplace(it, {feature, [](FeatureHeader* ptr) { delete reinterpret_cast<FeatureStruct*>(ptr); }});
+            _features.emplace(it, (FeatureHeader*)feature, [](FeatureHeader* ptr) { delete reinterpret_cast<FeatureStruct*>(ptr); });
 
             return *feature;
         }
@@ -67,7 +68,7 @@ namespace vsg
         /// data() is used as the VkCreateDeviceInfo.pNext setting
         /// automatically chains the pNext pointers of the used feature structures
         /// return nullptr when no features structures have been used.
-        void* data();
+        void* data() const;
 
     protected:
         ~DeviceFeatures() override;
