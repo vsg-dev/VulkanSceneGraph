@@ -40,12 +40,13 @@ void* DeviceFeatures::data() const
 {
     if (_features.empty()) return nullptr;
 
-    // chain the Feature pNext pointers together - make sure: first must ne VkPhysicalDeviceFeatures2
-    if (_features.front().first->sType != VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2) get();
-    FeatureHeader* first{ nullptr }, *prev{ nullptr };
-    for ( auto it : _features )
-        if ( first ) prev->pNext = it.first, prev = it.first;
-        else first = prev = it.first;
+    // chain the Feature pNext pointers together
+    FeatureHeader *first{nullptr}, *prev{nullptr};
+    for (auto it : _features)
+        if (first)
+            prev->pNext = it.first, prev = it.first;
+        else
+            first = prev = it.first;
 
     // return head of the chain
     return const_cast<void*>(reinterpret_cast<const void*>(first));
