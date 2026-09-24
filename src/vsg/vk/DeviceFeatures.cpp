@@ -14,9 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-DeviceFeatures::DeviceFeatures()
-{
-}
+DeviceFeatures::DeviceFeatures() {}
 
 DeviceFeatures::~DeviceFeatures()
 {
@@ -32,7 +30,7 @@ void DeviceFeatures::clear()
 {
     for (auto& feature : _features)
     {
-        feature.second.second(feature.second.first);
+        feature.second(feature.first);
     }
 
     _features.clear();
@@ -43,13 +41,13 @@ void* DeviceFeatures::data() const
     if (_features.empty()) return nullptr;
 
     // chain the Feature pNext pointers together
-    FeatureHeader* previous = nullptr;
-    for (auto itr = _features.rbegin(); itr != _features.rend(); ++itr)
-    {
-        itr->second.first->pNext = previous;
-        previous = itr->second.first;
-    }
+    FeatureHeader *first{nullptr}, *prev{nullptr};
+    for (auto it : _features)
+        if (first)
+            prev->pNext = it.first, prev = it.first;
+        else
+            first = prev = it.first;
 
     // return head of the chain
-    return const_cast<void*>(reinterpret_cast<const void*>(_features.begin()->second.first));
+    return const_cast<void*>(reinterpret_cast<const void*>(first));
 }
