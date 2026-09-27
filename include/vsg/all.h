@@ -30,6 +30,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/MipmapLayout.h>
 #include <vsg/core/Object.h>
 #include <vsg/core/Objects.h>
+#include <vsg/core/ReplacementVisitor.h>
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/core/Value.h>
 #include <vsg/core/Version.h>
