@@ -32,7 +32,7 @@ namespace vsg
         VkSubpassContents contents = VK_SUBPASS_CONTENTS_INLINE;
 
     protected:
-        virtual ~NextSubPass();
+        ~NextSubPass() override;
     };
     VSG_type_name(vsg::NextSubPass);
 

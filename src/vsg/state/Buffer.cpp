@@ -166,6 +166,11 @@ ref_ptr<Buffer> vsg::createBufferAndMemory(Device* device, VkDeviceSize size, Vk
         if (deviceMemoryBufferPools)
         {
             auto [memory, offset] = deviceMemoryBufferPools->reserveMemory(memRequirements, memoryProperties);
+            if (!memory)
+            {
+                warn("vsg::createBufferAndMemory(.., size = ", size, ", ..) failed to reserve DeviceMemory.");
+                return {};
+            }
 
             buffer->bind(memory, offset);
             return buffer;

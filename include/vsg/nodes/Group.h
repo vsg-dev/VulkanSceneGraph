@@ -59,7 +59,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~Group();
+        ~Group() override;
     };
     VSG_type_name(vsg::Group);
 

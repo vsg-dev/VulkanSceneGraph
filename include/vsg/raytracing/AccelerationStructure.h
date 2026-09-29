@@ -37,7 +37,7 @@ namespace vsg
         VkDeviceSize requiredScratchSize() const { return _requiredBuildScratchSize; }
 
     protected:
-        virtual ~AccelerationStructure();
+        ~AccelerationStructure() override;
 
         VkAccelerationStructureKHR _accelerationStructure;
         VkAccelerationStructureCreateInfoKHR _accelerationStructureInfo;

@@ -99,7 +99,7 @@ namespace vsg
         std::any systemConnection;
 
     protected:
-        virtual ~WindowTraits() {}
+        ~WindowTraits() override {}
     };
     VSG_type_name(vsg::WindowTraits);
 

@@ -27,7 +27,7 @@ namespace vsg
             VkAllocationCallbacks{} {}
 
     protected:
-        virtual ~AllocationCallbacks() {}
+        ~AllocationCallbacks() override {}
     };
 
     /*

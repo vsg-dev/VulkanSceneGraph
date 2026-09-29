@@ -217,10 +217,12 @@ set(SOURCES
 
     ui/UIEvent.cpp
     ui/ApplicationEvent.cpp
+    ui/FrameStamp.cpp
     ui/KeyEvent.cpp
     ui/TouchEvent.cpp
     ui/PointerEvent.cpp
     ui/ScrollWheelEvent.cpp
+    ui/DropEvent.cpp
     ui/WindowEvent.cpp
     ui/RecordEvents.cpp
     ui/CollectEvents.cpp
@@ -322,8 +324,12 @@ if (VSG_SUPPORTS_Windowing)
     elseif (OHOS_ARCH)  # OpenHarmony
         set(HEADERS ${HEADERS} ${VSG_SOURCE_DIR}/include/vsg/platform/harmony/Harmony_Window.h)
         set(SOURCES ${SOURCES} platform/harmony/Harmony_Window.cpp)
+        set(LIBRARIES ${LIBRARIES} PRIVATE ace_ndk.z native_window)
     elseif (WIN32)
         set(SOURCES ${SOURCES} platform/win32/Win32_Window.cpp)
+        # ole32 provides OleInitialize/RegisterDragDrop, shell32 the CF_HDROP helpers, both used by
+        # Win32_Window to receive file drops.
+        set(LIBRARIES ${LIBRARIES} PRIVATE ole32 shell32)
     elseif (IOS)
         set(HEADERS ${HEADERS}
             ${VSG_SOURCE_DIR}/include/vsg/platform/ios/iOS_Window.h

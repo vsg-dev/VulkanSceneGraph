@@ -60,7 +60,7 @@ namespace vsg
         virtual bool compile(Context& context);
 
     protected:
-        virtual ~Buffer();
+        ~Buffer() override;
 
         struct VulkanData
         {

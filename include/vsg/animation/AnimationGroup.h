@@ -50,7 +50,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~AnimationGroup();
+        ~AnimationGroup() override;
     };
     VSG_type_name(vsg::AnimationGroup);
 

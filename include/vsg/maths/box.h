@@ -42,7 +42,7 @@ namespace vsg
 
         constexpr t_box& operator=(const t_box&) = default;
 
-        constexpr std::size_t size() const { return 6; }
+        constexpr static std::size_t size() { return 6; }
 
         value_type& operator[](std::size_t i) { return data()[i]; }
         value_type operator[](std::size_t i) const { return data()[i]; }

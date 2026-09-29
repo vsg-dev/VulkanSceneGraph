@@ -681,15 +681,25 @@ void vsg::transferImageData(ref_ptr<ImageView> imageView, VkImageLayout targetIm
         {
             regions.resize(mipLevels * arrayLayers);
 
+            // mipmap.x/y/z are texel sizes. Compressed formats store whole blocks,
+            // so convert texel dimensions to block counts using integer ceil division.
+            auto ceilDiv = [](uint32_t value, uint32_t divisor) { return (value + divisor - 1) / divisor; };
+
             auto mipmapItr = mipmapData->begin();
             for (uint32_t mipLevel = 0; mipLevel < mipLevels; ++mipLevel)
             {
                 const auto& mipmap = (*mipmapItr++);
 
+                // faceSize = bytes per layer at this mip.
+                const size_t faceSize = static_cast<size_t>(valueSize) *
+                                        ceilDiv(mipmap.x, properties.blockWidth) *
+                                        ceilDiv(mipmap.y, properties.blockHeight) *
+                                        ceilDiv(mipmap.z, properties.blockDepth);
+
                 for (uint32_t face = 0; face < arrayLayers; ++face)
                 {
                     auto& region = regions[mipLevel * arrayLayers + face];
-                    region.bufferOffset = stagingBufferOffset + mipmap.w;
+                    region.bufferOffset = stagingBufferOffset + mipmap.w + face * faceSize;
                     region.bufferRowLength = 0;
                     region.bufferImageHeight = 0;
                     region.imageSubresource.aspectMask = aspectMask;

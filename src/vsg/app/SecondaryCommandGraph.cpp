@@ -109,9 +109,10 @@ void SecondaryCommandGraph::record(ref_ptr<RecordedCommandBuffers> recordedComma
         commandBuffer->reset();
     }
 
+    commandBuffer->frameStamp = frameStamp;
     commandBuffer->numDependentSubmissions().fetch_add(1);
 
-    recordTraversal->getState()->_commandBuffer = commandBuffer;
+    recordTraversal->getState()->connect(commandBuffer);
 
     // or select index when maps to a dormant CommandBuffer
     VkCommandBuffer vk_commandBuffer = *commandBuffer;

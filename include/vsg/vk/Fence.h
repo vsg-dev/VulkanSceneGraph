@@ -44,7 +44,7 @@ namespace vsg
         const Device* getDevice() const { return _device; }
 
     protected:
-        virtual ~Fence();
+        ~Fence() override;
 
         VkFence _vkFence;
         Semaphores _dependentSemaphores;

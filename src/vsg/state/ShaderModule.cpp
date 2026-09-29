@@ -40,7 +40,7 @@ ShaderCompileSettings::ShaderCompileSettings(const ShaderCompileSettings& rhs, c
 {
 }
 
-int ShaderCompileSettings::compare(const Object& rhs_object) const
+int ShaderCompileSettings::compare_except_defines(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
     if (result != 0) return result;
@@ -54,7 +54,15 @@ int ShaderCompileSettings::compare(const Object& rhs_object) const
     if ((result = compare_value(target, rhs.target))) return result;
     if ((result = compare_value(forwardCompatible, rhs.forwardCompatible))) return result;
     if ((result = compare_value(generateDebugInfo, rhs.generateDebugInfo))) return result;
-    if ((result = compare_value(optimize, rhs.optimize))) return result;
+    return compare_value(optimize, rhs.optimize);
+}
+
+int ShaderCompileSettings::compare(const Object& rhs_object) const
+{
+    int result = compare_except_defines(rhs_object);
+    if (result != 0) return result;
+
+    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
     return compare_container(defines, rhs.defines);
 }
 

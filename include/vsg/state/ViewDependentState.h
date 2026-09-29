@@ -88,7 +88,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~BindViewDescriptorSets() {}
+        ~BindViewDescriptorSets() override {}
     };
     VSG_type_name(vsg::BindViewDescriptorSets);
 
@@ -175,7 +175,7 @@ namespace vsg
         mutable std::vector<ShadowMap> shadowMaps;
 
     protected:
-        ~ViewDependentState();
+        ~ViewDependentState() override;
     };
     VSG_type_name(vsg::ViewDependentState);
 

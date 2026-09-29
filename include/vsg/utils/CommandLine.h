@@ -155,7 +155,7 @@ namespace vsg
         bool read(std::initializer_list<std::string> matches, Args&... args)
         {
             bool result = false;
-            for (auto str : matches) result = read(str, args...) | result;
+            for (auto str : matches) result = read(str, args...) || result;
             return result;
         }
 

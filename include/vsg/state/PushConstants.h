@@ -37,7 +37,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~PushConstants();
+        ~PushConstants() override;
     };
     VSG_type_name(vsg::PushConstants);
 

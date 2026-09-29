@@ -36,7 +36,7 @@ namespace vsg
         const Device* getDevice() const { return _device; }
 
     protected:
-        virtual ~Semaphore();
+        ~Semaphore() override;
 
         VkSemaphore _semaphore;
         VkPipelineStageFlags _pipelineStageFlags = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;

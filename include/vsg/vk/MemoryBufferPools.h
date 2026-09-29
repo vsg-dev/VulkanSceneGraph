@@ -42,6 +42,9 @@ namespace vsg
         /// throw vsg::Exception when reserveMemory() fails to allocated memory on device.
         bool throwOutOfDeviceMemoryException = true;
 
+        /// hint whether the compile traversal should call MemoryBufferPools::reserve(requirements);
+        bool compileTraversalUseReserve = true;
+
         VkDeviceSize computeMemoryTotalAvailable() const;
         VkDeviceSize computeMemoryTotalReserved() const;
         VkDeviceSize computeBufferTotalAvailable() const;
@@ -52,7 +55,15 @@ namespace vsg
         using DeviceMemoryOffset = std::pair<ref_ptr<DeviceMemory>, VkDeviceSize>;
         DeviceMemoryOffset reserveMemory(VkMemoryRequirements memRequirements, VkMemoryPropertyFlags memoryProperties, void* pNextAllocInfo = nullptr);
 
+        VkResult reserve(const BufferInfoList& bufferInfoList, VkDeviceSize alignment, VkBufferUsageFlags bufferUsageFlags, VkSharingMode sharingMode, VkMemoryPropertyFlags memoryProperties);
         VkResult reserve(ResourceRequirements& requirements);
+
+        /// Release wholly unused Buffer and DeviceMemory pool entries, returning their memory to the driver.
+        /// Pools normally retain freed capacity for reuse, so call this on application memory pressure rather than routinely.
+        /// Returns the number of bytes of device memory released.
+        VkDeviceSize releaseUnusedPools();
+
+        void report(LogOutput& out) const;
 
     protected:
         mutable std::mutex _mutex;

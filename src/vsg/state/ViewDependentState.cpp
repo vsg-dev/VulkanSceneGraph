@@ -76,11 +76,7 @@ ViewDescriptorSetLayout::ViewDescriptorSetLayout()
 
 int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
 {
-    int result = DescriptorSetLayout::compare(rhs_object);
-    if (result != 0) return result;
-
-    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_pointer(_viewDescriptorSetLayout, rhs._viewDescriptorSetLayout);
+    return Object::compare(rhs_object);
 }
 
 void ViewDescriptorSetLayout::read(Input& input)
@@ -425,7 +421,7 @@ void ViewDependentState::update(ResourceRequirements& requirements)
 {
     if (preRenderCommandGraph)
     {
-        preRenderCommandGraph->maxSlots.merge(requirements.maxSlots);
+        preRenderCommandGraph->maxSlots.update(requirements.maxSlots);
     }
 }
 
@@ -662,7 +658,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         dbox eyeSpaceRegionBounds;
         for (auto& [mv, regionOfInterest] : rt.regionsOfInterest)
         {
-            for (auto& v : regionOfInterest->points)
+            for (const auto& v : regionOfInterest->points)
             {
                 eyeSpaceRegionBounds.add(mv * v);
             }

@@ -1,8 +1,6 @@
-#pragma once
-
 /* <editor-fold desc="MIT License">
 
-Copyright(c) 2024 Robert Osfield
+Copyright(c) 2026 Robert Osfield
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -12,20 +10,45 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/lighting/ShadowSettings.h>
+#include <vsg/ui/FrameStamp.h>
 
-namespace vsg
+using namespace vsg;
+
+FrameStamp::FrameStamp(const FrameStamp& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    time(rhs.time),
+    frameCount(rhs.frameCount),
+    simulationTime(rhs.simulationTime)
 {
+}
 
-    class VSG_DECLSPEC HardShadows : public Inherit<ShadowSettings, HardShadows>
+void FrameStamp::read(Input& input)
+{
+    Object::read(input);
+
+    uint64_t time_since_epoch;
+    input.readValue<uint64_t>("time", time_since_epoch);
+    time = clock::time_point(clock::time_point::duration(time_since_epoch));
+
+    input.read("frameCount", frameCount);
+
+    if (input.version_greater_equal(1, 1, 2))
     {
-    public:
-        explicit HardShadows(uint32_t in_shadowMaps = 1);
-        HardShadows(const HardShadows& rhs, const CopyOp& copyop = {});
+        input.read("simulationTime", simulationTime);
+    }
+}
 
-    public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return HardShadows::create(*this, copyop); }
-    };
-    VSG_type_name(vsg::HardShadows);
+void FrameStamp::write(Output& output) const
+{
+    Object::write(output);
 
-} // namespace vsg
+    uint64_t time_since_epoch = time.time_since_epoch().count();
+    output.writeValue<uint64_t>("time", time_since_epoch);
+
+    output.write("frameCount", frameCount);
+
+    if (output.version_greater_equal(1, 1, 2))
+    {
+        output.write("simulationTime", simulationTime);
+    }
+}

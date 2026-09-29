@@ -44,6 +44,7 @@ namespace vsg
         const VkMemoryPropertyFlags& getMemoryPropertyFlags() const { return _properties; }
 
         MemorySlots::OptionalOffset reserve(VkDeviceSize size);
+        MemorySlots::OptionalOffset reserve(VkDeviceSize size, VkDeviceSize alignment);
         void release(VkDeviceSize offset, VkDeviceSize size);
 
         bool full() const;
@@ -55,8 +56,10 @@ namespace vsg
         Device* getDevice() { return _device; }
         const Device* getDevice() const { return _device; }
 
+        void report(LogOutput& out) const;
+
     protected:
-        virtual ~DeviceMemory();
+        ~DeviceMemory() override;
 
         VkDeviceMemory _deviceMemory;
         VkMemoryRequirements _memoryRequirements;
@@ -95,14 +98,14 @@ namespace vsg
         }
 
         template<typename... Args>
-        static ref_ptr<MappedData> create(DeviceMemory* deviceMemory, VkDeviceSize offset, VkMemoryMapFlags flags, Data::Properties properties, Args... args)
+        static ref_ptr<MappedData> create(DeviceMemory* deviceMemory, VkDeviceSize offset, VkMemoryMapFlags flags, const Data::Properties& properties, Args... args)
         {
             auto data = ref_ptr<MappedData>(new MappedData(deviceMemory, offset, flags, args...));
             data->properties = properties;
             return data;
         }
 
-        virtual ~MappedData()
+        ~MappedData() override
         {
             T::dataRelease(); // make sure that the Array doesn't delete this memory
             _deviceMemory->unmap();

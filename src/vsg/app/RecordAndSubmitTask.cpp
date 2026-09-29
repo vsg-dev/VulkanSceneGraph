@@ -39,6 +39,8 @@ RecordAndSubmitTask::RecordAndSubmitTask(Device* in_device, uint32_t numBuffers)
 
     earlyTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
     lateTransferConsumerCompletedSemaphore = Semaphore::create(in_device);
+
+    if (!device->transferTask) device->transferTask = transferTask;
 }
 
 void RecordAndSubmitTask::advance()
@@ -117,6 +119,12 @@ VkResult RecordAndSubmitTask::start()
 
     earlyDataTransferredSemaphore.reset();
     lateDataTransferredSemaphore.reset();
+
+    if (_currentFrameIndex >= _indices.size())
+    {
+        debug("RecordAndSubmitTask::start() called before advance() so call it now to make sure all the indices align.");
+        advance();
+    }
 
     auto current_fence = fence();
     if (current_fence->hasDependencies())
@@ -304,7 +312,7 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
     {
         for (const auto& commandGraph : task->commandGraphs)
         {
-            commandGraph->maxSlots.merge(compileResult.maxSlots);
+            commandGraph->maxSlots.update(compileResult.maxSlots);
         }
     }
 

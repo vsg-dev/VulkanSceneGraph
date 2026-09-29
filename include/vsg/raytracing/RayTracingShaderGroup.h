@@ -38,7 +38,7 @@ namespace vsg
         ref_ptr<BufferInfo> bufferInfo;
 
     protected:
-        virtual ~RayTracingShaderGroup();
+        ~RayTracingShaderGroup() override;
     };
     VSG_type_name(vsg::RayTracingShaderGroup);
 

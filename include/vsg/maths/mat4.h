@@ -75,9 +75,9 @@ namespace vsg
             value[3] = rhs[3];
         }
 
-        constexpr std::size_t size() const { return 16; }
-        constexpr std::size_t columns() const { return 4; }
-        constexpr std::size_t rows() const { return 4; }
+        constexpr static std::size_t size() { return 16; }
+        constexpr static std::size_t columns() { return 4; }
+        constexpr static std::size_t rows() { return 4; }
 
         column_type& operator[](std::size_t c) { return value[c]; }
         const column_type& operator[](std::size_t c) const { return value[c]; }
@@ -236,9 +236,8 @@ namespace vsg
     t_vec3<T> operator*(const t_vec3<T>& lhs, const t_mat4<T>& rhs)
     {
         T inv = numbers<T>::one() / (lhs[0] * rhs[3][0] + lhs[1] * rhs[3][1] + lhs[2] * rhs[3][2] + rhs[3][3]);
-        return t_vec3<T>(lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + rhs[0][3] * inv,
-                         lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + rhs[1][3] * inv,
-                         lhs[0] * rhs[2][0] + lhs[1] * rhs[2][1] + lhs[2] * rhs[2][2] + rhs[2][3] * inv);
+        return t_vec3<T>((lhs[0] * rhs[0][0] + lhs[1] * rhs[0][1] + lhs[2] * rhs[0][2] + rhs[0][3]) * inv,
+                         (lhs[0] * rhs[1][0] + lhs[1] * rhs[1][1] + lhs[2] * rhs[1][2] + rhs[1][3]) * inv,
+                         (lhs[0] * rhs[2][0] + lhs[1] * rhs[2][1] + lhs[2] * rhs[2][2] + rhs[2][3]) * inv);
     }
-
 } // namespace vsg

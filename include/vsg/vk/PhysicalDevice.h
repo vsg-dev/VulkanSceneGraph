@@ -81,8 +81,7 @@ namespace vsg
     protected:
         // use Instance::getDevice(..) to create PhysicalDevice
         PhysicalDevice(Instance* instance, VkPhysicalDevice device);
-
-        virtual ~PhysicalDevice();
+        ~PhysicalDevice() override;
 
         friend class Instance;
 

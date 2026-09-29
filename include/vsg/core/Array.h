@@ -57,12 +57,12 @@ namespace vsg
             dirty();
         }
 
-        explicit Array(uint32_t numElements, Properties in_properties = {}) :
+        explicit Array(uint32_t numElements, const Properties& in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
             _data(_allocate(numElements)),
             _size(numElements) { dirty(); }
 
-        Array(uint32_t numElements, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
+        Array(uint32_t numElements, value_type* data, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(in_properties, sizeof(value_type)),
             _data(data),
             _size(numElements)
@@ -71,7 +71,7 @@ namespace vsg
             dirty();
         }
 
-        Array(uint32_t numElements, const value_type& value, Properties in_properties = {}) :
+        Array(uint32_t numElements, const value_type& value, const Properties& in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
             _data(_allocate(numElements)),
             _size(numElements)
@@ -80,7 +80,7 @@ namespace vsg
             dirty();
         }
 
-        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
+        Array(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t numElements, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(),
             _data(nullptr),
             _size(0)
@@ -247,7 +247,7 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t numElements, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
+        void assign(uint32_t numElements, value_type* data, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -262,7 +262,7 @@ namespace vsg
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t numElements, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -344,7 +344,7 @@ namespace vsg
         const_iterator end() const { return const_iterator{data(_size), properties.stride}; }
 
     protected:
-        virtual ~Array()
+        ~Array() override
         {
             _delete();
         }
@@ -392,6 +392,8 @@ namespace vsg
     VSG_array(ushortArray, uint16_t);
     VSG_array(intArray, int32_t);
     VSG_array(uintArray, uint32_t);
+    VSG_array(int64Array, int64_t);
+    VSG_array(uint64Array, uint64_t);
     VSG_array(floatArray, float);
     VSG_array(doubleArray, double);
 

@@ -78,7 +78,7 @@ namespace vsg
         constexpr t_vec4(const t_vec3<R>& v, value_type in_w) :
             value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z), in_w} {}
 
-        constexpr std::size_t size() const { return 4; }
+        constexpr static std::size_t size() { return 4; }
 
         value_type& operator[](std::size_t i) { return value[i]; }
         value_type operator[](std::size_t i) const { return value[i]; }

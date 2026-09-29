@@ -85,7 +85,7 @@ int ColorBlendState::compare(const Object& rhs_object) const
     if ((result = compare_value(logicOpEnable, rhs.logicOpEnable))) return result;
     if ((result = compare_value(logicOp, rhs.logicOp))) return result;
     if ((result = compare_value_container(attachments, rhs.attachments))) return result;
-    return compare_values(blendConstants, rhs.blendConstants, 3);
+    return compare_values(blendConstants, rhs.blendConstants, 4);
 }
 
 void ColorBlendState::read(Input& input)

@@ -50,7 +50,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~InstrumentationNode();
+        ~InstrumentationNode() override;
 
         uint32_t _level = 1;
         uint_color _color;

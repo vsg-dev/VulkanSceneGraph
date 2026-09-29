@@ -69,7 +69,7 @@ namespace vsg
         vk_buffer<ModifiedCount> copiedModifiedCounts;
 
     protected:
-        virtual ~ImageInfo();
+        ~ImageInfo() override;
     };
     VSG_type_name(vsg::ImageInfo);
 

@@ -32,7 +32,7 @@ namespace vsg
         T& operator[](uint32_t) { return value; }
         const T& operator[](uint32_t) const { return value; }
 
-        uint32_t size() const { return 1; }
+        constexpr static uint32_t size() { return 1; }
 
         void clear() { value = {}; }
 

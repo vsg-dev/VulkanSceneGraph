@@ -67,7 +67,7 @@ namespace vsg
         constexpr explicit t_vec3(const t_vec3<R>& v) :
             value{static_cast<T>(v.x), static_cast<T>(v.y), static_cast<T>(v.z)} {}
 
-        constexpr std::size_t size() const { return 3; }
+        constexpr static std::size_t size() { return 3; }
 
         value_type& operator[](std::size_t i) { return value[i]; }
         value_type operator[](std::size_t i) const { return value[i]; }

@@ -59,7 +59,7 @@ namespace vsg
         void add(const Path& filename, ref_ptr<Object> object = {}) { entries[filename] = object; }
 
     protected:
-        virtual ~External();
+        ~External() override;
     };
     VSG_type_name(vsg::External);
 

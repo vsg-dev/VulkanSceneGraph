@@ -55,7 +55,7 @@ namespace vsg
         virtual void run();
 
     protected:
-        virtual ~UpdateOperations();
+        ~UpdateOperations() override;
 
         mutable std::mutex _updateOperationMutex;
         std::list<ref_ptr<Operation>> _updateOperationsOneTime;

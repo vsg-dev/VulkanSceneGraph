@@ -65,7 +65,7 @@ namespace vsg
 
         constexpr t_quat& operator=(const t_quat&) = default;
 
-        constexpr std::size_t size() const { return 4; }
+        constexpr static std::size_t size() { return 4; }
 
         value_type& operator[](std::size_t i) { return value[i]; }
         value_type operator[](std::size_t i) const { return value[i]; }

@@ -149,7 +149,7 @@ namespace vsg
         void assignInstrumentation(ref_ptr<Instrumentation> in_instrumentation);
 
     protected:
-        virtual ~Viewer();
+        ~Viewer() override;
 
         bool _close = false;
 

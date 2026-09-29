@@ -44,7 +44,7 @@ namespace vsg
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~ColorBlendState();
+        ~ColorBlendState() override;
     };
     VSG_type_name(vsg::ColorBlendState);
 

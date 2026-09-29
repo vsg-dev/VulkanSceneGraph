@@ -113,7 +113,7 @@ namespace vsg
         Builder(const Builder& rhs) = delete;
         Builder& operator=(const Builder& rhs) = delete;
 
-        ~Builder();
+        ~Builder() override;
 
         bool verbose = false;
         ref_ptr<Options> options;

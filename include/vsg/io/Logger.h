@@ -232,7 +232,7 @@ namespace vsg
         void log_stream(Level msg_level, PrintToStreamFunction print);
 
     protected:
-        virtual ~Logger();
+        ~Logger() override;
 
         std::mutex _mutex;
         std::ostringstream _stream;

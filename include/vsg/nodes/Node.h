@@ -33,7 +33,7 @@ namespace vsg
         static void operator delete(void* ptr);
 
     protected:
-        virtual ~Node();
+        ~Node() override;
     };
     VSG_type_name(vsg::Node);
 

@@ -38,9 +38,13 @@ int Transform::compare(const Object& rhs_object) const
 void Transform::read(Input& input)
 {
     Group::read(input);
+
+    // subclasses currently serialize subgraphRequiresLocalFrustum
 }
 
 void Transform::write(Output& output) const
 {
     Group::write(output);
+
+    // subclasses currently serialize subgraphRequiresLocalFrustum
 }

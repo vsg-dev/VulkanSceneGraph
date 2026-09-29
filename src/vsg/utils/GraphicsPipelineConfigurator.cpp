@@ -94,6 +94,17 @@ DescriptorConfigurator::DescriptorConfigurator(ref_ptr<ShaderSet> in_shaderSet) 
 {
 }
 
+DescriptorConfigurator::DescriptorConfigurator(const DescriptorConfigurator& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    shaderSet(rhs.shaderSet),
+    blending(rhs.blending),
+    two_sided(rhs.two_sided),
+    assigned(rhs.assigned),
+    defines(rhs.defines),
+    descriptorSets(rhs.descriptorSets)
+{
+}
+
 int DescriptorConfigurator::compare(const Object& rhs_object) const
 {
     int result = Object::compare(rhs_object);
@@ -263,6 +274,14 @@ bool DescriptorConfigurator::assignDescriptor(uint32_t set, uint32_t binding, Vk
         ds->setLayout = DescriptorSetLayout::create();
     }
 
+    for (const auto& layout_binding : ds->setLayout->bindings)
+    {
+        if (layout_binding.binding == binding)
+        {
+            return false;
+        }
+    }
+
     ds->descriptors.push_back(descriptor);
 
     auto& descriptorBindings = ds->setLayout->bindings;
@@ -336,6 +355,18 @@ bool DescriptorConfigurator::assignDefaults(const std::set<uint32_t>& inheritedS
 //
 ArrayConfigurator::ArrayConfigurator(ref_ptr<ShaderSet> in_shaderSet) :
     shaderSet(in_shaderSet)
+{
+}
+
+ArrayConfigurator::ArrayConfigurator(const ArrayConfigurator& rhs, const CopyOp& copyop) :
+    Inherit(rhs, copyop),
+    shaderSet(rhs.shaderSet),
+    baseAttributeBinding(rhs.baseAttributeBinding),
+    assigned(rhs.assigned),
+    defines(rhs.defines),
+    vertexBindingDescriptions(rhs.vertexBindingDescriptions),
+    vertexAttributeDescriptions(rhs.vertexAttributeDescriptions),
+    arrays(rhs.arrays)
 {
 }
 
@@ -427,6 +458,8 @@ void GraphicsPipelineConfigurator::reset()
     shaderHints->defines.clear();
     if (descriptorConfigurator) descriptorConfigurator->reset();
 
+    vertexInputRates.clear();
+
     _assignShaderSetSettings();
 }
 
@@ -456,8 +489,7 @@ struct SetPipelineStates : public Visitor
 
 bool GraphicsPipelineConfigurator::enableArray(const std::string& name, VkVertexInputRate vertexInputRate, uint32_t stride, VkFormat format)
 {
-    auto& attributeBinding = shaderSet->getAttributeBinding(name);
-    if (attributeBinding)
+    if (auto& attributeBinding = shaderSet->getAttributeBinding(name))
     {
         if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
 
@@ -465,6 +497,13 @@ bool GraphicsPipelineConfigurator::enableArray(const std::string& name, VkVertex
         accept(setVertexAttributeState);
         return true;
     }
+
+    if (const auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
+    {
+        enableDescriptor(name);
+        vertexInputRates[descriptorBinding.binding] = vertexInputRate;
+    }
+
     return false;
 }
 
@@ -482,8 +521,7 @@ bool GraphicsPipelineConfigurator::enableDescriptor(const std::string& name)
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)
 {
-    const auto& attributeBinding = shaderSet->getAttributeBinding(name);
-    if (attributeBinding)
+    if (const auto& attributeBinding = shaderSet->getAttributeBinding(name))
     {
         if (!attributeBinding.define.empty()) shaderHints->defines.insert(attributeBinding.define);
 
@@ -495,6 +533,13 @@ bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::stri
         arrays.push_back(array);
         return true;
     }
+
+    if (const auto& descriptorBinding = shaderSet->getDescriptorBinding(name))
+    {
+        assignDescriptor(name, array, 0);
+        vertexInputRates[descriptorBinding.binding] = vertexInputRate;
+    }
+
     return false;
 }
 
@@ -535,8 +580,136 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
     if ((result = compare_value(baseAttributeBinding, rhs.baseAttributeBinding))) return result;
     if ((result = compare_pointer(shaderSet, rhs.shaderSet))) return result;
 
-    if ((result = compare_pointer(shaderHints, rhs.shaderHints))) return result;
-    if ((result = compare_pointer_container(inheritedState, rhs.inheritedState))) return result;
+    //
+    // defines settings for ShaderHints may not yet be in final state, so comparing them between compatible GraphicsPipelineConfigurator
+    // objects can lead is not returning a match when just comparing shaderHint->defines.
+    // To resolve this do the shint hint compare wihtout the defines, and then do the comparison of defines
+    // by handling both the respective descriptorConfigurator->defines and shaderHints->defines when comparing to the rhs.
+    //
+    // The compare_shaderHints, IteratorPair and Iterator structs all exist in service of this mutliset comparison.
+    //
+
+    auto compare_shaderHints = [](const ref_ptr<ShaderCompileSettings>& lsh, const ref_ptr<ShaderCompileSettings>& rsh) -> int {
+        if (lsh == rsh) return 0;
+        return lsh ? (rsh ? lsh->compare_except_defines(*rsh) : 1) : (rsh ? -1 : 0);
+    };
+
+    if ((result = compare_shaderHints(shaderHints, rhs.shaderHints))) return result;
+
+    struct IteratorPair
+    {
+        using iterator = std::set<std::string>::const_iterator;
+        iterator itr;
+        iterator end;
+
+        explicit IteratorPair(const ref_ptr<ShaderCompileSettings>& hints)
+        {
+            if (hints)
+            {
+                itr = hints->defines.begin();
+                end = hints->defines.end();
+            }
+            else
+            {
+                itr = end = {};
+            }
+        }
+
+        explicit IteratorPair(const ref_ptr<DescriptorConfigurator>& config)
+        {
+            if (config)
+            {
+                itr = config->defines.begin();
+                end = config->defines.end();
+            }
+            else
+            {
+                itr = end = {};
+            }
+        }
+
+        bool valid() const { return itr != end; }
+    };
+
+    struct Iterator
+    {
+        IteratorPair lhs;
+        IteratorPair rhs;
+
+        explicit Iterator(IteratorPair in_lhs, IteratorPair in_rhs) :
+            lhs(in_lhs), rhs(in_rhs) {}
+
+        bool valid() const { return lhs.valid() || rhs.valid(); }
+
+        /// only call when valid() return true
+        const std::string& value() const
+        {
+            if (lhs.valid())
+            {
+                if (rhs.valid())
+                {
+                    if (*lhs.itr < *rhs.itr)
+                        return *lhs.itr;
+                    else if (*rhs.itr < *lhs.itr)
+                        return *rhs.itr;
+                    else
+                        return *rhs.itr;
+                }
+                else
+                    return *lhs.itr;
+            }
+            else
+                return *rhs.itr;
+        }
+
+        bool advance()
+        {
+            if (lhs.valid())
+            {
+                if (rhs.valid())
+                {
+                    if (*lhs.itr < *rhs.itr)
+                        ++lhs.itr;
+                    else if (*rhs.itr < *lhs.itr)
+                        ++rhs.itr;
+                    else
+                    {
+                        ++lhs.itr;
+                        ++rhs.itr;
+                    }
+                }
+                else
+                    ++lhs.itr;
+            }
+            else if (rhs.valid())
+                ++rhs.itr;
+
+            return valid();
+        }
+    };
+
+    auto local_compare = [](Iterator ilhs, Iterator irhs) -> int {
+        while (ilhs.valid() && irhs.valid())
+        {
+            const auto& lhs_value = ilhs.value();
+            const auto& rhs_value = irhs.value();
+            if (lhs_value < rhs_value)
+                return -1;
+            else if (lhs_value > rhs_value)
+                return 1;
+
+            ilhs.advance();
+            irhs.advance();
+        }
+
+        if (ilhs.valid()) return 1;
+        return irhs.valid() ? -1 : 0;
+    };
+
+    result = local_compare(Iterator(IteratorPair(descriptorConfigurator), IteratorPair(shaderHints)),
+                           Iterator(IteratorPair(rhs.descriptorConfigurator), IteratorPair(rhs.shaderHints)));
+
+    if (result) return result;
 
     return compare_pointer(descriptorConfigurator, rhs.descriptorConfigurator);
 }
@@ -612,7 +785,23 @@ void GraphicsPipelineConfigurator::_assignInheritedSets()
 
 void GraphicsPipelineConfigurator::init()
 {
-    // if (!descriptorConfigurator) descriptorConfigurator = DescriptorConfigurator::create(shaderSet);
+    if (!vertexInputRates.empty())
+    {
+        if (const auto& descriptorBinding = shaderSet->getDescriptorBinding("vertexInputRates"))
+        {
+            auto vir = vsg::uintArray::create(vertexInputRates.rbegin()->first + 1, 0);
+            for (auto [binding, rate] : vertexInputRates)
+            {
+                vir->set(binding, rate);
+            }
+
+            assignDescriptor(descriptorBinding.name, vir, 0);
+        }
+        else
+        {
+            vsg::warn("GraphicsPipelineConfigurator::init() - missing DescriptorBinding for vertexInputRates.");
+        }
+    }
 
     _assignInheritedSets();
 
@@ -643,13 +832,13 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
         // create StateGroup as the root of the scene/command graph to hold the GraphicsPipeline, and binding of Descriptors to decorate the whole graph
         if (sharedObjects)
         {
-            for (auto& dsl : layout->setLayouts)
-            {
-                sharedObjects->share(dsl);
-            }
+            std::scoped_lock<std::recursive_mutex> lock(sharedObjects->mutex);
+
+            sharedObjects->share(layout->setLayouts);
             sharedObjects->share(layout);
+            graphicsPipeline->layout = layout;
+
             sharedObjects->share(graphicsPipeline);
-            layout = graphicsPipeline->layout;
             sharedObjects->share(bindGraphicsPipeline);
         }
 
@@ -659,44 +848,122 @@ bool GraphicsPipelineConfigurator::copyTo(StateCommands& stateCommands, ref_ptr<
 
     if (descriptorConfigurator)
     {
-        for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
+        struct DisableInheritedState : public Visitor
         {
-            if (auto ds = descriptorConfigurator->descriptorSets[set])
+            DescriptorSets descritorSets;
+
+            explicit DisableInheritedState(DescriptorConfigurator& dc) :
+                descritorSets(dc.descriptorSets.size())
             {
-                auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), ds);
-
-                bool dsUnique = true;
-                for (const auto& sc : inheritedState)
+                for (size_t set = 0; set < dc.descriptorSets.size(); ++set)
                 {
-                    if (compare_pointer(sc, bindDescriptorSet) == 0) dsUnique = false;
+                    descritorSets[set] = dc.descriptorSets[set];
                 }
+            }
 
-                if (dsUnique)
+            void apply(BindViewDescriptorSets& bvds) override
+            {
+                if (bvds.firstSet < static_cast<uint32_t>(descritorSets.size()))
                 {
-                    if (sharedObjects)
+                    descritorSets[bvds.firstSet].reset();
+                }
+            }
+
+            void apply(BindDescriptorSet& bds) override
+            {
+                if (bds.firstSet < static_cast<uint32_t>(descritorSets.size()))
+                {
+                    descritorSets[bds.firstSet].reset();
+                }
+            }
+
+            void apply(BindDescriptorSets& bds) override
+            {
+                if (bds.firstSet < static_cast<uint32_t>(descritorSets.size()))
+                {
+                    uint32_t end_set = bds.firstSet + static_cast<uint32_t>(bds.descriptorSets.size());
+                    for (uint32_t set = bds.firstSet; set < end_set; ++set)
                     {
-                        for (auto& descriptor : ds->descriptors)
+                        descritorSets[set].reset();
+                    }
+                }
+            }
+        } active(*descriptorConfigurator);
+
+        for (const auto& sc : inheritedState)
+        {
+            sc->accept(active);
+        }
+
+        if (sharedObjects)
+        {
+            for (auto& ds : active.descritorSets)
+            {
+                if (ds)
+                {
+                    for (auto& descriptor : ds->descriptors)
+                    {
+                        if (auto descriptor_image = descriptor.cast<vsg::DescriptorImage>())
                         {
-                            if (auto descriptor_image = descriptor.cast<vsg::DescriptorImage>())
+                            for (auto& image_info : descriptor_image->imageInfoList)
                             {
-                                for (auto& image_info : descriptor_image->imageInfoList)
+                                if (image_info->imageView && image_info->imageView->image)
                                 {
-                                    if (image_info->imageView && image_info->imageView->image)
-                                    {
-                                        sharedObjects->share(image_info->imageView->image);
-                                    }
+                                    sharedObjects->share(image_info->imageView->image);
                                 }
                             }
-                            sharedObjects->share(descriptor);
                         }
-                        sharedObjects->share(ds->setLayout);
-                        sharedObjects->share(ds);
+                        sharedObjects->share(descriptor);
+                    }
+                    sharedObjects->share(ds->setLayout);
+                    sharedObjects->share(ds);
+                }
+            }
+        }
+
+        for (uint32_t set = 0; set < active.descritorSets.size();)
+        {
+            if (active.descritorSets[set])
+            {
+                uint32_t last = set + 1;
+                for (; (last < active.descritorSets.size()) && active.descritorSets[last]; ++last) {}
+
+                if ((last - set) == 1)
+                {
+                    auto bindDescriptorSet = BindDescriptorSet::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), active.descritorSets[set]);
+
+                    if (sharedObjects)
+                    {
                         sharedObjects->share(bindDescriptorSet);
                     }
 
                     stateCommands.push_back(bindDescriptorSet);
                     stateAssigned = true;
                 }
+                else
+                {
+                    DescriptorSets descriptorSets;
+                    for (auto si = set; si < last; ++si)
+                    {
+                        descriptorSets.push_back(active.descritorSets[si]);
+                    }
+
+                    auto bindDescriptorSets = BindDescriptorSets::create(VK_PIPELINE_BIND_POINT_GRAPHICS, layout, static_cast<uint32_t>(set), descriptorSets);
+
+                    if (sharedObjects)
+                    {
+                        sharedObjects->share(bindDescriptorSets);
+                    }
+
+                    stateCommands.push_back(bindDescriptorSets);
+                    stateAssigned = true;
+                }
+
+                set = last;
+            }
+            else
+            {
+                ++set;
             }
         }
     }

@@ -56,7 +56,7 @@ namespace vsg
         bool allocated(uint32_t& numSets, DescriptorPoolSizes& descriptorPoolSizes) const;
 
     protected:
-        virtual ~DescriptorPools();
+        ~DescriptorPools() override;
 
         /// get the maxSets and descriptorPoolSizes to use
         void getDescriptorPoolSizesToUse(uint32_t& maxSets, DescriptorPoolSizes& descriptorPoolSizes);

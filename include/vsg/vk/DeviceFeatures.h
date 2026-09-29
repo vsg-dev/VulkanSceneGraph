@@ -64,7 +64,7 @@ namespace vsg
         void* data() const;
 
     protected:
-        ~DeviceFeatures();
+        ~DeviceFeatures() override;
 
         struct FeatureHeader
         {

@@ -103,7 +103,7 @@ namespace vsg
         void apply(View& view) override;
 
     protected:
-        ~CompileTraversal();
+        ~CompileTraversal() override;
 
         void add(ref_ptr<Context> context, Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements);
         void addViewDependentState(ViewDependentState& viewDependentState, ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements);

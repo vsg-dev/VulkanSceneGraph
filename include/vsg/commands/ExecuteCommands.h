@@ -37,7 +37,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~ExecuteCommands();
+        ~ExecuteCommands() override;
 
         struct CommandGraphAndBuffer
         {

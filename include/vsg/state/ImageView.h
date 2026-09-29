@@ -44,14 +44,14 @@ namespace vsg
         virtual void compile(Context& context);
 
     protected:
-        virtual ~ImageView();
+        ~ImageView() override;
 
         struct VulkanData
         {
             VkImageView imageView = VK_NULL_HANDLE;
             ref_ptr<Device> device;
+            ref_ptr<Image> image;
 
-            ~VulkanData() { release(); }
             void release();
         };
 

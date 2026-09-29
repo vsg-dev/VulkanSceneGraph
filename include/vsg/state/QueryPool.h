@@ -51,7 +51,7 @@ namespace vsg
         void compile(Context& context);
 
     protected:
-        ~QueryPool();
+        ~QueryPool() override;
 
         VkQueryPool _queryPool{};
         ref_ptr<Device> _device{};

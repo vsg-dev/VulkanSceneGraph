@@ -72,7 +72,7 @@ namespace vsg
         virtual VkResult compile(MemoryBufferPools& memoryBufferPools);
 
     protected:
-        virtual ~Image();
+        ~Image() override;
 
         struct VulkanData
         {

@@ -105,12 +105,12 @@ namespace vsg
             using other = allocator_affinity_adapter<U, A>;
         };
 
-        value_type* allocate(std::size_t n)
+        static value_type* allocate(std::size_t n)
         {
             return static_cast<value_type*>(vsg::allocate(n * sizeof(value_type), A));
         }
 
-        void deallocate(value_type* ptr, std::size_t n)
+        static void deallocate(value_type* ptr, std::size_t n)
         {
             vsg::deallocate(ptr, n * sizeof(value_type));
         }

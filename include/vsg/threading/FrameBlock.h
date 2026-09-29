@@ -67,7 +67,7 @@ namespace vsg
         }
 
     protected:
-        virtual ~FrameBlock() {}
+        ~FrameBlock() override {}
 
         std::mutex _mutex;
         std::condition_variable _cv;

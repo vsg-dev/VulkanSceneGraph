@@ -128,8 +128,7 @@ void VertexDraw::compile(Context& context)
 
     if (requiresCreateAndCopy)
     {
-        BufferInfoList combinedBufferInfos(arrays);
-        createBufferAndTransferData(context, combinedBufferInfos, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
+        createBufferAndTransferData(context, arrays, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE);
 
         // info("VertexDraw::compile() create and copy ", this);
     }

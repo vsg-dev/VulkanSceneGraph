@@ -16,7 +16,7 @@ namespace vsg
     {
     public:
         ShaderCompiler();
-        virtual ~ShaderCompiler();
+        ~ShaderCompiler() override;
 
         /// return true if shader compilation is supported by this build of VulkanSceneGraph
         /// you can also use the VSG_SUPPORTS_ShaderCompiler define provided by include/vsg/core/Version.h

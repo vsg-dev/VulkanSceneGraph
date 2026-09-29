@@ -48,7 +48,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~InstanceDraw();
+        ~InstanceDraw() override;
     };
     VSG_type_name(vsg::InstanceDraw)
 

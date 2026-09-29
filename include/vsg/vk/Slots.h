@@ -29,10 +29,17 @@ namespace vsg
             return view > state ? view : state;
         }
 
-        void merge(const Slots& rhs)
+        /// update this Slots object to hold the maximum state and view value of this and rhs Slots objects.
+        void update(const Slots& rhs)
         {
             if (rhs.state > state) state = rhs.state;
             if (rhs.view > view) view = rhs.view;
+        }
+
+        /// return true if this Slots object is less that rhs Slots object and needs to be updated by calling this Slots::merge(rhs).
+        bool requiresUpdate(const Slots& rhs) const
+        {
+            return rhs.state > state || rhs.view > view;
         }
     };
 

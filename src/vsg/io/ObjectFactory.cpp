@@ -36,8 +36,14 @@ ObjectFactory::ObjectFactory()
     add<vsg::wstringValue>();
     add<vsg::pathValue>();
     add<vsg::boolValue>();
+    add<vsg::byteValue>();
+    add<vsg::ubyteValue>();
+    add<vsg::shortValue>();
+    add<vsg::ushortValue>();
     add<vsg::intValue>();
     add<vsg::uintValue>();
+    add<vsg::int64Value>();
+    add<vsg::uint64Value>();
     add<vsg::floatValue>();
     add<vsg::doubleValue>();
     add<vsg::vec2Value>();
@@ -75,6 +81,8 @@ ObjectFactory::ObjectFactory()
     add<vsg::ushortArray>();
     add<vsg::intArray>();
     add<vsg::uintArray>();
+    add<vsg::int64Array>();
+    add<vsg::uint64Array>();
     add<vsg::floatArray>();
     add<vsg::doubleArray>();
     add<vsg::vec2Array>();
@@ -285,6 +293,10 @@ ObjectFactory::ObjectFactory()
     add<vsg::TouchUpEvent>();
     add<vsg::TouchMoveEvent>();
     add<vsg::ScrollWheelEvent>();
+    add<vsg::DropEvent>();
+    add<vsg::DropHoverEvent>();
+    add<vsg::DropLeaveEvent>();
+    add<vsg::DropFilesEvent>();
     add<vsg::WindowEvent>();
     add<vsg::ExposeWindowEvent>();
     add<vsg::ConfigureWindowEvent>();
@@ -292,6 +304,10 @@ ObjectFactory::ObjectFactory()
     add<vsg::KeyEvent>();
     add<vsg::KeyPressEvent>();
     add<vsg::KeyReleaseEvent>();
+    add<vsg::DropEvent>();
+    add<vsg::DropHoverEvent>();
+    add<vsg::DropLeaveEvent>();
+    add<vsg::DropFilesEvent>();
 
     // viewer
     add<vsg::Camera>();

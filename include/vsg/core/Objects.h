@@ -48,7 +48,7 @@ namespace vsg
         }
 
     protected:
-        virtual ~Objects();
+        ~Objects() override;
     };
     VSG_type_name(vsg::Objects);
 

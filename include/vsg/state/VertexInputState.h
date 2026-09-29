@@ -40,7 +40,7 @@ namespace vsg
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~VertexInputState();
+        ~VertexInputState() override;
     };
     VSG_type_name(vsg::VertexInputState);
 

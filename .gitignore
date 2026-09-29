@@ -83,4 +83,6 @@ DerivedData/
 #glslang automatically generated files
 include/glslang
 src/vsg/CHANGES.md
-
+src/vsg/vsgTargets.cmake
+*.txt.user
+*.txt.user.*

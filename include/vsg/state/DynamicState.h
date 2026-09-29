@@ -46,7 +46,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~DynamicState();
+        ~DynamicState() override;
     };
     VSG_type_name(vsg::DynamicState);
 

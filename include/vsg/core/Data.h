@@ -144,10 +144,10 @@ namespace vsg
         Data(const Data& data, const CopyOp& copyop = {}) :
             Object(data, copyop), properties(data.properties) {}
 
-        explicit Data(Properties layout) :
+        explicit Data(const Properties& layout) :
             properties(layout) {}
 
-        Data(Properties layout, uint32_t min_stride) :
+        Data(const Properties& layout, uint32_t min_stride) :
             properties(layout)
         {
             if (properties.stride < min_stride) properties.stride = min_stride;
@@ -190,8 +190,11 @@ namespace vsg
         virtual uint32_t height() const = 0;
         virtual uint32_t depth() const = 0;
 
-        /// return the {width, height, depth} pixel extents of an image accounting for blockWidth and any mipmapData assigned to image.
-        std::tuple<uint32_t, uint32_t, uint32_t> pixelExtents() const;
+        /// return the number of faces - uses properties.imageViewType and depth() value.
+        std::pair<uint32_t, uint32_t> faceDepthAndCount() const;
+
+        /// return the {width, height, depth, layers} pixel extents of an image accounting for blockWidth and any mipmapData assigned to image.
+        std::tuple<uint32_t, uint32_t, uint32_t, uint32_t> pixelExtents() const;
 
         bool contiguous() const { return valueSize() == properties.stride; }
 
@@ -224,32 +227,12 @@ namespace vsg
         const MipmapLayout* getMipmapLayout() const;
 
     protected:
-        virtual ~Data() {}
+        ~Data() override {}
 
         void _copy(const Data& rhs);
         void _clear();
 
         ModifiedCount _modifiedCount;
-
-#if 1
-    public:
-        /// deprecated: provided for backwards compatibility, use Properties instead.
-        using Layout = Properties;
-
-        /// deprecated: use data->properties = properties instead.
-        void setLayout(Layout layout)
-        {
-            VkFormat previous_format = properties.format; // temporary hack to keep applications that call setFormat(..) before setLayout(..) working
-            uint32_t previous_stride = properties.stride;
-            properties = layout;
-            if (properties.format == 0 && previous_format != 0) properties.format = previous_format; // temporary hack to keep existing applications working
-            if (properties.stride == 0 && previous_stride != 0) properties.stride = previous_stride; // make sure the layout has a valid stride.
-        }
-        /// deprecated: use data->properties
-        Layout& getLayout() { return properties; }
-        /// deprecated: use data->properties
-        Layout getLayout() const { return properties; }
-#endif
     };
     VSG_type_name(vsg::Data);
 

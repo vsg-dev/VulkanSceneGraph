@@ -46,7 +46,7 @@ namespace vsg
         static ref_ptr<ObjectFactory>& instance();
 
     protected:
-        virtual ~ObjectFactory();
+        ~ObjectFactory() override;
 
         CreateMap _createMap;
     };

@@ -59,6 +59,8 @@ namespace vsg
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderCompileSettings::create(*this, copyop); }
+
+        virtual int compare_except_defines(const Object& rhs_object) const;
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
@@ -103,13 +105,13 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~ShaderModule();
+        ~ShaderModule() override;
 
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Device* device, ShaderModule* shader);
 
-            virtual ~Implementation();
+            ~Implementation() override;
 
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;

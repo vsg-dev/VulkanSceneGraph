@@ -47,7 +47,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~BindIndexBuffer();
+        ~BindIndexBuffer() override;
     };
     VSG_type_name(vsg::BindIndexBuffer);
 

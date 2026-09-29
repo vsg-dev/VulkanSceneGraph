@@ -41,7 +41,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~Light() {}
+        ~Light() override {}
     };
     VSG_type_name(vsg::Light);
 

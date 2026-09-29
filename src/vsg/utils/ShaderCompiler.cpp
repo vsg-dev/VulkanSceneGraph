@@ -281,7 +281,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         std::string finalShaderSource = vsg::insertIncludes(vsg_shader->module->source, options);
 
         std::vector<std::string> combinedDefines(defines);
-        for (auto& define : settings->defines) combinedDefines.push_back(define);
+        for (const auto& define : settings->defines) combinedDefines.push_back(define);
         if (!combinedDefines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, combinedDefines);
 
         vsg::debug("ShaderCompiler::compile() combinedDefines = ", combinedDefines);
@@ -471,8 +471,6 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
 
     const std::string versionmatch = "#version";
     const std::string importdefinesmatch = "#pragma import_defines";
-
-    std::vector<std::string> finaldefines;
 
     for (std::string line; std::getline(iss, line);)
     {

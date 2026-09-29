@@ -56,12 +56,12 @@ namespace vsg
         VkPipeline vk(uint32_t deviceID) const { return _implementation[deviceID]->_pipeline; }
 
     protected:
-        virtual ~RayTracingPipeline();
+        ~RayTracingPipeline() override;
 
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Context& context, RayTracingPipeline* rayTracingPipeline);
-            virtual ~Implementation();
+            ~Implementation() override;
 
             VkPipeline _pipeline;
 
@@ -103,7 +103,7 @@ namespace vsg
         virtual void release();
 
     public:
-        virtual ~BindRayTracingPipeline();
+        ~BindRayTracingPipeline() override;
 
         ref_ptr<RayTracingPipeline> _pipeline;
     };

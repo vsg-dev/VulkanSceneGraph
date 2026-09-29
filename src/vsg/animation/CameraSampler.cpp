@@ -45,6 +45,19 @@ void CameraKeyframes::read(Input& input)
         input.readObjects("path", track.value);
     }
 
+    if (input.version_greater_equal(1, 1, 15))
+    {
+        // read origin key frames
+        uint32_t num_origins = input.readValue<uint32_t>("origins");
+        origins.resize(num_origins);
+        for (auto& origin : origins)
+        {
+            input.matchPropertyName("origin");
+            input.read(1, &origin.time);
+            input.read(1, &origin.value);
+        }
+    }
+
     // read position key frames
     uint32_t num_positions = input.readValue<uint32_t>("positions");
     positions.resize(num_positions);
@@ -103,6 +116,19 @@ void CameraKeyframes::write(Output& output) const
         output.writeObjects("path", track.value);
     }
 
+    if (output.version_greater_equal(1, 1, 15))
+    {
+        // write origin key frames
+        output.writeValue<uint32_t>("origins", origins.size());
+        for (const auto& origin : origins)
+        {
+            output.writePropertyName("origin");
+            output.write(1, &origin.time);
+            output.write(1, &origin.value);
+            output.writeEndOfLine();
+        }
+    }
+
     // write position key frames
     output.writeValue<uint32_t>("positions", positions.size());
     for (const auto& position : positions)
@@ -120,15 +146,6 @@ void CameraKeyframes::write(Output& output) const
         output.writePropertyName("rotation");
         output.write(1, &rotation.time);
         output.write(1, &rotation.value);
-        output.writeEndOfLine();
-    }
-
-    // write scale key frames
-    for (const auto& scale : fieldOfViews)
-    {
-        output.writePropertyName("fov");
-        output.write(1, &scale.time);
-        output.write(1, &scale.value);
         output.writeEndOfLine();
     }
 

@@ -77,4 +77,6 @@ DeviceExtensions::DeviceExtensions(Device* device)
         device->getProcAddr(vkCmdSetStencilTestEnable, "vkCmdSetStencilTestEnableEXT");
         device->getProcAddr(vkCmdSetStencilOp, "vkCmdSetStencilOpEXT");
     }
+
+    memory_budget = device->supportsApiVersion(VK_API_VERSION_1_1) && device->supportsDeviceExtension(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
 }

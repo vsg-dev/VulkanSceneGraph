@@ -78,7 +78,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~PagedLOD();
+        ~PagedLOD() override;
 
     public:
         ref_ptr<Options> options;
@@ -88,6 +88,9 @@ namespace vsg
 
         mutable std::atomic_uint64_t frameHighResLastUsed{0};
         mutable std::atomic_uint requestCount{0};
+
+        mutable std::atomic_uint64_t frameNextLoadAttempt{0};
+        mutable std::atomic_uint64_t loadAttempts{0};
 
         enum RequestStatus : unsigned int
         {

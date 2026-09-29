@@ -44,7 +44,7 @@ namespace vsg
 
     protected:
         Queue(VkQueue queue, VkQueueFlags queueFlags, uint32_t queueFamilyIndex, uint32_t queueIndex);
-        virtual ~Queue();
+        ~Queue() override;
 
         Queue() = delete;
         Queue(const Queue&) = delete;

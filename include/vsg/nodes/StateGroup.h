@@ -81,7 +81,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~StateGroup();
+        ~StateGroup() override;
     };
     VSG_type_name(vsg::StateGroup);
 

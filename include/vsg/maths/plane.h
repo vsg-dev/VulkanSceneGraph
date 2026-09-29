@@ -77,7 +77,7 @@ namespace vsg
         constexpr explicit t_plane(const t_vec4<T>& v) :
             value{v[0], v[1], v[2], v[3]} {}
 
-        constexpr std::size_t size() const { return 4; }
+        constexpr static std::size_t size() { return 4; }
 
         value_type& operator[](std::size_t i) { return value[i]; }
         value_type operator[](std::size_t i) const { return value[i]; }

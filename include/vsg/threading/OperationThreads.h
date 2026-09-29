@@ -53,7 +53,7 @@ namespace vsg
         ref_ptr<ActivityStatus> status;
 
     protected:
-        virtual ~OperationThreads();
+        ~OperationThreads() override;
     };
     VSG_type_name(vsg::OperationThreads)
 

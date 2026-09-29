@@ -92,7 +92,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~ResourceHints();
+        ~ResourceHints() override;
     };
     VSG_type_name(vsg::ResourceHints);
 

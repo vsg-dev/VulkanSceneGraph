@@ -61,6 +61,9 @@ namespace vsg
         PFN_vkCmdSetDepthBoundsTestEnableEXT vkCmdSetDepthBoundsTestEnable = nullptr;
         PFN_vkCmdSetStencilTestEnableEXT vkCmdSetStencilTestEnable = nullptr;
         PFN_vkCmdSetStencilOpEXT vkCmdSetStencilOp = nullptr;
+
+        // cache whether extension is supported
+        bool memory_budget = false; // VK_EXT_memory_budget
     };
     VSG_type_name(vsg::DeviceExtensions);
 
