@@ -1,0 +1,4 @@
+add_executable(vsg_descriptor_pool_recycle DescriptorPoolRecycle.cpp)
+target_link_libraries(vsg_descriptor_pool_recycle PRIVATE vsg::vsg)
+add_test(NAME vsg_descriptor_pool_recycle COMMAND vsg_descriptor_pool_recycle)
+set_tests_properties(vsg_descriptor_pool_recycle PROPERTIES SKIP_RETURN_CODE 77)
