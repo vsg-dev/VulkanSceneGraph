@@ -242,4 +242,10 @@ vsg_add_option_maintainer(
 #
 add_subdirectory(src/vsg)
 
+option(VSG_BUILD_TESTS "Build VulkanSceneGraph tests" OFF)
+if (VSG_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
 vsg_add_feature_summary()
