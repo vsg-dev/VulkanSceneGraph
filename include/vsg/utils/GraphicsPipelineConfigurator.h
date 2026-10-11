@@ -107,6 +107,7 @@ namespace vsg
 
         void traverse(Visitor& visitor) override;
         void traverse(ConstVisitor& visitor) const override;
+        void traverse(ReplacementVisitor& visitor) override;
 
         // inputs to setup of GraphicsPipeline, the default sets are taken from any provided by ShaderSet::defaultGraphicsPipelineStates
         GraphicsPipelineStates pipelineStates;

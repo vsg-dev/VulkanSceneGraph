@@ -20,9 +20,10 @@ InstrumentationNode::InstrumentationNode() :
     _level(1),
     _color(255, 255, 255, 255),
     _name("InstrumentationNode"),
-    _sl_Visitor{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 42, _color, _level},
-    _sl_ConstVisitor{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 48, _color, _level},
-    _sl_RecordTraversal{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 54, _color, _level}
+    _sl_Visitor{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 67, _color, _level},
+    _sl_ConstVisitor{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 73, _color, _level},
+    _sl_RecordTraversal{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 79, _color, _level},
+    _sl_ReplacementVisitor{_name.c_str(), "InstrumentationNode::traverse(Visitor& rt)", __FILE__, 86, _color, _level}
 {
 }
 
@@ -33,7 +34,8 @@ InstrumentationNode::InstrumentationNode(const InstrumentationNode& rhs, const C
     _name(rhs._name),
     _sl_Visitor{rhs._sl_Visitor},
     _sl_ConstVisitor{rhs._sl_ConstVisitor},
-    _sl_RecordTraversal{rhs._sl_RecordTraversal}
+    _sl_RecordTraversal{rhs._sl_RecordTraversal},
+    _sl_ReplacementVisitor{rhs._sl_ReplacementVisitor}
 {
     _sl_Visitor.name = _name.c_str();
     _sl_ConstVisitor.name = _name.c_str();
@@ -77,6 +79,13 @@ void InstrumentationNode::traverse(RecordTraversal& rt) const
 {
     GpuInstrumentation cpuInst(rt.instrumentation, &_sl_RecordTraversal, *rt.getCommandBuffer(), child.get());
     child->accept(rt);
+}
+
+
+void InstrumentationNode::traverse(ReplacementVisitor& visitor)
+{
+    CpuInstrumentation cpuInst(visitor.getInstrumentation(), &_sl_ReplacementVisitor, child.get());
+    visitor.tryReplacePointer(child);
 }
 
 void InstrumentationNode::setColor(uint_color color)

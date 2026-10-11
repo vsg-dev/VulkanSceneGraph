@@ -98,6 +98,10 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            if (child) visitor.tryReplacePointer(child);
+        }
 
         // read/write of TileReader settings
         void read(Input& input) override;

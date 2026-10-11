@@ -47,6 +47,10 @@ namespace vsg
         {
             if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) child->accept(visitor);
         }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) { visitor.tryReplacePointer(child); }
+        }
 
         void read(Input& input) override;
         void write(Output& output) const override;

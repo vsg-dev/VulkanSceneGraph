@@ -35,6 +35,10 @@ namespace vsg
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
         void traverse(RecordTraversal& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            if (scenegraph) visitor.tryReplacePointer(scenegraph);
+        }
 
         void setup(Text* text, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) override;
         void setup(TextGroup* textGroup, uint32_t minimumAllocation = 0, ref_ptr<const Options> options = {}) override;
