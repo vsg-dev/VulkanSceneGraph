@@ -20,8 +20,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/StateGroup.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
