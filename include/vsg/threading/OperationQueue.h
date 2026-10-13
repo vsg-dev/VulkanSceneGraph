@@ -146,6 +146,8 @@ namespace vsg
     struct Operation : public Object
     {
         virtual void run() = 0;
+        // make the operation invocable:
+        void operator()() { run(); }
     };
     VSG_type_name(vsg::Operation)
 
