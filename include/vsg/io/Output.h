@@ -177,7 +177,7 @@ namespace vsg
 
         /// match propertyname and write value(s)
         template<typename... Args>
-        void write(const char* propertyName, Args&... args)
+        void write(const char* propertyName, const Args&... args)
         {
             writePropertyName(propertyName);
 
