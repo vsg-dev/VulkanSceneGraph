@@ -274,6 +274,7 @@ void Window::buildSwapchain()
         // clean up previous swap chain before we begin creating a new one.
         _frames.clear();
         _indices.clear();
+        _availableSemaphores.clear();
 
         _depthImageView.reset();
         _depthImage.reset();
