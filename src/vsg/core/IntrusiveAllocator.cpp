@@ -48,7 +48,7 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
 
     memory = static_cast<Element*>(operator new(blockSize, std::align_val_t{blockAlignment}));
     memoryEnd = memory + blockSize / sizeof(Element);
-    capacity = static_cast<Element::Index>(blockSize / alignment);
+    capacity = static_cast<Element::Index>(blockSize / sizeof(Element));
     firstSlot = static_cast<Element::Index>(((1 + elementAlignment) / elementAlignment) * elementAlignment - 1);
 
     Element::Index max_slot_size = (1 << 15);
@@ -72,6 +72,9 @@ IntrusiveAllocator::MemoryBlock::MemoryBlock(const std::string& in_name, size_t 
     {
         Element::Index aligned_start = ((position + max_slot_size) / elementAlignment) * elementAlignment;
         Element::Index next_position = std::min(aligned_start - 1, capacity);
+
+        // a tail too short to hold a free slot's three elements would be written past the end of the block, so leave it unused
+        if (next_position < capacity && capacity - next_position < 3) capacity = next_position;
 
         memory[position] = Element{(previous_position == 0) ? 0 : (position - previous_position), next_position - position, 1};
         memory[position + 1].index = static_cast<Element::Index>(previous_position);
