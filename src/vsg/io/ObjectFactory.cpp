@@ -175,6 +175,9 @@ ObjectFactory::ObjectFactory()
     add<vsg::ubvec2Array3D>();
     add<vsg::ubvec3Array3D>();
     add<vsg::ubvec4Array3D>();
+    add<vsg::usvec2Array3D>();
+    add<vsg::usvec3Array3D>();
+    add<vsg::usvec4Array3D>();
     add<vsg::block64Array3D>();
     add<vsg::block128Array3D>();
 
