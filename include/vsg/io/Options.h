@@ -40,7 +40,7 @@ namespace vsg
         Options(const Options& rhs, const CopyOp& copyop = {});
 
         template<typename... Args>
-        explicit Options(Args... args)
+        explicit Options(Args... args) : Options()
         {
             (add(args), ...);
         }
