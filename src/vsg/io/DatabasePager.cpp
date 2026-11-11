@@ -713,6 +713,41 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
 
         culledPagedLODs->clear();
 
+        auto trim = [&](PagedLODContainer::Element& element) {
+            if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
+            {
+                ref_ptr<PagedLOD> plod = element.plod;
+                plod->children[0].node = nullptr;
+                plod->requestCount.exchange(0);
+                plod->requestStatus.exchange(PagedLOD::NoRequest);
+
+                deleteList.push_back(plod->pending);
+                plod->pending = {};
+
+                deleteList.push_back(plod);
+                pagedLODContainer->remove(plod);
+
+                if (plod->options->sharedObjects)
+                {
+                    if (std::find(sharedObjectsToPrune.begin(), sharedObjectsToPrune.end(), plod->options->sharedObjects) == sharedObjectsToPrune.end())
+                    {
+                        sharedObjectsToPrune.push_back(plod->options->sharedObjects);
+                    }
+                }
+
+                debug("    trimming ", plod, " ", plod->filename);
+            }
+        };
+
+        // a PagedLOD that only this container still references has been removed from the scene graph and can never be drawn again, so release it now rather than when the target count is reached
+        for (uint32_t index = pagedLODContainer->inactiveList.head; index != 0;)
+        {
+            auto& element = elements[index];
+            index = element.next;
+
+            if (element.plod->referenceCount() == 1) trim(element);
+        }
+
         // set the number of PagedLOD to expire
         uint32_t total = pagedLODContainer->activeList.count + pagedLODContainer->inactiveList.count;
 
@@ -730,29 +765,7 @@ void DatabasePager::updateSceneGraph(ref_ptr<FrameStamp> frameStamp, CompileResu
                 auto& element = elements[index];
                 index = element.next;
 
-                if (compare_exchange(element.plod->requestStatus, PagedLOD::NoRequest, PagedLOD::DeleteRequest))
-                {
-                    ref_ptr<PagedLOD> plod = element.plod;
-                    plod->children[0].node = nullptr;
-                    plod->requestCount.exchange(0);
-                    plod->requestStatus.exchange(PagedLOD::NoRequest);
-
-                    deleteList.push_back(plod->pending);
-                    plod->pending = {};
-
-                    deleteList.push_back(plod);
-                    pagedLODContainer->remove(plod);
-
-                    if (plod->options->sharedObjects)
-                    {
-                        if (std::find(sharedObjectsToPrune.begin(), sharedObjectsToPrune.end(), plod->options->sharedObjects) == sharedObjectsToPrune.end())
-                        {
-                            sharedObjectsToPrune.push_back(plod->options->sharedObjects);
-                        }
-                    }
-
-                    debug("    trimming ", plod, " ", plod->filename);
-                }
+                trim(element);
             }
         }
     }
