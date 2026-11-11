@@ -16,6 +16,7 @@ using namespace vsg;
 
 DeviceFeatures::DeviceFeatures()
 {
+    _features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 }
 
 DeviceFeatures::~DeviceFeatures()
@@ -23,33 +24,13 @@ DeviceFeatures::~DeviceFeatures()
     clear();
 }
 
-VkPhysicalDeviceFeatures& DeviceFeatures::get()
-{
-    return get<VkPhysicalDeviceFeatures2, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2>().features;
-}
 
 void DeviceFeatures::clear()
 {
-    for (auto& feature : _features)
+    for(VkBaseOutStructure* ptr = reinterpret_cast<VkBaseOutStructure*>(_features.pNext); ptr != nullptr;)
     {
-        feature.second.second(feature.second.first);
+        VkBaseOutStructure* next_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr->pNext);
+        delete ptr;
+        ptr = next_ptr;
     }
-
-    _features.clear();
-}
-
-void* DeviceFeatures::data() const
-{
-    if (_features.empty()) return nullptr;
-
-    // chain the Feature pNext pointers together
-    FeatureHeader* previous = nullptr;
-    for (auto itr = _features.rbegin(); itr != _features.rend(); ++itr)
-    {
-        itr->second.first->pNext = previous;
-        previous = itr->second.first;
-    }
-
-    // return head of the chain
-    return const_cast<void*>(reinterpret_cast<const void*>(_features.begin()->second.first));
 }
