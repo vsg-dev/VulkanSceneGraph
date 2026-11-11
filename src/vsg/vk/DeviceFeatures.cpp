@@ -33,4 +33,5 @@ void DeviceFeatures::clear()
         delete ptr;
         ptr = next_ptr;
     }
+    _features.pNext = nullptr;
 }
