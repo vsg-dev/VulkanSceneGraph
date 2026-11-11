@@ -142,7 +142,7 @@ namespace vsg
             uint32_t numElements = static_cast<uint32_t>(values.size());
             write(propertyName, numElements);
 
-            using element_type = typename T::value_type::element_type;
+            using element_type = std::remove_cv_t<typename T::value_type::element_type>;
             const char* element_name = type_name<element_type>();
 
             for (uint32_t i = 0; i < numElements; ++i)
