@@ -213,7 +213,7 @@ namespace vsg
             tracy::MemWrite(&item->gpuZoneBegin.srcloc, (uint64_t)slcloc);
             tracy::MemWrite(&item->gpuZoneBegin.thread, tracy::GetThreadHandle());
             tracy::MemWrite(&item->gpuZoneBegin.queryId, uint16_t(queryId));
-            tracy::MemWrite(&item->gpuZoneBegin.context, ctx->GetId());
+            tracy::MemWrite(&item->gpuZoneBegin.context, uint8_t(ctx->GetId()));
             tracy::Profiler::QueueSerialFinish();
         }
 
@@ -233,7 +233,7 @@ namespace vsg
             tracy::MemWrite(&item->gpuZoneEnd.cpuTime, tracy::Profiler::GetTime());
             tracy::MemWrite(&item->gpuZoneEnd.thread, tracy::GetThreadHandle());
             tracy::MemWrite(&item->gpuZoneEnd.queryId, uint16_t(queryId));
-            tracy::MemWrite(&item->gpuZoneEnd.context, ctx->GetId());
+            tracy::MemWrite(&item->gpuZoneEnd.context, uint8_t(ctx->GetId()));
             tracy::Profiler::QueueSerialFinish();
         }
     };
