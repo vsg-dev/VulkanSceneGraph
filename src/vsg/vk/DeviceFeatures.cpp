@@ -24,10 +24,9 @@ DeviceFeatures::~DeviceFeatures()
     clear();
 }
 
-
 void DeviceFeatures::clear()
 {
-    for(VkBaseOutStructure* ptr = reinterpret_cast<VkBaseOutStructure*>(_features.pNext); ptr != nullptr;)
+    for (VkBaseOutStructure* ptr = reinterpret_cast<VkBaseOutStructure*>(_features.pNext); ptr != nullptr;)
     {
         VkBaseOutStructure* next_ptr = reinterpret_cast<VkBaseOutStructure*>(ptr->pNext);
         delete ptr;

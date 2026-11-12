@@ -45,7 +45,7 @@ namespace vsg
             if constexpr (type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2) return _features;
 
             // find and return matching feature structure
-            for(VkBaseOutStructure* ptr = reinterpret_cast<VkBaseOutStructure*>(_features.pNext); ptr != nullptr; ptr = ptr->pNext)
+            for (VkBaseOutStructure* ptr = reinterpret_cast<VkBaseOutStructure*>(_features.pNext); ptr != nullptr; ptr = ptr->pNext)
             {
                 if (ptr->sType == type) return *reinterpret_cast<FeatureStruct*>(ptr);
             }
