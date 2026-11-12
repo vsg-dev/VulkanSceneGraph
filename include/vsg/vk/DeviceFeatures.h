@@ -29,6 +29,11 @@ namespace vsg
         DeviceFeatures(const DeviceFeatures&) = delete;
         DeviceFeatures& operator=(const DeviceFeatures&) = delete;
 
+        /// get the standard VkPhysicalDeviceFeatures structure.
+        /// usage example :
+        ///     deviceFeatures->get().samplerAnisotropy = VK_TRUE;
+        VkPhysicalDeviceFeatures& get() { return _features.features; }
+
         /// get a Vulkan extension feature structure.
         /// usage example :
         ///     auto& meshFeatures = features->get<VkPhysicalDeviceMeshShaderFeaturesNV, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV>();
@@ -37,44 +42,34 @@ namespace vsg
         template<typename FeatureStruct, VkStructureType type>
         FeatureStruct& get()
         {
-            if (auto itr = _features.find(type); itr != _features.end()) return *reinterpret_cast<FeatureStruct*>(itr->second.first);
+            if constexpr (type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2) return _features;
 
-            FeatureStruct* feature = new FeatureStruct{};
+            // find and return matching feature structure
+            for(VkBaseOutStructure* ptr = reinterpret_cast<VkBaseOutStructure*>(_features.pNext); ptr != nullptr; ptr = ptr->pNext)
+            {
+                if (ptr->sType == type) return *reinterpret_cast<FeatureStruct*>(ptr);
+            }
 
-            feature->sType = type;
-            feature->pNext = nullptr;
+            // create new feature structure and insert it into the linked list right after the head of the list
+            FeatureStruct* new_feature = new FeatureStruct{};
+            new_feature->sType = type;
+            new_feature->pNext = _features.pNext;
 
-            _features[type].first = reinterpret_cast<FeatureHeader*>(feature);
-            _features[type].second = [](FeatureHeader* ptr) { delete reinterpret_cast<FeatureStruct*>(ptr); };
+            _features.pNext = new_feature;
 
-            return *feature;
+            return *new_feature;
         }
-
-        /// get the standard VkPhysicalDeviceFeatures structure.
-        /// usage example :
-        ///     deviceFeatures->get().samplerAnisotropy = VK_TRUE;
-        VkPhysicalDeviceFeatures& get();
 
         /// clear all the feature structures
         void clear();
 
         /// data() is used as the VkCreateDeviceInfo.pNext setting
-        /// automatically chains the pNext pointers of the used feature structures
-        /// return nullptr when no features structures have been used.
-        void* data() const;
+        const void* data() const { return &_features; }
 
     protected:
         ~DeviceFeatures() override;
 
-        struct FeatureHeader
-        {
-            VkStructureType sType;
-            void* pNext;
-        };
-
-        using DeleteHandler = void (*)(FeatureHeader* ptr);
-
-        std::map<VkStructureType, std::pair<FeatureHeader*, DeleteHandler>> _features;
+        VkPhysicalDeviceFeatures2 _features;
     };
     VSG_type_name(vsg::DeviceFeatures);
 
