@@ -202,7 +202,7 @@ void TransferTask::assign(const ImageInfoList& imageInfoList)
 
     for (auto& imageInfo : imageInfoList)
     {
-        if (imageInfo->imageView && imageInfo->imageView && imageInfo->imageView->image->data)
+        if (imageInfo->imageView && imageInfo->imageView->image->data)
         {
             log(level, "    imageInfo ", imageInfo, ", ", imageInfo->imageView, ", ", imageInfo->imageView->image, ", ", imageInfo->imageView->image->data);
             DataToCopy& dataToCopy = (imageInfo->imageView->image->data->properties.dataVariance >= DYNAMIC_DATA_TRANSFER_AFTER_RECORD) ? _lateDataToCopy : _earlyDataToCopy;
