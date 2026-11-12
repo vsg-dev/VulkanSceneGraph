@@ -25,8 +25,7 @@ namespace vsg
     {
         Exception() = default;
         Exception(const Exception&) = default;
-        Exception(const std::string& str, int r = 0) : message(str), result(r) {}
-        Exception(std::string_view str, int r = 0) : message(str), result(r) {}
+        explicit Exception(std::string_view str, int r = 0) : message(str), result(r) {}
         Exception& operator=(const Exception&) = default;
 
         std::string message;
