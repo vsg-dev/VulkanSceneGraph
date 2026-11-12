@@ -197,7 +197,7 @@ bool DescriptorPool::used(uint32_t& numSets, DescriptorPoolSizes& usedDescriptor
             uint32_t usedDescriptorCount = dps.descriptorCount - itr->descriptorCount;
             auto used_itr = std::find_if(usedDescriptorPoolSizes.begin(), usedDescriptorPoolSizes.end(), [&dps](const VkDescriptorPoolSize& value) { return value.type == dps.type; });
             if (used_itr != usedDescriptorPoolSizes.end())
-                used_itr += usedDescriptorCount;
+                used_itr->descriptorCount += usedDescriptorCount;
             else
                 usedDescriptorPoolSizes.push_back(VkDescriptorPoolSize{dps.type, usedDescriptorCount});
         }
