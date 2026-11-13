@@ -57,7 +57,7 @@ void StateSwitch::compile(Context& context)
 
 void StateSwitch::record(CommandBuffer& commandBuffer) const
 {
-    for (auto& child : children)
+    for (const auto& child : children)
     {
         if ((commandBuffer.traversalMask & (commandBuffer.overrideMask | child.mask)) != MASK_OFF)
         {
@@ -83,7 +83,7 @@ void StateSwitch::write(Output& output) const
     StateCommand::write(output);
 
     output.writeValue<uint32_t>("children", children.size());
-    for (auto& child : children)
+    for (const auto& child : children)
     {
         output.write("child.mask", child.mask);
         output.write("child.stateCommand", child.stateCommand);
