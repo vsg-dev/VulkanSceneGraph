@@ -358,7 +358,9 @@ void vsg::updateTasks(RecordAndSubmitTasks& tasks, ref_ptr<CompileManager> compi
             if (!binNumberMatched)
             {
                 Bin::SortOrder sortOrder = (binNumber < 0) ? Bin::ASCENDING : ((binNumber == 0) ? Bin::NO_SORT : Bin::DESCENDING);
-                view->bins.push_back(Bin::create(binNumber, sortOrder));
+                auto bin = Bin::create(binNumber, sortOrder);
+                auto it = std::lower_bound(view->bins.begin(), view->bins.end(), bin, DereferenceLess());
+                view->bins.insert(it, std::move(bin));
             }
         }
     }
