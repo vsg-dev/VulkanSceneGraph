@@ -594,11 +594,11 @@ ref_ptr<const vec3Array> BillboardArrayState::vertexArray(uint32_t instanceIndex
     // get the translation_distanceScale value
     arrays[translationAttribute.binding]->accept(gv);
     dvec3 translation(gv.value.xyz);
-    double autoDistanceScale = gv.value.w;
 
     dmat4 billboard_to_local;
     if (!localToWorldStack.empty() && !worldToLocalStack.empty())
     {
+        double autoDistanceScale = gv.value.w;
         const auto& mv = localToWorldStack.back();
         const auto& inverse_mv = worldToLocalStack.back();
         auto center_eye = mv * translation;

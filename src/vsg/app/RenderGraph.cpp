@@ -74,7 +74,7 @@ RenderPass* RenderGraph::getRenderPass()
 
 void RenderGraph::setClearValues(VkClearColorValue clearColor, VkClearDepthStencilValue clearDepthStencil)
 {
-    auto activeRenderPass = getRenderPass();
+    const auto activeRenderPass = getRenderPass();
     if (!activeRenderPass) return;
 
     auto& attachments = activeRenderPass->attachments;

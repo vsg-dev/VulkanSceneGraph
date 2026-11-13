@@ -257,9 +257,7 @@ functionStatic:*/include/vsg/io/Input.h
 functionStatic:*/include/vsg/app/CompileManager.h
 functionStatic:*/include/vsg/app/CompileManager.cpp
 functionStatic:*/include/vsg/app/RecordTraversal.h
-functionStatic:*/src/vsg/app/RecordTraversal.cpp
 functionStatic:*/include/vsg/io/VSG.h
-functionStatic:*/src/vsg/io/VSG.cpp
 functionStatic:*/include/vsg/io/json.h
 functionStatic:*/include/vsg/io/txt.h
 functionStatic:*/include/vsg/io/tile.h
@@ -268,7 +266,15 @@ functionStatic:*/include/vsg/state/ArrayState.h
 functionStatic:*/include/vsg/text/StandardLayout.h
 functionStatic:*/include/vsg/utils/Builder.h
 functionStatic:*/include/vsg/utils/ShaderCompiler.h
-
+functionStatic:*/include/vsg/app/CompileManager.h
+functionStatic:*/include/vsg/io/json.h
+functionStatic:*/include/vsg/io/txt.h
+functionStatic:*/include/vsg/io/tile.h
+functionStatic:*/include/vsg/state/ArrayState.h
+functionStatic:*/include/vsg/state/QueryPool.h
+functionStatic:*/src/vsg/text/StandardLayout.cpp
+functionStatic:*/include/vsg/utils/Builder.h
+functionStatic:*/include/vsg/utils/ShaderCompiler.h
 
 // suppress inappropriate warnings
 suspiciousFloatingPointCast:*/src/vsg/maths/maths_transform.cpp
