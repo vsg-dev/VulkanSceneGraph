@@ -499,7 +499,10 @@ Win32_Window::Win32_Window(vsg::ref_ptr<WindowTraits> traits) :
 
     traits->nativeWindow = _window;
 
-    _initDrop();
+    if (traits->dragAndDrop)
+    {
+        _initDrop();
+    }
 
     _windowMapped = true;
 }
