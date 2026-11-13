@@ -119,7 +119,8 @@ unusedStructMember:*/include/vsg/vk/RenderPass.h
 unusedStructMember:*/include/vsg/vk/ResourceRequirements.h
 unusedStructMember:*/include/vsg/vk/Swapchain.h
 unusedStructMember:*/include/vsg/vk/vulkan.h
-unusedStructMember:*/src/vsg/core/External.cpp#
+unusedStructMember:*/src/vsg/core/External.cpp
+
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp
 unusedVariable:*/src/vsg/app/CompileManager.cpp
@@ -255,7 +256,6 @@ passedByValue:*/src/vsg/vk/Instance.cpp
 functionStatic:*/include/vsg/io/Output.h
 functionStatic:*/include/vsg/io/Input.h
 functionStatic:*/include/vsg/app/CompileManager.h
-functionStatic:*/include/vsg/app/CompileManager.cpp
 functionStatic:*/include/vsg/app/RecordTraversal.h
 functionStatic:*/include/vsg/io/VSG.h
 functionStatic:*/include/vsg/io/json.h
@@ -266,15 +266,7 @@ functionStatic:*/include/vsg/state/ArrayState.h
 functionStatic:*/include/vsg/text/StandardLayout.h
 functionStatic:*/include/vsg/utils/Builder.h
 functionStatic:*/include/vsg/utils/ShaderCompiler.h
-functionStatic:*/include/vsg/app/CompileManager.h
-functionStatic:*/include/vsg/io/json.h
-functionStatic:*/include/vsg/io/txt.h
-functionStatic:*/include/vsg/io/tile.h
-functionStatic:*/include/vsg/state/ArrayState.h
-functionStatic:*/include/vsg/state/QueryPool.h
 functionStatic:*/src/vsg/text/StandardLayout.cpp
-functionStatic:*/include/vsg/utils/Builder.h
-functionStatic:*/include/vsg/utils/ShaderCompiler.h
 
 // suppress inappropriate warnings
 suspiciousFloatingPointCast:*/src/vsg/maths/maths_transform.cpp
