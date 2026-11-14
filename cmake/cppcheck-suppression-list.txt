@@ -247,6 +247,10 @@ constVariableReference:*/src/vsg/utils/ShaderSet.cpp
 constVariablePointer:*/src/vsg/app/SecondaryCommandGraph.cpp
 constVariablePointer:*/src/vsg/app/CompileManager.cpp
 constVariablePointer:*/src/vsg/app/CompileTraversal.cpp
+constVariablePointer:*/src/vsg/app/RenderGraph.cpp
+constVariablePointer:*/src/vsg/meshshaders/DrawMeshTasksIndirect.cpp
+constVariablePointer:*/src/vsg/meshshaders/DrawMeshTasks.cpp
+constVariablePointer:*/src/vsg/meshshaders/DrawMeshTasksIndirectCount.cpp
 
 // suppress inappropriate warning
 passedByValue:*/src/vsg/vk/Device.cpp
@@ -256,17 +260,26 @@ passedByValue:*/src/vsg/vk/Instance.cpp
 functionStatic:*/include/vsg/io/Output.h
 functionStatic:*/include/vsg/io/Input.h
 functionStatic:*/include/vsg/app/CompileManager.h
+functionStatic:*/src/vsg/app/CompileManager.cpp
 functionStatic:*/include/vsg/app/RecordTraversal.h
+functionStatic:*/src/vsg/app/RecordTraversal.cpp
 functionStatic:*/include/vsg/io/VSG.h
+functionStatic:*/src/vsg/io/VSG.cpp
 functionStatic:*/include/vsg/io/json.h
+functionStatic:*/src/vsg/io/json.cpp
 functionStatic:*/include/vsg/io/txt.h
+functionStatic:*/src/vsg/io/txt.cpp
 functionStatic:*/include/vsg/io/tile.h
+functionStatic:*/src/vsg/io/tile.cpp
 functionStatic:*/include/vsg/state/QueryPool.h
 functionStatic:*/include/vsg/state/ArrayState.h
+functionStatic:*/src/vsg/state/ArrayState.cpp
 functionStatic:*/include/vsg/text/StandardLayout.h
-functionStatic:*/include/vsg/utils/Builder.h
-functionStatic:*/include/vsg/utils/ShaderCompiler.h
 functionStatic:*/src/vsg/text/StandardLayout.cpp
+functionStatic:*/include/vsg/utils/Builder.h
+functionStatic:*/src/vsg/utils/Builder.cpp
+functionStatic:*/include/vsg/utils/ShaderCompiler.h
+functionStatic:*/src/vsg/utils/ShaderCompiler.cpp
 
 // suppress inappropriate warnings
 suspiciousFloatingPointCast:*/src/vsg/maths/maths_transform.cpp
