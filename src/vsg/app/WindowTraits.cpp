@@ -46,7 +46,6 @@ WindowTraits::WindowTraits(CommandLine& arguments)
     if (arguments.read({"--window", "-w"}, width, height)) { fullscreen = false; }
     if (arguments.read({"--no-frame"})) decoration = false;
     if (arguments.read("--or")) overrideRedirect = true;
-    if (arguments.read("--drag-and-drop")) dragAndDrop = true;
 
     if (arguments.read("--d32")) depthFormat = VK_FORMAT_D32_SFLOAT;
     if (arguments.read("--sRGB")) swapchainPreferences.surfaceFormat = {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};

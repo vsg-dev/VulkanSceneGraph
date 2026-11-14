@@ -64,7 +64,7 @@ namespace vsg
         bool overrideRedirect = false;
 
         /// enable drag and drop
-        bool dragAndDrop = false;
+        bool dragAndDrop = true;
 
         uint32_t vulkanVersion = VK_API_VERSION_1_0;
 
