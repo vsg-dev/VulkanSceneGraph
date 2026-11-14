@@ -58,6 +58,8 @@ namespace vsg
 
         virtual void resize() {}
 
+        std::function<void()> resizeCallback = {};
+
         ref_ptr<WindowTraits> traits() { return _traits; }
         const ref_ptr<WindowTraits> traits() const { return _traits; }
 
