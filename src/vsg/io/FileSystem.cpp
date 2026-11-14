@@ -117,7 +117,7 @@ FileType vsg::fileType(const Path& path)
 #if defined(_MSC_VER) || defined(__MINGW32__)
     struct __stat64 stbuf;
     if (_wstat64(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
     struct stat stbuf;
     if (stat(path.c_str(), &stbuf) != 0) return FILE_NOT_FOUND;
 #else

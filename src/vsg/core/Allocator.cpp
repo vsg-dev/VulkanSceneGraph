@@ -23,7 +23,9 @@ using namespace vsg;
 
 std::unique_ptr<Allocator>& Allocator::instance()
 {
-    static std::unique_ptr<Allocator> s_allocator(new IntrusiveAllocator());
+    // libc++ (FreeBSD) std::function, e.g. vsg::Options::findFileCallback, requires
+    // 16 byte alignment, so match the alignment guaranteed by the global operator new.
+    static std::unique_ptr<Allocator> s_allocator(new IntrusiveAllocator(__STDCPP_DEFAULT_NEW_ALIGNMENT__));
     return s_allocator;
 }
 
