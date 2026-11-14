@@ -112,6 +112,10 @@ void vsg::setAffinity(const Affinity&)
 
 #else // unices
 
+#if defined(__FreeBSD__)
+#    include <pthread_np.h>
+#endif
+
 static void pthread_setAffinity(pthread_t thread_native_handle, const vsg::Affinity& affinity)
 {
     uint32_t numProcessors = std::thread::hardware_concurrency();
