@@ -76,6 +76,11 @@ namespace vsg
         {
             for (auto& child : children) child->accept(visitor);
         }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            for (auto& sc : stateCommands) visitor.tryReplacePointer(sc);
+            for (auto& child : children) visitor.tryReplacePointer(child);
+        }
 
         void read(Input& input) override;
         void write(Output& output) const override;

@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/app/RecordTraversal.h>
 #include <vsg/core/ConstVisitor.h>
+#include <vsg/core/ReplacementVisitor.h>
 #include <vsg/core/Visitor.h>
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
@@ -69,6 +70,7 @@ namespace vsg
 
         void accept(Visitor& visitor) override { visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(ConstVisitor& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
+        std::optional<ref_ptr<Object>> accept(ReplacementVisitor& visitor) override { return visitor.apply(static_cast<Subclass&>(*this)); }
         void accept(RecordTraversal& visitor) const override { visitor.apply(static_cast<const Subclass&>(*this)); }
     };
 
