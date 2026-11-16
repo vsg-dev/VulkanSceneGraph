@@ -272,6 +272,7 @@ functionStatic:*/src/vsg/io/txt.cpp
 functionStatic:*/include/vsg/io/tile.h
 functionStatic:*/src/vsg/io/tile.cpp
 functionStatic:*/include/vsg/state/QueryPool.h
+functionStatic:*/src/vsg/state/QueryPool.cpp
 functionStatic:*/include/vsg/state/ArrayState.h
 functionStatic:*/src/vsg/state/ArrayState.cpp
 functionStatic:*/include/vsg/text/StandardLayout.h
