@@ -746,7 +746,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         // compute directional light space
         // light direction in world coords
-        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
+        auto light_direction = normalize(light->direction * (inverse_3x3(inverse_viewMatrix * mv)));
 #if 0
         info("   directional light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
         info("      light->direction in model = ", light->direction);
@@ -906,7 +906,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         // compute spot light space
         // light direction in world coords
-        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
+        auto light_direction = normalize(light->direction * (inverse_3x3(inverse_viewMatrix * mv)));
         auto light_position = inverse_viewMatrix * mv * light->position;
 #if 0
         info("   spot light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
