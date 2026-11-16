@@ -40,6 +40,9 @@ find_package(Threads REQUIRED)
 # Set the instrumentation level to compile into sources
 set(VSG_MAX_INSTRUMENTATION_LEVEL 1 CACHE STRING "Set the instrumentation level to build into the VSG library, 0 for off, 1 coarse grained, 2 medium, 3 fine grained." )
 
+# Set the instrumentation level to compile into sources
+set(VSG_DEFAULT_ALLOCATOR_ALIGNMENT "__STDCPP_DEFAULT_NEW_ALIGNMENT__" CACHE STRING "Set the default alignment used by vsg::Allocator." )
+
 # Enable/disable shader compilation support that pulls in glslang
 option(VSG_SUPPORTS_ShaderCompiler "Optional shader compiler support" ON)
 if (VSG_SUPPORTS_ShaderCompiler)

@@ -12,7 +12,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
-#include <vsg/core/Export.h>
+#include <vsg/core/Version.h>
 
 #include <map>
 #include <memory>
@@ -41,9 +41,9 @@ namespace vsg
     class VSG_DECLSPEC Allocator
     {
     public:
-        explicit Allocator(size_t in_defaultAlignment = 8) :
+        explicit Allocator(size_t in_defaultAlignment = VSG_DEFAULT_ALLOCATOR_ALIGNMENT) :
             defaultAlignment(in_defaultAlignment) {}
-        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = 8) :
+        explicit Allocator(std::unique_ptr<Allocator> in_nestedAllocator, size_t in_defaultAlignment = VSG_DEFAULT_ALLOCATOR_ALIGNMENT) :
             defaultAlignment(in_defaultAlignment), nestedAllocator(std::move(in_nestedAllocator)) {}
         virtual ~Allocator() {}
 

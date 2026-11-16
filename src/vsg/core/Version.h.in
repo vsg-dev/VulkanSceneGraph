@@ -36,6 +36,9 @@ extern "C"
     /// Instrumentation level to built into the VSG library, 0 for off, 1 coarse grained, 2 medium, 3 fine grained.
     #define VSG_MAX_INSTRUMENTATION_LEVEL @VSG_MAX_INSTRUMENTATION_LEVEL@
 
+    /// Default Allocator alignement
+    #define VSG_DEFAULT_ALLOCATOR_ALIGNMENT @VSG_DEFAULT_ALLOCATOR_ALIGNMENT@
+
     /// vsg::ShaderCompiler support enabled when 1, disabled when 0
     #cmakedefine01 VSG_SUPPORTS_ShaderCompiler
 
