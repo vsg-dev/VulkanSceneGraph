@@ -21,7 +21,7 @@ namespace vsg
 
     /// Exception object that can be thrown from VSG code, such as failed Vulkan calls where the result value will be the VkResult value
     /// returned from failed Vulkan call.
-    struct VSG_DECLSPEC Exception : public std::exception
+    struct VSG_EXCEPTION_DECLSPEC Exception : public std::exception
     {
         Exception() = default;
         Exception(const Exception&) = default;
