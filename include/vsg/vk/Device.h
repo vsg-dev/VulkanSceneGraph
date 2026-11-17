@@ -39,7 +39,11 @@ namespace vsg
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
-        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names layers, Names deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr);
+        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr);
+
+        /// depreacted : Device layers is no longer supported by Vulkan, see https://docs.vulkan.org/spec/latest/appendices/legacy.html#legacy-devicelayers
+        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names /*layers*/, Names deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr) :
+            Device(physicalDevice, queueSettings, deviceExtensions, deviceFeatures, allocator) {}
 
         operator VkDevice() const { return _device; }
         VkDevice vk() const { return _device; }
