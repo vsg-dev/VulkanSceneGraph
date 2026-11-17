@@ -51,7 +51,7 @@ static void releaseDeviceID(uint32_t deviceID)
     s_ActiveDevices[deviceID] = false;
 }
 
-Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names layers, Names deviceExtensions, const DeviceFeatures* deviceFeatures, AllocationCallbacks* allocator) :
+Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names deviceExtensions, const DeviceFeatures* deviceFeatures, AllocationCallbacks* allocator) :
     deviceID(getUniqueDeviceID()),
     _instance(physicalDevice->getInstance()),
     _physicalDevice(physicalDevice),
@@ -130,8 +130,8 @@ Device::Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSetting
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.empty() ? nullptr : deviceExtensions.data();
 
-    createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
-    createInfo.ppEnabledLayerNames = layers.empty() ? nullptr : layers.data();
+    createInfo.enabledLayerCount = 0;
+    createInfo.ppEnabledLayerNames = nullptr;
 
     createInfo.pNext = deviceFeatures ? deviceFeatures->data() : nullptr;
 
