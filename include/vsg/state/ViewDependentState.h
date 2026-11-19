@@ -152,7 +152,7 @@ namespace vsg
 
         // shadow map hints
         double maxShadowDistance = 1e8;
-        double shadowMapBias = 0.005;
+        double shadowMapBias = 0.0001;
         double lambda = 0.5;
 
         // map of Light's that we wish to override their ShadowSettings,
