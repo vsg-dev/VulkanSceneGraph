@@ -45,6 +45,7 @@ namespace vsg
         void traverse(Visitor& visitor) override;
         void traverse(ConstVisitor& visitor) const override;
         void traverse(RecordTraversal& visitor) const override;
+        void traverse(ReplacementVisitor& visitor) override;
 
         void read(Input& input) override;
         void write(Output& output) const override;
@@ -60,6 +61,7 @@ namespace vsg
         SourceLocation _sl_Visitor;
         SourceLocation _sl_ConstVisitor;
         SourceLocation _sl_RecordTraversal;
+        SourceLocation _sl_ReplacementVisitor;
     };
     VSG_type_name(vsg::InstrumentationNode);
 

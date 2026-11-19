@@ -20,6 +20,7 @@ set(SOURCES
     core/MemorySlots.cpp
     core/Object.cpp
     core/Objects.cpp
+    core/ReplacementVisitor.cpp
     core/Visitor.cpp
     core/Version.cpp
 

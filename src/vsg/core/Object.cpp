@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Auxiliary.h>
 #include <vsg/core/ConstVisitor.h>
 #include <vsg/core/Object.h>
+#include <vsg/core/ReplacementVisitor.h>
 #include <vsg/core/Visitor.h>
 
 #include <vsg/io/Input.h>
@@ -129,6 +130,11 @@ void Object::accept(Visitor& visitor)
 void Object::accept(ConstVisitor& visitor) const
 {
     visitor.apply(*this);
+}
+
+std::optional<ref_ptr<Object>> Object::accept(ReplacementVisitor& visitor)
+{
+    return visitor.apply(*this);
 }
 
 void Object::accept(RecordTraversal& visitor) const

@@ -94,6 +94,10 @@ namespace vsg
         }
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            for (auto& sampler : samplers) visitor.tryReplacePointer(sampler);
+        }
 
         void read(Input& input) override;
         void write(Output& output) const override;

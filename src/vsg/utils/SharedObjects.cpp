@@ -214,6 +214,10 @@ void LoadedObject::traverse(ConstVisitor& visitor) const
 {
     if (object) object->accept(visitor);
 }
+void LoadedObject::traverse(ReplacementVisitor& visitor)
+{
+    if (object) visitor.tryReplacePointer(object);
+}
 
 int LoadedObject::compare(const Object& rhs_object) const
 {

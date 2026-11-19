@@ -49,6 +49,13 @@ namespace vsg
 
         void traverse(Visitor& visitor) override { t_traverse(*this, visitor); }
         void traverse(ConstVisitor& visitor) const override { t_traverse(*this, visitor); }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            for (auto& [mask, stateCommand] : children)
+            {
+                if ((visitor.traversalMask & (visitor.overrideMask | mask)) != MASK_OFF) visitor.tryReplacePointer(stateCommand);
+            }
+        }
 
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return StateSwitch::create(*this, copyop); }
         int compare(const Object& rhs_object) const override;
