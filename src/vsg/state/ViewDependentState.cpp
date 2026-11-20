@@ -161,6 +161,8 @@ ViewDependentState::ViewDependentState(View* in_view) :
     view(in_view)
 {
     // info("ViewDependentState::ViewDependentState(view = ", view, ")");
+    shadowMapBias = vsg::vec4Value::create(vec4(0.0002f, 0.005f, 0.001f, 0.0f));
+    shadowMapBiasBufferInfo = BufferInfo::create(shadowMapBias);
 }
 
 ViewDependentState::~ViewDependentState()
@@ -294,6 +296,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
     descriptorConfigurator->assignDescriptor("viewportData", BufferInfoList{viewportDataBufferInfo});
+    descriptorConfigurator->assignDescriptor("shadowMapBias", BufferInfoList{shadowMapBiasBufferInfo});
 
     // set up ShadowMaps
     auto shadowMapDirectSampler = Sampler::create();
@@ -365,6 +368,8 @@ void ViewDependentState::init(ResourceRequirements& requirements)
 
     descriptorConfigurator->assignTexture("shadowMapDirectSampler", ImageInfoList{shadowMapDirectSamplerInfo});
     descriptorConfigurator->assignTexture("shadowMapShadowSampler", ImageInfoList{shadowMapSamplerInfo});
+
+
 
     // assign the DescriptorSet and layout created by the descriptorConfigurator
     for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
@@ -800,7 +805,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
 
-            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, shadowMapBias) * shadowMapProjView * inverse_viewMatrix;
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, static_cast<double>(shadowMapBias->value()[0])) * shadowMapProjView * inverse_viewMatrix;
 
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
@@ -975,7 +980,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
 
-            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + static_cast<double>(shadowMapBias->value()[0])) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
