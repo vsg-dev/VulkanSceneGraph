@@ -152,8 +152,9 @@ namespace vsg
 
         // shadow map hints
         double maxShadowDistance = 1e8;
-        double shadowMapBias = 0.005;
         double lambda = 0.5;
+        ref_ptr<ShadowMapBiasValue> shadowMapBias;
+        ref_ptr<BufferInfo> shadowMapBiasBufferInfo;
 
         // map of Light's that we wish to override their ShadowSettings,
         // assigning shadowSettingsOverride[{}] = shadowSettings will override all Light not otherwise explicitly matched.

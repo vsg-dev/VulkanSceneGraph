@@ -17,6 +17,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
+    struct ShadowMapBias
+    {
+        float constantBias = 0.0002f;
+        float slopeBias = 0.001f;
+        float normalOffset = 0.005f;
+        float padding = 0.0f;
+    };
+
+    VSG_value(ShadowMapBiasValue, ShadowMapBias);
+
     class VSG_DECLSPEC ShadowSettings : public Inherit<Object, ShadowSettings>
     {
     public:
