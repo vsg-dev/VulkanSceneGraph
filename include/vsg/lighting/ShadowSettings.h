@@ -20,8 +20,8 @@ namespace vsg
     struct ShadowMapBias
     {
         float constantBias = 0.0002f;
-        float normalOffset = 0.005f;
         float slopeBias = 0.001f;
+        float normalOffset = 0.005f;
         float padding = 0.0f;
     };
 

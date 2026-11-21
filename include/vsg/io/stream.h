@@ -317,14 +317,14 @@ namespace vsg
     /// output stream support for ShadowMapBias
     inline std::ostream& operator<<(std::ostream& output, const ShadowMapBias& shadowMapBias)
     {
-        output << shadowMapBias.constantBias << " " << shadowMapBias.normalOffset << " " << shadowMapBias.slopeBias;
+        output << shadowMapBias.constantBias << " " << shadowMapBias.slopeBias << " " << shadowMapBias.normalOffset;
         return output;
     }
 
     /// input stream support for ShadowMapBias
     inline std::istream& operator>>(std::istream& input, ShadowMapBias& shadowMapBias)
     {
-        input >> shadowMapBias.constantBias >> shadowMapBias.normalOffset >> shadowMapBias.slopeBias;
+        input >> shadowMapBias.constantBias >> shadowMapBias.slopeBias >> shadowMapBias.normalOffset;
         return input;
     }
 
