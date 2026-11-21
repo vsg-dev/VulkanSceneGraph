@@ -26,6 +26,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 #include <vsg/utils/CoordinateSpace.h>
+#include <vsg/lighting/ShadowSettings.h>
 
 #include <istream>
 #include <ostream>
@@ -311,6 +312,20 @@ namespace vsg
             output << "NO_PREFERENCE";
 
         return output;
+    }
+
+    /// output stream support for ShadowMapBias
+    inline std::ostream& operator<<(std::ostream& output, const ShadowMapBias& shadowMapBias)
+    {
+        output << shadowMapBias.constantBias<<" "<<shadowMapBias.normalOffset<<" "<<shadowMapBias.slopeBias;
+        return output;
+    }
+
+    /// input stream support for ShadowMapBias
+    inline std::istream& operator>>(std::istream& input, ShadowMapBias& shadowMapBias)
+    {
+        input >> shadowMapBias.constantBias >> shadowMapBias.normalOffset >> shadowMapBias.slopeBias;
+        return input;
     }
 
     /// output stream support for std::vector<T>
