@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/ref_ptr.h>
 #include <vsg/core/type_name.h>
 #include <vsg/io/Path.h>
+#include <vsg/lighting/ShadowSettings.h>
 #include <vsg/maths/box.h>
 #include <vsg/maths/mat3.h>
 #include <vsg/maths/mat4.h>
@@ -26,7 +27,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/maths/vec3.h>
 #include <vsg/maths/vec4.h>
 #include <vsg/utils/CoordinateSpace.h>
-#include <vsg/lighting/ShadowSettings.h>
 
 #include <istream>
 #include <ostream>
@@ -317,7 +317,7 @@ namespace vsg
     /// output stream support for ShadowMapBias
     inline std::ostream& operator<<(std::ostream& output, const ShadowMapBias& shadowMapBias)
     {
-        output << shadowMapBias.constantBias<<" "<<shadowMapBias.normalOffset<<" "<<shadowMapBias.slopeBias;
+        output << shadowMapBias.constantBias << " " << shadowMapBias.normalOffset << " " << shadowMapBias.slopeBias;
         return output;
     }
 

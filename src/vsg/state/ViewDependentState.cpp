@@ -369,8 +369,6 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     descriptorConfigurator->assignTexture("shadowMapDirectSampler", ImageInfoList{shadowMapDirectSamplerInfo});
     descriptorConfigurator->assignTexture("shadowMapShadowSampler", ImageInfoList{shadowMapSamplerInfo});
 
-
-
     // assign the DescriptorSet and layout created by the descriptorConfigurator
     for (size_t set = 0; set < descriptorConfigurator->descriptorSets.size(); ++set)
     {
