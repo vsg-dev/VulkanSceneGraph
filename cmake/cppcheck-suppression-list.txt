@@ -160,6 +160,7 @@ useInitializationList:*/include/vsg/core/ScratchMemory.h
 useInitializationList:*/src/vsg/vk/Extensions.cpp
 useInitializationList:*/src/vsg/vk/Context.cpp
 useInitializationList:*/src/vsg/app/Viewer.cpp
+useInitializationList:*/src/vsg/state/ViewDependentState.cpp
 
 // suppress inappropriate warning about insertion.
 stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
