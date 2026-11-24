@@ -31,6 +31,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <algorithm>
 #include <iomanip>
+#include <map>
+#include <mutex>
+#include <sstream>
 
 #ifndef VK_API_VERSION_MAJOR
 #    define VK_API_VERSION_MAJOR(version) (((uint32_t)(version) >> 22) & 0x7FU)
@@ -129,6 +132,10 @@ bool ShaderCompiler::supported() const
 }
 
 #if VSG_SUPPORTS_ShaderCompiler
+// SPIR-V compile cache: avoids repeated glslang invocations for identical shaders.
+static std::mutex s_spirvCacheMutex;
+static std::map<std::string, vsg::ShaderModule::SPIRV> s_spirvCache;
+
 bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, ref_ptr<const Options> options)
 {
     // need to balance the inits.
@@ -137,6 +144,61 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         s_initializeProcess();
         _initialized = true;
     }
+
+    // Build cache keys from shader stage, settings, and final source (with includes/defines).
+    auto computeCacheKey = [&](const ref_ptr<ShaderStage>& vsg_shader) -> std::string {
+        auto settings = vsg_shader->module->hints ? vsg_shader->module->hints : defaults;
+        std::string source = vsg::insertIncludes(vsg_shader->module->source, options);
+        std::vector<std::string> allDefines(defines);
+        if (settings)
+        {
+            for (const auto& define : settings->defines) allDefines.push_back(define);
+        }
+        if (!allDefines.empty()) source = combineSourceAndDefines(source, allDefines);
+
+        std::ostringstream k;
+        k << static_cast<uint32_t>(vsg_shader->stage) << ';';
+        if (settings)
+        {
+            k << static_cast<int>(settings->language)
+              << ';' << settings->vulkanVersion
+              << ';' << settings->clientInputVersion
+              << ';' << static_cast<int>(settings->target)
+              << ';' << settings->defaultVersion
+              << ';' << settings->forwardCompatible
+              << ';' << settings->generateDebugInfo
+              << ';' << settings->optimize << ';';
+        }
+        k << source;
+        return k.str();
+    };
+
+    std::vector<std::string> cacheKeys;
+    cacheKeys.reserve(shaders.size());
+    for (auto& vsg_shader : shaders)
+    {
+        if (vsg_shader && vsg_shader->module)
+            cacheKeys.push_back(computeCacheKey(vsg_shader));
+        else
+            cacheKeys.emplace_back();
+    }
+
+	// Check if all shaders are already cached.
+    {
+        std::scoped_lock<std::mutex> lock(s_spirvCacheMutex);
+        bool allCached = !shaders.empty();
+        for (size_t i = 0; i < shaders.size() && allCached; ++i)
+        {
+            if (!shaders[i] || !shaders[i]->module || s_spirvCache.find(cacheKeys[i]) == s_spirvCache.end())
+                allCached = false;
+        }
+        if (allCached)
+        {
+            for (size_t i = 0; i < shaders.size(); ++i) shaders[i]->module->code = s_spirvCache[cacheKeys[i]];
+            return true;
+        }
+    }
+    // ---- end SPIR-V compile cache pre-check (results stored after a successful compile below) ---
 
     auto getFriendlyNameForShader = [](const ref_ptr<ShaderStage>& vsg_shader) {
         switch (vsg_shader->stage)
@@ -278,15 +340,15 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         shader->setEnvClient(glslang::EShClientVulkan, targetClientVersion);
         shader->setEnvTarget(glslang::EShTargetSpv, targetLanguageVersion);
 
-        std::string finalShaderSource = vsg::insertIncludes(vsg_shader->module->source, options);
+        std::string source = vsg::insertIncludes(vsg_shader->module->source, options);
 
-        std::vector<std::string> combinedDefines(defines);
-        for (const auto& define : settings->defines) combinedDefines.push_back(define);
-        if (!combinedDefines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, combinedDefines);
+        std::vector<std::string> allDefines(defines);
+        for (const auto& define : settings->defines) allDefines.push_back(define);
+        if (!allDefines.empty()) source = combineSourceAndDefines(source, allDefines);
 
-        vsg::debug("ShaderCompiler::compile() combinedDefines = ", combinedDefines);
+        vsg::debug("ShaderCompiler::compile() allDefines = ", allDefines);
 
-        const char* str = finalShaderSource.c_str();
+        const char* str = source.c_str();
         shader->setStrings(&str, 1);
 
         EShMessages messages = EShMsgDefault;
@@ -298,7 +360,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         if (parseResult)
         {
-            debug("Successful compile\n", debugFormatShaderSource(finalShaderSource), "\n");
+            debug("Successful compile\n", debugFormatShaderSource(source), "\n");
 
             program->addShader(shader);
             stageShaderMap[envStage] = vsg_shader;
@@ -307,7 +369,7 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
         {
             // print error information
             warn("\n----  ", getFriendlyNameForShader(vsg_shader), "  ---- \n");
-            warn(debugFormatShaderSource(finalShaderSource));
+            warn(debugFormatShaderSource(source));
             warn("GLSL source failed to parse.");
             warn("glslang info log:\n", shader->getInfoLog());
             info("glslang debug info log: \n", shader->getInfoDebugLog());
@@ -377,6 +439,16 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
                 }
             }
 #    endif
+        }
+    }
+
+    // Cache new compiled SPIR-V.
+    {
+        std::scoped_lock<std::mutex> lock(s_spirvCacheMutex);
+        for (size_t i = 0; i < shaders.size(); ++i)
+        {
+            if (shaders[i] && shaders[i]->module && !shaders[i]->module->code.empty())
+                s_spirvCache[cacheKeys[i]] = shaders[i]->module->code;
         }
     }
 
