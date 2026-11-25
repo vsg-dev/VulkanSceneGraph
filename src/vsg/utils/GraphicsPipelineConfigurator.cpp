@@ -596,7 +596,10 @@ int GraphicsPipelineConfigurator::compare(const Object& rhs_object) const
 
     if ((result = compare_shaderHints(shaderHints, rhs.shaderHints))) return result;
 
-#if 0
+#if 1
+    if (this < &rhs) return -1;
+    else if (this > &rhs) return 1;
+#else
     // TODO
     struct IteratorPair
     {
