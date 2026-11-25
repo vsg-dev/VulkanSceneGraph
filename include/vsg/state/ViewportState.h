@@ -55,7 +55,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~ViewportState();
+        ~ViewportState() override;
     };
     VSG_type_name(vsg::ViewportState);
 

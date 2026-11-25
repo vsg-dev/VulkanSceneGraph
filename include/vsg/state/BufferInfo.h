@@ -36,6 +36,8 @@ namespace vsg
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override;
         int compare(const Object& rhs_object) const override;
 
+        void take(BufferInfo& src);
+
         void release();
 
         /// compute size of associated data
@@ -57,7 +59,13 @@ namespace vsg
         ref_ptr<Data> data;
         ref_ptr<BufferInfo> parent;
 
-        /// return true if the BufferInfo's data has been modified and should be copied to the buffer
+        /// return true if the BufferInfo's has not been assigned a buffer or that buffer doesn't yet have device memory allocated for it.
+        bool requiresAllocation(uint32_t deviceID) const
+        {
+            return !buffer || buffer->getDeviceMemory(deviceID) == nullptr;
+        }
+
+        /// returns true if the data and associated buffers are not in sync and the data needs to be transferred to synchronize them
         bool requiresCopy(uint32_t deviceID) const
         {
             return data && data->differentModifiedCount(copiedModifiedCounts[deviceID]);
@@ -72,7 +80,7 @@ namespace vsg
         vk_buffer<ModifiedCount> copiedModifiedCounts;
 
     protected:
-        virtual ~BufferInfo();
+        ~BufferInfo() override;
     };
     VSG_type_name(vsg::BufferInfo);
 

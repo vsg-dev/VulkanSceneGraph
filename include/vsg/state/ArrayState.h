@@ -92,7 +92,7 @@ namespace vsg
         virtual ref_ptr<const vec3Array> vertexArray(uint32_t instanceIndex);
 
     protected:
-        virtual ~ArrayState() {}
+        ~ArrayState() override {}
     };
     VSG_type_name(vsg::ArrayState);
 

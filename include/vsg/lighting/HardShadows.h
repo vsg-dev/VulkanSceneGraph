@@ -25,10 +25,6 @@ namespace vsg
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return HardShadows::create(*this, copyop); }
-        int compare(const Object& rhs) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
     };
     VSG_type_name(vsg::HardShadows);
 

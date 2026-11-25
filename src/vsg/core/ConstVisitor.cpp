@@ -1043,6 +1043,22 @@ void ConstVisitor::apply(const ScrollWheelEvent& event)
 {
     apply(static_cast<const WindowEvent&>(event));
 }
+void ConstVisitor::apply(const DropEvent& event)
+{
+    apply(static_cast<const WindowEvent&>(event));
+}
+void ConstVisitor::apply(const DropHoverEvent& event)
+{
+    apply(static_cast<const DropEvent&>(event));
+}
+void ConstVisitor::apply(const DropLeaveEvent& event)
+{
+    apply(static_cast<const DropEvent&>(event));
+}
+void ConstVisitor::apply(const DropFilesEvent& event)
+{
+    apply(static_cast<const DropEvent&>(event));
+}
 void ConstVisitor::apply(const TerminateEvent& event)
 {
     apply(static_cast<const UIEvent&>(event));

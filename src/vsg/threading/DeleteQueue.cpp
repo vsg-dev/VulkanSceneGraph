@@ -41,7 +41,7 @@ void DeleteQueue::advance(ref_ptr<FrameStamp> frameStamp)
     }
 }
 
-void DeleteQueue::wait_then_clear()
+size_t DeleteQueue::wait_then_clear()
 {
     ObjectsToDelete objectsToDelete;
     std::list<ref_ptr<SharedObjects>> sharedObjectsToPrune;
@@ -77,29 +77,45 @@ void DeleteQueue::wait_then_clear()
         }
         sharedObjectsToPrune.clear();
     }
+
+    deletedCount += numObjectsToDelete;
+
+    return numObjectsToDelete;
 }
 
-void DeleteQueue::clear()
+size_t DeleteQueue::clear()
 {
     ObjectsToDelete objectsToDelete;
+    std::list<ref_ptr<SharedObjects>> sharedObjectsToPrune;
 
     // use a swap of the container to keep the time the mutex is acquired as short as possible
     {
         std::scoped_lock lock(_mutex);
-        objectsToDelete.swap(objectsToDelete);
+
+        auto last_itr = std::find_if(_objectsToDelete.begin(), _objectsToDelete.end(), [&](const ObjectToDelete& otd) { return otd.frameCount > frameCount; });
+
+        // use a swap of the container to keep the time the mutex is acquired as short as possible
+        objectsToDelete.splice(objectsToDelete.end(), _objectsToDelete, _objectsToDelete.begin(), last_itr);
+
+        sharedObjectsToPrune.swap(_sharedObjectsToPrune);
     }
 
     size_t numObjectsToDelete = objectsToDelete.size();
 
     //vsg::info("DeleteQueue::clear(), releasing ", nodesToRelease.size());
+
     objectsToDelete.clear();
 
     if (numObjectsToDelete > 0)
     {
-        for (auto& sharedObjects : _sharedObjectsToPrune)
+        for (auto& sharedObjects : sharedObjectsToPrune)
         {
             sharedObjects->prune();
         }
-        _sharedObjectsToPrune.clear();
+        sharedObjectsToPrune.clear();
     }
+
+    deletedCount += numObjectsToDelete;
+
+    return numObjectsToDelete;
 }

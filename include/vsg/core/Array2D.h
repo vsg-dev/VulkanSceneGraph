@@ -57,7 +57,7 @@ namespace vsg
             }
         }
 
-        Array2D(uint32_t width, uint32_t height, Properties in_properties = {}) :
+        Array2D(uint32_t width, uint32_t height, const Properties& in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
             _data(nullptr),
             _width(width),
@@ -67,7 +67,7 @@ namespace vsg
             dirty();
         }
 
-        Array2D(uint32_t width, uint32_t height, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
+        Array2D(uint32_t width, uint32_t height, value_type* data, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(in_properties, sizeof(value_type)),
             _data(data),
             _width(width),
@@ -77,7 +77,7 @@ namespace vsg
             dirty();
         }
 
-        Array2D(uint32_t width, uint32_t height, const value_type& value, Properties in_properties = {}) :
+        Array2D(uint32_t width, uint32_t height, const value_type& value, const Properties& in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
             _data(nullptr),
             _width(width),
@@ -91,7 +91,7 @@ namespace vsg
             }
         }
 
-        Array2D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
+        Array2D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(),
             _data(nullptr),
             _width(0),
@@ -231,7 +231,7 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t width, uint32_t height, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
+        void assign(uint32_t width, uint32_t height, value_type* data, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -247,7 +247,7 @@ namespace vsg
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -340,7 +340,7 @@ namespace vsg
         const_iterator end() const { return const_iterator{data(_width * _height), properties.stride}; }
 
     protected:
-        virtual ~Array2D()
+        ~Array2D() override
         {
             _delete();
         }

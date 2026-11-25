@@ -134,7 +134,7 @@ namespace vsg
     protected:
         Window(ref_ptr<WindowTraits> traits);
 
-        virtual ~Window();
+        ~Window() override;
 
         virtual void _initSurface() = 0;
         void _initFormats();

@@ -41,7 +41,7 @@ namespace vsg
         bool windowValid = false;
 
     protected:
-        virtual ~WindowAdapter() {}
+        ~WindowAdapter() override {}
 
         void _initSurface() override {};
     };

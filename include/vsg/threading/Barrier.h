@@ -57,7 +57,7 @@ namespace vsg
         }
 
     protected:
-        virtual ~Barrier() {}
+        ~Barrier() override {}
 
         void _release()
         {

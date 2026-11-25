@@ -38,7 +38,7 @@ namespace vsg
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~MultisampleState();
+        ~MultisampleState() override;
     };
     VSG_type_name(vsg::MultisampleState);
 

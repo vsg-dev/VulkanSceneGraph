@@ -76,11 +76,7 @@ ViewDescriptorSetLayout::ViewDescriptorSetLayout()
 
 int ViewDescriptorSetLayout::compare(const Object& rhs_object) const
 {
-    int result = DescriptorSetLayout::compare(rhs_object);
-    if (result != 0) return result;
-
-    const auto& rhs = static_cast<decltype(*this)>(rhs_object);
-    return compare_pointer(_viewDescriptorSetLayout, rhs._viewDescriptorSetLayout);
+    return Object::compare(rhs_object);
 }
 
 void ViewDescriptorSetLayout::read(Input& input)
@@ -165,6 +161,8 @@ ViewDependentState::ViewDependentState(View* in_view) :
     view(in_view)
 {
     // info("ViewDependentState::ViewDependentState(view = ", view, ")");
+    shadowMapBias = ShadowMapBiasValue::create();
+    shadowMapBiasBufferInfo = BufferInfo::create(shadowMapBias);
 }
 
 ViewDependentState::~ViewDependentState()
@@ -298,6 +296,7 @@ void ViewDependentState::init(ResourceRequirements& requirements)
     viewportData->properties.dataVariance = DYNAMIC_DATA_TRANSFER_AFTER_RECORD;
     viewportDataBufferInfo = BufferInfo::create(viewportData.get());
     descriptorConfigurator->assignDescriptor("viewportData", BufferInfoList{viewportDataBufferInfo});
+    descriptorConfigurator->assignDescriptor("shadowMapBias", BufferInfoList{shadowMapBiasBufferInfo});
 
     // set up ShadowMaps
     auto shadowMapDirectSampler = Sampler::create();
@@ -425,7 +424,7 @@ void ViewDependentState::update(ResourceRequirements& requirements)
 {
     if (preRenderCommandGraph)
     {
-        preRenderCommandGraph->maxSlots.merge(requirements.maxSlots);
+        preRenderCommandGraph->maxSlots.update(requirements.maxSlots);
     }
 }
 
@@ -662,7 +661,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
         dbox eyeSpaceRegionBounds;
         for (auto& [mv, regionOfInterest] : rt.regionsOfInterest)
         {
-            for (auto& v : regionOfInterest->points)
+            for (const auto& v : regionOfInterest->points)
             {
                 eyeSpaceRegionBounds.add(mv * v);
             }
@@ -750,7 +749,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         // compute directional light space
         // light direction in world coords
-        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
+        auto light_direction = normalize(light->direction * (inverse_3x3(inverse_viewMatrix * mv)));
 #if 0
         info("   directional light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
         info("      light->direction in model = ", light->direction);
@@ -804,7 +803,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
 
-            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, shadowMapBias) * shadowMapProjView * inverse_viewMatrix;
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);
@@ -910,7 +909,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
         // compute spot light space
         // light direction in world coords
-        auto light_direction = normalize(light->direction * (inverse_3x3(mv * inverse_viewMatrix)));
+        auto light_direction = normalize(light->direction * (inverse_3x3(inverse_viewMatrix * mv)));
         auto light_position = inverse_viewMatrix * mv * light->position;
 #if 0
         info("   spot light : light direction in world = ", light_direction, ", light->shadowMapCount = ", light->shadowMapCount);
@@ -979,7 +978,7 @@ void ViewDependentState::traverse(RecordTraversal& rt) const
 
             dmat4 shadowMapProjView = camera->projectionMatrix->transform() * camera->viewMatrix->transform();
 
-            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0 + shadowMapBias) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
+            dmat4 shadowMapTM = scale(0.5, 0.5, 1.0) * translate(1.0, 1.0, 0.0) * shadowMapProjView * inverse_viewMatrix;
 
             // convert tex gen matrix to float matrix and assign to light data
             mat4 m(shadowMapTM);

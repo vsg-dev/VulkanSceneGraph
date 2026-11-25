@@ -107,7 +107,7 @@ namespace vsg
         const VkSampleCountFlagBits maxSamples;
 
     protected:
-        virtual ~RenderPass();
+        ~RenderPass() override;
 
         /// Vulkan renderPass handle, created in RenderPass constructor.
         VkRenderPass _renderPass;

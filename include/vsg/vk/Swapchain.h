@@ -38,6 +38,7 @@ namespace vsg
         VkSurfaceFormatKHR surfaceFormat = {VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
         VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
         VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        VkSwapchainCreateFlagsKHR flags = 0;
     };
 
     /// Swapchain encapsulates vkSwapchainKHR
@@ -60,7 +61,7 @@ namespace vsg
         VkResult acquireNextImage(uint64_t timeout, ref_ptr<Semaphore> semaphore, ref_ptr<Fence> fence, uint32_t& imageIndex);
 
     protected:
-        virtual ~Swapchain();
+        ~Swapchain() override;
 
         vsg::ref_ptr<Device> _device;
         vsg::ref_ptr<Surface> _surface;

@@ -9,7 +9,6 @@ invalidPointerCast:*/include/vsg/core/Data.h
 invalidPointerCast:*/include/vsg/core/Array.h
 invalidPointerCast:*/include/vsg/core/Array2D.h
 invalidPointerCast:*/include/vsg/core/Array3D.h
-invalidPointerCast:*/include/vsg/core/Array3D.h
 invalidPointerCast:*/src/vsg/commands/CopyAndReleaseImage.cpp
 
 // suppress inappropriate stl algorithm suggestions
@@ -120,7 +119,8 @@ unusedStructMember:*/include/vsg/vk/RenderPass.h
 unusedStructMember:*/include/vsg/vk/ResourceRequirements.h
 unusedStructMember:*/include/vsg/vk/Swapchain.h
 unusedStructMember:*/include/vsg/vk/vulkan.h
-unusedStructMember:*/src/vsg/core/External.cpp#
+unusedStructMember:*/src/vsg/core/External.cpp
+
 // suppress warnings about unused variables
 unusedVariable:*/src/vsg/io/FileSystem.cpp
 unusedVariable:*/src/vsg/app/CompileManager.cpp
@@ -153,12 +153,14 @@ arrayIndexOutOfBounds:*/include/vsg/vk/State.h
 // suppress warnings about intentional code usage or where cppcheck just hasn't got a clue about how templates are used...
 knownConditionTrueFalse:*/src/vsg/utils/Builder.cpp
 knownConditionTrueFalse:*/include/vsg/utils/CommandLine.h
+knownConditionTrueFalse:*/include/vsg/core/Inherit.h
 
 // suppress warning about initializtion.
 useInitializationList:*/include/vsg/core/ScratchMemory.h
 useInitializationList:*/src/vsg/vk/Extensions.cpp
 useInitializationList:*/src/vsg/vk/Context.cpp
 useInitializationList:*/src/vsg/app/Viewer.cpp
+useInitializationList:*/src/vsg/state/ViewDependentState.cpp
 
 // suppress inappropriate warning about insertion.
 stlFindInsert:*/src/vsg/vk/ResourceRequirements.cpp
@@ -224,6 +226,11 @@ cstyleCast:*/src/vsg/io/mem_stream.cpp
 
 // suppress unhelpful warnings of override that make inform programmers what is being done
 uselessOverride:*/include/vsg/utils/TracyInstrumentation.h
+uselessOverride:*/include/vsg/ui/WindowEvent.h
+uselessOverride:*/include/vsg/utils/ShaderSet.h
+uselessOverride:*/include/vsg/nodes/Transform.h
+uselessOverride:*/include/vsg/raytracing/DescriptorAccelerationStructure.h
+uselessOverride:*/include/vsg/raytracing/RayTracingShaderGroup.h
 
 // suppress inappropriate warning
 constParameterReference:*/include/vsg/vk/Device.h
@@ -239,7 +246,42 @@ constVariableReference:*/src/vsg/utils/ShaderSet.cpp
 
 // suppress inappropriate warning
 constVariablePointer:*/src/vsg/app/SecondaryCommandGraph.cpp
+constVariablePointer:*/src/vsg/app/CompileManager.cpp
+constVariablePointer:*/src/vsg/app/CompileTraversal.cpp
+constVariablePointer:*/src/vsg/app/RenderGraph.cpp
+constVariablePointer:*/src/vsg/meshshaders/DrawMeshTasksIndirect.cpp
+constVariablePointer:*/src/vsg/meshshaders/DrawMeshTasks.cpp
+constVariablePointer:*/src/vsg/meshshaders/DrawMeshTasksIndirectCount.cpp
 
 // suppress inappropriate warning
 passedByValue:*/src/vsg/vk/Device.cpp
 passedByValue:*/src/vsg/vk/Instance.cpp
+
+// suppress inappropriate warnings
+functionStatic:*/include/vsg/io/Output.h
+functionStatic:*/include/vsg/io/Input.h
+functionStatic:*/include/vsg/app/CompileManager.h
+functionStatic:*/src/vsg/app/CompileManager.cpp
+functionStatic:*/include/vsg/app/RecordTraversal.h
+functionStatic:*/src/vsg/app/RecordTraversal.cpp
+functionStatic:*/include/vsg/io/VSG.h
+functionStatic:*/src/vsg/io/VSG.cpp
+functionStatic:*/include/vsg/io/json.h
+functionStatic:*/src/vsg/io/json.cpp
+functionStatic:*/include/vsg/io/txt.h
+functionStatic:*/src/vsg/io/txt.cpp
+functionStatic:*/include/vsg/io/tile.h
+functionStatic:*/src/vsg/io/tile.cpp
+functionStatic:*/include/vsg/state/QueryPool.h
+functionStatic:*/src/vsg/state/QueryPool.cpp
+functionStatic:*/include/vsg/state/ArrayState.h
+functionStatic:*/src/vsg/state/ArrayState.cpp
+functionStatic:*/include/vsg/text/StandardLayout.h
+functionStatic:*/src/vsg/text/StandardLayout.cpp
+functionStatic:*/include/vsg/utils/Builder.h
+functionStatic:*/src/vsg/utils/Builder.cpp
+functionStatic:*/include/vsg/utils/ShaderCompiler.h
+functionStatic:*/src/vsg/utils/ShaderCompiler.cpp
+
+// suppress inappropriate warnings
+suspiciousFloatingPointCast:*/src/vsg/maths/maths_transform.cpp

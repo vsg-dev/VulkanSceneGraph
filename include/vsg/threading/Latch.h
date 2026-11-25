@@ -84,7 +84,7 @@ namespace vsg
         int count() const { return _count.load(); }
 
     protected:
-        virtual ~Latch() {}
+        ~Latch() override {}
 
         std::atomic_int _count;
         std::mutex _mutex;

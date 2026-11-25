@@ -43,7 +43,7 @@ namespace vsg
         void record(ref_ptr<RecordedCommandBuffers> recordedCommandBuffers, ref_ptr<FrameStamp> frameStamp = {}, ref_ptr<DatabasePager> databasePager = {}) override;
 
     protected:
-        virtual ~SecondaryCommandGraph();
+        ~SecondaryCommandGraph() override;
 
         friend ExecuteCommands;
 

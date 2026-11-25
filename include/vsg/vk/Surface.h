@@ -39,7 +39,7 @@ namespace vsg
         }
 
     protected:
-        virtual ~Surface();
+        ~Surface() override;
 
         VkSurfaceKHR _surface;
         ref_ptr<Instance> _instance;

@@ -22,13 +22,3 @@ AmbientLight::AmbientLight(const AmbientLight& rhs, const CopyOp& copyop) :
     Inherit(rhs, copyop)
 {
 }
-
-void AmbientLight::read(Input& input)
-{
-    Light::read(input);
-}
-
-void AmbientLight::write(Output& output) const
-{
-    Light::write(output);
-}

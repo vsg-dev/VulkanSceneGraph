@@ -59,7 +59,7 @@ namespace vsg
             }
         }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, const Properties& in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
             _data(nullptr),
             _width(width),
@@ -70,7 +70,7 @@ namespace vsg
             dirty();
         }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, value_type* data, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(in_properties, sizeof(value_type)),
             _data(data),
             _width(width),
@@ -81,7 +81,7 @@ namespace vsg
             dirty();
         }
 
-        Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, Properties in_properties = {}) :
+        Array3D(uint32_t width, uint32_t height, uint32_t depth, const value_type& value, const Properties& in_properties = {}) :
             Data(in_properties, sizeof(value_type)),
             _data(nullptr),
             _width(width),
@@ -96,7 +96,7 @@ namespace vsg
             }
         }
 
-        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
+        Array3D(ref_ptr<Data> data, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr) :
             Data(),
             _data(nullptr),
             _width(0),
@@ -242,7 +242,7 @@ namespace vsg
             return *this;
         }
 
-        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
+        void assign(uint32_t width, uint32_t height, uint32_t depth, value_type* data, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -259,7 +259,7 @@ namespace vsg
             dirty();
         }
 
-        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, Properties in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
+        void assign(ref_ptr<Data> storage, uint32_t offset, uint32_t stride, uint32_t width, uint32_t height, uint32_t depth, const Properties& in_properties = {}, MipmapLayout* mipmapLayout = nullptr)
         {
             _delete();
 
@@ -356,7 +356,7 @@ namespace vsg
         const_iterator end() const { return const_iterator{data(_width * _height * _depth), properties.stride}; }
 
     protected:
-        virtual ~Array3D()
+        ~Array3D() override
         {
             _delete();
         }

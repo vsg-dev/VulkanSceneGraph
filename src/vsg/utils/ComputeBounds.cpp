@@ -302,7 +302,7 @@ void ComputeBounds::add(const dbox& bb)
     }
     else
     {
-        auto& matrix = matrixStack.back();
+        const auto& matrix = matrixStack.back();
         bounds.add(matrix * bb.min);
         bounds.add(matrix * dvec3(bb.max.x, bb.min.y, bb.min.z));
         bounds.add(matrix * dvec3(bb.max.x, bb.max.y, bb.min.z));
@@ -323,7 +323,7 @@ void ComputeBounds::add(const dsphere& bs)
     }
     else
     {
-        auto& matrix = matrixStack.back();
+        const auto& matrix = matrixStack.back();
         bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y - bs.radius, bs.center.z - bs.radius));
         bounds.add(matrix * dvec3(bs.center.x + bs.radius, bs.center.y - bs.radius, bs.center.z - bs.radius));
         bounds.add(matrix * dvec3(bs.center.x - bs.radius, bs.center.y + bs.radius, bs.center.z - bs.radius));

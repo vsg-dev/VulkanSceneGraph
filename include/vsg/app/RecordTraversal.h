@@ -185,7 +185,7 @@ namespace vsg
         ref_ptr<ViewDependentState> viewDependentState;
 
     protected:
-        virtual ~RecordTraversal();
+        ~RecordTraversal() override;
     };
 
 } // namespace vsg

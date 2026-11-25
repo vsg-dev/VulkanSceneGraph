@@ -16,7 +16,7 @@ namespace vsg
     {
     public:
         ShaderCompiler();
-        virtual ~ShaderCompiler();
+        ~ShaderCompiler() override;
 
         /// return true if shader compilation is supported by this build of VulkanSceneGraph
         /// you can also use the VSG_SUPPORTS_ShaderCompiler define provided by include/vsg/core/Version.h
@@ -25,10 +25,10 @@ namespace vsg
         // default ShaderCompileSettings
         ref_ptr<ShaderCompileSettings> defaults;
 
-        bool compile(ShaderStages& shaders, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
-        bool compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines = {}, ref_ptr<const Options> options = {});
+        bool compile(ShaderStages& shaders, const DefineMap& defines = {}, ref_ptr<const Options> options = {});
+        bool compile(ref_ptr<ShaderStage> shaderStage, const DefineMap& defines = {}, ref_ptr<const Options> options = {});
 
-        std::string combineSourceAndDefines(const std::string& source, const std::map<std::string, std::string>& defines);
+        std::string combineSourceAndDefines(const std::string& source, const DefineMap& defines);
 
         void apply(Node& node) override;
         void apply(BindGraphicsPipeline& bgp) override;

@@ -63,6 +63,9 @@ namespace vsg
         // X11 hint of whether to ignore the Window managers redirection of window size/position
         bool overrideRedirect = false;
 
+        /// enable drag and drop
+        bool dragAndDrop = true;
+
         uint32_t vulkanVersion = VK_API_VERSION_1_0;
 
         SwapchainPreferences swapchainPreferences;
@@ -99,7 +102,7 @@ namespace vsg
         std::any systemConnection;
 
     protected:
-        virtual ~WindowTraits() {}
+        ~WindowTraits() override {}
     };
     VSG_type_name(vsg::WindowTraits);
 

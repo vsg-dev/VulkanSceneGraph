@@ -220,7 +220,7 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     clipspace.push_back(dplane(0.0, 0.0, 1.0, ndc_far));   // far
 
     vsg::Polytope eyespace;
-    for (auto& pl : clipspace)
+    for (const auto& pl : clipspace)
     {
         eyespace.push_back(pl * projectionMatrix);
     }
@@ -228,7 +228,7 @@ PolytopeIntersector::PolytopeIntersector(const Camera& camera, double xMin, doub
     _polytopeStack.push_back(eyespace);
 
     vsg::Polytope worldspace;
-    for (auto& pl : eyespace)
+    for (const auto& pl : eyespace)
     {
         worldspace.push_back(pl * viewMatrix);
     }
@@ -276,7 +276,7 @@ void PolytopeIntersector::pushTransform(const Transform& transform)
     const auto& worldspace = _polytopeStack.front();
 
     Polytope localspace;
-    for (auto& pl : worldspace)
+    for (const auto& pl : worldspace)
     {
         localspace.push_back(pl * localToWorld);
     }

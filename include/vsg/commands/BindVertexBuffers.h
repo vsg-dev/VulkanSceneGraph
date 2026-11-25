@@ -42,7 +42,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~BindVertexBuffers();
+        ~BindVertexBuffers() override;
 
         vk_buffer<VulkanArrayData> _vulkanData;
     };

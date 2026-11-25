@@ -54,13 +54,13 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~PipelineLayout();
+        ~PipelineLayout() override;
 
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Device* device, const DescriptorSetLayouts& descriptorSetLayouts, const PushConstantRanges& pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0);
 
-            virtual ~Implementation();
+            ~Implementation() override;
 
             VkPipelineLayout _pipelineLayout;
 

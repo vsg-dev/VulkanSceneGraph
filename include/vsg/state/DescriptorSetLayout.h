@@ -64,13 +64,13 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~DescriptorSetLayout();
+        ~DescriptorSetLayout() override;
 
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Device* device, VkDescriptorSetLayoutCreateFlags createFlags, const DescriptorSetLayoutBindings& descriptorSetLayoutBindings, const DescriptorSetLayoutBindingFlags& descriptorSetLayoutBindingFlags);
 
-            virtual ~Implementation();
+            ~Implementation() override;
 
             ref_ptr<Device> _device;
             VkDescriptorSetLayout _descriptorSetLayout;

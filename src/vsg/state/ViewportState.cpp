@@ -103,7 +103,7 @@ void ViewportState::write(Output& output) const
     GraphicsPipelineState::write(output);
 
     output.writeValue<uint32_t>("viewports", viewports.size());
-    for (auto& viewport : viewports)
+    for (const auto& viewport : viewports)
     {
         output.write("x", viewport.x);
         output.write("y", viewport.y);
@@ -114,7 +114,7 @@ void ViewportState::write(Output& output) const
     }
 
     output.writeValue<uint32_t>("scissors", scissors.size());
-    for (auto& scissor : scissors)
+    for (const auto& scissor : scissors)
     {
         output.write("x", scissor.offset.x);
         output.write("y", scissor.offset.y);

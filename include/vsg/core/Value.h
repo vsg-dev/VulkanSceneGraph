@@ -162,7 +162,7 @@ namespace vsg
         void set(const value_type& value) { _value = value; }
 
     protected:
-        virtual ~Value() {}
+        ~Value() override {}
 
     private:
         value_type _value;
@@ -208,8 +208,14 @@ namespace vsg
     VSG_value(pathValue, vsg::Path);
 
     VSG_value(boolValue, bool);
-    VSG_value(intValue, int);
-    VSG_value(uintValue, unsigned int);
+    VSG_value(byteValue, int8_t);
+    VSG_value(ubyteValue, uint8_t);
+    VSG_value(shortValue, int16_t);
+    VSG_value(ushortValue, uint16_t);
+    VSG_value(intValue, int32_t);
+    VSG_value(uintValue, uint32_t);
+    VSG_value(int64Value, int64_t);
+    VSG_value(uint64Value, uint64_t);
     VSG_value(floatValue, float);
     VSG_value(doubleValue, double);
 

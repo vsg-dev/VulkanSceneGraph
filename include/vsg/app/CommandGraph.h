@@ -54,7 +54,7 @@ namespace vsg
         ref_ptr<Instrumentation> instrumentation;
 
     protected:
-        virtual ~CommandGraph();
+        ~CommandGraph() override;
 
         CommandBuffers _commandBuffers; // assign one per index? Or just use round robin, each has a CommandPool
     };

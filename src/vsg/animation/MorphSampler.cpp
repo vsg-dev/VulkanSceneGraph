@@ -51,7 +51,7 @@ void MorphKeyframes::write(Output& output) const
 
     // write key frames
     output.writeValue<uint32_t>("keyFrames", keyframes.size());
-    for (auto& keyframe : keyframes)
+    for (const auto& keyframe : keyframes)
     {
         output.write("time", keyframe.time);
         output.writeValues("values", keyframe.values);

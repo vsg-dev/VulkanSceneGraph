@@ -152,7 +152,7 @@ namespace vsg
         ImageMemoryBarriers imageMemoryBarriers;
 
     protected:
-        virtual ~PipelineBarrier();
+        ~PipelineBarrier() override;
     };
     VSG_type_name(vsg::PipelineBarrier);
 

@@ -260,7 +260,7 @@ namespace vsg
 
         C dest;
         dest.reserve(src.size());
-        for (auto& ptr : src)
+        for (const auto& ptr : src)
         {
             dest.push_back(operator()(ptr));
         }
@@ -281,6 +281,17 @@ namespace vsg
         if (!object) return {};
         auto new_object = object->clone();
         return new_object.template cast<T>();
+    }
+
+    /// clone a named meta data object stored within an object's Auxliary object if available, others default construct object
+    template<class T, class C>
+    ref_ptr<T> clone(const std::string& key, C container)
+    {
+        if (container)
+        {
+            if (auto prototype = container->template getRefObject<T>(key)) return vsg::clone(prototype);
+        }
+        return T::create();
     }
 
 } // namespace vsg

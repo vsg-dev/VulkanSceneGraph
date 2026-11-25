@@ -43,7 +43,7 @@ namespace vsg
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~DepthStencilState();
+        ~DepthStencilState() override;
     };
     VSG_type_name(vsg::DepthStencilState);
 

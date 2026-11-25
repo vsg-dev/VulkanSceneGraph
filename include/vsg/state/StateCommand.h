@@ -36,7 +36,7 @@ namespace vsg
         uint32_t slot = 0;
 
     protected:
-        virtual ~StateCommand() {}
+        ~StateCommand() override {}
     };
     VSG_type_name(vsg::StateCommand);
 

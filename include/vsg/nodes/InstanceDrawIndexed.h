@@ -51,7 +51,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~InstanceDrawIndexed();
+        ~InstanceDrawIndexed() override;
 
         VkIndexType indexType = VK_INDEX_TYPE_UINT16;
     };

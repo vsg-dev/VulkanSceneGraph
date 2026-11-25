@@ -52,7 +52,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~QuadGroup();
+        ~QuadGroup() override;
     };
     VSG_type_name(vsg::QuadGroup);
 

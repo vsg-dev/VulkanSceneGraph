@@ -42,7 +42,7 @@ namespace vsg
         virtual void compile(Context& context);
 
     protected:
-        virtual ~BufferView();
+        ~BufferView() override;
 
         struct VulkanData
         {

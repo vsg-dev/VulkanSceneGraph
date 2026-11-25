@@ -44,7 +44,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~GraphicsPipelineState() {}
+        ~GraphicsPipelineState() override {}
     };
     VSG_type_name(vsg::GraphicsPipelineState);
 
@@ -88,13 +88,13 @@ namespace vsg
         void release() { _implementation.clear(); }
 
     protected:
-        virtual ~GraphicsPipeline();
+        ~GraphicsPipeline() override;
 
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Context& context, Device* device, const RenderPass* renderPass, const PipelineLayout* pipelineLayout, const ShaderStages& shaderStages, const GraphicsPipelineStates& pipelineStates, uint32_t subpass);
 
-            virtual ~Implementation();
+            ~Implementation() override;
 
             GraphicsPipelineStates _pipelineStates;
             VkPipeline _pipeline;
@@ -128,7 +128,7 @@ namespace vsg
         virtual void release();
 
     public:
-        virtual ~BindGraphicsPipeline();
+        ~BindGraphicsPipeline() override;
     };
     VSG_type_name(vsg::BindGraphicsPipeline);
 

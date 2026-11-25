@@ -33,7 +33,7 @@ namespace vsg
         bool cancel() const noexcept { return !_active; }
 
     protected:
-        virtual ~ActivityStatus() {}
+        ~ActivityStatus() override {}
 
         std::atomic_bool _active;
     };

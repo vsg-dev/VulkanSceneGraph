@@ -25,6 +25,7 @@ namespace vsg
     class WindowTraits;
     class MemoryBufferPools;
     class DescriptorPools;
+    class TransferTask;
 
     struct QueueSetting
     {
@@ -38,7 +39,11 @@ namespace vsg
     class VSG_DECLSPEC Device : public Inherit<Object, Device>
     {
     public:
-        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names layers, Names deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr);
+        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr);
+
+        /// depreacted : Device layers is no longer supported by Vulkan, see https://docs.vulkan.org/spec/latest/appendices/legacy.html#legacy-devicelayers
+        Device(PhysicalDevice* physicalDevice, const QueueSettings& queueSettings, Names /*layers*/, const Names& deviceExtensions, const DeviceFeatures* deviceFeatures = nullptr, AllocationCallbacks* allocator = nullptr) :
+            Device(physicalDevice, queueSettings, deviceExtensions, deviceFeatures, allocator) {}
 
         operator VkDevice() const { return _device; }
         VkDevice vk() const { return _device; }
@@ -84,16 +89,17 @@ namespace vsg
         /// return true if Device was created with specified extension
         bool supportsDeviceExtension(const char* extensionName) const;
 
-        /// return the amount of memory available in deviceMemoryBufferPools and allocatable on device
-        VkDeviceSize availableMemory(bool includeMemoryPools = true) const;
+        /// return the amount of remaining memory, compatible with specified flags, available that can be allocated.
+        VkDeviceSize availableMemory(VkMemoryPropertyFlags memoryPropertiesFlags, double allocatedMemoryLimit = 1.0) const;
 
-        // provide observer_ptr to memory buffer and descriptor pools so that these can be accessed when required
+        // provide observer_ptr to memory buffer, descriptor pools and transferTask so that these can be accessed when required
         observer_ptr<MemoryBufferPools> deviceMemoryBufferPools;
         observer_ptr<MemoryBufferPools> stagingMemoryBufferPools;
         observer_ptr<DescriptorPools> descriptorPools;
+        observer_ptr<TransferTask> transferTask;
 
     protected:
-        virtual ~Device();
+        ~Device() override;
 
         VkDevice _device;
 

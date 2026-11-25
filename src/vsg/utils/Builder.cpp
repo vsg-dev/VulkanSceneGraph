@@ -58,7 +58,6 @@ ref_ptr<StateGroup> Builder::createStateGroup(const StateInfo& stateInfo)
     auto& defines = graphicsPipelineConfig->shaderHints->defines;
 
     // set up graphics pipeline
-    DescriptorSetLayoutBindings descriptorBindings;
     if (stateInfo.image)
     {
         auto sampler = Sampler::create();

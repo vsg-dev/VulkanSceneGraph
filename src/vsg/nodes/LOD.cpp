@@ -79,7 +79,7 @@ void LOD::write(Output& output) const
     output.write("bound", bound);
 
     output.writeValue<uint32_t>("children", children.size());
-    for (auto& child : children)
+    for (const auto& child : children)
     {
         output.write("child.minimumScreenHeightRatio", child.minimumScreenHeightRatio);
         output.write("child.node", child.node);

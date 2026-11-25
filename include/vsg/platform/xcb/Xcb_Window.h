@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #pragma once
 
 #include <vsg/app/Window.h>
+#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/KeyEvent.h>
 
 #include <xcb/xcb.h>
@@ -77,11 +78,58 @@ namespace vsgXcb
 
         void _initSurface() override;
 
+        /// Set up the XdndAware property so that the window is offered file drops.
+        void _initXdnd();
+
+        /// Handle one XDND ClientMessage or the SelectionNotify that carries the dropped file names,
+        /// appending any resulting Drop events to bufferedEvents. Returns false if the message was
+        /// not part of a drag and drop exchange.
+        bool _handleXdndEvent(const xcb_generic_event_t* event);
+
+        /// Send the XdndStatus reply that tells the source whether a drop would be accepted. Sent
+        /// once per frame while a drag is in progress, so a handler that changes its mind while the
+        /// cursor is stationary is still able to update the cursor.
+        void _sendXdndStatus();
+
         xcb_connection_t* _connection = nullptr;
         xcb_screen_t* _screen = nullptr;
         xcb_window_t _window{};
         xcb_atom_t _wmProtocols{};
         xcb_atom_t _wmDeleteWindow{};
+
+        // Drag and drop. The source only hands over the file names once the button is released, so
+        // the drop is delivered in two steps: XdndDrop asks for the XdndSelection selection, and the
+        // DropFilesEvent is emitted when the resulting SelectionNotify arrives.
+        struct XdndAtoms
+        {
+            xcb_atom_t aware{};
+            xcb_atom_t enter{};
+            xcb_atom_t position{};
+            xcb_atom_t status{};
+            xcb_atom_t leave{};
+            xcb_atom_t drop{};
+            xcb_atom_t finished{};
+            xcb_atom_t selection{};
+            xcb_atom_t typeList{};
+            xcb_atom_t actionCopy{};
+            xcb_atom_t uriList{};
+            xcb_atom_t property{};
+        };
+
+        XdndAtoms _xdnd;
+        xcb_window_t _xdndSource = 0;
+        bool _xdndHovering = false;
+        bool _xdndDropping = false;
+        bool _xdndAccepted = false;
+        bool _xdndAcceptedSent = false;
+        bool _xdndStatusPending = false;
+        int32_t _xdndX = 0;
+        int32_t _xdndY = 0;
+        vsg::clock::time_point _xdndDropStarted;
+
+        // The hover event emitted last frame, kept so that the accept flag the application set on it
+        // can be read back once the frame that handled it has finished.
+        vsg::ref_ptr<vsg::DropHoverEvent> _xdndHoverEvent;
 
         bool _windowMapped = false;
 

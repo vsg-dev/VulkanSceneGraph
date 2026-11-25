@@ -197,6 +197,12 @@ void TransformSampler::read(Input& input)
     AnimationSampler::read(input);
     input.read("keyframes", keyframes);
     input.read("object", object);
+    if (input.version_greater_equal(1, 1, 17))
+    {
+        input.read("position", position);
+        input.read("rotation", rotation);
+        input.read("scale", scale);
+    }
 }
 
 void TransformSampler::write(Output& output) const
@@ -204,4 +210,10 @@ void TransformSampler::write(Output& output) const
     AnimationSampler::write(output);
     output.write("keyframes", keyframes);
     output.write("object", object);
+    if (output.version_greater_equal(1, 1, 17))
+    {
+        output.write("position", position);
+        output.write("rotation", rotation);
+        output.write("scale", scale);
+    }
 }

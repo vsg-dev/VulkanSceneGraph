@@ -19,6 +19,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #endif
 
 #include <vsg/app/Window.h>
+#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/KeyEvent.h>
 #include <vsg/ui/PointerEvent.h>
 
@@ -40,86 +41,71 @@ namespace vsgWin32
         {
             uint16_t modifierMask = 0;
 
-            // see https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#keystroke-message-flags
-            WORD keyFlags = HIWORD(lParam);
-            WORD scanCode = LOBYTE(keyFlags);                             // scan code
-            BOOL isExtendedKey = (keyFlags & KF_EXTENDED) == KF_EXTENDED; // extended-key flag, 1 if scancode has 0xE0 prefix
+            // Get scancode
+            uint16_t keyFlags = HIWORD(lParam);
+            uint16_t scanCode = LOBYTE(lParam);
+            bool isExtendedKey = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
 
             if (isExtendedKey)
+            {
                 scanCode = MAKEWORD(scanCode, 0xE0);
+            }
 
-            uint32_t virtualKey = ::MapVirtualKeyEx(scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout(0));
+            // Get virtual key code
+            uint32_t virtualKey = static_cast<uint32_t>(wParam);
+
+            // Left and right modifier detection
+            if (virtualKey == VK_SHIFT)
+            {
+                virtualKey = (scanCode == 0x2A) ? VK_RSHIFT : VK_LSHIFT;
+            }
+            else if (virtualKey == VK_CONTROL)
+            {
+                virtualKey = isExtendedKey ? VK_RCONTROL : VK_LCONTROL;
+            }
+            else if (virtualKey == VK_MENU)
+            {
+                virtualKey = isExtendedKey ? VK_RMENU : VK_LMENU;
+            }
+
             auto itr = _vk2vsg.find(virtualKey);
 
             if (itr == _vk2vsg.end())
             {
-                // What ever the code was in lParam should translate to a Virtual Key that we know of in _vk2vsg
-                // If we cannot find it, we simply return.
                 return false;
             }
 
-            // This is the base-key that was pressed. (i.e., the VSG enum of the physical key pressed).
             keySymbol = itr->second;
 
-            // Look for any modifiers that may be active.
+            // Get keys state
             BYTE keyState[256];
-            if (virtualKey == 0 || !::GetKeyboardState(keyState))
+
+            if (!::GetKeyboardState(keyState))
             {
-                // if virtualKey was undefined or we could not get the keyboard state, simply return.
                 return false;
             }
 
-            // If any of the specific left/right modifier keys are active
-            // add the side-independent vsg modifier to the modifier Mask
-            switch (virtualKey)
-            {
-            case VK_LSHIFT:
-            case VK_RSHIFT:
-                modifierMask |= vsg::KeyModifier::MODKEY_Shift;
-                break;
-
-            case VK_LCONTROL:
-            case VK_RCONTROL:
-                modifierMask |= vsg::KeyModifier::MODKEY_Control;
-                break;
-
-            case VK_LMENU:
-            case VK_RMENU:
-                modifierMask |= vsg::KeyModifier::MODKEY_Alt;
-                break;
-
-            default:
-                virtualKey = static_cast<uint32_t>(wParam);
-                break;
-            }
-
-            // Check if caps lock or numlock is toggled.
+            // Modifier's flags setting
+            if (keyState[VK_SHIFT] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
+            if (keyState[VK_CONTROL] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Control;
+            if (keyState[VK_MENU] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
             if (keyState[VK_CAPITAL] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_CapsLock;
             if (keyState[VK_NUMLOCK] & 0x01) modifierMask |= vsg::KeyModifier::MODKEY_NumLock;
 
-            // Check if the modifier keys are down (these are non-toggle keys, so the high-order bit is relevant!)
-            // again, vsg only has a side-independent modifier
-            if (keyState[VK_LSHIFT] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
-            if (keyState[VK_RSHIFT] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Shift;
-            if (keyState[VK_LCONTROL] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Control;
-            if (keyState[VK_RCONTROL] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Control;
-            if (keyState[VK_LMENU] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
-            if (keyState[VK_RMENU] & 0x80) modifierMask |= vsg::KeyModifier::MODKEY_Alt;
-
-            // This is the final keyModifier
             keyModifier = static_cast<vsg::KeyModifier>(modifierMask);
 
-            // The actual keystroke is what we get after the ::ToAscii call
-            char asciiKey[2];
-            int32_t numChars = ::ToAsciiEx(static_cast<UINT>(wParam), scanCode, keyState, reinterpret_cast<WORD*>(asciiKey), 0, ::GetKeyboardLayout(0));
+            // Get Unicode symbol
+            wchar_t unicodeChar[2] = {0};
+            int numChars = ::ToUnicodeEx(virtualKey, scanCode, keyState, unicodeChar, 2, 0, ::GetKeyboardLayout(0));
+
             if (numChars == 1)
             {
-                // it is indeed an ascii character. 0-127
-                modifiedKeySymbol = static_cast<vsg::KeySymbol>(asciiKey[0]);
+                wchar_t ch = unicodeChar[0];
+
+                modifiedKeySymbol = mapCharToKeySymbol(ch);
             }
             else
             {
-                // otherwise treat the modifiedKeySymbol as the same as the keySymbol.
                 modifiedKeySymbol = keySymbol;
             }
 
@@ -127,6 +113,18 @@ namespace vsgWin32
         }
 
     protected:
+        vsg::KeySymbol mapCharToKeySymbol(wchar_t ch)
+        {
+            // Special characters (with and without Shift)
+            switch (ch)
+            {
+            case L'\t': return vsg::KEY_Tab;
+            case L'\r': return vsg::KEY_Return;
+            }
+
+            return static_cast<vsg::KeySymbol>(ch);
+        }
+
         VirtualKeyToKeySymbolMap _vk2vsg;
     };
 
@@ -210,10 +208,28 @@ namespace vsgWin32
 
         void _initSurface() override;
 
+        /// Register the window with OLE so that it is offered file drops.
+        void _initDrop();
+        void _shutdownDrop();
+
         HWND _window;
         bool _windowMapped = false;
 
         vsg::ref_ptr<KeyboardMap> _keyboard;
+
+        // Drag and drop. The OLE callbacks only record what happened; the events are emitted from
+        // pollEvents() so that nothing reaches the application from inside a window message.
+        struct DropTarget;
+        DropTarget* _dropTarget = nullptr;
+        bool _dropHovering = false;
+        bool _dropAccepted = false;
+        vsg::Paths _dropPaths;
+        int32_t _dropX = 0;
+        int32_t _dropY = 0;
+
+        // The hover event emitted last frame, kept so that the accept flag the application set on it
+        // can be read back once the frame that handled it has finished.
+        vsg::ref_ptr<vsg::DropHoverEvent> _dropHoverEvent;
     };
 
     /// Use GetLastError() and FormatMessageA(..) to get the error number and error message and store them in a vsg::Exception.

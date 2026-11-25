@@ -21,6 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileResult
+//
 void CompileResult::reset()
 {
     result = VK_INCOMPLETE;
@@ -37,7 +41,7 @@ void CompileResult::add(const CompileResult& cr)
         result = cr.result;
     }
 
-    maxSlots.merge(cr.maxSlots);
+    maxSlots.update(cr.maxSlots);
 
     if (!containsPagedLOD) containsPagedLOD = cr.containsPagedLOD;
 
@@ -50,10 +54,10 @@ void CompileResult::add(const CompileResult& cr)
         binDetails.bins.insert(src_binDetails.bins.begin(), src_binDetails.bins.end());
     }
 
-    dynamicData.add(dynamicData);
+    dynamicData.add(cr.dynamicData);
 }
 
-bool CompileResult::requiresViewerUpdate() const
+bool CompileResult::requiresViewerUpdate(const Viewer* viewer) const
 {
     if (result == VK_INCOMPLETE) return false;
 
@@ -63,9 +67,66 @@ bool CompileResult::requiresViewerUpdate() const
     {
         if (!binDetails.indices.empty() || !binDetails.bins.empty()) return true;
     }
+
+    if (viewer)
+    {
+        for (const auto& task : viewer->recordAndSubmitTasks)
+        {
+            for (const auto& commandGraph : task->commandGraphs)
+            {
+                if (commandGraph->maxSlots.requiresUpdate(maxSlots)) return true;
+            }
+        }
+    }
+
     return false;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileManager
+//
+
+ResourceScavenger::ResourceScavenger(ref_ptr<DatabasePager> in_databasePager) :
+    databasePager(in_databasePager)
+{
+}
+
+bool ResourceScavenger::scavenge(ResourceRequirements& /*resourceRequirements*/)
+{
+    bool scavenged = false;
+
+    // get raw C pointer to avoid a database pager thread invoking scavenger and keeping the database pager alive and pausing destruction
+    if (auto ref_databasePager = databasePager.get())
+    {
+        if (!ref_databasePager->status->active()) return false;
+
+        uint32_t targetPagedLOD = ref_databasePager->pagedLODContainer->activeList.count;
+        if (ref_databasePager->pagedLODContainer->inactiveList.count > ref_databasePager->numActiveRequests) targetPagedLOD += ref_databasePager->pagedLODContainer->inactiveList.count - ref_databasePager->numActiveRequests;
+
+        if (targetPagedLOD < ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs)
+        {
+            debug("ResourceScavenger::scavenge(..) resetting databasePager->targetMaxNumPagedLODWithHighResSubgraphs to ", targetPagedLOD);
+
+            ref_databasePager->targetMaxNumPagedLODWithHighResSubgraphs = targetPagedLOD;
+        }
+
+        auto before_deletedCount = ref_databasePager->deleteQueue->deletedCount.load();
+
+        if (sleepDuration > 0) std::this_thread::sleep_for(std::chrono::milliseconds(sleepDuration));
+
+        auto after_deletedCount = ref_databasePager->deleteQueue->deletedCount.load();
+
+        scavenged = (after_deletedCount > before_deletedCount);
+    }
+
+    return scavenged;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// CompileManager
+//
 CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 {
     compileTraversals = CompileTraversals::create(viewer.status);
@@ -84,6 +145,11 @@ CompileManager::CompileManager(Viewer& viewer, ref_ptr<ResourceHints> hints)
 #endif
 }
 
+CompileManager::~CompileManager()
+{
+    vsg::debug("CompileManager::~CompileManager() successfulCompileCount= ", successfulCompileCount, ", failedCompileCount = ", failedCompileCount);
+}
+
 CompileManager::CompileTraversals::container_type CompileManager::takeCompileTraversals(size_t count)
 {
     CompileTraversals::container_type cts;
@@ -99,44 +165,73 @@ CompileManager::CompileTraversals::container_type CompileManager::takeCompileTra
     return cts;
 }
 
-void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+void CompileManager::add(ref_ptr<Device> device, ref_ptr<TransferTask> transferTask, const ResourceRequirements& resourceRequirements)
 {
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(device, resourceRequirements);
+        ct->add(device, transferTask, resourceRequirements);
+        compileTraversals->add(ct);
+    }
+}
+
+void CompileManager::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
+{
+    add(device, device->transferTask, resourceRequirements);
+}
+
+void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
+{
+    auto cts = takeCompileTraversals(numCompileTraversals);
+    for (auto& ct : cts)
+    {
+        ct->add(window, transferTask, viewport, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, viewport, resourceRequirements);
+}
+
+void CompileManager::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, viewport, resourceRequirements);
+        ct->add(window, transferTask, view, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, view, resourceRequirements);
+}
+
+void CompileManager::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
+{
     auto cts = takeCompileTraversals(numCompileTraversals);
     for (auto& ct : cts)
     {
-        ct->add(window, view, resourceRequirements);
+        ct->add(framebuffer, transferTask, view, resourceRequirements);
         compileTraversals->add(ct);
     }
 }
 
 void CompileManager::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    auto cts = takeCompileTraversals(numCompileTraversals);
-    for (auto& ct : cts)
-    {
-        ct->add(framebuffer, view, resourceRequirements);
-        compileTraversals->add(ct);
-    }
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = framebuffer.getDevice()) transferTask = device->transferTask;
+
+    add(framebuffer, transferTask, view, resourceRequirements);
 }
 
 void CompileManager::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
@@ -167,20 +262,31 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
     auto& requirements = collectRequirements.requirements;
     auto& viewDetailsStack = requirements.viewDetailsStack;
 
+    VkResult reserve_result = VK_INCOMPLETE;
     CompileResult result;
     result.maxSlots = requirements.maxSlots;
     result.containsPagedLOD = requirements.containsPagedLOD;
     result.views = requirements.views;
     result.dynamicData = requirements.dynamicData;
+    result.message = "Nothing assigned yet.";
 
     auto compileTraversal = compileTraversals->take_when_available();
 
     // if no CompileTraversals are available abort compile
-    if (!compileTraversal) return result;
+    if (!compileTraversal)
+    {
+        debug("Unable to aquire compileTraversal.");
+        return result;
+    }
 
     auto run_compile_traversal = [&]() -> void {
         try
         {
+            for (auto& context : compileTraversal->contexts)
+            {
+                context->reset();
+            }
+
             for (auto& context : compileTraversal->contexts)
             {
                 ref_ptr<View> view = context->view;
@@ -199,9 +305,24 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
                         }
                     }
                 }
+            }
 
-                auto reserveResult = context->reserve(requirements);
-                if (reserveResult != VK_SUCCESS) throw vsg::Exception{"Context::reserve() failed", reserveResult};
+            for (auto& context : compileTraversal->contexts)
+            {
+                reserve_result = context->reserve(requirements);
+
+                // vsg::info("  done reserve context->reserve() ",  reserve_result);
+                if (reserve_result != VK_SUCCESS && resourceScavenger && resourceScavenger->scavenge(requirements))
+                {
+                    reserve_result = context->reserve(requirements);
+                }
+
+                if (reserve_result != VK_SUCCESS)
+                {
+                    result.message = vsg::make_string("Context::reserve() failed", reserve_result);
+                    result.result = reserve_result;
+                    return;
+                }
             }
 
             object->accept(*compileTraversal);
@@ -251,10 +372,24 @@ CompileResult CompileManager::compile(ref_ptr<Object> object, ContextSelectionFu
 
     compileTraversals->add(compileTraversal);
 
+    if (result.result == VK_SUCCESS)
+    {
+        ++successfulCompileCount;
+    }
+    else
+    {
+        ++failedCompileCount;
+
+        for (auto& context : compileTraversal->contexts)
+        {
+            context->reset();
+        }
+    }
+
     return result;
 }
 
-CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, const ResourceRequirements& resourceRequirements)
+CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, ResourceRequirements& resourceRequirements)
 {
     CompileResult result;
 
@@ -264,12 +399,26 @@ CompileResult CompileManager::compileTask(ref_ptr<RecordAndSubmitTask> task, con
     try
     {
         auto compileTraversal = CompileTraversal::create(task->device, resourceRequirements);
+        auto deviceMemoryBufferPools = task->device->deviceMemoryBufferPools.ref_ptr();
+
+        for (auto& context : compileTraversal->contexts)
+        {
+            context->reset();
+        }
 
         for (const auto& context : compileTraversal->contexts)
         {
             if (resourceRequirements.dataTransferHint == COMPILE_TRAVERSAL_USE_TRANSFER_TASK)
             {
                 context->transferTask = task->transferTask;
+            }
+        }
+
+        if (deviceMemoryBufferPools && deviceMemoryBufferPools->compileTraversalUseReserve)
+        {
+            for (auto& context : compileTraversal->contexts)
+            {
+                context->reserve(resourceRequirements);
             }
         }
 

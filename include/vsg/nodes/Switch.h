@@ -69,7 +69,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~Switch();
+        ~Switch() override;
     };
     VSG_type_name(vsg::Switch);
 

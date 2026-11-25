@@ -36,7 +36,7 @@ namespace vsg
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~TessellationState();
+        ~TessellationState() override;
     };
     VSG_type_name(vsg::TessellationState);
 

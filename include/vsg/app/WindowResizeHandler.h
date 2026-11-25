@@ -53,7 +53,7 @@ namespace vsg
         WindowResizeHandler();
 
         template<typename T, typename R>
-        T scale_parameter(T original, R extentOriginal, R extentNew)
+        static T scale_parameter(T original, R extentOriginal, R extentNew)
         {
             if (original == static_cast<T>(extentOriginal)) return static_cast<T>(extentNew);
             return static_cast<T>(static_cast<float>(original) * static_cast<float>(extentNew) / static_cast<float>(extentOriginal) + 0.5f);

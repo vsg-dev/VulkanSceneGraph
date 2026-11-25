@@ -43,7 +43,7 @@ namespace vsg
         VkExtent2D extent2D() const { return VkExtent2D{_width, _height}; }
 
     protected:
-        virtual ~Framebuffer();
+        ~Framebuffer() override;
 
         VkFramebuffer _framebuffer;
         ref_ptr<Device> _device;

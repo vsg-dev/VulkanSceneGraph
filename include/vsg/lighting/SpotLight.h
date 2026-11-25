@@ -40,7 +40,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~SpotLight() {}
+        ~SpotLight() override {}
     };
     VSG_type_name(vsg::SpotLight);
 

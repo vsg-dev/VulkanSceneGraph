@@ -35,7 +35,7 @@ namespace vsg
         void apply(Context& context, VkGraphicsPipelineCreateInfo& pipelineInfo) const override;
 
     protected:
-        virtual ~InputAssemblyState();
+        ~InputAssemblyState() override;
     };
     VSG_type_name(vsg::InputAssemblyState);
 

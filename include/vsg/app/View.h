@@ -90,7 +90,7 @@ namespace vsg
         GraphicsPipelineStates overridePipelineStates;
 
     protected:
-        virtual ~View();
+        ~View() override;
     };
     VSG_type_name(vsg::View);
 

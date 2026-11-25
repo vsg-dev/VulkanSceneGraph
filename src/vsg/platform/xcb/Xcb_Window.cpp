@@ -13,6 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
 #include <vsg/platform/xcb/Xcb_Window.h>
+#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/ApplicationEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
@@ -511,8 +512,319 @@ Xcb_Window::Xcb_Window(vsg::ref_ptr<WindowTraits> traits) :
         free(geometry_reply);
     }
 
+    _initXdnd();
+
     traits->nativeWindow = _window;
     traits->systemConnection = _connection;
+}
+
+void Xcb_Window::_initXdnd()
+{
+    _xdnd.aware = AtomRequest(_connection, "XdndAware");
+    _xdnd.enter = AtomRequest(_connection, "XdndEnter");
+    _xdnd.position = AtomRequest(_connection, "XdndPosition");
+    _xdnd.status = AtomRequest(_connection, "XdndStatus");
+    _xdnd.leave = AtomRequest(_connection, "XdndLeave");
+    _xdnd.drop = AtomRequest(_connection, "XdndDrop");
+    _xdnd.finished = AtomRequest(_connection, "XdndFinished");
+    _xdnd.selection = AtomRequest(_connection, "XdndSelection");
+    _xdnd.typeList = AtomRequest(_connection, "XdndTypeList");
+    _xdnd.actionCopy = AtomRequest(_connection, "XdndActionCopy");
+    _xdnd.uriList = AtomRequest(_connection, "text/uri-list");
+    _xdnd.property = AtomRequest(_connection, "VSG_XDND_SELECTION");
+
+    // Advertise support for version 5 of the protocol. Sources look for this property on the
+    // toplevel window under the cursor to decide whether a drop is possible.
+    uint32_t version = 5;
+    xcb_change_property(_connection, XCB_PROP_MODE_REPLACE, _window, _xdnd.aware, XCB_ATOM_ATOM, 32, 1, &version);
+    xcb_flush(_connection);
+}
+
+namespace
+{
+    // Turn one line of a text/uri-list into a local path. Returns empty for comments, blank lines
+    // and anything that is not a file: URI.
+    vsg::Path xdndUriToPath(const std::string& uri)
+    {
+        if (uri.empty() || uri[0] == '#') return {};
+
+        std::string body = uri;
+        if (body.rfind("file://", 0) == 0)
+        {
+            // Skip the optional host part between the scheme and the path.
+            auto slash = body.find('/', 7);
+            if (slash == std::string::npos) return {};
+
+            body = body.substr(slash);
+        }
+        else if (body.find("://") != std::string::npos)
+        {
+            // Some other scheme. Only local files can be delivered as a Path.
+            return {};
+        }
+
+        std::string path;
+        path.reserve(body.size());
+
+        for (size_t i = 0; i < body.size(); ++i)
+        {
+            if (body[i] != '%' || i + 2 >= body.size())
+            {
+                path.push_back(body[i]);
+                continue;
+            }
+
+            auto value = strtol(body.substr(i + 1, 2).c_str(), nullptr, 16);
+            if (value <= 0)
+            {
+                path.push_back(body[i]);
+                continue;
+            }
+
+            path.push_back(static_cast<char>(value));
+            i += 2;
+        }
+
+        return vsg::Path(path);
+    }
+
+    // RFC 2483 text/uri-list: one URI per line, CRLF separated, lines beginning with # are comments.
+    vsg::Paths xdndParseUriList(const std::string& text)
+    {
+        vsg::Paths paths;
+
+        size_t start = 0;
+        while (start <= text.size())
+        {
+            auto end = text.find('\n', start);
+            auto line = text.substr(start, end == std::string::npos ? std::string::npos : end - start);
+
+            while (!line.empty() && (line.back() == '\r' || line.back() == '\0')) line.pop_back();
+
+            auto path = xdndUriToPath(line);
+            if (!path.empty()) paths.push_back(path);
+
+            if (end == std::string::npos) break;
+            start = end + 1;
+        }
+
+        return paths;
+    }
+}
+
+void Xcb_Window::_sendXdndStatus()
+{
+    if (!_xdndSource) return;
+
+    xcb_client_message_event_t reply;
+    memset(&reply, 0, sizeof(reply));
+
+    reply.response_type = XCB_CLIENT_MESSAGE;
+    reply.format = 32;
+    reply.window = _xdndSource;
+    reply.type = _xdnd.status;
+    reply.data.data32[0] = _window;
+    reply.data.data32[1] = _xdndAccepted ? 1 : 0;
+    // An empty rectangle asks the source to keep sending position messages as the cursor moves.
+    reply.data.data32[2] = 0;
+    reply.data.data32[3] = 0;
+    reply.data.data32[4] = _xdndAccepted ? _xdnd.actionCopy : static_cast<xcb_atom_t>(XCB_ATOM_NONE);
+
+    xcb_send_event(_connection, 0, _xdndSource, XCB_EVENT_MASK_NO_EVENT, reinterpret_cast<const char*>(&reply));
+    xcb_flush(_connection);
+
+    _xdndAcceptedSent = _xdndAccepted;
+}
+
+bool Xcb_Window::_handleXdndEvent(const xcb_generic_event_t* event)
+{
+    uint8_t response_type = event->response_type & ~0x80;
+
+    if (response_type == XCB_SELECTION_NOTIFY)
+    {
+        auto selection = reinterpret_cast<const xcb_selection_notify_event_t*>(event);
+        if (selection->selection != _xdnd.selection) return false;
+        if (!_xdndDropping) return true;
+
+        // Read the file names, which can be longer than a single property read.
+        std::string text;
+        if (selection->property != XCB_ATOM_NONE)
+        {
+            uint32_t offset = 0;
+            while (true)
+            {
+                auto cookie = xcb_get_property(_connection, 0, _window, _xdnd.property, XCB_GET_PROPERTY_TYPE_ANY, offset, 4096);
+                auto reply = xcb_get_property_reply(_connection, cookie, nullptr);
+                if (!reply) break;
+
+                auto length = xcb_get_property_value_length(reply);
+                if (length > 0) text.append(static_cast<const char*>(xcb_get_property_value(reply)), length);
+
+                auto remaining = reply->bytes_after;
+                free(reply);
+
+                if (length <= 0 || remaining == 0) break;
+                offset += static_cast<uint32_t>(length) / 4;
+            }
+
+            xcb_delete_property(_connection, _window, _xdnd.property);
+        }
+
+        auto paths = xdndParseUriList(text);
+
+        // Tell the source the transaction is over before the application is given the files, as
+        // sources time out waiting for XdndFinished and loading a file can be slow.
+        if (_xdndSource)
+        {
+            xcb_client_message_event_t reply;
+            memset(&reply, 0, sizeof(reply));
+
+            reply.response_type = XCB_CLIENT_MESSAGE;
+            reply.format = 32;
+            reply.window = _xdndSource;
+            reply.type = _xdnd.finished;
+            reply.data.data32[0] = _window;
+            reply.data.data32[1] = paths.empty() ? 0 : 1;
+            reply.data.data32[2] = paths.empty() ? static_cast<xcb_atom_t>(XCB_ATOM_NONE) : _xdnd.actionCopy;
+
+            xcb_send_event(_connection, 0, _xdndSource, XCB_EVENT_MASK_NO_EVENT, reinterpret_cast<const char*>(&reply));
+            xcb_flush(_connection);
+        }
+
+        vsg::clock::time_point event_time = vsg::clock::now();
+        if (!paths.empty()) bufferedEvents.emplace_back(vsg::DropFilesEvent::create(this, event_time, _xdndX, _xdndY, paths));
+        bufferedEvents.emplace_back(vsg::DropLeaveEvent::create(this, event_time, _xdndX, _xdndY));
+
+        _xdndSource = 0;
+        _xdndHovering = false;
+        _xdndDropping = false;
+        _xdndAccepted = false;
+
+        return true;
+    }
+
+    if (response_type != XCB_CLIENT_MESSAGE) return false;
+
+    auto message = reinterpret_cast<const xcb_client_message_event_t*>(event);
+
+    if (message->type == _xdnd.enter)
+    {
+        _xdndSource = message->data.data32[0];
+        _xdndAccepted = false;
+        _xdndAcceptedSent = false;
+
+        // Up to three offered types travel in the message itself, any more are listed in the
+        // XdndTypeList property on the source window.
+        bool hasUriList = false;
+        for (int i = 2; i < 5 && !hasUriList; ++i)
+        {
+            if (message->data.data32[i] == _xdnd.uriList) hasUriList = true;
+        }
+
+        if (!hasUriList && (message->data.data32[1] & 1) != 0)
+        {
+            auto cookie = xcb_get_property(_connection, 0, _xdndSource, _xdnd.typeList, XCB_ATOM_ATOM, 0, 1024);
+            auto reply = xcb_get_property_reply(_connection, cookie, nullptr);
+            if (reply)
+            {
+                auto atoms = static_cast<xcb_atom_t*>(xcb_get_property_value(reply));
+                auto count = xcb_get_property_value_length(reply) / static_cast<int>(sizeof(xcb_atom_t));
+                for (int i = 0; i < count && !hasUriList; ++i)
+                {
+                    if (atoms[i] == _xdnd.uriList) hasUriList = true;
+                }
+
+                free(reply);
+            }
+        }
+
+        // Only file drops are supported, so anything else is left alone for the source to reject.
+        _xdndHovering = hasUriList;
+        if (!_xdndHovering) _xdndSource = 0;
+
+        return true;
+    }
+
+    if (message->type == _xdnd.position)
+    {
+        if (!_xdndHovering) return true;
+
+        _xdndSource = message->data.data32[0];
+
+        int32_t rootX = static_cast<int32_t>(message->data.data32[2] >> 16);
+        int32_t rootY = static_cast<int32_t>(message->data.data32[2] & 0xFFFF);
+
+        // The position is relative to the root window, so subtract our own origin on it.
+        auto cookie = xcb_translate_coordinates(_connection, _window, _screen->root, 0, 0);
+        auto reply = xcb_translate_coordinates_reply(_connection, cookie, nullptr);
+        if (reply)
+        {
+            _xdndX = rootX - reply->dst_x;
+            _xdndY = rootY - reply->dst_y;
+
+            free(reply);
+        }
+
+        // The reply is sent from pollEvents() once the application has had a chance to answer,
+        // rather than here, so that the answer reflects the position just reported.
+        return true;
+    }
+
+    if (message->type == _xdnd.leave)
+    {
+        if (_xdndHovering)
+        {
+            bufferedEvents.emplace_back(vsg::DropLeaveEvent::create(this, vsg::clock::now(), _xdndX, _xdndY));
+        }
+
+        _xdndSource = 0;
+        _xdndHovering = false;
+        _xdndDropping = false;
+        _xdndAccepted = false;
+
+        return true;
+    }
+
+    if (message->type == _xdnd.drop)
+    {
+        if (!_xdndHovering) return true;
+
+        _xdndSource = message->data.data32[0];
+
+        if (!_xdndAccepted)
+        {
+            // The application does not want the files, so end the transaction here.
+            xcb_client_message_event_t reply;
+            memset(&reply, 0, sizeof(reply));
+
+            reply.response_type = XCB_CLIENT_MESSAGE;
+            reply.format = 32;
+            reply.window = _xdndSource;
+            reply.type = _xdnd.finished;
+            reply.data.data32[0] = _window;
+
+            xcb_send_event(_connection, 0, _xdndSource, XCB_EVENT_MASK_NO_EVENT, reinterpret_cast<const char*>(&reply));
+            xcb_flush(_connection);
+
+            bufferedEvents.emplace_back(vsg::DropLeaveEvent::create(this, vsg::clock::now(), _xdndX, _xdndY));
+
+            _xdndSource = 0;
+            _xdndHovering = false;
+
+            return true;
+        }
+
+        _xdndDropping = true;
+        _xdndDropStarted = vsg::clock::now();
+
+        // Ask the source to hand over the file names. They arrive as the SelectionNotify handled above.
+        xcb_convert_selection(_connection, _window, _xdnd.selection, _xdnd.uriList, _xdnd.property, message->data.data32[2]);
+        xcb_flush(_connection);
+
+        return true;
+    }
+
+    return false;
 }
 
 Xcb_Window::~Xcb_Window()
@@ -576,11 +888,34 @@ namespace
 
 bool Xcb_Window::pollEvents(UIEvents& events)
 {
+    // Read back the answer the application gave to last frame's hover event, so the source can be
+    // told whether a drop would be accepted at the position it last reported.
+    if (_xdndHoverEvent)
+    {
+        _xdndAccepted = _xdndHoverEvent->accept;
+        _xdndHoverEvent = {};
+    }
+
     xcb_generic_event_t* event;
     int i = 0;
     while ((event = xcb_poll_for_event(_connection)))
     {
         ++i;
+
+        // Drag and drop messages arrive as ClientMessages that are not part of the window protocols,
+        // plus the SelectionNotify carrying the file names, so give them first refusal.
+        if (_handleXdndEvent(event))
+        {
+            if ((event->response_type & ~0x80) == XCB_CLIENT_MESSAGE)
+            {
+                auto message = reinterpret_cast<const xcb_client_message_event_t*>(event);
+                if (message->type == _xdnd.position) _xdndStatusPending = true;
+            }
+
+            free(event);
+            continue;
+        }
+
         uint8_t response_type = event->response_type & ~0x80;
         switch (response_type)
         {
@@ -786,6 +1121,40 @@ bool Xcb_Window::pollEvents(UIEvents& events)
         }
         }
         free(event);
+    }
+
+    if (_xdndHovering)
+    {
+        if (_xdndDropping)
+        {
+            // A source that never answers the request for the file names must not leave the window
+            // stuck believing a drop is in progress.
+            if (std::chrono::duration<double>(vsg::clock::now() - _xdndDropStarted).count() > 3.0)
+            {
+                warn("Xcb_Window::pollEvents() timed out waiting for the dropped file names.");
+
+                _xdndSource = 0;
+                _xdndHovering = false;
+                _xdndDropping = false;
+                _xdndAccepted = false;
+
+                bufferedEvents.emplace_back(vsg::DropLeaveEvent::create(this, vsg::clock::now(), _xdndX, _xdndY));
+            }
+        }
+        else
+        {
+            // Ask the application afresh every frame rather than only when the source reports a new
+            // position, so that a handler which changes its mind under a stationary cursor is still
+            // able to update the source.
+            _xdndHoverEvent = vsg::DropHoverEvent::create(this, vsg::clock::now(), _xdndX, _xdndY);
+            bufferedEvents.emplace_back(_xdndHoverEvent);
+
+            if (_xdndStatusPending || _xdndAccepted != _xdndAcceptedSent)
+            {
+                _xdndStatusPending = false;
+                _sendXdndStatus();
+            }
+        }
     }
 
     return Window::pollEvents(events);

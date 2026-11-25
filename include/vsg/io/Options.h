@@ -40,7 +40,7 @@ namespace vsg
         Options(const Options& rhs, const CopyOp& copyop = {});
 
         template<typename... Args>
-        explicit Options(Args... args)
+        explicit Options(Args... args) : Options()
         {
             (add(args), ...);
         }
@@ -122,7 +122,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~Options();
+        ~Options() override;
     };
     VSG_type_name(vsg::Options);
 

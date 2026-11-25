@@ -147,6 +147,10 @@ namespace vsg
     class TouchUpEvent;
     class TouchMoveEvent;
     class ScrollWheelEvent;
+    class DropEvent;
+    class DropHoverEvent;
+    class DropLeaveEvent;
+    class DropFilesEvent;
     class TerminateEvent;
     class FrameEvent;
 
@@ -453,6 +457,10 @@ namespace vsg
         virtual void apply(TouchUpEvent&);
         virtual void apply(TouchMoveEvent&);
         virtual void apply(ScrollWheelEvent&);
+        virtual void apply(DropEvent&);
+        virtual void apply(DropHoverEvent&);
+        virtual void apply(DropLeaveEvent&);
+        virtual void apply(DropFilesEvent&);
         virtual void apply(TerminateEvent&);
         virtual void apply(FrameEvent&);
 

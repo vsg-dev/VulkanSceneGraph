@@ -28,6 +28,7 @@ namespace vsg
     {
     public:
         using Map = std::map<std::string, std::string>;
+        using value_type = Map::value_type;
         using iterator = Map::iterator;
         using const_iterator = Map::const_iterator;
 
@@ -44,6 +45,11 @@ namespace vsg
 
         void insert(const std::string& str) { values[str] = ""; }
         void insert(const std::string& str, const std::string& value) { values[str] = value; }
+        void insert(const std::set<std::string>& defines) { for(auto& str : defines) values[str] = ""; }
+        void insert(const DefineMap& defines) { for(auto& value : defines.values) values.insert(value); }
+
+        iterator find(const std::string& str) { return values.find(str); }
+        const_iterator find(const std::string& str) const { return values.find(str); }
 
         void clear() { values.clear(); }
         bool empty() const { return values.empty(); }
@@ -112,6 +118,8 @@ namespace vsg
 
     public:
         ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderCompileSettings::create(*this, copyop); }
+
+        virtual int compare_except_defines(const Object& rhs_object) const;
         int compare(const Object& rhs_object) const override;
 
         void read(Input& input) override;
@@ -156,13 +164,13 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~ShaderModule();
+        ~ShaderModule() override;
 
         struct Implementation : public Inherit<Object, Implementation>
         {
             Implementation(Device* device, ShaderModule* shader);
 
-            virtual ~Implementation();
+            ~Implementation() override;
 
             VkShaderModule _shaderModule;
             ref_ptr<Device> _device;

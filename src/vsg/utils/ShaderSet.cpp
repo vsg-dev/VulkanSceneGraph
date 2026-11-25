@@ -74,7 +74,7 @@ int PushConstantRange::compare(const PushConstantRange& rhs) const
 
 int DefinesArrayState::compare(const DefinesArrayState& rhs) const
 {
-    int result = compare_map(defines, rhs.defines);
+    int result = compare_container(defines, rhs.defines);
     if (result) return result;
 
     return compare_pointer(arrayState, rhs.arrayState);
@@ -226,7 +226,7 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const DefineMap& defines) c
     // not all defines are relevant to the provided ArrayState
     // so check each one against the entries in the definesArrayState
     // relevant to the final matching.
-    DefineMap relevant_defines;
+    std::set<std::string> relevant_defines;
     for (auto& define : defines)
     {
         for (const auto& definesArrayState : definesArrayStates)
@@ -293,8 +293,9 @@ int ShaderSet::compare(const Object& rhs_object) const
     if ((result = compare_container(descriptorBindings, rhs.descriptorBindings))) return result;
     if ((result = compare_container(pushConstantRanges, rhs.pushConstantRanges))) return result;
     if ((result = compare_container(definesArrayStates, rhs.definesArrayStates))) return result;
-    if ((result = compare_container(optionalDefines, rhs.optionalDefines))) return result;
-    return compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates);
+    if ((result = compare_map(optionalDefines, rhs.optionalDefines))) return result;
+    if ((result = compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates))) return result;
+    return compare_value(geometryHints, rhs.geometryHints);
 }
 
 void ShaderSet::read(Input& input)
@@ -350,21 +351,11 @@ void ShaderSet::read(Input& input)
     definesArrayStates.resize(num_definesArrayStates);
     for (auto& das : definesArrayStates)
     {
-        if (input.version_greater_equal(1, 1, 12))
-        {
-            input.readValues("defines", das.defines.values);
-        }
-        else
-        {
-            std::set<std::string> defines_set;
-            input.readValues("defines", defines_set);
-            das.defines = defines_set;
-        }
-
+        input.readValues("defines", das.defines);
         input.readObject("arrayState", das.arrayState);
     }
 
-    if (input.version_greater_equal(1, 1, 12))
+    if (input.version_greater_equal(1, 1, 18))
     {
         input.readValues("optionalDefines", optionalDefines.values);
     }
@@ -374,8 +365,6 @@ void ShaderSet::read(Input& input)
         input.readValues("optionalDefines", defines_set);
         optionalDefines = defines_set;
     }
-
-
 
     input.readObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
@@ -398,6 +387,11 @@ void ShaderSet::read(Input& input)
                 customDescriptorSetBindings.push_back(custom);
             }
         }
+    }
+
+    if (input.version_greater_equal(1, 1, 16))
+    {
+        input.readValue<int>("geometryHints", geometryHints);
     }
 }
 
@@ -450,19 +444,11 @@ void ShaderSet::write(Output& output) const
     output.writeValue<uint32_t>("definesArrayStates", definesArrayStates.size());
     for (const auto& das : definesArrayStates)
     {
-        if (output.version_greater_equal(1, 1, 12))
-        {
-            output.writeValues("defines", das.defines.values);
-        }
-        else
-        {
-            output.writeValues("defines", das.defines.keys());
-        }
-
+        output.writeValues("defines", das.defines);
         output.writeObject("arrayState", das.arrayState);
     }
 
-    if (output.version_greater_equal(1, 1, 12))
+    if (output.version_greater_equal(1, 1, 18))
     {
         output.writeValues("optionalDefines", optionalDefines.values);
     }
@@ -487,6 +473,11 @@ void ShaderSet::write(Output& output) const
         {
             output.writeObject("customDescriptorSetBinding", custom);
         }
+    }
+
+    if (output.version_greater_equal(1, 1, 16))
+    {
+        output.writeValue<int>("geometryHints", geometryHints);
     }
 }
 

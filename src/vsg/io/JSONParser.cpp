@@ -370,7 +370,7 @@ void JSONParser::read_object(JSONParser::Schema& schema)
                 break;
             }
 
-            // make sure next charater is the {name : value} deliminator
+            // make sure next character is the {name : value} deliminator
             if (buffer[pos] != ':')
             {
                 warning("read_object()  deliminator error buffer[", pos, "] = ", buffer[pos]);

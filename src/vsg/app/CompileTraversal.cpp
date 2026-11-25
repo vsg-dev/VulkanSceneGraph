@@ -20,8 +20,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/commands/Command.h>
 #include <vsg/commands/Commands.h>
 #include <vsg/nodes/Geometry.h>
-#include <vsg/nodes/Group.h>
-#include <vsg/nodes/StateGroup.h>
 #include <vsg/state/MultisampleState.h>
 #include <vsg/state/ViewDependentState.h>
 #include <vsg/utils/ShaderSet.h>
@@ -74,7 +72,7 @@ void CompileTraversal::add(ref_ptr<Device> device, ref_ptr<TransferTask> transfe
 
 void CompileTraversal::add(ref_ptr<Device> device, const ResourceRequirements& resourceRequirements)
 {
-    add(device, nullptr, resourceRequirements);
+    add(device, device->transferTask, resourceRequirements);
 }
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
@@ -101,7 +99,10 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
 
 void CompileTraversal::add(Window& window, ref_ptr<ViewportState> viewport, const ResourceRequirements& resourceRequirements)
 {
-    add(window, nullptr, viewport, resourceRequirements);
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, viewport, resourceRequirements);
 }
 
 void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -136,7 +137,10 @@ void CompileTraversal::add(Window& window, ref_ptr<TransferTask> transferTask, r
 
 void CompileTraversal::add(Window& window, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    add(window, nullptr, view, resourceRequirements);
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = window.getOrCreateDevice()) transferTask = device->transferTask;
+
+    add(window, transferTask, view, resourceRequirements);
 }
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<TransferTask> transferTask, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
@@ -175,7 +179,10 @@ void CompileTraversal::add(ref_ptr<Context> context, Framebuffer& framebuffer, r
 
 void CompileTraversal::add(Framebuffer& framebuffer, ref_ptr<View> view, const ResourceRequirements& resourceRequirements)
 {
-    add(framebuffer, nullptr, view, resourceRequirements);
+    ref_ptr<TransferTask> transferTask;
+    if (auto device = framebuffer.getDevice()) transferTask = device->transferTask;
+
+    add(framebuffer, transferTask, view, resourceRequirements);
 }
 
 void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& resourceRequirements)
@@ -189,7 +196,7 @@ void CompileTraversal::add(const Viewer& viewer, const ResourceRequirements& res
         ref_ptr<TransferTask> transferTask;
 
         AddViews(CompileTraversal* in_ct, const ResourceRequirements& in_rr) :
-            ct(in_ct), resourceRequirements(in_rr){};
+            ct(in_ct), resourceRequirements(in_rr) {}
 
         const char* className() const noexcept override { return "vsg::CompileTraversal::AddViews"; }
 
@@ -325,7 +332,7 @@ void CompileTraversal::apply(CommandGraph& commandGraph)
 
     for (const auto& context : contexts)
     {
-        commandGraph.maxSlots.merge(context->resourceRequirements.maxSlots);
+        commandGraph.maxSlots.update(context->resourceRequirements.maxSlots);
     }
 
     commandGraph.traverse(*this);
@@ -339,7 +346,7 @@ void CompileTraversal::apply(SecondaryCommandGraph& secondaryCommandGraph)
 
     for (auto& context : contexts)
     {
-        secondaryCommandGraph.maxSlots.merge(context->resourceRequirements.maxSlots);
+        secondaryCommandGraph.maxSlots.update(context->resourceRequirements.maxSlots);
 
         // save previous states to be restored after traversal
         auto previousRenderPass = context->renderPass;

@@ -50,7 +50,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~VertexDraw();
+        ~VertexDraw() override;
 
         vk_buffer<VulkanArrayData> _vulkanData;
     };

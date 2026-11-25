@@ -54,7 +54,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~Geometry();
+        ~Geometry() override;
 
         vk_buffer<VulkanArrayData> _vulkanData;
         VkIndexType indexType = VK_INDEX_TYPE_UINT16;

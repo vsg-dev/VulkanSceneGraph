@@ -225,8 +225,6 @@ void Window::_initDevice()
     }
 
     // set up logical device
-    const vsg::Names& validatedNames = _traits->requestedLayers;
-
     vsg::Names deviceExtensions;
     deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     deviceExtensions.insert(deviceExtensions.end(), _traits->deviceExtensionNames.begin(), _traits->deviceExtensionNames.end());
@@ -235,7 +233,7 @@ void Window::_initDevice()
     if (graphicsFamily < 0 || presentFamily < 0) throw Exception{"Error: vsg::Window::create(...) failed to create Window, no suitable Vulkan Device available.", VK_ERROR_INVALID_EXTERNAL_HANDLE};
 
     vsg::QueueSettings queueSettings{vsg::QueueSetting{graphicsFamily, _traits->queuePriorities}, vsg::QueueSetting{presentFamily, {1.0}}};
-    _device = vsg::Device::create(_physicalDevice, queueSettings, validatedNames, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
+    _device = vsg::Device::create(_physicalDevice, queueSettings, deviceExtensions, _traits->deviceFeatures, _instance->getAllocationCallbacks());
 
     _initFormats();
 }
@@ -274,6 +272,7 @@ void Window::buildSwapchain()
         // clean up previous swap chain before we begin creating a new one.
         _frames.clear();
         _indices.clear();
+        _availableSemaphores.clear();
 
         _depthImageView.reset();
         _depthImage.reset();

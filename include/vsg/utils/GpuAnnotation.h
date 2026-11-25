@@ -40,7 +40,7 @@ namespace vsg
         void leave(const vsg::SourceLocation* sl, uint64_t& reference, CommandBuffer& commandBuffer, const Object* object) const override;
 
     protected:
-        virtual ~GpuAnnotation();
+        ~GpuAnnotation() override;
     };
     VSG_type_name(vsg::GpuAnnotation);
 

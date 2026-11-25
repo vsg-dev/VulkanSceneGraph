@@ -12,6 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 </editor-fold> */
 
+#include <vsg/core/Export.h>
+
 #include <string>
 
 namespace vsg
@@ -19,10 +21,17 @@ namespace vsg
 
     /// Exception object that can be thrown from VSG code, such as failed Vulkan calls where the result value will be the VkResult value
     /// returned from failed Vulkan call.
-    struct Exception
+    struct VSG_EXCEPTION_DECLSPEC Exception : public std::exception
     {
+        Exception() = default;
+        Exception(const Exception&) = default;
+        explicit Exception(std::string_view str, int r = 0) : message(str), result(r) {}
+        Exception& operator=(const Exception&) = default;
+
         std::string message;
         int result = 0;
+
+        const char* what() const noexcept override { return message.c_str(); }
     };
 
 } // namespace vsg

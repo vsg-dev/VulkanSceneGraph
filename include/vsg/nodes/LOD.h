@@ -66,7 +66,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~LOD();
+        ~LOD() override;
     };
     VSG_type_name(vsg::LOD);
 

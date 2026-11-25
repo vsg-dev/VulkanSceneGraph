@@ -80,6 +80,7 @@ WindowTraits::WindowTraits(const WindowTraits& traits, const CopyOp& copyop) :
     decoration(traits.decoration),
     hdpi(traits.hdpi),
     overrideRedirect(traits.overrideRedirect),
+    dragAndDrop(traits.dragAndDrop),
     vulkanVersion(traits.vulkanVersion),
     swapchainPreferences(traits.swapchainPreferences),
     depthFormat(traits.depthFormat),

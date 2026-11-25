@@ -57,7 +57,7 @@ namespace vsg
         void record(CommandBuffer& commandBuffer) const override;
 
     protected:
-        virtual ~Commands();
+        ~Commands() override;
     };
     VSG_type_name(vsg::Commands);
 

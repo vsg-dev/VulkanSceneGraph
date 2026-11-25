@@ -82,7 +82,7 @@ namespace vsg
             warnings.push_back(vsg::make_string("Parsing error at [", line, ":", column, "], pos = ", pos, " [ ", lineEnclosingPosition(pos), " ]. ", std::forward<Args>(args)...));
         }
 
-        inline bool white_space(char c) const
+        static inline bool white_space(char c)
         {
             return (c == ' ' || c == '\t' || c == '\r' || c == '\n');
         }

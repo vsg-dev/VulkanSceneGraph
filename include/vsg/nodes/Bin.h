@@ -51,7 +51,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~Bin();
+        ~Bin() override;
 
         std::vector<dmat4> _matrices;
         std::vector<const StateCommand*> _stateCommands;

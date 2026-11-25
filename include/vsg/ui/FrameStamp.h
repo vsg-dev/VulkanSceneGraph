@@ -23,6 +23,8 @@ namespace vsg
     public:
         FrameStamp() {}
 
+        FrameStamp(const FrameStamp& rhs, const CopyOp& copyop = {});
+
         FrameStamp(time_point in_time, uint64_t in_frameCount, double in_simulationTime) :
             time(in_time),
             frameCount(in_frameCount),

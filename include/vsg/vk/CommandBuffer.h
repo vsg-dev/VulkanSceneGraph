@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/ScratchMemory.h>
 #include <vsg/state/PipelineLayout.h>
+#include <vsg/ui/FrameStamp.h>
 #include <vsg/vk/CommandPool.h>
 
 namespace vsg
@@ -42,6 +43,7 @@ namespace vsg
         ViewDependentState* viewDependentState = nullptr;
         State* state = nullptr;
         const InstanceNode* instanceNode = nullptr;
+        ref_ptr<FrameStamp> frameStamp;
         ref_ptr<GPUStatsCollection> gpuStats;
 
         VkCommandBufferLevel level() const { return _level; }
@@ -66,7 +68,7 @@ namespace vsg
         friend CommandPool;
         CommandBuffer(CommandPool* commandPool, VkCommandBuffer commandBuffer, VkCommandBufferLevel level);
 
-        virtual ~CommandBuffer();
+        ~CommandBuffer() override;
 
         VkCommandBuffer _commandBuffer;
         VkCommandBufferLevel _level;
@@ -94,7 +96,7 @@ namespace vsg
         CommandBuffers buffers() const;
 
     protected:
-        virtual ~RecordedCommandBuffers();
+        ~RecordedCommandBuffers() override;
         mutable std::mutex _mutex;
         std::map<int, ref_ptr<RecordedCommandBuffers>> _orderedCommandBuffers;
         CommandBuffers _commandBuffers;

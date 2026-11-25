@@ -14,37 +14,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using namespace vsg;
 
-void FrameStamp::read(Input& input)
-{
-    Object::read(input);
-
-    uint64_t time_since_epoch;
-    input.readValue<uint64_t>("time", time_since_epoch);
-    time = clock::time_point(clock::time_point::duration(time_since_epoch));
-
-    input.read("frameCount", frameCount);
-
-    if (input.version_greater_equal(1, 1, 2))
-    {
-        input.read("simulationTime", simulationTime);
-    }
-}
-
-void FrameStamp::write(Output& output) const
-{
-    Object::write(output);
-
-    uint64_t time_since_epoch = time.time_since_epoch().count();
-    output.writeValue<uint64_t>("time", time_since_epoch);
-
-    output.write("frameCount", frameCount);
-
-    if (output.version_greater_equal(1, 1, 2))
-    {
-        output.write("simulationTime", simulationTime);
-    }
-}
-
 void FrameEvent::read(Input& input)
 {
     UIEvent::read(input);

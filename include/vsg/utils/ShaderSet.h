@@ -68,7 +68,7 @@ namespace vsg
 
     struct VSG_DECLSPEC DefinesArrayState
     {
-        DefineMap defines;
+        std::set<std::string> defines;
         ref_ptr<ArrayState> arrayState;
 
         int compare(const DefinesArrayState& rhs) const;
@@ -128,6 +128,19 @@ namespace vsg
         DefineMap optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
         std::vector<ref_ptr<CustomDescriptorSetBinding>> customDescriptorSetBindings;
+
+        /// Hints mask for scene graph builders for what ShaderSet prefers/requires.
+        enum GeometryHints
+        {
+            NO_PREFERENCE = 0,
+            GEOMETRY = 1 << 0,
+            VERTEXDRAW = 1 << 1,
+            VERTEXINDEXDRAW = 1 << 2,
+            DRAWMESHTASKS = 1 << 3,
+            MESHLETS = 1 << 4
+        };
+
+        int geometryHints = GeometryHints::NO_PREFERENCE;
 
         ref_ptr<ShaderCompileSettings> defaultShaderHints;
         /// variants of the rootShaderModule compiled for different combinations of ShaderCompileSettings
@@ -197,7 +210,7 @@ namespace vsg
         void write(Output& output) const override;
 
     protected:
-        virtual ~ShaderSet();
+        ~ShaderSet() override;
 
         AttributeBinding _nullAttributeBinding;
         DescriptorBinding _nullDescriptorBinding;

@@ -41,7 +41,7 @@ namespace vsg
         const Device* getDevice() const { return _device; }
 
     protected:
-        virtual ~CommandPool();
+        ~CommandPool() override;
 
         friend CommandBuffer;
 
