@@ -125,7 +125,7 @@ namespace vsg
         std::vector<DescriptorBinding> descriptorBindings;
         std::vector<PushConstantRange> pushConstantRanges;
         std::vector<DefinesArrayState> definesArrayStates; // put more constrained ArrayState matches first so they are matched first.
-        DefineMap optionalDefines;
+        std::set<std::string> optionalDefines;
         GraphicsPipelineStates defaultGraphicsPipelineStates;
         std::vector<ref_ptr<CustomDescriptorSetBinding>> customDescriptorSetBindings;
 

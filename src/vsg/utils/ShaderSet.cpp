@@ -293,7 +293,7 @@ int ShaderSet::compare(const Object& rhs_object) const
     if ((result = compare_container(descriptorBindings, rhs.descriptorBindings))) return result;
     if ((result = compare_container(pushConstantRanges, rhs.pushConstantRanges))) return result;
     if ((result = compare_container(definesArrayStates, rhs.definesArrayStates))) return result;
-    if ((result = compare_map(optionalDefines, rhs.optionalDefines))) return result;
+    if ((result = compare_container(optionalDefines, rhs.optionalDefines))) return result;
     if ((result = compare_pointer_container(defaultGraphicsPipelineStates, rhs.defaultGraphicsPipelineStates))) return result;
     return compare_value(geometryHints, rhs.geometryHints);
 }
@@ -355,16 +355,7 @@ void ShaderSet::read(Input& input)
         input.readObject("arrayState", das.arrayState);
     }
 
-    if (input.version_greater_equal(1, 1, 18))
-    {
-        input.readValues("optionalDefines", optionalDefines.values);
-    }
-    else
-    {
-        std::set<std::string> defines_set;
-        input.readValues("optionalDefines", defines_set);
-        optionalDefines = defines_set;
-    }
+    input.readValues("optionalDefines", optionalDefines);
 
     input.readObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
@@ -448,14 +439,7 @@ void ShaderSet::write(Output& output) const
         output.writeObject("arrayState", das.arrayState);
     }
 
-    if (output.version_greater_equal(1, 1, 18))
-    {
-        output.writeValues("optionalDefines", optionalDefines.values);
-    }
-    else
-    {
-        output.writeValues("optionalDefines", optionalDefines.keys());
-    }
+    output.writeValues("optionalDefines", optionalDefines);
 
     output.writeObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
