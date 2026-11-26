@@ -14,9 +14,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <fstream>
 
+#include <vsg/state/DefineMap.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/vk_buffer.h>
-#include <vsg/state/DefineMap.h>
 
 namespace vsg
 {

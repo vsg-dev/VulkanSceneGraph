@@ -16,8 +16,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ArrayState.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/Sampler.h>
-#include <vsg/state/ShaderStage.h>
 #include <vsg/state/ShaderModule.h>
+#include <vsg/state/ShaderStage.h>
 #include <vsg/utils/CoordinateSpace.h>
 
 namespace vsg

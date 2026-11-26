@@ -110,7 +110,7 @@ namespace vsg
         if (lhs.empty()) return 0;
 
         auto rhs_itr = rhs.begin();
-        for(auto lhs_itr = lhs.begin(); lhs_itr != lhs.end(); ++lhs_itr, ++rhs_itr)
+        for (auto lhs_itr = lhs.begin(); lhs_itr != lhs.end(); ++lhs_itr, ++rhs_itr)
         {
             if (lhs_itr->first < rhs_itr->first) return -1;
             if (rhs_itr->first < lhs_itr->first) return 1;

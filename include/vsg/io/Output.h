@@ -175,7 +175,6 @@ namespace vsg
             }
         }
 
-
         template<typename K, typename V>
         void writeValues(const char* propertyName, const std::map<K, V>& values)
         {

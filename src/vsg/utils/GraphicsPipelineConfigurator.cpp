@@ -515,7 +515,8 @@ bool GraphicsPipelineConfigurator::enableTexture(const std::string& name)
         shaderHints->defines.insert(descriptorConfigurator->defines);
         return true;
     }
-    else return false;
+    else
+        return false;
 }
 
 bool GraphicsPipelineConfigurator::enableDescriptor(const std::string& name)
@@ -526,7 +527,8 @@ bool GraphicsPipelineConfigurator::enableDescriptor(const std::string& name)
         shaderHints->defines.insert(descriptorConfigurator->defines);
         return true;
     }
-    else return false;
+    else
+        return false;
 }
 
 bool GraphicsPipelineConfigurator::assignArray(DataList& arrays, const std::string& name, VkVertexInputRate vertexInputRate, ref_ptr<Data> array)

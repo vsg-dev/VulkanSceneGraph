@@ -36,21 +36,21 @@ namespace vsg
 
         Map values;
 
-        DefineMap& operator = (const DefineMap& rhs)
+        DefineMap& operator=(const DefineMap& rhs)
         {
             values = rhs.values;
             return *this;
         }
 
-        DefineMap& operator = (const std::set<std::string>& rhs)
+        DefineMap& operator=(const std::set<std::string>& rhs)
         {
             values.clear();
-            for(auto& value : rhs) insert(value);
+            for (auto& value : rhs) insert(value);
             return *this;
         }
 
-        bool operator < (const DefineMap& rhs) const { return values < rhs.values; }
-        bool operator == (const DefineMap& rhs) const { return values == rhs.values; }
+        bool operator<(const DefineMap& rhs) const { return values < rhs.values; }
+        bool operator==(const DefineMap& rhs) const { return values == rhs.values; }
 
         Map::size_type count(const std::string& def) const { return values.count(def); }
 
@@ -64,12 +64,18 @@ namespace vsg
         const_iterator begin() const { return values.begin(); }
         const_iterator end() const { return values.end(); }
 
-        std::string& operator[] (const std::string& def) { return values[def]; }
+        std::string& operator[](const std::string& def) { return values[def]; }
 
         void insert(const std::string& str) { values[str] = ""; }
         void insert(const std::string& def, const std::string& value) { values[def] = value; }
-        void insert(const std::set<std::string>& defines) { for(auto& def : defines) values[def] = ""; }
-        void insert(const DefineMap& defines) { for(auto& value : defines.values) values.insert(value); }
+        void insert(const std::set<std::string>& defines)
+        {
+            for (auto& def : defines) values[def] = "";
+        }
+        void insert(const DefineMap& defines)
+        {
+            for (auto& value : defines.values) values.insert(value);
+        }
 
         iterator find(const std::string& str) { return values.find(str); }
         const_iterator find(const std::string& str) const { return values.find(str); }
@@ -77,7 +83,7 @@ namespace vsg
         std::set<std::string> keys() const
         {
             std::set<std::string> key_values;
-            for(auto itr = values.begin(); itr != values.end(); ++itr) key_values.insert(itr->first);
+            for (auto itr = values.begin(); itr != values.end(); ++itr) key_values.insert(itr->first);
             return key_values;
         }
     };
