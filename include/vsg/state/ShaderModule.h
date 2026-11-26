@@ -16,120 +16,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/vk/Device.h>
 #include <vsg/vk/vk_buffer.h>
+#include <vsg/state/ShaderCompileSettings.h>
 
 namespace vsg
 {
     // forward declare
     class Context;
-
-
-    /// Inputs to #pragma(tic) shader composition
-    class DefineMap
-    {
-    public:
-        using Map = std::map<std::string, std::string>;
-        using key_type = Map::key_type;
-        using mapped_type = Map::mapped_type;
-        using value_type = Map::value_type;
-        using size_type = Map::size_type;
-        using iterator = Map::iterator;
-        using const_iterator = Map::const_iterator;
-
-        DefineMap() {}
-        DefineMap(const DefineMap& rhs) : values(rhs.values) {}
-
-        Map values;
-
-        DefineMap& operator = (const DefineMap& rhs)
-        {
-            values = rhs.values;
-            return *this;
-        }
-
-        DefineMap& operator = (const std::set<std::string>& rhs)
-        {
-            values.clear();
-            for(auto& value : rhs) insert(value);
-            return *this;
-        }
-
-        bool operator < (const DefineMap& rhs) const { return values < rhs.values; }
-        bool operator == (const DefineMap& rhs) const { return values == rhs.values; }
-
-        Map::size_type count(const std::string& def) const { return values.count(def); }
-
-        void clear() { values.clear(); }
-        bool empty() const { return values.empty(); }
-        size_type size() const { return values.size(); }
-
-        iterator begin() { return values.begin(); }
-        iterator end() { return values.end(); }
-
-        const_iterator begin() const { return values.begin(); }
-        const_iterator end() const { return values.end(); }
-
-        std::string& operator[] (const std::string& def) { return values[def]; }
-
-        void insert(const std::string& str) { values[str] = ""; }
-        void insert(const std::string& def, const std::string& value) { values[def] = value; }
-        void insert(const std::set<std::string>& defines) { for(auto& def : defines) values[def] = ""; }
-        void insert(const DefineMap& defines) { for(auto& value : defines.values) values.insert(value); }
-
-        iterator find(const std::string& str) { return values.find(str); }
-        const_iterator find(const std::string& str) const { return values.find(str); }
-
-        std::set<std::string> keys() const
-        {
-            std::set<std::string> key_values;
-            for(auto itr = values.begin(); itr != values.end(); ++itr) key_values.insert(itr->first);
-            return key_values;
-        }
-    };
-
-    /// Settings passed to glsLang when compiling GLSL/HLSL shader source to SPIR-V
-    /// Provides the values to pass to glsLang::TShader::setEnvInput, setEnvClient and setEnvTarget.
-    class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
-    {
-    public:
-        ShaderCompileSettings();
-        ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop = {});
-
-        enum Language
-        {
-            GLSL,
-            HLSL
-        };
-
-        enum SpirvTarget
-        {
-            SPIRV_1_0 = (1 << 16),
-            SPIRV_1_1 = (1 << 16) | (1 << 8),
-            SPIRV_1_2 = (1 << 16) | (2 << 8),
-            SPIRV_1_3 = (1 << 16) | (3 << 8),
-            SPIRV_1_4 = (1 << 16) | (4 << 8),
-            SPIRV_1_5 = (1 << 16) | (5 << 8)
-        };
-
-        uint32_t vulkanVersion = VK_API_VERSION_1_0;
-        int clientInputVersion = 100;
-        Language language = GLSL;
-        int defaultVersion = 450;
-        SpirvTarget target = SPIRV_1_0;
-        bool forwardCompatible = false;
-        bool generateDebugInfo = false; // maps to SpvOptions::generateDebugInfo
-        bool optimize = false;
-
-        DefineMap defines;
-
-    public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderCompileSettings::create(*this, copyop); }
-
-        int compare(const Object& rhs_object) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-    };
-    VSG_type_name(vsg::ShaderCompileSettings);
 
     /// ShaderModule encapsulates the VkShaderModule and the VkShaderModuleCreateInfo settings used to set it up.
     /// ShaderModule are assigned to ShaderStage, which are assigned to GraphicsPipeline/ComputePipeline etc.
