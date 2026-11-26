@@ -126,7 +126,8 @@ namespace vsg
         template<class P>
         bool operator()(const P& lhs, const P& rhs) const
         {
-            return lhs->compare(*rhs) < 0;
+            if (lhs && rhs) return lhs->compare(*rhs) < 0;
+            return (lhs < rhs);
         }
     };
 
