@@ -28,7 +28,10 @@ namespace vsg
     {
     public:
         using Map = std::map<std::string, std::string>;
+        using key_type = Map::key_type;
+        using mapped_type = Map::mapped_type;
         using value_type = Map::value_type;
+        using size_type = Map::size_type;
         using iterator = Map::iterator;
         using const_iterator = Map::const_iterator;
 
@@ -36,29 +39,6 @@ namespace vsg
         DefineMap(const DefineMap& rhs) : values(rhs.values) {}
 
         Map values;
-
-        iterator begin() { return values.begin(); }
-        iterator end() { return values.end(); }
-
-        const_iterator begin() const { return values.begin(); }
-        const_iterator end() const { return values.end(); }
-
-        void insert(const std::string& str) { values[str] = ""; }
-        void insert(const std::string& str, const std::string& value) { values[str] = value; }
-        void insert(const std::set<std::string>& defines) { for(auto& str : defines) values[str] = ""; }
-        void insert(const DefineMap& defines) { for(auto& value : defines.values) values.insert(value); }
-
-        iterator find(const std::string& str) { return values.find(str); }
-        const_iterator find(const std::string& str) const { return values.find(str); }
-
-        void clear() { values.clear(); }
-        bool empty() const { return values.empty(); }
-        Map::size_type size() const { return values.size(); }
-
-        bool operator < (const DefineMap& rhs) const { return values < rhs.values; }
-        bool operator == (const DefineMap& rhs) const { return values == rhs.values; }
-
-        Map::size_type count(const std::string& key) const { return values.count(key); }
 
         DefineMap& operator = (const DefineMap& rhs)
         {
@@ -72,6 +52,31 @@ namespace vsg
             for(auto& value : rhs) insert(value);
             return *this;
         }
+
+        bool operator < (const DefineMap& rhs) const { return values < rhs.values; }
+        bool operator == (const DefineMap& rhs) const { return values == rhs.values; }
+
+        Map::size_type count(const std::string& def) const { return values.count(def); }
+
+        void clear() { values.clear(); }
+        bool empty() const { return values.empty(); }
+        size_type size() const { return values.size(); }
+
+        iterator begin() { return values.begin(); }
+        iterator end() { return values.end(); }
+
+        const_iterator begin() const { return values.begin(); }
+        const_iterator end() const { return values.end(); }
+
+        std::string& operator[] (const std::string& def) { return values[def]; }
+
+        void insert(const std::string& str) { values[str] = ""; }
+        void insert(const std::string& def, const std::string& value) { values[def] = value; }
+        void insert(const std::set<std::string>& defines) { for(auto& def : defines) values[def] = ""; }
+        void insert(const DefineMap& defines) { for(auto& value : defines.values) values.insert(value); }
+
+        iterator find(const std::string& str) { return values.find(str); }
+        const_iterator find(const std::string& str) const { return values.find(str); }
 
         std::set<std::string> keys() const
         {
