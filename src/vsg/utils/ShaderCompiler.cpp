@@ -501,7 +501,8 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
                 auto finditr = defines.find(sanitiesedImportDef);
                 if (finditr != defines.end())
                 {
-                    addLine(headerstream, "#define " + sanitiesedImportDef);
+                    if (finditr->second.empty()) addLine(headerstream, "#define " + sanitiesedImportDef);
+                    else addLine(headerstream, "#define " + sanitiesedImportDef + " " + finditr->second);
                 }
             }
         }
