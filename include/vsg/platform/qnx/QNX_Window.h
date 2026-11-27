@@ -24,71 +24,71 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsgQNX
 {
 
-/// KeyboardMap maps screen keyboard events to vsg::KeySymbol
-class KeyboardMap : public vsg::Object
-{
-public:
-    KeyboardMap();
+    /// KeyboardMap maps screen keyboard events to vsg::KeySymbol
+    class KeyboardMap : public vsg::Object
+    {
+    public:
+        KeyboardMap();
 
-    using KeyCodeToKeySymbolMap = std::map<int, vsg::KeySymbol>;
-    using KeyModToKeyModifierMap = std::map<int, vsg::KeyModifier>;
+        using KeyCodeToKeySymbolMap = std::map<int, vsg::KeySymbol>;
+        using KeyModToKeyModifierMap = std::map<int, vsg::KeyModifier>;
 
-    bool getKeySymbol(int keycap, int keysym, int keymod, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier);
+        bool getKeySymbol(int keycap, int keysym, int keymod, vsg::KeySymbol& keySymbol, vsg::KeySymbol& modifiedKeySymbol, vsg::KeyModifier& keyModifier);
 
-protected:
-    KeyCodeToKeySymbolMap _keycodeMap;
-    KeyModToKeyModifierMap _keymodMap;
-};
+    protected:
+        KeyCodeToKeySymbolMap _keycodeMap;
+        KeyModToKeyModifierMap _keymodMap;
+    };
 
-class QNX_Surface : public vsg::Surface
-{
-public:
-    QNX_Surface(vsg::Instance* instance, screen_context_t context, screen_window_t window);
-};
+    class QNX_Surface : public vsg::Surface
+    {
+    public:
+        QNX_Surface(vsg::Instance* instance, screen_context_t context, screen_window_t window);
+    };
 
-class QNX_Window : public vsg::Inherit<vsg::Window, QNX_Window>
-{
-public:
-    QNX_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
-    QNX_Window() = delete;
-    QNX_Window(const QNX_Window&) = delete;
-    QNX_Window operator=(const QNX_Window&) = delete;
+    class QNX_Window : public vsg::Inherit<vsg::Window, QNX_Window>
+    {
+    public:
+        QNX_Window(vsg::ref_ptr<vsg::WindowTraits> traits);
+        QNX_Window() = delete;
+        QNX_Window(const QNX_Window&) = delete;
+        QNX_Window operator=(const QNX_Window&) = delete;
 
-    const char* instanceExtensionSurfaceName() const override { return "VK_QNX_screen_surface"; }
+        const char* instanceExtensionSurfaceName() const override { return "VK_QNX_screen_surface"; }
 
-    bool valid() const override;
+        bool valid() const override;
 
-    bool visible() const override;
+        bool visible() const override;
 
-    void releaseWindow() override;
-    void releaseConnection() override;
+        void releaseWindow() override;
+        void releaseConnection() override;
 
-    bool pollEvents(vsg::UIEvents& events) override;
+        bool pollEvents(vsg::UIEvents& events) override;
 
-    void resize() override;
+        void resize() override;
 
-protected:
-    virtual ~QNX_Window();
+    protected:
+        virtual ~QNX_Window();
 
-    void _initSurface() override;
+        void _initSurface() override;
 
-    screen_context_t _context = nullptr;
-    screen_event_t _event = nullptr;
-    screen_window_t _window = nullptr;
-    // A value of null is valid and indicates the default display.
-    screen_display_t _display = reinterpret_cast<screen_display_t>(-1);
+        screen_context_t _context = nullptr;
+        screen_event_t _event = nullptr;
+        screen_window_t _window = nullptr;
+        // A value of null is valid and indicates the default display.
+        screen_display_t _display = reinterpret_cast<screen_display_t>(-1);
 
-    bool _windowVisible = false;
-    bool _windowInFocus = true;
+        bool _windowVisible = false;
+        bool _windowInFocus = true;
 
-    int _pointerPosPrev[2];
-    int _buttonsPressedPrev;
+        int _pointerPosPrev[2];
+        int _buttonsPressedPrev;
 
-    int64_t _first_qnx_timestamp = 0;
-    vsg::clock::time_point _first_qnx_time_point;
+        int64_t _first_qnx_timestamp = 0;
+        vsg::clock::time_point _first_qnx_time_point;
 
-    vsg::ref_ptr<KeyboardMap> _keyboard;
-};
+        vsg::ref_ptr<KeyboardMap> _keyboard;
+    };
 
 } // namespace vsgQNX
 

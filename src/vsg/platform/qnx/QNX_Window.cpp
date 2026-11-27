@@ -15,8 +15,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <vsg/core/Exception.h>
 #include <vsg/io/Logger.h>
-#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/ApplicationEvent.h>
+#include <vsg/ui/DropEvent.h>
 #include <vsg/ui/PointerEvent.h>
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/ui/TouchEvent.h>
@@ -32,59 +32,59 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 namespace vsg
 {
 
-// Provide the Window::create(...) implementation that automatically maps to a QNX_Window
-ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
-{
-    return vsgQNX::QNX_Window::create(traits);
-}
+    // Provide the Window::create(...) implementation that automatically maps to a QNX_Window
+    ref_ptr<Window> Window::create(vsg::ref_ptr<WindowTraits> traits)
+    {
+        return vsgQNX::QNX_Window::create(traits);
+    }
 
 } // namespace vsg
 
 namespace vsgQNX
 {
 
-// x = 0 -> 0; x = 1 -> 1 ...
-int findMsb(int x)
-{
-    int msb = 0;
-
-    if (x > 0)
+    // x = 0 -> 0; x = 1 -> 1 ...
+    int findMsb(int x)
     {
-#if defined(__clang__) || defined(__GNUC__)
-        msb = __INT_BITS__ - __builtin_clz(x);
-#else
-        while(x >>= 1)
+        int msb = 0;
+
+        if (x > 0)
         {
+#if defined(__clang__) || defined(__GNUC__)
+            msb = __INT_BITS__ - __builtin_clz(x);
+#else
+            while (x >>= 1)
+            {
+                ++msb;
+            }
             ++msb;
-        }
-        ++msb;
 #endif
+        }
+        return msb;
     }
-    return msb;
-}
 
-uint16_t getMask(int buttons)
-{
-    uint16_t mask = 0;
-    if (buttons & SCREEN_LEFT_MOUSE_BUTTON) mask |= vsg::BUTTON_MASK_1;
-    if (buttons & SCREEN_MIDDLE_MOUSE_BUTTON) mask |= vsg::BUTTON_MASK_2;
-    if (buttons & SCREEN_RIGHT_MOUSE_BUTTON) mask |= vsg::BUTTON_MASK_3;
-    return mask;
-}
+    uint16_t getMask(int buttons)
+    {
+        uint16_t mask = 0;
+        if (buttons & SCREEN_LEFT_MOUSE_BUTTON) mask |= vsg::BUTTON_MASK_1;
+        if (buttons & SCREEN_MIDDLE_MOUSE_BUTTON) mask |= vsg::BUTTON_MASK_2;
+        if (buttons & SCREEN_RIGHT_MOUSE_BUTTON) mask |= vsg::BUTTON_MASK_3;
+        return mask;
+    }
 
-int64_t now_ms(void)
-{
-    struct timespec res;
-    clock_gettime(CLOCK_MONOTONIC, &res);
-    return 1000 * res.tv_sec + res.tv_nsec / 1e6;
-}
+    int64_t now_ms(void)
+    {
+        struct timespec res;
+        clock_gettime(CLOCK_MONOTONIC, &res);
+        return 1000 * res.tv_sec + res.tv_nsec / 1e6;
+    }
 
-int64_t event_ms(screen_event_t event)
-{
-    long long ts;
-    screen_get_event_property_llv(event, SCREEN_PROPERTY_TIMESTAMP, &ts);
-    return static_cast<int64_t>(ts);
-}
+    int64_t event_ms(screen_event_t event)
+    {
+        long long ts;
+        screen_get_event_property_llv(event, SCREEN_PROPERTY_TIMESTAMP, &ts);
+        return static_cast<int64_t>(ts);
+    }
 
 } // namespace vsgQNX
 
@@ -292,8 +292,7 @@ bool KeyboardMap::getKeySymbol(int keycap, int keysym, int keymod, vsg::KeySymbo
 {
     // The keycode mapping is not necessarily complete, but unassigned addresses
     // are initialized to 0, which maps to KEY_Undefined.
-    if ((keycap < 0) || (static_cast<size_t>(keycap) >= _keycodeMap.size())
-        || (keysym < 0) || (static_cast<size_t>(keysym) >= _keycodeMap.size()))
+    if ((keycap < 0) || (static_cast<size_t>(keycap) >= _keycodeMap.size()) || (keysym < 0) || (static_cast<size_t>(keysym) >= _keycodeMap.size()))
     {
         return false;
     }
@@ -391,7 +390,7 @@ QNX_Window::QNX_Window(vsg::ref_ptr<WindowTraits> traits) :
             throw Exception{"Failed to create Window, could not create screen window.", VK_ERROR_OUT_OF_HOST_MEMORY};
         }
 
-        if (screen_get_window_property_pv(_window, SCREEN_PROPERTY_DISPLAY, (void **)&_display) < 0)
+        if (screen_get_window_property_pv(_window, SCREEN_PROPERTY_DISPLAY, (void**)&_display) < 0)
         {
             throw Exception{"Failed to create Window, could not retrieve screen display pointer.", VK_ERROR_INITIALIZATION_FAILED};
         }
@@ -447,7 +446,7 @@ QNX_Window::QNX_Window(vsg::ref_ptr<WindowTraits> traits) :
     }
     else
     {
-        if (screen_get_window_property_pv(_window, SCREEN_PROPERTY_DISPLAY, (void **)&_display) < 0)
+        if (screen_get_window_property_pv(_window, SCREEN_PROPERTY_DISPLAY, (void**)&_display) < 0)
         {
             throw Exception{"Failed to create Window, could not retrieve screen display pointer.", VK_ERROR_INITIALIZATION_FAILED};
         }
@@ -563,127 +562,122 @@ bool QNX_Window::pollEvents(vsg::UIEvents& events)
         vsg::clock::time_point event_time = _first_qnx_time_point + std::chrono::milliseconds(event_ms(_event) - _first_qnx_timestamp);
         switch (type)
         {
-            case SCREEN_EVENT_KEYBOARD:
+        case SCREEN_EVENT_KEYBOARD: {
+            vsg::KeySymbol keySymbol;
+            vsg::KeySymbol keySymbolModified;
+            vsg::KeyModifier keyModifier;
+            int keycap;
+            int keysym;
+            int keymod;
+            int val;
+
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_KEY_CAP, &keycap);
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_SYM, &keysym);
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_MODIFIERS, &keymod);
+
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_FLAGS, &val);
+
+            if (val & KEY_DOWN)
+            {
+                if (_keyboard->getKeySymbol(keycap, keysym, keymod, keySymbol, keySymbolModified, keyModifier))
                 {
-                    vsg::KeySymbol keySymbol;
-                    vsg::KeySymbol keySymbolModified;
-                    vsg::KeyModifier keyModifier;
-                    int keycap;
-                    int keysym;
-                    int keymod;
-                    int val;
+                    bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+                }
+            }
+            else
+            {
+                if (_keyboard->getKeySymbol(keycap, keysym, keymod, keySymbol, keySymbolModified, keyModifier))
+                {
+                    bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+                }
+            }
+        }
 
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_KEY_CAP, &keycap);
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_SYM, &keysym);
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_MODIFIERS, &keymod);
+        break;
 
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_FLAGS, &val);
+        case SCREEN_EVENT_POINTER: {
+            int pos[2] = {0, 0};
+            int buttons;
+            int mouse_wheel;
+            int mouse_h_wheel;
 
-                    if (val & KEY_DOWN)
+            int16_t buttonMask = vsgQNX::getMask(_buttonsPressedPrev);
+
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_BUTTONS, &buttons);
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_MOUSE_WHEEL, &mouse_wheel);
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_MOUSE_HORIZONTAL_WHEEL, &mouse_h_wheel);
+
+            if (!((pos[0] == _pointerPosPrev[0]) && (pos[1] == _pointerPosPrev[1])))
+            {
+                bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, pos[0], pos[1], vsg::ButtonMask(buttonMask)));
+                _pointerPosPrev[0] = pos[0];
+                _pointerPosPrev[1] = pos[1];
+            }
+
+            if (buttons != _buttonsPressedPrev)
+            {
+                // Apply transformations to the mask as individual events.
+                for (int i = 0; i < 3; ++i)
+                {
+                    int buttonVal = 1 << i;
+                    if (!!((buttons ^ _buttonsPressedPrev) & buttonVal))
                     {
-                        if (_keyboard->getKeySymbol(keycap, keysym, keymod, keySymbol, keySymbolModified, keyModifier))
+                        if (!!(buttons & buttonVal))
                         {
-                            bufferedEvents.emplace_back(vsg::KeyPressEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
+                            buttonMask |= vsgQNX::getMask(buttonVal);
+                            bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, pos[0], pos[1], vsg::ButtonMask(buttonMask), i + 1));
+                        }
+                        else
+                        {
+                            buttonMask &= ~vsgQNX::getMask(buttonVal);
+                            bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, pos[0], pos[1], vsg::ButtonMask(buttonMask), i + 1));
                         }
                     }
-                    else
-                    {
-                        if (_keyboard->getKeySymbol(keycap, keysym, keymod, keySymbol, keySymbolModified, keyModifier))
-                        {
-                            bufferedEvents.emplace_back(vsg::KeyReleaseEvent::create(this, event_time, keySymbol, keySymbolModified, keyModifier, 0));
-                        }
-                    }
                 }
+                _buttonsPressedPrev = buttons;
+            }
 
-                break;
+            if (!!mouse_wheel || !!mouse_h_wheel)
+            {
+                bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3((float)mouse_h_wheel, (float)mouse_wheel, 0.0f)));
+            }
+        }
 
-            case SCREEN_EVENT_POINTER:
-                {
-                    int pos[2] = {0,0};
-                    int buttons;
-                    int mouse_wheel;
-                    int mouse_h_wheel;
+        break;
 
-                    int16_t buttonMask = vsgQNX::getMask(_buttonsPressedPrev);
+        case SCREEN_EVENT_MTOUCH_TOUCH: {
+            int pos[2] = {0, 0};
 
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_BUTTONS, &buttons);
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_MOUSE_WHEEL, &mouse_wheel);
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_MOUSE_HORIZONTAL_WHEEL, &mouse_h_wheel);
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
 
-                    if (!((pos[0] == _pointerPosPrev[0]) && (pos[1] == _pointerPosPrev[1])))
-                    {
-                        bufferedEvents.emplace_back(vsg::MoveEvent::create(this, event_time, pos[0], pos[1], vsg::ButtonMask(buttonMask)));
-                        _pointerPosPrev[0] = pos[0];
-                        _pointerPosPrev[1] = pos[1];
-                    }
+            bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, event_time, pos[0], pos[0], 0));
+        }
 
-                    if (buttons != _buttonsPressedPrev)
-                    {
-                        // Apply transformations to the mask as individual events.
-                        for (int i = 0; i < 3; ++i)
-                        {
-                            int buttonVal = 1 << i;
-                            if (!!((buttons ^ _buttonsPressedPrev) & buttonVal))
-                            {
-                                if (!!(buttons & buttonVal))
-                                {
-                                    buttonMask |= vsgQNX::getMask(buttonVal);
-                                    bufferedEvents.emplace_back(vsg::ButtonPressEvent::create(this, event_time, pos[0], pos[1], vsg::ButtonMask(buttonMask), i+1));
-                                }
-                                else
-                                {
-                                    buttonMask &= ~vsgQNX::getMask(buttonVal);
-                                    bufferedEvents.emplace_back(vsg::ButtonReleaseEvent::create(this, event_time, pos[0], pos[1], vsg::ButtonMask(buttonMask), i+1));
-                                }
-                            }
-                        }
-                        _buttonsPressedPrev = buttons;
-                    }
+        break;
 
-                    if (!!mouse_wheel || !!mouse_h_wheel)
-                    {
-                        bufferedEvents.emplace_back(vsg::ScrollWheelEvent::create(this, event_time, vsg::vec3((float) mouse_h_wheel, (float) mouse_wheel, 0.0f)));
-                    }
-                }
+        case SCREEN_EVENT_MTOUCH_MOVE: {
+            int pos[2] = {0, 0};
 
-                break;
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
 
-            case SCREEN_EVENT_MTOUCH_TOUCH:
-                {
-                    int pos[2] = {0,0};
+            bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, event_time, pos[0], pos[1], 0));
+        }
 
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
+        break;
 
-                    bufferedEvents.emplace_back(vsg::TouchDownEvent::create(this, event_time, pos[0], pos[0], 0));
-                }
+        case SCREEN_EVENT_MTOUCH_RELEASE: {
+            int pos[2] = {0, 0};
 
-                break;
+            screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
 
-            case SCREEN_EVENT_MTOUCH_MOVE:
-                {
-                    int pos[2] = {0,0};
+            bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, event_time, pos[0], pos[1], 0));
+        }
 
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
+        break;
 
-                    bufferedEvents.emplace_back(vsg::TouchMoveEvent::create(this, event_time, pos[0], pos[1], 0));
-                }
-
-                break;
-
-            case SCREEN_EVENT_MTOUCH_RELEASE:
-                {
-                    int pos[2] = {0,0};
-
-                    screen_get_event_property_iv(_event, SCREEN_PROPERTY_POSITION, pos);
-
-                    bufferedEvents.emplace_back(vsg::TouchUpEvent::create(this, event_time, pos[0], pos[1], 0));
-                }
-
-                break;
-
-            default:
-                break;
+        default:
+            break;
         }
     }
     return Window::pollEvents(events);
