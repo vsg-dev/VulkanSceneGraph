@@ -134,6 +134,7 @@ namespace vsg
         // implementation provided by Visitor.h
         void accept(Visitor& visitor) override;
         void accept(ConstVisitor& visitor) const override;
+        std::optional<ref_ptr<Object>> accept(ReplacementVisitor& visitor) override;
 
         void read(Input& input) override
         {

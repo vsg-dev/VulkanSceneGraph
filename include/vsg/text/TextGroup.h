@@ -39,6 +39,11 @@ namespace vsg
         {
             if (technique) technique->accept(visitor);
         }
+        void traverse(ReplacementVisitor& visitor) override
+        {
+            if (technique) visitor.tryReplacePointer(technique);
+            for (auto& child : children) visitor.tryReplacePointer(child);
+        }
 
         int compare(const Object& rhs) const override;
 

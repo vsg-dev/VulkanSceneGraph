@@ -452,6 +452,14 @@ void GraphicsPipelineConfigurator::traverse(ConstVisitor& visitor) const
     if (descriptorConfigurator) descriptorConfigurator->accept(visitor);
 }
 
+void GraphicsPipelineConfigurator::traverse(ReplacementVisitor& visitor)
+{
+    for (auto& ps : pipelineStates) visitor.tryReplacePointer(ps);
+    if (shaderSet) visitor.tryReplacePointer(shaderSet);
+    if (shaderHints) visitor.tryReplacePointer(shaderHints);
+    if (descriptorConfigurator) visitor.tryReplacePointer(descriptorConfigurator);
+}
+
 void GraphicsPipelineConfigurator::reset()
 {
     pipelineStates.clear();

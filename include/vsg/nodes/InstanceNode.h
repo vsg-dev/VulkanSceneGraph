@@ -69,6 +69,7 @@ namespace vsg
         void traverse(Visitor& visitor) override { child->accept(visitor); }
         void traverse(ConstVisitor& visitor) const override { child->accept(visitor); }
         void traverse(RecordTraversal& visitor) const override { child->accept(visitor); }
+        void traverse(ReplacementVisitor& visitor) override { visitor.tryReplacePointer(child); }
 
         void read(Input& input) override;
         void write(Output& output) const override;
