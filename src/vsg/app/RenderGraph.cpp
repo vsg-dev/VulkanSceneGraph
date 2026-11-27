@@ -49,7 +49,8 @@ RenderGraph::RenderGraph(ref_ptr<Window> in_window, ref_ptr<View> in_view) :
         renderArea.extent = window->extent2D();
     }
 
-    viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
+    viewportState->scissors.resize(1);
+    viewportState->scissors[0] = renderArea;
 
     // set up the clearValues based on the RenderPass's attachments.
     setClearValues(window->clearColor(), VkClearDepthStencilValue{0.0f, 0});
@@ -150,7 +151,8 @@ void RenderGraph::accept(RecordTraversal& recordTraversal) const
     vkCmdBeginRenderPass(vk_commandBuffer, &renderPassInfo, contents);
 
     // sync the viewportState and push
-    viewportState->set(renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height);
+    viewportState->scissors.resize(1);
+    viewportState->scissors[0] = renderArea;
 
     if ((viewportStateHint & DYNAMIC_VIEWPORTSTATE))
     {
