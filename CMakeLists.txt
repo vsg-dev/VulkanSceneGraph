@@ -87,6 +87,9 @@ if (VSG_SUPPORTS_Windowing)
         find_library(QUARTZCORE_LIBRARY QuartzCore)
     elseif (DEFINED OHOS_ARCH)  # OpenHarmony
         set(FIND_DEPENDENCY_WINDOWING "")
+    elseif (CMAKE_SYSTEM_NAME STREQUAL "QNX")
+        set(FIND_DEPENDENCY_WINDOWING "find_library(SCREEN_LIBRARY screen)\n")
+        find_library(SCREEN_LIBRARY screen)
     else()
         set(FIND_DEPENDENCY_WINDOWING "find_package(PkgConfig REQUIRED)\npkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)\n")
         # just use Xcb for native windowing
