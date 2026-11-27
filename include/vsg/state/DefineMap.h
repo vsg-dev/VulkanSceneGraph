@@ -38,6 +38,7 @@ namespace vsg
 
         DefineMap& operator=(const DefineMap& rhs)
         {
+            if (&rhs == this) return *this;
             values = rhs.values;
             return *this;
         }
@@ -45,7 +46,7 @@ namespace vsg
         DefineMap& operator=(const std::set<std::string>& rhs)
         {
             values.clear();
-            for (auto& value : rhs) insert(value);
+            for (const auto& def : rhs) insert(def);
             return *this;
         }
 
@@ -67,14 +68,14 @@ namespace vsg
         std::string& operator[](const std::string& def) { return values[def]; }
 
         void insert(const std::string& str) { values[str] = ""; }
-        void insert(const std::string& def, const std::string& value) { values[def] = value; }
+        void insert(const std::string& def, const std::string& val) { values[def] = val; }
         void insert(const std::set<std::string>& defines)
         {
-            for (auto& def : defines) values[def] = "";
+            for (const auto& def : defines) values[def] = "";
         }
         void insert(const DefineMap& defines)
         {
-            for (auto& value : defines.values) values.insert(value);
+            for (auto& val : defines.values) values.insert(val);
         }
 
         iterator find(const std::string& str) { return values.find(str); }
