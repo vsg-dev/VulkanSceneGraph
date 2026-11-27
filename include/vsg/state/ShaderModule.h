@@ -14,6 +14,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #include <fstream>
 
+#include <vsg/state/ShaderCompileSettings.h>
 #include <vsg/vk/Device.h>
 #include <vsg/vk/vk_buffer.h>
 
@@ -21,52 +22,6 @@ namespace vsg
 {
     // forward declare
     class Context;
-
-    /// Settings passed to glsLang when compiling GLSL/HLSL shader source to SPIR-V
-    /// Provides the values to pass to glsLang::TShader::setEnvInput, setEnvClient and setEnvTarget.
-    class VSG_DECLSPEC ShaderCompileSettings : public Inherit<Object, ShaderCompileSettings>
-    {
-    public:
-        ShaderCompileSettings();
-        ShaderCompileSettings(const ShaderCompileSettings& rhs, const CopyOp& copyop = {});
-
-        enum Language
-        {
-            GLSL,
-            HLSL
-        };
-
-        enum SpirvTarget
-        {
-            SPIRV_1_0 = (1 << 16),
-            SPIRV_1_1 = (1 << 16) | (1 << 8),
-            SPIRV_1_2 = (1 << 16) | (2 << 8),
-            SPIRV_1_3 = (1 << 16) | (3 << 8),
-            SPIRV_1_4 = (1 << 16) | (4 << 8),
-            SPIRV_1_5 = (1 << 16) | (5 << 8)
-        };
-
-        uint32_t vulkanVersion = VK_API_VERSION_1_0;
-        int clientInputVersion = 100;
-        Language language = GLSL;
-        int defaultVersion = 450;
-        SpirvTarget target = SPIRV_1_0;
-        bool forwardCompatible = false;
-        bool generateDebugInfo = false; // maps to SpvOptions::generateDebugInfo
-        bool optimize = false;
-
-        std::set<std::string> defines;
-
-    public:
-        ref_ptr<Object> clone(const CopyOp& copyop = {}) const override { return ShaderCompileSettings::create(*this, copyop); }
-
-        virtual int compare_except_defines(const Object& rhs_object) const;
-        int compare(const Object& rhs_object) const override;
-
-        void read(Input& input) override;
-        void write(Output& output) const override;
-    };
-    VSG_type_name(vsg::ShaderCompileSettings);
 
     /// ShaderModule encapsulates the VkShaderModule and the VkShaderModuleCreateInfo settings used to set it up.
     /// ShaderModule are assigned to ShaderStage, which are assigned to GraphicsPipeline/ComputePipeline etc.

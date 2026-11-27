@@ -29,6 +29,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/utils/CoordinateSpace.h>
 
 #include <istream>
+#include <map>
 #include <ostream>
 #include <set>
 #include <sstream>
@@ -367,6 +368,31 @@ namespace vsg
                     first = false;
 
                 output << v;
+            }
+
+            output << " }";
+        }
+        return output;
+    }
+
+    template<typename K, typename V>
+    std::ostream& operator<<(std::ostream& output, const std::map<K, V>& values)
+    {
+        if (values.empty())
+            output << "{}";
+        else
+        {
+            output << "{ ";
+
+            bool first = true;
+            for (const auto& v : values)
+            {
+                if (!first)
+                    output << ", ";
+                else
+                    first = false;
+
+                output << "{" << v.first << ", " << v.second << "}";
             }
 
             output << " }";

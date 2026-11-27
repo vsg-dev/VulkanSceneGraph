@@ -129,7 +129,7 @@ bool ShaderCompiler::supported() const
 }
 
 #if VSG_SUPPORTS_ShaderCompiler
-bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::string>& defines, ref_ptr<const Options> options)
+bool ShaderCompiler::compile(ShaderStages& shaders, const DefineMap& defines, ref_ptr<const Options> options)
 {
     // need to balance the inits.
     if (!_initialized)
@@ -280,11 +280,12 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
 
         std::string finalShaderSource = vsg::insertIncludes(vsg_shader->module->source, options);
 
-        std::vector<std::string> combinedDefines(defines);
-        for (const auto& define : settings->defines) combinedDefines.push_back(define);
+        DefineMap combinedDefines(defines);
+        combinedDefines.insert(settings->defines);
+
         if (!combinedDefines.empty()) finalShaderSource = combineSourceAndDefines(finalShaderSource, combinedDefines);
 
-        vsg::debug("ShaderCompiler::compile() combinedDefines = ", combinedDefines);
+        vsg::debug("ShaderCompiler::compile() combinedDefines = ", combinedDefines.values);
 
         const char* str = finalShaderSource.c_str();
         shader->setStrings(&str, 1);
@@ -383,14 +384,14 @@ bool ShaderCompiler::compile(ShaderStages& shaders, const std::vector<std::strin
     return true;
 }
 #else
-bool ShaderCompiler::compile(ShaderStages&, const std::vector<std::string>&, ref_ptr<const Options> /*options*/)
+bool ShaderCompiler::compile(ShaderStages&, const DefineMap&, ref_ptr<const Options> /*options*/)
 {
     warn("ShaderCompile::compile(..) not supported,");
     return false;
 }
 #endif
 
-bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const std::vector<std::string>& defines, ref_ptr<const Options> options)
+bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const DefineMap& defines, ref_ptr<const Options> options)
 {
     ShaderStages stages;
     stages.emplace_back(shaderStage);
@@ -398,7 +399,7 @@ bool ShaderCompiler::compile(ref_ptr<ShaderStage> shaderStage, const std::vector
     return compile(stages, defines, options);
 }
 
-std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, const std::vector<std::string>& defines)
+std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, const DefineMap& defines)
 {
     if (defines.empty()) return source;
 
@@ -497,10 +498,13 @@ std::string ShaderCompiler::combineSourceAndDefines(const std::string& source, c
                 auto sanitiesedImportDef = importedDef;
                 sanitise(sanitiesedImportDef);
 
-                auto finditr = std::find(defines.begin(), defines.end(), sanitiesedImportDef);
+                auto finditr = defines.find(sanitiesedImportDef);
                 if (finditr != defines.end())
                 {
-                    addLine(headerstream, "#define " + sanitiesedImportDef);
+                    if (finditr->second.empty())
+                        addLine(headerstream, "#define " + sanitiesedImportDef);
+                    else
+                        addLine(headerstream, "#define " + sanitiesedImportDef + " " + finditr->second);
                 }
             }
         }

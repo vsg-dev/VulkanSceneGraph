@@ -221,7 +221,7 @@ const DescriptorBinding& ShaderSet::getDescriptorBinding(const std::string& name
     return _nullDescriptorBinding;
 }
 
-ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>& defines) const
+ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const DefineMap& defines) const
 {
     // not all defines are relevant to the provided ArrayState
     // so check each one against the entries in the definesArrayState
@@ -231,9 +231,9 @@ ref_ptr<ArrayState> ShaderSet::getSuitableArrayState(const std::set<std::string>
     {
         for (const auto& definesArrayState : definesArrayStates)
         {
-            if (definesArrayState.defines.count(define) != 0)
+            if (definesArrayState.defines.count(define.first) != 0)
             {
-                relevant_defines.insert(define);
+                relevant_defines.insert(define.first);
                 break;
             }
         }
@@ -356,6 +356,7 @@ void ShaderSet::read(Input& input)
     }
 
     input.readValues("optionalDefines", optionalDefines);
+
     input.readObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
     auto num_variants = input.readValue<uint32_t>("variants");
@@ -439,6 +440,7 @@ void ShaderSet::write(Output& output) const
     }
 
     output.writeValues("optionalDefines", optionalDefines);
+
     output.writeObjects("defaultGraphicsPipelineStates", defaultGraphicsPipelineStates);
 
     output.writeValue<uint32_t>("variants", variants.size());
@@ -511,7 +513,7 @@ std::pair<uint32_t, uint32_t> ShaderSet::descriptorSetRange() const
     return {minimum, maximum + 1};
 }
 
-bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const
+bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const DefineMap& defines, uint32_t set) const
 {
     for (auto& cdsb : customDescriptorSetBindings)
     {
@@ -533,7 +535,7 @@ bool ShaderSet::compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, co
     return compare_value_container(dsl.bindings, bindings) == 0;
 }
 
-ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const
+ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const DefineMap& defines, uint32_t set) const
 {
     for (auto& cdsb : customDescriptorSetBindings)
     {
@@ -555,7 +557,7 @@ ref_ptr<DescriptorSetLayout> ShaderSet::createDescriptorSetLayout(const std::set
     return DescriptorSetLayout::create(bindings);
 }
 
-bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines) const
+bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const DefineMap& defines) const
 {
     uint32_t set = 0;
     for (const auto& descriptorSetLayout : layout.setLayouts)
@@ -584,7 +586,7 @@ bool ShaderSet::compatiblePipelineLayout(const PipelineLayout& layout, const std
     return true;
 }
 
-ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const
+ref_ptr<PipelineLayout> ShaderSet::createPipelineLayout(const DefineMap& defines, std::pair<uint32_t, uint32_t> range) const
 {
     DescriptorSetLayouts descriptorSetLayouts;
 

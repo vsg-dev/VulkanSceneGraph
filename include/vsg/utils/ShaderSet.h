@@ -16,6 +16,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/state/ArrayState.h>
 #include <vsg/state/GraphicsPipeline.h>
 #include <vsg/state/Sampler.h>
+#include <vsg/state/ShaderModule.h>
 #include <vsg/state/ShaderStage.h>
 #include <vsg/utils/CoordinateSpace.h>
 
@@ -176,7 +177,7 @@ namespace vsg
         [[deprecated("use getDescriptorBinding(..)")]] const DescriptorBinding& getUnifomrBinding(const std::string& name) const { return getDescriptorBinding(name); }
 
         /// get the first ArrayState that has matches with defines in the specified list of defines.
-        ref_ptr<ArrayState> getSuitableArrayState(const std::set<std::string>& defines) const;
+        ref_ptr<ArrayState> getSuitableArrayState(const DefineMap& defines) const;
 
         /// get the ShaderStages variant that uses specified ShaderCompileSettings.
         ShaderStages getShaderStages(ref_ptr<ShaderCompileSettings> scs = {});
@@ -185,23 +186,23 @@ namespace vsg
         std::pair<uint32_t, uint32_t> descriptorSetRange() const;
 
         /// return true of specified descriptor set layout is compatible with what is required for this ShaderSet
-        virtual bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const std::set<std::string>& defines, uint32_t set) const;
+        virtual bool compatibleDescriptorSetLayout(const DescriptorSetLayout& dsl, const DefineMap& defines, uint32_t set) const;
 
         /// create the descriptor set layout.
-        virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout(const std::set<std::string>& defines, uint32_t set) const;
+        virtual ref_ptr<DescriptorSetLayout> createDescriptorSetLayout(const DefineMap& defines, uint32_t set) const;
 
         /// return true of specified pipeline layout is compatible with what is required for this ShaderSet
-        virtual bool compatiblePipelineLayout(const PipelineLayout& layout, const std::set<std::string>& defines) const;
+        virtual bool compatiblePipelineLayout(const PipelineLayout& layout, const DefineMap& defines) const;
 
         /// create the pipeline layout for all descriptor sets enabled by specified defines or required by default.
-        inline ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
+        inline ref_ptr<PipelineLayout> createPipelineLayout(const DefineMap& defines) { return createPipelineLayout(defines, descriptorSetRange()); }
 
         /// create pipeline layout for specified range <minimum_set, maximum_set+1> of descriptor sets that are enabled by specified defines or required by default.
         ///
         /// Note: the underlying Vulkan call vkCreatePipelineLayout assumes that the array of
         /// descriptor sets starts with set 0. Therefore the minimum_set argument should be 0 unless
         /// you really know what you're doing.
-        virtual ref_ptr<PipelineLayout> createPipelineLayout(const std::set<std::string>& defines, std::pair<uint32_t, uint32_t> range) const;
+        virtual ref_ptr<PipelineLayout> createPipelineLayout(const DefineMap& defines, std::pair<uint32_t, uint32_t> range) const;
 
         int compare(const Object& rhs) const override;
 

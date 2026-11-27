@@ -107,6 +107,8 @@ set(SOURCES
     state/DescriptorImage.cpp
     state/DescriptorTexelBufferView.cpp
     state/DescriptorSetLayout.cpp
+    state/DefineMap.cpp
+    state/ShaderCompileSettings.cpp
     state/ShaderModule.cpp
     state/ShaderStage.cpp
     state/PipelineLayout.cpp
