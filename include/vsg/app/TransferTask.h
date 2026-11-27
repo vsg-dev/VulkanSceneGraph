@@ -17,6 +17,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #include <vsg/vk/CommandBuffer.h>
 #include <vsg/vk/ResourceRequirements.h>
 #include <vsg/vk/Semaphore.h>
+#include <vsg/vk/Fence.h>
 
 namespace vsg
 {
@@ -97,6 +98,8 @@ namespace vsg
             VkDeviceSize dataTotalSize = 0;
             VkDeviceSize imageTotalSize = 0;
 
+            ref_ptr<Fence> transferCompleteFence;
+            bool waitOnTransferFence = false;
             ref_ptr<Semaphore> transferCompleteSemaphore;
             ref_ptr<Semaphore> transferConsumerCompletedSemaphore;
 
